@@ -9,10 +9,14 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.29 1998/04/23 13:52:07 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.30 1998/04/23 14:25:13 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.30  1998/04/23 14:25:13  gert
+# add 'modem badness' counter ($mq_badness{$tty}) to avoid using a modem
+# that is broken (locked forever / cannot be initialized / NO DIALTONE)
+#
 # Revision 1.29  1998/04/23 13:52:07  gert
 # rotate @standard_ttys after each job, to distribute jobs more evenly
 #
@@ -22,38 +26,10 @@ $rcs_id='RCS: $Id: faxrunqd.in,v 1.29 1998/04/23 13:52:07 gert Exp $';
 # Revision 1.27  1998/02/27 15:15:31  gert
 # added handling of 'time' flag (start time/start+end time range)
 #
-# Revision 1.26  1998/02/27 09:41:54  gert
-# sort phone numbers for "per-number" statistics
-#
-# Revision 1.25  1998/02/20 12:38:15  gert
-# add logging 'by remote telephone number' (for error analysis)
-#
-# Revision 1.24  1998/02/12 17:36:47  gert
-# implement 'fax-devices' keyword for 'faxrunqd.config'
-#
-# Revision 1.23  1998/02/12 13:53:32  gert
-# remove $max_modems (obsolete)
-# reduce default "check queue after..." time to 5 minutes
-# adjust delay times for failed jobs (locked, modem dead, ...)
-# clean up logging (if $opt_v/if $opt_d)
-#
 # Revision 1.22  1998/02/11 09:00:16  gert
 # Finish per-modem queues
 # implement priority on per-modem queues
 # tweak implementation details regarding delayed faxes / pausing
-#
-# Revision 1.21  1998/02/06 16:28:43  gert
-# move reading of jobs from disk to %queue up into readdir loop
-#
-# Revision 1.20  1998/02/06 16:13:48  gert
-# complete rewrite of queue handling / scheduling algorithm
-# (use per-modem queues now, scheduler is fully event-driven)
-#
-# Revision 1.19  1998/01/27 11:33:26  gert
-# preparations for new per-modem queueing scheme:
-#   move 'faxrunqd.policy' handling to read_job_to_queue
-#   change format of 'faxrunqd.policy' to have ttys in field 3
-#   add {'ttys'} hash to $queue{}, to list valid ttys for job
 #
 # Revision 1.18  1998/01/20 12:07:33  gert
 # change format for faxrunqd.policy (separate field for "ttys")
@@ -316,7 +292,7 @@ while( 1 )
 
     foreach $tty ( keys %modem_queue )
     {
-	print LOG "\tQ: $tty: " . scalar( @{$modem_queue{$tty}} ) . " jobs, queue length ${mq_length{$tty}}, in_use: ${tty_in_use{$tty}}\n"  if $opt_d;
+	print LOG "\tQ: $tty: " . scalar( @{$modem_queue{$tty}} ) . " jobs, queue length ${mq_length{$tty}} (+${mq_badness{$tty}}), in_use: ${tty_in_use{$tty}}\n"  if $opt_d;
 
 	# use "while", not "if", in case one of the jobs was faxrm'd...
 	while( ! $tty_in_use{$tty} &&
@@ -405,6 +381,13 @@ while( 1 )
 
         $queue_last_flushed = time();
 	unlink( '.queue-changed' );
+
+	# reduce "modem badness" counters, in case modem was resetted
+	foreach $t ( keys( %mq_badness ))
+	{
+	    $mq_badness{$t} /= 2;
+	    if ( $mq_badness{$t} < 1 ) { $mq_badness{$t} = 0; }
+	}
     }
 
     # if signalled from the user (signal USR1), roll the log file, 
@@ -498,12 +481,13 @@ sub put_job_to_modem_queue
 	{						# no: create
 	    $modem_queue{$t}=[];
 	    $mq_length{$t}=0;
+	    $mq_badness{$t}=0;
 	    $tty_in_use{$t}=0;
 	}
 
-	if ( $mq_length{$t} < $min_l )
+	if ( $mq_length{$t}+$mq_badness{$t} < $min_l )
 	{
-	    $min_l = $mq_length{$t}; $min_t = $t;
+	    $min_l = $mq_length{$t}+$mq_badness{$t}; $min_t = $t;
 	}
     }
 
@@ -1075,6 +1059,7 @@ my ($r, $s, $ex, $j, $t);
 	    {
 		$queue{$j}->{'status'}='delayed';
 		$queue{$j}->{'delayed_until'}=time()+20;
+		$mq_badness{$t} += 0.2;		# mark modem as "bad"
 	    }
 	    else				# requeue immediately
 	    {
