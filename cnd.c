@@ -1,4 +1,4 @@
-#ident "@(#)cnd.c	$Id: cnd.c,v 4.16 2000/07/04 18:56:15 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "@(#)cnd.c	$Id: cnd.c,v 4.17 2000/07/04 18:58:30 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 
 #include <stdio.h>
 #include <string.h>
@@ -72,7 +72,11 @@ struct cndtable cndtable[] =
 
     /* The Digi DataFire RAS reports this different again... */
     /* (reported by Akiko Takahashi <takahashi@sdcinc.co.jp>) */
+    /* also for the Zoom 2949L, K C Yuen <ykc@kernelhk.com> */
+    {"DATE=",			&CallDate},
+    {"TIME=",			&CallTime},
     {"NMBR=",			&CallerId},
+    {"NAME=",			&CallName},
 
     /* yet another incompatible modem... */
     {"CALLER'S NUMBER: ",	&CallerId},
