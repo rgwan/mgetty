@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.c,v 4.1 1997/01/12 14:53:35 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_mg.c,v 4.2 1997/01/12 16:19:13 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_mg.c
  *
@@ -57,72 +57,72 @@ static char * def_answer_chat_seq[] =
  */
 
 struct conf_data_mgetty c = {
-	{ "speed", DEFAULT_PORTSPEED, CT_INT, C_PRESET },
-	{ "switchbd", FAX_RECV_SWITCHBD, CT_INT, C_PRESET },
-	{ "direct", FALSE, CT_BOOL, C_PRESET },
-	{ "blocking", FALSE, CT_BOOL, C_PRESET },
+	{ "speed", {DEFAULT_PORTSPEED}, CT_INT, C_PRESET },
+	{ "switchbd", {FAX_RECV_SWITCHBD}, CT_INT, C_PRESET },
+	{ "direct", {FALSE}, CT_BOOL, C_PRESET },
+	{ "blocking", {FALSE}, CT_BOOL, C_PRESET },
 
-	{ "port-owner", (p_int) DEVICE_OWNER, CT_STRING, C_PRESET },
+	{ "port-owner", {(p_int) DEVICE_OWNER}, CT_STRING, C_PRESET },
 #ifdef DEVICE_GROUP
-	{ "port-group", (p_int) DEVICE_GROUP, CT_STRING, C_PRESET },
+	{ "port-group", {(p_int) DEVICE_GROUP}, CT_STRING, C_PRESET },
 #else
-	{ "port-group", 0, CT_STRING, C_EMPTY },
+	{ "port-group", {0}, CT_STRING, C_EMPTY },
 #endif
-	{ "port-mode", FILE_MODE, CT_INT, C_PRESET },
+	{ "port-mode", {FILE_MODE}, CT_INT, C_PRESET },
 
-	{ "toggle-dtr", TRUE, CT_BOOL, C_PRESET },
-	{ "toggle-dtr-waittime", 500, CT_INT, C_PRESET },
-	{ "data-only", FALSE, CT_BOOL, C_PRESET },
-	{ "fax-only", FALSE, CT_BOOL, C_PRESET },
-	{ "modem-type", (p_int) DEFAULT_MODEMTYPE, CT_STRING, C_PRESET },
-	{ "init-chat", 0, CT_CHAT, C_EMPTY },
-	{ "force-init-chat", 0, CT_CHAT, C_EMPTY },
+	{ "toggle-dtr", {TRUE}, CT_BOOL, C_PRESET },
+	{ "toggle-dtr-waittime", {500}, CT_INT, C_PRESET },
+	{ "data-only", {FALSE}, CT_BOOL, C_PRESET },
+	{ "fax-only", {FALSE}, CT_BOOL, C_PRESET },
+	{ "modem-type", {(p_int) DEFAULT_MODEMTYPE}, CT_STRING, C_PRESET },
+	{ "init-chat", {0}, CT_CHAT, C_EMPTY },
+	{ "force-init-chat", {0}, CT_CHAT, C_EMPTY },
 
-	{ "modem-check-time", MODEM_CHECK_TIME, CT_INT, C_PRESET },
-	{ "rings", 1, CT_INT, C_PRESET },
-	{ "get-cnd-chat", 0, CT_CHAT, C_EMPTY },
-	{ "answer-chat", 0, CT_CHAT, C_EMPTY },
-	{ "answer-chat-timeout", 80, CT_INT, C_PRESET },
-	{ "autobauding", FALSE, CT_BOOL, C_PRESET },
+	{ "modem-check-time", {MODEM_CHECK_TIME}, CT_INT, C_PRESET },
+	{ "rings", {1}, CT_INT, C_PRESET },
+	{ "get-cnd-chat", {0}, CT_CHAT, C_EMPTY },
+	{ "answer-chat", {0}, CT_CHAT, C_EMPTY },
+	{ "answer-chat-timeout", {80}, CT_INT, C_PRESET },
+	{ "autobauding", {FALSE}, CT_BOOL, C_PRESET },
 
-	{ "ringback", FALSE, CT_BOOL, C_PRESET },
-	{ "ringback-time", 30, CT_INT, C_PRESET },
+	{ "ringback", {FALSE}, CT_BOOL, C_PRESET },
+	{ "ringback-time", {30}, CT_INT, C_PRESET },
 
-	{ "ignore-carrier", FALSE, CT_BOOL, C_PRESET },
-	{ "issue-file", (p_int)"/etc/issue", CT_STRING, C_PRESET },
-	{ "prompt-waittime", 500, CT_INT, C_PRESET },
-	{ "login-prompt", (p_int) LOGIN_PROMPT, CT_STRING, C_PRESET },
+	{ "ignore-carrier", {FALSE}, CT_BOOL, C_PRESET },
+	{ "issue-file", {(p_int)"/etc/issue"}, CT_STRING, C_PRESET },
+	{ "prompt-waittime", {500}, CT_INT, C_PRESET },
+	{ "login-prompt", {(p_int) LOGIN_PROMPT}, CT_STRING, C_PRESET },
 #ifdef MAX_LOGIN_TIME
-	{ "login-time", MAX_LOGIN_TIME, CT_INT, C_PRESET },
+	{ "login-time", {MAX_LOGIN_TIME}, CT_INT, C_PRESET },
 #else
-	{ "login-time", 0, CT_INT, C_EMPTY },
+	{ "login-time", {0}, CT_INT, C_EMPTY },
 #endif
-	{ "fido-send-emsi", TRUE, CT_BOOL, C_PRESET },
+	{ "fido-send-emsi", {TRUE}, CT_BOOL, C_PRESET },
 
-	{ "fax-id", (p_int)FAX_STATION_ID, CT_STRING, C_PRESET },
-	{ "fax-server-file", 0, CT_STRING, C_EMPTY },
-	{ "diskspace", MINFREESPACE, CT_INT, C_PRESET },
+	{ "fax-id", {(p_int)FAX_STATION_ID}, CT_STRING, C_PRESET },
+	{ "fax-server-file", {0}, CT_STRING, C_EMPTY },
+	{ "diskspace", {MINFREESPACE}, CT_INT, C_PRESET },
 #ifdef MAIL_TO
-	{ "notify", (p_int)MAIL_TO, CT_STRING, C_PRESET },
+	{ "notify", {(p_int)MAIL_TO}, CT_STRING, C_PRESET },
 #else
-	{ "notify", 0, CT_STRING, C_EMPTY },
+	{ "notify", {0, CT_STRING}, C_EMPTY },
 #endif
-	{ "fax-owner", (p_int)FAX_IN_OWNER, CT_STRING, C_PRESET },
+	{ "fax-owner", {(p_int)FAX_IN_OWNER}, CT_STRING, C_PRESET },
 #ifdef FAX_IN_GROUP
-	{ "fax-group", (p_int)FAX_IN_GROUP, CT_STRING, C_PRESET },
+	{ "fax-group", {(p_int)FAX_IN_GROUP}, CT_STRING, C_PRESET },
 #else
-	{ "fax-group", 0, CT_STRING, C_EMPTY },
+	{ "fax-group", {0}, CT_STRING, C_EMPTY },
 #endif
-	{ "fax-mode", FAX_FILE_MODE, CT_INT, C_PRESET },
+	{ "fax-mode", {FAX_FILE_MODE}, CT_INT, C_PRESET },
 
-	{ "debug", LOG_LEVEL, CT_INT, C_PRESET },
+	{ "debug", {LOG_LEVEL}, CT_INT, C_PRESET },
 	
-	{ "statistics-chat", 0, CT_CHAT, C_EMPTY },
-	{ "statistics-file", 0, CT_STRING, C_EMPTY },
-	{ "gettydefs", (p_int)GETTYDEFS_DEFAULT_TAG, CT_STRING, C_PRESET },
-	{ "term", 0, CT_STRING, C_EMPTY },
+	{ "statistics-chat", {0}, CT_CHAT, C_EMPTY },
+	{ "statistics-file", {0}, CT_STRING, C_EMPTY },
+	{ "gettydefs", {(p_int)GETTYDEFS_DEFAULT_TAG}, CT_STRING, C_PRESET },
+	{ "term", {0}, CT_STRING, C_EMPTY },
 
-	{ NULL, 0, CT_STRING, C_EMPTY }};
+	{ NULL, {0}, CT_STRING, C_EMPTY }};
 
 /*
  *	exit_usage() - exit with usage display
