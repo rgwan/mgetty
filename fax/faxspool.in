@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 2.10 1994/10/26 14:55:56 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 2.11 1994/11/02 16:43:05 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -505,10 +505,10 @@ done
 
 #
 # if no file specified on command line, use stdin
-# (only if not polling)
+# (only if not polling and no cover page)
 #
 
-if [ $# -eq 0 -a -z "$poll_req" ]
+if [ $# -eq 0 -a -z "$poll_req" -a -z "$MAKE_COVER_PG" ]
 then
     # if stdin is connected to a tty, notify user
     #
@@ -579,10 +579,10 @@ do
 #
     if [ x$file = x- ]
     then
+	$echo "spooling $file (stdin)..."
 	trap "rm /tmp/faxsp.$$" 0
         cat - >/tmp/faxsp.$$
 	file=/tmp/faxsp.$$
-	$echo "spooling $file (stdin)..."
     else
 	$echo "spooling $file..."
     fi
@@ -602,6 +602,7 @@ do
 	*.pgm)	format="pgm"; base=`basename $file .pgm`;;
 	*.ppm)	format="ppm"; base=`basename $file .ppm`;;
 	*.t)	format="ascii"; base=`basename $file .t`;;
+	*.txt)	format="ascii"; base=`basename $file .txt`;;
 	*.lj)   format="lj"; base=`basename $file .lj`;;
 	*.xwd)	format="xwd"; base=`basename $file .xwd`;;
 	*.gif)	format="gif"; base=`basename $file .gif`;;
@@ -770,6 +771,14 @@ do
     && rm $f
     finalpg="$finalpg f$nr.g3"
 done
+
+if [ -z "$finalpg" -a -z "$poll_req" ]
+then
+    $echo "\nnothing to do (no cover page, no data)." >&2
+    cd $FAX_SPOOL_OUT
+    rmdir $spooldir
+    exit 52
+fi
 
 $echo "phone $phone" >$job.q
 $echo "user $user" >>$job.q
