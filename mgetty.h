@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.37 1993/11/19 23:57:40 gert Exp $ Copyright (c) Gert Doering */
+/* $Id: mgetty.h,v 1.38 1993/11/26 20:39:44 gert Exp $ Copyright (c) Gert Doering */
 
 /* ANSI vs. non-ANSI support */
 #ifdef __STDC__
@@ -38,6 +38,11 @@
 
 #define FAIL	-1
 #define SUCCESS	0
+
+/* defines for FIDO mailers */
+
+#define TSYNC	0xae
+#define YOOHOO	0xf1
 
 /* stuff in logfile.c */
 
