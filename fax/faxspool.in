@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 4.2 1997/03/18 23:02:48 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 4.3 1997/04/17 17:30:35 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -333,6 +333,7 @@ verbose_to=""
 normal_res=""
 TIME=""
 copy_source=""
+job_priority=""
 
 #
 # get command line arguments (overriding some of the values above)
@@ -347,6 +348,7 @@ Options:
 \t-F <full name>\tset full name of sender
 \t-h <file>\ttext file for page header
 \t-f <email>\tset address for status mail
+\t-P <n>\t set job priority (1=lowest, 9=highest)
 \t-c\t\tcopy source files
 \t-t <hh:mm>\tset earliest possible send time
 \t-t <hh:mm-hh:mm> set time range for sending fax
@@ -382,6 +384,14 @@ do
 	    '') $echo "$usage" >&2 ; exit 2 ;;
             esac
             FULLNAME="$2"
+	    shift ; shift
+	    ;;
+# set job priority (1=lowest, 9=highest)
+        -P) case "$2" in
+	    [1-9]) ;;
+	    *) $echo "$usage" >&2 ; exit 2 ;;
+            esac
+            job_priority="$2"
 	    shift ; shift
 	    ;;
 # set page header text file
@@ -881,6 +891,9 @@ $echo "pages " $finalpg >>$job.q
 
 [ -z "$normal_res" ] || \
     $echo "normal_res" >>$job.q
+
+[ -z "$job_priority" ] || \
+    $echo "priority $job_priority" >>$job.q
 
 [ -z "$TIME" ] || \
     $echo "time $TIME" >>$job.q
