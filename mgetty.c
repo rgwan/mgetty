@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.76 1993/12/27 21:47:44 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.77 1993/12/27 22:00:24 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -79,7 +79,7 @@ unsigned short portspeed = B0;	/* indicates has not yet been set */
 char	init_flid_cmd[50];
 #endif
 
-char *	init_chat_seq[] = { "", "\\d\\d\\d+++\\d\\d\\d\r\\dATQ0H0", "OK",
+char *	init_chat_seq[] = { "", "\\d\\d\\d+++\\d\\d\\d\r\\dATQ0V1H0", "OK",
 
 /* initialize the modem - defined in policy.h
  */
