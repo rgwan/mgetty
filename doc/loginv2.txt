@@ -29,7 +29,7 @@ Set up login.config like this:
 #
 # this is the dummy user name, it's allowed to login only if this 
 # is not already an ongoing callback
-callback	N	-	-	/bin/login @
+callback	N	-	-	/usr/local/sbin/callback -S 12345
 #
 # these are the real users: only allowed if it's a callback ("Y")
 *		Y	-	- 	/bin/login @
