@@ -1,4 +1,4 @@
-#ident "$Id: login.c,v 4.2 1997/12/16 11:39:33 gert Exp $ Copyright (C) 1993 Gert Doering"
+#ident "$Id: login.c,v 4.3 1998/04/16 08:01:20 gert Exp $ Copyright (C) 1993 Gert Doering"
 
 
 /* login.c
@@ -210,7 +210,7 @@ void login_dispatch _P1( (user), char * user )
 		else
 		{
 		    lprintf( L_NOISE, "login: user id: %s (uid %d, gid %d)",
-				      key, pw->pw_uid, pw->pw_gid );
+				      user_id, pw->pw_uid, pw->pw_gid );
 #if SECUREWARE
 		    if ( setluid( pw->pw_uid ) == -1 )
 		    {
