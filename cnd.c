@@ -1,4 +1,4 @@
-#ident "@(#)cnd.c	$Id: cnd.c,v 4.15 1999/09/13 19:55:28 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "@(#)cnd.c	$Id: cnd.c,v 4.16 2000/07/04 18:56:15 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 
 #include <stdio.h>
 #include <string.h>
@@ -69,6 +69,10 @@ struct cndtable cndtable[] =
     /* some Rockwell chips intro the Caller ID as follows */
     /* (contributed by Edmund Bacon, ebacon@onesystem.com) */
     {"DDN_NMBR= ",		&CallerId},
+
+    /* The Digi DataFire RAS reports this different again... */
+    /* (reported by Akiko Takahashi <takahashi@sdcinc.co.jp>) */
+    {"NMBR=",			&CallerId},
 
     /* yet another incompatible modem... */
     {"CALLER'S NUMBER: ",	&CallerId},
