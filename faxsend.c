@@ -1,4 +1,4 @@
-#ident "$Id: faxsend.c,v 1.2 1994/01/30 18:35:59 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: faxsend.c,v 1.3 1994/03/01 23:04:59 gert Exp $ Copyright (c) 1994 Gert Doering"
 ;
 /* faxsend.c
  *
@@ -71,8 +71,12 @@ static	char	fax_end_of_page[] = { DLE, ETX };
 
     /* when modem is ready to receive data, it will send us an XON
      * (20 seconds timeout)
+     *
+     * unfortunately, not all issues of the class 2 draft require this
+     * XON - so, it's optional
      */
 
+#ifndef FAXSEND_NO_XON
     lprintf( L_NOISE, "waiting for XON, got:" );
 
     signal( SIGALRM, fax_send_timeout );
@@ -90,6 +94,7 @@ static	char	fax_end_of_page[] = { DLE, ETX };
     }
     while ( ch != XON );
     alarm(0);
+#endif
 
     /* Since some faxmodems (ZyXELs!) do need XON/XOFF flow control
      * we have to enable it here
