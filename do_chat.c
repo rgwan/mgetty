@@ -1,4 +1,4 @@
-#ident "$Id: do_chat.c,v 1.23 1993/11/20 11:49:15 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: do_chat.c,v 1.24 1993/11/24 12:38:32 gert Exp $ Copyright (c) Gert Doering";
 /* do_chat.c
  *
  * This module handles all the non-fax talk with the modem
@@ -27,7 +27,7 @@ static RETSIGTYPE chat_timeout()
     chat_has_timeout = TRUE;
 }
 
-extern volatile boolean virtual_ring;
+extern boolean virtual_ring;
 
 int do_chat _P6((fd, expect_send, actions, action, chat_timeout_time,
 		timeout_first ),
