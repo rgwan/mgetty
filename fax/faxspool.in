@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 3.12 1996/11/13 20:20:03 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 3.13 1996/11/26 22:32:25 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -317,6 +317,7 @@ poll_req=""
 verbose_to=""
 normal_res=""
 TIME=""
+copy_source=""
 
 #
 # get command line arguments (overriding some of the values above)
@@ -331,6 +332,7 @@ Options:
 \t-F <full name>\tset full name of sender
 \t-h <file>\ttext file for page header
 \t-f <email>\tset address for status mail
+\t-c\t\tcopy source files
 \t-t <hh:mm>\tset earliest possible send time
 \t-t <hh:mm-hh:mm> set time range for sending fax
 \t-q\t\tshut up"
@@ -426,6 +428,9 @@ do
 # shut up
        -q) exec >/dev/null ; shift
            ;;
+# copy source file (for "some action" when transmission fails)
+       -c) copy_source=TRUE; shift
+	   ;;
 # unknown options
        -*) $echo "unknown option: $1" >&2
            $echo "$usage" >&2
@@ -601,6 +606,8 @@ $echo "spooling to $spooldir..."
 #
 # process all input files
 #
+input_data="$*"
+
 for file
 do
 #
@@ -734,7 +741,20 @@ do
 done
 
 #
-# OK, all files are done now.
+# copy source files over (if requested)
+#
+if [ ! -z "$copy_source" ] ; then
+    $echo "\nCopy source files (for printing, if faxing fails)..."
+    mkdir $spooldir/.source-files
+    for file
+    do
+	b=`basename $file`
+	cp $file $spooldir/.source-files/$b
+    done
+fi
+
+#
+# OK, all files are in the target directory now...
 #
 # Now let's create the work file
 #
@@ -818,6 +838,9 @@ then
     exit 52
 fi
 
+#
+# final step: create JOB file
+#
 $echo "phone $phone" >$job.q
 $echo "user $user" >>$job.q
 [ "$user" != "$USER" ] &&
