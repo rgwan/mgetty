@@ -1,4 +1,4 @@
-#ident "$Id: g3cat.c,v 1.9 1994/04/13 12:52:50 gert Exp $ (c) Gert Doering"
+#ident "$Id: g3cat.c,v 1.10 1994/04/13 14:39:15 gert Exp $ (c) Gert Doering"
 ;
 /* g3cat.c - concatenate multiple G3-Documents
  *
@@ -9,6 +9,8 @@
  * Valid options: -l (separate g3 files with a black line)
  *                -d (output digifax header)
  *                -a (byte-align EOLs)
+ *		  -h <lines> put <lines> empty lines on top of page
+ *		  -p <pad>   zero-fill all lines up to <pad> bytes
  */
 
 /* #define DEBUG 1 */
@@ -36,6 +38,10 @@ static unsigned int out_hibit = 0;
 static int out_byte_tab[ 256 ];
 static int byte_tab[ 256 ];
 
+static int padding = 0;			/* default: no padding done */
+static int b_written = 0;		/* bytes of a line already */
+					/* written */
+
 #ifdef __GNUC__
 inline
 #endif
@@ -51,7 +57,7 @@ void putcode _P2( (code, len), int code, int len )
 	out_hibit -= 8;
 	if ( buflen >= sizeof( buf ) )
 	{
-	    write( 1, buf, buflen ); buflen = 0;
+	    write( 1, buf, buflen ); b_written += buflen; buflen = 0;
 	}
     }
 }
@@ -61,6 +67,20 @@ inline
 #endif
 void puteol _P0( void )			/* write byte-aligned EOL */
 {
+    static int last_buflen = 0;
+    
+    if ( padding > 0 )			/* padding? */
+    {
+	while( out_hibit != 4 ) putcode( 0, 1 );	/* implies */
+							/* aligning */
+	while( ( buflen + b_written ) - last_buflen < padding )
+	{
+	    putcode( 0, 8 );
+	}
+	last_buflen = buflen;
+	b_written = 0;
+    }
+	
     if ( byte_align ) while( out_hibit != 4 ) putcode( 0, 1 );
     putcode( 0x800, 12 );
 }
@@ -76,7 +96,7 @@ struct g3_tree *white, *black;
 
 void exit_usage _P1( (program), char * program )
 {
-    fprintf( stderr, "usage: %s [-h <lines>] [-a] [-l] g3-file ...\n",
+    fprintf( stderr, "usage: %s [-h <lines>] [-a] [-l] [-p <n>] g3-file ...\n",
 	    program );
     exit(1);
 }
@@ -110,13 +130,14 @@ int main _P2( (argc, argv),
     /* process the command line
      */
 
-    while ( (i = getopt(argc, argv, "lah:")) != EOF )
+    while ( (i = getopt(argc, argv, "lah:p:")) != EOF )
     {
 	switch (i)
 	{
 	  case 'l': putblackline = 1; break;
 	  case 'a': byte_align = 1; break;
 	  case 'h': empty_lines = atoi( optarg ); break;
+	  case 'p': padding = atoi( optarg ); break;
 	  case '?': exit_usage(argv[0]); break;
 	}
     }
@@ -139,7 +160,9 @@ int main _P2( (argc, argv),
 
 	if ( first_file )
 	{
-	    puteol();
+	    if ( byte_align || padding > 0 ) putcode( 0, 4 );
+	    putcode( 0x800, 12 );			/* EOL (w/o */
+							/* padding) */
 	    first_file = 0;
 	    while ( empty_lines-- > 0 )			/* leave space at */
 							/* top of page */
