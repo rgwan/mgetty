@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.52 2001/12/18 14:33:15 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.53 2002/01/04 18:49:22 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -17,16 +17,16 @@ Copyright @copyright{} 1993-2000 Gert Doering
 @sp 6
 @center @titlefont{mgetty+sendfax}
 @sp 4
-@center Version 1.1.23
+@center Version 1.1.28
 @sp 1
-@center August 2000
+@center January 2002
 @sp 5
 @center Gert Doering
 @center gert@@greenie.muc.de
 @center gert@@space.net
 
 @vskip 0pt plus 1filll
-@c Copyright @copyright{} 1993-2000 Gert Doering
+@c Copyright @copyright{} 1993-2002 Gert Doering
 @end titlepage
 
 @ifinfo
@@ -80,7 +80,7 @@ disk, damages your hardware, or kills your dog, that is entirely your
 problem. Anyway, the program works for me and quite a lot of other people.
 @end cartouche
 
-The @code{mgetty+sendfax} package is Copyright @copyright{} 1993-2000
+The @code{mgetty+sendfax} package is Copyright @copyright{} 1993-2002
 Gert Doering, Klaus Weidner, Marc Eberhard, Marc Schaefer, and others.
 
 It is distributed on terms of the GNU General Public License, which you
@@ -113,8 +113,8 @@ create a ``fax queue'', outgoing faxes get sent automatically, the
 user is informed by mail about the result.
 @end itemize
 
-@code{mgetty} allows you to use a single modem line for receiving
-calls and dialing out.
+@code{mgetty} allows you to use your modem line for receiving fax and
+data calls, without hindering dial-out on the same line.
 
 @itemize @bullet
 
@@ -151,8 +151,8 @@ modems support this feature.
 
 @item
 @code{mgetty} can selectively refuse calls based upon CallerID, if your
-modem supports it, and you're subscribed to the service.
-CallerID is also logged.
+local Telco supports it and your modem knows how to decode and report
+it.  CallerID is also logged.
 
 @item
 @code{mgetty} has facilities to allow you to refuse incoming FAXes when
@@ -168,9 +168,8 @@ Also, I have created a mgetty mailing list, for discussion of problems
 and suggestions. You can subscribe by sending a request to
 mgetty-request@@muc.de (forwarded to Crynwr.com for precessing)
 and you can send articles to the list by sending them to mgetty@@muc.de.
-Please make sure that the mail address you send me is valid - I'm quite
-sick of getting all list mails bounced back to me because one of the
-addresses doesn't work.
+The list manager will write you back for verification of your address,
+so make sure it is correct.
 
 The mailing list is currently gated bidirectionally into the newsgroup
 de.alt.comm.mgetty. In spite of being in the German language hierarchy,
@@ -227,7 +226,7 @@ exhaustive list) in fax mode:
         (very well tested, some firmware versions have problems)
 
     USR Courier/Sportster series
-        (well tested, Couriers work great, Sportsters are ok)
+        (well tested, Couriers work great, Sportsters are ok for data)
 
     MultiTech (various models)
         (tested, works very well, very good fax implementation)
@@ -244,11 +243,13 @@ exhaustive list) in fax mode:
     Zoom V.FAST 24K/28K
         (tested, works, some problems with fax/data distinction)
 
+    ELSA MicroLink (various)
+    	(tested, usually works well, some firmware versions have issues)
 @end display
 
 It @emph{should} work with all class 2 faxmodems. Maybe the DC2
 character sent at the beginning of a page by @file{faxrec.c} must be
-changed to XON, for old class 2 modems (implementing very old drafts of
+changed to XON, for very old class 2 modems (implementing very old drafts of
 the standard). @xref{Modems}. 
 
 In Data mode, it will work with every Hayes-compatible modem.
@@ -269,7 +270,8 @@ install} should install them.
   
 If your compiler complains about the @code{#ident} lines I use for
 @file{RCS}, please run @code{make noident}, that will take care of those
-lines.
+lines (this is only needed if the compiler refuses to go on - some
+compilers complain, but go on anyways).
 
 If you get an error message about ``unresolved symbols'' when linking, you
 may have to tell the package whether you have the select(S) or poll(S)
@@ -601,6 +603,18 @@ call @code{@LOGIN@} only for trusted, known users, and @code{/bin/false}
 for every other login name - so, only those listed in @file{login.config}
 will be able to log in.
 
+This mechanism can also be used to automatically start up a @code{PPP}
+server if an incoming client sends PPP packets.  This feature is called
+@emph{AutoPPP}.  For it to work, you have to compile @code{mgetty} with
+@code{-DAUTO_PPP} (added to CFLAGS in Makefile).  After this,
+@code{mgetty} will detect incoming PPP packets, and run the program that
+is specified in @file{login.config} by the special user name
+"/AutoPPP/".  See the sample @file{login.config} file for an example.
+
+Which options should be specified depends on your PPP server program and
+your local setup.  Don't ask me about that -- I wouldn't know.  Instead,
+please check the relevant man pages.
+
 @node Caller-ID, runtime-mgetty, Interaction, mgetty
 @section Using Caller-ID to selectively accept or reject calls
 
@@ -611,10 +625,10 @@ ask for it.
 
 If your modem is able to retrieve callerid information, and @code{mgetty}
 is compiled with @code{CNDFILE} defined in @file{policy.h}, @code{mgetty}
-can check the caller's number before answering the phone. (Right now, I
-know that it works for ZyXELs. I've implemented it for Rockwell, but didn't
-get feedback yet. Volunteers?). If @code{CNDFILE} is undefined, or if that
-file does not exist, all calls will be allowed.
+can check the caller's number before answering the phone. (Right now, it
+works for most variants out there, ZyXEL, Rockwell, ELSA and isdn4linux
+among them).  If @code{CNDFILE} is undefined, or if the
+file specified does not exist, all calls will be allowed.
 
 One important thing: for most analog modems, you @strong{must} set the
 number of RINGs to wait for to two (2) or higher (set @samp{rings 2} in
@@ -622,8 +636,8 @@ number of RINGs to wait for to two (2) or higher (set @samp{rings 2} in
 the second RING. If mgetty picks up the phone too soon, the modem can't
 get this information.
 
-Whether a call is accepted or denied is controlled by a configuration file,
-set with @code{CNDFILE} in @file{policy.h}. Usual default is
+Whether a call is accepted or denied is controlled by the configuration file
+set with @code{CNDFILE} in @file{policy.h}. The usual default is
 @file{@CONFDIR@/dialin.config} (a sample file is installed per default).
 
 That file contains a series of tokens separated by newlines, commas, tabs
