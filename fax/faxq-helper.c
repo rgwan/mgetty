@@ -1,33 +1,37 @@
-#ident "$Id: faxq-helper.c,v 4.7 2002/11/17 22:09:46 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxq-helper.c,v 4.8 2002/11/19 10:36:33 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxq-helper.c
  *
- * this is a suid-root helper process that is used for the unprivileged
+ * this is a suid helper process that is used for the unprivileged
  * fax queue client programs (faxspool, faxq, faxrm) to access the
  * /var/spool/fax/outgoing/... fax queue ($OUT).
  *
- * there are 4 commands:
+ * it is NOT suid "root" but suid "FAX_OUT_USER" (usually "fax") as
+ * defined in the top level mgetty Makefile
+ *
+ * there are 5 commands:
  *
  * faxq-helper new
  *       user permission check (fax.allow + fax.deny)
- *       return a new job ID (F000123) and create "$OUT/.inF000123/" directory
+ *       return a new job ID (F000123) and create "$OUT/.inF000123.$uid/"
  *       TODO: check for existance of $FAX_SPOOL_OUT, chmod()
  *
+ * faxq-helper input $ID $filename
+ *       validate $filename
+ *       open $OUT/.in$ID.uid/$filename (O_EXCL)
+ *       copy stdin to file
+ *
  * faxq-helper activate $ID
- *       chown/chmod $OUT/.inF000134/ directory tree to user "fax"
- *       [chown +] check files in the directory (no symlinks)
  *       take prototype JOB file from stdin, 
  *	     check that "pages ..." does not reference any non-local 
  *	     or non-existing files
  *	     check that "user ..." contains the correct value
- *           TODO: remove dangerous characters (;'")
  *	 create JOB
- *       move $OUT/.inF000134/ to $OUT/F000134/ -> faxrunq will "see" it
+ *       move $OUT/.inF000134.$uid/ to $OUT/F000134/ -> faxrunq will "see" it
  *
  * faxq-helper remove $ID
  *       check that $OUT/$ID/ exists and belongs to the calling user
  *       lock JOB
- *       change user ID to fax user (to avoid deleting anything as root)
  *       rm -r $OUT/$ID/ directory tree
  *
  * faxq-helper requeue $ID
@@ -108,20 +112,39 @@ int validate_job_id( char * JobID )
     return rc;
 }
 
-int setup_uid_gid(void)
+/* verify that a given path name is a directory, and is owned by "fax"
+ */
+int validate_dir( char * dir )
 {
-    if ( setgid( fax_out_gid ) < 0 )
+struct stat stb;
+
+    if ( lstat( dir, &stb ) < 0 )
     {
-	eout( "can't setgid(%d): %s\n", fax_out_gid, strerror(errno) );
+	eout( "can't stat '%s': %s\n", dir, strerror(errno) );
 	return -1;
     }
-    if ( setuid( fax_out_uid ) < 0 )
+    if ( !S_ISDIR( stb.st_mode ) )
     {
-	eout( "can't setuid(%d): %s\n", fax_out_uid, strerror(errno) );
+	eout( "%s is no directory!\n", dir );
+	return -1;
+    }
+    if ( stb.st_uid != fax_out_uid )
+    {
+	eout( "job directory '%s' is not owned by '%s' (%d), abort\n", 
+	      dir, FAX_OUT_USER, stb.st_uid );
 	return -1;
     }
     return 0;
 }
+
+/* lookup user name in ASCII file
+ *
+ * each line consists of a single user name only
+ * if a line is too long (>100 characters) it's silently ignored because
+ * it wouldn't match anyway
+ *
+ * return values: -1 = no such file / error, 0 = not found in file, 1 = found
+ */
 
 int find_user_in_file( char * file, char * u )
 {
@@ -276,9 +299,9 @@ unlock_and_out:
 }
 
 /* create a new job
+ *   - check user permissions (fax.allow/fax.deny)
  *   - get next sequence number
- *   - create directory (prefixed with ".in")
- *   - chown directory to real user (euid)
+ *   - create directory (prefixed with ".in", suffixed with user ID)
  *   - print job ID to stdout
  */
 int do_new( void )
@@ -294,19 +317,11 @@ char dirbuf[100];
 
     if ( seq <= 0 ) return -1;
 
-    sprintf( dirbuf, ".inF%06ld", seq );
+    sprintf( dirbuf, ".inF%06ld.%d", seq, real_user_id );
 
     if ( mkdir(dirbuf, 0700) < 0 )
     {
 	eout( "can't create directory '%s': %s\n", dirbuf, strerror(errno) );
-	return -1;
-    }
-
-    if ( chown(dirbuf, real_user_id, 0) < 0 )
-    {
-	eout( "can't chown '%s' to uid %d: %s\n", 
-              dirbuf, real_user_id, strerror(errno) );
-	rmdir( dirbuf );
 	return -1;
     }
 
@@ -315,127 +330,89 @@ char dirbuf[100];
     return 0;
 }
 
-/* do a "chown -R <uid> <dir>" plus "chmod -R ..."
- * sub directories get different permissions from plain files
- * symlinks and other special files are not touched
- *
- * to avoid symlink races, the caller passes the inode number of the
- * directory, and after chdir()'ing, the inode of the new "." is compared
- * with the expected inode - this should (?) take care of all symlink races
- *
- * there's one caveat: in case something fails (return code -1), it's not
- * possible to guarantee that the current directory is what it was before!
+/* do_input
+ *  validate job ID and input file name
+ *  files with "/" are only allowed in one special case (.source-files/)
+ *  read file from stdin, write to $OUT/.in$JID.uid/$filename
  */
-
-int recursive_chown( char * dir, int d_inum, int uid, int d_perm, int f_perm )
+int do_input( char * JID, char * outfilename )
 {
-DIR * dirp;
-struct dirent * de;
-struct stat stb;
+char * p;
+char dir1[MAXJIDLEN+20];
+char pathbuf[200], buf[4096];
+int fd, r, w;
 
-    /* first chdir() into directory, then do a stat() on "." and
-     * compare inode numbers to what the inode was before - that way
-     * one can avoid the stat() - ISDIR? - chown/chmod() race
-     */
-    if ( chdir( dir ) < 0 )
+    if ( isatty(fileno(stdin)) )
     {
-	eout( "can't chdir to '%s': %s\n", dir, strerror(errno) );
-	return -1;
-    }
-    if ( lstat( ".", &stb ) < 0 )
-    {
-	eout( "can't stat '.' (in '%s'): %s\n", dir, strerror(errno) );
-	(void) chdir("..");
-	return -1;
-    }
-    if ( d_inum != -1 && stb.st_ino != d_inum ) 
-    {
-	eout( "ERROR!  Directory inode mismatch for '%s': expect %d, got %d\n",
-	       dir, d_inum, stb.st_ino );
-	(void) chdir("..");
-	return -1;
+	eout( "input must not come from a tty, abort\n" ); return -1;
     }
 
-    if ( chown( ".", uid, 0 ) < 0 )
-    {
-	eout( "can't r_chown '%s' to uid %d: %s\n", dir, uid, strerror(errno));
-	chdir( ".." );
-	return -1;
-    }
-    if ( chmod( ".", d_perm ) < 0 )
-    {
-	eout( "can't r_chmod '%s' to 0%d: %s\n", dir, d_perm, strerror(errno));
-	chdir( ".." );
-	return -1;
-    }
+    sprintf( dir1, ".in%s.%d", JID, real_user_id );
+    if ( validate_dir( dir1 ) < 0 ) return -1;
 
-    if ( ( dirp = opendir( "." ) ) == NULL )
+    p = outfilename;
+    if ( strncmp( outfilename, ".source-files/", 14 ) == 0 )
     {
-	eout( "can't read directory '.' (in '%s'): %s\n", dir, strerror(errno));
-	chdir( ".." );
-	return -1;
-    }
-
-    while( ( de = readdir( dirp ) ) != NULL )
-    {
-	if ( strcmp( de->d_name, "." ) == 0 || 
-	     strcmp( de->d_name, ".." ) == 0 )
+	p+=14;
+	sprintf( pathbuf, "%s/.source-files", dir1 );
+	if ( mkdir( pathbuf, 0755 ) < 0 && errno != EEXIST )
 	{
-	    continue;
+	    eout( "can't mkdir '%s': %s\n", pathbuf, strerror(errno));
+	    return -1;
 	}
-
-	fprintf( stderr, "debug: '%s/%s'\n", dir, de->d_name );
-
-	if ( lstat( de->d_name, &stb ) < 0 )
-	{
-	    eout( "can't stat '%s': %s\n", de->d_name, strerror(errno));
-	    continue;
-	}
-
-	if ( S_ISDIR(stb.st_mode) )
-	{
-	    if ( recursive_chown( de->d_name, stb.st_ino, 
-				  uid, d_perm, f_perm ) < 0 )
-	    {
-		eout( "can't r_chown '%s'\n", de->d_name );
-		break;
-	    }
-	}
-	else
-	  if ( S_ISREG(stb.st_mode) )
-	{
-	    if ( chown( de->d_name, uid, 0 ) < 0 )
-	    {
-		eout( "can't r_chown '%s' to uid %d: %s\n", 
-		      de->d_name, uid, strerror( errno ));
-		break;
-	    }
-	    if ( chmod( de->d_name, f_perm ) < 0 )
-	    {
-		eout( "can't r_chmod '%s' to 0%d: %s\n",
-		      de->d_name, d_perm, strerror( errno ));
-		break;
-	    }
-	}
-	else
-	    eout( "skipping '%s' - not a regular file\n", de->d_name );
     }
-    closedir( dirp );
 
-    if ( chdir( ".." ) < 0 )
+    while( *p != '\0' )
     {
-	eout( "r_chown: can't chdir(..): %s\n", strerror(errno));
+	if ( *p != '.' && *p != ':' && ! isalnum(*p) )
+	{
+	    eout( "invalid char. '%c' in file name '%s', abort\n",
+		  *p, outfilename );
+	    return -1;
+	}
+	p++;
+    }
+
+    if ( strlen( dir1 ) + strlen( outfilename ) >= sizeof(pathbuf) -3 )
+    {
+	eout( "'%s/%s': file name too long\n" ); return -1;
+    }
+
+    sprintf( pathbuf, "%s/%s", dir1, outfilename );
+
+    fd = open( pathbuf, O_WRONLY | O_CREAT | O_EXCL, 0600 );
+    if ( fd < 0 )
+    {
+	eout( "can't open '%s' for writing: %s\n", pathbuf, strerror(errno));
 	return -1;
     }
 
-    if ( de != NULL )	/* loop left with break */
-	return -1;
+    while( ( r = read( fileno(stdin), buf, sizeof(buf) ) ) > 0 )
+    {
+	w = write( fd, buf, r );
+	if ( w != r ) 
+	{
+	    eout( "can't write all %d bytes to %s: %s\n", 
+		  r, pathbuf, strerror(errno) );
+	    break;
+	}
+    }
 
+    if ( r != 0 )	/* read or write error */
+    {
+	if ( r < 0 )
+	    eout( "error reading from stdin: %s\n", strerror(errno));
+	close(fd);
+	unlink(pathbuf);
+	return -1;
+    }
+
+    close(fd);
     return 0;
 }
 
 /* do a "rm -rf <dir>"
- * explicitely ignore symlinks, and (if needed) drop permissions
+ * TODO: check for ownership?
  */
 int recursive_rm( char * dir )
 {
@@ -444,11 +421,6 @@ DIR * dirp;
 struct dirent * de;
 struct stat stb;
 int rc = 0;
-
-    if ( geteuid() != fax_out_uid )
-    {
-	if ( setup_uid_gid() < 0 ) return -1;
-    }
 
     if ( ( dirp = opendir( dir ) ) == NULL )
     {
@@ -505,6 +477,7 @@ int rc = 0;
     return rc;
 }
 
+
 /* make sure that all path names in the following list (separated by
  * whitespace) are local to this directory, exist, and are regular files
  */
@@ -525,7 +498,7 @@ int n=0;
 
 	if ( strlen( dir ) + strlen( p ) + 3 >= sizeof(tmp) )
 	{
-	    eout( "file name '%s' too long, abort\n", p );
+	    eout( "file name '%s' too long, abort\n", p ); return -1;
 	}
 	sprintf( tmp, "%s/%s", dir, p );
 
@@ -552,37 +525,12 @@ int n=0;
  */
 int do_activate( char * JID )
 {
-struct stat stb;
-char dir1[MAXJIDLEN+10];
-char buf[1000], *p;
+char dir1[MAXJIDLEN+20];
+char buf[1000], *p, *q;
 int fd;
 
-    /* note: there is no race condition between stat() and chmod(), because 
-     * the parent directory is not world-writeable -> no user change possible
-     */
-
-    sprintf( dir1, ".in%s", JID );
-    if ( lstat( dir1, &stb ) < 0 )
-    {
-	eout( "can't stat '%s': %s\n", dir1, strerror(errno) );
-	return -1;
-    }
-    if ( !S_ISDIR( stb.st_mode ) )
-    {
-	eout( "%s is no directory!\n", dir1 );
-	return -1;
-    }
-    if ( stb.st_uid != real_user_id )
-    {
-	eout( "job directory '%s' belongs to user %d\n", dir1, stb.st_uid );
-	return -1;
-    }
-
-    if ( recursive_chown( dir1, stb.st_ino, fax_out_uid, 0755, 0600 ) < 0 )
-    {
-	eout( "changing owner+permissions of '%s' failed, abort\n", dir1 );
-	return -1;
-    }
+    sprintf( dir1, ".in%s.%d", JID, real_user_id );
+    if ( validate_dir( dir1 ) < 0 ) return -1;
 
     sprintf( buf, "%s/JOB", dir1 );
 
@@ -590,16 +538,6 @@ int fd;
     if ( ( fd = open( buf, O_WRONLY | O_CREAT | O_EXCL, 0644 ) ) < 0 )
     {
 	eout( "can't create JOB file '%s': %s\n", buf, strerror(errno) );
-	recursive_rm(dir1);
-	return -1;
-    }
-
-    /* new JOB file has to belong to fax user, too */
-    if ( chown( buf, fax_out_uid, fax_out_gid ) < 0 )
-    {
-	eout( "can't chown '%s' to uid %d: %s\n", 
-	      buf, fax_out_uid, strerror(errno) );
-	close(fd);
 	recursive_rm(dir1);
 	return -1;
     }
@@ -636,6 +574,14 @@ int fd;
 	    eout( "bad input files specified\n" );
 	    break;
 	}
+
+	/* replace all quote characters, backslash and ';' by '_' */
+	for( q = buf; *q != '\0'; q++ )
+	{
+	    if ( *q == '\'' || *q == '"' || *q == '`' || 
+		 *q == '\\' || *q == ';' )
+				    { *q = '_'; }
+	}
     }
 
     close(fd);
@@ -644,7 +590,13 @@ int fd;
 	recursive_rm(dir1); return -1;
     }
 
-    /* now move directory in final place */
+    /* now make directory world-readable & move to final place */
+    if ( chmod( dir1, 0755 ) < 0 )
+    {
+	eout( "can't chmod '%s' to 0755: %s\n", dir1, strerror(errno));
+	recursive_rm(dir1); return -1;
+    }
+
     if ( rename( dir1, JID ) < 0 )
     {
 	eout( "can't rename '%s' to '%s': %s\n", dir1, JID, strerror(errno));
@@ -654,10 +606,13 @@ int fd;
     return 0;
 }
 
+
 /* helper function for do_remove and do_requeue
  *  - check whether /$JID/ exists at all (and is a directory)
- *  - lock JOB, if present
- *  - check JOB/JOB.error/JOB.suspended for "user xxx" and compare with uid
+ *  - lock $JID/$jobfile, if present
+ *  - check $JID/$jobfile for "user xxx" and compare with caller uid
+ *
+ * TODO: permit "root" override
  */
 int check_user_perms( char * JID, char * jobfile )
 {
@@ -685,7 +640,7 @@ char jfile[MAXJIDLEN+30], lfile[MAXJIDLEN+30];
 	}
 	if ( errno == ENOENT )
 	{
-	    return -2;		/* different code, no message! */
+	    return -2;		/* signal "file not found" to caller */
 	}
 
 	eout( "can't lock JOB file: %s\n", strerror(errno) ); return -1;
@@ -732,8 +687,6 @@ int do_remove( char * JID )
 {
 int rc;
 
-    if ( setup_uid_gid() < 0 ) return -1;
-
     rc = check_user_perms( JID, "JOB" );
     if ( rc == -2 )				/* not found */
 	rc = check_user_perms( JID, "JOB.error" );
@@ -763,8 +716,6 @@ int rc, fd;
 char file1[MAXJIDLEN+30], file2[MAXJIDLEN+30];
 char buf[100];
 time_t ti;
-
-    if ( setup_uid_gid() < 0 ) return -1;
 
     rc = check_user_perms( JID, "JOB.suspended" );
     if ( rc == -2 )
@@ -815,9 +766,11 @@ time_t ti;
     }
 
     /* signal to faxrunqd that queue needs re-reading */
-    if ( ( fd = open( ".queue-changed", O_WRONLY | O_CREAT, 0644 ) ) < 0 )
+    fd = open( ".queue-changed", O_WRONLY | O_CREAT | O_EXCL, 0644 );
+    if ( fd < 0 )
     {
-	eout( "can't create '.queue-changed' file: %s\n", strerror(errno));
+	if ( errno != EEXIST )
+	    eout( "can't create '.queue-changed' file: %s\n", strerror(errno));
     }
     else 
 	close(fd);
@@ -830,7 +783,8 @@ int main( int argc, char ** argv )
     struct passwd * pw; 		/* for user name */
 
     program_name = strrchr( argv[0], '/' );
-    if ( program_name == NULL ) program_name = argv[0];
+    if ( program_name != NULL ) program_name++;
+		           else program_name = argv[0];
 
     if ( argc < 2 )
 	{ error_and_exit( "keyword missing" ); }
@@ -853,9 +807,9 @@ int main( int argc, char ** argv )
     fax_out_gid = pw->pw_gid;
 
     /* effective user ID is root, real user ID is still the caller's */
-    if ( geteuid() != 0 )
+    if ( geteuid() != fax_out_uid )
     {
-	eout( "must be set-uid root\n" );
+	eout( "must be set-uid '%s'\n", FAX_OUT_USER );
 	exit(3);
     }
     real_user_id = getuid();
@@ -871,6 +825,15 @@ int main( int argc, char ** argv )
     if ( argc == 2 && strcmp( argv[1], "new" ) == 0 ) 
     {
 	exit( do_new() <0? 10: 0);
+    }
+    if ( argc == 4 && strcmp( argv[1], "input" ) == 0 )
+    {
+	/* second parameter is job ID, 3rd is file name */
+	char * job_id = argv[2];
+	char * file_name = argv[3];
+	if ( validate_job_id( job_id ) <0 ) exit(1);
+
+	exit( do_input( job_id, file_name ) <0? 10: 0);
     }
     if ( argc == 3 )
     {
