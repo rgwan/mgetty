@@ -1,4 +1,4 @@
-#ident "$Id: login.c,v 1.4 1994/04/05 21:37:40 gert Exp $ Copyright (C) 1993 Gert Doering"
+#ident "$Id: login.c,v 1.5 1994/04/20 15:53:27 gert Exp $ Copyright (C) 1993 Gert Doering"
 ;
 
 /* login.c
@@ -11,10 +11,23 @@
 #include <string.h>
 #include <pwd.h>
 #include <ctype.h>
+#ifndef EINVAL
+#include <errno.h>
+#endif
+#include <sys/types.h>
+#include <sys/stat.h>
+
 
 #include "mgetty.h"
 #include "config.h"
 #include "policy.h"
+#include "mg_utmp.h"
+
+extern int errno;
+
+#ifdef SECUREWARE
+extern int setluid();
+#endif
 
 extern char * Device;			/* mgetty.c */
 
@@ -94,16 +107,32 @@ void login _P1( (user), char * user )
 
     /* read "mgetty.login" config file */
 #ifdef LOGIN_CFG_FILE
-    FILE * fp;
+    FILE * fp = NULL;
     char * line, * key, *p;
     struct passwd * pw;
     extern struct passwd * getpwnam();
 
-    fp = fopen( LOGIN_CFG_FILE, "r" );
-    if ( fp == NULL )
+    struct stat st;
+
+    /* first of all, some (somewhat paranoid) checks for file ownership,
+     * file permissions (0i00), ...
+     * If something fails, fall through to default ("/bin/login <user>")
+     */       
+       
+    if ( stat( LOGIN_CFG_FILE, &st ) < 0 )
     {
-	lprintf( L_FATAL, "cannot open %s", LOGIN_CFG_FILE );
-	/* fall through to default /bin/login */
+	lprintf( L_ERROR, "login: stat('%s') failed", LOGIN_CFG_FILE );
+    }
+    else	/* permission check */
+      if ( st.st_uid != 0 || ( ( st.st_mode & 0077 ) != 0 ) )
+    {
+	errno=EINVAL;
+	lprintf( L_FATAL, "login: '%s' must be root/0600", LOGIN_CFG_FILE );
+    }
+    else
+      if ( (fp = fopen( LOGIN_CFG_FILE, "r" )) == NULL )
+    {
+	lprintf( L_FATAL, "login: cannot open %s", LOGIN_CFG_FILE );
     }
     else
 	while ( ( line = fgetline( fp ) ) != NULL )
@@ -112,8 +141,10 @@ void login _P1( (user), char * user )
 
 	if ( match( user, key ) )
 	{
+	    char * user_id;
+	    char * utmp_entry;
+	    
 	    lputs( L_NOISE, "*** hit!" );
-
 #ifdef FIDO
 	    if ( user[0] == '\377' && strcmp( key, "/FIDO/" ) == 0 )
 	    {
@@ -121,19 +152,56 @@ void login _P1( (user), char * user )
 	    }
 #endif
 
-	    /* get+set (login) user id */
-	    norm_line( &line, &key );
+	    /* get (login) user id */
+	    user_id = strtok( line, " \t" );
 
-	    if ( strcmp( key, "-" ) != 0 )
+	    /* get utmp entry */
+	    utmp_entry = strtok( NULL, " \t" );
+
+	    /* get login program */
+	    argv[0] = cmd = strtok( NULL, " \t" );
+
+	    /* sanity checks - *before* setting anything */
+	    errno = EINVAL;
+	    
+	    if ( user_id == NULL )
 	    {
-		pw = getpwnam( key );
+		lprintf( L_FATAL, "login: uid field blank, skipping line" );
+		continue;
+	    }
+	    if ( utmp_entry == NULL )
+	    {
+		lprintf( L_FATAL, "login: utmp field blank, skipping line" );
+		continue;
+	    }
+	    if ( cmd == NULL )
+	    {
+		lprintf( L_FATAL, "login: no login command, skipping line" );
+		continue;
+	    }
+
+	    /* OK, all values given. Now write utmp entry */
+
+	    if ( strcmp( utmp_entry, "-" ) != 0 )
+	    {
+		if ( strcmp( utmp_entry, "@" ) == 0 ) utmp_entry = user;
+
+		lprintf( L_NOISE, "login: utmp entry: %s", utmp_entry );
+		make_utmp_wtmp( Device, UT_USER, utmp_entry );
+	    }
+
+	    /* set UID (+login uid) */
+	    
+	    if ( strcmp( user_id, "-" ) != 0 )
+	    {
+		pw = getpwnam( user_id );
 		if ( pw == NULL )
 		{
-		    lprintf( L_ERROR, "getpwnam('%s') failed", key );
+		    lprintf( L_ERROR, "getpwnam('%s') failed", user_id );
 		}
 		else
 		{
-		    lprintf( L_NOISE, "login user id: %s (uid %d, gid %d)",
+		    lprintf( L_NOISE, "login: user id: %s (uid %d, gid %d)",
 				      key, pw->pw_uid, pw->pw_gid );
 #if SECUREWARE
 		    if ( setluid( pw->pw_uid ) == -1 )
@@ -152,43 +220,52 @@ void login _P1( (user), char * user )
 		}
 	    }				/* end if (uid given) */
 
-	    /* get command + arguments */
-	    argv[0] = cmd = p = line;
-	    while( ! isspace(*p) && *p != 0 )
-	    {
-		if ( *p == '/' ) argv[0] = p+1;
-		p++;
-	    }
+	    /* now build 'login' command line */
 
+	    /* strip path name off to-be-argv[0] */
+	    p = strrchr( argv[0], '/' );
+	    if ( p != NULL ) argv[0] = p+1;
+
+	    /* break up line into whitespace-separated command line
+	       arguments, substituting '@' by the user name
+	       */
+	    
 	    argc = 1;
-	    while ( argc < 9 && *p != 0 )
+	    p = strtok( NULL, " \t" );
+	    while ( argc < 9 && p != NULL )
 	    {
-		if ( *p != 0 )
+		if ( strcmp( p, "@" ) == 0 )
 		{
-		    *p = 0; p++;
-		    while ( *p != 0 && isspace(*p) ) p++;
+		    if ( user != NULL && user[0] != 0 )
+		    {
+			argv[argc++] = user;
+		    }
 		}
-		argv[argc] = p;
-		while ( *p != 0 && ! isspace(*p) ) p++;
-		argc++;
+		else
+		    argv[argc++] = p;
+		
+		p = strtok( NULL, " \t" );
 	    }
 
 	    break;
-	}
+	}		/* end if (matching line found) */
     }	/* end while( not end of config file ) */
+
+    if ( fp != NULL ) fclose( fp );
+
 #endif /* LOGIN_CFG_FILE */
 
-    /* default to /bin/login */
+    /* default to "/bin/login <user>" */
     if ( argc == 0 )
     {
 	cmd = DEFAULT_LOGIN_PROGRAM;
 	argv[argc++] = "login";
-    }
 
-    /* append user name to argument list (if not empty) */
-    if ( user != NULL && user[0] != 0 )
-    {
-	argv[argc++] = user;
+	/* append user name to argument list (if not empty) */
+	if ( user[0] != 0 )
+	{
+	    argv[argc++] = user;
+	}
     }
 
     /* terminate list */
