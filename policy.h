@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.62 1994/09/17 16:57:10 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.63 1994/09/18 12:25:32 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -65,6 +65,12 @@
  * system and using another modem to dial to another country...)
  */
 #define FILE_MODE 0660
+
+/* security: optionally, mgetty can system() this, to kill any dangling
+ * processes on the current tty. A %s is replaced with the tty device.
+ * NOT NEEDED on SCO, SunOS 4 or Linux!
+ */
+/* #define EXEC_FUSER "exec fuser -k -f %s >/dev/null 2>&1" */
 
 
 /* logging */
