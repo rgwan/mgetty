@@ -1,3 +1,17 @@
+Fri Jul 28 12:12:12 2000  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* All of below is 0.9.13
+
+	* Fixed the V253 problems we introduced in 0.9.12 and which
+	were causing problems with most drivers. Fix by
+	Juergen Kosel <Juergen.Kosel@elsa.de>, with the impulsion
+	of Const Kaplinsky <const@ce.cctpu.edu.ru>. Now the
+	detection is done either with PNP IDs (with a set of
+	new entries for Elsa modems), or, if everything else fails,
+	by checking a standard V253 command.
+
+	* Renamed V250modem.c to V253modem.c
+
 Sat Jul 22 11:17:13 2000  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 
 	* All of below is 0.9.12 (there was no 0.9.11).
