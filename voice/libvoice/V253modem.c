@@ -16,7 +16,7 @@
   Hint: Recorded voice files are in .ub format (refer to the sox manpage about this) except the header.
         So you can use this files with sox.
  *
- * $Id: V253modem.c,v 1.7 2003/01/08 22:03:18 gert Exp $
+ * $Id: V253modem.c,v 1.8 2004/07/17 15:53:48 gert Exp $
  *
  */
 
@@ -177,26 +177,26 @@ Table 17/V.253 - Compression method identifier numerics and strings
        case 2:       /*  2bit ADPCM for some ELSA-modems */
        {
          *bits = 2;
-         if (voice_command("AT+VSM=140,7200", "OK")!= VMA_USER_1)
-         {
+	 sprintf(buffer, "AT+VSM=140,%d", *speed);
+	 if (voice_command(buffer, "OK") != VMA_USER_1)
+	 {
          /* there are two diffrent implementations trying one first,
             if this fails we try the other one later */
-           Kompressionmethod = 129;
-         }
-         else
-         {
-           Kompressionmethod = 140;
-         }
-         *speed=7200;
+	   Kompressionmethod = 129;
+	 }
+	 else
+	 {
+	   Kompressionmethod = 140;
+	 }
          break;
         }
        case 4:           /* 4bit ADPCM for some ELSA-modems */
        {
-         if (voice_command("AT+VSM=141,7200", "OK")!= VMA_USER_1)
+	 sprintf(buffer, "AT+VSM=141,%d", *speed);
+         if (voice_command(buffer, "OK")!= VMA_USER_1)
          {
          /* there are two diffrent implementations trying one first,
             if this fails we try the other one later */
-
            Kompressionmethod = 131;
          }
          else
@@ -204,7 +204,6 @@ Table 17/V.253 - Compression method identifier numerics and strings
            Kompressionmethod = 141;
          }
          *bits=4;
-         *speed=7200;
          break;
        }
        case 5:
