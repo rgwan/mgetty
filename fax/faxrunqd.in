@@ -9,10 +9,16 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.18 1998/01/20 12:07:33 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.19 1998/01/27 11:33:26 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.19  1998/01/27 11:33:26  gert
+# preparations for new per-modem queueing scheme:
+#   move 'faxrunqd.policy' handling to read_job_to_queue
+#   change format of 'faxrunqd.policy' to have ttys in field 3
+#   add {'ttys'} hash to $queue{}, to list valid ttys for job
+#
 # Revision 1.18  1998/01/20 12:07:33  gert
 # change format for faxrunqd.policy (separate field for "ttys")
 #
@@ -268,7 +274,8 @@ if ( $policy_config ne '' && -f $policy_config )
 	    my ( $m, $s, $t, @a ) = split( /\s+/, $_ );
 
 	    push @policy, { 'match' => $m, 'substitute' => $s, 
-			    'ttys' => $t, 'args' => [@a]};
+			    'ttys' => ( $t ne '-' )? [ split( /:/, $t) ] : [],
+			    'args' => [@a]};
 	}
 	close(P);
     }
@@ -636,6 +643,27 @@ sub read_job_to_queue
 
 	print LOG "$job: CREATED: " . localtime($queue{$job}->{'ctime'}) . "\n" if $opt_d; 
 
+	# now apply "policy routing" rules (we need to know which ttys to use)
+	my $phone = $queue{$job}{'phone'};
+	foreach $po (@policy)
+	{
+	    if ( $phone =~ /$po->{match}/ )
+	    {
+		unless( $po->{substitute} eq '-' )
+		    { eval '$phone =~ ' . $po->{substitute} . ';'; }
+		push @{$queue{$job}{'flags'}}, @{$po->{args}};
+		print LOG "    policy: -> phone: $phone, args: ". join(' ',@{$queue{$job}{'flags'}}) ."\n"  if $opt_v;
+		$queue{$job}{'phone'} = $phone;
+
+		if( scalar( @{$po->{ttys}} ) > 0 ) 
+		    { $queue{$job}{'ttys'} = \@{$po->{ttys}}; 
+		      print LOG "    policy: ttys set: " . join(':', @{$queue{$job}{'ttys'}}) ."\n"  if $opt_v;
+		    }
+		last;
+	    }
+	}
+
+	# all done, mark job as 'ready to be sent'
 	$queue{$job}->{'status'} = 'active'; return;
     }
 
@@ -697,7 +725,7 @@ sub send_job_from_queue
     # check whether job has been removed (faxrm) in the meantime...
     unless( -d "$job" && -f "$job/JOB" )
     {
-	print LOG "WARNING: job has disappeared from queue!\n";
+	print LOG "WARNING: job has disappeared from disk queue!\n";
 	$queue{$job}->{'status'}='error';
 	return;
     }
@@ -705,6 +733,8 @@ sub send_job_from_queue
     my $phone = $queue{$job}{phone};
     my $pri   = $queue{$job}{priority};
     my @flags = @{$queue{$job}{flags}};
+
+    #!!!!! add "-l tty<n>" to flags
 
     print LOG "    phone number: $phone\n" if $opt_d;
     print LOG "    priority    : $pri\n"   if $opt_d;
@@ -716,19 +746,6 @@ sub send_job_from_queue
     {
 	print LOG "WARNING: can't lock job ($!), skipping!\n";
 	return;
-    }
-
-    # policy routing (TODO: do it here or move it up to main scheduler?)
-    foreach $po (@policy)
-    {
-	if ( $phone =~ /$po->{match}/ )
-	{
-	    unless( $po->{substitute} eq '-' )
-		{ eval '$phone =~ ' . $po->{substitute} . ';'; }
-	    push @flags, @{$po->{args}};
-	    print LOG "    policy: -> phone: $phone, args: ". join(' ',@flags) ."\n"  if $opt_v;
-	    last;
-	}
     }
 
     # now fork child process
