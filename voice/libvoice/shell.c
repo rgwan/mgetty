@@ -4,7 +4,7 @@
  * Executes the shell script given as the argument. If the argument is
  * empty, commands are read from standard input.
  *
- * $Id: shell.c,v 1.6 1999/07/18 17:20:11 marcs Exp $
+ * $Id: shell.c,v 1.7 1999/07/20 07:34:32 marcs Exp $
  *
  */
 
@@ -348,6 +348,17 @@ int voice_shell_handle_event(int event, event_data data)
                     {
 
                     if (voice_write_shell(DevID) != OK)
+                         return(FAIL);
+
+                    if (voice_write_shell("READY") != OK)
+                         return(FAIL);
+
+                    }
+               /* -- alborchers@steinerpoint.com */
+               else if (strcmp(buffer, "GET MODEM") == 0)
+                    {
+
+                    if (voice_write_shell(voice_modem_name) != OK)
                          return(FAIL);
 
                     if (voice_write_shell("READY") != OK)
