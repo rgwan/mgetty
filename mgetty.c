@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.115 1994/07/12 23:05:08 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.116 1994/07/21 21:41:27 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -122,7 +122,30 @@ static RETSIGTYPE sig_goodbye _P1 ( (signo), int signo )
     exit(10);
 }
 
+#ifdef MGETTY_PID_FILE
+/* create a file with the process ID of the mgetty currently
+ * active on a given device in it.
+ */
+static void make_pid_file _P0( void )
+{
+    FILE * fp;
+    char fn[ MAXPATH ];
+
+    sprintf( fn, MGETTY_PID_FILE, Device );
+
+    fp = fopen( fn, "w" );
+    if ( fp == NULL )
+	lprintf( L_ERROR, "can't create pid file %s", fn );
+    else
+    {
+	fprintf( fp, "%d\n", (int) getpid() ); fclose( fp );
+    }
+}
+#endif
+    
+
 enum { St_unknown,
+       St_go_to_jail,			/* reset after unwanted call */
        St_waiting,			/* wait for activity on tty */
        St_wait_for_RINGs,		/* wait for <n> RINGs before ATA */
        St_answer_phone,			/* ATA, wait for CONNECT/+FCO(N) */
@@ -306,6 +329,10 @@ int main _P2((argc, argv), int argc, char ** argv)
     }
 #endif
 
+#ifdef MGETTY_PID_FILE
+    make_pid_file();
+#endif
+    
     lprintf(L_MESG, "check for lockfiles");
 
     /* deal with the lockfiles; we don't want to charge
@@ -451,6 +478,16 @@ int main _P2((argc, argv), int argc, char ** argv)
     {
 	switch (mgetty_state)	/* state machine */
 	{
+	  case St_go_to_jail:
+	    /* after a rejected call (caller ID, not enough RINGs,
+	     * /etc/nologin file), do some cleanups, and go back to
+	     * field one: St_waiting
+	     */
+	    mg_drop_ctty( STDIN );
+	    rmlocks();
+	    mgetty_state = St_waiting;
+	    break;
+	    
 	  case St_waiting:
 	    /* wait for incoming characters (using select() or poll() to
 	     * prevent eating away from processes dialing out)
@@ -481,6 +518,10 @@ int main _P2((argc, argv), int argc, char ** argv)
 		break;
 	    }
 
+	    /* get line as ctty: hangup will come through
+	     */
+	    mg_get_ctty( STDIN, devname );
+		
 	    /* now: honour SIGHUP
 	     */
 	    signal(SIGHUP, sig_goodbye );
@@ -534,8 +575,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 	    {
 	      case A_TIMOUT:	/* stopped ringing */
 		lprintf( L_AUDIT, "rejected, rings=%d", rings );
-		rmlocks();
-		mgetty_state = St_waiting;
+		mgetty_state = St_go_to_jail;
 		break;
 	      case A_CONN:	/* CONNECT */
 		clean_line( STDIN, 5 );
@@ -621,14 +661,14 @@ int main _P2((argc, argv), int argc, char ** argv)
 	    switch( what_action )
 	    {
 	      case A_TIMOUT:		/* stopped ringing */
-		rmlocks();		/* line is free again */
 		if ( rings == 0 )	/* no ring *AT ALL* */
 		{
 		    lprintf( L_WARN, "huh? Junk on the line?" );
+		    rmlocks();		/* line is free again */
 		    exit(0);		/* let init restart mgetty */
 		}
 		lprintf( L_MESG, "phone stopped ringing (rings=%d)", rings );
-		mgetty_state = St_waiting;
+		mgetty_state = St_go_to_jail;
 		break;
 	      case A_CONN:		/* CONNECT */
 		mgetty_state = St_get_login; break;
@@ -664,8 +704,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 			 Device, getpid(), CallerId);
 		clean_line( STDIN, 80 ); /* wait for ringing to stop */
 
-		rmlocks();
-		mgetty_state = St_waiting;
+		mgetty_state = St_go_to_jail;
 		break;
 	    }
 
