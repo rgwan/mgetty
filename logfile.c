@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 4.3 1997/04/06 19:52:34 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logfile.c,v 4.4 1997/12/16 11:39:51 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -274,10 +274,11 @@ char * p;
     va_end( pvar );
 
     /* convert non-printable characters "in-place" to "_" */
-    for( p=ws; *p!='\0'; p++ )
-    {
-	if ( ! isprint(*p) ) *p='_';
-    }
+    if ( level != L_AUDIT )
+	for( p=ws; *p!='\0'; p++ )
+	{
+	    if ( ! isprint(*p) ) *p='_';
+	}
 
     ti = time(NULL); tm = localtime(&ti);
 
