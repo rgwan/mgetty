@@ -3,7 +3,7 @@
  *
  * This file contains the Digi International RAS specific hardware stuff.
  *
- * $Id: Digi_RAS.c,v 1.1 1998/11/17 11:50:56 marc Exp $
+ * $Id: Digi_RAS.c,v 1.2 1999/01/30 19:11:26 marcs Exp $
  *
  */
 
@@ -158,6 +158,9 @@ voice_modem_struct Digi_RAS =
      (char *) IS_101_ask_mode_cmnd,
      (char *) IS_101_ask_mode_answr,
      (char *) IS_101_voice_mode_id,
+     (char *) IS_101_play_dtmf_cmd,
+     (char *) IS_101_play_dtmf_extra,
+     (char *) IS_101_play_dtmf_answr,
      &IS_101_answer_phone,
      &IS_101_beep,
      &IS_101_dial,
@@ -179,5 +182,6 @@ voice_modem_struct Digi_RAS =
      &IS_101_switch_to_data_fax,
      &IS_101_voice_mode_off,
      &IS_101_voice_mode_on,
-     &IS_101_wait
+     &IS_101_wait,
+     &IS_101_play_dtmf
      };
