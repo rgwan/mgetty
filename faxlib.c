@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 3.3 1995/10/25 18:56:18 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 3.4 1996/01/03 21:32:16 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -31,41 +31,6 @@ boolean fax_poll_req = FALSE;		/* poll requested */
 boolean	fhs_details = FALSE;		/* +FHS:xxx with detail info */
 int	fhs_lc, fhs_blc, fhs_cblc, fhs_lbc;
 
-/* get one line from the modem, only printable characters, terminated
- * by \r or \n. The termination charcter is *not* included
- */
-
-char * fax_get_line _P1( (fd), int fd )
-{
-    static char buffer[200];
-    int bufferp;
-    char c;
-    
-    bufferp = 0;
-    lprintf( L_JUNK, "got:" );
-    
-    do
-    {
-	if( fax_read_byte( fd, &c ) != 1 )
-	{
-	    lprintf( L_ERROR, "fax_get_line: cannot read byte, return" );
-	    return NULL;
-	}
-
-	lputc( L_JUNK, c );
-
-	if ( isprint( c ) &&
-	     bufferp < sizeof(buffer) )
-	{
-	    buffer[ bufferp++ ] = c;
-	}
-    }
-    while ( bufferp == 0 || ( c != 0x0a && c != 0x0d ) );
-
-    buffer[bufferp] = 0;
-
-    return buffer;
-}
 
 /* wait for a given modem response string,
  * handle all the various class 2 / class 2.0 status responses
@@ -101,7 +66,7 @@ int  ix;
 
     do
     {
-	line = fax_get_line( fd );
+	line = mdm_get_line( fd );
 
 	if ( line == NULL )
 	{
@@ -298,42 +263,6 @@ int fax_command _P3( (send, expect, fd),
     return fax_wait_for( expect, fd );
 }
 
-/* simple send / expect sequence, for things that do not require
- * parsing of the modem responses, or where the side-effects are
- * unwanted.
- */
-
-int mdm_command _P2( (send, fd), char * send, int fd )
-{
-    char * l;
-    
-    if ( fax_send( send, fd ) == ERROR ) return ERROR;
-
-    /* wait for OK or ERROR, *without* side effects (as fax_wait_for
-     * would have)
-     */
-    signal( SIGALRM, fwf_sig_alarm ); alarm(20); fwf_timeout = FALSE;
-
-    do
-    {
-	l = fax_get_line( fd );
-	if ( l == NULL ) break;
-	lprintf( L_NOISE, "mdm_command: string '%s'", l );
-    }
-    while ( strcmp( l, "OK" ) != 0 && strcmp( l, "ERROR" ) != 0 );
-
-    alarm(0); signal( SIGALRM, SIG_DFL );
-    
-    if ( l == NULL || strcmp( l, "ERROR" ) == 0 )
-    {
-	lputs( L_MESG, " -> ERROR" );
-	return ERROR;
-    }
-    lputs( L_MESG, " -> OK" );
-	
-    return NOERROR;
-}
-
 /* Couple of routines to set this and that fax parameter, using class 2
  * or 2.0 commands, according to the setting of "modem_type"
  */
@@ -460,34 +389,6 @@ int fax_set_bor _P2( (fd, bor), int fd, int bor )
     return mdm_command( buf, fd );
 }
 
-
-/* fax_read_byte
- * read one byte from "fd", with buffering
- * caveat: only one fd allowed (only one buffer), no way to flush buffers
- */
-
-int fax_read_byte _P2( (fd, c),
-		       int fd, char * c )
-{
-static char frb_buf[512];
-static int  frb_rp = 0;
-static int  frb_len = 0;
-
-    if ( frb_rp >= frb_len )
-    {
-	frb_len = read( fd, frb_buf, sizeof( frb_buf ) );
-	if ( frb_len <= 0 )
-	{
-	    if ( frb_len == 0 ) errno = 0;	/* undefined otherwise */
-	    lprintf( L_ERROR, "fax_read_byte: read returned %d", frb_len );
-	    return frb_len;
-	}
-	frb_rp = 0;
-    }
-
-    *c = frb_buf[ frb_rp++ ];
-    return 1;
-}
 
 /* find out the type of modem connected
  *
