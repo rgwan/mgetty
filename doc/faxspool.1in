@@ -147,6 +147,12 @@ Don't send the fax before the time given. It may not be sent exactly at
 runs after that time. If the fax cannot be sent successfully before
 midnight, it won't be sent on the next day until <hh:mm>!
 .TP
+.B -A <data>
+pass faxspool a chunk of data that is ignored (so you can put anything you
+want here), but written to all the log files (acct.log, sendfax.log).  
+This can be used to tag faxes as private/corporate, to tag faxes with 
+the customer ID to use for billing, or something along that lines.
+.TP
 .B -m <phone1> <phone2> <phone3> ... --
 Multicasting - send the specified files to all phone numbers in the
 list given after "-m". The list is terminated with "--". "-m" has to
@@ -193,7 +199,7 @@ and how those file formats should be converted to G3.
 is not too smart about recognizing file types
 
 .I faxspool
-does only do limited access control - if a user can write to the fax spool
+does only do limited access control - as any user can write to the fax spool
 directory, he can bypass the "access control"
 
 Use of
