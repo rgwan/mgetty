@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 4.1 1997/01/12 14:53:45 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 4.2 1997/01/12 16:46:59 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -504,20 +504,23 @@ int main _P2( (argc, argv),
     }
     if ( verbose ) printf( "OK.\n" );
 
-#ifndef FAX_SEND_IGNORE_CARRIER
-    /* by now, the modem should have raised DCD, so remove CLOCAL flag */
-    tio_carrier( &fax_tio, TRUE );
+    if ( c_bool( ignore_carrier ))	/* ignore carrier */
+    {
+	lprintf( L_MESG, "sendfax: IGNORE DCD (carrier) status" );
+    }
+    else				/* honour carrier */
+    {
+	/* by now, the modem should have raised DCD, so remove CLOCAL flag */
+	tio_carrier( &fax_tio, TRUE );
 
 #ifdef sun
-    /* now we can request hardware flow control since we have carrier */
-    tio_set_flow_control( fd, &fax_tio, (FAXSEND_FLOW) & (FLOW_HARD|FLOW_XON_OUT) );
+	/* now we can request hardware flow control since we have carrier */
+	tio_set_flow_control( fd, &fax_tio, (FAXSEND_FLOW) & (FLOW_HARD|FLOW_XON_OUT) );
 #endif	/* sun */
-    tio_set( fd, &fax_tio );
+	tio_set( fd, &fax_tio );
 
-    lprintf( L_NOISE, "sendfax: honouring DCD (carrier) drops now" );
-#else
-    lprintf( L_NOISE, "sendfax: FAX_SEND_IGNORE_CARRIER active" );
-#endif	/* !FAX_SEND_IGNORE_CARRIER */
+	lprintf( L_MESG, "sendfax: honouring DCD (carrier) drops now" );
+    }
 
     total_pages = argc-argidx;		/* for statistics */
 
