@@ -4,7 +4,7 @@
 #
 # like "lpq" or "mailq", show jobs waiting in the output queue
 #
-# SCCS: $Id: faxq.in,v 4.1 1997/01/12 14:53:59 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxq.in,v 4.2 1997/04/24 15:09:19 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -54,14 +54,16 @@ jobs=`ls $jobs 2>/dev/null`
 [ -z "$jobs" ] && $echo "no jobs."
 for i in $jobs
 do
-    USER=""; PHONE=""; PAGES=""; MAILTO=""; VERBTO=""; ACCT=""; INPUT=""; RE=""
+    USER=""; PHONE=""; PAGES=""; MAILTO=""; VERBTO=""; 
+    ACCT=""; INPUT=""; PRI=""; RE=""
 
     if [ -z "$verbose" ]
     then
 	eval `$AWK '$1=="user" { printf "USER=%s;", $2 }
 		   $1=="phone" { printf "PHONE=%s;", $2 }
-		   $1=="pages" { printf "PAGES=%d;", NF-1 }' $i`
-	$echo "$i: queued by $USER. $PAGES page(s) to $PHONE"
+		   $1=="pages" { printf "PAGES=%d;", NF-1 }
+		   $1=="priority" { printf "PRI=\" pri=%s.\"", $2}' $i`
+	$echo "$i: queued by $USER. $PAGES page(s) to $PHONE.$PRI"
     else
 	eval `$AWK '$1=="user" { printf "USER=%s;", $2 }
 		   $1=="mail"  { printf "MAILTO=\"%s\";", substr( $0, 6 ) }
@@ -74,6 +76,7 @@ do
 		   $1=="time"  { printf "TIME=\"%s:%s\";",
 				 substr( $0, 6, 2 ), substr( $0, 8,2 ) }
 		   $1=="subject"{ printf "RE=\"%s\";", substr( $0, 9 ) }
+		   $1=="priority"{ printf "PRI=\"%s\";", $2 }
 		   $1=="pages" { if ( NF==2 ) printf "PAGES=\"%s\";", $2
 				 else if ( NF==3 )
                                      printf "PAGES=\"%s %s\";", $2, $3
@@ -99,6 +102,8 @@ do
 	$echo "\tSend time: $TIME"
        test ! -z "$ACCT" && \
 	$echo "\tAcct info: $ACCT"
+       test ! -z "$PRI" && \
+	$echo "\t Priority: $PRI"
 
 	sed -e '/Status/!d' -e 's/Status/           Status:/' $i
        if [ -f "$i.locked" ] ; then
