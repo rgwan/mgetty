@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.30 1993/11/29 11:51:25 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 1.31 1993/12/01 20:29:22 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -78,6 +78,11 @@ TIO tio;
     /* notify program */
     fax_notify_program( pagenum );
 #endif
+
+    /* write audit information and return (caller will exit() then) */
+    lprintf( L_AUDIT, "fax received: id='%s', +FHNG:%03d",
+	    fax_remote_id, fax_hangup_code );
+
 }
 
 RETSIGTYPE fax_sig_hangup( )
