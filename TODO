@@ -298,3 +298,8 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
      faxrunq(d): make sure that "*" in $phone is never expanded as wildcard!
 
 225) use a non-root user-id (nobody?) for "cnd-program"
+
+226) call cnd-program after "min-rings" RINGs, and before waiting for
+     the remaining number of RINGs.
+     (Also, that way vgetty can control the number of RINGs depending on
+     the distinctive RING number / ISDN MSN)
