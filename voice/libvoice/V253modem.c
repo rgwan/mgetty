@@ -16,7 +16,7 @@
   Hint: Recorded voice files are in .ub format (refer to the sox manpage about this) except the header.
         So you can use this files with sox.
  *
- * $Id: V253modem.c,v 1.2 2000/09/09 08:49:34 marcs Exp $
+ * $Id: V253modem.c,v 1.3 2000/09/10 08:10:10 marcs Exp $
  *
  */
 
@@ -131,7 +131,7 @@ RING */
 static int V253modem_set_compression (int *compression, int *speed, int *bits)
      {
      char buffer[VOICE_BUF_LEN];
-     int Kompressionmethod; /* a littlebit germinglish :-) */
+     int Kompressionmethod = 1; /* a littlebit germinglish :-) */
      reset_watchdog();
 
      switch (*compression)
@@ -195,7 +195,7 @@ static int V253modem_set_compression (int *compression, int *speed, int *bits)
          *speed=8000;
          break;
        }
-       case 9:        /* ITU defined unsigned PCM */
+       case 9:        /* ITU defined signed PCM */
        {
           Kompressionmethod = 0;
           *bits=8;
