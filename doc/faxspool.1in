@@ -20,6 +20,8 @@ puts a header line, telling the other
 side the number of pages, your fax id, ..., whatever you like. The
 format of this line is configurable via the file
 .B @CONFDIR@/faxheader
+and per-user via the file
+.B $HOME/.faxheader.
 (you can select another one with the "-h" option, for example, one for
 your business faxes and one for the private stuff).
 
@@ -64,7 +66,8 @@ Optionally,
 can generate user-customizable fax cover pages. It is quite easy to set
 up: if a file @CONFDIR@/make.coverpg exists and is executable, it is run
 with all relevant source/destination data on the command line, and its
-output is sent as the first page of the resulting fax. See coverpg(1) for
+output is sent as the first page of the resulting fax. If $HOME/.make.coverpg
+exists, this file is used instead. See coverpg(1) for
 details.
 
 .IX fax
@@ -133,7 +136,9 @@ The special program name "-" is used to specify "no coverpage at all".
 No message is issued if the program isn't found, or cannot be executed,
 faxspool will simply queue the fax without cover page.
 
-The default cover page program used is @LIBDIR@/make.coverpg.
+The default cover page program used is $HOME/.make.coverpg; if this file
+doesn't exist @LIBDIR@/make.coverpg is used. (However, if $HOME/.make.coverpg
+exists, but is not executable, no coverpage is used at all.)
 .TP
 .B -p
 Spool a request that will try polling (see "sendfax -p"). The
