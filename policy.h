@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 4.16 2000/09/12 08:04:08 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 4.17 2001/12/17 22:46:17 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration defaults for mgetty / sendfax
  * are specified.
@@ -242,6 +242,9 @@
 # ifdef linux
 #  define LOCK	"/var/lock/LCK..%s"
 # endif
+# if defined(__FreeBSD__) || defined(__NetBSD__)
+#  define LOCK "/var/spool/lock/LCK..%s"
+# endif 
 #endif
 
 /* if your system isn't listed above, change that line here */
