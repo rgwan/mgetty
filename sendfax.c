@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 2.2 1994/12/05 20:51:04 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 2.3 1994/12/06 17:13:33 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -253,15 +253,6 @@ int main _P2( (argc, argv),
     /* read config file (defaults) */
     sendfax_get_config( NULL );
 
-    /* sanity checks */
-    if ( strcmp( c_string(modem_type), "cls2" ) != 0 &&
-	 strcmp( c_string(modem_type), "c2.0" ) != 0 &&
-	 strcmp( c_string(modem_type), "auto" ) != 0 )
-    {
-	fprintf( stderr, "%s: warning: invalid modem class '%s'\n",
-		 argv[0], c_string(modem_type) );
-    }
-
     /* for simplicity, put a few config things into global variables */
     verbose = c_bool( verbose );
 
@@ -308,6 +299,15 @@ int main _P2( (argc, argv),
 
     /* read config file (port specific) */
     sendfax_get_config( Device );
+
+    /* sanity checks */
+    if ( strcmp( c_string(modem_type), "cls2" ) != 0 &&
+	 strcmp( c_string(modem_type), "c2.0" ) != 0 &&
+	 strcmp( c_string(modem_type), "auto" ) != 0 )
+    {
+	fprintf( stderr, "%s: warning: invalid modem class '%s'\n",
+		 argv[0], c_string(modem_type) );
+    }
 
     /* arrange that lock files get removed if INTR or QUIT is pressed */
     signal( SIGINT, fax_sig_goodbye );
