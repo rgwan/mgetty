@@ -5,7 +5,7 @@
  * interpolating the samples at the new rate. Input and output is in
  * the pvf (portable voice format) format.
  *
- * $Id: pvfspeed.c,v 1.4 1998/09/09 21:07:50 gert Exp $
+ * $Id: pvfspeed.c,v 1.5 1999/03/16 09:59:24 marcs Exp $
  *
  */
 
@@ -152,17 +152,17 @@ int main (int argc, char *argv[])
           int t;
           int i = 0;
 
+	  a = header_in.read_pvf_data(fd_in);
           if (!feof(fd_in))
-               {
-               a = header_in.read_pvf_data(fd_in);
                header_out.write_pvf_data(fd_out, a);
-               };
 
           t = speed;
 
-          while (!feof(fd_in))
+          while (1)
                {
                b = header_in.read_pvf_data(fd_in);
+               if (feof(fd_in))
+                    break;
 
                while (t <= ONE)
                     {
@@ -195,9 +195,11 @@ int main (int argc, char *argv[])
           int i = 0;
           int b;
 
-          while (!feof(fd_in))
+          while (1)
                {
                b = header_in.read_pvf_data(fd_in);
+               if (feof(fd_in))
+                    break;
                t += ONE;
 
                if (t >= speed)

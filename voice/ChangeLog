@@ -1,3 +1,12 @@
+Wed Feb 10 07:17:57 CST 1999  Rick Richardson  (rick@dgii.com)
+
+     * Fixed a bunch of places where feof() was being misused in
+       the pvftools and library.
+
+     * Added -c option to pvffile to print sample counts.
+
+     * Added some more voice support for Digi RAS modems.
+
 Wed Sep 09 08:39:13 1998  Marc Eberhard  (marc@athene)
 
      * New vgetty release.

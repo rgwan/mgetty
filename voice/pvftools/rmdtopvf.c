@@ -4,7 +4,7 @@
  * rmdtopvf converts from the rmd (raw modem data) format to the pvf
  * (portable voice format) format.
  *
- * $Id: rmdtopvf.c,v 1.5 1999/01/30 18:42:38 marcs Exp $
+ * $Id: rmdtopvf.c,v 1.6 1999/03/16 09:59:26 marcs Exp $
  *
  */
 
@@ -32,6 +32,7 @@ static void supported_formats (void)
      {
      fprintf(stderr, "\n%s %s\n\n", program_name, vgetty_version);
      fprintf(stderr, "supported raw modem data formats:\n\n");
+     fprintf(stderr, " - Digi           4 (G.711U) and 5 (G.711A)\n");
      fprintf(stderr, " - Elsa           2, 3 and 4 bit Rockwell ADPCM\n");
      fprintf(stderr, " - ISDN4Linux     2, 3 and 4 bit ZyXEL ADPCM\n");
      fprintf(stderr, " - Multitech 2834 4 bit IMA ADPCM\n");
@@ -188,6 +189,17 @@ int main (int argc, char *argv[])
           {
 
           if (usrtopvf(fd_in, fd_out, compression, &header_out) == OK)
+               exit(OK);
+
+          };
+
+     if ((strcmp(modem_type, "Digi RAS") == 0) && ((compression == 4) ||
+      (compression == 5)))
+          {
+	  /*
+	   * TODO: handle alaw
+	   */
+          if (basictopvf(fd_in, fd_out, &header_out) == OK)
                exit(OK);
 
           };

@@ -4,7 +4,7 @@
  * pvftormd converts from the pvf (portable voice format) format to the
  * rmd (raw modem data) format.
  *
- * $Id: pvftormd.c,v 1.5 1999/01/30 18:42:36 marcs Exp $
+ * $Id: pvftormd.c,v 1.6 1999/03/16 09:59:25 marcs Exp $
  *
  */
 
@@ -30,6 +30,7 @@ static void supported_formats (void)
      {
      fprintf(stderr, "\n%s %s\n\n", program_name, vgetty_version);
      fprintf(stderr, "supported raw modem data formats:\n\n");
+     fprintf(stderr, " - Digi        4 (G.711U) and 5 (G.711A)\n");
      fprintf(stderr, " - Elsa        2, 3 and 4 bit Rockwell ADPCM\n");
      fprintf(stderr, " - ISDN4Linux  2, 3 and 4 bit ZyXEL ADPCM\n");
      fprintf(stderr, " - MT_2834     4 bit IMA ADPCM\n");
@@ -97,7 +98,11 @@ int main (int argc, char *argv[])
      if (strcmp(modem_type, "ZyXEL_2864") == 0)
           modem_type = "ZyXEL 2864";
 
-     if ((strcmp(modem_type, "Elsa") == 0) ||
+     if (strcmp(modem_type, "Digi") == 0)
+          modem_type = "Digi RAS";		/* should be ITU V.253! */
+
+     if ((strcmp(modem_type, "Digi RAS") == 0) ||
+      (strcmp(modem_type, "Elsa") == 0) ||
       (strcmp(modem_type, "ISDN4Linux") == 0) ||
       (strcmp(modem_type, "Multitech2834") == 0) ||
       (strcmp(modem_type, "Rockwell") == 0) ||
@@ -142,6 +147,44 @@ int main (int argc, char *argv[])
                 name_out);
                exit(FAIL);
                };
+
+          };
+
+     if ((strcmp(modem_type, "Digi RAS") == 0) && ((compression == 4) ||
+      (compression == 5)))
+          {
+          header_out.bits = compression;
+
+          if (header_in.speed != 8000)
+               {
+               fprintf(stderr, "%s: Unsupported sample speed (%d)\n",
+                program_name, header_in.speed);
+               fprintf(stderr,
+                "%s: The Digi RAS only supports 8000 samples per second\n",
+                program_name);
+               fclose(fd_out);
+
+               if (fd_out != stdout)
+                    unlink(name_out);
+
+               exit(FAIL);
+               };
+
+          if (write_rmd_header(fd_out, &header_out) != OK)
+               {
+               fclose(fd_out);
+
+               if (fd_out != stdout)
+                    unlink(name_out);
+
+               exit(ERROR);
+               };
+
+	  /*
+	   * TODO: handle alaw
+	   */
+          if (pvftobasic(fd_in, fd_out, &header_in) == OK)
+               exit(OK);
 
           };
 

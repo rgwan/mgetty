@@ -4,7 +4,7 @@
  * pvffilter can filter a range of frequencies out of a given voice signal.
  * Input and output is in the pvf (portable voice format) format.
  *
- * $Id: pvffilter.c,v 1.1 1998/09/09 21:51:13 gert Exp $
+ * $Id: pvffilter.c,v 1.2 1999/03/16 09:59:23 marcs Exp $
  *
  */
 
@@ -147,12 +147,14 @@ int main (int argc, char *argv[])
 
      p = N;
 
-     while (!feof(fd_in))
+     while (1)
           {
           static int k;
           static double y;
 
           u[p] = header_in.read_pvf_data(fd_in) / ONE;
+          if (feof(fd_in))
+               break;
           y = 0.0;
 
           for (k = -N; k <= N; k++)

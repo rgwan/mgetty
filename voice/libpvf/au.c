@@ -3,7 +3,7 @@
  *
  * Conversion pvf <--> au.
  *
- * $Id: au.c,v 1.4 1998/09/09 21:06:58 gert Exp $
+ * $Id: au.c,v 1.5 1999/03/16 09:59:19 marcs Exp $
  *
  */
 
@@ -205,9 +205,11 @@ int pvftoau (FILE *fd_in, FILE *fd_out, pvf_header *header_in,
           {
           case SND_FORMAT_MULAW_8:
 
-               while (!feof(fd_in))
+               while (1)
                     {
                     sample = header_in->read_pvf_data(fd_in) >> 8;
+                    if (feof(fd_in))
+                         break;
 
                     if (sample > 0x7fff)
                          sample = 0x7fff;
@@ -221,9 +223,11 @@ int pvftoau (FILE *fd_in, FILE *fd_out, pvf_header *header_in,
                break;
           case SND_FORMAT_LINEAR_8:
 
-               while (!feof(fd_in))
+               while (1)
                     {
                     sample = header_in->read_pvf_data(fd_in) >> 16;
+                    if (feof(fd_in))
+                         break;
 
                     if (sample > 0x7f)
                          sample = 0x7f;
@@ -237,9 +241,11 @@ int pvftoau (FILE *fd_in, FILE *fd_out, pvf_header *header_in,
                break;
           case SND_FORMAT_LINEAR_16:
 
-               while (!feof(fd_in))
+               while (1)
                     {
                     sample = header_in->read_pvf_data(fd_in) >> 8;
+                    if (feof(fd_in))
+                         break;
 
                     if (sample > 0x7fff)
                          sample = 0x7fff;
@@ -316,7 +322,7 @@ int autopvf (FILE *fd_in, FILE *fd_out, pvf_header *header_out)
           return(ERROR);
           };
 
-     for (i = SND_HEADER_SIZE; i < hdr.dataLocation; i++)
+     for (i = ftell(fd_in); i < hdr.dataLocation; i++)
 
           if (getc(fd_in) == EOF)
                {
@@ -380,9 +386,11 @@ int pvftobasic (FILE *fd_in, FILE *fd_out, pvf_header *header_in)
           return(ERROR);
           };
 
-     while (!feof(fd_in))
+     while (1)
           {
           sample = header_in->read_pvf_data(fd_in) >> 8;
+          if (feof(fd_in))
+               break;
           putc(linear2ulaw(sample), fd_out);
           }
 

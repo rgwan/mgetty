@@ -3,7 +3,7 @@
  *
  * Converts pvf <--> linear.
  *
- * $Id: linear.c,v 1.4 1998/09/09 21:07:01 gert Exp $
+ * $Id: linear.c,v 1.5 1999/03/16 09:59:20 marcs Exp $
  *
  */
 
@@ -14,9 +14,11 @@ int pvftolin (FILE *fd_in, FILE *fd_out, pvf_header *header_in, int is_signed,
      {
      int data;
 
-     while (!feof(fd_in))
+     while (1)
           {
           data = header_in->read_pvf_data(fd_in) >> 8;
+          if (feof(fd_in))
+               break;
 
           if (data > 0x7fff)
                data = 0x7fff;

@@ -3,7 +3,7 @@
  *
  * Original code by ulrich@Gaston.westfalen.de (Heinz Ulrich Stille).
  *
- * $Id: fft.c,v 1.4 1998/09/09 21:06:59 gert Exp $
+ * $Id: fft.c,v 1.5 1999/03/16 09:59:19 marcs Exp $
  *
  */
 
@@ -135,6 +135,7 @@ int pvffft (FILE *fd_in, pvf_header *header_in, int skip, int sample_size,
      for (i = 0; i < sample_size; i++)
           {
 
+          real[i] = (float) header_in->read_pvf_data(fd_in);
           if (feof(fd_in))
                {
 
@@ -147,7 +148,6 @@ int pvffft (FILE *fd_in, pvf_header *header_in, int skip, int sample_size,
                return(ERROR);
                }
 
-          real[i] = (float) header_in->read_pvf_data(fd_in);
           }
 
      /*

@@ -54,7 +54,7 @@
  *
  * -----------------------------------------------------------------------
  *
- * $Id: rockwell.c,v 1.5 1999/01/30 18:42:27 marcs Exp $
+ * $Id: rockwell.c,v 1.6 1999/03/16 09:59:20 marcs Exp $
  *
  */
 
@@ -713,9 +713,11 @@ int pvftorockwell (FILE *fd_in, FILE *fd_out, int nbits, pvf_header *header_in)
 
  /* The rmd header should have been written by now. Do the compression. */
 
- while (!feof(fd_in))
+ while (1)
   {
   w = header_in->read_pvf_data(fd_in);
+  if (feof(fd_in))
+    break;
   /* The pvf routines work on 24bit ints */
   write_bits_reverse(fd_out, &s, nbits, (int)RV_ComOne((vgetty_s_int16)(w>>8)) );
   }
