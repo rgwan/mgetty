@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.43 1994/01/23 13:44:10 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.44 1994/01/27 21:08:17 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -144,15 +144,15 @@
  * locking!
  */
 
-#ifdef SVR4
-#define LOCK_PATH "/var/spool/locks"
-#define LOCK      "/var/spool/locks/LCK..%s"
+#if defned (SVR4) || defined(sun)
+# define LOCK_PATH "/var/spool/locks"
+# define LOCK      "/var/spool/locks/LCK..%s"
 #else
 # ifdef sgi
-# define LOCK	"/usr/spool/locks/LCK..%s"
+#  define LOCK	"/usr/spool/locks/LCK..%s"
 # endif
 # ifdef _AIX
-# define LOCK	"/etc/locks/LCK..%s"
+#  define LOCK	"/etc/locks/LCK..%s"
 # endif
 #endif
 
