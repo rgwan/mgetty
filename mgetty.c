@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.27 1993/04/19 22:03:15 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.28 1993/05/02 15:22:48 gert Exp $ (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -131,13 +131,6 @@ int	prompt_waittime = 500;		/* milliseconds between CONNECT and */
 					/* login: -prompt */
 
 boolean	direct_line = FALSE;
-
-#ifdef BROKEN_SCO_324
-static int catch_sigalrm( void )
-{
-lprintf( L_NOISE, "caught sig alarm" );
-}
-#endif
 
 int main( int argc, char ** argv)
 {
@@ -276,23 +269,6 @@ int main( int argc, char ** argv)
 	/* the line is mine now ...  */
 
 	/* open the device; don't wait around for carrier-detect */
-
-	/* SCO 3.2.4 O_EXCL screwup */
-#ifdef BROKEN_SCO_324
-#if 0
-	if ( (fd = open(devname, O_RDWR | O_NDELAY | O_EXCL ) ) >= 0 )
-		close( fd );
-#endif
-
-	signal( SIGALRM, catch_sigalrm );
-	alarm(1);
-	if ( (fd = open(devname, O_RDWR ) ) >= 0 )
-	{
-		close(fd);
-	}
-	alarm(0);
-	signal( SIGALRM, SIG_DFL );
-#endif
 
 	if ((fd = open(devname, O_RDWR | O_NDELAY)) < 0) {
 		lprintf(L_ERROR,"cannot open line");
