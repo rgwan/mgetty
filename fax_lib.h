@@ -1,4 +1,4 @@
-#ident "$Id: fax_lib.h,v 1.7 1993/10/06 00:35:34 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: fax_lib.h,v 1.8 1993/10/19 00:45:16 gert Exp $ Copyright (c) Gert Doering"
 
 /* fax_lib.h
  * 
@@ -43,5 +43,7 @@ extern	boolean	fax_to_poll;			/* there's something to poll */
 #define XON	021
 #define XOFF	023
 
+#ifndef ERROR
 #define	ERROR	-1
 #define NOERROR	0
+#endif
