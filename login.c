@@ -1,4 +1,4 @@
-#ident "$Id: login.c,v 4.5 1998/06/10 13:31:49 gert Exp $ Copyright (C) 1993 Gert Doering"
+#ident "$Id: login.c,v 4.6 1998/07/05 21:11:24 gert Exp $ Copyright (C) 1993 Gert Doering"
 
 
 /* login.c
@@ -7,6 +7,7 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 #include <pwd.h>
