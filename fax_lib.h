@@ -1,4 +1,4 @@
-#ident "$Id: fax_lib.h,v 3.3 1995/12/18 22:00:12 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: fax_lib.h,v 3.4 1996/01/03 21:33:02 gert Exp $ Copyright (c) Gert Doering"
 
 
 /* fax_lib.h
@@ -24,14 +24,11 @@ int fax_send _PROTO(( char * s, int fd ));	/* write to fd, with logging */
                                          /* expect string, handle fax msgs */
 int fax_wait_for _PROTO(( char * s, int fd ));
 int fax_command _PROTO(( char * send, char * expect, int fd ));
-int mdm_command _PROTO(( char * send, int fd ));
-char * fax_get_line _PROTO(( int fd ));
 
 int fax_get_pages _PROTO(( int fd, int * pagenum, char * directory,
 			   int uid, int gid, int mode ));
 int fax_get_page_data _PROTO(( int modem_fd, int pagenum, char * directory,
 			       int uid, int gid, int file_mode ));
-int fax_read_byte _PROTO(( int fd, char * c ));
 
 int fax_set_l_id _PROTO(( int fd, char * fax_id ));
 int fax_set_fdcc _PROTO(( int fd, int fine, int maxsp, int minsp ));
