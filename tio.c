@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 3.6 1996/03/10 12:42:32 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 3.7 1996/06/01 18:56:59 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* tio.c
  *
@@ -28,7 +28,7 @@ static char tio_compilation_type[]="@(#)tio.c compiled with SYSV_TERMIO";
 static char tio_compilation_type[]="@(#)tio.c compiled with BSD_SGTTY";
 #endif
 
-#ifdef SVR4
+#ifdef USE_TERMIOX
 # include <sys/termiox.h>
 #endif
 #ifdef _HPUX_SOURCE
@@ -519,7 +519,7 @@ void tio_carrier _P2( (t, carrier_sensitive), TIO *t, int carrier_sensitive )
 
 int tio_set_flow_control _P3( (fd, t, type), int fd, TIO * t, int type )
 {
-#ifdef SVR4
+#ifdef USE_TERMIOX
     struct termiox tix;
 #endif
 
@@ -550,9 +550,9 @@ int tio_set_flow_control _P3( (fd, t, type), int fd, TIO * t, int type )
 #  include "not yet implemented"
 # endif
 #endif
+
     /* SVR4 came up with a new method of setting h/w flow control */
-    /* unfortunately, it's broken in 4.2 and Solaris2! */
-#if defined(SVR4) && !defined(SVR42) &&!defined(solaris2)
+#ifdef USE_TERMIOX
     if (ioctl(fd, TCGETX, &tix) < 0)
     {
 	lprintf( L_ERROR, "ioctl TCGETX" ); return ERROR;

@@ -1,4 +1,4 @@
-#ident "$Id: tio.h,v 3.5 1996/03/03 16:42:03 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.h,v 3.6 1996/06/01 18:57:00 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 #ifndef __TIO_H__
 #define __TIO_H__
@@ -62,6 +62,13 @@ typedef tcflag_t tioflag_t;
 
 #if defined(BSD_SGTTY) && defined(USE_GETTYDEFS)
 #include "cannot use /etc/gettydefs with sgtty (yet?)"
+#endif
+
+/* SVR4 came up with a new method of setting h/w flow control */
+/* unfortunately, it's broken in 4.2 and Solaris2, and not there in IRIX! */
+#if defined(SVR4) && \
+    !defined(SVR42) && !defined(solaris2) && !defined(sgi)
+# define USE_TERMIOX
 #endif
 
 /* if not defined in the default header files, #define some important things
