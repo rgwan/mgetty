@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 1.28 1994/10/27 00:54:20 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 1.29 1994/11/13 23:07:29 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -245,7 +245,7 @@ int  ix;
 	}
 
     }
-    while ( strcmp( s, line ) != 0 );
+    while ( strncmp( s, line, strlen(s) ) != 0 );
     lputs( L_MESG, "** found **" );
 
     alarm( 0 );
