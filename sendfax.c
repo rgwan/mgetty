@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 4.13 1998/01/01 20:26:27 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 4.14 1998/06/26 13:00:25 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -459,7 +459,7 @@ int main _P2( (argc, argv),
     /* set desired resolution, maximum and minimum bit rate */
 
     /* FIXME: ask modem if it can do 14400 bps / fine res. at all */
-    fax_set_fdcc( fd, !c_bool(normal_res), 14400, 0 );
+    fax_set_fdcc( fd, !c_bool(normal_res), c_int(fax_max_speed), 0 );
 
 #if REVERSE
     fax_set_bor( fd, 0 );

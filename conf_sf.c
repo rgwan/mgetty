@@ -1,4 +1,4 @@
-#ident "$Id: conf_sf.c,v 4.9 1998/06/01 12:08:39 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_sf.c,v 4.10 1998/06/26 13:00:24 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_sf.c
  *
@@ -51,6 +51,8 @@ struct conf_data_sendfax c = {
 	{ "fax-id", {(p_int)FAX_STATION_ID}, CT_STRING, C_PRESET },
 	{ "poll-dir", {(p_int)"."}, CT_STRING, C_PRESET },
 	{ "normal-res", {0}, CT_BOOL, C_PRESET },
+	{ "fax-min-speed", {0}, CT_INT, C_PRESET },
+	{ "fax-max-speed", {14400}, CT_INT, C_PRESET },
 	{ "debug", {LOG_LEVEL}, CT_INT, C_PRESET },
 	{ "verbose", {FALSE}, CT_BOOL, C_PRESET },
 	{ "" /* polling */, {FALSE}, CT_BOOL, C_PRESET },
@@ -89,7 +91,7 @@ conf_data c_a[2];
     }
 
     /* get command line arguments */
-    while ((opt = getopt(argc, argv, "d:vx:ph:l:nm:SC:I:rA:D:V")) != EOF)
+    while ((opt = getopt(argc, argv, "d:vx:ph:l:nm:SC:I:rA:D:M:V")) != EOF)
     {
 	switch (opt) {
 	  case 'd':	/* set target directory for polling */
@@ -141,6 +143,9 @@ conf_data c_a[2];
 	    break;
 	  case 'D':
 	    conf_set_string( &c.dial_prefix, optarg );
+	    break;
+	  case 'M':	/* set max. fax speed */
+	    conf_set_int( &c.fax_max_speed, atoi(optarg) );
 	    break;
 	  case 'V':
 	    printf("\nmgetty+sendfax by Gert Doering\n%s\n\n",
