@@ -1,5 +1,5 @@
 /* Program to view fax files on an X-window screen
-   Copyright (C) 1990, 1995  Frank D. Cringle.
+   Copyright (C) 1990, 1995, 2004  Frank D. Cringle.
 
 This file is part of viewfax - g3/g4 fax processing software.
      
@@ -31,7 +31,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA. */
 #include <X11/cursorfont.h>
 #include "faxexpand.h"
 
-#define VERSION "2.5"
+#define VERSION "2.6"
 
 /* If moving the image around with the middle mouse button is jerky or
    slow, try defining USE_MOTIONHINT.  It may help (it may also make
@@ -64,6 +64,8 @@ static char *suffix(char *opt, const char *str);
 
 /* X variables */
 static char *DispName = NULL;
+static char *PrintCmd = NULL;
+static char *EditCmd = NULL;
 static char *Geometry = NULL;
 static Display *Disp;
 static Window Root;
@@ -81,6 +83,7 @@ int verbose = 0;
 
 static int abell = 0;			/* audio bell */
 static int vbell = 1;			/* visual bell */
+static int Wheelinv = 0;		/* mouse scrolls by page */
 static int zfactor = 0;			/* zoom factor */
 
 static size_t Memused = 0;		/* image memory usage */
@@ -102,7 +105,8 @@ static union { t32bits i; unsigned char b[4]; } bo;
 #define ByteOrder	bo.b[3]
 
 static char Banner[] =
-"\nviewfax version " VERSION ", Copyright (C) 1990, 1995 Frank D. Cringle.\n"
+"\nviewfax version " VERSION ",\n"
+"Copyright (C) 1990, 1995, 2004 Frank D. Cringle.\n"
 "viewfax comes with ABSOLUTELY NO WARRANTY; for details see the\n"
 "file \"COPYING\" in the distribution directory.\n\n";
 
@@ -121,6 +125,7 @@ static char Usage[] =
 "\t-m\tmemory usage limit\n"
 "\t-r\tfax data is packed ls-bit first in input bytes\n"
 "\t-v\tverbose messages\n"
+"\t-W\tmousewheel scrolls by page\n"
 "\t-z\tinitial zoom factor\n"
 "\t-2\traw files are g3-2d\n"
 "\t-4\traw files are g4\n";
@@ -132,15 +137,17 @@ main(int argc, char **argv)
     int err = 0;
 
     bo.i = 1;
-    defaultpage.vres = -1;
+    defaultpage.vres = 2;
     defaultpage.expander = g31expand;
+    PrintCmd = getenv("VIEWFAX_PRINT");
+    EditCmd = getenv("VIEWFAX_EDIT");
     opterr = 0;			/* suppress getopt error message */
 
     if ((ProgName = strrchr(argv[0], '/')) == NULL)
 	ProgName = argv[0];
     else
 	ProgName++;
-    while ((c = getopt(argc, argv, "b:d:fg:h:ilm:nruvw:z:24")) != -1)
+    while ((c = getopt(argc, argv, "b:d:fg:h:ilm:nruvWw:z:24")) != -1)
 	switch(c) {
 	case 'b':
 	    abell = vbell = 0;
@@ -196,6 +203,9 @@ main(int argc, char **argv)
 	case 'w':		/* user thinks this is the width */
 	    defaultpage.width = atoi(optarg);
 	    break;
+	case 'W':		/* mouse scroll by page */
+	    Wheelinv = 1;
+	    break;
 	case 'z':		/* zoom factor */
 	    c = atoi(optarg);
 	    if (c <= 0)
@@ -219,6 +229,16 @@ main(int argc, char **argv)
 	err++;
     }
 
+    if (err) {
+	fprintf(stderr, Usage, ProgName);
+	exit(EXIT_FAILURE);
+    }
+
+    if (optind == argc) {
+	fputs(Banner, stdout);
+	exit(0);
+    }
+
     if (verbose)
 	fputs(Banner, stdout);
 
@@ -226,12 +246,8 @@ main(int argc, char **argv)
     for (; optind < argc; optind++)
 	(void) notetiff(argv[optind]);
 
-    if (err || firstpage == NULL) {
-	if (!verbose)
-	    fprintf(stderr, Banner);
-	fprintf(stderr, Usage, ProgName);
+    if (firstpage == NULL)
 	exit(EXIT_FAILURE);
-    }
 
     if ((Disp = XOpenDisplay(DispName)) == NULL) {
 	fprintf(stderr, "%s: can't open display %s\n", ProgName,
@@ -245,7 +261,7 @@ main(int argc, char **argv)
 	/* try again */;
     SetupDisplay(argc, argv);
     ShowLoop();
-    return 0;
+    exit(0);
 }
 
 /* return mismatching suffix of option name */
@@ -383,8 +399,45 @@ GetImage(struct pagenode *pn)
 	pn->extra = MirrorImage(Pimage(pn));
     if (pn->orient & TURN_L)
 	pn->extra = RotImage(Pimage(pn));
-    if (verbose) printf("\tmemused = %d\n", Memused);
+    if (verbose) printf("\tmemused = %lu\n", (unsigned long) Memused);
     return 1;
+}
+
+static void
+DoExtCmd(char *cmd, int shift)
+{
+    char *syscmd;
+
+    if (cmd == NULL) return;
+    if (shift == 0) {
+	syscmd = xmalloc(strlen(cmd) + strlen(thispage->pathname) + 16);
+	sprintf(syscmd, "%s -p %d %s", cmd, thispage->pageno,
+		thispage->pathname);
+    }
+    else {
+	struct pagenode *pn = firstpage;
+	char *prev = NULL;
+	int size = strlen(cmd) + 1;
+
+	do {
+	    if (prev != pn->pathname)
+		size += strlen(pn->pathname) + 1;
+	    prev = pn->pathname;
+	} while ((pn = pn->next) != NULL);
+	syscmd = xmalloc(size);
+	pn = firstpage;
+	prev = NULL;
+	strcpy(syscmd, cmd);
+	do {
+	    if (prev != pn->pathname) {
+		strcat(syscmd, " ");
+		strcat(syscmd, pn->pathname);
+	    }
+	    prev = pn->pathname;
+	} while ((pn = pn->next) != NULL);
+    }
+    system(syscmd);
+    free(syscmd);
 }
 
 #ifndef _HAVE_USLEEP
@@ -668,7 +721,7 @@ ShowLoop(void)
 		    } while (Parent != Root);
 		while (!XGetWindowAttributes(Disp, Win, &MyWA))
 		    release(1);
-		while (!XGetWindowAttributes(Disp, Frame, &FrameWA))
+/* bang! */	while (!XGetWindowAttributes(Disp, Frame, &FrameWA))
 		    release(1);
 		/* if area is partly constrained, stay where the WM put you */
 		if ((Area.v & (XValue|WidthValue)) == WidthValue) {
@@ -774,6 +827,12 @@ ShowLoop(void)
 			goto Zoomout;
 		    else
 			goto Zoomin;
+		case XK_Print:
+		    DoExtCmd(PrintCmd, Event.xkey.state & ShiftMask);
+		    break;
+		case XK_e:
+		    DoExtCmd(EditCmd, Event.xkey.state & ShiftMask);
+		    break;
 		case XK_Up:
 		    y -= PaneHeight / 2;
 		    break;
@@ -828,6 +887,7 @@ ShowLoop(void)
 		case XK_Prior:
 		case XK_R9:
 		case XK_BackSpace:
+		  prevpage:
 		    if (thispage->prev == NULL)
 			goto nopage;
 		    thispage = thispage->prev;
@@ -837,6 +897,7 @@ ShowLoop(void)
 		case XK_space:
 		case XK_Next:
 		case XK_R15:
+		  nextpage:
 		    if (thispage->next == NULL) {
 		    nopage:
 			if (abell) {
@@ -956,7 +1017,17 @@ ShowLoop(void)
 			Resize = Refresh = 1;
 		    }
 		    break;
-		}
+		case Button4:
+		    if ((Event.xkey.state & ShiftMask) ^ Wheelinv)
+			goto prevpage;
+		    y -= PaneHeight / 30;
+		    break;
+		case Button5:
+		    if ((Event.xkey.state & ShiftMask) ^ Wheelinv)
+			goto nextpage;
+		    y += PaneHeight / 30;
+		    break;
+		}		    
 		if (Image == NULL) {
 		    for (i = oz; i && (Images[i] == NULL); i--)
 			;

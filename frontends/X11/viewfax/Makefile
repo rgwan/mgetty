@@ -1,5 +1,5 @@
 # Makefile for viewfax
-# Copyright (C) 1990, 1995  Frank D. Cringle.
+# Copyright (C) 1990, 1995, 2004  Frank D. Cringle.
 
 # This file is part of viewfax - g3/g4 fax processing software.
 #      
@@ -17,14 +17,14 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-VERS = 2.5
+VERS = 2.6
 
 ####### Site-specific definitions #######
 # Destination directories and installation program for make install
 BINDIR = /usr/local/bin
 LIBDIR = /usr/local/lib
 MANDIR	= /usr/local/man/man1
-INSTALL = /usr/ucb/install
+INSTALL = /usr/bin/install
 RM = rm -f
 # Location of help file
 HELP = \"$(LIBDIR)/viewfax.tif\"
@@ -42,9 +42,14 @@ OPT = -g -O2 -Wno-uninitialized -ansi -pedantic
 #LDFLAGS = $(OPT)
 #LIBS =
 # sun solaris2 with gcc on supersparc:
+#CC = gcc
+#CFLAGS = -Wall $(OPT) -DHELPFILE=$(HELP) -msupersparc -I/usr/openwin/include
+#LDFLAGS = $(OPT) -L/usr/openwin/lib -R/usr/openwin/lib
+#LIBS =
+# linux
 CC = gcc
-CFLAGS = -Wall $(OPT) -DHELPFILE=$(HELP) -msupersparc -I/usr/openwin/include
-LDFLAGS = $(OPT) -L/usr/openwin/lib -R/usr/openwin/lib
+CFLAGS = $(OPT) -DHELPFILE=$(HELP)
+LDFLAGS = $(OPT) -L/usr/X11R6/lib
 LIBS =
 
 ####### End of configurable definitions #######
@@ -63,13 +68,15 @@ install: viewfax
 D = viewfax-$(VERS)
 FILES = $D/README $D/COPYING $D/ChangeLog $D/Imakefile $D/Makefile \
 	$D/faxexpand.c $D/faxexpand.h $D/faxinput.c $D/faxinit.c \
-	$D/viewfax.c $D/viewfax.man $D/viewfax.tif $D/g3hack.c
+	$D/viewfax.c $D/viewfax.man $D/viewfax.tif $D/viewfax.help \
+	$D/g3hack.c $D/README.kde
 
-viewfax.tif:	viewfax.ps g3hack
-	gs -sDEVICE=faxg3 -sOutputFile=viewfax.g3 -dNOPAUSE -q -dSAFER viewfax.ps -c quit
-	./g3hack -n 100 -o viewfax.g3s viewfax.g3
-	fax2tiff -M -4 -o viewfax.tif viewfax.g3s
-	$(RM) viewfax.g3 viewfax.g3s
+viewfax.tif:	viewfax.help
+	enscript -B -e^ -T 16 -X ps -o viewfax.ps viewfax.help
+	gs -sDEVICE=faxg3 -sOutputFile=viewfax.g3 -dNOPAUSE \
+		-q -dSAFER viewfax.ps -c quit
+	fax2tiff -M -8 -o viewfax.tif viewfax.g3
+	$(RM) viewfax.ps viewfax.g3
 
 tar:;	(cd ..; tar cf - $(FILES) | gzip -9 >$D/$D.tar.gz)
 

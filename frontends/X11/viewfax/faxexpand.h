@@ -58,6 +58,7 @@ struct pagenode {		/* compressed page descriptor */
     struct pagenode *prev, *next; /* list links */
     char *name;			/* basename of file */
     char *pathname;		/* full name of file */
+    int pageno;			/* page number */
     int	nstrips;		/* number of strips */
     int rowsperstrip;		/* number of rows per strip */
     int stripnum;		/* current strip while expanding */

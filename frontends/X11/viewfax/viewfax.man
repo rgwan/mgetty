@@ -1,12 +1,9 @@
-.TH viewfax 1 "14 October 1995" "Frank\'s Hacks" "Local commands"
-.UC 4
+.TH viewfax 1 "14 November 2004" "Frank\'s Hacks" "Local commands"
 .SH NAME
 viewfax \- display fax files in an X11 window
 .SH SYNOPSIS
-.PU
-.ll +8
 .B viewfax
-.RB [ -fnluirv24 ]
+.RB [ -fnluirvW24 ]
 .RB [ -h\fIheight ]
 .RB [ -w\fIwidth ]
 .RB [ -z\fIzoom ]
@@ -15,7 +12,6 @@ viewfax \- display fax files in an X11 window
 .RB [ -b\fIbell ]
 .RB [ -m\fImemory ]
 .I filename...
-.ll -8
 .br
 .SH DESCRIPTION
 .B viewfax
@@ -41,6 +37,14 @@ by a factor of two and the right button reduces it by the same factor.
 If the image is bigger than the available window size, the middle
 mouse button can be used to reposition it within the window.  Hold
 down the middle button while dragging the image to its new position.
+
+If the mouse has a scroll-wheel it can be used to move an oversized
+image vertically.  With the shift key depressed, the wheel scrolls
+through the pages.  The shift sense is inverted if
+.B viewfax
+is started with
+.B -W
+on the command-line.
 
 Further interaction is controlled by single-key commands:
 .TP
@@ -96,6 +100,14 @@ repositions so that the top left corner is visible.
 .TP
 .B END
 makes the bottom right corner visible.
+.TP
+.B Print
+if the environment variable VIEWFAX_PRINT is defined, the current page
+is printed.  All pages are printed with Shift Print.
+.TP
+.B e
+if the environment variable VIEWFAX_EDIT is defined, the current page
+is passed to the editor.  All input files can be edited with Shift e.
 .TP
 .B q
 terminates the program.
@@ -217,12 +229,50 @@ Assume that raw input files use group 3 two dimensional coding.
 .B -4
 Assume that raw input files use group 4 coding.  The number of fax
 lines (-h option) is required in this case.
+.SH ENVIRONMENT
+.TP
+.B VIEWFAX_PRINT
+Defines a command that will print one or more fax pages.
+
+.TP
+.B VIEWFAX_EDIT
+Defines a command that will calls an editor on one or more
+fax pages.
+
+.P
+These two variables are optional.  If a variable is undefined, the
+corresponding keyboard command is ignored.  If the variable is
+defined, it should contain the name of a command or executable script
+that performs the desired function.  The command should process a
+single page if called with a -p\ \fIpage-number\fR
+argument.  Alternatively, if can be called with just a list of
+filenames, meaning that all pages should be processed.
+
+Here is an oversimplified example of a print command.  Note that it
+assumes that the format is tiff and will fail when handed a raw fax
+file.
+.nf
+  VIEWFAX_PRINT=printfax
+ 
+  /usr/local/bin/printfax:
+  #!/bin/sh
+  case "$1" in
+  -p) shift
+      dopt=`expr $1 - 1`
+      shift
+      tiff2ps -d ${dopt} -2 -h 11.69 -w 8.27 "$1" | lp
+      ;;
+  *)  tiff2ps -2 -h 11.69 -w 8.27 "$*" | lp
+      ;;
+  esac
+.fi
+
 .SH SEE ALSO
 .B mgetty
 (http://alpha.greenie.net/mgetty/) controls data/fax/voice modems.
 
 .B hylafax
-(ftp://sgi.com/sgi/fax) is a full-function fax client/server system.
+(http://www.hylafax.org/) is a full-function fax client/server system.
 
 .B g3topbm(1)
 and
@@ -234,10 +284,6 @@ but
 .B xv
 has many capabilities for manipulating the image and saving it
 in other formats.
-
-.B xli(1)
-can display a wide variety of image formats, including g3 faxes.
-Version 1.15 has difficulty recognising damaged fax files.
 
 .B faxview.tcl,
 (ftp://ftp.leo.org/pub/comp/os/unix/networking/mgetty/faxview.tcl.gz)

@@ -9,6 +9,7 @@ HELPDIR = /usr/local/lib	/* where you want the help file installed */
 
 HELPDIR = ${USRLIBDIR}/X11
 DEFINES = -DHELPFILE=\"$(HELPDIR)/viewfax.tif\"
+/* add -DREAL_ROOT to the line above if you are running KDE2.1 */
 
 SRCS = viewfax.c faxinput.c faxinit.c faxexpand.c
 OBJS = viewfax.o faxinput.o faxinit.o faxexpand.o

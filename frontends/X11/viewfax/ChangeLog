@@ -1,3 +1,35 @@
+2004-11-06  Frank D. Cringle  <fdc@cliwe.ping.de>
+
+	* viewfax.man: document mouse wheel and environment variables.
+	Update hylafax URL.
+
+2004-11-05  Frank D. Cringle  <fdc@cliwe.ping.de>
+
+	* viewfax.c: allow printing and editing with a simple interface
+	via getenv.  
+
+	* faxexpand.h: remember page number in the pagenode struct.
+
+	* Makefile: Update Copyright and VERS.  Default to linux rather
+	than solaris.  Add viewfax.tex and README.kde to filelist.
+
+	* Imakefile: add note about KDE.
+
+2004-04-24  Paolo
+
+	* viewfax.c: enable mouse wheel.
+
+2003-05-26  Jim Fohlin
+
+	* faxinput.c: add many warnings and error messages when parsing
+	tiff headers.
+
+2001-04-18  Wolfram Gloger
+
+	* viewfax.c (main), faxinput.c (notefile,getstrip): using -1 as an 
+	out-of-bounds value for vres fails on platforms where char is
+	unsigned.  Use 2 instead.
+
 --------------------
 Version 2.5 released
 --------------------

@@ -1,5 +1,5 @@
 /* Fax file input processing
-   Copyright (C) 1990, 1995  Frank D. Cringle.
+   Copyright (C) 1990, 1995, 2004  Frank D. Cringle.
 
 This file is part of viewfax - g3/g4 fax processing software.
      
@@ -30,6 +30,24 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA. */
 
 #define	FAXMAGIC	"\000PC Research, Inc\000\000\000\000\000\000"
 
+enum { Tbyte=1, Tascii, Tshort, Tlong, Trational };
+static char *typeStr[] = {
+    "undef", "BYTE", "ASCII", "SHORT", "LONG", "RATIONAL" };
+
+static char *Filename;
+static int warned;
+
+static int
+errwarn(int err) {
+    if (!(err || verbose)) return 0;
+    if (!warned) {
+	fprintf(stderr, "%s: %s: errors (E), warnings (W), info (I)\n",
+		ProgName, Filename);
+	warned = 1;
+    }
+    return 1;
+}
+
 /* Enter an argument in the linked list of pages */
 struct pagenode *
 notefile(char *name)
@@ -41,18 +59,20 @@ notefile(char *name)
 	firstpage = new;
     new->prev = lastpage;
     new->next = NULL;
-    if (lastpage != NULL)
+    new->pageno = 1;
+    if (lastpage != NULL) {
 	lastpage->next = new;
+	new->pageno = lastpage->pageno + 1;
+    }
     lastpage = new;
     new->pathname = name;
     if ((new->name = strrchr(new->pathname, '/')) != NULL)
 	new->name++;
     else
 	new->name = new->pathname;
-
     if (new->width == 0)
 	new->width = 1728;
-    if (new->vres < 0)
+    if (new->vres > 1)
 	new->vres = !(new->name[0] == 'f' && new->name[1] == 'n');
     new->extra = NULL;
     return new;
@@ -69,6 +89,36 @@ static int
 get2(unsigned char *p, int endian)
 {
     return endian ? (p[0]<<8)|p[1] : p[0]|(p[1]<<8);
+}
+
+static int
+showtag(FILE *tf, int ftype, int count, t32bits pos, char *tagname)
+{
+    int ch;
+
+    if ((ftype != Tascii) && errwarn(1)) {
+	fprintf(stderr, "[W] %s: expected ascii tag, found %d\n",
+		tagname, ftype);
+	return 0;
+    }
+    if (fseek(tf, pos, SEEK_SET) == -1)
+	return -1;
+    fprintf(stderr, "[I] %s: ", tagname);
+    while (count--) {
+	if ((ch = fgetc(tf)) == EOF)
+	    return -1;
+	if (ch == 0)
+	    break;
+	if ((ch < ' ') || (ch > '~'))
+	    ch = '?';
+	fputc(ch, stderr);
+    }
+    if (count)
+	fputs(" <short!>", stderr);
+    if (ch)
+	fputs(" <long!>", stderr);
+    fputc('\n', stderr);
+    return 0;
 }
 
 /* generate pagenodes for the images in a tiff file */
@@ -103,6 +153,8 @@ notetiff(char *name)
     IFDoff = get4(header+4, endian);
     if (IFDoff & 1)
 	goto nottiff;
+    Filename = name;
+    warned = 0;
     do {			/* for each page */
 	unsigned char buf[8];
 	unsigned char *dir = NULL;
@@ -115,19 +167,23 @@ notetiff(char *name)
 	int t4opt = 0, comp = 0;
 	int orient = defaultpage.orient;
 	double yres = defaultpage.vres ? 196.0 : 98.0;
+	double xres;
 	struct strip *strips = NULL;
 	unsigned long rowsperstrip = 0;
 	int nstrips = 1;
 
 	if (fseek(tf, IFDoff, SEEK_SET) < 0) {
 	realbad:
-	    fprintf(stderr, "%s:%s: invalid tiff file\n", ProgName, name);
+	    errwarn(1);
+	    fputs("[E] invalid tiff file\n", stderr);
 	bad:
 	    if (strips)
 		free(strips);
 	    if (dir)
 		free(dir);
 	    fclose(tf);
+	    Filename = NULL;
+	    warned = 0;
 	    return 1;
 	}
 	if (fread(buf, 2, 1, tf) == 0)
@@ -144,22 +200,45 @@ notetiff(char *name)
 	    ftype = get2(dp+2, endian);
 	    count = get4(dp+4, endian);
 	    switch(ftype) {	/* value is offset to list if count*size > 4 */
-	    case 3:		/* short */
+	    case Tbyte:
+	      break;
+	    case Tascii:
+		if (count <= 4)
+		    value = IFDoff + 10 + dp - dir;
+		else {	/* calc offset but don't read unless later used */
+		    value = get4(dp+8, endian);
+		}
+		break;
+	    case Tshort:
 		value = get2(dp+8, endian);
 		break;
-	    case 4:		/* long */
+	    case Tlong:
 		value = get4(dp+8, endian);
 		break;
-	    case 5:		/* offset to rational */
+	    case Trational:
 		value = get4(dp+8, endian);
+		break;
+	    default:
+		errwarn(1);
+		fprintf(stderr, "[E] unknown ftype %d\n", ftype);
 		break;
 	    }
 	    switch(tag) {
+	    case 254:		/* NewSubFileType */
+		if (errwarn(0))
+		    fprintf(stderr, "[I] NewSubfile(%d) = %lu\n",
+			    tag, (unsigned long) value);
+		break;
 	    case 256:		/* ImageWidth */
 		iwidth = value;
 		break;
 	    case 257:		/* ImageLength */
 		iheight = value;
+		break;
+	    case 258:		/* BitsPerSample */
+		if ((value != 1) && errwarn(1))
+		    fprintf(stderr, "[E] ignored Bits/Sample(%d) = %lu\n",
+			    tag, (unsigned long) value);
 		break;
 	    case 259:		/* Compression */
 		comp = value;
@@ -169,6 +248,31 @@ notetiff(char *name)
 		break;
 	    case 266:		/* FillOrder */
 		lsbfirst = (value == 2);
+		break;
+	    case 269:		/* DocumentName */
+		if (verbose) {
+		    if (showtag(tf, ftype, count, value, "DocumentName") < 0)
+			goto realbad;
+		}
+		break;
+	    case 270:		/* ImageDescription */
+		if (verbose) {
+		    if (showtag(tf, ftype, count, value,
+				"ImageDescription") < 0)
+			goto realbad;
+		}
+		break;
+	    case 271:		/* Make */
+		if (verbose) {
+		    if (showtag(tf, ftype, count, value, "Make") < 0)
+			goto realbad;
+		}
+		break;
+	    case 272:		/* Model */
+		if (verbose) {
+		    if (showtag(tf, ftype, count, value, "Model") < 0)
+			goto realbad;
+		}
 		break;
 	    case 273:		/* StripOffsets */
 		nstrips = count;
@@ -216,13 +320,19 @@ notetiff(char *name)
 		    break;
 		}
 		break;
+	    case 277:		/* SamplesPerPixel */
+		if ((value != 1) && errwarn(1))
+		    fprintf(stderr, "[I] ignored Sample/Pixel(%d) = %lu\n",
+			    tag, (unsigned long) value);
+		break;
 	    case 278:		/* RowsPerStrip */
 		rowsperstrip = value;	
 		break;
 	    case 279:		/* StripByteCounts */
-		if (count != nstrips) {
-		    fprintf(stderr, "%s:%s StripsPerImage tag273=%d, tag279=%ld\n",
-			    ProgName, name, nstrips, count);
+		if ((count != nstrips) && errwarn(1)) {
+		    fprintf(stderr,
+			    "[E] StripsPerImage tag273=%d, tag279=%ld\n",
+			    nstrips, count);
 		    goto realbad;
 		}
 		if (count == 1 || (count == 2 && ftype == 3)) {
@@ -240,30 +350,108 @@ notetiff(char *name)
 			get2(buf, endian) : get4(buf, endian);
 		}
 		break;
+	    case 282:		/* XResolution */
+		if (fseek(tf, value, SEEK_SET) < 0 ||
+		    fread(buf, 8, 1, tf) == 0)
+		    goto realbad;
+		xres = get4(buf, endian) / get4(buf+4, endian);
+		if ((xres != 204) && errwarn(0))
+		    fprintf(stderr, "[W] ignored Xres(%d) = %7.2f (ns)\n",
+			    tag, xres);
+		break;
 	    case 283:		/* YResolution */
 		if (fseek(tf, value, SEEK_SET) < 0 ||
 		    fread(buf, 8, 1, tf) == 0)
 		    goto realbad;
 		yres = get4(buf, endian) / get4(buf+4, endian);
 		break;
+	    case 284:		/* PlanarConfiguration */
+		if ((value != 1) && errwarn(0))
+		    fprintf(stderr, "[W] ignored PlanarConfig(%d) = %lu\n",
+			    tag, (unsigned long) value);
+		break;
+	    case 285:		/* PageName */
+	    case 286:		/* XPosition */
+	    case 287:		/* YPosition */
+		if (errwarn(0))
+		    fprintf(stderr,
+			    "[W] ignored storage & retrieval tag (%d)\n", tag);
+		break;
 	    case 292:		/* T4Options */
 		t4opt = value;
 		break;
 	    case 293:		/* T6Options */
-		/* later */
+		if ((value != 0) && errwarn(1))
+		    fprintf(stderr, "[W] ignored T6Options(%d) = %lu\n",
+			    tag, (unsigned long) value);
 		break;
 	    case 296:		/* ResolutionUnit */
 		if (value == 3)
 		    yres *= 2.54;
+		break;
+	    case 297:		/* PageNumber */
+		if (errwarn(0))
+		    fprintf(stderr, "[I] PageNumber(%d) = %lu/%d\n",
+			    tag, (unsigned long) value, get2(dp+10, endian));
+		break;
+	    case 305:		/* Software */
+		if (errwarn(0)) {
+		    if (showtag(tf, ftype, count, value, "Software") < 0)
+			goto realbad;
+		}
+		break;
+	    case 306:		/* DateTime */
+		if (errwarn(0)) {
+		    if (showtag(tf, ftype, count, value, "DateTime") < 0)
+			goto realbad;
+		}
+		break;
+	    case 315:		/* Artist */
+		if (errwarn(0)) {
+		    if (showtag(tf, ftype, count, value, "Artist") < 0)
+			goto realbad;
+		}
+		break;
+	    case 316:		/* HostComputer */
+		if (errwarn(0)) {
+		    if (showtag(tf, ftype, count, value, "HostComputer") < 0)
+			goto realbad;
+		}
+		break;
+	    case 320:		/* ColorMap */
+		if (errwarn(0))
+		    fprintf(stderr, "[W]ignored ColorMap(%d) = %lu\n",
+			    tag, (unsigned long) value);
+		break;
+	    case 326:	/* BadFaxLines */
+	    case 327:	/* CleanFaxData */
+	    case 328:	/* ConsecutiveBadFaxLines */
+		if ((value != 0) && errwarn(0))
+		    fprintf(stderr, "[I] quality(%d) = %lu\n", tag,
+			    (unsigned long) value);
+		break;
+	    default:
+		if (errwarn(0)) {
+		    fprintf(stderr, "[W] unknown tag %d: #%lu %s",
+			    tag, (unsigned long) count, typeStr[ftype]);
+		    if ((ftype == Tshort) || (ftype == Tlong))
+			fprintf(stderr, " = %lu", (unsigned long) value);
+		    fprintf(stderr, "\n");
+		}
 		break;
 	    }
 	}
 	IFDoff = get4(dp, endian);
 	free(dir);
 	dir = NULL;
-	if (comp < 2 || comp > 4) {
-	    fprintf(stderr, "%s:%s: this version only handles fax files\n",
-		ProgName, name);
+	if ((iwidth * iheight == 0) && errwarn(1)) {
+	    fprintf(stderr,
+		    "[E] fax width x height (%lu x %lu) must be non-zero\n",
+		    (unsigned long) iwidth, (unsigned long) iheight);
+	    goto bad;
+	}
+	if ((comp < 2 || comp > 4) && errwarn(1)) {
+	    fprintf(stderr, "[E] compression=%d unsupported\n", comp);
 	    goto bad;
 	}
 	pn = notefile(name);
@@ -284,6 +472,8 @@ notetiff(char *name)
 	    pn->expander = g4expand;
     } while (IFDoff);
     fclose(tf);
+    Filename = NULL;
+    warned = 0;
     return 1;
 }
 
@@ -344,6 +534,11 @@ normalize(struct pagenode *pn, int revbits, int swapbytes, size_t length)
 	    t = ((t & 0xcccccccc) >> 2) | ((t & 0x33333333) << 2);
 	    *p++ = ((t & 0xaaaaaaaa) >> 1) | ((t & 0x55555555) << 1);
 	}
+	break;
+    default:
+	fprintf(stderr, "%s: unknown rev %d\n",
+		ProgName, (revbits<<1)|swapbytes);
+	break;
     }
 }
 
@@ -421,7 +616,7 @@ getstrip(struct pagenode *pn, int strip)
 	    printf("%s: only first page of multipage file %s will be shown\n",
 		   ProgName, pn->pathname);
 	pn->length -= 64;
-	pn->vres = Data[29];
+	pn->vres = Data[29] ? 1 : 0;
 	pn->data += 32;
 	roundup -= 64;
     }

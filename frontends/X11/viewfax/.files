@@ -3,11 +3,13 @@ ChangeLog
 Imakefile
 Makefile
 README
+README.kde
 faxexpand.c
 faxexpand.h
 faxinit.c
 faxinput.c
 g3hack.c
 viewfax.c
+viewfax.help
 viewfax.man
 viewfax.tif
