@@ -1,4 +1,4 @@
-#ident "$Id: io.c,v 1.6 1993/10/06 00:35:42 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: io.c,v 1.7 1993/10/19 11:40:27 gert Exp $ Copyright (c) Gert Doering";
 /* io.c
  *
  * This module contains a few low-level I/O functions
@@ -21,6 +21,7 @@ int poll _PROTO(( struct pollfd fds[], unsigned long nfds, int timeout ));
 #endif
 
 #ifdef USE_SELECT
+# include <string.h>
 # if defined (linux) || defined (sun) || defined (SVR4) || defined (__hpux)
 #  include <sys/time.h>
 # else
@@ -95,4 +96,43 @@ boolean	check_for_input _P1( (filedes),
     if ( ret < 0 ) lprintf( L_ERROR, "poll / select failed" );
 
     return ( ret > 0 );
+}
+
+/* wait until a character is available
+ * where select() or poll() exists, no characters will be read,
+ * if only read() can be used, at least one character will be dropped
+ */
+void wait_for_input _P1( (fd), int fd )
+{
+#ifdef USE_SELECT
+    fd_set	readfds;
+#endif
+#ifdef USE_POLL
+    struct	pollfd fds;
+#endif
+    int slct;
+
+#ifdef USE_SELECT
+    
+    FD_ZERO( &readfds );
+    FD_SET( fd, &readfds );
+    slct = select( FD_SETSIZE, &readfds, NULL, NULL, NULL );
+    lprintf( L_NOISE, "select returned %d", slct );
+
+#else	/* use poll */
+# ifdef USE_POLL
+
+    fds.fd = fd;
+    fds.events = POLLIN;
+    fds.revents= 0;
+    slct = poll( &fds, 1, -1 );
+    lprintf( L_NOISE, "poll returned %d", slct );
+# else
+    {
+	char t;
+	read(1, &t, 1);
+	lprintf(L_NOISE, "read returned: "); lputc(L_NOISE, c );
+    }
+# endif
+#endif
 }
