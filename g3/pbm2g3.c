@@ -1,5 +1,5 @@
-#ident "$Id: pbm2g3.c,v 1.3 1994/05/20 09:07:35 gert Exp $ Copyright (C) 1994 Gert Doering"
-;
+#ident "$Id: pbm2g3.c,v 1.4 1994/08/08 12:38:18 gert Exp $ Copyright (C) 1994 Gert Doering"
+
 /* pbmtog3
  *
  * convert a "portable bitmap" file into CCITT T.4 fax format
