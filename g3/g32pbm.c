@@ -1,4 +1,13 @@
-#ident "$Id: g32pbm.c,v 3.1 1995/08/30 12:39:10 gert Exp $ (c) Gert Doering"
+#ident "$Id: g32pbm.c,v 3.2 1995/09/30 10:53:28 gert Exp $ (c) Gert Doering, Chris Lewis et.al."
+
+/* G3topbm.c
+ *
+ * convert raw G3 data (optionally with a digifax header) to PBM or
+ * Laserjet, optionally scaling the image in the process.
+ *
+ * G3 and PBM code by Gert Doering
+ * HP Laserjet and scaling code by Chris Lewis
+ */
 
 #include <stdio.h>
 #include <unistd.h>
