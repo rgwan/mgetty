@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 4.9 1998/07/05 20:31:04 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 4.10 1998/08/04 13:37:27 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration defaults for mgetty / sendfax
  * are specified.
@@ -96,7 +96,7 @@
 /* group id that the device is chown()ed to. If not defined, the
  * primary group of "DEVICE_OWNER" is used.
  */
-#define DEVICE_GROUP	"modem"
+#define DEVICE_GROUP	"david"
 
 /* access mode for the line while getty has it - it should be accessible
  * by uucp / uucp, but not by others (imagine someone dialing into your
@@ -125,7 +125,7 @@
  *
  * if the directory does not exist, the log file goes to CONSOLE (!)
  */
-#define LOG_PATH "/var/log/mgetty.%s"
+#define LOG_PATH "/dtmp/modem/log_mg.%s"
 
 /* Default log error level threshold. Possible error levels are
  * L_FATAL, L_ERROR, L_WARN, L_AUDIT, L_MESG, L_NOISE, L_JUNK (see mgetty.h)
@@ -150,7 +150,7 @@
  * mgetty will use the facility "LOG_AUTH", and the priorities
  * LOG_NOTICE, LOG_ERR and LOG_ALERT, respectively.
  */
-/* #define SYSLOG */
+#define SYSLOG /**/
 
 /* Syslog facility
  *
@@ -172,7 +172,8 @@
  * current date and time, respectively.
  * override with "-p <prompt>" switch
  */
-#define LOGIN_PROMPT	"@!login: "
+/* #define LOGIN_PROMPT	"@!login: " */
+#define LOGIN_PROMPT   "MGETTY-@-\\P> Benutzer? "
 
 /* On SVR4, maybe on other systems too, you can cause the 'login' program
  * to prompt with the same string as mgetty did, instead of the standard
@@ -209,7 +210,7 @@
  * If that file exists, a ringing phone won't be answered (see manual).
  * "%s" will be replaced by the device name.
  */
-#define NOLOGIN_FILE "/etc/nologin.%s"
+#define NOLOGIN_FILE "/stf/mail/BLOCK.DAT"
 
 
 /* misc */
@@ -221,7 +222,7 @@
  *
  * Depending on your system, "/var/run/mgetty.%s" might be a good place.
  */
-#define MGETTY_PID_FILE	"/etc/mg-pid.%s"
+#define MGETTY_PID_FILE	"/dtmp/modem/mg-pid.%s"
 
 /* Path for the lock files. A %s will be replaced with the device name,
  * e.g. tty2a -> /usr/spool/uucp/LCK..tty2a
@@ -461,7 +462,7 @@
 
 /* name of the logfile for outgoing faxes (e.g. /var/log/sendfax.log)
  */
-#define FAX_LOG		"/var/log/sendfax.log"
+#define FAX_LOG		"/dtmp/modem/sendfax.log"
 
 /* local station ID (your fax number)
  * 20 character string, most faxmodem allow all ascii characters 32..127,
@@ -476,7 +477,7 @@
  * SUPRAs (and many other rockwell-based faxmodems) can not.
  * I recommend 38400, since 19200 may be to slow for 14400 bps faxmodems!
  */
-#define FAX_SEND_BAUD 38400
+#define FAX_SEND_BAUD 19200
 
 /* switch baud rate after +FCLASS=2
  *
@@ -544,7 +545,6 @@
  * ** THIS OPTION IS OBSOLETE **  
  * ** use "modem-quirks 0x08" in sendfax.config instead **
  */
-/* #define FAXSEND_NO_XON */
 
 
 /* define mailer that accepts destination on command line and mail text
@@ -589,7 +589,7 @@
  * If you don't want this type of service, do not define it at all
  * Absolute path name has to be used here!
  */
-#define FAX_NOTIFY_PROGRAM "/usr/local/lib/mgetty+sendfax/new_fax"
+#define FAX_NOTIFY_PROGRAM "/stf/mail/mgetty/new_fax"
 
 /* default minimum space required on spooling partition for receiving a FAX
  * (in KILObytes)
