@@ -1,4 +1,4 @@
-#ident "$Id: faxrecp.c,v 1.2 1997/10/31 18:18:33 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrecp.c,v 1.3 1998/10/07 13:21:59 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrecp.c - part of mgetty+sendfax
  *
@@ -13,6 +13,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <signal.h>
+#include <time.h>
 #include <sys/types.h>
 #include <sys/times.h>
 #include <sys/stat.h>
