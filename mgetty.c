@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.126 1994/08/10 12:53:17 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.127 1994/08/10 14:55:07 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -653,7 +653,8 @@ int main _P2((argc, argv), int argc, char ** argv)
 	     * (don't do this on two-user-license systems!)
 	     */
 #ifndef USER_LIMIT
-	    make_utmp_wtmp( Device, UT_USER, "dialout", NULL );
+	    i = checklock( Device );		/* !! FIXME, ugly */
+	    make_utmp_wtmp( Device, UT_USER, "dialout", get_ps_args(i) );
 #endif
 
 	    /* this is kind of tricky: sometimes uucico dial-outs do still
