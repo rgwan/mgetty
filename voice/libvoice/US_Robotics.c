@@ -24,7 +24,7 @@
  * A very good US Robotics technical reference manual is available
  * at: http://www.alliancedatacom.com/us-robotics-manuals.htm (not a typo).
  *
- * $Id: US_Robotics.c,v 1.7 1999/06/15 12:38:34 marcs Exp $
+ * $Id: US_Robotics.c,v 1.8 1999/07/18 17:29:54 marcs Exp $
  *
  */
 
@@ -60,12 +60,27 @@ static int USR_beep(int frequency, int length)
       
      if (IS_101_beep(frequency, length) != OK)
           return(FAIL);
+
+     /*  --- "Luca Olivetti" <luca@olivetti.dhis.org>
+      *     A long time ago I introduced a workaround in US_Robotics.c to a
+      *     problem: if you sent a beep command the modem wouldn't recognize
+      *     DTMF codes afterwards.  The workaround was to send the "answer
+      *     phone" code (AT#VLS=4A).  Now I realized that this wouldn't work
+      *     if the internal or the external speaker is in use, because after
+      *     the AT#VLS=4A the modem will go off hook, effectively changing the
+      *     Thus this patch enable the workaround only if the selected device
+      *     is *not* the internal/external speaker (the modem doesn't beep
+      *     with the internal speaker anyway but at least it won't go off
+      *     hook -- it beeps with the *external* speaker though). 
+      */ 
+
+     if (internal_speaker_used) return(OK);
           
      if (IS_101_answer_phone() != VMA_OK)
           return(FAIL);
      
      return(OK);
-     } 
+} 
 
 static int USR_init(void)
      {
@@ -92,8 +107,7 @@ static int USR_init(void)
           lprintf(L_WARN, "VTD setup successful");
 
      /*
-      * Set silence threshold and length. Must be in voice mode to do this.
-      */
+      * Set silence threshold and length. Must be in voice mode to do this.  */
 
      sprintf(buffer, "AT#VSD=1#VSS=%d#VSP=%d",
       cvd.rec_silence_threshold.d.i * 3 / 100,
@@ -268,6 +282,7 @@ static int USR_set_device(int device)
                voice_command("AT#VLS=4","OK|VCON");
                return(OK);
           case EXTERNAL_SPEAKER:
+               internal_speaker_used = TRUE;
                voice_command("AT#VLS=2","OK|VCON");
                return(OK);
           case INTERNAL_MICROPHONE:
