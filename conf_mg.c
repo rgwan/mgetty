@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.c,v 4.8 1998/07/02 09:42:37 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_mg.c,v 4.9 1998/08/03 20:01:45 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_mg.c
  *
@@ -78,6 +78,7 @@ struct conf_data_mgetty c = {
 	{ "modem-quirks", {0}, CT_INT, C_EMPTY },
 	{ "init-chat", {0}, CT_CHAT, C_EMPTY },
 	{ "force-init-chat", {0}, CT_CHAT, C_EMPTY },
+	{ "post-init-chat", {0}, CT_CHAT, C_EMPTY },
 
 	{ "modem-check-time", {MODEM_CHECK_TIME}, CT_INT, C_PRESET },
 	{ "rings", {1}, CT_INT, C_PRESET },
