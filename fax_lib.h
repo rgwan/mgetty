@@ -1,4 +1,4 @@
-#ident "$Id: fax_lib.h,v 3.1 1995/08/30 12:40:33 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: fax_lib.h,v 3.2 1995/10/25 18:47:23 gert Exp $ Copyright (c) Gert Doering"
 
 
 /* fax_lib.h
@@ -65,12 +65,13 @@ extern	int	fhs_lc, fhs_blc, fhs_cblc, fhs_lbc;	/* details */
 /* fax_hangup_code gives the reason for failure, normally it's a positive
  * number returned by the faxmodem in the "+FHNG:iii" response. If the
  * modem returned BUSY or NO_CARRIER or ERROR, we use negative numbers to
- * signal what has happened. "-4" means something toally unexpeced.
+ * signal what has happened. "-5" means something toally unexpeced.
  */
 
 #define	FHUP_BUSY	-2
-#define FHUP_ERROR	-3
-#define FHUP_UNKNOWN	-4
+#define FHUP_NODIAL	-3
+#define FHUP_ERROR	-4
+#define FHUP_UNKNOWN	-5
 
 #define ETX	003
 #define DLE	020
