@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 1.16 1994/01/03 02:52:56 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 1.17 1994/01/30 00:59:38 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* faxlib.c
  *
@@ -20,7 +20,7 @@ char	fax_remote_id[1000];		/* remote FAX id +FTSI */
 char	fax_param[1000];		/* transm. parameters +FDCS */
 fax_param_t	fax_par_d;		/* fax params detailed */
 char	fax_hangup = 0;
-int	fax_hangup_code = 0;		/* hangup cause +FHNG:<xxx> */
+int	fax_hangup_code = FHUP_UNKNOWN;	/* hangup cause +FHNG:<xxx> */
 int	fax_page_tx_status = 0;		/* +FPTS:<ppm> */
 boolean	fax_to_poll = FALSE;		/* there's something to poll */
 boolean fax_poll_req = FALSE;		/* poll requested */
