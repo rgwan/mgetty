@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.1 1997/01/12 14:52:32 gert Exp $ (c) 1993-1997 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.2 1997/10/30 11:37:47 gert Exp $ (c) 1993-1997 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -17,7 +17,7 @@ Copyright @copyright{} 1993-1997 Gert Doering
 @sp 6
 @center @titlefont{mgetty+sendfax}
 @sp 4
-@center Version 1.0.0
+@center Version 1.1.x
 @sp 1
 @center January 1997
 @sp 5
@@ -285,7 +285,7 @@ system calls, by defining @code{-DUSE_SELECT} or @code{-DUSE_POLL} flags in
 the @file{Makefile} (If you don't know it, try both, until the error goes
 away). If it's not related to @code{select} or @code{poll}, please check
 the systems man pages which libraries to link, and add appropriate
-@code{-l<library>} statements to @code{LDFLAGS}.
+@code{-l<library>} statements to @code{LIBS}.
 
 If your system has neither the select(S) call nor the poll(S) call,
 mgetty is not fully operational---these functions are the only way to
@@ -524,7 +524,8 @@ Use @file{/dev/ttyS*}, @emph{not} @file{/dev/cua*}. @xref{Linux}
 SunOS, FreeBSD, NetBSD:
 
 Use @file{/dev/cua*}, not @file{/dev/ttyS*}. Don't ask me why it has to be
-this way, but the other way won't work.
+this way, but the other way won't work. (On SunOS or Solaris, you can
+find some gory details in the @code{man zs} man page).
 
 @end itemize
 
@@ -638,10 +639,10 @@ and spaces. The callerid number is compared with each token in turn, until
 a match occurs. A match occurs when the token compares equally to the
 callerid information up to the length of the token.  If the token is
 prefixed with a ``!'', a match means ``do not answer the phone''. The token
-``any'' matches any telephone number, and will terminate scanning of the
+``all'' matches any telephone number, and will terminate scanning of the
 cndfile. If no callerid number is present, it is assumed to have the value
 ``none''. A line starting with ``#'' is a comment.  There is an implicit
-``any'' at the end of the file.
+``all'' at the end of the file.
  
 For example:
 
@@ -662,7 +663,7 @@ For example:
 	# ("OUT_OF_AREA" token seems ZyXEL specific)
 	OUT_OF_AREA
 	# disallow all other calls
-	!any
+	!all
 @end example
 
 For the future, Chris Lewis is planning on adding special modem initialization
@@ -951,8 +952,8 @@ to the port anymore. Depending on the operating system used, this can
 be before printing the @file{/etc/issue} file or not before printing
 the @samp{password:} prompt.
 
-To work around this, you can switch off the carrier detection in software:
-set @code{ignore-carrier true}. Default is @code{false}.
+To work around this, you can switch off the carrier detection in the
+kernel: set @code{ignore-carrier true}. Default is @code{false}.
 
 @strong{WARNING:} If you use this, your system won't be able to detect
 when a caller just hangs up instead of cleanly logging out. This may
@@ -1207,6 +1208,12 @@ driver as well, its output is identical to the output of the
 @samp{dfaxhigh} driver except for the 64 byte header.  Besides this,
 there should not be any difference.
 
+I have observed that with Ghostscript 5.01, the output of the @samp{faxg3}
+driver is rendered better than that of the @samp{dfaxhigh} driver. In
+addition, the former is compiled-in by default, while the latter is not.
+Thus, the default driver used by @code{faxspool} is now (starting with 1.1.7)
+the @samp{faxg3} driver.
+
 @item
 Bitmaps can be converted using the @samp{pbmplus} tools, but you'll have
 to do the proper scaling by hand. Use a pipeline with @code{pbm2g3} at the
@@ -1222,8 +1229,9 @@ encapsulated PostScript files, e.g. a scanned signature.
 
 @item
 Another way for @TeX{} file conversion is Ralf Schleicher's @code{faxdvi}
-package, found in @file{contrib/faxdvi-0.1.tar}. Don't ask me about, ask
-him!
+package, found at
+@file{ftp://ftp.leo.org/pub/comp/networking/communication/modem/mgetty/faxdvi-1.1.tar.gz}. Don't
+ask me about, ask him!
 
 @item
 HP-Laserjet files can be translated with Chris Lewis' @file{hp2pbm}
@@ -1380,6 +1388,7 @@ external programs (i.e. faxrunq) to decide whether to try again or not:
 10: dial failed, "ERROR" or "NO CARRIER"
 11: waiting for XON failed (should never be seen)
 12: transmitting page(s) failed (or polling failed)
+15: some catastrophe hit (termination signal or blocked modem)
 @end example
 
 If the error code is less than 10, the attempt didn't cost anything, so an
@@ -1508,7 +1517,7 @@ Some additional tools are provided for manipulating G3 fax files:
 
 @itemize @bullet
 @item 
-@code{g3cat} (in the @file{tools} directory) concatenates multiple G3
+@code{g3cat} (in the @file{g3/} directory) concatenates multiple G3
 fax files. It accepts ``raw'' g3 files and digifax files and outputs a
 ``raw'' g3 file without headers. Its syntax is analogous to
 @code{cat}, except that you @emph{have} to specify @file{-} to read
@@ -1521,7 +1530,7 @@ codes in the file (Warning: some modems do not like this).
 @item
 To convert an incoming fax to Jef Poskanzers @file{portable bitmap}
 (@code{pbm}) format, you can use the @code{g32pbm} program that is
-also provided in @file{tools/}. It's advantages over Jef's
+also provided in @file{g3/}. It's advantages over Jef's
 @code{g3topbm} program are that it's approximately five times faster
 and takes only one eigth as much virtual memory (on machines with low
 virtual memory, it can thus be up to 100 times faster!). Its disadvantage
@@ -1743,9 +1752,10 @@ You'll recognize it if you get a ``weird-looking'' log file that works
 fine up to the end of the first page, and then aborts with @samp{I/O
 error} or so.
 
-Unfortunately, this option is @strong{NOT implemented} yet. Instead, use
-the @code{#define FAX_SEND_IGNORE_CARRIER} in @file{policy.h} and
-recompile @code{sendfax}. Don't forget to re-install!
+In earlier versions, you could achieve this by setting
+@code{FAX_SEND_IGNORE_CARRIER} in @file{policy.h}, but I recommend using
+the config file instead.
+
 
 @item @code{dial-prefix} @var{command}
 
@@ -1765,9 +1775,10 @@ machine, but if you want to (and if your modem support it), you can put up
 to 20 alphanumeric characters here, e.g. @code{+1-11-222 Fred}. Default is
 @code{FAX_STATION_ID}.
 
-Watch out: the @code{faxspool} program does @emph{not} read sendfax' config
-file, so the fax id it puts on the header might not be the same as the one
-transmitted by sendfax, if you change it only in one place.
+Watch out: the @code{faxspool} program @emph{only} uses the @emph{global}
+definition from sendfax' config file, so the fax id it puts on the header 
+might not be the same as the one transmitted by sendfax, if you use port
+specific settings for @code{fax-id} in @file{sendfax.config} (Paul Sands).
 
 @item @code{poll-dir} [-d] @var{full path}
 
@@ -1972,23 +1983,24 @@ Naturally, you can use any init string you want (but the modem has to
 return OK) --- check with your modem manual.
 
 @item
-On USR Modems, it has occasionally been reported that the initialization 
-phase runs through fine, but incoming @code{RING} messages are not
-recognized, and mgetty complains about @samp{junk on the line}. In all
-those cases, it were baud rate problems. The modem was initialized with an
-init-sequence of @code{"" ATZ OK} only. Problem with this is, after ATZ,
-the modem changes to the DTE baud rate that the last AT&W command was sent
-with. If that baud rate differs from the @code{mgetty} port speed, a RING
-won't be detected.  Fix is easy: send another @code{AT} command, for
-example, make the init sequence @code{"" ATZ OK AT OK}. The second
-@code{AT} command will set the modem back to the mgetty port speed.
+On USR and some ELSA Modems, it has occasionally been reported that the 
+initialization phase runs through fine, but incoming @code{RING} messages 
+are not recognized, and mgetty complains about @samp{junk on the line}. 
+In all those cases, it were baud rate problems. The modem was initialized 
+with an init-sequence of @code{"" ATZ OK} only. Problem with this is, 
+after ATZ, the modem changes to the DTE baud rate that the last AT&W 
+command was sent with. If that baud rate differs from the @code{mgetty} 
+port speed, a RING won't be detected.  Fix is easy: send another 
+@code{AT} command after the @code{ATZ}. For example, make the init 
+sequence @code{"" ATZ OK AT OK}. The second @code{AT} command will 
+set the modem back to the mgetty port speed.
 
 @item
 Some modems do not like the @samp{+FDCC=1,5,...} command.
 
 In the latest version, mgetty and sendfax will automatically detect if the
 modem isn't able to do 14400 bps for faxing and will use 9600 bps ---
-@samp{+FDCC=1,3,...} --- instead.
+@samp{+FDCC=1,3,...} --- instead. So don't worry about the error message.
 
 @item
 Sometimes mgetty cannot initialize the modem, it times out waiting for
@@ -2034,10 +2046,11 @@ the ``high speed'' page transmission carrier. @code{sendfax} normally runs
 carrier-sensitive, and will then get a lot error messages in the
 @code{read} and @code{write} calls, logging them as @code{I/O Error} or
 something similar when sending the first or second page. To work around
-this, define @code{FAX_SEND_IGNORE_CARRIER} in @file{policy.h}.
+this, set @code{ignore-carrier true} in @file{sendfax.config}.
 
 If you run into this problem, @code{sendfax} will complain about
-@samp{Error +FHNG:-4 (Unexpected hangup / read() error / write() error)}.
+@samp{Error +FHNG:-5 (Unexpected hangup / read() error / write() error)}
+and abort.
 
 @item
 Some modems do not understand @code{ATH0}, responding with @samp{ERROR} to
@@ -2163,6 +2176,41 @@ corrupt the signals, and introduce noise on the modem control lines. Flat
 cables are famous for this, use round, shielded modem cables, no longer
 than necessary.
 
+@item
+@code{mgetty} will complain loudly if you switch off your modem.
+
+Well, what should I say, this is a feature :-) -- I think that mgetty
+should detect and complain if a modem is not working, and if you switch it
+off, it is most definitely not working.
+
+Others argue about power consumption, noise, lights, and everything -- but
+I refuse to make mgetty less noisy in case of a powered-off modem. But, as
+usual, there is a way around this (which is what came out of a discussion
+with Rolf Ade recently). You just create a file, @file{/etc/nomodem.ttyS1},
+or however you want to name it, when you intend to switch off your modem.
+Instead of running @code{mgetty} from @file{/etc/inittab}, you run a 
+``wrapper'' script that will wait until the nomodem file disappears, 
+and then starts @code{mgetty}. That way, you can just prevent
+@code{mgetty} from starting when you don't want it to.
+
+The wrapper is easy:
+
+@example
+#!/bin/sh
+#
+while test -f /etc/nologin.ttyS1
+do
+   sleep 60
+   done
+exec /usr/local/sbin/mgetty ttyS1
+@end example
+
+A more advanced wrapper program could, for example, check the status of
+the DSR line to determine whether the modem is active, but as so many
+systems have flakey DSR detection (Solaris, AIX), I didn't bother to
+invest much time into this only to find that it isn't working reliably
+anyway. It's not difficult, though.
+
 @end itemize
 
 @node Zyxel, TelelinkIMS08, Common, Modems
@@ -2225,7 +2273,7 @@ Some models, seemingly only the @samp{EG+} (german telekom approved),
 toggle the DCD line during the pre-page handshake, thus causing
 @code{sendfax} to abort (with a ``I/O error'' during read/write
 operations). You can work around this by defining
-@code{FAX_SEND_IGNORE_CARRIER} in @file{policy.h}.
+@code{ignore-carrier true} in @file{sendfax.config}.
 
 ZyXEL modems can do security callback (@code{AT*Gi} with @code{i} > 0).
 With ROM releases up to 6.11a, this doesn't interact very well with
@@ -2239,6 +2287,22 @@ modem into a sophisticated answering machine. Yo can finde this tools in
 the @file{voice} subdirectory. (NOTE: In version 1.0, I haven't included
 the stuff, because the docs are heavily lacking and Marc thinks it's not
 ready yet. Get 0.99 or 1.1-betas to play with voice).
+
+Josef Wolf (jw@@raven.inka.de) has added some comments about the ZyXEL 
+Eproms (I don't know whether it's true or not, ask him or 
+support@@zyxel.com):
+
+Most EPROMs require /PGM and Vpp to be Vcc while in ROM-Mode. On ZyXELs
+these two pins are removed in the socket so the pins are _floating_. This
+treatment is @strong{out of spec} for @emph{any} EPROM. The TI-Types 
+originally used by ZyXEL seem to tolarate this treatment. But most other 
+EPROMS won't work properly. There are two solutions to this problem:
+
+1.) use the types which zyxel used. (could be troublesome to find some)
+
+2.) take two sockets, solder jumpers between pins 1, 31 and 32 (these are
+    /PGM, Vpp and Vcc) and place them into the original sockets before
+    inserting the EPROMs.
 
 @node TelelinkIMS08, Rockwell, Zyxel, Modems
 @subsection Telelink IMS 08 Faxline+ Modems
@@ -2338,8 +2402,8 @@ Change @code{speed} in @file{mgetty.config} and @file{sendfax.config}
 to @code{19200} and set @code{modem-handshake} to @var{AT&K4}.
 
 Further, if your model toggles DCD betwen fax pages (@code{sendfax} fails
-mysteriously between pages), @code{#define FAX_SEND_IGNORE_CARRIER} in
-@file{policy.h}.
+mysteriously between pages), @code{ignore-carrier true} in
+@file{sendfax.config}.
 
 After that, it should work.
 
@@ -2960,16 +3024,18 @@ to recompile Taylor with different settings for the @code{termio} selection
 Many thanks to Joerg Weber (joerg@@interface-business.de) for finding all
 those problems.
 
+@c FAX_SEND_IGNORE_CARRIER --> UnixWare bug!
+
 Ed Hall (edhall@@rand.org) found another major glitch on UnixWare 4.2: if
-you run @code{sendfax} without @code{#define}ing
-@code{FAX_SEND_IGNORE_CARRIER} in @file{policy.h}, and @code{sendfax}
+you run @code{sendfax} without setting
+@code{ignore-carrier true} in @file{sendfax.config}, and @code{sendfax}
 switches off carrier detection at the end of the very last page, the
 kernel code messes up something and bytes get lost. The modem then returns 
 funny error codes, like, for example,
 @example
 Transmission error: +FHNG:44 (Unrecognized Transparent data command)
 @end example
-If you're experiencing this, just @code{#define FAX_SEND_IGNORE_CARRIER}
+If you're experiencing this, just set @code{ignore-carrier true}
 and everything should work just fine (please tell me in any case whether
 it was necessary, because if it happens for other people as well, I'll
 make this permanent on SVR42).
@@ -3069,7 +3135,8 @@ fax sending should work.
 
 Please use the ``outgoing'' devices (@file{/dev/cua*}) for mgetty and
 dial-outs, using the ``incoming'' devices (@file{/dev/tty*}) will make
-dialout impossible.
+dialout impossible. Further, carrier detect (DCD) is only honoured
+on the @file{cua*} lines.
 
 It is @strong{very} strongly recommended that you install the 
 ``jumbo tty patch'' (patch number 100513-05 for 4.1.2 or .3, patch 
@@ -3226,6 +3293,9 @@ Furthermore, you should define binary lock files, in policy.h:
 @example
 #define LOCKS_BINARY 1
 @end example
+
+Finally, when using NEXTSTEP's cc, you need to run "make noident" in
+the first place to remove the #ident directives from the source files.
 
 If you have questions, comments or suggestions regarding @code{mgetty} with
 NEXTSTEP, feel free to contact Gregor Hoffleit
@@ -3572,7 +3642,7 @@ plan to use @code{mgetty+sendfax} in different environments than I do.
 
 The current release can usually be found at:
 
-sunsite.unc.edu:@file{/pub/Linux/system/Serial/mgetty+sendfax*}
+sunsite.unc.edu:@file{/pub/Linux/system/serial/getty/mgetty+sendfax*}
 
 tsx-11.mit.edu:@file{/pub/linux/sources/sbin/mgetty+sendfax*}
 
@@ -3580,7 +3650,7 @@ ftp.leo.org:@file{/pub/comp/networking/communication/modem/mgetty/*}
 
 ftp.mathematik.th-darmstadt.de:@file{/pub/linux/mirrors/misc/mgetty/*}
 
-linux.nrao.edu:@file{/pub/src/mgetty+sendfax/*}
+linux.nrao.edu:@file{/pub/packages/mgetty+sendfax/*}
 
 ... and on all sites that mirror SunSITE.unc.edu or tsx-11.
 
