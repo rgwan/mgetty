@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 3.4 1995/12/31 01:23:55 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 3.5 1996/01/03 21:33:48 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -231,9 +231,12 @@ int main _P2((argc, argv), int argc, char ** argv)
     /* startup
      */
     (void) signal(SIGHUP, SIG_IGN);
-    (void) signal(SIGINT, SIG_IGN);
-    (void) signal(SIGQUIT, SIG_DFL);
-    (void) signal(SIGTERM, SIG_DFL);
+
+    /* set to remove lockfile(s) and print "got signal..." message
+     */
+    (void) signal(SIGINT, sig_goodbye);
+    (void) signal(SIGQUIT, sig_goodbye);
+    (void) signal(SIGTERM, sig_goodbye);
 
     /* some systems, notable BSD 4.3, have to be told that system
      * calls are not to be automatically restarted after those signals.
@@ -445,12 +448,6 @@ int main _P2((argc, argv), int argc, char ** argv)
      * log so we have to do it here (otherwise, "who" won't work) */
     make_utmp_wtmp( Device, UT_INIT, "uugetty", NULL );
 #endif
-
-    /* set to remove lockfile(s) on certain signals (SIGHUP is ignored)
-     */
-    (void) signal(SIGINT, sig_goodbye);
-    (void) signal(SIGQUIT, sig_goodbye);
-    (void) signal(SIGTERM, sig_goodbye);
 
     /* sleep... waiting for activity */
     mgetty_state = St_waiting;
