@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.57 1994/07/27 11:02:04 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.58 1994/08/02 18:51:22 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -241,7 +241,17 @@
  * So, try one, and if it doesn't work, try the other.
  */
 #define MODEM_CMD_SUFFIX "\r"
- 
+
+/* "keep alive"
+ *
+ * mgetty can periodically check whether the modem is still alive
+ * by issueing an "AT\r" command and checking for the "OK"
+ * Define here, in seconds, how often mgetty should check. For normal
+ * reliable modems, once an hour should be sufficient...
+ * If you use "-1", or don't define this at all, mgetty won't check.
+ */
+#define MODEM_CHECK_TIME 3600
+
 
 /* modem mode
  *
