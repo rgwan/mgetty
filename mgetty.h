@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 2.9 1995/06/05 11:44:07 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 2.10 1995/08/04 09:22:35 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -156,7 +156,7 @@ RETSIGTYPE	rmlocks _PROTO (());
   
 /* fax stuff */
 void	faxrec _PROTO(( char * spool_dir, unsigned int switchbd,
-		        int uid, int gid, int mode ));
+		        int uid, int gid, int mode, char * mail_to ));
 char *	fax_strerror _PROTO(( int fax_hangup_code ));
 
 /* initialization stuff: mg_m_init.c */
