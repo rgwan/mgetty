@@ -1,4 +1,70 @@
+Sat Jul 24 23:25:17 1999  Gert Doering (gert@greenie.muc.de)
+
+	* release 1.1.21
+
+	* ring.c: accept a few additional caller/called ID formats
+
+Mon Jun 07 22:42:29 1999  Gert Doering (gert@greenie.muc.de)
+
+	* ring.c: fix bug with CalledNr saving if msn_list is empty
+
+Thu May 27 15:49:11 1999  Gert Doering (gd@medat.de)
+
+	* frontends/www/: check in latest version (view both queues)
+
+	* fax/faxspool.in: implement calling of external programs to do
+	the G3 conversion (fall back to internal functions)
+
+Sat May 22 13:37:28 1999  Gert Doering  (gd@medat.de)
+
+	* fax/faxrunqd.in: phase II of "write combining" done (send
+	multiple faxes to one number in one sendfax call)
+
+Sun May 09 13:05:50 1999  Gert Doering  (gert@greenie.muc.de)
+
+	* ring.c: count "NMBR =" line as "RING", so answering is quicker
+	even when waiting for the Caller ID line to come in.
+
+Sat May 01 22:20:15 1999  Gert Doering  (gert@greenie.muc.de)
+
+	* fax/faxrunqd.in: restructure code to handle multiple jobs to
+	same phone number (preparations for "write combining")
+
+Sun Feb 28 14:26:08 1999  Gert Doering  (gert@greenie.muc.de)
+
+	* mg_m_init.c: add need-dsr / DSR+CTS test loop (modem off)
+
+	* conf_mg.h, conf_mg.c: add need-dsr flag
+
+	* fax/faxrunqd.in: fix "pid file" handling bug (recognize own PID)
+
+Wed Feb 24 14:05:58 1999  Gert Doering (gd@medat.de)
+
+	* conf_mg.h, conf_mg.c: add data-flow/fax-send-flow/fax-rec-flow
+
+	* conf_sf.h, conf_sf.c: add fax-send-flow/fax-rec-flow
+
+	* config.c: implement CT_FLOWL (flow control definition)
+
+	* mgetty.h, tio.h: move FLOW_* definitions to mgetty.h
+
+	* config.h, login.c: fix non-ANSI-C bugs
+
+Tue Feb 16 21:10:31 1999  Gert Doering (gert@greenie.muc.de)
+
+	* frontends/www/faxsend.in: finish first cut
+
+	* conf_mg.c, login.c, mgetty.c: make login.config run-time configurable
+
+Sat Feb 13 13:19:18 1999  Gert Doering (gert@greenie.muc.de)
+
+	* fax/faxrunqd.in: implement -V
+
+	* fax/faxrunqd.in, faxrunq.in: write program name to .last_run
+
 Sun Jan 17 18:22:48 1999  Gert Doering (gert@greenie.muc.de)
+
+	* implement automatic PGP signing of created tarballs
 
 	* release 1.1.20
 
