@@ -153,8 +153,6 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
 
 139) RING during initialization -> wait for it to stop, init modem again
 
-140) start/stop fax scheduler ("FAX_SPOOL_OUT/stop" file?)
-
 141) make lock/log/spool paths configurable
 
 144) if first line in logfile is written *after* setuid() in login.c,
