@@ -1,4 +1,4 @@
-#ident "$Id: pbm2g3.c,v 1.1 1994/02/17 23:31:03 gert Exp $ Copyright (C) 1994 Gert Doering"
+#ident "$Id: pbm2g3.c,v 1.2 1994/03/01 17:08:36 gert Exp $ Copyright (C) 1994 Gert Doering"
 ;
 /* pbmtog3
  *
@@ -245,18 +245,28 @@ void convert_pbm_raw _P2( (fd, g3_page_width), int fd, int
 
     for ( y=0; y<pbm_ysize; y++ )
     {
+	int h;
+	
 	c = 0;					/* start with white */
 	run = 0;
 	x = 0;
 	bit = 7;
 	
-	/* read line into buffer */
-	if ( read( fd, linebuf, ll ) != ll )
+	/* read line into buffer (pipe -> multiple tries may be necessary!) */
+	h = 0;
+	while ( h < ll )
 	{
-	    fprintf( stderr, "cannot read %d bytes: " ); perror( "" );
-	    return;	/* make a short file ... */
+	    int h2;
+	    
+	    h2 = read( fd, linebuf+h, ll-h );
+	    if ( h2 == 0 )
+	    {
+		fprintf( stderr, "line %d: want %d, got %d bytes, EOF", y, ll, h );
+		return;		/* the page will be short... */
+	    }
+	    h += h2;
 	}
-
+	
 	r = linebuf;
 	
 	while ( x+run < maxx )
