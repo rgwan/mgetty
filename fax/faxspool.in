@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 4.8 1998/04/17 07:35:43 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 4.9 1999/02/28 19:15:44 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -59,10 +59,10 @@ PBMFONT_BODY_N=@LIBDIR@/cour25n.pbm
 
 #
 # these are the drivers used in Ghostscript - choose dfaxhig/low or faxg3
-#GS_DRIVER_HI="-sDEVICE=dfaxhigh"
-#GS_DRIVER_LO="-sDEVICE=dfaxlow"
-GS_DRIVER_HI="-sDEVICE=faxg3 -r204x196"
-GS_DRIVER_LO="-sDEVICE=faxg3 -r204x98"
+GS_DRIVER_HI="-sDEVICE=dfaxhigh"
+GS_DRIVER_LO="-sDEVICE=dfaxlow"
+#GS_DRIVER_HI="-sDEVICE=faxg3 -r204x196"
+#GS_DRIVER_LO="-sDEVICE=faxg3 -r204x98"
 
 #
 # program that will generate fax coverpage (see "man coverpg")
