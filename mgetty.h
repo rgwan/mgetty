@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.26 1993/09/13 21:03:07 gert Exp $ (c) Gert Doering */
+/* $Id: mgetty.h,v 1.27 1993/09/28 17:49:35 gert Exp $ (c) Gert Doering */
 
 /* stuff in logfile.c */
 
@@ -45,7 +45,7 @@ typedef	char	boolean;
 #define STDIN	0
 #endif
 
-typedef	enum	{ A_FAIL, A_FAX } action_t;
+typedef	enum	{ A_FAIL, A_FAX, A_VCON } action_t;
 typedef struct	chat_actions {
 			char * expect;
 			action_t action; } chat_action_t ;
