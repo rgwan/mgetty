@@ -1,6 +1,6 @@
 # doc/Makefile
 #
-# SCCS: $Id: Makefile,v 3.4 1996/07/29 18:40:45 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: Makefile,v 3.5 1996/07/29 18:44:36 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 
 NROFF=nroff
@@ -111,7 +111,7 @@ mgetty.8: mgetty.8in ../sedscript
 mgettydefs.4: mgettydefs.4in ../sedscript
 pbmtog3.1: pbmtog3.1in ../sedscript
 sendfax.8: sendfax.8in ../sedscript
-callback.8: callback.8in ../secscript
+callback.8: callback.8in ../sedscript
 
 ../sedscript: ../policy.h ../Makefile ../mksed.c
 	@cd .. ; $(MAKE) sedscript
