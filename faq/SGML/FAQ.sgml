@@ -7,7 +7,7 @@
               which are now maintained by Marc Schaefer
 <author>			 Klaus Lichtenwalder, now maintained by
                                  Marc Schaefer
-<date>$Date: 2001/10/21 10:52:44 $
+<date>$Date: 2001/12/22 18:59:31 $
 
 <abstract>
 This document attempts to answer the most frequently asked questions
@@ -17,14 +17,12 @@ extensions.
 The official release of mgetty is now (at least) 1.0. Gert adopted
 the numbering scheme of the Linux kernel, with even release numbers (1.0,
 1.2,...) being production version and uneven numbers being development
-versions. Pls note that in 1.0 there's no vgetty support as that is
-being revamped. If you need voice, you have to go for older versions or,
-far better, for the newer development tree.
+versions. But the 1.1.27 version is also very much usable.
 I'm glad I can announce a Japanese Version made by chie nakatani
 &lt;jeanne@mbox.kyoto-inet.or.jp&gt;. You can find it at
 &lt;URL:http://epsenewsc.gee.kyoto-u.ac.jp/JF/JF-ftp/euc/mgetty_j.euc&gt;
 This document is copyrighted by the FAQ Maintainer,
-K.Lichtenwalder. It may not be reproduced in part or in full without
+Marc Schaefer. It may not be reproduced in part or in full without
 the written consent of the FAQ Maintainer.
 </abstract>
 
@@ -1324,5 +1322,27 @@ As of 0.9.12, it is only implemented for Elsa, US_Robotics,
 ZyXEL 1496 and Omni56k. There is some generic support in
 IS_101, too.
 <p>
+More information on this `ringback' feature:
+<p>
+there are two variables in voice.conf: ringback_goes_away
+andringback_never_came.
+<p>
+Dialout works as follows when the modem cannot detect when the
+other side picks up:
+<p>
+1. The modem needs a little time to dial the number
+<p>
+2. The modem tries in _voice_ to detect that the other part is off hook.
+For this it listens to the line and waits that the ringback tone
+disappear (the tone which indicate that it rings at the other side)
+For this the ring_back_goes_away value shut be a little bit longer than
+the pause between 2 ringback tones.
+After the ringback is gone the modem reports "CONNECT" "VCON" or "OK"
+(depending on the modem :-)
+And vm could send the play command (earlier it would considered as a
+keyabort)
+<p>
+This mechanism can be disabled with setting ringback_never_came 0 (you
+can't be sure that the other party is connected!)
 
 </article>
