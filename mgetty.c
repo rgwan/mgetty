@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.105 1994/04/27 00:23:43 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.106 1994/05/14 16:02:48 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -10,9 +10,7 @@
  */
 
 #include <stdio.h>
-#ifndef _NOSTDLIB_H
-#include <stdlib.h>
-#endif
+#include "syslibs.h"
 #include <string.h>
 #include <unistd.h>
 #include <pwd.h>
@@ -47,6 +45,7 @@ chat_action_t	ring_chat_actions[] = { { "CONNECT",	A_CONN },
 					{ "BUSY",	A_FAIL },
 					{ "ERROR",	A_FAIL },
 					{ "+FCON",	A_FAX  },
+					{ "+FCO\r",	A_FAX  },
 					{ "FAX",	A_FAX  },
 #ifdef VOICE
 					{ "VCON",       A_VCON },
@@ -60,15 +59,11 @@ chat_action_t	ring_chat_actions[] = { { "CONNECT",	A_CONN },
 #endif
 					{ NULL,		A_FAIL } };
 
-#ifdef VOICE
-char *	answer_chat_seq[] = { "", VOICE_ATA, "VCON", NULL };
-#else
-# ifdef ELINK
+#ifdef ELINK
 char *	answer_chat_seq[] = { "", "AT\\\\OA", "CONNECT", "\\c", "\n", NULL };
-# else
+#else
 char *	answer_chat_seq[] = { "", "ATA", "CONNECT", "\\c", "\n", NULL };
-# endif /* !ELINK */
-#endif
+#endif /* !ELINK */
 
 int	answer_chat_timeout = 80;
 
@@ -127,350 +122,408 @@ static RETSIGTYPE sig_goodbye _P1 ( (signo), int signo )
     exit(10);
 }
 
+enum { St_unknown,
+       St_waiting,			/* wait for activity on tty */
+       St_wait_for_RINGs,		/* wait for <n> RINGs before ATA */
+       St_answer_phone,			/* ATA, wait for CONNECT/+FCO(N) */
+       St_nologin,			/* no login allowed, wait for
+					   RINGing to stop */
+       St_dialout,			/* parallel dialout, wait for
+					   lockfile to disappear */
+       St_get_login,			/* prompt "login:", call login() */
+       St_incoming_fax			/* +FCON detected */
+   } mgetty_state = St_unknown;
+       
 int main _P2((argc, argv), int argc, char ** argv)
 {
-        register int c, fd;
-	char devname[MAXLINE+1];
-	char buf[MAXLINE+1];
-	TIO	tio;
-	FILE *fp;
-	int i;
-	int cspeed;
-
-	action_t	what_action;
-	int		rings = 0;
+    register int c;
+    
+    char devname[MAXLINE+1];		/* full device name (with /dev/) */
+    char buf[MAXLINE+1];
+    TIO	tio;
+    FILE *fp;
+    int i;
+    int cspeed;
+    
+    action_t	what_action;
+    int		rings = 0;
 #ifdef NO_FAX
-	boolean		data_only = TRUE;
+    boolean	data_only = TRUE;
 #else
-	boolean		data_only = FALSE;
+    boolean	data_only = FALSE;
 #endif
+    char	* modem_class = DEFAULT_MODEMTYPE;	/* policy.h */
 
 #if defined(_3B1_) || defined(MEIBE)
-	typedef ushort uid_t;
-	typedef ushort gid_t;
-	extern struct passwd *getpwuid(), *getpwnam();
+    typedef ushort uid_t;
+    typedef ushort gid_t;
+    extern struct passwd *getpwuid(), *getpwnam();
 #endif
 
-	struct passwd *pwd;
-	uid_t	uucpuid = 5;			/* typical uid for UUCP */
-	gid_t	uucpgid = 0;
+    struct passwd *pwd;
+    uid_t	uucpuid = 5;			/* typical uid for UUCP */
+    gid_t	uucpgid = 0;
 
-	char *issue = "/etc/issue";		/* default issue file */
+    char *issue = "/etc/issue";		/* default issue file */
+    
+    char * login_prompt = NULL;		/* login prompt */
 
-	char * login_prompt = NULL;		/* login prompt */
-
-	char * fax_server_file = NULL;		
+    char * fax_server_file = NULL;		
 
 #ifdef VOICE
-	int answer_mode;
-	voice_path_init();
+    boolean	use_voice_mode = TRUE;
+    
+    voice_path_init();
 #endif
 	
-	/* startup
-	 */
-	(void) signal(SIGINT, SIG_IGN);
-	(void) signal(SIGQUIT, SIG_DFL);
-	(void) signal(SIGTERM, SIG_DFL);
+    /* startup
+     */
+    (void) signal(SIGINT, SIG_IGN);
+    (void) signal(SIGQUIT, SIG_DFL);
+    (void) signal(SIGTERM, SIG_DFL);
 
-	/* some systems, notable BSD 4.3, have to be told that system
-	 * calls are to be interrupted by signals.
-	 */
+    /* some systems, notable BSD 4.3, have to be told that system
+     * calls are to be interrupted by signals.
+     */
 #ifdef HAVE_SIGINTERRUPT
-	siginterrupt( SIGINT,  TRUE );
-	siginterrupt( SIGALRM, TRUE );
-	siginterrupt( SIGHUP,  TRUE );
-	siginterrupt( SIGUSR1, TRUE );
+    siginterrupt( SIGINT,  TRUE );
+    siginterrupt( SIGALRM, TRUE );
+    siginterrupt( SIGHUP,  TRUE );
+    siginterrupt( SIGUSR1, TRUE );
 #endif
 
-	Device = "unknown";
+    Device = "unknown";
 
-	/* process the command line
-	 */
+    /* process the command line
+     */
 
-	while ((c = getopt(argc, argv, "c:x:s:rp:n:i:DS:m:")) != EOF) {
-		switch (c) {
-		case 'c':			/* check */
+    while ((c = getopt(argc, argv, "c:x:s:rp:n:i:DC:S:m:")) != EOF)
+    {
+	switch (c) {
+	  case 'c':			/* check */
 #ifdef USE_GETTYDEFS
-			verbose = TRUE;
-			dumpgettydefs(optarg);
-			exit(0);
+	    verbose = TRUE;
+	    dumpgettydefs(optarg);
+	    exit(0);
 #else
-			lprintf( L_FATAL, "gettydefs not supported\n");
-			exit_usage(2);
+	    lprintf( L_FATAL, "gettydefs not supported\n");
+	    exit_usage(2);
 #endif
-		case 'm':
-			minfreespace = atol(optarg);
-			break;
-		case 'x':			/* log level */
-			log_set_llevel( atoi(optarg) );
-			break;
-		case 's':			/* port speed */
-			cspeed = atoi(optarg);
-			for ( i = 0; speedtab[i].cbaud != 0; i++ )
-			{
-			    if ( speedtab[i].nspeed == cspeed )
-			    {
-				portspeed = speedtab[i].cbaud;
-				break;
-			    }
-			}
-			if ( speedtab[i].cbaud == 0 )
-			{
-			    lprintf( L_FATAL, "invalid port speed: %s", optarg);
-			    exit_usage(2);
-			}
-			break;
-		case 'r':
-			direct_line = TRUE;
-			break;
-		case 'p':
-			login_prompt = optarg;
-			break;
-		case 'n':			/* ring counter */
-			rings_wanted = atoi( optarg );
-			if ( rings_wanted == 0 ) rings_wanted = 1;
-			break;
-		case 'i':
-			issue = optarg;		/* use different issue file */
-			break;
-		case 'D':			/* switch off fax */
-			data_only = TRUE;
-			break;
-		case 'S':
-			fax_server_file = optarg;
-			break;
-		case '?':
-			exit_usage(2);
-			break;
-		}
-	}
-
-	/* normal System V argument handling
-	 */
-
-	if (optind < argc)
-		Device = argv[optind++];
-	else {
-		lprintf(L_FATAL,"no line given");
-		exit_usage(2);
-	}
-
-	/* remove leading /dev/ prefix */
-	if ( strncmp( Device, "/dev/", 5 ) == 0 ) Device += 5;
-
-	/* need full name of the device */
-	sprintf(devname, "/dev/%s", Device);
-
-	/* name of the logfile is device-dependant */
-	sprintf( buf, LOG_PATH, strrchr( devname, '/' ) + 1 );
-	log_init_paths( argv[0], buf, &devname[strlen(devname)-2] );
-
-#ifdef USE_GETTYDEFS
-	if (optind < argc)
-		GettyID = argv[optind++];
-	else {
-		lprintf(L_WARN, "no gettydef tag given");
-		GettyID = GETTYDEFS_DEFAULT_TAG;
-	}
-#endif
-
-	lprintf(L_MESG, "check for lockfiles");
-
-	/* deal with the lockfiles; we don't want to charge
-	 * ahead if uucp, kermit or whatever else is already
-	 * using the line.
-	 * (Well... if we reach this point, most propably init has
-	 * hung up anyway :-( )
-	 */
-
-	/* check for existing lock file(s)
-	 */
-	if (checklock(Device) == TRUE) {
-		while (checklock(Device) == TRUE)
-			(void) sleep(10);
-		exit(0);
-	}
-
-	/* try to lock the line
-	 */
-	lprintf(L_MESG, "locking the line");
-
-	if ( makelock(Device) == FAIL ) {
-		while( checklock(Device) == TRUE)
-			(void) sleep(10);
-		exit(0);
-	}
-
-	/* allow uucp to access the device
-	 */
-	(void) chmod(devname, FILE_MODE);
-	if ((pwd = getpwnam(UUCPID)) != (struct passwd *) NULL)
-	{
-		uucpuid = pwd->pw_uid;
-		uucpgid = pwd->pw_gid;
-	}
-	(void) chown(devname, uucpuid, uucpgid);
-
-	/* the line is mine now ...  */
-
-	/* open the device; don't wait around for carrier-detect */
-
-	if ((fd = open(devname, O_RDWR | O_NDELAY)) < 0) {
-		lprintf(L_ERROR,"cannot open line");
-		exit(FAIL);
-	}
-
-	/* unset O_NDELAY (otherwise waiting for characters */
-	/* would be "busy waiting", eating up all cpu) */
-
-	fcntl( fd, F_SETFL, O_RDWR);
-
-	/* make new fd == stdin if it isn't already */
-
-	if (fd > 0) {
-		(void) close(0);
-		if (dup(fd) != 0) {
-			lprintf(L_ERROR,"cannot open stdin");
-			exit(FAIL);
-		}
-	}
-
-	/* make stdout and stderr, too */
-
-	(void) close(1);
-	(void) close(2);
-	if (dup(0) != 1) {
-		lprintf(L_ERROR,"cannot open stdout");
-		exit(FAIL);
-	}
-	if (dup(0) != 2) {
-		lprintf(L_ERROR,"cannot open stderr");
-		exit(FAIL);
-	}
-
-	if (fd > 2)
-		(void) close(fd);
-
-	/* no buffering */
-
-	setbuf(stdin, (char *) NULL);
-	setbuf(stdout, (char *) NULL);
-	setbuf(stderr, (char *) NULL);
-
-	/* setup terminal */
-
-	/* Currently, the tio returned here is ignored.
-	   The invocation is only for the sideeffects of:
-	    - loading the gettydefs file if enabled.
-	    - setting portspeed appropriately, if not defaulted.
-	 */
-
-	tio = *gettermio(GettyID, TRUE, &login_prompt);
-
-	if (toggle_dtr)
-	{
-		lprintf( L_MESG, "lowering DTR to reset Modem" );
-		tio_toggle_dtr( STDIN, toggle_dtr_waittime );
-	}
-
-	/* initialize port */
-	
-	if ( tio_get( STDIN, &tio ) == ERROR )
-	{
-	    lprintf( L_FATAL, "cannot get TIO" );
-	    exit(20);
-	}
-	tio_mode_sane( &tio, TRUE );
-	tio_set_speed( &tio, portspeed );
-	tio_default_cc( &tio );
-	tio_mode_raw( &tio );
-#ifdef sun
-	/* sunos does not rx with RTSCTS unless carrier present */
-	tio_set_flow_control( STDIN, &tio, (DATA_FLOW) & (FLOW_SOFT) );
-#else
-	tio_set_flow_control( STDIN, &tio, DATA_FLOW );
-#endif
-	if ( tio_set( STDIN, &tio ) == ERROR )
-	{
-	    lprintf( L_FATAL, "cannot set TIO" );
-	    exit(20);
-	}
-
-	/* drain input - make sure there are no leftover "NO CARRIER"s
-	 * or "ERROR"s lying around from some previous dial-out
-	 */
-
-	clean_line( STDIN, 1);
-
-	/* do modem initialization, normal stuff first, then fax
-	 */
-	if ( ! direct_line )
-	{
-	    if ( mg_init_data( STDIN ) == FAIL )
+	  case 'm':
+	    minfreespace = atol(optarg);
+	    break;
+	  case 'x':			/* log level */
+	    log_set_llevel( atoi(optarg) );
+	    break;
+	  case 's':			/* port speed */
+	    cspeed = atoi(optarg);
+	    for ( i = 0; speedtab[i].cbaud != 0; i++ )
 	    {
-		rmlocks();
-		exit(1);
-	    }
-	    /* initialize ``normal'' fax functions */
-	    if ( ( ! data_only ) &&
-		 mg_init_fax( STDIN, FAX_STATION_ID ) == SUCCESS )
-	    {
-		/* initialize fax polling server (only if faxmodem) */
-		if ( fax_server_file )
+		if ( speedtab[i].nspeed == cspeed )
 		{
-		    faxpoll_server_init( STDIN, fax_server_file );
+		    portspeed = speedtab[i].cbaud;
+		    break;
 		}
 	    }
+	    if ( speedtab[i].cbaud == 0 )
+	    {
+		lprintf( L_FATAL, "invalid port speed: %s", optarg);
+		exit_usage(2);
+	    }
+	    break;
+	  case 'r':
+	    direct_line = TRUE;
+	    break;
+	  case 'p':
+	    login_prompt = optarg;
+	    break;
+	  case 'n':			/* ring counter */
+	    rings_wanted = atoi( optarg );
+	    if ( rings_wanted == 0 ) rings_wanted = 1;
+	    break;
+	  case 'i':
+	    issue = optarg;		/* use different issue file */
+	    break;
+	  case 'D':			/* switch off fax */
+	    data_only = TRUE;
+	    break;
+	  case 'C':
+	    modem_class = optarg;
+	    if ( strcmp( modem_class, "data" ) == 0 ) data_only = TRUE;
+	    break;
+	  case 'S':
+	    fax_server_file = optarg;
+	    break;
+	  case '?':
+	    exit_usage(2);
+	    break;
 	}
+    }
 
-	/* wait .3s for line to clear (some modems send a \n after "OK",
-	   this may confuse the "call-chat"-routines) */
+    /* normal System V argument handling
+     */
+    
+    if (optind < argc)
+    Device = argv[optind++];
+    else {
+	lprintf(L_FATAL,"no line given");
+	exit_usage(2);
+    }
 
-	clean_line( STDIN, 3);
+    /* remove leading /dev/ prefix */
+    if ( strncmp( Device, "/dev/", 5 ) == 0 ) Device += 5;
 
-	/* remove locks, so any other process can dial-out. When waiting
-	   for "RING" we check for foreign lockfiles, if there are any, we
-	   give up the line - otherwise we lock it again */
+    /* need full name of the device */
+    sprintf(devname, "/dev/%s", Device);
 
-	rmlocks();	
+    /* name of the logfile is device-dependant */
+    sprintf( buf, LOG_PATH, strrchr( devname, '/' ) + 1 );
+    log_init_paths( argv[0], buf, &devname[strlen(devname)-2] );
 
-	/* with mgetty, it's possible to use a fax machine parallel to
-	   the fax modem as a scanner - dial a "9" on the fax machine,
-	   send mgetty a SIGUSR1, then mgetty will pick up the phone as
-	   if it got a RING */
+#ifdef USE_GETTYDEFS
+    if (optind < argc)
+        GettyID = argv[optind++];
+    else {
+	lprintf(L_WARN, "no gettydef tag given");
+	GettyID = GETTYDEFS_DEFAULT_TAG;
+    }
+#endif
 
-	signal( SIGUSR1, sig_pick_phone );
+    lprintf(L_MESG, "check for lockfiles");
+
+    /* deal with the lockfiles; we don't want to charge
+     * ahead if uucp, kermit or whatever else is already
+     * using the line.
+     * (Well... if we reach this point, most propably init has
+     * hung up anyway :-( )
+     */
+
+    /* check for existing lock file(s)
+     */
+    if (checklock(Device) == TRUE) {
+	while (checklock(Device) == TRUE) sleep(10);
+	exit(0);
+    }
+
+    /* try to lock the line
+     */
+    lprintf(L_MESG, "locking the line");
+
+    if ( makelock(Device) == FAIL ) {
+	while( checklock(Device) == TRUE) sleep(10);
+	exit(0);
+    }
+
+    /* the line is mine now ...  */
+
+    /* allow uucp to access the device
+     */
+    (void) chmod(devname, FILE_MODE);
+    if ((pwd = getpwnam(UUCPID)) != (struct passwd *) NULL)
+    {
+	uucpuid = pwd->pw_uid;
+	uucpgid = pwd->pw_gid;
+    }
+    (void) chown(devname, uucpuid, uucpgid);
+
+    /* open the device; don't wait around for carrier-detect */
+    if ( mg_open_device( devname, FALSE ) == ERROR )	/* mg_m_init.c */
+    {
+	lprintf( L_FATAL, "open device %s failed, exiting", devname );
+	exit( FAIL );
+    }
+    
+    /* setup terminal */
+
+    /* Currently, the tio returned here is ignored.
+       The invocation is only for the sideeffects of:
+       - loading the gettydefs file if enabled.
+       - setting portspeed appropriately, if not defaulted.
+       */
+
+    tio = *gettermio(GettyID, TRUE, &login_prompt);
+
+    if ( mg_init_device( STDIN, toggle_dtr, toggle_dtr_waittime,
+			 portspeed ) == ERROR )
+    {
+	lprintf( L_FATAL, "cannot initialize device, exiting" );
+	exit( 20 );
+    }
+    
+    /* drain input - make sure there are no leftover "NO CARRIER"s
+     * or "ERROR"s lying around from some previous dial-out
+     */
+
+    clean_line( STDIN, 1);
+
+    /* do modem initialization, normal stuff first, then fax
+     */
+    if ( ! direct_line )
+    {
+	if ( mg_init_data( STDIN ) == FAIL )
+	{
+	    rmlocks();
+	    exit(1);
+	}
+	/* initialize ``normal'' fax functions */
+	if ( ( ! data_only ) &&
+	     mg_init_fax( STDIN, modem_class, FAX_STATION_ID ) == SUCCESS )
+	{
+	    /* initialize fax polling server (only if faxmodem) */
+	    if ( fax_server_file )
+	    {
+		faxpoll_server_init( STDIN, fax_server_file );
+	    }
+	}
+#ifdef VOICE
+	if ( mg_init_voice( STDIN ) == FAIL )
+	{
+	    use_voice_mode = FALSE;
+	} else {
+	    use_voice_mode = TRUE;
+	}
+#endif
+    }
+
+    /* wait .3s for line to clear (some modems send a \n after "OK",
+       this may confuse the "call-chat"-routines) */
+
+    clean_line( STDIN, 3);
+
+    /* remove locks, so any other process can dial-out. When waiting
+       for "RING" we check for foreign lockfiles, if there are any, we
+       give up the line - otherwise we lock it again */
+
+    rmlocks();	
+
+    /* sometimes it may be desired to have mgetty pick up the phone even
+       if it didn't RING often enough (because you accidently picked it up
+       manually...) or if it didn't RING at all (because you have a fax
+       machine directly attached to the modem...), so send mgetty a signal
+       SIGUSR1 and it will behave as if a RING was seen
+       */
+    
+    signal( SIGUSR1, sig_pick_phone );
 
 #if defined(linux) && defined(NO_SYSVINIT)
-	/* on linux, "simple init" does not make a wtmp entry when you
-	 * log so we have to do it here (otherwise, "who" won't work)
-	 */
-	make_utmp_wtmp( Device, UT_INIT, "uugetty" );
+    /* on linux, "simple init" does not make a wtmp entry when you
+     * log so we have to do it here (otherwise, "who" won't work) */
+    make_utmp_wtmp( Device, UT_INIT, "uugetty" );
 #endif
 
 #ifdef VOICE
+    if ( use_voice_mode ) {
 	/* With external modems, the auto-answer LED can be used
 	 * to show a status flag. vgetty uses this to indicate
 	 * that new messages have arrived.
 	 */
 	voice_message_light(&rings_wanted);
+    }
 #endif /* VOICE */
-	
-waiting:
-	/* wait for incoming characters (using select() or poll() to
-	 * prevent eating away from processes dialing out)
-	 */
-	lprintf( L_MESG, "waiting..." );
 
-	wait_for_input( STDIN );
+    /* set to remove lockfile(s) on certain signals
+     */
+    (void) signal(SIGHUP, sig_goodbye);
+    (void) signal(SIGINT, sig_goodbye);
+    (void) signal(SIGQUIT, sig_goodbye);
+    (void) signal(SIGTERM, sig_goodbye);
+
+    /* sleep... waiting for activity */
+    mgetty_state = St_waiting;
+
+    while ( mgetty_state != St_get_login )
+    {
+	switch (mgetty_state)	/* state machine */
+	{
+	  case St_waiting:
+	    /* wait for incoming characters (using select() or poll() to
+	     * prevent eating away from processes dialing out)
+	     */
+	    lprintf( L_MESG, "waiting..." );
+
+	    wait_for_input( STDIN );
 	
-	/* check for LOCK files, if there are none, grab line and lock it
-	*/
+	    /* check for LOCK files, if there are none, grab line and lock it
+	     */
     
-	lprintf( L_NOISE, "checking lockfiles, locking the line" );
+	    lprintf( L_NOISE, "checking lockfiles, locking the line" );
 
-	if ( makelock(Device) == FAIL) {
-	    lprintf( L_NOISE, "lock file exists (dialout)!" );
+	    if ( makelock(Device) == FAIL)
+	    {
+		lprintf( L_NOISE, "lock file exists (dialout)!" );
+		mgetty_state = St_dialout;
+		break;
+	    }
+
+	    rings = 0;
+	    
+	    /* check, whether /etc/nologin.<device> exists. If yes, do not
+	       answer the phone. Instead, wait for ringing to stop. */
+#ifdef NOLOGIN_FILE
+	    sprintf( buf, NOLOGIN_FILE, strrchr( devname, '/' )+1 );
+
+	    if ( access( buf, F_OK ) == 0 )
+	    {
+		lprintf( L_MESG, "%s exists - do not accept call!", buf );
+		mgetty_state = St_nologin;
+		break;
+	    }
+#endif
+	    mgetty_state = St_wait_for_RINGs;
+	    break;
+
+	    
+	  case St_nologin:
+#ifdef NOLOGIN_FILE
+	    /* if a "/etc/nologin.<device>" file exists, wait for RINGing
+	       to stop, but count RINGs (in case the user removes the
+	       nologin file while the phone is RINGing), and if the modem
+	       auto-answers, handle it properly */
+	    
+	    sprintf( buf, NOLOGIN_FILE, strrchr( devname, '/' )+1 );
+
+	    /* while phone is ringing... */
+	    
+	    while ( do_chat( STDIN, ring_chat_seq, ring_chat_actions,
+			      &what_action, 10, TRUE ) == SUCCESS )
+	    {
+		rings++;
+		if ( access( buf, F_OK ) != 0 ||	/* removed? */
+		     virtual_ring == TRUE )		/* SIGUSR1? */
+		{
+		    mgetty_state = St_wait_for_RINGs;	/* -> accept */
+		    break;
+		}
+	    }
+
+	    /* did nologin file disappear? */
+	    if ( mgetty_state != St_nologin ) break;
+
+	    /* phone stopped ringing (do_chat() != SUCCESS) */
+	    switch( what_action )
+	    {
+	      case A_TIMOUT:	/* stopped ringing */
+		lprintf( L_AUDIT, "rejected, rings=%d", rings );
+		rmlocks();
+		mgetty_state = St_waiting;
+		break;
+	      case A_CONN:	/* CONNECT */
+		clean_line( STDIN, 5 );
+		printf( "\r\n\r\nSorry, no login allowed\r\n" );
+		printf( "\r\nGoodbye...\r\n\r\n" );
+		sleep(5); exit(20); break;
+	      case A_FAX:	/* +FCON */
+		mgetty_state = St_incoming_fax; break;
+	      default:
+		lprintf( L_MESG, "unecpected action: %d", what_action );
+		exit(20);
+	    }
+#endif
+	    break;
+
+
+	  case St_dialout:
+	    /* the line is locked, a parallel dialout is in process */
 
 	    /* close all file descriptors -> other processes can read port */
 	    close(0);
@@ -490,63 +543,31 @@ waiting:
 	       mgetty gives me at least 5 seconds to restart uucico */
 
 	    do {
-		    /* wait for lock to disappear */
-		    while (checklock(Device) == TRUE)
-			sleep(10);	/*!!!!! ?? wait that long? */
+		/* wait for lock to disappear */
+		while (checklock(Device) == TRUE)
+		    sleep(10);	/*!!!!! ?? wait that long? */
 
-		    /* wait a moment, then check for reappearing locks */
-		    sleep(5);
+		/* wait a moment, then check for reappearing locks */
+		sleep(5);
 	    }
  	    while ( checklock(Device) == TRUE );	
 
 	    /* OK, leave & get restarted by init */
 	    exit(0);
-	}
+	    break;
 
-	/* set to remove lockfile(s) on certain signals
-	 */
-	(void) signal(SIGHUP, sig_goodbye);
-	(void) signal(SIGINT, sig_goodbye);
-	(void) signal(SIGQUIT, sig_goodbye);
-	(void) signal(SIGTERM, sig_goodbye);
 
-#ifdef NOLOGIN_FILE
-	/* check for a "nologin" file (/etc/nologin.<device>) */
-	
-	sprintf( buf, NOLOGIN_FILE, strrchr( devname, '/' )+1 );
-
-	if ( access( buf, F_OK ) == 0 )
-	{
-	    lprintf( L_MESG, "%s exists - do not accept call!", buf );
-	    clean_line( STDIN, 80 );		/* wait for ringing to stop */
-
-	    /* and return to state waiting. If it was a data or fax
-	     * call, you can now press DATA/VOICE and have the modem
-	     * manually pickup the phone
-	     *
-	     * WARNING: if you press the button too soon, or if the
-	     * modem auto-answers, this will fail. FIXME. Use do_chat()
-	     * here (and count the RINGs for logging...)
-	     */
-	    lprintf( L_AUDIT, "rejected" );
-	    rmlocks();
-	    goto waiting;
+	  case St_wait_for_RINGs:
+	    /* Wait until the proper number of RING strings have been
+	       seen. In case the modem auto-answers (yuck!) or someone
+	       hits DATA/VOICE, we'll accept CONNECT, +FCON, ... also. */
 	       
-	    /* exit(1); */
-	}
-#endif
-    
-#ifdef VOICE
-	/* check for a "answer mode" file (/etc/answer.<device>) */
-	answer_mode = get_answer_mode(Device);
-#endif
-
-	/* wait for "RING", if found, send manual answer string (ATA)
-	   to the modem */
-
-	if ( ! direct_line )
-	{
-	    rings = 0;
+	    if ( direct_line )		/* no RING needed */
+	    {
+		mgetty_state = St_get_login;
+		break;
+	    }
+	    
 	    while ( rings < rings_wanted )
 	    {
 		if ( do_chat( STDIN, ring_chat_seq, ring_chat_actions,
@@ -559,54 +580,88 @@ waiting:
 		rings++;
 	    }
 
-	    /* timeout - the phone stopped ringing? (human picked up) */
-	    if ( rings < rings_wanted && what_action == A_TIMOUT )
+	    /* enough rings? */
+	    if ( rings >= rings_wanted )
 	    {
-		rmlocks();		/* free line again */
-		if ( rings == 0 )	/* no ring *at all* */
+		mgetty_state = St_answer_phone; break;
+	    }
+
+	    /* not enough rings, timeout or action? */
+
+	    switch( what_action )
+	    {
+	      case A_TIMOUT:		/* stopped ringing */
+		rmlocks();		/* line is free again */
+		if ( rings == 0 )	/* no ring *AT ALL* */
 		{
 		    lprintf( L_WARN, "huh? Junk on the line?" );
 		    exit(0);		/* let init restart mgetty */
 		}
-		lprintf( L_MESG, "phone stopped ringing" );
-		goto waiting;
+		lprintf( L_MESG, "phone stopped ringing (rings=%d)", rings );
+		mgetty_state = St_waiting;
+		break;
+	      case A_CONN:		/* CONNECT */
+		mgetty_state = St_get_login; break;
+	      case A_FAX:		/* +FCON */
+		mgetty_state = St_incoming_fax; break;
+#ifdef VOICE
+	      case A_VCON:
+		voice_button(rings);
+		use_voice_mode = FALSE;
+		mgetty_state = St_answer_phone;
+		break;
+#endif
+	      case A_FAIL:
+		lprintf( L_AUDIT, "failed A_FAIL dev=%s, pid=%d, caller=%s",
+			          Device, getpid(), CallerId );
+		exit(20);
+	      default:
+		lprintf( L_MESG, "unecpected action: %d", what_action );
+		exit(20);
 	    }
+	    break;
 
-	    /* If we got caller ID information, we check it and abort
-	       if this caller isn't allowed in */
 
-	    if (!cndlookup())
+	  case St_answer_phone:
+	    /* Answer an incoming call, after the desired number of
+	       RINGs. If we have caller ID information, and checking
+	       it is desired, do it now, and possibly reject call if
+	       not allowed in */
+	    
+	    if ( !cndlookup() )
 	    {
 		lprintf( L_AUDIT, "denied caller dev=%s, pid=%d, caller=%s",
-		    Device, getpid(), CallerId);
+			 Device, getpid(), CallerId);
 		clean_line( STDIN, 80 ); /* wait for ringing to stop */
 
 		rmlocks();
-		exit(1);	/* -> state "waiting" */
+		mgetty_state = St_waiting;
+		break;
 	    }
 
 	    /* remember time of phone pickup */
 	    call_start = time( NULL );
 
-	    /* answer phone only, if we got all "RING"s (otherwise, the */
-	    /* modem may have auto-answered (urk), the user may have */
-	    /* pressed a "data/voice" button, ..., and we fall right */
-	    /* through) */
+#ifdef VOICE
+	    if ( use_voice_mode ) {
+		/* Answer in voice mode. The function will return only if it
+		   detects a data call, otherwise it will call exit(). */
+		
+		/* The modem will be in voice mode when voice_answer is
+		   called. If the function returns, the modem is ready
+		   to be connected in DATA mode with ATA. */
+		
+		voice_answer(rings, rings_wanted, what_action );
+	    }
+#endif /* VOICE */
 
-	    if ( what_action != A_CONN &&
-		 what_action != A_VCON &&	/* vgetty extensions */
-#ifdef DIST_RING
-		 (what_action < A_RING1 || what_action > A_RING5) &&
-#endif
-		 ( rings < rings_wanted ||
-	           do_chat( STDIN, answer_chat_seq, answer_chat_actions,
-			    &what_action, answer_chat_timeout, TRUE) == FAIL))
-	    {
+	    if ( do_chat( STDIN, answer_chat_seq, answer_chat_actions,
+			 &what_action, answer_chat_timeout, TRUE) == FAIL )
+	    {	
 		if ( what_action == A_FAX )
 		{
-		    lprintf( L_MESG, "action is A_FAX, start fax receiver...");
-		    faxrec( FAX_SPOOL_IN );
-		    exit(1);
+		    mgetty_state = St_incoming_fax;
+		    break;
 		}
 
 		lprintf( L_AUDIT, 
@@ -617,105 +672,112 @@ waiting:
 		rmlocks();
 		exit(1);
 	    }
-	}
+	    mgetty_state = St_get_login;
+	    break;
+	    
+	  case St_incoming_fax:
+	    /* incoming fax, receive it (->faxrec.c) */
 
-	/* wait for line to clear (after "CONNECT" a baud rate may
-           be sent by the modem, on a non-MNP-Modem the MNP-request
-           string sent by a calling MNP-Modem is discarded here, too) */
+	    lprintf( L_MESG, "start fax receiver..." );
+	    faxrec( FAX_SPOOL_IN );
+	    exit( 0 );
+	    break;
+	    
+	  default:
+	    /* unknown machine state */
+	    
+	    lprintf( L_WARN, "unknown state: %s", mgetty_state );
+	    exit( 33 );
+	}		/* end switch( mgetty_state ) */
+    }			/* end while( state != St_get_login ) */
 
-	clean_line( STDIN, 3);
+    /* this is "state St_get_login". Not included in switch/case,
+       because it doesn't branch to other states. It may loop for
+       a while, but it will never return
+       */
 
-#ifdef VOICE
-	/* Answer in voice mode. The function will return only if it
-	   detects a data call, otherwise it will call exit().
+    /* wait for line to clear (after "CONNECT" a baud rate may
+       be sent by the modem, on a non-MNP-Modem the MNP-request
+       string sent by a calling MNP-Modem is discarded here, too) */
+    
+    clean_line( STDIN, 3);
 
-	   The modem will be in voice mode when voice_answer is
-	   called. If the function returns, the modem will be
-	   connected in DATA mode. */
+    /* honor carrier now: terminate if modem hangs up prematurely
+     */
+    tio_get( STDIN, &tio );
+    tio_carrier( &tio, TRUE );
+    tio_set( STDIN, &tio );
+    
+    /* make utmp and wtmp entry (otherwise login won't work)
+     */
+    make_utmp_wtmp( Device, UT_LOGIN, "LOGIN" );
 
-	if( ! direct_line )
-	{
-	    voice_answer(rings, rings_wanted,
-			 answer_chat_actions,
-			 answer_chat_timeout,
-			 answer_mode,
-			 what_action );
-	}
-#endif /* VOICE */
+    /* wait a little bit befor printing login: prompt (to give
+     * the other side time to get ready)
+     */
+    delay( prompt_waittime );
 
-	/* honor carrier now: terminate if modem hangs up prematurely
+    /* loop until a successful login is made
+     */
+    for (;;)
+    {
+	/* set ttystate for /etc/issue ("before" setting) */
+	tio = *gettermio(GettyID, TRUE, &login_prompt);
+#ifdef sun
+	/* we have carrier, assert data flow control */
+	tio_set_flow_control( STDIN, &tio, DATA_FLOW );
+#endif
+	tio_set( STDIN, &tio );
+		
+	fputc('\r', stdout);	/* just in case */
+
+	/* display ISSUE, if present
 	 */
-	tio_carrier( &tio, TRUE );
+	if (*issue != '/')
+	{
+	    printf( "%s\r\n", ln_escape_prompt( issue ) );
+	}
+	else if ((fp = fopen(issue, "r")) != (FILE *) NULL)
+	{
+	    while (fgets(buf, sizeof(buf), fp) != (char *) NULL)
+	    {
+		char * p = ln_escape_prompt( buf );
+		if ( p != NULL ) fputs( p, stdout );
+		fputc('\r', stdout );
+	    }
+	    fclose(fp);
+	}
+
+	/* set permissions to "rw-------" */
+	(void) chmod(devname, 0600);
+
+	/* set ttystate for login ("after"),
+	 *  cr-nl mapping flags are set by getlogname()!
+	 */
+#ifdef USE_GETTYDEFS
+	tio = *gettermio(GettyID, FALSE, &login_prompt);
 	tio_set( STDIN, &tio );
 
-	/* make utmp and wtmp entry (otherwise login won't work)
-	 */
-	make_utmp_wtmp( Device, UT_LOGIN, "LOGIN" );
-
-	/* wait a little bit befor printing login: prompt (to give
-	 * the other side time to get ready)
-	 */
-        delay( prompt_waittime );
-
-	/* loop until a successful login is made
-	 */
-	for (;;)
-	{
-		/* set ttystate for /etc/issue ("before" setting) */
-		tio = *gettermio(GettyID, TRUE, &login_prompt);
-#ifdef sun
-		/* we have carrier, assert data flow control */
-		tio_set_flow_control( STDIN, &tio, DATA_FLOW );
+	lprintf(L_NOISE, "i: %06o, o: %06o, c: %06o, l: %06o, p: %s",
+		tio.c_iflag, tio.c_oflag, tio.c_cflag, tio.c_lflag,
+		login_prompt);
 #endif
-		tio_set( STDIN, &tio );
-		
-		fputc('\r', stdout);	/* just in case */
+	/* read a login name from tty
+	   (if just <cr> is pressed, re-print issue file)
 
-		/* display ISSUE, if present
-		 */
-		if (*issue != '/')
-		{
-		    printf( "%s\r\n", ln_escape_prompt( issue ) );
-		}
-		else if ((fp = fopen(issue, "r")) != (FILE *) NULL)
-		{
-		    while (fgets(buf, sizeof(buf), fp) != (char *) NULL)
-		    {
-			char * p = ln_escape_prompt( buf );
-			if ( p != NULL ) fputs( p, stdout );
-			fputc('\r', stdout );
-		    }
-		    fclose(fp);
-		}
+	   also adjust ICRNL / IGNCR to characters recv'd at end of line:
+	   cr+nl -> IGNCR, cr -> ICRNL, NL -> 0/ and: cr -> ONLCR, nl -> 0
+	   for c_oflag */
 
-		/* set permissions to "rw-------" */
-		(void) chmod(devname, 0600);
+	if ( getlogname( login_prompt, &tio,
+			 buf, sizeof(buf) ) == -1 ) continue;
 
-		/* set ttystate for login ("after"),
-		 *  cr-nl mapping flags are set by getlogname()!
-		 */
-#ifdef USE_GETTYDEFS
-		tio = *gettermio(GettyID, FALSE, &login_prompt);
-		tio_set( STDIN, &tio );
+	/* hand off to login (dispatcher) */
+	login( buf );
 
-		lprintf(L_NOISE, "i: %06o, o: %06o, c: %06o, l: %06o, p: %s",
-		    tio.c_iflag, tio.c_oflag, tio.c_cflag, tio.c_lflag,
-		    login_prompt);
-#endif
-		/* read a login name from tty */
-		/* (if just <cr> is pressed, re-print issue file) */
-		/* also adjust ICRNL / IGNCR to characters recv'd at */
-		/* end of line: cr+nl -> IGNCR, cr -> ICRNL, NL -> 0 */
-		/* and: cr -> ONLCR, nl -> 0 for c_oflag */
-
-                if ( getlogname( login_prompt, &tio,
-				 buf, sizeof(buf) ) == -1 ) continue;
-
-		/* hand off to login (dispatcher) */
-		login( buf );
-		
-		exit(FAIL);
-	}
+	/* doesn't return, if it does, something broke */
+	exit(FAIL);
+    }
 }
 
 /*
