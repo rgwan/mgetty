@@ -1,4 +1,4 @@
-#ident "$Id: g32pbm.c,v 1.18 1994/10/31 11:13:35 gert Exp $ (c) Gert Doering"
+#ident "$Id: g32pbm.c,v 1.19 1995/04/18 16:06:35 gert Exp $ (c) Gert Doering"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -33,6 +33,7 @@ unsigned long i = 0x80000000;
 
 static int byte_tab[ 256 ];
 static int o_stretch;			/* -stretch: double each line */
+static int o_stretch_force=-1;		/* -1: guess from filename */
 static int o_lj;			/* -l: LJ output */
 static int o_turn;			/* -t: turn 90 degrees right */
 
@@ -216,15 +217,19 @@ int	resolution = BASERES;
 
     init_byte_tab( 0, byte_tab );
 
-    while((i = getopt(argc, argv, "rsld:t")) != EOF)
+    while((i = getopt(argc, argv, "rsnfld:t")) != EOF)
     {
 	switch (i)
 	{
 	    case 'r':
 		init_byte_tab( 1, byte_tab );
 		break;
-	    case 's':
-		o_stretch=1;
+	    case 's':				/* stretch */
+	    case 'n':				/* "n"ormal */
+		o_stretch_force=1;
+		break;
+	    case 'f':				/* "f"ine */
+		o_stretch_force=0;
 		break;
 	    case 'l':
 		o_lj=1;
@@ -242,7 +247,7 @@ int	resolution = BASERES;
 		o_turn++;
 		break;
 	    case '?':
-		fprintf( stderr, "usage: g3topbm [-l|-r|-s|-d <dpi>|-t] [g3 file]\n");
+		fprintf( stderr, "usage: g3topbm [-l|-r|-n/f|-d <dpi>|-t] [g3 file]\n");
 		exit(1);
 	}
     }
@@ -250,8 +255,17 @@ int	resolution = BASERES;
     if (o_lj && resolution == BASERES)
 	resolution = 150;
 
+    o_stretch = (o_stretch_force<0) ? 0: o_stretch_force;
+
     if ( optind < argc ) 			/* read from file */
     {
+	if ( o_stretch_force < 0 )		/* no resolution given yet */
+	{
+	    char * p = argv[optind];
+	    if ( strrchr( p, '/' ) != NULL ) p = strrchr( p, '/' )+1;
+	    o_stretch = ( p[1] == 'n' );	/* 'fn...' -> stretch */
+	}
+	
 	fd = open( argv[optind], O_RDONLY );
 	if ( fd == -1 )
 	{    perror( argv[optind] ); exit( 1 ); }
