@@ -1,4 +1,4 @@
-#ident "$Id: login.c,v 1.8 1994/08/08 14:07:04 gert Exp $ Copyright (C) 1993 Gert Doering"
+#ident "$Id: login.c,v 1.9 1994/10/13 14:02:39 gert Exp $ Copyright (C) 1993 Gert Doering"
 
 
 /* login.c
@@ -96,7 +96,7 @@ boolean match _P2( (user,key), char * user, char * key )
  * does *NOT* return
  */
 
-void login _P1( (user), char * user )
+void login_dispatch _P1( (user), char * user )
 {
     char * argv[10];
     int	argc = 0;

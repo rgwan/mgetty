@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.h,v 1.65 1994/09/04 23:17:52 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 1.66 1994/10/13 14:04:31 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -148,7 +148,7 @@ int	mg_drop_ctty _PROTO(( int fd ));
 char *	ln_escape_prompt _PROTO(( char * prompt ));
 
 /* login stuff */
-void login _PROTO(( char * user ));
+void login_dispatch _PROTO(( char * user ));
 
 /* how long should I wait for a string from modem */
 #define FAX_RESPONSE_TIMEOUT	120
