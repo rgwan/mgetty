@@ -1,4 +1,4 @@
-#ident "$Id: login.c,v 4.18 2002/03/12 11:12:23 gert Exp $ Copyright (C) 1993 Gert Doering"
+#ident "$Id: login.c,v 4.19 2003/12/05 22:28:58 gert Exp $ Copyright (C) 1993 Gert Doering"
 
 
 /* login.c
@@ -50,10 +50,8 @@ boolean match _P2( (user,key), char * user, char * key )
 
     lprintf( L_NOISE, "match: user='%s', key='%s'", user, key );
 
-    if ( lk == 0 )
-    {
-	return ( strlen( user) == 0 );
-    }
+    /* empty lines do not match */
+    if ( lk == 0 ) return FALSE;
 
 #ifdef FIDO
     /* special handling for fido logins */
