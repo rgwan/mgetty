@@ -9,7 +9,7 @@
 # There are still a lot rough edges - but it works, and should give you an
 # idea how to improve it
 #
-# SCCS: $Id: faxrunq.in,v 1.8 1994/03/04 00:41:16 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxrunq.in,v 1.9 1994/03/07 18:57:52 gert Exp $ Copyright (C) 1994 Gert Doering
 
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -64,6 +64,20 @@ do
     cd $FAX_SPOOL_OUT/`dirname $job`
     $echo "processing $job..."
 #
+#   lock JOB file (by 'mv'ing it to JOB.locked)
+#
+    # make sure it will get moved back in case the shell aborts
+    trap "mv -f JOB.locked JOB 2>/dev/null" 0
+    trap "mv -f JOB.locked JOB 2>/dev/null ; exit 20" 1 2 3 15
+
+    mv -f JOB JOB.locked 2>/dev/null
+    if [ $? -ne 0 ]
+    then
+	$echo "already locked"
+	trap 0 1 2 3 15
+	continue
+    fi
+#
 # get user to notify (->$MAIL_TO) and phone number (->$PHONE)
 #
     eval `$AWK 'BEGIN { user=""; mail=""; verbto=""; }
@@ -73,7 +87,7 @@ do
 		$1=="verbose_to" { verbto=substr($0,12) }
 		END { if ( mail != "" ) printf "MAIL_TO=\"%s\";", mail
 				   else printf "MAIL_TO=\"%s\";", user
-		      printf "VERBOSE_TO=\"%s\"", verbto }' JOB`
+		      printf "VERBOSE_TO=\"%s\"", verbto }' JOB.locked`
 #
 # construct command line to execute
 #
@@ -83,7 +97,7 @@ do
 		  $1=="poll" { polling=" -p" }
 		  $1=="pages" { for( i=2; i<=NF; i++) pages=pages$i" " }
 		  END { printf "'"$FAX_SENDER"' -v%s%s %s %s",
-			       polling, header, phone, pages }' JOB`
+			       polling, header, phone, pages }' JOB.locked`
 #
 # execute faxsend command
 #
@@ -111,21 +125,21 @@ do
     if [ $status -eq 0 ]
     then
 	# transmission successful
-	$echo "Status "`date`" successfully sent" >>JOB
+	$echo "Status "`date`" successfully sent" >>JOB.locked
 	( $echo "To: $MAIL_TO"
 	  $echo "Subject: $subject"
 	  $echo "From: root (Fax Subsystem)\n"
 	  $echo "Your fax has been sent successfully at: \c"
 	  date
 	  $echo "\n\nJob / Log file:"
-	  cat JOB ) |
+	  cat JOB.locked ) |
 	$MAILER "$MAIL_TO"
 
 	# update accounting log
 	$echo "$MAIL_TO $PHONE "`date`" success" >>$FAX_ACCT
 
 	# job is done -> remove it from the queue
-	mv JOB JOB.done
+	mv JOB.locked JOB.done
 
 	# if you want to delete the job directory that has just been
 	# processed, uncomment the following two lines.
@@ -142,7 +156,7 @@ do
 	    3) why="modem initialization error" ;;
 	    4) why="dial failed - BUSY" ;;
 	esac
-	$echo "Status "`date`" failed, exit($status): $why" >>JOB
+	$echo "Status "`date`" failed, exit($status): $why" >>JOB.locked
     else
 	# error while transmitting, considered fatal
 	why="unknown" ; case $status in
@@ -150,15 +164,15 @@ do
 	    11) why="protocol failure, waiting for XON" ;;
 	    12) why="protocol failure sending page" ;;
 	esac
-	$echo "Status "`date`" FATAL FAILURE, exit($status): $why" >>JOB
+	$echo "Status "`date`" FATAL FAILURE, exit($status): $why" >>JOB.locked
 
 	# update accounting log
 	$echo "$MAIL_TO $PHONE "`date`" fail: $why" >>$FAX_ACCT
 
 	# if failed five times, supend job
-	if [ `grep "FATAL FAILURE" JOB | wc -l` -gt 4 ]
+	if [ `grep "FATAL FAILURE" JOB.locked | wc -l` -gt 4 ]
 	then
-	    $echo "Status "`date`" job suspended: too many FATAL errors" >>JOB
+	    $echo "Status "`date`" job suspended: too many FATAL errors" >>JOB.locked
 	    ( $echo "To: $MAIL_TO"
 	      $echo "Subject: $subject failed"
 	      $echo "From: root (Fax Subsystem)\n"
@@ -167,13 +181,19 @@ do
 	      $echo "    cd $FAX_SPOOL_OUT/"`dirname $job`
 	      $echo "    mv JOB.suspended JOB\n"
 	      $echo "log file follows:"
-	      cat JOB ) |
+	      cat JOB.locked ) |
 	    $MAILER "$MAIL_TO"
 	    #
 	    # suspend job (but do not delete it)
 	    #
-	    mv JOB JOB.suspended
+	    mv JOB.locked JOB.suspended
 	fi
     fi
+#
+# unlock job (ignore errors, the JOB.locked file may have been moved
+#             to JOB.suspended or JOB.done)
+#
+    mv -f JOB.locked JOB 2>/dev/null
+    trap 0 1 2 3 15
 done
 
