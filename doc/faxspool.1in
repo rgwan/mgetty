@@ -114,6 +114,15 @@ informational purposes, that is, faxspool(1) will substitute a @N@ in the
 page header file with it, and it will be passed to the cover page program
 (if used) as <sender-NAME>.
 .TP
+.B -P <priority>
+Sets the priority of the fax in the queue. 9 is highest (meaning: faxes
+get sent out first), 1 is lowest. If nothing is specified, a default
+value of 5 is used. Right now, only
+.I faxrunqd
+understands priority,
+.I faxrunq
+will silently ignore it.
+.TP
 .B -C <cover page program>
 Specify that the named program is to be used to generate a cover page for
 the fax that is being queued. How the program is called is described in the
