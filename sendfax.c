@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.27 1993/07/23 21:57:49 gert Exp $ (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.28 1993/07/25 17:03:44 gert Exp $ (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -191,7 +191,7 @@ static	char	fax_end_of_page[] = { DLE, ETX };
     alarm( 20 );
     do
     {
-	if ( read( fd, &ch, 1 ) != 1 )
+	if ( fax_read_byte( fd, &ch ) != 1 )
 	{
 	    lprintf( L_ERROR, "waiting for XON" );
 	    fprintf( stderr, "error waiting for XON!\n" );
@@ -293,6 +293,7 @@ static	char	fax_end_of_page[] = { DLE, ETX };
 		lprintf( L_NOISE, "input: got " );
 		do
 		{
+		    /* intentionally don't use fax_read_byte here */
 		    if ( read( fd, &ch, 1 ) != 1 )
 		    {
 			lprintf( L_ERROR, "read failed" );
