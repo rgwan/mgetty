@@ -4,9 +4,12 @@
 # 
 # Copyright 1998 Simone Demmel simone@greenie.net
 #
-# CVS: $Id: faxq.in,v 1.9 1998/11/20 16:36:05 gert Exp $
+# CVS: $Id: faxq.in,v 1.10 1998/12/11 14:41:06 gert Exp $
 #
 # $Log: faxq.in,v $
+# Revision 1.10  1998/12/11 14:41:06  gert
+# show page numbers
+#
 # Revision 1.9  1998/11/20 16:36:05  gert
 # - show time of last 'faxrunq' run
 # - put month names into common array (will go to config file later)
@@ -116,6 +119,7 @@ $www_logo
 	<th>User</th>
 	<th>Email</th>
 	<th>Fax-Nr.</th>
+	<th>S.</th>
 	<th>Fehler</th>
 	<th>Details</th>
 </tr>
@@ -146,6 +150,7 @@ $status = "unknown";		# state
 $von = "unknown";		# from
 $an = "unknown";		# to
 $zeit = "unknown";		# time
+$pages = "0";			# number of pages
 $fehlversuche = "&nbsp;";	# unsuccessful tries
 $mail = "&nbsp;";		# mail
 
@@ -194,6 +199,7 @@ $mail = "&nbsp;";		# mail
       if (/^phone (.*)/) { $an = $1;}
       if (/^user (.*)/) { $von = $1;}
       if (/^mail (.*)/) { $mail = $1;}
+      if (/^pages (.*)/) { @_ = split / /, $1; $pages = $#_; }
       if (/^Status /) { $fehlversuche++;}
     }
     close (DAT);
@@ -208,6 +214,7 @@ print <<EOF;
 	<td>$von</td>
 	<td>$mail</td>
 	<td>$an</td>
+	<td>$pages</td>
   	<td>$fehlversuche</td>
   	<td><a href="faxq-v.cgi?name=$DATEI">Details</a></td>
 </tr>
@@ -215,11 +222,11 @@ EOF
   }
   elsif (!-f $target)
   {
-    print "<tr><td>$DATEI</td><td>$status</td><td colspan=\"6\">keine JOB-Datei</td></tr>\n";
+    print "<tr><td>$DATEI</td><td>$status</td><td colspan=\"7\">keine JOB-Datei</td></tr>\n";
   }
   else 
   {
-    print "<tr><td>$DATEI</td><td colspan=\"7\" bgcolor=\"#ff0000\">kann JOB-Datei nicht lesen: $!</td></tr>\n";
+    print "<tr><td>$DATEI</td><td colspan=\"8\" bgcolor=\"#ff0000\">kann JOB-Datei nicht lesen: $!</td></tr>\n";
   }
 }
 
