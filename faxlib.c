@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.22 1997/11/05 20:43:31 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.23 1997/11/06 10:29:51 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -644,6 +644,7 @@ int mdm_identify _P1( (fd), int fd )
 	    lprintf( L_MESG, "sounds like a Microcom DeskPorte Fast+" );
 	    modem_type=Mt_class2_0;
 	    modem_quirks |= MQ_NO_LQC;		/* +FPS: broken */
+	    mis = mdm_get_idstring( "ATI3", 1, fd );
 	    break;
 	  default:
 	    lprintf( L_MESG, "unknown numerical modem id %d", mid );
