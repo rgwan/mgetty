@@ -1,4 +1,4 @@
-#ident "$Id: do_chat.c,v 1.11 1993/09/01 22:49:06 gert Exp $ (c) Gert Doering";
+#ident "$Id: do_chat.c,v 1.12 1993/09/19 01:21:04 gert Exp $ (c) Gert Doering";
 /* do_chat.c
  *
  * This module handles all the non-fax talk with the modem
@@ -47,6 +47,8 @@ struct termio	termio, save_termio;
     (void) ioctl(STDIN, TCSETA, &termio);
 
     signal( SIGALRM, chat_timeout );
+
+    *action = 0;		/* thus a timeout will give A_FAIL */
 
     str=0;
     while ( expect_send[str] != NULL )
