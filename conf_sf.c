@@ -1,4 +1,4 @@
-#ident "$Id: conf_sf.c,v 4.7 1997/11/26 17:10:15 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_sf.c,v 4.8 1997/12/05 23:44:56 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_sf.c
  *
@@ -36,6 +36,7 @@ struct conf_data_sendfax c = {
 	{ "modem-handshake", {0}, CT_STRING, C_EMPTY },
 #endif
 	{ "modem-type", {(p_int) DEFAULT_MODEMTYPE}, CT_STRING, C_PRESET },
+	{ "modem-quirks", {0}, CT_INT, C_EMPTY },
 	{ "max-tries", {FAX_SEND_MAX_TRIES}, CT_INT, C_PRESET },
 	{ "max-tries-continue", {TRUE}, CT_BOOL, C_PRESET },
 	{ "speed", {FAX_SEND_BAUD}, CT_INT, C_PRESET },
@@ -184,4 +185,10 @@ void sendfax_get_config _P1( (port), char * port )
     lprintf( L_NOISE, "not reading config file, not configured" );
 #endif
     log_set_llevel( c_int(debug) );
+
+    if ( c_isset(modem_quirks) )
+    {
+        lprintf( L_NOISE, "set modem_quirks: 0x%04x", c_int(modem_quirks));
+	modem_quirks = c_int(modem_quirks);
+    }
 }

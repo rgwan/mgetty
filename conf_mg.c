@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.c,v 4.4 1997/07/05 17:19:56 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_mg.c,v 4.5 1997/12/05 23:44:54 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_mg.c
  *
@@ -75,6 +75,7 @@ struct conf_data_mgetty c = {
 	{ "data-only", {FALSE}, CT_BOOL, C_PRESET },
 	{ "fax-only", {FALSE}, CT_BOOL, C_PRESET },
 	{ "modem-type", {(p_int) DEFAULT_MODEMTYPE}, CT_STRING, C_PRESET },
+	{ "modem-quirks", {0}, CT_INT, C_EMPTY },
 	{ "init-chat", {0}, CT_CHAT, C_EMPTY },
 	{ "force-init-chat", {0}, CT_CHAT, C_EMPTY },
 
@@ -233,6 +234,7 @@ conf_data c_a[2];
 	    break;
 	  case 'b':			/* open port in blocking mode */
 	    conf_set_bool( &c.blocking, TRUE );
+	    break;
 	  case 'a':			/* autobauding */
 	    conf_set_bool( &c.autobauding, TRUE );
 	    break;
@@ -304,4 +306,9 @@ void mgetty_get_config _P1( (port), char * port )
 	conf_set_int( &c.modem_check_time, 900 );
     }
 
+    if ( c_isset(modem_quirks) )
+    {
+        lprintf( L_NOISE, "set modem_quirks: 0x%04x", c_int(modem_quirks));
+	modem_quirks = c_int(modem_quirks);
+    }
 }
