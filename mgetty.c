@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.101 1994/04/18 00:38:46 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.102 1994/04/21 12:10:56 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -110,7 +110,11 @@ chat_action_t	ring_chat_actions[] = { { "CONNECT",	A_CONN },
 #ifdef VOICE
 char *	answer_chat_seq[] = { "", VOICE_ATA, "VCON", NULL };
 #else
+# ifdef ELINK
+char *	answer_chat_seq[] = { "", "AT\\\\OA", "CONNECT", "\\c", "\n", NULL };
+# else
 char *	answer_chat_seq[] = { "", "ATA", "CONNECT", "\\c", "\n", NULL };
+# endif /* !ELINK */
 #endif
 
 int	answer_chat_timeout = 80;
