@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.61 2004/11/11 20:50:23 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.62 2005/02/27 11:52:54 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -140,7 +140,7 @@ CFLAGS=-O2 -Wall -pipe
 # On SCO Xenix, add -ldir -lx
 #
 # For FreeBSD and NetBSD, add "-lutil" if the linker complains about
-# 	"utmp.o: unresolved symbod _login"
+# 	"utmp.o: unresolved symbol _login"
 # For Linux, add "-lutil" if the linker complains about "updwtmp".
 #
 LDFLAGS=
@@ -241,6 +241,11 @@ INFODIR=$(prefix)/info
 #  (on some ultrix systems, you may need /bin/sh5 here)
 #
 SHELL=/bin/sh
+#
+# If your shell requires pre-posix syntax to disable traps ('trap 0' 
+#  instead of 'trap - 0'), set this to "0" (very rarely needed)
+#
+SHELL_TRAP_POSIX=1
 #
 # If you have problems with the awk-programs in the fax/ shell scripts,
 # try using "nawk" or "gawk" (or whatever works...) here
@@ -429,6 +434,7 @@ mksed: mksed.c policy.h Makefile
 		-DPERL=\"$(PERL)\" -DTKPERL=\"$(TKPERL)\" \
 		-DECHO=\"$(ECHO)\" \
 		-DSHELL=\"$(SHELL)\" \
+		-DSHELL_TRAP_POSIX=$(SHELL_TRAP_POSIX) \
 	-o mksed mksed.c
 
 policy.h-dist: policy.h
@@ -698,7 +704,7 @@ vgetty-install: sedscript
 install-vgetty: vgetty-install
 
 ## test suite
-test: bin-all
+test: bin-all sedscript
 	for D in g3 t ; do \
 	    ( cd $$D ; $(MAKE) CFLAGS="$(CFLAGS) -I.." test ); \
 	done
