@@ -1,4 +1,4 @@
-#ident "$Id: config.c,v 4.3 1997/06/08 15:44:27 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: config.c,v 4.4 1999/02/16 19:56:25 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /*
  * config.c
@@ -385,13 +385,15 @@ int ignore = 0;		/* ignore keywords in non-matching section */
     return NOERROR;
 }
 
-#ifndef makepath
 /* makepath
  *
- * only needed on non-ANSI-compilers
+ * only needed on non-ANSI-compilers or for non-fixed arguments
+ *
+ * concatenate the first argument (file name) with the second 
+ * (path name), but only if the file name doesn't start with "/"
  */
 
-char * makepath _P2( (file, path), char * file, char * path )
+char * _makepath _P2( (file, path), char * file, char * path )
 {
     char * p;
 
@@ -407,4 +409,3 @@ char * makepath _P2( (file, path), char * file, char * path )
     sprintf( p, "%s/%s", path, file );
     return p;
 }
-#endif
