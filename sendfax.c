@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.73 1994/09/21 14:40:52 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.74 1994/09/29 15:15:22 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -17,6 +17,7 @@
 #include <sys/ioctl.h>
 #endif
 #include <signal.h>
+#include <sys/types.h>
 
 #include "mgetty.h"
 #include "tio.h"
@@ -28,6 +29,10 @@
 
 char * fac_tel_no;
 boolean	verbose = FALSE;
+extern time_t	call_start;			/* for accounting */
+
+/* seems to missing nearly everywhere */
+time_t	time _PROTO(( long * tloc ));
 
 void exit_usage _P1( (program),
 		     char * program )
@@ -215,8 +220,8 @@ static int faxpoll_client_init _P2( (fd, cid), int fd, char * cid )
 
 RETSIGTYPE fax_sig_goodbye _P1( (signo), int signo )
 {
-    lprintf( L_AUDIT, "failed, pid=%d, got signal %d, exiting...", 
-	     getpid(), signo );
+    lprintf( L_AUDIT, "failed, pid=%d, time=%ds, got signal %d, exiting...", 
+	     getpid(), ( time(NULL)-call_start ), signo );
     rmlocks();
     exit(15);				/* will close the fax device */
 }
@@ -245,6 +250,7 @@ char *  fax_station_id = FAX_STATION_ID;	/* "-I <id>" */
 boolean	use_stdin = FALSE;			/* modem on stdin */
 
 int	tries;
+
 
     /* initialize logging */
     log_init_paths( argv[0], FAX_LOG, NULL );
@@ -439,10 +445,14 @@ int	tries;
 
     if ( verbose ) { printf( "Dialing %s... ", fac_tel_no ); fflush(stdout); }
 
+    call_start = time( NULL );
+
     sprintf( buf, "%s%s", FAX_DIAL_PREFIX, fac_tel_no );
     if ( fax_command( buf, "OK", fd ) == ERROR )
     {
-	lprintf( L_WARN, "dial failed (hangup_code=%d)", fax_hangup_code );
+	lprintf( L_AUDIT, "dial failedm, +FHS:%d, time=%ds",
+		fax_hangup_code, (int) ( time(NULL)-call_start ) );
+	
 	if ( fax_hangup_code == FHUP_BUSY )
 	    printf( "dial failed (BUSY)\n" );
 	else
@@ -562,8 +572,9 @@ int	tries;
 
     if ( argidx < argc || ( fax_hangup && fax_hangup_code != 0 ) )
     {
-	lprintf( L_WARN, "Failure transmitting %s: +FHNG:%2d",
-		 argv[argidx], fax_hangup_code );
+	lprintf( L_AUDIT, "failed transmitting %s: +FHS:%2d, time=%ds",
+		 argv[argidx], fax_hangup_code, ( time(NULL)-call_start ) );
+
 	fprintf( stderr, "\n%s: FAILED to transmit '%s'.\n",
 		         argv[0], argv[argidx] );
 
@@ -601,7 +612,8 @@ int	tries;
 	    if ( fax_get_pages( fd, &pagenum, poll_directory ) == ERROR )
 	    {
 		fprintf( stderr, "warning: polling failed\n" );
-		lprintf( L_WARN, "warning: polling failed!" );
+		lprintf( L_AUDIT, "failed: polling failed, +FHS:%2d, time=%ds",
+			 fax_hangup_code, ( time(NULL)-call_start ) );
 		fax_close( fd );
 		exit(12);
 	    }
@@ -610,5 +622,8 @@ int	tries;
     }
 
     fax_close( fd );
+
+    lprintf( L_AUDIT, "success, phone=\"%s\", time=%ds",
+	              fac_tel_no, ( time(NULL)-call_start ) );
     return 0;
 }
