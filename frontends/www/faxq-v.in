@@ -1,12 +1,15 @@
 #!@PERL@
 #
-# faxq-v.pl -- show fax queue with details
+# faxq-v.cgi -- show fax queue with details
 # 
 # Copyright 1998 Simone Demmel simone@greenie.net
 #
-# CVS: $Id: faxq-v.in,v 1.1 1998/08/28 14:23:23 gert Exp $
+# CVS: $Id: faxq-v.in,v 1.2 1998/09/04 15:17:50 gert Exp $
 #
 # $Log: faxq-v.in,v $
+# Revision 1.2  1998/09/04 15:17:50  gert
+# scripts are now called .cgi
+#
 # Revision 1.1  1998/08/28 14:23:23  gert
 # initial release
 #
@@ -124,7 +127,7 @@ for ($i=0; $i<=$#stati; $i++)
 print <<EOF;
 <p>
 <hr>
-<a href="faxq.pl">Übersicht Faxe</a><br>
+<a href="faxq.cgi">Übersicht Faxe</a><br>
 <a href="/~sd/index.html">^Hauptmenue</a>
 </body>
 </html>
