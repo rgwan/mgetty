@@ -1,4 +1,4 @@
-#ident "$Id: mg_m_init.c,v 1.7 1994/08/03 11:17:42 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_m_init.c,v 1.8 1994/08/04 17:22:46 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mg_m_init.c - part of mgetty+sendfax
  *
@@ -62,7 +62,7 @@ int mg_init_data _P1( (fd), int fd )
 		 &what_action, init_chat_timeout, TRUE ) == FAIL )
     {
 	errno = ( what_action == A_TIMOUT )? EINTR: EINVAL;
-	lprintf( L_FATAL, "init chat failed, exiting..." );
+	lprintf( L_ERROR, "init chat failed, exiting..." );
 	return FAIL;
     }
     return SUCCESS;
