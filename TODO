@@ -21,6 +21,7 @@
 7) when (before) receiving a fax, check if there's enough space left
   (amount configurably) -> clewis
   generic "get spool file name", check multiple directories
+  (multiple dirs done, code is ugly, clean up)
 
 8) function for creating spool file names (->dir, prefix; <- name, fd)
   with (optional) sequence numbers
@@ -296,6 +297,8 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
      the remaining number of RINGs.
      (Also, that way vgetty can control the number of RINGs depending on
      the distinctive RING number / ISDN MSN)
+226a) have the cnd-program decide whether to "answer NOW", or "ask me
+     again later".
 
 227) mgetty: add config option to call external program in the case
      of "L_AUDIT / failed" exit's?  Might be helpful for an external
