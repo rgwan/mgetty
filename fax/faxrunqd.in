@@ -9,10 +9,14 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.13 1997/11/28 16:20:59 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.14 1997/12/04 09:41:29 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.14  1997/12/04 09:41:29  gert
+# first complete implementation of "policy routing"
+# (lacks some essentials -- e.g. "congestion control" on "special" modems)
+#
 # Revision 1.13  1997/11/28 16:20:59  gert
 # add support for reading of "faxrunqd.policy" files (@policy, yet unused)
 #
@@ -661,8 +665,13 @@ sub send_job_from_queue
 	return;
     }
 
-    print LOG "    phone number: ${queue{$job}->{'phone'}}\n" if $opt_d;
-    print LOG "    priority    : ${queue{$job}{priority}}\n" if $opt_d;
+    my $phone = $queue{$job}{phone};
+    my $pri   = $queue{$job}{priority};
+    my @flags = @{$queue{$job}{flags}};
+
+    print LOG "    phone number: $phone\n" if $opt_d;
+    print LOG "    priority    : $pri\n"   if $opt_d;
+    print LOG "    flags       : " . join( ' ', @flags ) . "\n"  if $opt_d;
     print LOG "    pages       : " . join( ' ', @{$queue{$job}->{'pages'}} ) . "\n" if $opt_d;
 
     # lock job (just a hard link) vs. faxrunq
@@ -670,6 +679,19 @@ sub send_job_from_queue
     {
 	print LOG "WARNING: can't lock job ($!), skipping!\n";
 	return;
+    }
+
+    # policy routing (TODO: do it here or move it up to main scheduler?)
+    foreach $po (@policy)
+    {
+	if ( $phone =~ /$po->{match}/ )
+	{
+	    unless( $po->{substitute} eq '-' )
+		{ eval '$phone =~ ' . $po->{substitute} . ';'; }
+	    push @flags, @{$po->{args}};
+	    print LOG "    policy: -> phone: $phone, args: ". join(' ',@flags) ."\n"  if $opt_v;
+	    last;
+	}
     }
 
     # now fork child process
@@ -681,8 +703,9 @@ sub send_job_from_queue
     if ( $pid == 0 )		# CHILD
     {
 	chdir $job;
+
         exec $sendfax ('sendfax', # '-x', '5',
-	    @{$queue{$job}->{'flags'}}, $queue{$job}->{'phone'},
+	    @flags, $phone, 
 	    @{$queue{$job}->{'pages'}});
 	print LOG "EXEC FAILED: $!\n"; 
 	exit(100);
