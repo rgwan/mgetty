@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 1.24 1993/12/15 14:07:57 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logfile.c,v 1.25 1993/12/28 01:26:19 gert Exp $ Copyright (c) Gert Doering"
 ;
 #include <stdio.h>
 #include <unistd.h>
@@ -125,11 +125,16 @@ struct tm *tm;
 va_list pvar;
 int     errnr;
 
+    if ( level > log_level )	/* log level high enough? */
+    {
+        return 0;		/* no -> return immediately */
+    }
+
     va_start( pvar );
 
     errnr = errno;
 
-    if ( log_fp == NULL )		/* open log file */
+    if ( log_fp == NULL )		/* open log file, if necessary */
     {
         if ( log_path[0] == 0 )
 	    sprintf( log_path, LOG_PATH, "unknown" );
@@ -163,50 +168,48 @@ int     errnr;
     va_end( pvar );
 
     ti = time(NULL); tm = localtime(&ti);
-    if ( level <= log_level )
+
+    if ( level == L_AUDIT )		/* some little auditing */
     {
-	if ( level == L_AUDIT )		/* some little auditing */
-	{
-	    fprintf(log_fp, "\n%02d/%02d %02d:%02d:%02d  #### %s",
+	fprintf(log_fp, "\n%02d/%02d %02d:%02d:%02d  #### %s",
 		             tm->tm_mon+1,  tm->tm_mday,
 			     tm->tm_hour, tm->tm_min, tm->tm_sec, ws );
 #ifdef SYSLOG
-	    syslog( LOG_NOTICE, "%s", ws );
+	syslog( LOG_NOTICE, "%s", ws );
 #endif
-	}
-	else if ( level != L_ERROR && level != L_FATAL )
-	{
-	    fprintf(log_fp, "\n%02d/%02d %02d:%02d:%02d  %s",
+    }
+    else if ( level != L_ERROR && level != L_FATAL )
+    {
+	fprintf(log_fp, "\n%02d/%02d %02d:%02d:%02d  %s",
 		             tm->tm_mon+1,  tm->tm_mday,
 			     tm->tm_hour, tm->tm_min, tm->tm_sec, ws );
-	}
-	else		/* ERROR or FATAL */
-	{
-	    fprintf(log_fp, "\n%02d/%02d %02d:%02d:%02d  %s: %s",
+    }
+    else		/* ERROR or FATAL */
+    {
+	fprintf(log_fp, "\n%02d/%02d %02d:%02d:%02d  %s: %s",
 		             tm->tm_mon+1,  tm->tm_mday,
 			     tm->tm_hour, tm->tm_min, tm->tm_sec, ws,
 			     ( errnr <= sys_nerr ) ? sys_errlist[errnr]:
 			     "<error not in list>" );
 #ifdef SYSLOG
-	    syslog( level == L_FATAL? LOG_ALERT: LOG_ERR,
-		    "%s: %m", ws );
+	syslog( level == L_FATAL? LOG_ALERT: LOG_ERR, "%s: %m", ws );
 #endif
-	    if ( level == L_FATAL )
-	    {
+	if ( level == L_FATAL )		/* write to console */
+	{
 	    FILE * cons_fp;
-		if ( ( cons_fp = fopen( CONSOLE, "w" ) ) != NULL )
-		{
-		    fprintf( cons_fp, "\nmgetty FATAL: %s\n", ws );
-		    fclose( cons_fp );
-		}
-		else	/* last resort */
-		{
-		    mail_logfile = TRUE;
-		    atexit( logmail );
-		}
+	    if ( ( cons_fp = fopen( CONSOLE, "w" ) ) != NULL )
+	    {
+		fprintf( cons_fp, "\nmgetty FATAL: %s\n", ws );
+		fclose( cons_fp );
 	    }
-	}	/* end if ( L_ERROR or L_FATAL ) */
-	fflush(log_fp);
-    }		/* end if ( write message? ) */
+	    else	/* last resort */
+	    {
+		mail_logfile = TRUE;
+		atexit( logmail );
+	    }
+	}
+    }	/* end if ( L_ERROR or L_FATAL ) */
+    fflush(log_fp);
+
     return 0;
 }
