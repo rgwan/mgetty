@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.14 1997/11/11 20:32:13 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.15 1997/11/28 22:04:50 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -404,7 +404,7 @@ sedscript: mksed
 	./mksed >sedscript
 	chmod 700 sedscript
 
-mksed: mksed.c policy.h Makefile
+mksed: mksed.c policy.h Makefile voice-defs.h
 	$(CC) $(CFLAGS) -DBINDIR=\"$(BINDIR)\" -DSBINDIR=\"$(SBINDIR)\" \
 		-DLIBDIR=\"$(LIBDIR)\" \
 		-DCONFDIR=\"$(CONFDIR)\" \
@@ -415,8 +415,11 @@ mksed: mksed.c policy.h Makefile
 		-DPERL=\"$(PERL)\" -DTKPERL=\"$(TKPERL)\" \
 		-DECHO=\"$(ECHO)\" \
 		-DSHELL=\"$(SHELL)\" \
-		-DVOICE_DIR=\"$(VOICE_DIR)\" \
 	-o mksed mksed.c
+
+voice-defs.h: voice/include/default.h
+	echo "/* auto-generated from voice/include/default.h */" >voice-defs.h
+	grep VOICE_DIR voice/include/default.h >>voice-defs.h
 
 policy.h-dist: policy.h
 	@rm -f policy.h-dist
