@@ -1,4 +1,4 @@
-#ident "$Id: g3cat.c,v 4.1 1997/01/12 14:54:21 gert Exp $ (c) Gert Doering"
+#ident "$Id: g3cat.c,v 4.2 1998/05/07 10:37:37 gert Exp $ (c) Gert Doering"
 
 /* g3cat.c - concatenate multiple G3-Documents
  *
@@ -78,7 +78,7 @@ void putwhitespan _P1( (l), int l )
 	if ( mkup > 1728 )	/* extended makeup table */
 	{
 	    fprintf( stderr,
-		    "run length too long (%d) - not yet implemented",  l );
+		    "run length too long (%d) - not yet implemented\n",  l );
 	    exit(99);
 	}
 	else
@@ -109,7 +109,7 @@ void putblackspan _P1( (l), int l )
 	if ( mkup > 1728 )	/* extended makeup table */
 	{
 	    fprintf( stderr,
-		    "run length too long (%d) - not yet implemented",  l );
+		    "run length too long (%d) - not yet implemented\n",  l );
 	    exit(99);
 	}
 	else

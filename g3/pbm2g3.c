@@ -1,4 +1,4 @@
-#ident "$Id: pbm2g3.c,v 4.1 1997/01/12 14:54:22 gert Exp $ Copyright (C) 1994 Gert Doering"
+#ident "$Id: pbm2g3.c,v 4.2 1998/05/07 10:37:38 gert Exp $ Copyright (C) 1994 Gert Doering"
 
 /* pbm2g3
  *
@@ -81,7 +81,7 @@ void putwhitespan _P1( (l), int l )
 	if ( mkup > 1728 )	/* extended makeup table */
 	{
 	    fprintf( stderr,
-		    "run length too long (%d) - not yet implemented",  l );
+		    "run length too long (%d) - not yet implemented\n",  l );
 	    exit(99);
 	}
 	else
@@ -112,7 +112,7 @@ void putblackspan _P1( (l), int l )
 	if ( mkup > 1728 )	/* extended makeup table */
 	{
 	    fprintf( stderr,
-		    "run length too long (%d) - not yet implemented",  l );
+		    "run length too long (%d) - not yet implemented\n",  l );
 	    exit(99);
 	}
 	else
