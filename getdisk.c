@@ -1,4 +1,4 @@
-#ident "@(#)getdisk.c $Id: getdisk.c,v 4.3 2001/01/27 16:22:49 gert Exp $ Copyright (c) 1994 Elegant Communications Inc."
+#ident "@(#)getdisk.c $Id: getdisk.c,v 4.4 2004/11/08 20:10:27 gert Exp $ Copyright (c) 1994 Elegant Communications Inc."
 
 /*
 
@@ -93,6 +93,12 @@
 #if defined(_3B1_)
 # define USTAT
 #endif
+
+/* imported from NetBSD pkgsrc */
+#if defined(__NetBSD__) && (__NetBSD_Version__ > 200030000)
+#undef BSDSTATFS
+#define        SVR4
+#endif 
 
 #if defined(SVR4)
 # define SVR3
