@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 1.29 1994/08/11 17:41:15 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 1.30 1994/08/12 10:18:39 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* tio.c
  *
@@ -80,9 +80,15 @@ struct speedtab speedtab[] = {
 	{ B7200,  7200,  "7200"	},
 #endif
 	{ B9600,  9600,	 "9600"	 },
+#ifdef	B14400
+	{ B14400, 14400, "14400" },
+#endif
 #ifdef	B19200
 	{ B19200, 19200, "19200" },
 #endif	/* B19200 */
+#ifdef	B28800
+	{ B28800, 28800, "28800" },
+#endif
 #ifdef	B38400
 	{ B38400, 38400, "38400" },
 #endif	/* B38400 */
