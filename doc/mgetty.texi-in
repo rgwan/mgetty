@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.59 2003/04/06 14:09:09 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.60 2003/11/07 20:46:17 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -1188,8 +1188,9 @@ Default is 1 Mbyte.
 
 @item @code{notify} @var{mail address}
 
-This is the address that will get mails if a fax is received. Not fully
-tested.
+This is the address that will get mails if a fax is received.  If you do
+not want e-mail notification, specify @code{notify} without an e-mail
+address.
 
 @item @code{fax-owner} @var{username/uid}
 @item @code{fax-group} @var{groupname/gid}
@@ -1623,7 +1624,9 @@ will then be used as fax number.
 at @file{fax/etc-magic}, it contains the most important magic numbers.
 
 @code{faxspool} reads the text to put on top of each fax page from a text
-file, @file{faxheader}, located in @file{@CONFDIR@/}. This file must
+file. The text file is (in order of precedence) the argument of the option
+-h, the @file{$HOME/.faxheader} and as system-wide default
+@file{@CONFDIR@/faxheader}. This file must
 contain pure ASCII text. Some tokens are replaced by the actual values:
 @@T@@ becomes the destination phone number, @@P@@ becomes the actual and
 @@M@@ the total page number, and @@U@@ is replaced by the user name. If
