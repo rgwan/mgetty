@@ -1,3 +1,24 @@
+Sat Oct  9 15:01:32 MEST 1999  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* Added contrib/Raoul_Boenisch about some Dr. Neuhaus speed-related
+ 	problems and fixes.
+
+	* Added doc/NOTE about where to find some documentation.
+
+	* Modified libvoice/detect.c and libvoice/README.lucent for supporting
+	some Lucent variant. jsrockford@my-Deja.com is presumably testing it.
+	Also cleanuped detect.c (using variables).
+
+	* libvoice/signal.c: added child pid in log file. Also, now
+	capturing the exit status instead of ignoring it, and logging
+	at WARN level if non zero. Suggested by Gert.
+
+	* Added scripts/new_voice.craig_southern from
+ 	     http://www.southeren.com/craig/vgetty/
+
+	* Added ability, in vm, to output to the EXTERNAL_SPEAKER (-e
+	option). Patch submitted by baitisj@cyberdude.com.
+
 Thu Sep 16 11:06:43 MEST 1999  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 
 	* Added detection support for ZyXEL Omni 56k. Some issues
@@ -6,7 +27,8 @@ Thu Sep 16 11:06:43 MEST 1999  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 	* Adding ability to use either the new AT+IFC or the old AT\Q3
 	in Elsa, with dynamic adjustment in case of error. We now
 	try AT+IFC first. Reported by Steffen Klupsch, and fix
-	suggested by Gert. Simplified Elsa's internals. Yet untested.
+	suggested by Gert. Simplified Elsa's internals. Reported to
+	work (eschmann@stud.uni-frankfurt.de).
 	
 	* Fixed bug with libvoice/signal.c regarding child termination.
 	The fix works on HPUX (says boban@zaslon.si), and maybe also
