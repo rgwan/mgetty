@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.33 1993/10/27 01:20:49 gert Exp $ Copyright (c) Gert Doering */
+/* $Id: mgetty.h,v 1.34 1993/11/03 19:22:34 gert Exp $ Copyright (c) Gert Doering */
 
 /* ANSI vs. non-ANSI support */
 #ifdef __STDC__
@@ -52,6 +52,11 @@ int lputs _PROTO(( int level, char * s ));
 int lprintf _PROTO(());
 
 /* various defines */
+
+/* bsd stuff */
+#if defined(__BSD_NET2__) || defined(__386BSD__) || defined(__NetBSD__)
+# define BSD
+#endif
 
 /* define here what function to use for polling for characters
  * Chose one of the following: USE_SELECT, USE_POLL, USE_READ
