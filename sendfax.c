@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.60 1994/05/14 16:57:38 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.61 1994/05/19 09:01:16 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* sendfax.c
  *
@@ -226,6 +226,7 @@ static char 	fax_device_string[] = FAX_MODEM_TTYS;	/* writable! */
 char *	fax_devices = fax_device_string;	/* override with "-l" */
 int	fax_res_fine = 1;			/* override with "-n" */
 char *  modem_class = DEFAULT_MODEMTYPE;	/* override with "-C" */
+char *  fax_station_id = FAX_STATION_ID;	/* "-I <id>" */
 
 boolean	use_stdin = FALSE;			/* modem on stdin */
 
@@ -235,7 +236,7 @@ int	tries;
     log_init_paths( argv[0], FAX_LOG, NULL );
     log_set_llevel( L_NOISE );
 
-    while ((opt = getopt(argc, argv, "d:vx:ph:l:nm:SC:")) != EOF) {
+    while ((opt = getopt(argc, argv, "d:vx:ph:l:nm:SC:I:")) != EOF) {
 	switch (opt) {
 	case 'd':	/* set target directory for polling */
 	    poll_directory = optarg;
@@ -271,7 +272,7 @@ int	tries;
         case 'S':	/* modem on stdin */
 	    use_stdin = TRUE;
 	    break;
-	case 'C':
+	case 'C':	/* modem class */
 	    modem_class = optarg;
 	    if ( strcmp( modem_class, "cls2" ) != 0 &&
 		 strcmp( modem_class, "c2.0" ) != 0 )
@@ -279,6 +280,9 @@ int	tries;
 		fprintf( stderr, "%s: warning: invalid modem class '-C %s'\n",
 			 argv[0], modem_class );
 	    }
+	    break;
+	case 'I':	/* local fax id */
+	    fax_station_id = optarg;
 	    break;
 	case '?':	/* unrecognized parameter */
 	    exit_usage(argv[0]);
@@ -355,7 +359,7 @@ int	tries;
     tio_set( fd, &fax_tio );
 #endif
 
-    if ( fax_set_l_id( fd, FAX_STATION_ID ) == ERROR )
+    if ( fax_set_l_id( fd, fax_station_id ) == ERROR )
     {
 	lprintf( L_ERROR, "cannot set fax station ID" );
 	fprintf( stderr, "%s: cannot set fax station ID\n", argv[0] );
