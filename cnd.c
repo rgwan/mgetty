@@ -1,4 +1,4 @@
-#ident "@(#)cnd.c	$Id: cnd.c,v 2.1 1994/11/30 23:20:36 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "@(#)cnd.c	$Id: cnd.c,v 2.2 1994/12/06 17:20:36 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 
 #include <stdio.h>
 #include <string.h>
@@ -9,6 +9,7 @@
 
 #include "policy.h"
 #include "mgetty.h"
+#include "config.h"
 
 char *Connect = "";
 char *CallerId = "none";
@@ -40,7 +41,7 @@ struct cndtable cndtable[] =
     {"REASON FOR NO CALLER NAME: ",	&CallName},
 
     /* those are for rockwell-based modems insisting on a multi-line
-       message "CARRIER ... / PROTOCOL ... / CONNECT */
+       message "CARRIER ... / PROTOCOL ... / CONNECT" */
     {"CARRIER ",		&cnd_carrier},
     {"PROTOCOL: ",		&cnd_protocol},
 
@@ -175,10 +176,11 @@ int cndlookup _P0 (void)
 #ifdef CNDFILE
     FILE *cndfile;
     char buf[BUFSIZ];
-    if (!(cndfile = fopen(CNDFILE, "r")))
-	return(1);
+    
+    cndfile = fopen( makepath( CNDFILE, CONFDIR ), "r");
+    if ( cndfile == NULL ) return(1);
 
-    process_rockwell_mesg();
+    process_rockwell_mesg();		/* parse ugly rockwell msg */
 
     while (fgets(buf, sizeof(buf), cndfile)) {
 	register char *p = buf, *p2;
