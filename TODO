@@ -307,3 +307,8 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
 227) mgetty: add config option to call external program in the case
      of "L_AUDIT / failed" exit's?  Might be helpful for an external
      management system... (Robert Canary)
+
+228) find a way to limit the number of "faxrunq"'s that can run in
+     parallel (on systems with a very large fax queue, it might happen
+     that faxrunq is ran often enough to overflow file/process tables,
+     causing everything to break) - Graham Leggett
