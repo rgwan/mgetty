@@ -16,7 +16,7 @@
   Hint: Recorded voice files are in .ub format (refer to the sox manpage about this) except the header.
         So you can use this files with sox.
  *
- * $Id: V253modem.c,v 1.4 2001/02/24 10:59:36 marcs Exp $
+ * $Id: V253modem.c,v 1.5 2002/11/19 15:39:05 gert Exp $
  *
  */
 
@@ -131,11 +131,29 @@ RING */
      voice_modem_state = IDLE;
      return(OK);
      }
+/*
+Table 17/V.253 - Compression method identifier numerics and strings
+# 	String ID 	Description
+------------------------------------------------
+0 	SIGNED PCM 	Linear PCM sampling using two complement signed numbers
+1 	UNSIGNED PCM 	Linear PCM sampling using unsigned numbers
+2 	RESERVED
+3 	G.729.A 	G.729 Annex A - Recommendation V.70 DSVD default coder.
+4 	G.711U 		u-Law companded PCM
+5 	G.711A 		A-Law companded PCM
+6 	G.723 		H.324 Low bit rate videotelephone default speech coder
+7 	G.726 		ITU-T 40, 32, 24, 16 kit/s ADPCM.
+8 	G.728 		H.320 Low bit rate videotelephone speech coder
+9-127 			Reserved for future standardization
+128-255 		Manufacturer specific
+*/
 
      int V253modem_set_compression (int *compression, int *speed, int *bits)
      {
      char buffer[VOICE_BUF_LEN];
      int Kompressionmethod = 1; /* a littlebit germinglish :-) */
+     int sil_sense = 0; 	/* silence compression sensitivity */
+     int sil_clip = 0;  	/* silence clip                    */
      reset_watchdog();
 
      switch (*compression)
@@ -227,6 +245,17 @@ RING */
           *bits=8;
           break;
        }
+       case 12:        /* ITU defined signed PCM 16-bit Intel Order */
+       {
+	 			/* Chipset Agere/Lucent Venus v.92 found on 
+	  			 * ActionTec v.92 Call Waiting PCI modem    */
+	 *speed=8000		/* Default RATE is 8000 but set it anyway   */
+	 Kompressionmethod = 0; /* Signed PCM                 	   	    */
+     /*  sil_sense = 0;  	* silence compression sensitivity Default=0 */
+     /*  sil_clip = 0;  	* silence clip    Default=0                 */
+	 *bits=16;		/* 16 bit			   	    */
+	 break;
+       }
 
 
        default:
@@ -238,10 +267,14 @@ RING */
        }
      }
      if (*speed == 0)
-          *speed = 8000; /* default value for the PCM voiceformat is 8000 */
+     /* default value for the PCM voiceformat is 8000 */
+          *speed = 8000;
 
-     sprintf(buffer, "AT+VSM=%d,%d",Kompressionmethod, *speed); /* only no compression is common! */
-       /* ATTENTION the AT+VSM=? output is diffrent from the AT+VSM=<Parameter> */
+     sprintf(buffer, "AT+VSM=%d,%d",Kompressionmethod, *speed);
+     /* only no compression is common! */
+     /* ATTENTION the AT+VSM=? output is diffrent from the AT+VSM=<Parameter> */
+     if (voice_command(buffer, "OK")!= VMA_USER_1)
+     sprintf(buffer, "AT+VSM=%d,%d,%d,%d",Kompressionmethod, *speed, sil_sense, sil_clip); 
      if (voice_command(buffer, "OK")!= VMA_USER_1)
       {
          lprintf(L_WARN, "can't set compression and speed");
