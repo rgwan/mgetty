@@ -1,4 +1,4 @@
-#ident "$Id: sff2g3.c,v 1.1 2004/07/16 14:46:11 gert Exp $ Copyright (C) 1994 Gert Doering"
+#ident "$Id: sff2g3.c,v 1.2 2004/07/16 19:38:11 gert Exp $ Copyright (C) 1994 Gert Doering"
 
 /* sff2g3
  *
@@ -9,7 +9,14 @@
  *	    -r     reverse bytes
  *	    -v     verbose output
  *
+ * reference documentation: http://www.capi.org/
+ * see also: http://sfftools.sourceforge.net/
+ *
  * $Log: sff2g3.c,v $
+ * Revision 1.2  2004/07/16 19:38:11  gert
+ * add G3 output file handling
+ * add function to output <n> blank lines (codes 219-253)
+ *
  * Revision 1.1  2004/07/16 14:46:11  gert
  * SFF (shitty file format / CAPI fax format) to "raw G3" converter
  * first cut: can parse SFF input files and bit-reverse output
@@ -23,6 +30,7 @@
 #include <string.h>
 #include "syslibs.h"
 #include <ctype.h>
+#include <sys/param.h>
 
 #include "ugly.h"
 
@@ -40,7 +48,8 @@ void exit_usage _P1( (name), char * name )
 extern int	optind;
 extern char *	optarg;
 
-FILE * rfp;			/* read file pointer */
+FILE * rfp,			/* read file pointer */
+     * wfp;			/* write file pointer */
 int verbose = 0;		/* option: -v */
 int out_byte_tab[ 256 ];	/* for g3 byte reversal */
 
@@ -68,6 +77,43 @@ void sff_skip_bytes( int skip )
     }
 }
 
+/* write one end-of-line sequence (byte-padded) */
+void puteol(void)
+{
+    putc( out_byte_tab[0x00], wfp );
+    putc( out_byte_tab[0x80], wfp );
+}
+
+/* G3 file handling 
+ */
+int open_g3_file( char * path_base, int fine, int pagenum )
+{
+    char path[PATH_MAX+2];
+
+    /* this is ugly -> TODO:cleanup, integrate "fine mode" flag */
+    sprintf( path, path_base, pagenum );
+
+    wfp = fopen( path, "w" );
+    if ( wfp == NULL )
+	{ fprintf( stderr, "can't open '%s' for writing: ", path );
+          perror(""); return -1; }
+
+    if ( verbose ) printf( "Writing G3 file '%s'...\n", path );
+
+    puteol();		/* opening EOL */
+
+    return 0;
+}
+
+/* terminate G3 stream (6 EOLs = RTC), close file */
+
+void close_g3_file( void )
+{
+int i;
+    for (i=0; i<6; i++ ) puteol();
+    fclose(wfp);
+}
+
 void sff_copy_line( int bytes )
 {
 int i, ch;
@@ -78,13 +124,30 @@ int i, ch;
 	ch=getc(rfp);
 	if ( i<16 && verbose>1 ) 
 		printf( " %02x", out_byte_tab[ch&0xff] );
+	putc( out_byte_tab[ch&0xff], wfp );
     }
     if ( verbose>1 ) printf( "\n" );
+
+    puteol();		/* add EOL (byte-aligned) */
+}
+
+void sff_output_blank_lines( l )
+{
+    if ( verbose>1 ) printf( "sff_obl: %d blank lines\n", l );
+    while( l-- > 0 )
+    {
+	/* code for 1728+0 white PELs */
+	putc( out_byte_tab[0xb2], wfp );
+	putc( out_byte_tab[0x59], wfp );
+	putc( out_byte_tab[0x01], wfp );
+	/* end of line */
+	puteol();
+    }
 }
 
 int main _P2( (argc, argv), int argc, char ** argv )
 {
-    int c, len;
+    int c, len, vres;
     int digifax_header = 0;
     int cur_page = 0;
     char * in_file, * out_file;
@@ -187,6 +250,12 @@ int main _P2( (argc, argv), int argc, char ** argv )
 			sff_long(&pbuf[0x0a]), sff_long(&pbuf[0xe]) );
 	}
 
+	/* vertical resolution */
+	vres = (pbuf[2] == 0) ?  98 :
+                   (pbuf[2] == 1) ? 196 :
+                   (pbuf[2] == 255) ? 300 :
+                   (pbuf[2] == 254) ? 400 : 0;
+
 	/* impossible offset values? */
 	if ( pbuf[1]+2 < SIZEOF_PAGE_HEADER )
 	{
@@ -200,6 +269,8 @@ int main _P2( (argc, argv), int argc, char ** argv )
 	sff_skip_bytes( pbuf[1]+2 - SIZEOF_PAGE_HEADER );
 
 	/* now handle page data */
+	if ( open_g3_file( out_file, vres>100, cur_page ) < 0 ) exit(4);
+
 	while( 1 )
 	{
 	    c = getc(rfp);
@@ -216,12 +287,15 @@ int main _P2( (argc, argv), int argc, char ** argv )
 	    else if ( c > 0 && c <= 216 )	/* <c> bytes of page data */
 		{ sff_copy_line(c); }
 	    else if ( c >= 217 && c<= 253 )	/* blank lines */
-		printf( "TODO: c=%d->%d blank lines here\n", c, c-216 );
+		{ sff_output_blank_lines( c-216 ); }
 	    else if ( c == 254 )		/* next page header */
 		{ ungetc(c, rfp); break; }
 	    else if ( c == 255 )		/* user data */
 		{ sff_skip_bytes( getc(rfp) ); break; }
 	}
+
+	/* close G3 file */
+	close_g3_file();
     }
 
     if ( verbose ) printf( "end of input reached, pages=%d\n", cur_page-1 );
