@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 3.12 1996/10/10 23:43:32 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 3.13 1996/11/02 11:41:02 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -138,9 +138,10 @@ typedef	char	boolean;
 #endif
 
 /* On a ALPHA, the config routines won't work, unless we change the
- * union to use "void *" and "long", instead of "int" (see config.h). 
+ * union to use "void *" and "long", instead of "int" (see config.h).
+ * Same for Sparc Ultra machines [at least with SparcLinux]
  */
-#if defined(__alpha__)
+#if defined(__alpha__) || defined(__sparc64__)
 # define PTR_IS_LONG
 #endif
 
