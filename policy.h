@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.74 1994/12/23 12:58:48 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.75 1995/03/24 15:08:33 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration defaults for mgetty / sendfax
  * are specified.
@@ -251,25 +251,24 @@
 
 /* the modem initialization string
  *
- * this sample string is for ZyXELs, for other modems you'll have to
- *     replace &H3 (rts/cts flow control), &K4 (enable v42bis) and &N0
- *     (answer with all known protocols).
- * For instructions how to setup various other modems, look into
- *     mgetty.texi ("modems" section) and check your modem manual
- * For some modems, an initial "\d" is needed.
- * If you need a '\' in the modem command, give it as "\\\\".
- * Maybe the best "initialization" would be to setup everything 
- *     properly in the nvram profile, and just send the modem an
- *     "ATZ". I just like to make sure the most important things are
- *     always set...
- * If you wish to use ZyXEL callerid, add "S40.2=1"
+ * the default string should set up most hayes compatible modems into a
+ * fairly sane state (echo on, verbose reports on, quiet off, reset on
+ * DTR toggle on), but it doesn't set any flow control options (because
+ * that's done differently on each modem, look into your manual for commands
+ * like &H3, &K4, \Q6 or similar things) or protocols.
+ *
+ * You can change the initialization sequence with the "init-chat" keyword
+ * in "mgetty.config".
+ *
+ * If you need delays, specify them as "\\d", if you want to send a
+ * backslash ('\'), give it as "\\\\".
  *
  * Very IMPORTANT: make sure that the modem assigns the DCD line properly,
  * usually this is done with the AT&C1 command!
  *
- * The modem must answer with "OK" (!!!) - otherwise, change mgetty.c
+ * The modem must answer with "OK" (!!!) - otherwise, use "init-chat".
  */
-#define MODEM_INIT_STRING	"ATS0=0Q0&D3&H3&N0&K4"
+#define MODEM_INIT_STRING	"ATS0=0Q0&D3&C1"
 
 /* command termination string
  *
@@ -277,7 +276,7 @@
  * sufficient and "\r\n" also works without doing harm.
  * Unfortunately, for the Courier HST, you've to use *only* \r,
  * otherwise ATA won't work (immediate NO CARRIER), and for some
- * ZyXELs, you have to use \r\n (no OK otherwise).
+ * (old) ZyXELs, you have to use \r\n (no OK otherwise).
  * So, try one, and if it doesn't work, try the other.
  */
 #define MODEM_CMD_SUFFIX "\r"
@@ -474,6 +473,9 @@
  * do this if you know that your modem returns +FPTS:2 even if the
  * page arrived properly, but be warned - you wont' be able to react
  * properly to transmission errors!)
+ *
+ * See also the description of the "max-tries" and "max-tries-continue"
+ * settings in the sendfax config file.
  */
 #define FAX_SEND_MAX_TRIES 3
 
