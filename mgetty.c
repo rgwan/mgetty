@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.32 1993/06/05 15:52:13 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.33 1993/06/15 20:41:15 gert Exp $ (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -465,7 +465,7 @@ int main( int argc, char ** argv)
 	    {
 		lprintf( L_MESG, "action is A_FAX, start fax receiver...");
 #ifdef FAX_RECEIVE_USE_IXOFF
-		termio.c_iflag = IXOFF		/* xon/xoff flow control */
+		termio.c_iflag = IXOFF;		/* xon/xoff flow control */
 #else
 		termio.c_iflag = 0;		/* do NOT process input! */
 #endif
