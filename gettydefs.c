@@ -1,4 +1,4 @@
-#ident "$Id: gettydefs.c,v 1.9 1994/08/08 12:34:27 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "$Id: gettydefs.c,v 1.10 1994/11/03 19:12:16 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 
 /* gettydefs.c
  *
@@ -397,8 +397,8 @@ parsetermio _P2((ti, str), TIO *ti, char *str)
 			default:
 			    *p2 = *(p2+1);
 		    }
-		else if (*p2 == '^')
-		    *p2 = *(p2+1) - '@';
+		else if (*p2 == '^')		/* ^x means C-x, ^? is DEL */
+		    *p2 = (*(p2+1) == '?')? 0x7f : *(p2+1) - '@';
 
 		ti->c_cc[m->turnon] = *p2;
 	    } else
