@@ -1,6 +1,8 @@
-#ident "$Id: logname.c,v 1.17 1993/11/12 13:45:33 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: logname.c,v 1.18 1993/11/12 21:38:07 gert Exp $ Copyright (c) Gert Doering";
 #include <stdio.h>
+#ifndef _NOSTDLIB_H
 #include <stdlib.h>
+#endif
 #include <unistd.h>
 #include <signal.h>
 #include <malloc.h>
@@ -21,15 +23,6 @@
 
 #ifndef SYSTEM
 #include <sys/utsname.h>
-#endif
-
-/* Linux apparently does not define these constants */
-#ifdef linux
-#define CQUIT	034		/* FS,  ^\ */
-#define CEOF	004		/* EOT, ^D */
-#define CKILL	025		/* NAK, ^U */
-#define CERASE	010		/* BS,  ^H */
-#define CINTR	0177		/* DEL, ^? */
 #endif
 
 /* ln_escape_prompt()
@@ -80,6 +73,15 @@ char * ln_escape_prompt _P1( (ep), char * ep )
 	      case 'v': p[i++] = '\013'; break;
 	      case 'f': p[i++] = '\f'; break;
 	      case 't': p[i++] = '\t'; break;
+	      case 'C':
+		{
+		    time_t ti = time(NULL);
+		    char * h = ctime( &ti );
+		    if ( strlen(h) +1 +i > MAX_PROMPT_LENGTH ) break;
+		    i += sprintf( &p[i], "%s", h ) -1;
+		    break;
+		}
+	      case 'N':
 	      case 'U':
 		i += sprintf( &p[i], "%d", get_current_users() );
 		break;
@@ -100,7 +102,7 @@ char * ln_escape_prompt _P1( (ep), char * ep )
 		        i += sprintf( &p[i], "%d/%d/%d", tm->tm_mon+1,
 				     tm->tm_mday, tm->tm_year + 1900 );
 		    else
-		        i += sprintf( &p[i], "%d:%d:%d", tm->tm_hour,
+		        i += sprintf( &p[i], "%02d:%02d:%02d", tm->tm_hour,
 				     tm->tm_min, tm->tm_sec );
 		}
 		break;
@@ -195,7 +197,7 @@ char * final_prompt;
     final_prompt = ln_escape_prompt( prompt );
 
 #ifdef ENV_TTYPROMPT
-    printf( "\r\n%s ", final_prompt );
+    printf( "\r\n%s", final_prompt );
     tio_mode_sane( tio, FALSE );
     tio_map_cr( tio, TRUE );
     tio_set( STDIN, tio );
