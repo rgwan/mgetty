@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.21 1993/10/22 12:47:42 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 1.22 1993/11/01 22:22:03 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -246,10 +246,10 @@ static const char start_rcv = DC2;
     *pagenum = 0;
 
     /* allocate memory for fax page file names
-     * (error checking is done in fax_get_page_data)
      */
 
     fax_file_names = malloc( fax_fn_size = MAXPATH * 4 );
+    if ( fax_file_names != NULL ) fax_file_names[0] = 0;
 
     /* send command for start page receive
      * read: +FCFR:, [+FTSI, +FDCS:], CONNECT
@@ -349,7 +349,8 @@ int	r;
     fprintf( pipe_fp, "\nSpooled G3 fax files:\n\n" );
 
     p = file_name = fax_file_names;
-    do
+    
+    while ( p != NULL )
     {
 	p = strchr( file_name, ' ' );
 	if ( p != NULL ) *p = 0;
@@ -357,7 +358,6 @@ int	r;
 	if ( p != NULL ) *p = ' ';
 	file_name = p+1;
     }
-    while ( p != NULL );
 
     fprintf( pipe_fp, "\n\nregards, your modem subsystem.\n" );
 
