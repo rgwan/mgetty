@@ -1,4 +1,4 @@
-#ident "$Id: mg_m_init.c,v 1.15 1994/10/22 15:39:57 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_m_init.c,v 1.16 1994/10/31 12:09:29 gert Exp $ Copyright (c) Gert Doering"
 
 /* mg_m_init.c - part of mgetty+sendfax
  *
@@ -33,7 +33,7 @@ chat_action_t	init_chat_actions[] = { { "ERROR", A_FAIL },
  * 
  * To send a backslash, you have to use "\\\\" (four backslashes!) */
 
-static char *	init_chat_seq[] = { "",
+char *	def_init_chat_seq[] = { "",
 			    "\\d\\d\\d+++\\d\\d\\d\r\\dATQ0V1H0", "OK",
 
 /* initialize the modem - defined in policy.h
@@ -45,11 +45,11 @@ static int init_chat_timeout = 20;
 
 /* initialize data section */
 
-int mg_init_data _P1( (fd), int fd )
+int mg_init_data _P2( (fd, chat_seq), int fd, char * chat_seq[] )
 {
     action_t what_action;
     
-    if ( do_chat( fd, init_chat_seq, init_chat_actions,
+    if ( do_chat( fd, chat_seq, init_chat_actions,
 		 &what_action, init_chat_timeout, TRUE ) == FAIL )
     {
 	errno = ( what_action == A_TIMOUT )? EINTR: EINVAL;
