@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.14 1997/12/04 09:41:29 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.15 1997/12/10 11:51:27 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.15  1997/12/10 11:51:27  gert
+# if .queue-changed exists, flush internal queue and re-read from disk
+#
 # Revision 1.14  1997/12/04 09:41:29  gert
 # first complete implementation of "policy routing"
 # (lacks some essentials -- e.g. "congestion control" on "special" modems)
@@ -401,6 +404,9 @@ while( 1 )
 
 	# leave loop if user signalled for 'graceful exit'
 	if ( $graceful_exit_requested ) { last; }
+
+	# leave loop if something has changed in the on-disk queue
+	if ( -f '.queue-changed' ) { $did_wait=0; last; }
     }
 
     # this is a bit tricky...
@@ -442,7 +448,9 @@ while( 1 )
     # once per hour, completely flush internal queue, make sure nothing
     # is left over in there, that removed jobs are thrown out, rejuvenated
     # jobs requeued, etc.
-    if ( ( time() - $queue_last_flushed ) > $queue_flush_interval )
+    # This is also done if the on-disk queue has changed (faxq -r, etc.)
+    if ( ( time() - $queue_last_flushed ) > $queue_flush_interval 
+	 || ( -f '.queue-changed' ) )
     {
 	print LOG "*** flush internal job queue ***\n" if $opt_v;
 	# must clean up children first!!
@@ -450,6 +458,7 @@ while( 1 )
 	    { &wait_for_child; }
 	%queue=();
         $queue_last_flushed = time();
+	unlink( '.queue-changed' );
     }
 
     # if signalled from the user (signal USR1), roll the log file, 
