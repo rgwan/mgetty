@@ -1,3 +1,23 @@
+Sun Oct 21 16:40:51 MEST 2001  Gert Doering (gert@greenie.muc.de)
+
+	* release 1.1.27
+
+	* doc/mgetty.texi-in: work on isdn4linux notes
+
+	* cnd.c (cndtable): add swedish ZyXEL caller ID format (T. Lundgren)
+
+	* cnd.c (cndtable): add "CALLERD NUMBER:" (Jan Oberlaender/i4l)
+
+Fri Sep 28 23:06:24 MEST 2001  Gert Doering (gert@greenie.muc.de)
+
+	* various: adaptions to OpenBSD (similar to NetBSD)
+
+Mon Jun 18 22:26:08 MEST 2001  Gert Doering (gert@greenie.muc.de)
+
+	* mgetty.h: patch to adapt to Linux/S390 (PTR_IS_LONG)
+
+	* frontends/www/: integrate new version from Neko
+
 Mon Apr 16 10:56:21 MEST 2001  Gert Doering (gert@greenie.muc.de)
 
 	* release 1.1.26
