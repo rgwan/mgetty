@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.26 1993/07/22 20:17:14 gert Exp $ (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.27 1993/07/23 21:57:49 gert Exp $ (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -431,12 +431,13 @@ int	tries;
      */
     if ( fax_poll_req )
     {
-	fax_command( "AT+FCIG=\""FAX_STATION_ID"\"", "OK", fd );
-	if ( fax_command( "AT+FSPL=1", "OK", fd ) == ERROR )
+	if ( fax_command( "AT+FCIG=\""FAX_STATION_ID"\"", "OK", fd ) == ERROR ||
+	     fax_command( "AT+FSPL=1", "OK", fd ) == ERROR )
 	{
 	    lprintf( L_WARN, "AT+FSPL=1: cannot enable polling" );
-	    fprintf( stderr, "Warning: polling is not possible!" );
+	    fprintf( stderr, "Warning: polling is not possible!\n" );
 	    fax_poll_req = FALSE;
+	    fax_hangup = 0;	/* reset error flag */
 	}
     }
 
