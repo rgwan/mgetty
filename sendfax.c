@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.50 1994/01/05 04:42:44 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.51 1994/01/14 19:58:48 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* sendfax.c
  *
@@ -156,9 +156,10 @@ void fax_close _P1( (fd),
     rmlocks();
 }
 
-RETSIGTYPE fax_sig_goodbye( int signo )
+RETSIGTYPE fax_sig_goodbye _P1( (signo), int signo )
 {
-    lprintf( L_AUDIT, "got signal %d, exiting...", signo );
+    lprintf( L_AUDIT, "failed, pid=%d, got signal %d, exiting...", 
+	     getpid(), signo );
     rmlocks();
     exit(15);				/* will close the fax device */
 }
