@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.72 1993/12/15 11:53:11 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.73 1993/12/17 08:17:22 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -127,6 +127,12 @@ char *	answer_chat_seq[] = { "", "ATA", "CONNECT", "\\c", "\n", NULL };
 #endif
 
 int	answer_chat_timeout = 80;
+
+/* change this to "8" if you assume that you'll never have the modem
+ * pick up the phone by pressing DATA/VOICE, and mgetty answers the
+ * phone otherwise if not expected to (two calls with just one RING each)
+ */
+int     ring_chat_timeout = 60;
 
 /* the same actions are recognized while answering as are */
 /* when waiting for RING, except for "CONNECT" */
@@ -516,7 +522,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 	    while ( rings < rings_wanted )
 	    {
 		if ( do_chat( STDIN, ring_chat_seq, ring_chat_actions,
-			      &what_action, answer_chat_timeout,
+			      &what_action, ring_chat_timeout,
 			      TRUE ) == FAIL ) break;
 		rings++;
 	    }
