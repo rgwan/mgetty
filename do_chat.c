@@ -1,4 +1,4 @@
-#ident "$Id: do_chat.c,v 1.17 1993/10/06 00:35:33 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: do_chat.c,v 1.18 1993/10/19 22:27:12 gert Exp $ Copyright (c) Gert Doering";
 /* do_chat.c
  *
  * This module handles all the non-fax talk with the modem
@@ -9,13 +9,13 @@
 #include <stdlib.h>
 #endif
 #include <unistd.h>
-#include <termio.h>
 #include <signal.h>
 #ifndef sun
 #include <sys/ioctl.h>
 #endif
 
 #include "mgetty.h"
+#include "tio.h"
 
 boolean chat_has_timeout;
 void chat_timeout()
@@ -39,16 +39,12 @@ int	str;
 char	*p;
 int	h;
 boolean	nocr;
-struct termio	termio, save_termio;
+TIO	tio, save_tio;
 
-    (void) ioctl(fd, TCGETA, &termio);
-    save_termio = termio;
-    termio.c_iflag &= (IXON|IXOFF|IXANY);         /* clear all but handshake */
-    termio.c_oflag  = 0;
-    termio.c_lflag  = 0;
-    termio.c_cc[VMIN] = 1;
-    termio.c_cc[VTIME] = 0;
-    (void) ioctl(fd, TCSETA, &termio);
+    tio_get( fd, &tio );
+    save_tio = tio;
+    tio_mode_raw( &tio );
+    tio_set( fd, &tio );
 
     signal( SIGALRM, chat_timeout );
 
@@ -210,38 +206,32 @@ check_further:
     }			/* end while ( expect_send[str] != NULL ) */
 
     /* reset terminal settings */
-    (void) ioctl( fd, TCSETAF, &save_termio);
+    tio_set( fd, &save_tio );
 
     return retcode;
 }
 
 int clean_line _P2 ((fd, waittime), int fd, int waittime )
 {
-struct termio	termio, save_termio;
+TIO	tio, save_tio;
 char	buffer[2];
 
     lprintf( L_NOISE, "waiting for line to clear, read: " );
 
     /* set terminal timeout to "waittime" tenth of a second */
-    (void) ioctl( fd, TCGETA, &termio);
-    save_termio = termio;
-    termio.c_lflag &= ~ICANON;
-    termio.c_cc[VMIN] = 0;
-    termio.c_cc[VTIME] = waittime;
-    (void) ioctl( fd, TCSETA, &termio);
+    tio_get( fd, &tio );
+    save_tio = tio;				/*!! FIXME - sgtty?! */
+    tio.c_lflag &= ~ICANON;
+    tio.c_cc[VMIN] = 0;
+    tio.c_cc[VTIME] = waittime;
+    tio_set( fd, &tio );
 
     /* read everything that comes from modem until a timeout occurs */
     while ( read( fd, buffer, 1 ) > 0 ) 
         lputc( L_NOISE, buffer[0] );
 
     /* reset terminal settings */
-    (void) ioctl( fd, TCSETAF, &save_termio);
+    tio_set( fd, &save_tio );
     
     return 0;
 }
-
-
-
-
-
-
