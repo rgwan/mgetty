@@ -7,7 +7,7 @@
  * wav.c, found in sox-11-gamma. Thank you for some funtions.
  * This is the 1. alpha release from 1997/2/14
  *
- * $Id: wav.c,v 1.5 1998/09/09 21:07:06 gert Exp $
+ * $Id: wav.c,v 1.6 2000/07/22 09:57:46 marcs Exp $
  */
 
 #include "../include/voice.h"
@@ -502,15 +502,20 @@ int pvftowav (FILE *fd_in, FILE *fd_out, pvf_header *header_in, int wav_bits)
                     if   (*ptr < -0x8000)
                          *ptr = -0x8000;
 
-                    putc((*ptr >> 8) & 0xff, fd_out);
-                    putc(*ptr++ & 0xff, fd_out);
+                    putc(*ptr, fd_out);
+                    putc(*ptr++ >> 8, fd_out);
                     };
 
                break;
           case LONG:
 
                while (data_size--)
-                    putc(*ptr++,fd_out);
+                    {
+                    putc(*ptr, fd_out);
+                    putc(*ptr >> 8, fd_out);
+                    putc(*ptr >> 16, fd_out);
+                    putc(*ptr++ >> 24, fd_out);
+                    }
 
                break;
           }
@@ -522,7 +527,7 @@ int pvftowav (FILE *fd_in, FILE *fd_out, pvf_header *header_in, int wav_bits)
 int wavtopvf (FILE *fd_in, FILE *fd_out, pvf_header *header_out)
      {
      struct soundstream s;
-     int d = 0;
+     int d;
 
      s.fp = fd_in;
 
@@ -546,10 +551,11 @@ int wavtopvf (FILE *fd_in, FILE *fd_out, pvf_header *header_out)
                     d <<= 16;
                     break;
                case 16:
-                    d = getc(fd_in) + 0x100 * getc(fd_in);
+                    d = getc(fd_in) & 0xFF;
+                    d += (getc(fd_in) << 8);
 
-                    if (d > 0x7fff)
-                     d -= 0x10000;
+                    if (d & 0x8000)
+                     d |= 0xFFFF0000;
 
                     d <<= 8;
                     break;
@@ -557,6 +563,7 @@ int wavtopvf (FILE *fd_in, FILE *fd_out, pvf_header *header_out)
                     fprintf(stderr,
                      "%s: unsupported number of bits per sample (%d)\n",
                      program_name, wBitsPerSample);
+                    return(ERROR);
                };
 
           header_out->write_pvf_data(fd_out, d);
