@@ -146,6 +146,11 @@ be the last option on the command line.
 .B -M <file name>
 Multicasting - read a list of telephone numbers to send the fax to
 from the given file. Do not use in conjunction with "-m".
+.TP
+.B -c
+Copy source files to a sub directory ".source-files/" in the fax queue
+directory (most likely, you won't ever need this - I needed it for one
+project, so it's here and documented. Don't ask what it's good for).
 .SH FILES
 .TP
 .B @FAX_SPOOL_OUT@/*
