@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 4.9 1998/05/09 14:38:01 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 4.10 1998/06/01 16:35:03 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -261,6 +261,7 @@ extern char *CalledNr;
 
 void cndfind _PROTO((char *str));
 int cndlookup _PROTO((void));
+int cnd_call _PROTO((char *name, char *tty, int dist_ring ));
 
 /* disk statistics retrieval in getdisk.c */
 

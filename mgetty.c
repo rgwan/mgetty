@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 4.15 1998/05/02 18:54:19 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 4.16 1998/06/01 16:35:01 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -800,7 +800,11 @@ Ring_got_action:
 		do_chat( STDIN, c_chat(getcnd_chat), NULL, NULL, 10, TRUE );
 	    }
 		
-	    if ( !cndlookup() )
+	    /* Check Caller ID.  Static table first, then cnd-program.  */
+
+	    if ( !cndlookup() ||
+	         ( c_isset(cnd_program) &&
+		   cnd_call( c_string(cnd_program), Device, dist_ring ) == 1))
 	    {
 		lprintf( L_AUDIT, "denied caller dev=%s, pid=%d, caller='%s'",
 			 Device, getpid(), CallerId);
