@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.69 1994/08/22 01:28:02 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.70 1994/09/10 22:17:22 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -418,10 +418,17 @@ int	tries;
     {
 	lprintf( L_WARN, "cannot set modem flow control" );
     }
-	
+
+#ifdef FAX_MODEM_HANDSHAKE
+    if ( mdm_command( FAX_MODEM_HANDSHAKE, fd ) == ERROR )
+    {
+	lprintf( L_WARN, "cannot set FAX_MODEM_HANDSHAKE; ignored" );
+    }
+#endif
+
     if ( verbose ) { printf( "Dialing %s... ", fac_tel_no ); fflush(stdout); }
 
-    sprintf( buf, "AT%sD%s", FAX_MODEM_HANDSHAKE, fac_tel_no );
+    sprintf( buf, "%s%s", FAX_DIAL_PREFIX, fac_tel_no );
     if ( fax_command( buf, "OK", fd ) == ERROR )
     {
 	lprintf( L_WARN, "dial failed (hangup_code=%d)", fax_hangup_code );
