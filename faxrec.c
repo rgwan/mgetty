@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.27 1993/11/13 22:59:41 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: faxrec.c,v 1.28 1993/11/19 13:52:18 gert Exp $ Copyright (c) Gert Doering";
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -146,6 +146,7 @@ extern  char * Device;
 	 }
          else if ( fax_remote_id[j] != '"' ) temp[i++] = fax_remote_id[j];
     }
+    if ( temp[i-1] == '-' ) i--;
     sprintf( &temp[i], ".%02d", pagenum );
 #endif
 
