@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 3.2 1996/02/01 20:28:37 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 3.3 1996/02/04 15:31:52 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* tio.c
  *
@@ -520,7 +520,11 @@ int tio_set_flow_control _P3( (fd, t, type), int fd, TIO * t, int type )
     if ( type & FLOW_XON_IN )
 			t->c_iflag |= IXOFF;
     if ( type & FLOW_XON_OUT )
+#if 0 /*!!! FIXME! We want this for data logins, can't have it for voice */
 			t->c_iflag |= IXON | IXANY;
+#else
+			t->c_iflag |= IXON;
+#endif
 #else
 #include "not yet implemented"
 #endif
