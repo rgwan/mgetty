@@ -1,6 +1,7 @@
-#ident "$Id: mgetty.c,v 1.10 1993/03/08 19:14:40 gert Exp $ (c) Gert Doering";
-/* some parts of the code are loosely based on the 
- * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us
+#ident "$Id: mgetty.c,v 1.11 1993/03/10 23:35:45 gert Exp $ (c) Gert Doering";
+/* some parts of the code (lock handling, writing of the utmp entry)
+ * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
+ * paul@devon.lns.pa.us, and are used with permission here.
  */
 
 #include <stdio.h>
