@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 1.19 1993/11/12 08:16:40 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: logfile.c,v 1.20 1993/11/12 15:47:20 gert Exp $ Copyright (c) Gert Doering";
 
 #include <stdio.h>
 #include <unistd.h>
@@ -20,22 +20,19 @@ char log_path[ MAXPATH ];
 
 extern int atexit _PROTO(( void (*)(void) ));
 
-/* Interactive Unix is a little bit braindead - does not have atexit(),
- * and does not define externals for sys_nerr and sys_errlist,
- * nevertheless I've been told that they exist - so I declare them myself.
- *
- * Strange enough, SVR4 and SunOS seems to be simiarily stupid.
- * Weeeeellll... there was something about POSIX and strerror...
+/* Most systems have these variables but do not declare them. On thos
+ * systems that _do_ declare them, it won't hurt
  */
-#if defined(ISC) || defined(SVR4) || defined(sun) || defined(_3B1_) || \
-    defined(__hpux) || defined(MEIBE) || defined(_SEQUENT_) || defined(AIX)
-# define atexit(dummy) 
 
 extern int sys_nerr;
 extern char *sys_errlist[];
-# ifdef _3B1_
 extern int errno;
-# endif
+
+/* Interactive Unix is a little bit braindead - does not have atexit(),
+ */
+#if defined(ISC) || defined(SVR4) || defined(sun) || defined(_3B1_) || \
+    defined(MEIBE) || defined(_SEQUENT_) || defined(_AIX)
+# define atexit(dummy) 
 #endif
 
 void logmail _P0( void )
@@ -159,13 +156,15 @@ int     errnr;
     {
 	if ( level != L_ERROR && level != L_FATAL )
 	{
-	    fprintf(log_fp, "\n%d.%d./%02d:%02d:%02d  %s", tm->tm_mday, tm->tm_mon+1,
+	    fprintf(log_fp, "\n%02d/%02d %02d:%02d:%02d  %s",
+		             tm->tm_mon+1,  tm->tm_mday,
 			     tm->tm_hour, tm->tm_min, tm->tm_sec, ws );
 	    fflush(log_fp);
 	}
 	else
 	{
-	    fprintf(log_fp, "\n%d.%d./%02d:%02d:%02d  %s: %s", tm->tm_mday, tm->tm_mon+1,
+	    fprintf(log_fp, "\n%02d/%02d %02d:%02d:%02d  %s: %s",
+		             tm->tm_mon+1,  tm->tm_mday,
 			     tm->tm_hour, tm->tm_min, tm->tm_sec, ws,
 			     ( errno <= sys_nerr ) ? sys_errlist[errno]:
 			     "<error not in list>" );
