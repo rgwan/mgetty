@@ -1,3 +1,93 @@
+Thu Jul 02 11:42:54 1998  Gert Doering (gd@medat.de)
+
+	* release 1.1.15 (on time for the C't magazine article)
+
+	* sendfax.c: better logging for command line errors
+
+	* conf_sf.c, conf_sf.h: add fax_max_speed/fax_min_speed/-M
+
+	* sendfax.c: use fax_max_speed settings
+
+	* conf_mg.c, conf_mg.h: add fax_max_speed/fax_min_speed
+
+	* mgetty.c, mgetty.c, mg_m_init.c: use fax_max_speed settings
+
+Fri Jun 19 22:30:02 1998  Gert Doering (gert@greenie.muc.de)
+
+	* cnd.c: add 'CallName' to call to 'cnd-program'
+
+Wed Jun 17 11:37:52 1998  Gert Doering (gert@greenie.muc.de)
+
+	* Makefile, tio.h: throw away AIX3_FLOW, use '!_AIX41' instead
+
+	* login.cfg.in: clarify comments, remove 'kdebug 7'
+
+	* mgetty.c: change call to vgetty_answer to use new dist_ring flag
+
+Mon Jun 01 14:08:56 1998  Gert Doering (gert@greenie.muc.de)
+
+	* cnd.c: implement cnd_call() [using system(), so beware...]
+
+	* mgetty.c: call "cnd_call" (in cnd.c) to decide upon call acception
+
+	* conf_mg.c, conf_mg.h: add "cnd-program" option
+
+	* doc/mgetty.texi-in: document "cnd-program" (CallerID/mgetty.config)
+
+	* callback/callback.c: fix stupid bug with "+" and "?" precendence,
+	implement "-d" option (thanks to Gabor J. Toth)
+
+Mon May 25 13:49:19 1998  Gert Doering (gd@medat.de)
+
+	* fax/faxrunq.in, faxrunqd.in: put job number (F...) into acct.log
+
+Sat May 09 16:36:52 1998  Gert Doering (gert@greenie.muc.de)
+
+	* mgetty.h, logname.c: fix from Olaf Kirch to accept PPP frames
+	with escaped "ALL STATIONS" byte (0xFF).
+
+Sat May 02 20:51:32 1998  Gert Doering (gert@greenie.muc.de)
+
+	* ring.c: save ISDN MSN to CalledNr
+
+	* cnd.c: new global variable, "CalledNr" for called number (MSN)
+
+	* mgetty.c: pass information about "callback?" to login_dispatch()
+
+Thu Apr 23 20:18:06 1998  Gert Doering (gd@medat.de)
+
+	* fax/faxrunqd.in: make faxrunqd more robust in case of modem
+	outages, and make it load-balance jobs better.
+
+Sat Apr 18 23:32:19 1998  Gert Doering (gert@greenie.muc.de)
+
+	* cnd.c: add support for "Kortex Adaptix" CallerID format
+
+	* conf_mg.c, conf_mg.h: add "msn-list" option
+
+	* ring.c: implement MSN -> distinctive RING mapping
+
+Fri Apr 17 09:35:49 1998  Gert Doering (gert@greenie.muc.de)
+
+	* ring.c: implement ELSA and ZyXEL-I CallerID/MSN display
+
+	* ring.c: adapt to USR type B CallerID: "RING 12345<cr>"
+
+	* fax/faxspool.in: use "wc -w", not "wc -l" (Joseph Kwok).
+
+Wed Apr 15 21:49:56 1998  Gert Doering (gert@greenie.muc.de)
+
+	* mgetty.c, mgetty.h: use wait_for_ring() instead of do_chat()
+	now [no support for distinctive RING yet].
+
+Mon Apr 13 20:00:44 1998  Gert Doering (gert@greenie.muc.de)
+
+	* ring.c: start work on RING handler rewrite
+
+Sun Apr 05 15:11:49 1998  Gert Doering (gert@greenie.muc.de)
+
+	* logname.c: replace \Y in /etc/issue with the Caller ID
+
 Thu Apr 02 18:45:13 1998  Gert Doering (gert@greenie.muc.de)
 
 	* release 1.1.14
