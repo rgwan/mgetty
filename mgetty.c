@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.118 1994/08/02 12:46:51 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.119 1994/08/02 13:28:46 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -29,6 +29,8 @@
 #endif
 
 #include "mg_utmp.h"
+
+#include "version.h"		/* for logging the mgetty release number */
 
 unsigned short portspeed = B0;	/* indicates has not yet been set */
 
@@ -328,7 +330,8 @@ int main _P2((argc, argv), int argc, char ** argv)
     /* name of the logfile is device-dependant */
     sprintf( buf, LOG_PATH, DevID );
     log_init_paths( argv[0], buf, &Device[strlen(Device)-3] );
-
+    lprintf( L_NOISE, "mgetty: %s", mgetty_version );
+	    
 #ifdef USE_GETTYDEFS
     if (optind < argc)
         GettyID = argv[optind++];
@@ -341,7 +344,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 #ifdef MGETTY_PID_FILE
     make_pid_file();
 #endif
-    
+
     lprintf(L_MESG, "check for lockfiles");
 
     /* deal with the lockfiles; we don't want to charge
