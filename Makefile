@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.40 2000/08/14 19:35:32 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.41 2000/08/14 19:37:34 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -676,6 +676,7 @@ vgetty:
 	LN="$(LN)" MV="$(MV)" RM="$(RM)" \
 	LIBS="$(LIBS)" \
 	FAX_SPOOL_IN="$(FAX_SPOOL_IN)" CONFDIR="$(CONFDIR)" \
+	VARRUNDIR="$(VARRUNDIR)" \
 	SHELL="$(SHELL)" vgetty-all
 
 vgetty-install: sedscript
