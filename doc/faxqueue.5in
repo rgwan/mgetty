@@ -54,7 +54,7 @@ If present,
 .I 
 faxrunq
 won't send this job before the given time. The format must be exactly
-"hhmm", in 24-hr-format, otherwise faxrunq won't understan it. Optional.
+"hhmm", in 24-hr-format, otherwise faxrunq won't understand it. Optional.
 .TP
 .B poll
 Flag token.  If present, faxrunq will try to poll the given phone
@@ -64,8 +64,14 @@ number for documents (see "sendfax -p").
 Flag token.  If present, faxrunq will transmit all pages using normal
 resolution (see "sendfax -n").
 .TP
+.B acct_handle <arbitrary string>
+This is a pure comment field, but sendfax(8) will log it into
+its transaction log file. So this can be used as a customer handle,
+a job number, whatever you need to get the phone bills charged to the
+customer (the programs won't look at it, just pass it through). Optional.
+.TP
 .B subject <arbitrary string>
-This is a pure comment field, used only for informational purposes.
+This is also a pure comment field, used only for informational purposes.
 .I
 faxrunq
 will return it in the sucess/failure mail. If you use 
