@@ -3,7 +3,7 @@
 #
 # This is the Makefile for libvoice.
 #
-# $Id: Makefile,v 1.17 2001/12/22 16:08:36 marcs Exp $
+# $Id: Makefile,v 1.18 2005/03/13 17:27:46 gert Exp $
 #
 
 VOICEOBJS=analyze.o close.o command.o detect.o event.o flush.o \
@@ -13,7 +13,7 @@ VOICEOBJS=analyze.o close.o command.o detect.o event.o flush.o \
 	ISDN4Linux.o Lucent.o Multitech_2834.o Rockwell.o Sierra.o Supra.o UMC.o \
 	US_Robotics.o ZyXEL_1496.o ZyXEL_2864.o ZyXEL_Omni56K.o \
 	Multitech_5634.o Multitech_5634ZPX.o Multitech_5634ZPX_ISA.o \
-	Multitech_5600ZDXv.o Supra56ePRO.o
+	Multitech_5600ZDXv.o Supra56ePRO.o V253ugly.o
 
 .c.o:
 	$(CC) $(CFLAGS) -c $*.c
@@ -33,7 +33,7 @@ clean:
 fullclean: clean
 	@$(RM) -f depend
 
-depend:
+depend: *.c
 	$(CC) $(CFLAGS) -MM -c *.c > depend
 
 include depend

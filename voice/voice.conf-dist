@@ -2,7 +2,7 @@
 # Sample voice configuration file
 # -------------------------------
 #
-# $Id: voice.conf-dist,v 1.11 2002/12/15 19:43:49 gert Exp $
+# $Id: voice.conf-dist,v 1.12 2005/03/13 17:27:29 gert Exp $
 #
 # This file is read twice: First the program configuration is read and
 # second the port configuration. This means that generic values at the
@@ -339,6 +339,44 @@ poll_interval 10
 # Default is FALSE
 
 #forceV253 FALSE
+
+#
+# Some modems follow the voice cammands defined in ITU V.253
+# but don't support the flow control command AT+IFC defined in ITU V.250.
+# For those modems you could use the V253ugly driver, which use all of V253modem
+# but for the flow control command it uses simple "AT"
+#
+#forceV253subset FALSE
+
+
+#
+# Enable querrying of valid voice compression mode mappings for your modem.
+# Otherwise use defaults only. (Currently only for V253modem supported)
+# Default is TRUE
+enable_compression_mapping_querry TRUE
+
+#
+# Default entries for the V253_init_compression_table, which will be used,
+# for the AT+VSM=<compression_method>,<sample_rate> command,
+# if compression mapping querry fails or is disabled.
+#
+
+# compression 9 for rmd/pvf tools
+compression_8bit_linear_signed 0
+# compression 12 for rmd/pvf tools
+compression_16bit_linear_signed 0
+# compression 1 for rmd/pvf tools
+compression_8bit_linear_unsigned 1
+# compression 10 for rmd/pvf tools
+compression_8bit_ulaw    4
+# compression 11 for rmd/pvf tools
+compression_8bit_alaw    5
+# compression 2 for rmd/pvf tools
+compression_2bit_adpcm 140
+# compression 4 for rmd/pvf tools
+compression_4bit_adpcm 141
+# compression 5 for rmd/pvf tools
+compression_4bit_ima_adpcm 129
 
 
 #

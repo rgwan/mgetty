@@ -37,11 +37,14 @@
  *   ATS18=1 OK
  * there your isdn-tty won't pick up data calls.
  *
- * $Id: ISDN4Linux.c,v 1.9 2001/02/24 10:26:12 marcs Exp $
+ * $Id: ISDN4Linux.c,v 1.10 2005/03/13 17:27:45 gert Exp $
  * 
  */
 
 #include "../include/voice.h"
+     // juergen.kosel@gmx.de : voice-duplex-patch start
+#include "../include/V253modem.h" /* for duplex voice */
+     // juergen.kosel@gmx.de : voice-duplex-patch end
 
 static int is_voicecall;
 static int got_DLE_DC4 = FALSE;
@@ -342,6 +345,10 @@ static char ISDN4Linux_stop_play_answr[] = "OK|VCON";
 static char ISDN4Linux_start_rec_answr[] = "CONNECT|NO ANSWER";
 static char ISDN4Linux_stop_rec_cmnd[] = {DLE, DC4, 0x00};
 static char ISDN4Linux_stop_rec_answr[] = "";
+// juergen.kosel@gmx.de : voice-duplex-patch start
+static char ISDN4Linux_start_duplex_voice_cmnd [] = "AT+VTX+VTR"; /* so says the isdn4linux docu */
+static char ISDN4Linux_stop_duplex_voice_cmnd [] = {DLE, DC4,DLE, ETX, 0x00};
+// juergen.kosel@gmx.de : voice-duplex-patch end
 
 voice_modem_struct ISDN4Linux =
      {
@@ -375,6 +382,13 @@ voice_modem_struct ISDN4Linux =
      (char *) IS_101_play_dtmf_cmd,
      (char *) IS_101_play_dtmf_extra,
      (char *) IS_101_play_dtmf_answr,
+     // juergen.kosel@gmx.de : voice-duplex-patch start
+     (char *) ISDN4Linux_start_duplex_voice_cmnd,
+     (char *) V253modemstart_duplex_voice_answr,
+     (char *) ISDN4Linux_stop_duplex_voice_cmnd,
+     (char *) V253modem_stop_duplex_voice_answr,
+     // juergen.kosel@gmx.de : voice-duplex-patch end
+
      &ISDN4Linux_answer_phone,
      &ISDN4Linux_beep,
      &ISDN4Linux_dial,
@@ -399,11 +413,9 @@ voice_modem_struct ISDN4Linux =
      &IS_101_wait,
      &IS_101_play_dtmf,
      &IS_101_check_rmd_adequation,
+     // juergen.kosel@gmx.de : voice-duplex-patch start
+     &V253modem_handle_duplex_voice,
+     &V253modem_stop_duplex,
+     // juergen.kosel@gmx.de : voice-duplex-patch end
      0
      };
-
-
-
-
-
-

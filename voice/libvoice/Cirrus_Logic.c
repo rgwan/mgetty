@@ -27,7 +27,7 @@
  * as per the spec. The silence threshold and time was wrongly set. Fixed now.
  * - Mitch DSouza <Mitch.DSouza@Uk.Sun.COM>
  *
- * $Id: Cirrus_Logic.c,v 1.7 1999/12/02 09:51:27 marcs Exp $
+ * $Id: Cirrus_Logic.c,v 1.8 2005/03/13 17:27:45 gert Exp $
  *
  */
 
@@ -323,6 +323,12 @@ voice_modem_struct Cirrus_Logic =
      (char *) IS_101_play_dtmf_cmd,
      (char *) IS_101_play_dtmf_extra,
      (char *) IS_101_play_dtmf_answr,
+     // juergen.kosel@gmx.de : voice-duplex-patch start
+     NULL,  /* (char *) V253modem_start_duplex_voice_cmnd, */
+     NULL,  /* (char *) V253modemstart_duplex_voice_answr, */
+     NULL,  /* (char *) V253modem_stop_duplex_voice_cmnd , */
+     NULL,  /* (char *) V253modem_stop_duplex_voice_answr, */
+     // juergen.kosel@gmx.de : voice-duplex-patch end
 
      &Cirrus_Logic_answer_phone,
      &Cirrus_Logic_beep,
@@ -348,5 +354,9 @@ voice_modem_struct Cirrus_Logic =
      &IS_101_wait,
      &IS_101_play_dtmf,
      &IS_101_check_rmd_adequation,
-     0
+     // juergen.kosel@gmx.de : voice-duplex-patch start
+     &IS_101_handle_duplex_voice,
+     NULL, /* since there is no way to enter duplex voice state */
+     // juergen.kosel@gmx.de : voice-duplex-patch end
+    0
      };

@@ -12,7 +12,7 @@
  * You have set port_timeout in voice.conf to a minimum of 15
  * if you use 38400 Baud
  *
- * $Id: Supra56ePRO.c,v 1.1 2000/09/13 19:37:13 marcs Exp $
+ * $Id: Supra56ePRO.c,v 1.2 2005/03/13 17:27:46 gert Exp $
  *
  */
 
@@ -232,6 +232,12 @@ voice_modem_struct Supra56ePRO =
      (char *) IS_101_play_dtmf_cmd,
      (char *) IS_101_play_dtmf_extra,
      (char *) IS_101_play_dtmf_answr,
+     // juergen.kosel@gmx.de : voice-duplex-patch start
+     NULL,  /* (char *) V253modem_start_duplex_voice_cmnd, */
+     NULL,  /* (char *) V253modemstart_duplex_voice_answr, */
+     NULL,  /* (char *) V253modem_stop_duplex_voice_cmnd , */
+     NULL,  /* (char *) V253modem_stop_duplex_voice_answr, */
+     // juergen.kosel@gmx.de : voice-duplex-patch end
     &IS_101_answer_phone,
     &IS_101_beep,
     &IS_101_dial,
@@ -256,5 +262,9 @@ voice_modem_struct Supra56ePRO =
     &IS_101_wait,
     &IS_101_play_dtmf,
     &IS_101_check_rmd_adequation,
+     // juergen.kosel@gmx.de : voice-duplex-patch start
+    &IS_101_handle_duplex_voice,
+    NULL, /* since there is no way to enter duplex voice state */
+     // juergen.kosel@gmx.de : voice-duplex-patch end
     0
     };

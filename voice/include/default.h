@@ -5,7 +5,7 @@
  * tools. All of these values can be changed by the configuration
  * file.
  *
- * $Id: default.h,v 1.8 2002/12/15 19:44:18 gert Exp $
+ * $Id: default.h,v 1.9 2005/03/13 17:27:42 gert Exp $
  *
  */
 
@@ -244,6 +244,34 @@ CONF(poll_interval, 10, CT_INT)
  * rec_speed 7200)
  */
 CONF(forceV253, FALSE, CT_BOOL)
+
+/*
+ * Some modems follow the voice cammands defined in ITU V.253
+ * but don't support the flow control command AT+IFC defined in ITU V.250.
+ * For those modems you could use the V253ugly driver, which use all of V253modem
+ * but for the flow control command it uses simple "AT"
+ */
+CONF(forceV253subset, FALSE, CT_BOOL)
+
+/*
+ * Enable querrying of valid voice compression mode mappings for your modem.
+ * Otherwise use defaults only. (Currently only for V253modem supported)
+ */
+CONF(enable_compression_mapping_querry, TRUE, CT_BOOL)
+
+/*
+ * Default entries for the V253_init_compression_table, which will be used,
+ * for the AT+VSM=<compression_method>,<sample_rate> command,
+ * if compression mapping querry fails or is disabled.
+ */
+CONF(compression_8bit_linear_signed, 0, CT_INT) // compression 9 for rmd/pvf tools
+CONF(compression_16bit_linear_signed, 0, CT_INT) // compression 12 for rmd/pvf tools
+CONF(compression_8bit_linear_unsigned, 1 ,CT_INT) // compression 1 for rmd/pvf tools
+CONF(compression_8bit_ulaw,    4, CT_INT) // compression 10 for rmd/pvf tools
+CONF(compression_8bit_alaw,    5, CT_INT) // compression 11 for rmd/pvf tools
+CONF(compression_2bit_adpcm, 140, CT_INT) // compression 2 for rmd/pvf tools
+CONF(compression_4bit_adpcm, 141, CT_INT) // compression 4 for rmd/pvf tools
+CONF(compression_4bit_ima_adpcm, 129, CT_INT) // compression 5 for rmd/pvf tools
 
 /*
  * Default values for vgetty

@@ -1,3 +1,153 @@
+2004-11-16  Juergen Kosel  <juergen.kosel@gmx.de>
+
+	* libvoice/V253modem.c:
+	- Added support for the macro NO_STRSTR, mentioned in mgetty/Makefile.
+
+	* libvoice/V253modem.c:
+	- The function strcasestr s only availble with glibc. Therefore
+	  replaced strcasestr with macro mSTRSTR which is either strcasestr or
+	  strstr, depending on the macro __USE_GNU like in <string.h>.
+
+	* libvoice/UMC.c: - Removed the unused variable dletx.
+
+2004-10-30  Juergen Kosel  <juergen.kosel@gmx.de>
+
+	* libvoice/V253modem.c: - Enabled silence detection threshold setting.
+
+2004-10-09  Juergen Kosel  <juergen.kosel@gmx.de>
+
+	* libvoice/detect.c: - Corrected the debug messages.
+
+	* libvoice/V253modem.c:
+	- Added the missing return, if the compression table is disabled.
+
+	* libvoice/detect.c, include/default.h, include/hardware.h, voice.conf-dist:
+	- The V253ugly modem, which use V253 commands but not AT+IFC could be
+	  forced by configuration file
+
+	* libvoice/V253ugly.c: - Corrected canstant names for the flow commands
+
+	* libvoice/V253modem.c, include/default.h, voice.conf-dist:
+	- Defaults for the V253 compression table are now configurable as
+	  requested by Peter <tkvoice@charter.net> and ChrisJW@rccw.com
+	- Compression mapping querrying can now disabled with the config file.
+
+2004-10-09  Juergen Kosel  <juergen.kosel@gmx.de>
+
+	* libvoice/detect.c, include/default.h, include/hardware.h, voice.conf-dist:
+	- The V253ugly modem, which use V253 commands but not AT+IFC could be
+	  forced by configuration file
+
+	* libvoice/V253ugly.c: - Corrected canstant names for the flow commands
+
+	* libvoice/V253modem.c, include/default.h, voice.conf-dist:
+	- Defaults for the V253 compression table are now configurable as
+	  requested by Peter <tkvoice@charter.net> and ChrisJW@rccw.com
+	- Compression mapping querrying can now disabled with the config file.
+
+2004-09-18  Juergen Kosel  <juergen.kosel@gmx.de>
+
+	* libvoice/V253modem.c:
+	- Added voice string 4-BIT ADPCM to V253_querry_compressions().
+
+2004-09-11  Juergen Kosel  <juergen.kosel@gmx.de>
+
+	* libvoice/V253modem.c:
+	- Replaced strstr call with strcasestr, because some modems have
+	  lower case responds in their AT+VSM=? answers.
+
+2004-09-07  Juergen Kosel  <juergen.kosel@gmx.de>
+
+	* libvoice/Makefile, libvoice/V253ugly.c, libvoice/ugly_V253modem.c:
+	- Added V253ugly.c, which should be a driver for modems which are
+	  nearly V253 but don't support the flow control command AT+IFC.
+
+	* libvoice/Elsa.c, libvoice/V253modem.c, include/V253modem.h:
+	- Moved the definition of ELSA_RMD_NAME to V253modem.h, which is
+	  included by Elsa.c and V253modem.c, so that it is sure, that both
+	  use the same string.
+
+2004-08-22  Juergen Kosel  <juergen.kosel@gmx.de>
+
+	* libvoice/V253modem.c:
+	- Added voice compression 16 bit linear to Kompressiontable.
+	- Mapped voice format 16 bit unsigned linear
+	  to vgetty compression id: V253modem,13.
+	- V253_querry_compressions() updates now entries Kompressiontable[0],
+	  Kompressiontable[1] and Kompressiontable[0] if "8-BIT LINEAR" or 8
+	  bit PCM voice format is detected in modem AT+VSM=? response.
+
+	* doc/compression_settings, pvftools/pvftormd.c, pvftools/rmdtopvf.c:
+	- Mapped voice format 16 bit unsigned linear
+	  to vgetty compression id: V253modem,13.
+
+	* libvoice/Makefile, libvoice/depend:
+	- Changed to automatic generation of dependency file.
+
+	* vm/main.c, vm/usage.c, libvoice/Cirrus_Logic.c, libvoice/Compaq_VS.c, libvoice/Digi_RAS.c, libvoice/Dolphin.c, libvoice/Dr_Neuhaus.c, libvoice/Elsa.c, libvoice/ISDN4Linux.c, libvoice/IS_101.c, libvoice/Lucent.c, libvoice/Multitech_2834.c, libvoice/Multitech_5600ZDXv.c, libvoice/Multitech_5634.c, libvoice/Multitech_5634ZPX.c, libvoice/Multitech_5634ZPX_ISA.c, libvoice/Rockwell.c, libvoice/Sierra.c, libvoice/Supra.c, libvoice/Supra56ePRO.c, libvoice/UMC.c, libvoice/US_Robotics.c, libvoice/V253modem.c, libvoice/ZyXEL_1496.c, libvoice/ZyXEL_2864.c, libvoice/ZyXEL_Omni56K.c, libvoice/event.c, include/IS_101.h, include/V253modem.h, include/hardware.h, include/voice.h:
+	- Marked patches for duples voice with:
+	     // juergen.kosel@gmx.de : voice-duplex-patch start
+	  and
+	     // juergen.kosel@gmx.de : voice-duplex-patch end
+
+2004-08-22  Juergen Kosel  <juergen.kosel@gmx.de>
+
+	* libvoice/V253modem.c:
+	- Added voice compression 16 bit linear to Kompressiontable.
+	- Mapped voice format 16 bit unsigned linear
+	  to vgetty compression id: V253modem,13.
+	- V253_querry_compressions() updates now entries Kompressiontable[0],
+	  Kompressiontable[1] and Kompressiontable[0] if "8-BIT LINEAR" or 8
+	  bit PCM voice format is detected in modem AT+VSM=? response.
+
+	* doc/compression_settings, pvftools/pvftormd.c, pvftools/rmdtopvf.c:
+	- Mapped voice format 16 bit unsigned linear
+	  to vgetty compression id: V253modem,13.
+
+	* libvoice/Makefile, libvoice/depend:
+	- Changed to automatic generation of dependency file.
+
+	* vm/main.c, vm/usage.c, libvoice/Cirrus_Logic.c,
+	libvoice/Compaq_VS.c, libvoice/Digi_RAS.c, libvoice/Dolphin.c,
+	libvoice/Dr_Neuhaus.c, libvoice/Elsa.c, libvoice/ISDN4Linux.c,
+	libvoice/IS_101.c, libvoice/Lucent.c, libvoice/Multitech_2834.c,
+	libvoice/Multitech_5600ZDXv.c, libvoice/Multitech_5634.c,
+	libvoice/Multitech_5634ZPX.c, libvoice/Multitech_5634ZPX_ISA.c,
+	libvoice/Rockwell.c, libvoice/Sierra.c, libvoice/Supra.c,
+	libvoice/Supra56ePRO.c, libvoice/UMC.c, libvoice/US_Robotics.c,
+	libvoice/V253modem.c, libvoice/ZyXEL_1496.c, libvoice/ZyXEL_2864.c,
+	libvoice/ZyXEL_Omni56K.c, libvoice/event.c, include/IS_101.h,
+	include/V253modem.h, include/hardware.h, include/voice.h:
+	- Marked patches for duples voice with:
+	     // juergen.kosel@gmx.de : voice-duplex-patch start
+	  and
+	     // juergen.kosel@gmx.de : voice-duplex-patch end
+
+2004-08-15  Juergen Kosel  <juergen.kosel@gmx.de>
+
+	* libvoice/V253modem.c, include/V253modem.h:
+	- Vgetty will now querry the available modem compressions and
+	update a table from this.
+	
+	- The set compression function will use this table.
+
+
+2004-05-23  Juergen Kosel  <juergen.kosel@gmx.de>
+
+	* libvoice/Lucent.c:
+	- Modified for duplex voice (inserted the placeholders).
+
+2004-05-21  Juergen Kosel  <juergen.kosel@gmx.de>
+
+	* libvoice/ugly_V253modem.c: New file.
+
+	* pvftools/rmdtopvf.c, pvftools/pvftormd.c: added 16 bit voice
+
+	* libvoice/V253modem.c, libvoice/IS_101.c:
+	merged in changes of mgetty 1.1.30 and for duplex voice
+
+	* libvoice/V253modem.c: - merged in my changes for duplex voice
+
 Wed Feb 20 18:29:39 MET 2002  Gert Doering <gert@greenie.muc.de>
 
 	* Perl/Vgetty.pm: re-enable reading of READY on init

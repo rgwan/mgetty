@@ -3,7 +3,7 @@
  *
  * autodetect the modemtype we are connected to.
  *
- * $Id: detect.c,v 1.42 2004/07/17 15:53:16 gert Exp $
+ * $Id: detect.c,v 1.43 2005/03/13 17:27:46 gert Exp $
  *
  */
 
@@ -245,6 +245,13 @@ int voice_detect_modemtype(void)
              lprintf(L_NOISE, "V253 forced");
              voice_modem = &V253modem;
           }
+          /* force V253 comandset wothout AT+IFC */
+          if(TRUE==cvd.forceV253subset.d.i)
+          {
+             lprintf(L_NOISE, "V253ugly forced");
+             voice_modem = &V253ugly;
+          }
+
 
           /* Some modems have no meaningful output except in ATI9, but
            * they do not respect the standard. For them we will use

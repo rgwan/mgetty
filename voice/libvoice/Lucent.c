@@ -3,7 +3,7 @@
  *
  * This file contains the Lucent specific hardware stuff.
  *
- * $Id: Lucent.c,v 1.3 2005/03/13 17:25:20 gert Exp $
+ * $Id: Lucent.c,v 1.4 2005/03/13 17:27:46 gert Exp $
  *
  */
 
@@ -289,6 +289,13 @@ voice_modem_struct Lucent =
      (char *) IS_101_play_dtmf_cmd,
      (char *) IS_101_play_dtmf_extra,
      (char *) IS_101_play_dtmf_answr,
+     // juergen.kosel@gmx.de : voice-duplex-patch start
+     NULL,  /* (char *) V253modem_start_duplex_voice_cmnd, */
+     NULL,  /* (char *) V253modemstart_duplex_voice_answr, */
+     NULL,  /* (char *) V253modem_stop_duplex_voice_cmnd , */
+     NULL,  /* (char *) V253modem_stop_duplex_voice_answr, */
+     // juergen.kosel@gmx.de : voice-duplex-patch end
+
      &IS_101_answer_phone,
      &Lucent_beep,
      &IS_101_dial,
@@ -313,6 +320,10 @@ voice_modem_struct Lucent =
      &IS_101_wait,
      &IS_101_play_dtmf,
      &IS_101_check_rmd_adequation,
+     // juergen.kosel@gmx.de : voice-duplex-patch start
+     &IS_101_handle_duplex_voice,
+     NULL, /* since there is no way to enter duplex voice state */
+     // juergen.kosel@gmx.de : voice-duplex-patch end
      0
      };
 

@@ -9,7 +9,7 @@
  * This version is a complete rewrite to use the IS 101 mode of the
  * Elite 2864.
  *
- * $Id: ZyXEL_2864.c,v 1.7 1999/12/02 09:51:31 marcs Exp $
+ * $Id: ZyXEL_2864.c,v 1.8 2005/03/13 17:27:46 gert Exp $
  *
  */
 
@@ -267,6 +267,13 @@ voice_modem_struct ZyXEL_2864 =
      (char *) IS_101_play_dtmf_cmd,
      (char *) IS_101_play_dtmf_extra,
      (char *) IS_101_play_dtmf_answr,
+     // juergen.kosel@gmx.de : voice-duplex-patch start
+     NULL,  /* (char *) V253modem_start_duplex_voice_cmnd, */
+     NULL,  /* (char *) V253modemstart_duplex_voice_answr, */
+     NULL,  /* (char *) V253modem_stop_duplex_voice_cmnd , */
+     NULL,  /* (char *) V253modem_stop_duplex_voice_answr, */
+     // juergen.kosel@gmx.de : voice-duplex-patch end
+
      &ZyXEL_2864_answer_phone,
      &IS_101_beep,
      &IS_101_dial,
@@ -291,5 +298,9 @@ voice_modem_struct ZyXEL_2864 =
      &IS_101_wait,
      &IS_101_play_dtmf,
      &ZyXEL_1496_check_rmd_adequation, /* inheritance */
+     // juergen.kosel@gmx.de : voice-duplex-patch start
+     &IS_101_handle_duplex_voice,
+     NULL, /* since there is no way to enter duplex voice state */
+     // juergen.kosel@gmx.de : voice-duplex-patch end
      0
      };

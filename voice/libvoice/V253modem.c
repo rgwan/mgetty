@@ -16,12 +16,20 @@
   Hint: Recorded voice files are in .ub format (refer to the sox manpage about this) except the header.
         So you can use this files with sox.
  *
- * $Id: V253modem.c,v 1.8 2004/07/17 15:53:48 gert Exp $
+ * $Id: V253modem.c,v 1.9 2005/03/13 17:27:46 gert Exp $
  *
  */
 
 
 #include "../include/V253modem.h"
+#include <string.h>
+
+// The compression id numbers used by vgetty in voice.conf, pvftools etc
+// will be mapped to the id numbers used by the modem. 
+// This is done by an array, which is initialized with the defined 
+// values from V. 253.
+
+int Kompressiontable[256];
 
      int V253modem_init (void)
      {
@@ -31,11 +39,14 @@
      voice_modem_state = INITIALIZING;
      lprintf(L_MESG, "initializing V253 voice modem");
 
+     V253_init_compression_table();
 
      /* enabling voicemode */
      sprintf(buffer, "AT+FCLASS=8");
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "could not set +FCLASS=8");
+
+     V253_querry_compressions();
 
 
      /* set silence-sensitvity-level and silence length */
@@ -48,10 +59,10 @@ be silence].
 >128: more aggressive [less sensitive, higher noise levels considered to be silence].
 
  */
-#if 0 /* enable this when cvd.rec_silence_threshold.d.i  is set as an absolut value
+#if 1 /* enable this when cvd.rec_silence_threshold.d.i  is set as an absolut value
 (with default 128) instead of percent */
      sprintf(buffer, "AT+VSD=%d,%d", cvd.rec_silence_threshold.d.i , cvd.rec_silence_len.d.i);
-#else /* until this, the sensitvity is harcoded with manufaturer default! */
+#else /* until this, the sensitvity is hardcoded with manufaturer default! */
     sprintf(buffer, "AT+VSD=%d,%d", 128 , cvd.rec_silence_len.d.i);
 #endif
      if (voice_command(buffer, "OK") != VMA_USER_1)
@@ -148,13 +159,120 @@ Table 17/V.253 - Compression method identifier numerics and strings
 128-255 		Manufacturer specific
 */
 
+void V253_init_compression_table() {
+  // The compression id numbers used by vgetty in voice.conf, pvftools etc
+  // will be mapped to the id numbers used by the modem. 
+  // This is done by an array, which is initialized with the defined 
+  // values from V. 253.
+  
+  memset( Kompressiontable, 1, sizeof(Kompressiontable) );
+  Kompressiontable[0]=cvd.compression_8bit_linear_unsigned.d.i; // 8 Bit PCM/8 bit linear
+  Kompressiontable[1]=cvd.compression_8bit_linear_unsigned.d.i; // 8 Bit PCM/8 bit linear
+  Kompressiontable[2]=cvd.compression_2bit_adpcm.d.i; /*  2bit ADPCM for some ELSA-modems */
+  Kompressiontable[4]=cvd.compression_4bit_adpcm.d.i; /* 4bit ADPCM for some ELSA-modems */
+  Kompressiontable[5]=cvd.compression_4bit_ima_adpcm.d.i; /* ->4bit IMA ADPCM for the ML 56k Fun, Internet II and Lucent*/
+  Kompressiontable[6]=cvd.compression_8bit_ulaw.d.i; /* 8bit uLAW for the ML 56k Fun and Lucent*/
+  Kompressiontable[7]=cvd.compression_8bit_ulaw.d.i; /* 8bit aLAW for the ML 56k Fun and Lucent*/
+  Kompressiontable[8]=cvd.compression_8bit_linear_unsigned.d.i; // 8 Bit PCM/8 bit linear
+  Kompressiontable[9]=cvd.compression_8bit_linear_signed.d.i; // 8 Bit signed PCM
+  Kompressiontable[10]=cvd.compression_8bit_ulaw.d.i; /* ITU defined uLaw */
+  Kompressiontable[11]=cvd.compression_8bit_alaw.d.i; /* ITU defined aLaw */
+  Kompressiontable[12]=cvd.compression_16bit_linear_signed.d.i; /* ITU defined signed PCM 16-bit Intel Order */
+};
+
+#ifdef __USE_GNU
+// the function strcasestr is a GNU extension to libc
+// so this function is only availble with glibc with the macro __USE_GNU defined
+#define mSTRSTR strcasestr
+#else
+#define mSTRSTR strstr
+#endif
+
+void V253_querry_compressions() {
+     char buffer[VOICE_BUF_LEN];
+     memset( buffer, '\0', sizeof(buffer) );
+
+     if (!cvd.enable_compression_mapping_querry.d.i) {
+       lprintf(L_NOISE, "voice compression querry disabled");
+       return;
+     }
+     if (voice_command("AT+VSM=?", "") != OK)
+       {
+	 lprintf(L_WARN, "voice compression querry failed");
+	 return;
+       }
+     do {
+       if (voice_read(buffer) != OK)
+	 {
+	   lprintf(L_WARN, "voice compression querry failed");
+	   break;
+	  }
+#ifndef NO_STRSTR
+       // now check, if the line contains a supported compression method
+       if(mSTRSTR(buffer,"\"SIGNED PCM\",8")) {
+	 // The leading number in buffer contains the modem compression id
+	 Kompressiontable[9]= strtol(buffer, NULL, 10);
+	 lprintf(L_NOISE, "Mapped signed PCM, 9 -> %d",Kompressiontable[9]);
+       } else if(mSTRSTR(buffer,"\"SIGNED PCM\",16")) {
+	 // The leading number in buffer contains the modem compression id
+	 Kompressiontable[12]= strtol(buffer, NULL, 10);
+	 lprintf(L_NOISE, "Mapped signed PCM, 12 -> %d",Kompressiontable[12]);
+       } else if(mSTRSTR(buffer,"UNSIGNED PCM\",8")) {
+	 // The leading number in buffer contains the modem compression id
+	 Kompressiontable[0]= 
+	   Kompressiontable[1]= 
+	   Kompressiontable[8]= strtol(buffer, NULL, 10);
+	 lprintf(L_NOISE, "Mapped default (8 bit linear), 0 -> %d",Kompressiontable[0]);
+	 lprintf(L_NOISE, "Mapped unsigned PCM, 1 -> %d",Kompressiontable[1]);
+	 lprintf(L_NOISE, "Mapped 8 bit linear, 8 -> %d",Kompressiontable[8]);
+       } else if(mSTRSTR(buffer,"8-BIT LINEAR")) {
+	 // The leading number in buffer contains the modem compression id
+	 Kompressiontable[0]= 
+	   Kompressiontable[1]= 
+	   Kompressiontable[8]= strtol(buffer, NULL, 10);
+	 lprintf(L_NOISE, "Mapped default (8 bit linear), 0 -> %d",Kompressiontable[0]);
+	 lprintf(L_NOISE, "Mapped unsigned PCM, 1 -> %d",Kompressiontable[1]);
+	 lprintf(L_NOISE, "Mapped 8 bit linear, 8 -> %d",Kompressiontable[8]);
+       } else if(mSTRSTR(buffer,"IMA ADPCM\",4")) {
+	 // The leading number in buffer contains the modem compression id
+	 Kompressiontable[5]= strtol(buffer, NULL, 10);
+	 lprintf(L_NOISE, "Mapped 4 bit IMA ADPCM, 5 -> %d",Kompressiontable[5]);
+       } else if(mSTRSTR(buffer,"4-BIT ADPCM")) {
+	 // The leading number in buffer contains the modem compression id
+	 Kompressiontable[5]= strtol(buffer, NULL, 10);
+	 lprintf(L_NOISE, "Mapped 4 bit IMA ADPCM, 5 -> %d",Kompressiontable[5]);
+       } else if(mSTRSTR(buffer,"ULAW")) {
+	 // The leading number in buffer contains the modem compression id
+	 Kompressiontable[10]= strtol(buffer, NULL, 10);
+	 lprintf(L_NOISE, "Mapped ulaw, 10 -> %d",Kompressiontable[10]);
+       } else if(mSTRSTR(buffer,"ALAW")) {
+	 // The leading number in buffer contains the modem compression id
+	 Kompressiontable[11]= strtol(buffer, NULL, 10);
+	 lprintf(L_NOISE, "Mapped alaw, 11 -> %d",Kompressiontable[11]);
+       } else if(mSTRSTR(buffer,"16-BIT LINEAR")) {
+	 // The leading number in buffer contains the modem compression id
+	 Kompressiontable[13]= strtol(buffer, NULL, 10);
+	 lprintf(L_NOISE, "Mapped 16 bit linear, 13 -> %d",Kompressiontable[13]);
+       } else 
+#endif
+	 {
+	   lprintf(L_NOISE, "Unknown: %s",buffer);
+	 }
+       
+     } while (strncmp("OK",buffer,2)); //search for the terminating "OK"
+}
+
      int V253modem_set_compression (int *compression, int *speed, int *bits)
      {
      char buffer[VOICE_BUF_LEN];
-     int Kompressionmethod = 1; /* a littlebit germinglish :-) */
+     int Kompressionmethod = 1; /* id for the compression, used by the modem */
      int sil_sense = 0; 	/* silence compression sensitivity */
      int sil_clip = 0;  	/* silence clip                    */
      reset_watchdog();
+
+     if(*compression < sizeof(Kompressiontable)/sizeof(int) ) {
+       Kompressionmethod = Kompressiontable[*compression];
+     }
 
      switch (*compression)
      {
@@ -162,7 +280,6 @@ Table 17/V.253 - Compression method identifier numerics and strings
        case 1:
        case 8:
        {
-          Kompressionmethod = 1;
           *bits=8;
           break;
        }
@@ -177,70 +294,40 @@ Table 17/V.253 - Compression method identifier numerics and strings
        case 2:       /*  2bit ADPCM for some ELSA-modems */
        {
          *bits = 2;
-	 sprintf(buffer, "AT+VSM=140,%d", *speed);
-	 if (voice_command(buffer, "OK") != VMA_USER_1)
-	 {
-         /* there are two diffrent implementations trying one first,
-            if this fails we try the other one later */
-	   Kompressionmethod = 129;
-	 }
-	 else
-	 {
-	   Kompressionmethod = 140;
-	 }
          break;
         }
        case 4:           /* 4bit ADPCM for some ELSA-modems */
        {
-	 sprintf(buffer, "AT+VSM=141,%d", *speed);
-         if (voice_command(buffer, "OK")!= VMA_USER_1)
-         {
-         /* there are two diffrent implementations trying one first,
-            if this fails we try the other one later */
-           Kompressionmethod = 131;
-         }
-         else
-         {
-           Kompressionmethod = 141;
-         }
          *bits=4;
          break;
        }
        case 5:
        {
-         Kompressionmethod = 129;
          *bits = 4;      /* 129 ->4bit ADPCM for the ML 56k Fun*/
          break;
        }
        case 6:
        {
-         Kompressionmethod = 131;
          *bits = 8;      /* 8bit uLAW for the ML 56k Fun*/
-         *speed=8000;
          break;
        }
        case 7:
        {
-         Kompressionmethod = 132;
          *bits = 8;      /* 8bit aLAW for the ML 56k Fun*/
-         *speed=8000;
          break;
        }
-       case 9:        /* ITU defined unsigned PCM */
+       case 9:        /* ITU defined signed PCM */
        {
-          Kompressionmethod = 0;
           *bits=8;
           break;
        }
        case 10:        /* ITU defined uLaw */
        {
-          Kompressionmethod = 4;
           *bits=8;
           break;
        }
        case 11:        /* ITU defined aLaw */
        {
-          Kompressionmethod = 5;
           *bits=8;
           break;
        }
@@ -248,10 +335,6 @@ Table 17/V.253 - Compression method identifier numerics and strings
        {
 	 			/* Chipset Agere/Lucent Venus v.92 found on 
 	  			 * ActionTec v.92 Call Waiting PCI modem    */
-	 /* *speed=8000;	 * Default RATE is 8000 */
-	 Kompressionmethod = 0; /* Signed PCM                 	   	    */
-     /*  sil_sense = 0;  	* silence compression sensitivity Default=0 */
-     /*  sil_clip = 0;  	* silence clip    Default=0                 */
 	 *bits=16;		/* 16 bit			   	    */
 	 break;
        }
@@ -350,8 +433,6 @@ Table 17/V.253 - Compression method identifier numerics and strings
      }
 
 /* Only verifies the RMD name */
-#define V253modem_RMD_NAME "V253modem"
-#define ELSA_RMD_NAME "Elsa"
 int V253_check_rmd_adequation(char *rmd_name) 
 {
    return !strncmp(rmd_name,
@@ -361,6 +442,164 @@ int V253_check_rmd_adequation(char *rmd_name)
                       ELSA_RMD_NAME,
                       sizeof(ELSA_RMD_NAME));
 }
+
+
+// juergen.kosel@gmx.de : voice-duplex-patch start
+int V253modem_handle_duplex_voice(FILE *tomodem, FILE *frommodem, int bps)
+     {
+     TIO tio;
+     int input_byte;
+     int got_DLE_ETX = FALSE;
+     int was_DLE = FALSE;
+     int count = 0;
+     time_t watchdog_reset;
+
+     watchdog_reset = time(NULL) + (cvd.watchdog_timeout.d.i / 2);
+
+     reset_watchdog();
+     voice_modem_state = DUPLEXMODE;
+     voice_check_events();
+     tio_get(voice_fd, &tio);
+
+     if (cvd.do_hard_flow.d.i)
+          {
+
+          if ((voice_command(voice_modem->hardflow_cmnd,
+           voice_modem->hardflow_answr) & VMA_USER) != VMA_USER)
+               return(FAIL);
+
+          tio_set_flow_control(voice_fd, &tio, FLOW_HARD | FLOW_XON_IN);
+          }
+     else
+          {
+
+          if ((voice_command(voice_modem->softflow_cmnd,
+           voice_modem->softflow_answr) & VMA_USER) != VMA_USER)
+               return(FAIL);
+
+          tio_set_flow_control(voice_fd, &tio, FLOW_XON_IN);
+          };
+
+     tio_set(voice_fd, &tio);
+
+     if ((voice_command(voice_modem->start_duplex_voice_cmnd,
+      voice_modem->start_duplex_voice_answr) & VMA_USER) != VMA_USER)
+          return(FAIL);
+
+     while ((!got_DLE_ETX)&&(DUPLEXMODE == voice_modem_state ))
+          {
+          input_byte = voice_read_byte();
+
+          if ((input_byte < 0) && (input_byte != -EINTR) && (input_byte != -EAGAIN))
+               return(FAIL);
+
+          if (input_byte >= 0)
+               {
+
+               if (was_DLE)
+                    {
+                    was_DLE = FALSE;
+
+                    switch (input_byte)
+                         {
+                         case DLE:
+                              fputc(DLE, frommodem);
+                              break;
+                         case ETX:
+                              got_DLE_ETX = TRUE;
+                              lprintf(L_JUNK, "%s: <VOICE DATA %d bytes>",
+                               voice_modem_name, count);
+                              lprintf(L_JUNK, "%s: <DLE> <ETX>",
+                               voice_modem_name);
+                              voice_modem->handle_dle(input_byte);
+                              break;
+                         case SUB:
+                              fputc(DLE, frommodem);
+                              fputc(DLE, frommodem);
+                              break;
+                         default:
+                              lprintf(L_JUNK, "%s: <DLE> <%c>",
+                               voice_modem_name, input_byte);
+                              voice_modem->handle_dle(input_byte);
+                         }
+
+                    }
+               else
+                    {
+
+                    if (input_byte == DLE)
+                         was_DLE = TRUE;
+                    else
+                         fputc(input_byte, frommodem);
+
+                    }
+
+	       fflush(frommodem); /* send the voice data with no 
+				   * delay to the soundcard/file
+				   */
+
+               count++;
+
+               if (watchdog_reset < time(NULL))
+                    {
+                    lprintf(L_JUNK, "%s: <VOICE DATA %d bytes>", voice_modem_name,
+                     count);
+                    reset_watchdog();
+                    watchdog_reset = time(NULL) + (cvd.watchdog_timeout.d.i / 2);
+                    count = 0;
+                    }
+
+               }
+
+          voice_check_events();
+
+          if (input_byte == -EAGAIN)
+	    {
+	      delay(cvd.poll_interval.d.i);
+	    }
+	  else
+	    {
+	      int output_byte = fgetc(tomodem);
+	      if (EOF == output_byte)
+		{
+		  /* that indicates the end of one stream */
+		  got_DLE_ETX = TRUE;
+		  break;
+		}
+	      if (0 < output_byte)
+		{
+		  if (OK != voice_write_char(output_byte) )
+		    return(FAIL);
+		  /* double DLEs */
+		  if (DLE == output_byte)
+		    {
+		      if (OK != voice_write_char(output_byte) )
+			return(FAIL);
+		    }
+		}
+	    }
+          }
+
+     tio_set(voice_fd, &voice_tio);
+
+     /* if duplexmode isn't allready left -> do leave now (only once) */
+     if (DUPLEXMODE == voice_modem_state )
+       {
+	 if ( voice_modem->stop_duplex_voice () !=
+	      VMA_USER)
+	   return(FAIL);
+       }
+     voice_check_events();
+     return(OK);
+     }
+
+int V253modem_stop_duplex (void)
+{
+  voice_modem_state = IDLE;
+  return voice_command( voice_modem->stop_duplex_voice_cmnd , 
+			voice_modem->stop_duplex_voice_answr );
+}
+// juergen.kosel@gmx.de : voice-duplex-patch end
 
 
 const char V253modem_pick_phone_cmnd[] = "AT+FCLASS=8";  /* because this will be followed by a
@@ -373,6 +612,12 @@ const char V253modem_hardflow_cmnd[] = "AT+IFC=2,2";
 const char V253modem_softflow_cmnd[] = "AT+IFC=1,1";
 
 const char V253modem_beep_cmnd[] = "AT+VTS=[%d,,%d]";
+// juergen.kosel@gmx.de : voice-duplex-patch start
+const char V253modem_start_duplex_voice_cmnd [] = "AT+VTR";
+const char V253modemstart_duplex_voice_answr [] = "CONNECT";
+const char V253modem_stop_duplex_voice_cmnd [] = {DLE, '^', 0x00};
+const char V253modem_stop_duplex_voice_answr [] = "OK";
+// juergen.kosel@gmx.de : voice-duplex-patch end
 
 
 voice_modem_struct V253modem =
@@ -407,6 +652,13 @@ voice_modem_struct V253modem =
      (char *) IS_101_play_dtmf_cmd,
      (char *) IS_101_play_dtmf_extra,
      (char *) IS_101_play_dtmf_answr,
+     // juergen.kosel@gmx.de : voice-duplex-patch start
+     (char *) V253modem_start_duplex_voice_cmnd,
+     (char *) V253modemstart_duplex_voice_answr,
+     (char *) V253modem_stop_duplex_voice_cmnd ,
+     (char *) V253modem_stop_duplex_voice_answr,
+     // juergen.kosel@gmx.de : voice-duplex-patch end
+
     &IS_101_answer_phone,
     &IS_101_beep,
     &IS_101_dial,
@@ -431,5 +683,9 @@ voice_modem_struct V253modem =
     &IS_101_wait,
     &IS_101_play_dtmf,
     &V253_check_rmd_adequation,
+     // juergen.kosel@gmx.de : voice-duplex-patch start
+    &V253modem_handle_duplex_voice,
+    &V253modem_stop_duplex,
+     // juergen.kosel@gmx.de : voice-duplex-patch end
     0
     };

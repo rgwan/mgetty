@@ -5,7 +5,7 @@
  * supports the shell script execution function to test vgetty scripts
  * and to build special standalone scripts.
  *
- * $Id: main.c,v 1.9 2001/04/01 08:18:44 marcs Exp $
+ * $Id: main.c,v 1.10 2005/03/13 17:27:50 gert Exp $
  *
  */
 
@@ -21,6 +21,10 @@ int use_on_hook_off_hook = FALSE;
 int start_action = TRUE;
 char *DevID = "/dev/null";
 char *Device = NULL;
+const char *command_devicetest = "devicetest";
+// juergen.kosel@gmx.de : voice-duplex-patch start
+const char *command_duplex = "duplex" ;
+// juergen.kosel@gmx.de : voice-duplex-patch end
 
 /*
  * Main function
@@ -46,7 +50,10 @@ int main(int argc, char *argv[])
       (strcmp(command, "dial") != 0) && (strcmp(command, "play") != 0) &&
       (strcmp(command, "record") != 0) && (strcmp(command, "shell") != 0) &&
       (strcmp(command, "wait") != 0) && (strcmp(command, "dtmf") != 0) &&
-      (strcmp(command, "devicetest") !=0))
+	 // juergen.kosel@gmx.de : voice-duplex-patch start
+      (strcmp(command, command_devicetest) !=0) &&
+      (strcmp(command, command_duplex) !=0) )
+       // juergen.kosel@gmx.de : voice-duplex-patch end
  
           usage();
 
@@ -392,7 +399,7 @@ int main(int argc, char *argv[])
 
           };
 
-     if (strcmp(command, "devicetest") == 0)
+     if (strcmp(command, command_devicetest) == 0)
      {
         int VoiceDeviceMode, Resultcode;
 
@@ -420,6 +427,97 @@ int main(int argc, char *argv[])
         printf("\n");
       };
 
+     // juergen.kosel@gmx.de : voice-duplex-patch start
+     if (strcmp(command, command_duplex) == 0)
+          {
+
+	    char *filefrommodem_name = NULL;
+	    char *filetomodem_name   = NULL;
+	    FILE *filefrommodem = NULL;
+	    FILE *filetomodem   = NULL;
+	    int bits;
+
+	    filetomodem_name = argv[optind];
+	    if (NULL == filetomodem_name)
+	      {
+		fprintf(stderr, "%s: no filename given for playing\n",
+			program_name);
+		exit(FAIL);
+	      }
+	    else
+	      {
+		printf("\n playing %s \n",filetomodem_name);
+	      }
+
+	    optind++;
+	    filefrommodem_name = argv[optind];
+	    if (NULL == filefrommodem_name)
+	      {
+		fprintf(stderr, "%s: no filename given for recording\n",
+			program_name);
+		exit(FAIL);
+	      }
+	    else
+	      {
+		printf("\n recording to %s \n",filefrommodem_name);
+	      }
+
+
+	    if (start_action)
+	      {
+		printf("Recording message...\n");
+
+		/* set compression */
+		if (voice_modem->set_compression(&cvd.rec_compression.d.i,
+						 &cvd.rec_speed.d.i, &bits) != OK)
+		  {
+		    lprintf(L_WARN, "%s: Illegal compression method 0x%04x, speed %d",
+			    program_name, cvd.rec_compression.d.i, cvd.rec_speed.d.i);
+		    exit(FAIL);
+		  }
+
+		/* open files */
+
+		if (strcmp(filefrommodem_name,filetomodem_name)==0)
+		  {
+		    filetomodem   =
+		    filefrommodem = fopen(filefrommodem_name,"rw");
+		    if (NULL == filefrommodem)
+		      {
+			fprintf(stderr, "%s: can't open %s\n",
+				program_name, filefrommodem_name);
+			exit(FAIL);
+		      }
+		  }
+		else
+		  {
+		    filefrommodem = fopen(filefrommodem_name,"w");
+		    if (NULL == filefrommodem)
+		      {
+			fprintf(stderr, "%s: can't open file from modem %s\n",
+				program_name, filefrommodem_name);
+			exit(FAIL);
+		      }
+		    filetomodem   = fopen(filetomodem_name,"r");
+		    if (NULL == filetomodem)
+		      {
+			fprintf(stderr, "%s: can't open file to modem %s\n",
+				program_name, filetomodem_name);
+			exit(FAIL);
+		      }
+		  }
+
+		/* now duplex voice */
+		result = voice_modem->handle_duplex_voice(filetomodem,
+							  filefrommodem,
+							  cvd.rec_speed.d.i * bits);
+	      }
+	    else
+	      printf("Phone wasn't picked up, exiting.\n");
+	    
+
+          };
+     // juergen.kosel@gmx.de : voice-duplex-patch end
 
      if (getenv("VOICE_PID") == NULL)
           {

@@ -14,7 +14,7 @@
  * TODO: implement other voice compression modes supported by modem
  *       add other IS-101 analog source/destination configurations (?)
  *
- * $Id: Compaq_VS.c,v 1.3 1999/12/02 09:51:28 marcs Exp $
+ * $Id: Compaq_VS.c,v 1.4 2005/03/13 17:27:45 gert Exp $
  *
  */
 
@@ -204,6 +204,12 @@ voice_modem_struct Compaq_VS =
 	(char *) IS_101_ask_mode_cmnd,
 	(char *) IS_101_ask_mode_answr,
 	(char *) IS_101_voice_mode_id,
+     // juergen.kosel@gmx.de : voice-duplex-patch start
+	NULL,  /* (char *) V253modem_start_duplex_voice_cmnd, */
+	NULL,  /* (char *) V253modemstart_duplex_voice_answr, */
+	NULL,  /* (char *) V253modem_stop_duplex_voice_cmnd , */
+	NULL,  /* (char *) V253modem_stop_duplex_voice_answr, */
+     // juergen.kosel@gmx.de : voice-duplex-patch end
 	&Compaq_VS_answer_phone,
 	&Compaq_VS_beep,
 	&IS_101_dial,
@@ -228,5 +234,10 @@ voice_modem_struct Compaq_VS =
 	&IS_101_wait,
         &IS_101_play_dtmf,
         &IS_101_check_rmd_adequation,
+     // juergen.kosel@gmx.de : voice-duplex-patch start
+	&IS_101_handle_duplex_voice,
+	&IS_101_handle_duplex_voice,
+	NULL, /* since there is no way to enter duplex voice state */
+     // juergen.kosel@gmx.de : voice-duplex-patch end
         0
      };

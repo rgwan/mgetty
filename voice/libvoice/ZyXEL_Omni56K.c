@@ -6,7 +6,7 @@
  * Based on code for Elite 2864 modems (ZyXEL_2864.c), with
  * corrections made by Const Kaplinsky <const@ce.cctpu.edu.ru>
  *
- * $Id: ZyXEL_Omni56K.c,v 1.3 2000/09/01 19:28:05 gert Exp $
+ * $Id: ZyXEL_Omni56K.c,v 1.4 2005/03/13 17:27:46 gert Exp $
  *
  */
 
@@ -250,6 +250,13 @@ voice_modem_struct ZyXEL_Omni56K =
      (char *) IS_101_play_dtmf_cmd,
      (char *) IS_101_play_dtmf_extra,
      (char *) IS_101_play_dtmf_answr,
+     // juergen.kosel@gmx.de : voice-duplex-patch start
+     NULL,  /* (char *) V253modem_start_duplex_voice_cmnd, */
+     NULL,  /* (char *) V253modemstart_duplex_voice_answr, */
+     NULL,  /* (char *) V253modem_stop_duplex_voice_cmnd , */
+     NULL,  /* (char *) V253modem_stop_duplex_voice_answr, */
+     // juergen.kosel@gmx.de : voice-duplex-patch end
+
      &ZyXEL_Omni56K_answer_phone,
      &IS_101_beep,
      &IS_101_dial,
@@ -274,5 +281,9 @@ voice_modem_struct ZyXEL_Omni56K =
      &IS_101_wait,
      &IS_101_play_dtmf,
      &IS_101_check_rmd_adequation,
+     // juergen.kosel@gmx.de : voice-duplex-patch start
+     &IS_101_handle_duplex_voice,
+     NULL, /* since there is no way to enter duplex voice state */
+     // juergen.kosel@gmx.de : voice-duplex-patch end
      0
      };

@@ -4,7 +4,7 @@
  * rmdtopvf converts from the rmd (raw modem data) format to the pvf
  * (portable voice format) format.
  *
- * $Id: rmdtopvf.c,v 1.18 2002/11/19 15:39:34 gert Exp $
+ * $Id: rmdtopvf.c,v 1.19 2005/03/13 17:27:48 gert Exp $
  *
  */
 
@@ -324,6 +324,11 @@ int main (int argc, char *argv[])
           case 12:
             /* signed linear PCM 16-bit Inter bit order */
             if (lintopvf(fd_in, fd_out, &header_out, 1, 16, 1) == OK)
+               exit(OK);
+            else exit(FAIL);
+          case 13:
+            /* unsigned linear PCM 16-bit Inter bit order */
+            if (lintopvf(fd_in, fd_out, &header_out, 0, 16, 1) == OK)
                exit(OK);
             else exit(FAIL);
           case 2:

@@ -4,7 +4,7 @@
  * This is the callback function for the modem to the higher level
  * routines.
  *
- * $Id: event.c,v 1.8 2001/05/16 17:23:10 marcs Exp $
+ * $Id: event.c,v 1.9 2005/03/13 17:27:46 gert Exp $
  *
  */
 
@@ -169,6 +169,24 @@ int voice_handle_event(int event, event_data data)
                     };
 
                break;
+	       
+	       // juergen.kosel@gmx.de : voice-duplex-patch start
+
+	  case DUPLEXMODE:
+               switch (event)
+                    {
+                    case LOOP_BREAK: /* This is hangup */
+                    case BUSY_TONE:
+                    case DIAL_TONE:
+                    case DATA_CALLING_TONE:
+                    case FAX_CALLING_TONE:
+                    case NO_VOICE_ENERGY:
+                    case SILENCE_DETECTED:
+                         return(voice_stop_duplex());
+                    };
+	       break;
+	       // juergen.kosel@gmx.de : voice-duplex-patch end
+
           case WAITING:
 
                switch (event)
@@ -230,6 +248,10 @@ int voice_stop_current_action(void)
                return(voice_stop_recording());
           case WAITING:
                return(voice_stop_waiting());
+	       // juergen.kosel@gmx.de : voice-duplex-patch start
+	  case DUPLEXMODE:
+	    return(voice_stop_duplex());
+	    // juergen.kosel@gmx.de : voice-duplex-patch end
           };
 
      return(OK);

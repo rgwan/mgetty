@@ -3,7 +3,7 @@
  *
  * Defines the structure with data and routines for the hardware drivers.
  *
- * $Id: hardware.h,v 1.19 2001/12/22 16:08:00 marcs Exp $
+ * $Id: hardware.h,v 1.20 2005/03/13 17:27:42 gert Exp $
  *
  */
 
@@ -47,6 +47,12 @@ typedef struct
      char *play_dtmf_cmd;
      char *play_dtmf_extra;
      char *play_dtmf_answr;
+     // juergen.kosel@gmx.de : voice-duplex-patch start
+     char *start_duplex_voice_cmnd;
+     char *start_duplex_voice_answr;
+     char *stop_duplex_voice_cmnd;
+     char *stop_duplex_voice_answr;
+     // juergen.kosel@gmx.de : voice-duplex-patch end
      int (*answer_phone) (void);
      int (*beep) (int frequency, int duration);
      int (*dial) (char* number);
@@ -71,6 +77,10 @@ typedef struct
      int (*wait) (int timeout);
      int (*play_dtmf) (char* number);
      int (*check_rmd_adequation) (char *rmd_name); /* not NUL terminated */
+     // juergen.kosel@gmx.de : voice-duplex-patch start
+     int (*handle_duplex_voice) (FILE *tomodem, FILE *frommodem, int bps);
+     int (*stop_duplex_voice) (void);
+     // juergen.kosel@gmx.de : voice-duplex-patch end
      vmq_t voice_modem_quirks;
      } voice_modem_struct;
 
@@ -95,6 +105,7 @@ extern voice_modem_struct Digi_RAS;
 extern voice_modem_struct Dr_Neuhaus;
 extern voice_modem_struct Elsa;
 extern voice_modem_struct V253modem;
+extern voice_modem_struct V253ugly;
 extern voice_modem_struct IS_101;
 extern voice_modem_struct ISDN4Linux;
 extern voice_modem_struct Supra;

@@ -3,7 +3,7 @@
  *
  * This file contains a dummy event routine.
  *
- * $Id: no_modem.c,v 1.5 1999/01/30 14:31:03 marcs Exp $
+ * $Id: no_modem.c,v 1.6 2005/03/13 17:27:44 gert Exp $
  *
  */
 
@@ -179,6 +179,11 @@ voice_modem_struct no_modem =
      "",
      "",
      "",
+     "",
+     "",
+     "",
+     "",
+
      &no_modem_answer_phone,
      &no_modem_beep,
      &no_modem_dial,

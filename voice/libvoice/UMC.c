@@ -11,7 +11,7 @@
  *
  * New updated driver by Jens Adner <Jens.Adner@Wirtschaft.TU-Ilmenau.DE>.
  *
- * $Id: UMC.c,v 1.9 1999/12/02 09:51:30 marcs Exp $
+ * $Id: UMC.c,v 1.10 2005/03/13 17:27:46 gert Exp $
  *
  */
 
@@ -24,11 +24,6 @@
 /* workaround: it should set by vgetty
  * ! program_name must be vgetty !
  */
-
-/*
- * <DLE><ETX> string
- */
-static char dletx[2]={ DLE, ETX };
 
 /*
  * Internal status variables for aborting some voice modem actions.
@@ -281,6 +276,13 @@ voice_modem_struct UMC =
      (char *) IS_101_play_dtmf_cmd,
      (char *) IS_101_play_dtmf_extra,
      (char *) IS_101_play_dtmf_answr,
+     // juergen.kosel@gmx.de : voice-duplex-patch start
+     NULL,  /* (char *) V253modem_start_duplex_voice_cmnd, */
+     NULL,  /* (char *) V253modemstart_duplex_voice_answr, */
+     NULL,  /* (char *) V253modem_stop_duplex_voice_cmnd , */
+     NULL,  /* (char *) V253modem_stop_duplex_voice_answr, */
+     // juergen.kosel@gmx.de : voice-duplex-patch end
+
      &IS_101_answer_phone,
      &UMC_beep,
      &IS_101_dial,
@@ -305,6 +307,10 @@ voice_modem_struct UMC =
      &IS_101_wait,
      &IS_101_play_dtmf,
      &IS_101_check_rmd_adequation,
+     // juergen.kosel@gmx.de : voice-duplex-patch start
+     &IS_101_handle_duplex_voice,
+     NULL, /* since there is no way to enter duplex voice state */
+     // juergen.kosel@gmx.de : voice-duplex-patch end
      VMQ_NEEDS_SET_DEVICE_BEFORE_ANSWER /* steffen@informatik.tu-darmstadt.de */
      };
 

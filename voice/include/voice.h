@@ -4,7 +4,7 @@
  * This is the main header file for vgetty, vm and the pvf tools.
  * It includes other header files and defines some global variables.
  *
- * $Id: voice.h,v 1.13 2001/09/28 21:10:04 gert Exp $
+ * $Id: voice.h,v 1.14 2005/03/13 17:27:42 gert Exp $
  *
  */
 
@@ -152,6 +152,9 @@ extern int voice_stop_current_action(void);
 #define voice_stop_playing() voice_modem->stop_playing()
 #define voice_stop_recording() voice_modem->stop_recording()
 #define voice_stop_waiting() voice_modem->stop_waiting()
+// juergen.kosel@gmx.de : voice-duplex-patch start
+#define voice_stop_duplex() voice_modem->stop_duplex_voice()
+// juergen.kosel@gmx.de : voice-duplex-patch end
 extern char *voice_strsep(char **stringp, const char *delim);
 #define voice_switch_to_data_fax(a) voice_modem->switch_to_data_fax(a)
 extern int voice_unregister_event_handler(void);
@@ -329,6 +332,9 @@ extern char *voice_device_mode_name(int i);
 #define PLAYING          (0x0005)
 #define RECORDING        (0x0006)
 #define WAITING          (0x0007)
+// juergen.kosel@gmx.de : voice-duplex-patch start
+#define DUPLEXMODE       (0x0008)
+// juergen.kosel@gmx.de : voice-duplex-patch end
 
 /*
  * The different vgetty answer modes

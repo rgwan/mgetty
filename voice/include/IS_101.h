@@ -3,7 +3,7 @@
  *
  * Defines the functions implemented in the generic IS 101 driver.
  *
- * $Id: IS_101.h,v 1.6 1999/12/02 09:51:26 marcs Exp $
+ * $Id: IS_101.h,v 1.7 2005/03/13 17:27:42 gert Exp $
  *
  */
 
@@ -62,4 +62,8 @@ extern int IS_101_voice_mode_on (void);
 extern int IS_101_wait (int timeout);
 extern int IS_101_play_dtmf (char* number);
 extern int IS_101_check_rmd_adequation(char *rmd_name);
+// juergen.kosel@gmx.de : voice-duplex-patch start
+extern int IS_101_handle_duplex_voice (FILE *tomodem, FILE *frommodem, int bps);
+// juergen.kosel@gmx.de : voice-duplex-patch end
+
 

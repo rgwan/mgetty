@@ -5,7 +5,7 @@
  * follow the IS-101 interim standard for voice modems. Since the commands
  * are set in the modem structure, it should be quite generic.
  *
- * $Id: IS_101.c,v 1.16 2002/12/13 09:51:19 gert Exp $
+ * $Id: IS_101.c,v 1.17 2005/03/13 17:27:45 gert Exp $
  *
  */
 
@@ -761,8 +761,9 @@ int IS_101_record_file(FILE *fd, int bps)
      tio_set(voice_fd, &voice_tio);
 
      if ((voice_command("", voice_modem->stop_rec_answr) & VMA_USER) !=
-      VMA_USER)
-          return(FAIL);
+	 VMA_USER) {
+	 return(FAIL);
+       }
 
      voice_check_events();
      voice_modem_state = IDLE;
@@ -963,6 +964,15 @@ int IS_101_check_rmd_adequation(char *rmd_name) {
                    strlen(voice_modem_rmd_name));
 }
 
+
+// juergen.kosel@gmx.de : voice-duplex-patch start
+int IS_101_handle_duplex_voice (FILE *tomodem, FILE *frommodem, int bps)
+     {
+     LPRINTF(L_WARN, "%s: IS_101_handle_duplex_voice called", POS);
+     return(FAIL);
+     }
+// juergen.kosel@gmx.de : voice-duplex-patch end
+
 const char IS_101_pick_phone_cmnd[] = "AT+VLS=2";
 const char IS_101_pick_phone_answr[] = "OK";
 const char IS_101_beep_cmnd[] = "AT+VTS=[%d,0,%d]";
@@ -1024,6 +1034,13 @@ voice_modem_struct IS_101 =
      (char *) IS_101_play_dtmf_cmd,
      (char *) IS_101_play_dtmf_extra,
      (char *) IS_101_play_dtmf_answr,
+     // juergen.kosel@gmx.de : voice-duplex-patch start
+     NULL,  /* (char *) V253modem_start_duplex_voice_cmnd, */
+     NULL,  /* (char *) V253modemstart_duplex_voice_answr, */
+     NULL,  /* (char *) V253modem_stop_duplex_voice_cmnd , */
+     NULL,  /* (char *) V253modem_stop_duplex_voice_answr, */
+     // juergen.kosel@gmx.de : voice-duplex-patch end
+
      &IS_101_answer_phone,
      &IS_101_beep,
      &IS_101_dial,
@@ -1048,5 +1065,9 @@ voice_modem_struct IS_101 =
      &IS_101_wait,
      &IS_101_play_dtmf,
      &IS_101_check_rmd_adequation,
+     // juergen.kosel@gmx.de : voice-duplex-patch start
+     &IS_101_handle_duplex_voice,
+     NULL, /* since there is no way to enter duplex voice state */
+     // juergen.kosel@gmx.de : voice-duplex-patch end
      0
      };
