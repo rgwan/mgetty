@@ -28,6 +28,7 @@ bin
 hash
 umask 022
 put $SRC $DST
+put $SRC.asc $DST.asc
 $DIFF
 quit
 EOF
