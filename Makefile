@@ -1,11 +1,11 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.35 1999/02/28 19:15:40 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.36 1999/02/28 20:28:01 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
-#CC=gcc
-CC=cc
+CC=gcc
+#CC=cc
 #
 #### C Compiler Flags ####
 #
@@ -107,8 +107,7 @@ CC=cc
 # prompt first. Don't forget to activate the /AutoPPP/ line in login.config!
 #
 #CFLAGS=-Wall -O2 -pipe -DSECUREWARE -DUSE_POLL
-#CFLAGS=-O2 -Wall -pipe
-CFLAGS=-O -w
+CFLAGS=-O2 -Wall -pipe
 #CFLAGS=-O -DSVR4
 #CFLAGS=-O -DSVR4 -DSVR42
 #CFLAGS=-O -DUSE_POLL
@@ -150,11 +149,11 @@ CFLAGS=-O -w
 # For Linux, add "-lutil" if the linker complains about "updwtmp".
 #
 LDFLAGS=
-LIBS=
+#LIBS=
 #LIBS=-lprot -lsocket				# SCO Unix
 #LIBS=-lsocket
 #LIBS=-lbsd					# OSF/1
-#LIBS=-lutil					# FreeBSD or Linux/GNU libc2
+LIBS=-lutil					# FreeBSD or Linux/GNU libc2
 #LDFLAGS=-posix					# NeXT with POSIX
 #LDFLAGS=-s -shlib				# 3B1
 #
@@ -170,15 +169,15 @@ LIBS=
 #
 # if your systems doesn't have one, use the shell script that I provide
 # in "inst.sh" (taken from X11R5). Needed on IRIX5.2
-#INSTALL=install -c -o bin -g bin
+INSTALL=install -c -o bin -g bin
 #INSTALL=install -c -o root -g wheel		# NeXT/BSD
 #INSTALL=/usr/ucb/install -c -o bin -g bin	# AIX, Solaris 2.x
-INSTALL=installbsd -c -o bin -g bin		# OSF/1, AIX 4.1, 4.2
+#INSTALL=installbsd -c -o bin -g bin		# OSF/1, AIX 4.1, 4.2
 #INSTALL=/usr/bin/X11/bsdinst -c -o bin 	# IRIX
 #
 # prefix, where most (all?) of the stuff lives, usually /usr/local or /usr
 #
-prefix=/medat
+prefix=/usr/local
 #
 # prefix for all the spool directories (usually /usr/spool or /var/spool)
 #
@@ -186,7 +185,7 @@ spool=/var/spool
 #
 # where the mgetty + sendfax binaries live (used for "make install")
 #
-SBINDIR=$(prefix)/bin
+SBINDIR=$(prefix)/sbin
 #
 # where the user executable binaries live
 #
@@ -194,12 +193,12 @@ BINDIR=$(prefix)/bin
 #
 # where the font+coverpage files go
 #
-LIBDIR=$(prefix)/mail/libmgetty
+LIBDIR=$(prefix)/lib/mgetty+sendfax
 #
 # where the configuration files (*.config, aliases, fax.allow/deny) go to
 #
-#CONFDIR=$(prefix)/etc/mgetty+sendfax
-CONFDIR=/stf/mail/mgetty
+CONFDIR=$(prefix)/etc/mgetty+sendfax
+#CONFDIR=/etc/default/
 #
 #
 # the fax spool directory
@@ -210,20 +209,20 @@ FAX_SPOOL_OUT=$(FAX_SPOOL)/outgoing
 #
 #
 # Where section 1 manual pages should be placed
-MAN1DIR=/gnu/man/man1
+MAN1DIR=$(prefix)/man/man1
 #
 # Where section 4 manual pages (mgettydefs.4) should be placed
-MAN4DIR=/gnu/man/man4
+MAN4DIR=$(prefix)/man/man4
 #
 # Section 5 man pages (faxqueue.5)
-MAN5DIR=/gnu/man/man5
+MAN5DIR=$(prefix)/man/man5
 #
 # Section 8 man pages (sendfax.8)
-MAN8DIR=/gnu/man/man8
+MAN8DIR=$(prefix)/man/man8
 #
 # Where the GNU Info-Files are located
 #
-INFODIR=/gnu/info
+INFODIR=$(prefix)/info
 #
 #
 # A shell that understands bourne-shell syntax
@@ -260,7 +259,7 @@ TKPERL=/usr/bin/tkperl
 # please use the "mg.echo" program provided in the compat/ subdirectory.
 # Set ECHO="mg.echo" and INSTALL_MECHO to mg.echo
 #
-ECHO="echo"
+ECHO="echo -e"
 #
 # INSTALL_MECHO=mg.echo
 
