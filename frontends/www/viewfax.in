@@ -4,9 +4,12 @@
 # 
 # Copyright 1998 Simone Demmel simone@greenie.net
 #
-# RCS: $Id: viewfax.in,v 1.7 2001/02/24 11:31:10 gert Exp $
+# RCS: $Id: viewfax.in,v 1.8 2001/04/02 07:39:30 gert Exp $
 #
 # $Log: viewfax.in,v $
+# Revision 1.8  2001/04/02 07:39:30  gert
+# change sort order: show most recent faxes at top of list
+#
 # Revision 1.7  2001/02/24 11:31:10  gert
 # handle newish fax file name format without "-"
 #
@@ -148,7 +151,7 @@ foreach $DATEI (readdir DIRECTORY)
 
 closedir DIRECTORY;
 
-foreach $id ( sort { $date{$a} <=> $date{$b} } ( keys %pages ) )
+foreach $id ( sort { -( $date{$a} <=> $date{$b} ) } ( keys %pages ) )
 {
     $date=localtime($date{$id});
 print <<EOF;
