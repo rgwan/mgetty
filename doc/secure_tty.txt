@@ -1,15 +1,9 @@
-Date: Tue, 5 Jan 1999 09:44:00 +0100 (MET)
-From: Marc SCHAEFER <schaefer@alphanet.ch>
-To: "Theodore Y. Ts'o" <tytso@MIT.EDU>
-cc: Gert Doering <gert@greenie.muc.de>
-Subject: Re: [schaefer@alphanet.ch: Re: modem hangups and friends]
-
 Paranoid Secure Port Implementation
 Marc SCHAEFER <schaefer@alphanet.ch>
-$Id: secure_tty.txt,v 4.1 1999/01/17 17:59:03 gert Exp $
-V1.0 PV004
+$Id: secure_tty.txt,v 4.2 1999/01/24 12:35:53 marcs Exp $
+V1.0 PV005
 Creation: 11/11/96
-Update:   03/01/99
+Update:   10/01/99
 
 ABSTRACT:
    If your UNIX (including Linux) system handles modem(s) and shell
@@ -57,6 +51,11 @@ The security issue is as follows:
    access to the modem through the opened file handle *AND
    a quick reopen of the device*, there might be a security
    problem.
+
+The security issue (and the DoS) can be made even more possible
+if a normal user can create lock files which will prevent mgetty
+from restarting. However, it's sufficient to make mgetty
+not restart at all. See below.
 
 2.2 Explanations
 
@@ -208,7 +207,4 @@ For all those reasons, the root-only-reopen seems the best
 solution, even if it doesn't fix the Denial of Service, which
 could be fixed by an extension to the idled, a processus noticing
 hangups, or any other things.
-
-
-
 
