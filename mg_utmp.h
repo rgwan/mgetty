@@ -1,4 +1,4 @@
-#ident "$Id: mg_utmp.h,v 1.6 1994/08/08 14:30:08 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_utmp.h,v 1.7 1994/10/22 17:21:43 gert Exp $ Copyright (c) Gert Doering"
 
 /* definitions for utmp reading / writing routines,
  * highly SysV / BSD dependent
@@ -29,11 +29,12 @@
 #include <sys/types.h>
 #include <utmp.h>
 
-/* BSDish /etc/utmp files do not have the "ut_type" field */
+/* BSDish /etc/utmp files do not have the "ut_type" field,
+ * but I need it as flag whether to write an utmp entry or not */
 
 #define UT_INIT		0
-#define UT_LOGIN	0
-#define UT_USER		0
+#define UT_LOGIN	1
+#define UT_USER		2
 
 #endif						/* SysV vs. BSD */
 
