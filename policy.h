@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.61 1994/09/10 22:13:41 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.62 1994/09/17 16:57:10 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -426,11 +426,11 @@
 /* #define FAX_SEND_SWITCHBD B19200 */
 
 /* this is the command to set the modem to use the desired flow control.
- * For hardware handshake, this could be &H3 for the ZyXEL, &K3 for
- * Rockwell-Based modems or \\Q3&S0 for Exar-Based Modems (i.e. some GVC's)
+ * For hardware handshake, this could be AT&H3 for the ZyXEL, &K3 for
+ * Rockwell-Based modems or AT\\Q3&S0 for Exar-Based Modems (i.e. some GVC's)
  * If you don't want extra initalization, do not define it.
  */
-#define FAX_MODEM_HANDSHAKE "&H3"
+#define FAX_MODEM_HANDSHAKE "AT&H3"
 
 /* This is the modem command used for dialing. The phone number will
  * get appended right after the string. Normally, "ATD" or "ATDP" should
