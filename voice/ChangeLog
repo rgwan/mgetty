@@ -1,3 +1,14 @@
+Sun Jul 18 19:31:49 MEST 1999  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* Incremental bug fix for US_Robotics.c submitted by
+	"Luca Olivetti" <luca@olivetti.dhis.org> for the external or
+	internal speaker beep conflicting with line work-around.
+	
+	* Added EXTERNAL_SPEAKER support in shell.c, contributed
+	by "Luca Olivetti" <luca@olivetti.dhis.org>.
+
+	* Added some files in contrib/
+	
 Sun Jul  4 09:13:10 MEST 1999  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 
 	* Fixed libutil/access.c to set EGID before EUID so that it is
