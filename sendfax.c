@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 3.6 1995/12/18 22:48:23 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 3.7 1996/04/05 19:12:39 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -51,6 +51,7 @@ void exit_usage _P2( (program, msg ),
 	     "usage: %s [options] <fax-number> <page(s) in g3-format>\n", program);
     fprintf( stderr,
 	     "\tvalid options: -p, -h, -v, -l <device(s)>, -x <debug>, -n, -S, -r\n");
+    lprintf( L_AUDIT, "failed: command line error" );
     exit(1);
 }
 
@@ -238,8 +239,8 @@ RETSIGTYPE fax_sig_goodbye _P1( (signo), int signo )
 {
     if ( call_start == 0 ) call_start = time(NULL);
     
-    lprintf( L_AUDIT, "failed, pid=%d, time=%ds, got signal %d, exiting...", 
-	     getpid(), ( time(NULL)-call_start ), signo );
+    lprintf( L_AUDIT, "failed: got signal %d, pid=%d, time=%ds, acct=\"%s\"", 
+	     signo, getpid(), ( time(NULL)-call_start ), c_string(acct_handle));
     rmlocks();
     exit(15);				/* will close the fax device */
 }
@@ -450,8 +451,9 @@ int main _P2( (argc, argv),
     sprintf( buf, "%s%s", c_string(dial_prefix), fac_tel_no );
     if ( fax_command( buf, "OK", fd ) == ERROR )
     {
-	lprintf( L_AUDIT, "failed dialing, phone=\"%s\", +FHS:%d, time=%ds",
-		 fac_tel_no, fax_hangup_code, ( time(NULL)-call_start ) );
+	lprintf( L_AUDIT, "failed dialing, phone=\"%s\", +FHS:%02d, time=%ds, acct=\"%s\"",
+		 fac_tel_no, fax_hangup_code, ( time(NULL)-call_start ),
+		 c_string(acct_handle) );
 
 	/* close fax line */
 	fax_close( fd );
@@ -617,8 +619,9 @@ int main _P2( (argc, argv),
 
     if ( argidx < argc || ( fax_hangup && fax_hangup_code != 0 ) )
     {
-	lprintf( L_AUDIT, "failed transmitting %s: +FHS:%2d, time=%ds",
-		 argv[argidx], fax_hangup_code, ( time(NULL)-call_start ) );
+	lprintf( L_AUDIT, "failed transmitting %s: phone=\"%s\", +FHS:%02d, time=%ds, acct=\"%s\"",
+		 argv[argidx], fac_tel_no, fax_hangup_code, 
+		 ( time(NULL)-call_start ), c_string(acct_handle) );
 
 	fprintf( stderr, "\n%s: FAILED to transmit '%s'.\n",
 		         argv[0], argv[argidx] );
@@ -663,8 +666,9 @@ int main _P2( (argc, argv),
 			        -1, -1, -1 ) == ERROR )
 	    {
 		fprintf( stderr, "warning: polling failed\n" );
-		lprintf( L_AUDIT, "failed: polling failed, +FHS:%2d, time=%ds",
-			 fax_hangup_code, ( time(NULL)-call_start ) );
+		lprintf( L_AUDIT, "failed: polling failed, phone=\"%s\", +FHS:%02d, time=%ds, acct=\"%s\"",
+			 fac_tel_no, fax_hangup_code, ( time(NULL)-call_start ),
+			 c_string(acct_handle) );
 		fax_close( fd );
 		exit(12);
 	    }
@@ -674,8 +678,9 @@ int main _P2( (argc, argv),
 
     fax_close( fd );
 
-    lprintf( L_AUDIT, "success, phone=\"%s\", time=%ds, pages=%d(+%d), bytes=%d",
+    lprintf( L_AUDIT, "success, phone=\"%s\", time=%ds, pages=%d(+%d), bytes=%d, acct=\"%s\"",
 	              fac_tel_no, ( time(NULL)-call_start ),
-	              total_pages, total_resent, total_bytes );
+	              total_pages, total_resent, total_bytes,
+	              c_string(acct_handle) );
     return 0;
 }
