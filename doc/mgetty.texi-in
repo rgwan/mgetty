@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.45 2000/08/14 14:09:21 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.46 2000/08/19 12:00:51 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -17,7 +17,7 @@ Copyright @copyright{} 1993-2000 Gert Doering
 @sp 6
 @center @titlefont{mgetty+sendfax}
 @sp 4
-@center Version 1.1.22
+@center Version 1.1.23
 @sp 1
 @center August 2000
 @sp 5
@@ -178,7 +178,10 @@ the language in the group is English. Posts in German should be ignored.
 
 The mailing list is archived on a WWW site, look at
 @file{http://www.elilabs.com/mgarc/index.html} (many thanks to
-Robert J. Brown, rj@@eli.elilabs.com)
+Robert J. Brown, rj@@eli.elilabs.com).  It's also archived by Marc
+Schaefer, on @file{http://www-internal.alphanet.ch/recherche_ml.html}.
+The latter search engine indexes somewhat more than only the mgetty list,
+so you might want to add 'mgetty' to your query to restrict it.
 
 @node Supported, Install, Overview, Intro
 @section Supported systems and modems
@@ -2972,7 +2975,7 @@ package to various operating systems.
 * BSD::             BSD-like flavours of Unix
 * AIX::             IBM's AIX Operating System
 * SunOS::           SunOS 4.1.1 and up
-* Solaris2::        SunSoft Solaris 2.3 and 2.4
+* Solaris2::        SunSoft Solaris 2.3 and up
 * 3b1::             AT&T 3b1
 * HP-UX::           The HP-UX operating system
 * NEXTSTEP::        The NEXTSTEP operating system
@@ -3424,9 +3427,10 @@ misbehaviour of the serial line drivers.
 Please read also the generic BSD section.
 
 @node Solaris2, 3b1, SunOS, Systems
-@subsection Solaris 2.3 and 2.4
+@subsection Solaris 2.3 and up
 
-mgetty runs successfully and without trouble under Solaris 2.3 and 2.4.
+mgetty runs successfully and without trouble under Solaris 2.3, 2.4 and
+2.5.1 (later versions should also work, but I didn't get any report so far).
 For compilation use @code{-Dsolaris2}. With Solaris 2.3 it's recommended to use
 GNU gcc, but with Solaris 2.4 it compiles fine with the SPARCompiler C 3.0.1.
 Define @code{CC=cc}.
@@ -3461,6 +3465,13 @@ ya:234:respawn:/usr/local/sbin/mgetty -s 38400 -x 3 term/a
 entries in @file{/etc/saf/_sactab} and @file{/etc/saf/zsmon/_pmtab}.}
 
 Many thanks to Stefan Muehlenweg (muehlenw@@samhh.hanse.DE) for this section.
+
+Solaris (as all Sun operating systems) seems to be somewhat weird
+concerning its handling of the RTS line.  I have received two reports that
+'sometimes' a modem hangs during initialization, and won't talk to mgetty
+anymore.  In these cases, the problem went away when the modem (an USR
+Sportster) was set to @code{AT&R1}, which means 'ignore RTS line'.  Thanks
+to Valerio Di Giampietro for detailing this.
 
 @node 3b1, HP-UX, Solaris2, Systems
 @subsection AT&T 3b1
