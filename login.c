@@ -1,4 +1,4 @@
-#ident "$Id: login.c,v 1.9 1994/10/13 14:02:39 gert Exp $ Copyright (C) 1993 Gert Doering"
+#ident "$Id: login.c,v 1.10 1994/11/04 23:39:53 gert Exp $ Copyright (C) 1993 Gert Doering"
 
 
 /* login.c
@@ -232,12 +232,16 @@ void login_dispatch _P1( (user), char * user )
 	    p = strtok( NULL, " \t" );
 	    while ( argc < 9 && p != NULL )
 	    {
-		if ( strcmp( p, "@" ) == 0 )
+		if ( strcmp( p, "@" ) == 0 )		/* user name */
 		{
 		    if ( user != NULL && user[0] != 0 )
 		    {
 			argv[argc++] = user;
 		    }
+		}
+		else if ( strcmp( p, "\\I" ) == 0 )	/* Connect */
+		{
+		    argv[argc++] = Connect[0]? Connect: "??";
 		}
 		else
 		    argv[argc++] = p;
