@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 2.1 1994/11/30 23:20:51 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 2.2 1995/01/14 19:39:32 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* tio.c
  *
@@ -10,7 +10,7 @@
 #include <sys/types.h>
 #include <errno.h>
 
-#ifdef _AIX
+#if defined(_AIX) || defined(NeXT)
 #include <sys/ioctl.h>
 #endif
 
@@ -622,10 +622,12 @@ int tio_toggle_dtr _P2( (fd, msec_wait), int fd, int msec_wait )
      * Strange enough, on *some* platforms, you have to pass the mctl
      * flag word by value, on others by reference. Oh world...
      */
-#if defined(SVR4) && defined(TIOCMBIS)		/* SVR4 special */
+#if defined(TIOCMBIS) && \
+    ( defined(sun) || defined(SVR4) || defined(NeXT) )
+    
     int mctl = TIOCM_DTR;
 
-#ifdef sun
+#if defined(sun) || defined(NeXT)
     if ( ioctl( fd, TIOCMBIC, &mctl ) < 0 )
 #else
     if ( ioctl( fd, TIOCMBIC, (char *) mctl ) < 0 )
@@ -634,7 +636,7 @@ int tio_toggle_dtr _P2( (fd, msec_wait), int fd, int msec_wait )
 	lprintf( L_ERROR, "TIOCMBIC failed" ); return ERROR;
     }
     delay( msec_wait );
-#ifdef sun
+#if defined(sun) || defined(NeXT)
     if ( ioctl( fd, TIOCMBIS, &mctl ) < 0 )
 #else
     if ( ioctl( fd, TIOCMBIS, (char *) mctl ) < 0 )
@@ -643,7 +645,7 @@ int tio_toggle_dtr _P2( (fd, msec_wait), int fd, int msec_wait )
 	lprintf( L_ERROR, "TIOCMBIS failed" ); return ERROR;
     }
     return NOERROR;
-#else						/* !SVR4 */
+#else						/* !TIOCMBI* */
 
     /* On HP/UX, lowering DTR by setting the port speed to B0 will
      * leave it there. So, do it via HP/UX's special ioctl()'s...
