@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 3.9 1996/03/03 16:27:16 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 3.10 1996/03/07 19:17:35 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include "syslibs.h"
@@ -401,12 +401,15 @@ int getlogname _P5( (prompt, tio, buf, maxsize, do_timeout),
 		fputs( "\b \b", stdout );		/* -> ignore */
 	    else
 		buf[i++] = ch;
-#ifdef FIDO
 	    if ( i >= 7 && strncmp( &buf[i-7], "**EMSI_", 7 ) == 0 )
 	    {
+#ifdef FIDO
+		lprintf( L_NOISE, "got EMSI signature" );
 		strcpy( buf, "\377**EMSI_" ); i=8; break;
-	    }
+#else
+		lprintf( L_MESG, "incoming fido call, but no FIDO support" );
 #endif
+	    }
 	}
     }
     while ( ch != '\n' && ch != '\r' );
