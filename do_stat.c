@@ -1,4 +1,4 @@
-#ident "$Id: do_stat.c,v 3.1 1995/08/30 12:40:31 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: do_stat.c,v 3.2 1995/09/16 19:54:01 gert Exp $ Copyright (c) Gert Doering"
 
 /* do_stat.c
  *
@@ -48,7 +48,9 @@ FILE * fp = NULL;			/* target file */
 	else				/* open ok, log time */
 	{
 	    time_t now = time(NULL);
-	    fprintf( fp, "--- %s ---\n", ctime( &now ));
+	    char *snow = ctime( &now );
+	    if ( snow )
+	        fprintf( fp, "--- %.*s ---\n", (int) strlen(snow)-1, snow);
 	}
     }
 
