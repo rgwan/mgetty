@@ -1,4 +1,4 @@
-#ident "$Id: login.c,v 1.7 1994/08/08 12:34:30 gert Exp $ Copyright (C) 1993 Gert Doering"
+#ident "$Id: login.c,v 1.8 1994/08/08 14:07:04 gert Exp $ Copyright (C) 1993 Gert Doering"
 
 
 /* login.c
@@ -185,7 +185,7 @@ void login _P1( (user), char * user )
 		if ( strcmp( utmp_entry, "@" ) == 0 ) utmp_entry = user;
 
 		lprintf( L_NOISE, "login: utmp entry: %s", utmp_entry );
-		make_utmp_wtmp( Device, UT_USER, utmp_entry );
+		make_utmp_wtmp( Device, UT_USER, utmp_entry, Connect );
 	    }
 
 	    /* set UID (+login uid) */
