@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-# RCS: $Id: faxrunqd.in,v 1.10 1997/11/14 10:40:26 gert Exp $
+# RCS: $Id: faxrunqd.in,v 1.11 1997/11/14 11:08:43 gert Exp $
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.11  1997/11/14 11:08:43  gert
+# introduce signal USR2 to make faxrunqd "exit ASAP" (but gracefully)
+#
 # Revision 1.10  1997/11/14 10:40:26  gert
 # - change queueing algorithm (don't block at the end of a queue run if
 #   there MIGHT be more work to do)
@@ -20,7 +23,7 @@
 # - print debug output from reading config file to stdout (LOG is not open yet)
 #
 # Revision 1.9  1997/11/04 15:18:30  gert
-# @PERL@
+# substitute 'PERL' in first line
 #
 # Revision 1.8  1997/10/31 12:24:34  gert
 # call external programs with "</dev/null". Some are dumb.
@@ -170,6 +173,9 @@ $SIG{TERM} = \&signal_handler;
 $SIG{USR1} = \&signal_handler_USR1;		# roll log file
 $roll_log_file_requested = 0;
 $roll_level=3;					# keep 3 old files around
+
+$SIG{USR2} = \&signal_handler_USR2;		# graceful exit
+$graceful_exit_requested = 0;
 
 #
 # read config file
@@ -357,6 +363,9 @@ while( 1 )
 	    print LOG "* Interrupting queue run to check for new jobs.\n" if $opt_v;
 	    last;
 	}
+
+	# leave loop if user signalled for 'graceful exit'
+	if ( $graceful_exit_requested ) { last; }
     }
 
     # this is a bit tricky...
@@ -427,6 +436,16 @@ while( 1 )
 		    die "can't re-open log file '$faxrd_log'";
 	LOG->autoflush(1);
 	print LOG localtime() .": -- new log file started --\n";
+    }
+
+    # if signalled from the user, wait for all current child processes
+    # to terminate, then exit
+    if ( $graceful_exit_requested )
+    {
+	print LOG "Graceful Exit: wait for $childs child processes\n";
+	while ( $childs > 0 )
+	    { &wait_for_child; }
+	&signal_handler(USR2);
     }
 }
 
@@ -967,7 +986,22 @@ sub signal_handler_USR1
 {
 my $sig = shift;
 
-    print "\nfaxrunqd: signal handler: got signal $sig, roll log file...\n";
+    print LOG "\nfaxrunqd: signal handler: got signal $sig, roll log file...\n";
 
     $roll_log_file_requested = 1;
+}
+##########################################################################
+#
+# signal_handler_USR2
+#
+# called when user sends a USR2 signal --> set flag to do graceful exit
+#
+##########################################################################
+sub signal_handler_USR2
+{
+my $sig = shift;
+
+    print LOG "\nfaxrunqd: signal handler: got signal $sig, will exit as soon as possible...\n";
+
+    $graceful_exit_requested = 1;
 }
