@@ -373,3 +373,19 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
 
 257) generalize calling $(MAKE) in subdirs - put all $(MAKE) arguments
      in one common variable
+
+258) faxspool chokes on filenames containing spaces
+
+259) faxrunqd: don't re-use same tty after send failure (if possible)
+
+260) faxrunqd: bump up priority of "exit 12" jobs
+
+261) faxrunqd: don't count "modem locked" as "failure" for a given job
+     (but *do* delay by a certain time)
+     (hmmm - maybe not.  If all modems are locked for a long period of
+     time, it might be useful to flag the fax as "failed" to get people to
+     notice.  Combine with 259 - should resolve problem)
+
+262) faxrunqd: smarter algorithm for "modem is broken"
+     (locked = doesn't count, can't init = +1, NO CARRIER = +0.2)
+
