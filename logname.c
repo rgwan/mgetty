@@ -1,7 +1,12 @@
-#ident "$Id: logname.c,v 1.13 1993/10/19 22:26:17 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 1.14 1993/11/05 22:36:52 gert Exp $ Copyright (c) Gert Doering"
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
+#include <malloc.h>
+#include <sys/types.h>
+#include <time.h>
+#include <ctype.h>
 #ifndef sun
 #include <sys/ioctl.h>
 #endif
@@ -27,9 +32,92 @@
 #define CINTR	0177		/* DEL, ^? */
 #endif
 
+char * ln_escape_prompt _P1( (ep), char * ep )
+{
+#define MAX_PROMPT_LENGTH 140
+    char * p;
+    int    i;
+
+    p = malloc( MAX_PROMPT_LENGTH );
+    if ( p == NULL ) return NULL;
+
+    i = 0;
+    
+    while ( *ep != 0 && i < MAX_PROMPT_LENGTH-4 )
+    {
+	if ( *ep == '@' )		/* system name */
+	{
+#ifdef SYSTEM
+	    if ( sizeof( SYSTEM ) + i > MAX_PROMPT_LENGTH ) break;
+	    i += sprintf( &p[i], "%s", SYSTEM );
+#else
+	    struct utsname un;
+	    uname( &un );
+	    if ( strlen( un.nodename ) +1 +i > MAX_PROMPT_LENGTH ) break;
+	    i += sprintf( &p[i], "%s", un.nodename );
+#endif
+	}
+	else if ( *ep != '\\' ) p[i++] = *ep;
+	else		/* *ep == '\\' */
+	{
+	    ep++;
+	    switch ( *ep )
+	    {
+	      case 'n': p[i++] = '\n'; break;
+	      case 'r': p[i++] = '\r'; break;
+	      case 'g': p[i++] = '\007'; break;
+	      case 'b': p[i++] = '\010'; break;
+	      case 'v': p[i++] = '\013'; break;
+	      case 'f': p[i++] = '\f'; break;
+	      case 't': p[i++] = '\t'; break;
+	      case 'D':			/* fallthrough */
+	      case 'T':
+		if ( i + 30 > MAX_PROMPT_LENGTH )
+		{
+		    i += sprintf( &p[i], "(x)" ); break;
+		}
+		else
+		{
+		    time_t ti = time( NULL );
+		    struct tm * tm = localtime( &ti );
+
+		    if ( tm == NULL ) break;
+
+		    if ( *ep == 'D' )
+		        i += sprintf( &p[i], "%d/%d/%d", tm->tm_mon+1,
+				     tm->tm_mday, tm->tm_year + 1900 );
+		    else
+		        i += sprintf( &p[i], "%d:%d:%d", tm->tm_hour,
+				     tm->tm_min, tm->tm_sec );
+		}
+		break;
+	      default:		/* not a recognized string */
+		if ( isdigit( *ep ) )		/* "\01234" */
+		{
+		    char * help;
+		    p[i++] = strtol( ep, &help, 0 );
+		    ep = help-1;
+		}
+		else p[i++] = *ep;
+	    }			/* end switch( char after '\\' ) */
+	}			/* end if ( char is '\\' ) */
+	ep++;
+    }				/* end while ( char to copy, p not full ) */
+
+    p[i] = 0;			/* terminate string */
+    
+    if ( *ep != 0 )
+    {
+	lprintf( L_WARN, "buffer overrun - input prompt too long" );
+    }
+
+    return p;
+}
+
+
 static int timeouts = 0;
 #ifdef MAX_LOGIN_TIME
-static sig_t getlog_timeout()
+static RETSIGTYPE getlog_timeout()
 {
     signal( SIGALRM, getlog_timeout );
 
@@ -56,6 +144,7 @@ int getlogname _P4( (prompt, tio, buf, maxsize),
 int i;
 char ch;
 TIO tio_save;
+char * final_prompt;
 
     /* read character by character! */
     tio_save = *tio;
@@ -67,18 +156,11 @@ TIO tio_save;
     alarm( MAX_LOGIN_TIME );
 #endif
 
+    final_prompt = ln_escape_prompt( prompt );
+
 newlogin:
     printf( "\r\n" );
-#ifdef SYSTEM
-    printf( prompt, SYSTEM );
-#else
-    {
-    struct utsname un;
-	uname( &un );
-	printf( prompt, un.nodename );
-    }
-#endif
-    printf( " " );
+    printf( "%s ", final_prompt );
 
     i = 0;
     lprintf( L_NOISE, "getlogname, read:" );
@@ -124,6 +206,7 @@ newlogin:
     while ( ch != '\n' && ch != '\r' );
 
     alarm(0);
+    free( final_prompt );
 
     buf[--i] = 0;
 
