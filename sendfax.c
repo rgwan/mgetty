@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.42 1993/11/12 15:46:44 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: sendfax.c,v 1.43 1993/11/12 22:14:45 gert Exp $ Copyright (c) Gert Doering";
 
 /* sendfax.c
  *
@@ -579,7 +579,7 @@ int	tries;
 			continue;	/* don't go to next page */
 		    }
 		    break;
-	    case 3: fprintf( stderr, "WARNING: page good, but retrain requested\n" ); break;
+	    case 3: fprintf( stderr, "WARNING: page good, but retrain requested\n" );
 		    break;
 	    case 4:
 	    case 5: fprintf( stderr, "WARNING: procedure interrupt requested - don't know how to handle it\n" );
