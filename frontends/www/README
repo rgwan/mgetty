@@ -1,0 +1,44 @@
+This is a collection of tools to maintain mgetty using a WWW interface
+(CGI binaries and a couple of static pages).
+
+Right now, it's not yet "plug and play", and it's only known to work
+with Apache and Roxen web servers (CERN has some weird problems).
+
+Please direct all questions concerning the WWW gui to Simone Demmel
+(neko@greenie.muc.de) or to the mgetty mailing list (mgetty@muc.de).
+--------------------------------------------------------------------
+You need on your system:
+
+* installed mgetty+sendfax package
+* g32pbm (use this from gert, it is much faster than this one from the
+  pbm-tool-kit!)
+* pbmtogif (pbm-tools)
+* pnmscale (pbm-tools)
+* ppmquant (pbm-tools)
+* a running httpd
+* perl (testet with perl5.001, should run with other versions as well)
+* a web browser with forms (on your client side!)
+
+Installation:
+
+See INSTALL.README and readme.txt in the appropriate package!
+
+CGI-Bin:
+Be sure your webserver can execute cgi-bins in users directories.
+	if not: you will have to add in every link (generated or not, your
+	cgi-bin-path /cgi-bin...)
+
+I'll add a special case for this, if I see that it will be needed.
+	      
+
+You can do:
+
+* writing and sending short messages
+  - add files
+  - choose a cover-page
+  - add a short message
+
+* viewing faxes via WWW
+
+
+If you have questions: ask Simone Demmel, neko@greenie.muc.de
