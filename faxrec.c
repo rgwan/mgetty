@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.1 1993/03/14 15:25:07 gert Exp $ Gert Doering"
+#ident "$Id: faxrec.c,v 1.2 1993/03/23 16:44:50 gert Exp $ Gert Doering"
 
 /* faxrec.c - part of the ZyXEL getty
  *
@@ -97,7 +97,7 @@ int ByteCount = 0;
     signal( SIGHUP, fax_sig_hangup );
     fax_timeout = FALSE;
 
-    lprintf( L_MESG, "fax_get_page_data started..." );
+    lprintf( L_MESG, "fax_get_page_data: receiving %s...", temp );
 
     WasDLE = 0;
     do
