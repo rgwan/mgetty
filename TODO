@@ -83,8 +83,6 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
 
 75) dialcode translations in faxspool
 
-79) g3cat: fix line width (that is, "repair" broken T.4 files on-the-fly)
-
 90) support ct 
 
 91) g3split
@@ -165,6 +163,7 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
 
 146) improve faxspool security
 
+79) g3cat: fix line width (that is, "repair" broken T.4 files on-the-fly)
 147) make "g3cat" fix line width!
      (done, but doesn't seem to work for all receivers) 
 
