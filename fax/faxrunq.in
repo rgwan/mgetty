@@ -9,7 +9,7 @@
 # There are still a lot rough edges - but it works, and should give you an
 # idea how to improve it
 #
-# SCCS: $Id: faxrunq.in,v 3.2 1996/03/12 22:22:58 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxrunq.in,v 3.3 1996/04/13 21:58:27 gert Exp $ Copyright (C) 1994 Gert Doering
 
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -31,12 +31,13 @@ AWK=@AWK@
 #
 # command line arguments
 #
-usage="usage: $0 [-q]"
+usage="usage: $0 [-s] [-q]"
 
 while :
 do
     case "$1" in
 # quiet operation
+	-s) sleepwait=30;shift;;
 	-q) exec >/dev/null ; shift ;;
 	-*) $echo "$0: unknown option: $1" >&2
             $echo "$usage" >&2
@@ -58,9 +59,16 @@ fi
 
 cd $FAX_SPOOL_OUT || exit 1
 
+status="0"
 jobs=`ls */JOB 2>/dev/null`
 for job in $jobs
 do
+    if [ $status -eq 4 -a -n "$sleepwait" ]
+    then
+#     old stat :no connect; modem allows next redial in $sleepwait secs
+      $echo "sleeping $sleepwait seconds"
+      sleep $sleepwait
+    fi
     cd $FAX_SPOOL_OUT/`dirname $job`
     $echo "processing $job..."
 #
