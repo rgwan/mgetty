@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.75 1993/12/19 23:08:43 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.76 1993/12/27 21:47:44 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -449,9 +449,9 @@ int main _P2((argc, argv), int argc, char ** argv)
 
 	signal( SIGUSR1, sig_pick_phone );
 
-#ifdef linux
-	/* on linux, "init" does not make a wtmp entry when you log out,
-	 * so we have to do it here (otherwise, "who" won't work)
+#if defined(linux) && !defined(NO_SYSVINIT)
+	/* on linux, "simple init" does not make a wtmp entry when you
+	 * log so we have to do it here (otherwise, "who" won't work)
 	 */
 	make_utmp_wtmp( Device, FALSE );
 #endif
