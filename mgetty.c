@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.78 1994/01/02 18:05:08 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.79 1994/01/02 20:44:40 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -509,6 +509,13 @@ int main _P2((argc, argv), int argc, char ** argv)
 	    exit(0);
 	}
 
+	/* set to remove lockfile(s) on certain signals
+	 */
+	(void) signal(SIGHUP, sig_goodbye);
+	(void) signal(SIGINT, sig_goodbye);
+	(void) signal(SIGQUIT, sig_goodbye);
+	(void) signal(SIGTERM, sig_goodbye);
+
 	/* check for a "nologin" file (/etc/nologin.<device>) */
 
 	sprintf( buf, "/etc/nologin.%s", Device );
@@ -566,13 +573,6 @@ int main _P2((argc, argv), int argc, char ** argv)
            string sent by a calling MNP-Modem is discarded here, too) */
 
 	clean_line( STDIN, 3);
-
-	/* set to remove lockfile(s) on certain signals
-	 */
-	(void) signal(SIGHUP, sig_goodbye);
-	(void) signal(SIGINT, sig_goodbye);
-	(void) signal(SIGQUIT, sig_goodbye);
-	(void) signal(SIGTERM, sig_goodbye);
 
 #ifdef VOICE
 	/* Answer in voice mode. The function will return only if it
