@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.108 1994/05/19 09:00:56 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.109 1994/05/25 13:03:59 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -691,6 +691,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 
 	    lprintf( L_MESG, "start fax receiver..." );
 	    faxrec( FAX_SPOOL_IN );
+	    rmlocks();
 	    exit( 0 );
 	    break;
 	    
