@@ -6,6 +6,11 @@
 
                     Copyright (C) 1995-1998 Marc Eberhard.
 
+                    [ The maintenance has been taken over by
+                      Marc SCHAEFER <schaefer@alphanet.ch>
+                      http://www-internal.alphanet.ch/~schaefer/vgetty.html
+                    ]
+
 
   The legal stuff
  -----------------
@@ -86,4 +91,5 @@ From this release on the new maintainer and developer of vgetty is
 
 and I wish him good luck and all the best!
 
-$Id: Readme,v 1.5 1998/11/17 11:48:33 marc Exp $
+$Id: Readme,v 1.6 1999/01/23 11:53:06 marcs Exp $
+
