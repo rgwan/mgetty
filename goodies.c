@@ -1,4 +1,4 @@
-#ident "$Id: goodies.c,v 1.3 1994/08/10 14:43:57 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: goodies.c,v 1.4 1994/08/22 01:22:20 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /*
  * goodies.c
@@ -55,7 +55,7 @@ char * get_ps_args _P1 ((pid), int pid )
 
     sprintf (procfname, "/proc/%05d", pid);
 
-    procfd = open (procfname, O_RDONLY),;
+    procfd = open (procfname, O_RDONLY);
     if ( procfd < 0 )
     {
 	lprintf( L_ERROR, "cannot open %s", procfname );
@@ -70,6 +70,7 @@ char * get_ps_args _P1 ((pid), int pid )
 	close(procfd);
     }
 # endif /* PIOCPSINFO */
+    return pscomm;
 #endif /* SVR4 */
 
 #ifdef linux
