@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.14 1997/06/17 15:03:30 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.15 1997/06/19 17:55:00 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -555,8 +555,9 @@ int mdm_identify _P1( (fd), int fd )
 	    modem_type=Mt_data;
 	    break;
 	  case 2886:
+	  case 3361:
 	  case 3366:
-	    lprintf( L_MESG, "USR Courier V.34(+) detected" );
+	    lprintf( L_MESG, "USR Courier/Sportster V.34(+) detected" );
 	    modem_type=Mt_class2_0;
 	    mis = mdm_get_idstring( "ATI3", 1, fd );
 	    break;
