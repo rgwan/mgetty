@@ -1,4 +1,4 @@
-#ident "$Id: utmp.c,v 1.19 1994/08/08 12:34:39 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: utmp.c,v 1.20 1994/08/08 14:30:09 gert Exp $ Copyright (c) Gert Doering"
 
 /* some parts of the code (writing of the utmp entry)
  * is based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
@@ -32,8 +32,9 @@ typedef short pid_t;
  * not have to care for the utmp entries, login and init do all the work
  * Anyway, we have to _read_ it to get the number of users logged in.
  */
-void make_utmp_wtmp _P3( (line, ut_type, ut_user),
-			 char * line, short ut_type, char * ut_user )
+void make_utmp_wtmp _P4( (line, ut_type, ut_user, ut_host),
+			 char * line, short ut_type,
+			 char * ut_user, char * ut_host )
 {
 }
 int get_current_users _P0( void )
@@ -41,10 +42,12 @@ int get_current_users _P0( void )
     lprintf( L_WARN, "get_current_users: not implemented on BSD" );
     return 0;
 }	/*! FIXME */
-#else
 
-void make_utmp_wtmp _P3( (line, ut_type, ut_user),
-			 char * line, short ut_type, char * ut_user )
+#else			/* System V style utmp handling */
+
+void make_utmp_wtmp _P4( (line, ut_type, ut_user, ut_host),
+			 char * line, short ut_type,
+			 char * ut_user, char * ut_host )
 {
 struct utmp *utmp;
 pid_t	pid;
@@ -68,6 +71,17 @@ FILE *	fp;
 	    strncpy( utmp->ut_user, ut_user, sizeof( utmp->ut_user ) );
 	    utmp->ut_user[ sizeof( utmp->ut_user ) -1 ] = 0;
 
+#if defined(SVR4) || defined(linux)
+	    if (ut_host != NULL)
+	    {
+	    	strncpy( utmp->ut_host, ut_host, sizeof( utmp->ut_host ) - 1);
+	    	utmp->ut_host [ sizeof( utmp->ut_host ) - 1 ] = '\0';
+# ifdef solaris2		/* Solaris 2.x */
+	    	utmp->ut_syslen = strlen(utmp->ut_host) + 1;
+# endif
+	    }
+#endif		/* SVR4 */
+
 #ifdef M_UNIX
 	    if ( pututline(utmp) == NULL )
 	    {
@@ -81,6 +95,9 @@ FILE *	fp;
 	    /* write same record to end of wtmp
 	     * if wtmp file exists
 	     */
+#ifdef SVR4
+	    updwtmpx(WTMPX_FILE, utmp);
+#else
 	    if (stat(WTMP_FILE, &st) && errno == ENOENT)
 		    break;
 	    if ((fp = fopen(WTMP_FILE, "a")) != (FILE *) NULL)
@@ -89,6 +106,7 @@ FILE *	fp;
 		(void) fwrite((char *)utmp,sizeof(*utmp),1,fp);
 		(void) fclose(fp);
 	    }
+#endif	/* !SVR4 */
 
 	    lprintf(L_NOISE, "utmp + wtmp entry made");
 	}
@@ -103,7 +121,8 @@ int Nusers;
 
     Nusers = 0;
     setutent();
-    while ((utmp = getutent()) != (struct utmp *) NULL) {
+    while ((utmp = getutent()) != (struct utmp *) NULL)
+    {
 	if (utmp->ut_type == USER_PROCESS)
 	{
 	    Nusers++;
@@ -113,4 +132,4 @@ int Nusers;
     endutent();
     return Nusers;
 }
-#endif		/* !sunos4 */
+#endif		/* !sunos4, !BSD, !ultrix */

@@ -1,4 +1,4 @@
-#ident "$Id: mg_utmp.h,v 1.5 1994/08/08 12:34:32 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_utmp.h,v 1.6 1994/08/08 14:30:08 gert Exp $ Copyright (c) Gert Doering"
 
 /* definitions for utmp reading / writing routines,
  * highly SysV / BSD dependent
@@ -6,7 +6,19 @@
 
 #if !defined(sunos4) && !defined(BSD) && !defined(ultrix) /* SysV style */
 
-#include <utmp.h>
+#ifdef SVR4			/* on SVR4, use extended utmpx file */
+# include <utmpx.h>
+# define utmp		utmpx
+# define getutent	getutxent
+# define getutid	getutxid
+# define getutline	getutxline
+# define pututline	pututxline
+# define setutent	setutxent
+# define endutent	endutxent
+# define ut_time	ut_xtime
+#else				/* !SVR4 */
+# include <utmp.h>
+#endif
 
 #define UT_INIT		INIT_PROCESS
 #define UT_LOGIN	LOGIN_PROCESS
@@ -27,7 +39,8 @@
 
 /* prototypes */
 
-void make_utmp_wtmp _PROTO(( char * line, short ut_type, char * ut_user ));
+void make_utmp_wtmp _PROTO(( char * line, short ut_type, 
+			     char * ut_user, char * ut_host ));
 int  get_current_users _PROTO(( void ));
 
 /* system prototypes - not all supported systems have these */
