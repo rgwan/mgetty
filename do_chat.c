@@ -1,4 +1,4 @@
-#ident "$Id: do_chat.c,v 1.28 1994/01/03 02:35:38 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: do_chat.c,v 1.29 1994/01/12 21:47:21 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* do_chat.c
  *
@@ -54,7 +54,8 @@ TIO	tio, save_tio;
 
     signal( SIGALRM, chat_timeout );
 
-    if ( actions != NULL && action != NULL ) *action = A_FAIL;
+    /* default "action" is timeout */
+    if ( actions != NULL && action != NULL ) *action = A_TIMOUT;
 
     str=0;
     while ( expect_send[str] != NULL )

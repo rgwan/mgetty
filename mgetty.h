@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.43 1994/01/04 17:34:20 gert Exp $ Copyright (c) Gert Doering */
+/* $Id: mgetty.h,v 1.44 1994/01/12 21:47:19 gert Exp $ Copyright (c) Gert Doering */
 
 /* ANSI vs. non-ANSI support */
 #ifdef __STDC__
@@ -86,7 +86,7 @@ typedef	char	boolean;
 #define MAXPATH MAXLINE
 #define STDIN	0
 
-typedef	enum	{ A_FAIL, A_FAX, A_VCON, A_CONN } action_t;
+typedef	enum	{ A_TIMOUT, A_FAIL, A_FAX, A_VCON, A_CONN } action_t;
 typedef struct	chat_actions {
 			char * expect;
 			action_t action; } chat_action_t ;
