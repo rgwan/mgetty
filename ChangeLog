@@ -1,3 +1,36 @@
+Thu Feb  1 22:20:10 MET 2001  Gert Doering (gert@greenie.muc.de)
+
+	* release 1.1.25
+
+Sat Jan 27 19:14:15 MET 2001  Gert Doering (gert@greenie.muc.de)
+
+	* mksed.c: fix @KVG_PID_FILE@
+
+	* getdisk.c: fix overflow on file systems with > 2G (2^31 bytes) free
+
+	* getdisk.c: default MINFREESPACE from policy.h was interpreted
+	  as *bytes*, not as *kbytes*.  Which kind of defeats the purpose
+	  of checking for "enough disk space".  Fixed, work with kbytes now.
+
+Fri Jan 19 20:51:31 MET 2001  Gert Doering (gert@greenie.muc.de)
+
+	* ring.c: add isdn4linux form "RING/<dest.MSN>" (*sigh*)
+
+Mon Jan  8 11:19:16 MET 2001  Gert Doering (gert@greenie.muc.de)
+
+	* goodies.c: fix include files (Linux/FreeBSD/SVR4 dependent)
+
+Sun Jan  7 21:10:28 MET 2001  Gert Doering (gert@greenie.muc.de)
+	
+	* release 1.1.24
+
+Sun Jan  7 00:28:09 MET 2001  Gert Doering (gert@greenie.muc.de)
+
+	* faxrecp.c: check access rights first, space second (this will
+		 give clearer log messages for non-existing directories)
+
+	* getdisk.c: fix #ifdef mess (this code did never work!)
+
 Fri Jan  5 19:30:39 CET 2001   Gert Doering (gert@mobile.greenie.muc.de)
 	
 	* faxrecp.c: accept multiple directories for fax storage,
