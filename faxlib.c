@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.45 1999/07/31 20:09:57 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.46 1999/11/30 09:09:42 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -612,6 +612,11 @@ int mdm_identify _P1( (fd), int fd )
 	    lprintf( L_MESG, "ZyXEL Omni.NET detected" );
 	    modem_type=Mt_data;				/* has no fax mode */
 	    mis = mdm_get_idstring( "ATI1", 1, fd );
+	    break;
+	  case 1500:
+	    lprintf( L_MESG, "ZyXEL Omni56K Plus detected" );
+	    modem_type=Mt_class2_0;
+	    mis = mdm_get_idstring( "ATI1", 2, fd );
 	    break;
 	  case 1444:
 	    lprintf( L_MESG, "USR Courier/Sportster v32bis detected (assuming non-fax capable)" );
