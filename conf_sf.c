@@ -1,4 +1,4 @@
-#ident "$Id: conf_sf.c,v 4.8 1997/12/05 23:44:56 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_sf.c,v 4.9 1998/06/01 12:08:39 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_sf.c
  *
@@ -145,7 +145,7 @@ conf_data c_a[2];
 	  case 'V':
 	    printf("\nmgetty+sendfax by Gert Doering\n%s\n\n",
 		    mgetty_version);
-	    printf("log file written to '%s'\n\n", FAX_LOG );
+	    printf("log file written to '%s'\n", FAX_LOG );
 #ifdef SENDFAX_CONFIG
             printf("config file read from '%s'\n\n", 
 			makepath( SENDFAX_CONFIG, CONFDIR ));
