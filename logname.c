@@ -1,10 +1,11 @@
-#ident "$Id: logname.c,v 1.27 1994/01/14 20:03:03 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 1.28 1994/02/12 14:08:28 gert Exp $ Copyright (c) Gert Doering"
 ;
 #include <stdio.h>
 #ifndef _NOSTDLIB_H
 #include <stdlib.h>
 #endif
 #include <unistd.h>
+#include <string.h>
 #include <signal.h>
 #include <malloc.h>
 #include <sys/types.h>
