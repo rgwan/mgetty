@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.52 1994/04/19 00:02:58 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.53 1994/05/10 21:39:09 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -228,6 +228,23 @@
  */
 #define MODEM_CMD_SUFFIX "\r"
  
+
+/* modem mode
+ *
+ * DEFAULT_MODEMTYPE specifies the default way mgetty+sendfax handle a
+ * faxmodem. You have four choices:
+ *   "data" - data only, no faxing available (for sendfax, equal to "auto")
+ *   "cls2" - use AT+FCLASS=2
+ *   "c2.0" - use AT+FCLASS=2.0
+ *   "auto" - try "2.0", then "2", then fall to "data".
+ *
+ * Normally, you can leave this to "auto", but if you have a modem that
+ * can do class 2.0 and class 2, and 2.0 doesn't work, then you could try
+ * setting it to "cls2".
+ * You can override this define with the "-C <mode>" switch.
+ */
+#define DEFAULT_MODEMTYPE "auto"
+
 
 /* the main fax spool directory
  */
