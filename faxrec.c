@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 3.13 1996/06/04 20:48:31 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 3.14 1996/10/02 11:32:27 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -126,7 +126,7 @@ extern  char * Device;
     lprintf( L_NOISE, "fax receiver: hangup & end" );
 
     /* send mail to MAIL_TO */
-    if ( mail_to != NULL )
+    if ( mail_to != NULL && strlen(mail_to) != 0 )
         fax_notify_mail( pagenum, mail_to );
 
 #ifdef FAX_NOTIFY_PROGRAM
