@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.46 1994/01/29 22:48:49 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.47 1994/01/29 22:50:27 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -358,7 +358,10 @@
  * requested", sendfax will retry the page. Specifiy here the maximum
  * number of retries (I recommend 3) before hanging up.
  *
- * If you set it to "0", sendfax will *never* retransmit a page
+ * If you set it to "0", sendfax will *never* retransmit a page (only
+ * do this if you know that your modem returns +FPTS:2 even if the
+ * page arrived properly, but be warned - you wont' be able to react
+ * properly to transmission errors!)
  */
 #define FAX_SEND_MAX_TRIES 3
 
