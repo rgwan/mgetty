@@ -1,4 +1,4 @@
-#ident "$Id: do_chat.c,v 1.27 1993/12/27 21:45:21 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: do_chat.c,v 1.28 1994/01/03 02:35:38 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* do_chat.c
  *
@@ -187,7 +187,12 @@ TIO	tio, save_tio;
 	    }
 	    p++;
 	}
-	if ( ! nocr ) { write( fd, "\r\n", 2 ); lputs( L_MESG, "\\r\\n" ); }
+	if ( ! nocr )
+	{
+	    write( fd, MODEM_CMD_SUFFIX, sizeof(MODEM_CMD_SUFFIX)-1 );
+	    p = MODEM_CMD_SUFFIX;
+	    while ( *p ) lputc( L_MESG, *(p++) );
+	}
 
 	str++;
 
