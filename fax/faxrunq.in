@@ -9,7 +9,7 @@
 # There are still a lot rough edges - but it works, and should give you an
 # idea how to improve it
 #
-# SCCS: $Id: faxrunq.in,v 2.3 1995/03/26 19:39:06 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxrunq.in,v 2.4 1995/03/26 20:01:11 gert Exp $ Copyright (C) 1994 Gert Doering
 
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -101,7 +101,7 @@ do
     then
 	if [ `date "+%H""%M"` -lt $TIME ]
 	then
-	    echo "...send time not reached, postponing job"
+	    $echo "...send time not reached, postponing job"
 	    mv JOB.locked JOB
 	    continue
 	fi
