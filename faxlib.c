@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 1.19 1994/05/07 20:05:46 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 1.20 1994/05/14 16:08:44 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* faxlib.c
  *
@@ -17,6 +17,8 @@
 #include "policy.h"
 #include "fax_lib.h"
 
+Modem_type modem_type = Mt_class2;	/* if uninitialized, assume class2 */
+
 char	fax_remote_id[1000];		/* remote FAX id +FTSI */
 char	fax_param[1000];		/* transm. parameters +FDCS */
 fax_param_t	fax_par_d;		/* fax params detailed */
@@ -25,6 +27,47 @@ int	fax_hangup_code = FHUP_UNKNOWN;	/* hangup cause +FHNG:<xxx> */
 int	fax_page_tx_status = 0;		/* +FPTS:<ppm> */
 boolean	fax_to_poll = FALSE;		/* there's something to poll */
 boolean fax_poll_req = FALSE;		/* poll requested */
+
+
+/* get one line from the modem, only printable characters, terminated
+ * by \r or \n. The termination charcter is *not* included
+ */
+
+char * fax_get_line _P1( (fd), int fd )
+{
+    static char buffer[200];
+    int bufferp;
+    char c;
+    
+    bufferp = 0;
+    lprintf( L_JUNK, "got:" );
+    
+    do
+    {
+	if( fax_read_byte( fd, &c ) != 1 )
+	{
+	    lprintf( L_ERROR, "fax_get_line: cannot read byte, return" );
+	    return NULL;
+	}
+
+	lputc( L_JUNK, c );
+
+	if ( isprint( c ) &&
+	     bufferp < sizeof(buffer) )
+	{
+	    buffer[ bufferp++ ] = c;
+	}
+    }
+    while ( bufferp == 0 || ( c != 0x0a && c != 0x0d ) );
+
+    buffer[bufferp] = 0;
+
+    return buffer;
+}
+
+/* wait for a given modem response string,
+ * handle all the various class 2 / class 2.0 status responses
+ */
 
 static boolean fwf_timeout = FALSE;
 
@@ -38,9 +81,8 @@ static RETSIGTYPE fwf_sig_alarm()      	/* SIGALRM handler */
 int fax_wait_for _P2( (s, fd),
 		      char * s, int fd )
 {
-char buffer[1000];
-char c;
-int bufferp;
+char * line;
+int  ix;
 
     lprintf( L_MESG, "fax_wait_for(%s)", s );
 
@@ -57,48 +99,48 @@ int bufferp;
     {
 	alarm( FAX_RESPONSE_TIMEOUT );
 
-	bufferp = 0;
-	lprintf( L_JUNK, "got:" );
+	line = fax_get_line( fd );
 
-	/* get one string, not empty, printable chars only, ended by '\n' */
-	do
+	if ( line == NULL )
 	{
-	    if( fax_read_byte( fd, &c ) != 1 )
-	    {
-		lprintf( L_ERROR, "fax_wait_for: cannot read byte, return" );
-		alarm( 0 ); signal( SIGALRM, SIG_DFL );
-		return ERROR;
-	    }
-	    lputc( L_JUNK, c );
-	    if ( isprint( c ) ) buffer[ bufferp++ ] = c;
+	    alarm( 0 ); signal( SIGALRM, SIG_DFL );
+	    return ERROR;
 	}
-	while ( bufferp == 0 || ( c != 0x0a && c != 0x0d ) );
-	buffer[bufferp] = 0;
+	
+	lprintf( L_NOISE, "fax_wait_for: string '%s'", line );
 
-	lprintf( L_NOISE, "fax_wait_for: string '%s'", buffer );
+	/* find ":" character (or end-of-string) */
+	for ( ix=0; line[ix] != 0; ix++ )
+	    if ( line[ix] == ':' ) { ix++; break; }
 
-	if ( strncmp( buffer, "+FTSI:", 6 ) == 0 ||
-	     strncmp( buffer, "+FCSI:", 6 ) == 0 )
+	if ( strncmp( line, "+FTSI:", 6 ) == 0 ||
+	     strncmp( line, "+FCSI:", 6 ) == 0 ||
+	     strncmp( line, "+FCIG:", 6 ) == 0 ||
+	     strncmp( line, "+FTI:", 5 ) == 0 ||
+	     strncmp( line, "+FCI:", 5 ) == 0 ||
+	     strncmp( line, "+FPI:", 5 ) == 0 )
 	{
-	    lprintf( L_MESG, "fax_id: '%s'", buffer );
-	    strcpy( fax_remote_id, &buffer[6] );
+	    lprintf( L_MESG, "fax_id: '%s'", line );
+	    strcpy( fax_remote_id, &line[ix] );
 	}
 
-	else if ( strncmp( buffer, "+FDCS:", 6 ) == 0 )
+	else if ( strncmp( line, "+FDCS:", 6 ) == 0 ||
+		  strncmp( line, "+FCS:", 5 ) == 0 )
 	{
-	    lprintf( L_MESG, "transmission par.: '%s'", buffer );
-	    strcpy( fax_param, buffer );
-	    if ( sscanf( &fax_param[6], "%hd,%hd,%hd,%hd,%hd,%hd,%hd,%hd",
+	    lprintf( L_MESG, "transmission par.: '%s'", line );
+	    strcpy( fax_param, line );
+	    if ( sscanf( &fax_param[ix], "%hd,%hd,%hd,%hd,%hd,%hd,%hd,%hd",
 			 &fax_par_d.vr, &fax_par_d.br, &fax_par_d.wd,
 			 &fax_par_d.ln, &fax_par_d.df, &fax_par_d.ec,
 			 &fax_par_d.bf, &fax_par_d.st ) != 8 )
 	    {
-		lprintf( L_WARN, "cannot evaluate +FDCS-Code!" );
+		lprintf( L_WARN, "cannot evaluate +FCS-Code!" );
 		fax_par_d.vr = 0;
 	    }
 	}
 
-	else if ( strncmp( buffer, "+FHNG:", 6 ) == 0 )
+	else if ( strncmp( line, "+FHNG:", 6 ) == 0 ||
+		  strncmp( line, "+FHS:", 5 ) == 0 )
 	{
 	    /* hangup. First, set flag to indicate +FHNG: was read.
 	     * The SIGHUP signal catcher will check this, and not exit.
@@ -117,38 +159,42 @@ int bufferp;
 #else
 	    signal( SIGHUP, SIG_IGN );
 #endif
-	    lprintf( L_MESG, "connection hangup: '%s'", buffer );
-	    sscanf( &buffer[6], "%d", &fax_hangup_code );
+	    lprintf( L_MESG, "connection hangup: '%s'", line );
+	    sscanf( &line[ix], "%d", &fax_hangup_code );
 
 	    lprintf( L_NOISE,"(%s)", fax_strerror( fax_hangup_code ));
 
 	    if ( strcmp( s, "OK" ) != 0 ) break;
 	}
 
-	else if ( strncmp( buffer, "+FPTS:", 6 ) == 0 )
+	else if ( strncmp( line, "+FPTS:", 6 ) == 0 ||
+		  strncmp( line, "+FPS:", 5 ) == 0 )
 	{
 	    /* page transmit status
 	     * store into global variable (read by sendfax.c)
 	     */
-	    lprintf( L_MESG, "page status: %s", buffer );
-	    sscanf( &buffer[6], "%d", &fax_page_tx_status );
+	    lprintf( L_MESG, "page status: %s", line );
+	    sscanf( &line[ix], "%d", &fax_page_tx_status );
+	    /* FIXME: evaluate line count, blc, ... for reception */
 	}
 
-	else if ( strcmp( buffer, "+FPOLL" ) == 0 )
+	else if ( strcmp( line, "+FPOLL" ) == 0 ||
+		  strcmp( line, "+FPO" ) == 0 )
 	{
 	    /* the other side is telling us that it has a document that
 	     * we can poll (with AT+FDR)
 	     */
-	    lprintf( L_MESG, "got +FPOLL -> will do polling" );
+	    lprintf( L_MESG, "got +FPO -> will do polling" );
 	    fax_to_poll = TRUE;
 	}
 
-	else if ( strncmp( buffer, "+FDTC:", 6 ) == 0 )
+	else if ( strncmp( line, "+FDTC:", 6 ) == 0 ||
+		  strncmp( line, "+FTC:", 5 ) == 0 )
 	{
 	    /* we sent a +FLPL=1, and the other side wants to poll
 	     * that document now (send it with AT+FDT)
 	     */
-	    lprintf( L_MESG, "got +FLPL -> will send polled document" );
+	    lprintf( L_MESG, "got +FTC -> will send polled document" );
 	    fax_poll_req = TRUE;
 	    
 	    /* we're waiting for a CONNECT here, in response to a
@@ -160,21 +206,33 @@ int bufferp;
 	}
 	
 	else
-	if ( strcmp( buffer, "ERROR" ) == 0 ||
-	     strcmp( buffer, "NO CARRIER" ) == 0 ||
-	     strcmp( buffer, "BUSY" ) == 0 ||
-	     strcmp( buffer, "NO DIALTONE" ) == 0 )
+	if ( strcmp( line, "ERROR" ) == 0 ||
+	     strcmp( line, "NO CARRIER" ) == 0 ||
+	     strcmp( line, "BUSY" ) == 0 ||
+	     strcmp( line, "NO DIALTONE" ) == 0 )
 	{
-	    lprintf( L_MESG, "ABORTING: buffer='%s'", buffer );
+	    if ( modem_type == Mt_class2_0 )		/* valid response */
+	    {						/* in class 2.0! */
+		if ( strcmp( line, "ERROR" ) == 0 )
+		{
+		    lprintf( L_MESG, "ERROR response" );
+		    alarm(0);
+		    return NOERROR;			/* !C2 */
+		}
+	    }
+
+	    /* in class 2, one of the above codes means total failure */
+	    
+	    lprintf( L_MESG, "ABORTING: line='%s'", line );
 	    fax_hangup = 1;
-	    fax_hangup_code = (strcmp( buffer, "BUSY" ) == 0) ? FHUP_BUSY:
-								FHUP_ERROR;
+	    fax_hangup_code = (strcmp( line, "BUSY" ) == 0) ? FHUP_BUSY:
+							      FHUP_ERROR;
 	    alarm( 0 ); signal( SIGALRM, SIG_DFL );
 	    return ERROR;
 	}
 
     }
-    while ( strncmp( s, buffer, strlen(s) ) != 0 );
+    while ( strcmp( s, line ) != 0 );
     lputs( L_MESG, "** found **" );
 
     alarm( 0 );
@@ -185,71 +243,175 @@ int bufferp;
     return NOERROR;
 }
 
-int fax_send _P2( (s, fd),
-		  char * s, int fd )
-{
-    lprintf( L_NOISE, "fax_send: '%s'", s );
-    return write( fd, s, strlen( s ) );
-}
+/* send a command string to the modem, terminated with the
+ * MODEM_CMD_SUFFIX character / string from policy.h
+ */
 
-int fax_command _P3( (send, expect, fd),
-		     char * send, char * expect, int fd )
+int fax_send _P2( (s, fd),
+		  char * send, int fd )
 {
 #ifdef FAX_COMMAND_DELAY
     delay(FAX_COMMAND_DELAY);
 #endif
-    lprintf( L_MESG, "fax_command: send '%s'", send );
-    
+
+    lprintf( L_MESG, "fax_send: '%s'", send );
+
     if ( write( fd, send, strlen( send ) ) != strlen( send ) ||
 	 write( fd, MODEM_CMD_SUFFIX, sizeof(MODEM_CMD_SUFFIX)-1 ) !=
 	        ( sizeof(MODEM_CMD_SUFFIX)-1 ) )
     {
-	lprintf( L_ERROR, "fax_command: cannot write" );
+	lprintf( L_ERROR, "fax_send: cannot write" );
 	return ERROR;
     }
+
+    return NOERROR;
+}
+
+/* simple send / expect sequence, but pass "expect"ing through
+ * fax_wait_for() to handle all the class 2 fax responses
+ */
+
+int fax_command _P3( (send, expect, fd),
+		     char * send, char * expect, int fd )
+{
+    if ( fax_send( send, fd ) == ERROR ) return ERROR;
     return fax_wait_for( expect, fd );
 }
 
-/*
-  Builds table to swap the low order 4 bits with the high order.
+/* simple send / expect sequence, for things that do not require
+ * parsing of the modem responses, or where the side-effects are
+ * unwanted.
+ */
 
-  (Part of the GNU NetFax system! gfax-3.2.1/lib/libfax/swap.c)
-*/
-
-static void init_swaptable _P1( (swaptable),
-				unsigned char *swaptable)
+int mdm_command _P2( (send, fd), char * send, int fd )
 {
-    int i, j;
+    char * l;
+    
+    if ( fax_send( send, fd ) == ERROR ) return ERROR;
 
-    for (i = 0; i < 256; i++) {
-	j = ( ((i & 0x01) << 7) |
-	     ((i & 0x02) << 5) |
-	     ((i & 0x04) << 3) |
-	     ((i & 0x08) << 1) |
-	     ((i & 0x10) >> 1) |
-	     ((i & 0x20) >> 3) |
-	     ((i & 0x40) >> 5) |
-	     ((i & 0x80) >> 7) );
-	swaptable[i] = j;
+    /* wait for OK or ERROR, *without* side effects (as fax_wait_for
+     * would have)
+     */
+    signal( SIGALRM, fwf_sig_alarm ); alarm(20); fwf_timeout = FALSE;
+
+    do
+    {
+	l = fax_get_line( fd );
+	if ( l == NULL ) break;
+	lprintf( L_NOISE, "mdm_command: string '%s'", l );
     }
+    while ( strcmp( l, "OK" ) != 0 && strcmp( l, "ERROR" ) != 0 );
+
+    alarm(0); signal( SIGALRM, SIG_DFL );
+    
+    if ( l == NULL || strcmp( l, "ERROR" ) == 0 )
+    {
+	lputs( L_MESG, " -> ERROR" );
+	return ERROR;
+    }
+    lputs( L_MESG, " -> OK" );
+	
+    return NOERROR;
 }
 
-/* 
-  Reverses the low order 8 bits of a byte
-*/
-unsigned char swap_bits _P1( (c),
-			     unsigned char c)
-{
-    static unsigned char swaptable[256];
-    static int swaptable_init = FALSE;
+/* Couple of routines to set this and that fax parameter, using class 2
+ * or 2.0 commands, according to the setting of "modem_type"
+ */
 
-    if (!swaptable_init) {
-	init_swaptable(swaptable);
-	swaptable_init = TRUE;
+/* set local fax id */
+
+int fax_set_l_id _P2( (fd, fax_id), int fd, char * fax_id )
+{
+    char flid[60];
+
+    if ( modem_type == Mt_class2_0 )
+        sprintf( flid, "AT+FLI=\"%.40s\"",  fax_id );
+    else
+        sprintf( flid, "AT+FLID=\"%.40s\"", fax_id );
+    
+    if ( mdm_command( flid, fd ) == FAIL )
+    {
+	lprintf( L_MESG, "cannot set local fax id. Huh?" );
+	return ERROR;
+    }
+    return NOERROR;
+}
+
+/* set resolution, minimum and maximum bit rate */
+int fax_set_fdcc _P4( (fd, fine, max, min),
+		      int fd, int fine, int max, int min )
+{
+    char buf[50];
+
+    sprintf( buf, "AT%s=%d,%d,0,2,0,0,0,0",
+	     (modem_type == Mt_class2_0) ? "+FCC" : "+FDCC",
+	     fine, (max/2400) -1 );
+    
+    if ( mdm_command( buf, fd ) == ERROR )
+    {
+	if ( max > 9600 )
+	    return fax_set_fdcc( fd, fine, 9600, min );
+	else
+	    return ERROR;
     }
 
-    return(swaptable[c]);
+    if ( min >= 2400 )
+    {
+	if ( modem_type == Mt_class2_0 )
+	    sprintf( buf, "AT+FMS=%d", (min/2400) -1 );
+	else
+	    sprintf( buf, "AT+FMINSP=%d", (min/2400) -1 );
+
+	if ( mdm_command( buf, fd ) == ERROR )
+	{
+	    lprintf( L_WARN, "+FMINSP command failed, ignoring" );
+	}
+    }
+    return NOERROR;
 }
+
+/* byte swap table used for sending (yeah. Because Rockwell screwed
+ * up *that* completely in class 2, we have to have different tables
+ * for sending and receiving. Bah.)
+ */
+unsigned char fax_send_swaptable[256];
+
+/* set up bit swap table */
+
+static 
+void fax_init_swaptable _P2( (direct, byte_tab),
+			      int direct, unsigned char byte_tab[] )
+{
+int i;
+    if ( direct ) for ( i=0; i<256; i++ ) byte_tab[i] = i;
+    else
+      for ( i=0; i<256; i++ )
+	     byte_tab[i] = ( ((i & 0x01) << 7) | ((i & 0x02) << 5) |
+			     ((i & 0x04) << 3) | ((i & 0x08) << 1) |
+			     ((i & 0x10) >> 1) | ((i & 0x20) >> 3) |
+			     ((i & 0x40) >> 5) | ((i & 0x80) >> 7) );
+}
+
+/* set modem bit order, and initialize bit swap table accordingly */
+
+int faxmodem_bit_order = 0;
+
+int fax_set_bor _P2( (fd, bor), int fd, int bor )
+{
+    char buf[20];
+
+    faxmodem_bit_order = bor;
+
+    fax_init_swaptable( faxmodem_bit_order & 1, fax_send_swaptable );
+    
+    if ( modem_type == Mt_class2_0 )
+        sprintf( buf, "AT+FBO=%d", bor );
+    else
+        sprintf( buf, "AT+FBOR=%d", bor );
+
+    return mdm_command( buf, fd );
+}
+
 
 /* fax_read_byte
  * read one byte from "fd", with buffering
@@ -278,3 +440,40 @@ static int  frb_len = 0;
     *c = frb_buf[ frb_rp++ ];
     return 1;
 }
+
+/* find out the type of modem connected
+ *
+ * controlled by the "mclass" parameter ("auto", "cls2", "c2.0", "data")
+ */
+
+Modem_type fax_get_modem_type _P2( (fd, mclass), int fd, char * mclass )
+{
+    /* data modem? unknown mclass? handle as "auto" (for sendfax) */
+    if ( strcmp( mclass, "cls2" ) != 0 &&
+	 strcmp( mclass, "c2.0" ) != 0 )
+    {
+	mclass = "auto";
+    }
+    
+    /* first of all, check for 2.0 */
+    if ( strcmp( mclass, "auto" ) == 0 ||
+	 strcmp( mclass, "c2.0" ) == 0 )
+    {
+	if ( mdm_command( "AT+FCLASS=2.0", fd ) == SUCCESS )
+	{
+	    return Mt_class2_0;
+	}
+    }
+
+    /* not a 2.0 modem (or not allowed to check),
+       simply *try* class 2, nothing to loose */
+
+    if ( mdm_command( "AT+FCLASS=2", fd ) == SUCCESS )
+    {
+	return Mt_class2;
+    }
+
+    /* failed. Assume data modem */
+
+    return Mt_data;
+}			/* end fax_get_modem_type() */
