@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.30 1993/10/06 00:35:52 gert Exp $ Copyright (c) Gert Doering */
+/* $Id: mgetty.h,v 1.31 1993/10/19 22:25:06 gert Exp $ Copyright (c) Gert Doering */
 
 /* ANSI vs. non-ANSI support */
 #ifdef __STDC__
@@ -21,6 +21,18 @@
 #define _P8(x,a1,a2,a3,a4,a5,a6,a7,a8)	x a1;a2;a3;a4;a5;a6;a7;a8;
 #define const
 #endif
+
+/* some generic, useful defines */
+
+#ifndef ERROR
+#define	ERROR	-1
+#define NOERROR	0
+#endif
+
+#define TRUE (1==1)
+#define FALSE (1==0)
+#define FAIL	-1
+#define SUCCESS	0
 
 /* stuff in logfile.c */
 
@@ -51,11 +63,6 @@ int lprintf _PROTO(());
 #define USE_SELECT
 #endif
 
-#define TRUE (1==1)
-#define FALSE (1==0)
-#define FAIL	-1
-#define SUCCESS	0
-
 typedef	void	sig_t;
 typedef	char	boolean;
 
@@ -77,6 +84,7 @@ int	clean_line _PROTO(( int filedesc, int tenths ));
 
 /* io.c */
 boolean	check_for_input _PROTO (( int fd ));
+void    wait_for_input  _PROTO (( int fd ));
 void	delay _PROTO(( int waittime ));
 
 /* locks.c */
@@ -137,39 +145,3 @@ extern char *	optarg;
 #  define O_NDELAY O_NONBLOCK
 # endif
 #endif
-
-/* hardware handshake flags - use what is available */
-/* warning: this will work only, if mgetty.h is included *after* termio.h
- * (so, if termio.h was not included, CS8 is not defined, and
- * HARDWARE_HANSHAKE will be undefined, giving an error)
- */
-
-#ifdef CS8
-
-#ifdef CRTSCTS
-# define HARDWARE_HANDSHAKE CRTSCTS
-#else
-# ifdef CRTSFL
-#  define HARDWARE_HANDSHAKE CRTSFL
-# else
-#  ifdef RTSFLOW
-#   define HARDWARE_HANDSHAKE RTSFLOW | CTSFLOW
-#  else
-#   ifdef CTSCD
-#    define HARDWARE_HANDSHAKE CTSCD
-#   else
-#    define HARDWARE_HANDSHAKE 0
-#   endif
-#  endif
-# endif
-#endif
-
-/* I've got reports telling me that dial-in / dial-out on SCO 3.2.4
- * does only work reliably if *only* CTSFLOW is set
- */
-#ifdef BROKEN_SCO_324
-#undef HARDWARE_HANDSHAKE
-#define HARDWARE_HANDSHAKE CTSFLOW
-#endif
-
-#endif			/* cs8 */
