@@ -109,7 +109,6 @@ int find_mgetty _P1( (device), char * device )
 {
     int pid;
 
-#ifdef MGETTY_PID_FILE
 /* look in mgetty's PID file (this is the easy way out) */
 
     char pid_file_name[ MAXPATH ];
@@ -123,7 +122,7 @@ int find_mgetty _P1( (device), char * device )
 
     while( *p ) { if ( *p == '/' ) *p = '-'; p++; }
 
-    sprintf( pid_file_name, MGETTY_PID_FILE, DevID );
+    sprintf( pid_file_name, "%s/mgetty.pid.%s", VARRUNDIR, DevID );
     lprintf( L_NOISE, "find_mgetty: look in PID file %s", pid_file_name);
 
     fp = fopen( pid_file_name, "r" );
@@ -138,14 +137,7 @@ int find_mgetty _P1( (device), char * device )
         lprintf( L_ERROR, "can't read mgetty pid from %s", pid_file_name );
         pid = -1;
     }
-
     fclose( fp );
-#else	/* no PID file, look in utmp */
-    /*!!! FIXME: not yet implemented */
-
-    fprintf( stderr, "you must #define MGETTY_PID_FILE in policy.h for callback to work!\n" );
-    pid = -1;
-#endif
 
     lprintf( L_MESG, "PID for mgetty on line %s: %d", device, pid );
     return pid;
