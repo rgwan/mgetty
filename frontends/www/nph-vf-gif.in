@@ -4,9 +4,12 @@
 # 
 # Copyright 1998 Simone Demmel simone@greenie.net
 #
-# RCS: $Id: nph-vf-gif.in,v 1.9 2001/07/16 09:23:30 neko Exp $
+# RCS: $Id: nph-vf-gif.in,v 1.10 2004/11/17 14:08:11 gert Exp $
 #
 # $Log: nph-vf-gif.in,v $
+# Revision 1.10  2004/11/17 14:08:11  gert
+# predeclare variables (use vars)
+#
 # Revision 1.9  2001/07/16 09:23:30  neko
 # support for "f1.g3.done" (sent jobs with sendfax -r)
 # fix bug with "outgoing" files (HTML ref and real file name)
@@ -66,6 +69,14 @@
 #
 # Variables and checks
 #
+
+use vars qw (
+                $turn_right
+                $turn_updown
+                $filename
+                $turn_left
+                $defaultsize
+            );
 
 # read configuration file
 require "@CONFDIR@/wwwgui.conf";
