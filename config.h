@@ -1,7 +1,7 @@
 #ifndef ___CONFIG_H
 #define ___CONFIG_H
 
-#ident "$Id: config.h,v 3.1 1995/08/30 12:40:29 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: config.h,v 3.2 1995/12/02 00:03:46 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* type definitions, prototypes, defines needed for configuration stuff
  */
@@ -10,7 +10,7 @@ typedef struct conf_data {
 		   char * key;
 		   union { int i; void * p; } d;
 		   enum { CT_INT, CT_STRING, CT_CHAT, CT_BOOL,
-			  CT_FLOWL, CT_ACTION } type;
+			  CT_FLOWL, CT_ACTION, CT_KEYWORD } type;
 		   enum { C_EMPTY, C_PRESET, C_OVERRIDE, C_CONF,
 			  C_IGNORE } flags;
 		 } conf_data;
