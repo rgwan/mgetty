@@ -1,4 +1,4 @@
-#ident "$Id: faxsend.c,v 3.1 1995/08/30 12:40:38 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: faxsend.c,v 3.2 1995/11/04 16:51:04 gert Exp $ Copyright (c) 1994 Gert Doering"
 
 /* faxsend.c
  *
@@ -324,6 +324,8 @@ int fax_send_ppm _P3( (fd, tio, ppm),
 #ifndef FAX_SEND_IGNORE_CARRIER
 #ifdef sun
 	    /* HW handshake has to be off while carrier is low */
+	    /* to avoid overruns, drain buffers first (Nils Jonsson) */
+	    tio_drain_output( fd );
 	    tio_set_flow_control(fd, tio, (FAXSEND_FLOW) & FLOW_XON_OUT);
 #endif
 	    tio_carrier( tio, FALSE );
