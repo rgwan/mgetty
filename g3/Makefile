@@ -1,13 +1,13 @@
 # Makefile for the "g3 tools" subtree
 # of mgetty+sendfax
 #
-# SCCS: $Id: Makefile,v 4.3 2004/07/16 18:04:17 gert Exp $ Copyright (c) Gert Doering
+# SCCS: $Id: Makefile,v 4.4 2004/07/16 19:45:05 gert Exp $ Copyright (c) Gert Doering
 #
 
 CC=gcc
-CFLAGS=-O2 -I.. -g
+CFLAGS=-O2 -I.. -g 
 
-G3_PROGRAMS=pbm2g3 g3cat g32pbm
+G3_PROGRAMS=pbm2g3 g3cat g32pbm sff2g3
 
 all: $(G3_PROGRAMS)
 
@@ -19,6 +19,9 @@ g32pbm: g32pbm.o g3.o
 
 g3cat: g3cat.o g3.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o g3cat g3cat.o g3.o $(LIBS)
+
+sff2g3: sff2g3.o g3.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o sff2g3 sff2g3.o g3.o $(LIBS)
 
 g3.o : g3.c g3.h ../ugly.h
 g3cat.o : g3cat.c g3.h ../ugly.h 
