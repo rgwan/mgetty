@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 1.30 1994/08/12 10:18:39 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 1.31 1994/08/13 19:02:20 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* tio.c
  *
@@ -464,6 +464,11 @@ int tio_set_flow_control _P3( (fd, t, type), int fd, TIO * t, int type )
 #ifdef SVR4
     struct termiox tix;
 #endif
+
+    lprintf( L_NOISE, "tio_set_flow_control(%s%s%s )",
+		      type & FLOW_HARD   ? " HARD": "",
+		      type & FLOW_XON_IN ? " XON_IN": "",
+		      type & FLOW_XON_OUT? " XON_OUT": "" );
     
 #if defined( SYSV_TERMIO ) || defined( POSIX_TERMIOS )
     t->c_cflag &= ~HARDWARE_HANDSHAKE;
