@@ -4,7 +4,7 @@
 #
 # like "lpq" or "mailq", show jobs waiting in the output queue
 #
-# SCCS: $Id: faxq.in,v 3.2 1995/09/15 13:57:13 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxq.in,v 3.3 1996/03/12 22:13:50 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -43,7 +43,7 @@ jobs=`ls $jobs 2>/dev/null`
 [ -z "$jobs" ] && $echo "no jobs."
 for i in $jobs
 do
-    USER=""; PHONE=""; PAGES=""; MAILTO=""; VERBTO=""; INPUT=""; RE=""
+    USER=""; PHONE=""; PAGES=""; MAILTO=""; VERBTO=""; ACCT=""; INPUT=""; RE=""
 
     if [ -z "$verbose" ]
     then
@@ -57,6 +57,8 @@ do
 		   $1=="phone" { printf "PHONE=%s;", $2 }
 		   $1=="verbose_to" \
 			       { printf "VERBTO=\"%s\";", substr( $0, 12 ) }
+		   $1=="acct_handle" \
+			       { printf "ACCT=\"%s\";", substr( $0, 13 ) }
 		   $1=="input" { printf "INPUT=\"%s\";", substr( $0, 7 ) }
 		   $1=="time"  { printf "TIME=\"%s:%s\";",
 				 substr( $0, 6, 2 ), substr( $0, 8,2 ) }
@@ -84,6 +86,8 @@ do
 	$echo "\t    Pages: $PAGES"
        test ! -z "$TIME" && \
 	$echo "\tSend time: $TIME"
+       test ! -z "$ACCT" && \
+	$echo "\tAcct info: $ACCT"
 	sed -e '/Status/!d' -e 's/Status/           Status:/' $i
 	expr $i : ".*done$" >/dev/null ||
 	$echo "\t   Status: not sent yet"
