@@ -1,8 +1,11 @@
 # frontends/www/Makefile
 #
-# RCS: $Id: Makefile,v 1.14 2004/11/17 15:07:50 gert Exp $
+# RCS: $Id: Makefile,v 1.15 2004/11/17 15:40:57 gert Exp $
 #
 # $Log: Makefile,v $
+# Revision 1.15  2004/11/17 15:40:57  gert
+# create install directories if not present yet
+#
 # Revision 1.14  2004/11/17 15:07:50  gert
 # adapt path names to current MEDAT system (D3.0)
 # install *.gif images (if not yet installed)
@@ -70,6 +73,12 @@ install: all
 	cd ../.. ; $(MAKE) install.www
 
 install.www:
+	test -d $(CGIBINDIR) || \
+		mkdir -p $(CGIBINDIR)
+	test -d $(IMAGEDIR) || \
+		mkdir -p $(IMAGEDIR)
+	test -d $(HTMLDIR) || \
+		mkdir -p $(HTMLDIR)
 	-@for i in $(CGI); do \
 		echo "$$i -> $(CGIBINDIR)..." ; \
 		mv -f $(CGIBINDIR)/$$i $(CGIBINDIR)/$$i.old 2>/dev/null ; \
