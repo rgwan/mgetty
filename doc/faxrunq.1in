@@ -81,8 +81,11 @@ the fax job has failed more than the maximum number of times.
 .TP
 .B success-call-program <name>
 Here, you can specify a program that will be run when the fax has been
-successfully sent. It will be passed one command line parameter, and
-that's the full path to the fax JOB file (see faxq(5)).
+successfully sent. It will be passed two command line parameters. The
+first is the full path to the fax JOB file (see faxq(5)), the second
+is the last exit code from
+.I sendfax
+(for success-call-program, this is always "0").
 
 .TP
 .B failure-call-program <name>
@@ -90,7 +93,7 @@ Similar to the "success-call-program", this program will be run when the
 fax has been failed too often and 
 .I faxrunq
 gives up. This script could, for example, print out the fax on a printer
-so that it can be sent manually on a paper fax machine.
+so that it can be sent manually on a paper fax machine.  
 
 .TP
 .B maxfail-costly <n>
