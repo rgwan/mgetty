@@ -1,4 +1,4 @@
-#ident "$Id: mg_m_init.c,v 3.2 1995/11/12 13:10:44 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_m_init.c,v 3.3 1995/11/24 21:28:44 gert Exp $ Copyright (c) Gert Doering"
 
 /* mg_m_init.c - part of mgetty+sendfax
  *
@@ -54,7 +54,7 @@ int mg_init_data _P2( (fd, chat_seq), int fd, char * chat_seq[] )
 
 /* initialize fax section */
 
-int mg_init_fax _P4( (fd, mclass, fax_id),
+int mg_init_fax _P4( (fd, mclass, fax_id, fax_only),
 		      int fd, char * mclass, char * fax_id, boolean fax_only )
 {
     /* find out whether this beast is a fax modem... */

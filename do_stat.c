@@ -1,4 +1,4 @@
-#ident "$Id: do_stat.c,v 3.2 1995/09/16 19:54:01 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: do_stat.c,v 3.3 1995/11/24 21:29:39 gert Exp $ Copyright (c) Gert Doering"
 
 /* do_stat.c
  *
@@ -33,7 +33,7 @@ static RETSIGTYPE timeout()
     has_timeout = TRUE;
 }
 
-void get_statistics _P3( (fd, expect_send, file),
+void get_statistics _P3( (fd, expect_send, tgt_file),
 			 int fd, char * expect_send[], char * tgt_file )
 {
 char line[MAXLINE];
