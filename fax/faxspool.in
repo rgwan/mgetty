@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 4.14 2000/07/18 20:18:44 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 4.15 2000/08/06 14:28:37 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -26,6 +26,9 @@
 #  3.10.93: use "hp2hig3" for hp-pcl4-files (cl)
 # 19.10.93: phone directories (caz)
 # $Log: faxspool.in,v $
+# Revision 4.15  2000/08/06 14:28:37  gert
+# go from using $fax_spool_out/.last_run to VARRUNDIR/faxqueue_done
+#
 # Revision 4.14  2000/07/18 20:18:44  gert
 # allow W and w in phone number
 #
@@ -44,6 +47,7 @@ FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
 FAX_SEQ=$FAX_SPOOL_OUT/.Sequence
 FAX_SEQ_LOCKDIR=$FAX_SPOOL_OUT/locks
 FAX_SEQ_LOCK=$FAX_SEQ_LOCKDIR/LCK..seq
+LAST_RUN=@VARRUNDIR@/faxqueue_done
 
 # fax phone directories - format: <alias> <fax phone number>
 GLOBAL_PHONE_DIR=@CONFDIR@/faxaliases
@@ -941,7 +945,7 @@ $echo "pages " $finalpg >>$job.q
 
 mv $job.q $job
 
-if [ -z "`find $FAX_SPOOL_OUT/.last_run -ctime -1 -print 2>/dev/null`" ]
+if [ -z "`find $LAST_RUN -ctime -1 -print 2>/dev/null`" ]
 then
     cat <<HERE
 

@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.52 2000/06/30 09:42:28 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.53 2000/08/06 14:28:37 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.53  2000/08/06 14:28:37  gert
+# go from using $fax_spool_out/.last_run to VARRUNDIR/faxqueue_done
+#
 # Revision 1.52  2000/06/30 09:42:28  gert
 # write command line to log file
 #
@@ -101,7 +104,8 @@ $faxrunq_cf='@CONFDIR@/faxrunq.config';
 $fax_acct='@FAX_SPOOL@/acct.log';
 $faxrd_log='@FAX_SPOOL@/faxrunqd.log';
 
-$faxrd_pid='@FAX_SPOOL@/faxrunqd.pid';
+$faxrd_pid='@VARRUNDIR@/faxrunqd.pid';
+$last_run='@VARRUNDIR@/faxqueue_done';
 
 $policy_config='';
 
@@ -418,7 +422,7 @@ while( 1 )
     print LOG "\tD: %phones=(". join(' ', keys %phones) .")\n" if $opt_d;
 
     # use the time to update the "last run" file...
-    if ( open( LR, ">$fax_spool_out/.last_run" ) )
+    if ( open( LR, ">$last_run" ) )
     {
 	print LR scalar(localtime) . " $0\n";
 	close LR;
