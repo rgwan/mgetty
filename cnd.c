@@ -1,14 +1,11 @@
-#ident "@(#)cnd.c	$Id: cnd.c,v 1.4 1994/04/19 23:13:13 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "@(#)cnd.c	$Id: cnd.c,v 1.5 1994/05/14 16:55:22 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 ;
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
 
 #include <unistd.h>
-#ifndef _NOSTDLIB_H
-# include <stdlib.h>
-#endif
-#include <malloc.h>
+#include "syslibs.h"
 
 #include "policy.h"
 #include "mgetty.h"
