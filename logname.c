@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 2.1 1994/11/30 23:20:44 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 2.2 1994/12/17 22:50:20 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include "syslibs.h"
@@ -304,6 +304,14 @@ int getlogname _P5( (prompt, tio, buf, maxsize, timeout),
 	}
 #endif
 
+#ifdef JANUS
+	/* ignore ^X as first character, some JANUS programs send it first
+	   to skip the usual bbs banner
+	   oli@rhein-main.de,  941217 */
+	if ( i == 0 && ch == 0x18 )
+	    continue; 
+#endif
+
 	ch = ch & 0x7f;					/* strip to 7 bit */
 
 	if ( ch == CQUIT ) exit(0);
@@ -388,6 +396,12 @@ int getlogname _P5( (prompt, tio, buf, maxsize, timeout),
     buf[--i] = 0;
 
     *tio = tio_save;
+
+#ifdef JANUS
+    /* change JANUS to janus */
+    if( strcmp(buf,"JANUS") == 0 )
+	strcpy(buf,"janus");
+#endif
 
     /* check whether all letters entered were uppercase, if yes, tell
        user to try again with l/c, if it's all uppercase again on the
