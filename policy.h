@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 4.5 1997/11/01 16:30:28 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 4.6 1997/12/09 10:58:01 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration defaults for mgetty / sendfax
  * are specified.
@@ -555,6 +555,9 @@
  *
  * If you get an error message "... waiting for XON" when trying to
  * send a fax, try this one. Some ELSA modems are know to need it.
+ *
+ * ** THIS OPTION IS OBSOLETE **  
+ * ** use "modem-quirks 0x08" in sendfax.config instead **
  */
 /* #define FAXSEND_NO_XON */
 
