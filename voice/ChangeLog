@@ -1,3 +1,47 @@
+Sat May 15 21:53:52 MEST 1999  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* Added information/patch for old 5.x 1496 ZyXEL. As those
+	problems are no longer found with the current 6.x ROM version
+	(such as 6.19), I just include the information/patch as-is
+	in voice/contrib/Wolfram_Gloger
+	
+	* Added script example to make MultiTech 2834ZDXv dial out and
+	play voice message to voice/contrib/Mark_Haun
+
+	* RING_DETECTED is now supported as an event in WAITING (event.c)
+
+	* Added temporary Smarty/Neuhaus detection. This could break
+ 	Rockwell modems. In case it does, change the #if 0 at line
+	63 to #if 1 and report this to me (detect.c). Contributed by
+	Raoul.Boenisch@uni-essen.de.
+
+	* Enabled support for the INTERNAL_MICROPHONE for Dr_Neuhaus.c
+	(for the Smarty; contributed by Raoul.Boenisch@uni-essen.de)
+
+	* Fixed Multitech_2834.c: would not go correctly to
+	DIALUP_LINE (but to LOCAL_HANDSET instead). Submitted
+	by alborchers@steinerpoint.com. Same fix reported
+	to the other instances (5634, but NOT 5600ZDXv since
+	already fixed it seems).
+
+	* Fixed Multitech_2834.c: sometimes the fixup echo
+	workaround wouldn't work with some firmwares. Made it so
+	the fix is inactive if echo is disabled. Reported this
+	fix to  the other instances (5634, but NOT 5600ZDXv since
+	already fixed it seems).
+	Submitted by alborchers@steinerpoint.com
+
+	* US_Robotics.c:
+	     - added URL for technical documentation
+	     - patch by gmilner@my-dejanews.com for local handset support
+	     - patch by Niels@Basjes.nl to ignore DIAL TONE when
+	       recording or playing (bug work-around).
+
+	* Updated ToDo files
+
+	* Updated the FAQ. Warning, this might not be in sequence with
+	  the official FAQ. This has to be worked-around some time now.
+	
 Tue Mar 16 11:02:26 1999  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 
 	* Fixed so that when PNP detection fails (ATI9) we correctly
