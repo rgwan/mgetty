@@ -1,7 +1,7 @@
 /*
  * answer.c
  *
- * $Id: answer.c,v 1.16 2000/09/11 10:05:16 marcs Exp $
+ * $Id: answer.c,v 1.17 2000/09/11 10:12:39 marcs Exp $
  *
  */
 
@@ -303,12 +303,12 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
       */
 
 #ifdef SHORT_FILENAMES
-     sprintf(message_name, "v%d",
+     sprintf(message_name, "v%u",
              pid);
 #else /* !SHORT_FILENAMES */
-     sprintf(message_name, "v-%d-%d",
+     sprintf(message_name, "v-%u-%u",
              pid,
-             time(NULL));
+             (unsigned int) time(NULL));
 #endif /* !SHORT_FILENAMES */
 
 #ifndef SHORT_FILENAMES
