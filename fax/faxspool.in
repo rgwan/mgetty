@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 4.24 2003/04/09 21:05:14 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 4.25 2003/06/28 20:44:04 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -26,6 +26,9 @@
 #  3.10.93: use "hp2hig3" for hp-pcl4-files (cl)
 # 19.10.93: phone directories (caz)
 # $Log: faxspool.in,v $
+# Revision 4.25  2003/06/28 20:44:04  gert
+# reset umask after creating temp directory
+#
 # Revision 4.24  2003/04/09 21:05:14  gert
 # fix case of "faxing without header" (-h -) - wasn't copying G3 files
 #
@@ -627,12 +630,14 @@ fi
 #
 spooldir=${TMP:-/tmp}/$new_seq.$$.`date +%S`
 
+oldumask=`umask`
 umask 077
 if mkdir $spooldir ; then
     $echo "spooling to $spooldir (->$new_seq)..."
 else
     $echo "ERROR: can't create work dir '$spooldir', giving up" >&2 ; exit 6
 fi
+umask $oldumask
 
 #
 # process all input files
