@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 1.2 1993/03/21 10:40:24 gert Exp $ Gert Doering"
+#ident "$Id: faxlib.c,v 1.3 1993/05/22 16:41:30 gert Exp $ Gert Doering"
 
 /* faxlib.c
  *
@@ -24,7 +24,7 @@ boolean	fax_to_poll = FALSE;		/* there's something to poll */
 
 static boolean fwf_timeout = FALSE;
 
-static void fwf_sig_alarm( void )	/* SIGALRM handler */
+static void fwf_sig_alarm()		/* SIGALRM handler */
 {
     signal( SIGALRM, fwf_sig_alarm );
     lprintf( L_WARN, "Warning: got alarm signal!" );
