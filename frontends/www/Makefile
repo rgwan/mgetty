@@ -1,13 +1,16 @@
 # frontends/www/Makefile
 #
-# RCS: $Id: Makefile,v 1.1 1998/08/28 14:25:24 gert Exp $
+# RCS: $Id: Makefile,v 1.2 1998/09/01 15:09:31 gert Exp $
 #
 # $Log: Makefile,v $
+# Revision 1.2  1998/09/01 15:09:31  gert
+# faxhist.in : show fax history (from 'acct.log')
+#
 # Revision 1.1  1998/08/28 14:25:24  gert
 # initial release
 #
 
-CGI=faxq.cgi faxq-v.cgi
+CGI=faxq.cgi faxq-v.cgi faxhist.cgi
 HTML=index-d.html
 
 CGI_HREF=/cgi-bin/

@@ -1,0 +1,171 @@
+#!@PERL@
+#
+# faxhist.cgi -- show fax history (reading 'acct.log')
+# 
+# Copyright 1998 Gert Doering, gert@greenie.net
+#
+# CVS: $Id: faxhist.in,v 1.1 1998/09/01 15:09:32 gert Exp $
+#
+# $Log: faxhist.in,v $
+# Revision 1.1  1998/09/01 15:09:32  gert
+# faxhist.in : show fax history (from 'acct.log')
+#
+
+#
+print "Content-type: text/html\n\n";
+
+$fax_acct='@FAX_SPOOL@/acct.log';
+$faxrunq_cf='@CONFDIR@/faxrunq.config';
+
+#
+# read 'faxrunq.config' - the path to $faxrunq_cf might have changed
+#
+if ( open( IN, "<$faxrunq_cf" ) )
+{
+    while( <IN> )
+    {
+	chomp;
+	if ( /^\s*acct-log\s+(\S+)/ )
+			{ $fax_acct = "$1"; }
+    }
+    close IN;
+}
+
+#
+# now we know which file to read...
+#
+
+#
+# open HTML page
+#
+
+print <<EOF;
+<html><head>
+<title>Fax History</title>
+</head></html>
+<body bgcolor="#ffffff">
+
+<h1 align="center">Faxmanager - &Uuml;bersicht gesendeter Faxe</h1>
+<hr size="5">
+
+<!-- acct_log: $fax_acct -->
+
+<div align="center">
+<table border="1" cellpadding="4">
+<TR><TH>Datum<TH>Faxe<TH>OK
+<TH>Fehler<TH>NoDev<TH>BUSY<TH>NO CAR.<TH>Sendef.</TR>
+EOF
+
+#
+# process 'acct.log'
+# (store data day-by-day in an array, output in reverse order)
+#
+
+unless( open( A, "<$fax_acct" ) )
+{
+    print "<b>can't open '$fax_acct': $!</b><p></body></html>\n";
+    exit 0;
+}
+
+$lday='';
+$success_d=$fail_d=0; @fail_d=(0,0,0,0,0,0,0,0,0,0,0,0,0);
+$success_t=$fail_t=0; @fail_t=(0,0,0,0,0,0,0,0,0,0,0,0,0);
+
+@days=();
+
+while( <A> )
+{
+    chomp;
+    @_ = split( /\|/, $_ );
+
+    unless ( $_[3] =~ /(.*) (\d\d:\d\d:\d\d) (.*)/ )
+    {
+	print "<b>internal error: can't parse '$_[3]' (IE1)</b><p></body></html>\n";
+	exit 0;
+    }
+    my ( $day, $time, $yy ) = ( $1, $2, $3 );
+
+    if ( $day ne $lday )
+    {
+	if ( $lday ne '' )
+	{
+	    unshift @days, &emit_row( $lday, $success_d, $fail_d, \@fail_d );
+	}
+	$lday=$day;
+	$success_d=$fail_d=0;
+	@fail_d=(0,0,0,0,0,0,0,0,0,0,0,0,0);
+    }
+    #print "$_ <b>$day</b><br>\n";
+
+    if ( $_[4] =~ /fail (\d+):/ )
+    {
+	$fail_d++; $fail_d[$1]++;
+	$fail_t++; $fail_t[$1]++;
+    }
+    else
+    {
+	$success_d++;
+	$success_t++;
+    }
+}
+close A;
+
+unshift @days, &emit_row( $lday, $success_d, $fail_d, \@fail_d );
+unshift @days, &emit_row( "TOTAL", $success_t, $fail_t, \@fail_t );
+
+print join('', @days);
+
+print <<EOF;
+</table>
+</div>
+
+<p>
+<hr size="5">
+<a href="/~sd/index.html">^Hauptmenue</a>
+</body>
+EOF
+
+exit 0;
+
+sub emit_row
+{
+my ( $title, $s, $f, $det ) = @_;
+
+my $total = $s+$f;
+
+my $str;
+
+    $str = sprintf "<TR><TD>$title<TD align=\"right\">%d", $total;
+    
+    $str .= sprintf "<TD align=\"right\">$s &nbsp;(%02d%%)", 100*$s/$total;
+
+my $bad = 100*$f/$total;
+my $bg;
+
+    $bg = &getcolor( 100*$f/$total );
+
+    $str .= sprintf "<TD align=\"right\"$bg>$f &nbsp;(%02d%%)\n", 100*$f/$total;
+
+my $case;
+
+    foreach $case (2, 4, 10, 12)
+    {
+	$bg = &getcolor( 100*($det->[$case])/$total );
+
+	$str .= sprintf "  <TD align=\"right\"$bg>%d\n", $det->[$case];
+    }
+    return $str;
+}
+
+#
+# determine color of table cell, according to the percentage of errors
+# > 30% means "yellow", > 50% means "red"
+#
+sub getcolor
+{
+    my $percent = shift;
+
+    if ( $percent > 50 ) { return ' bgcolor="ff4422"'; }
+    if ( $percent > 30 ) { return ' bgcolor="ffff00"'; }
+    return '';
+}
