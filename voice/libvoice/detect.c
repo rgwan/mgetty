@@ -3,7 +3,7 @@
  *
  * autodetect the modemtype we are connected to.
  *
- * $Id: detect.c,v 1.34 2001/08/26 10:59:44 gert Exp $
+ * $Id: detect.c,v 1.35 2001/10/21 15:41:01 gert Exp $
  *
  */
 
@@ -34,6 +34,7 @@ static const struct pnp_modem_type_struct pnp_modem_database[] =
      {
      {"SUP", NULL, &Supra, "SupraFAX modem (generic)" },
      {"ZYX", "02FF", &ZyXEL_2864, "ZyXEL 2864I (DSS1)" },
+     {"USR", "0088", &US_Robotics, "U.S. Robotics 56k Message" },
      {"ELS", "0687", &Elsa, "ELSA ML 56k DE" },
      {"ELS", "0566", &Elsa, "ELSA ML 56k CH" },
      {"ELS", "0707", &Elsa, "ELSA ML 56k AT" },
