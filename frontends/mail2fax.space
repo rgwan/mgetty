@@ -1,0 +1,152 @@
+#!/bin/sh
+#
+# mail->fax gateway
+#
+# send fax to a GIVEN phone number (on the command line). Everybody may send.
+#
+# $Id: mail2fax.space,v 1.1 2001/10/17 10:53:30 gert Exp $
+#
+# $Log: mail2fax.space,v $
+# Revision 1.1  2001/10/17 10:53:30  gert
+# mail2fax gateway, currently used at SpaceNet
+#
+
+# options
+CATPGM="cat"
+
+while expr "X$1" : "X-" >/dev/null; do
+    case X$1 in
+	X-p) CATPGM="head -"`echo $2 | awk '{ print ($1 * 66) - 12}'`; 
+	     shift; shift ;;
+	*) echo "unknown option: $1" >&2 ; exit 99 ;;
+    esac
+done
+
+
+# get phone number
+if [ $# -ne 1 ]
+then
+    echo "faxmail [-p pages] <faxnumber>" >&2
+    exit 1
+fi
+faxphone="$1"
+
+#
+# this user will get all the status mails...
+#
+#admin="root"
+admin="gert@space.net"
+
+#
+# copy mail (on stdin) to separate files for header and body,
+# extracting "From:" and "Reply-To:" headers on the way
+#
+head=/tmp/mf$$.head
+body=/tmp/mf$$.body
+fax=/tmp/mf$$.fax
+tmp=/tmp/mf$$.tmp
+etmp=/tmp/mf$$.etmp
+LOG=/tmp/mf.log
+
+#
+eval `awk ' function getaddr(line) {
+		b = index( line, "<" );
+		if ( b != 0 )
+		{
+		    f=substr( line, b+1 );
+		    return substr( f, 1, index( f, ">" ) -1 );
+		}
+		split( line, broken );
+		return broken[2];
+	    }
+	    BEGIN { header=1; from=""; replyto=""; subject=""; fullfrom="" }
+	    NF == 0 { if ( header ) { header = 0; next; } }
+	            { if ( header ) print >> "'$head'";
+                               else print >> "'$body'" }
+	    /^From:[ \t]/ \
+                    { if ( header ) from=getaddr($0); }
+	    /^Reply-To:[ \t]/ \
+                    { if ( header ) replyto=getaddr($0); }
+	    /^Subject:[ \t]/ \
+                    { if ( header ) subject=substr($0, 10); }
+	    /^From:[ \t]/ \
+                    { if ( header ) fullfrom=substr($0, 7); }
+	    END { printf "subject=\"%s\"; from=\"%s\"; replyto=\"%s\"; fullfrom=\"%s\"\n", \
+			 subject, from, replyto, fullfrom }
+           ' - `
+
+# determine reply address
+mailto=${replyto:-$from}
+
+echo "`date`: $from $replyto -> $mailto" >>$LOG
+
+# which is my host???
+whoami=`hostname 2>/dev/null` || whoami=`uname -n`
+
+# NO authentication
+# (could be done *here* if requested)
+
+#
+# ok. Authentication granted. Queue fax.
+#
+echo "faxspool -f $mailto $faxphone $body" >>$LOG
+
+cat <<EOF >$fax
+
+FAX FROM: $fullfrom
+      TO: $faxphone
+ SUBJECT: $subject
+
+This fax was converted automatically from an electronic mail, so 
+please don't wonder too much about the unusual form. Thanks.
+
+If you have any questions about it, contact SpaceNET, Munich.
+Our telephone number: ++49-89-32356-0, fax: ++49-89-32356-299.
+
+     --------- original message text follows ---------
+
+EOF
+$CATPGM $body >>$fax
+
+faxspool -C - -f "$admin" \
+	-h /usr/local/etc/mgetty+sendfax/faxhead.mail \
+	$faxphone $fax >$tmp 2>$etmp
+
+if [ -s "$etmp" ] ; then
+    echo "FAX SPOOLING FAILED" ; cat $etmp
+    exit 9
+fi
+
+#
+# fax denied
+#
+#    ( cat <<EOF
+#To: $mailto
+#CC: postmaster
+#From: root@$whoami (The Automatic Fax Robot)
+#Subject: Your fax to $faxphone
+#
+#Dear user,
+#
+#you are not authorized to use greenie's mail-to-fax gateway service.
+#
+#If you want to use it, please contact the system administrator,
+#root@$whoami.
+#
+#Thanks,
+#	your fax robot
+#
+#------ your mail follows -------
+#EOF
+#    cat $head
+#    echo ""
+#    head -50 $body
+#    ) | /usr/lib/sendmail -t
+#fi
+
+# clean up
+rm -f $head $body $fax $tmp $etmp
+
+echo "`date`: fax queued successfully" >>$LOG
+
+exit 0
