@@ -1,4 +1,4 @@
-#ident "$Id: faxrecp.c,v 1.6 2001/01/06 23:29:30 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrecp.c,v 1.7 2002/11/23 11:56:48 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrecp.c - part of mgetty+sendfax
  *
@@ -350,6 +350,20 @@ static const char start_rcv = DC2;
 	    lprintf( L_WARN, "Page doesn't look good, request retrain (MPS)" );
 
 	    fax_command( "AT+FPS=2", "OK", fd );
+	}
+
+	/* teergrubing mode (s)
+	 */
+	if ( modem_quirks & 0x100 )
+	{
+	    lprintf( L_WARN, "teergrubing -> signalling 'page bad'" );
+	    fax_command( "AT+FPS=2", "OK", fd );
+	}
+	if ( modem_quirks & 0x200 )
+	{
+	    lprintf( L_WARN, "teergrubing -> hanging up hard" );
+	    fax_command( "ATH0", "OK", fd );
+	    return ERROR;
 	}
 
 	/* send command to receive next page
