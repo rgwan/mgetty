@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.58 2002/11/17 21:19:45 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.59 2003/04/06 14:09:09 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -1117,6 +1117,10 @@ replaced by something else:
 @item \b backspace (ascii 010)
 @item \f form feed (ascii 013)
 @item \t TAB
+@item \s operating system (OS)
+@item \m hardware name
+@item \V OS version
+@item \R OS release
 @item \P (and \L) port name (e.g. ttyS0)
 @item \C date and time, in "ctime()" format
 @item \I Connection string (e.g. 2400/REL)

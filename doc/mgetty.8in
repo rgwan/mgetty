@@ -42,10 +42,13 @@ initialization whatsoever.
 .B -p <login prompt>
 Use the given string to prompt users for their login names. Various
 tokens are allowed in this string. These tokens are: @ for the system
-name, \\n, \\r, \\g, \\v, \\f, \\t for newline, carriage return, bell,
-vertical tab, form feed, and tab, respectively. \\P and \\L will expand to
-the tty name ("ttyS0"). \\I will give the "CONNECT foobar" string returned
+name, \\n, \\r, \\g, \\b, \\v, \\f, \\t for newline, carriage return, bell,
+backspace, vertical tab, form feed, and tab, respectively.
+\\P and \\L will expand to the tty name ("ttyS0"). \\Y will give the Caller
+ID, \\I the "CONNECT foobar" string returned
 by the modem, and \\S will output the port speed.
+\\s, \\m, \\V, \\R represent the operating system, the hardware name,
+the OS version, the OS release.
 \\N and \\U give the number of users currently logged in.
 \\C will be changed into the result of ctime(), and \\D and \\T will
 output the date and time, respectively. Finally, \\<digit> will use digit
