@@ -1,4 +1,4 @@
-#ident "$Id: do_chat.c,v 1.8 1993/06/28 11:48:02 gert Exp $ (c) Gert Doering";
+#ident "$Id: do_chat.c,v 1.9 1993/07/19 13:30:15 gert Exp $ (c) Gert Doering";
 /* do_chat.c
  *
  * This module handles all the talk with the modem
@@ -64,7 +64,7 @@ extern char * Device;
 int do_chat( char * expect_send[],
 	     chat_action_t actions[], action_t * action,
              int chat_timeout_time, boolean timeout_first,
-             boolean locks )
+             boolean locks, boolean virtual_rings )
 {
 #define BUFFERSIZE 500
 char	buffer[BUFFERSIZE];
@@ -92,7 +92,15 @@ struct termio	termio, save_termio;
 	/* expect a string (expect_send[str] or abort[]) */
 	i = 0;
 
-	if ( strlen( expect_send[str] ) != 0 )
+	/* if mgetty is forced to manual answer (by signal SIGUSR1),
+	 * and the expect string is "RING", behave as if we got it
+	 */
+	if ( strcmp( expect_send[str], "RING" ) == 0 && virtual_rings )
+	{
+	    lprintf( L_MESG, "waiting for RING, ``got it''" );
+	}
+	else
+	  if ( strlen( expect_send[str] ) != 0 )
 	{
 	    lprintf( L_MESG, "waiting for ``%s''", expect_send[str] );
 

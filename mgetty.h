@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.20 1993/06/28 11:48:13 gert Exp $ (c) Gert Doering */
+/* $Id: mgetty.h,v 1.21 1993/07/19 13:30:12 gert Exp $ (c) Gert Doering */
 
 /* stuff in logfile.c */
 
@@ -59,7 +59,7 @@ void	delay( int waittime );
 int	do_chat( char * expect_send[],
 	     	 chat_action_t actions[], action_t * action,
 		 int chat_timeout_time, boolean timeout_first,
-		 boolean locks );
+		 boolean locks, boolean virtual_rings );
 int	clean_line( int tenths );
 
 /* io.c */

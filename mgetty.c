@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.35 1993/07/01 18:42:15 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.36 1993/07/19 13:30:07 gert Exp $ (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -75,7 +75,7 @@ unsigned short portspeed = DEFAULT_PORTSPEED;
  * 
  * To send a backslash, you have to use "\\\\" (four backslashes!) */
 
-char *	init_chat_seq[] = { "", "\r\\d\\d\\d+++\\d\\d\\d\r\\dATQ0H0", "OK",
+char *	init_chat_seq[] = { "", "\\d\\d\\d+++\\d\\d\\d\r\\dATQ0H0", "OK",
 
 /* initialize the modem: ats0=0: do not auto-answer. E1: echo on.
  * &H3: hardware (RTS+CTS) handshake. &D3: reset on DTR->low
@@ -140,6 +140,13 @@ int	prompt_waittime = 500;		/* milliseconds between CONNECT and */
 					/* login: -prompt */
 
 boolean	direct_line = FALSE;
+
+boolean virtual_ring = FALSE;
+static void sig_pick_phone()		/* "simulated RING" handler */
+{
+    signal( SIGUSR1, sig_pick_phone );
+    virtual_ring = TRUE;
+}
 
 int main( int argc, char ** argv)
 {
@@ -358,7 +365,7 @@ int main( int argc, char ** argv)
 	 */
 	if ( ! direct_line )
 	  if ( do_chat( init_chat_seq, init_chat_actions, &what_action,
-                        init_chat_timeout, TRUE, FALSE ) == FAIL )
+                        init_chat_timeout, TRUE, FALSE, FALSE ) == FAIL )
 	{
 	    lprintf( L_MESG, "init chat failed, exiting..." );
 	    rmlocks();
@@ -375,6 +382,13 @@ int main( int argc, char ** argv)
 	   give up the line - otherwise we lock it again */
 
 	rmlocks();	
+
+	/* with mgetty, it's possible to use a fax machine parallel to
+	   the fax modem as a scanner - dial a "9" on the fax machine,
+	   send mgetty a SIGUSR1, then mgetty will pick up the phone as
+	   if it got a RING */
+
+	signal( SIGUSR1, sig_pick_phone );
 
 	/* wait for incoming characters.
 	   I use select() instead of a blocking read(), since select()
@@ -397,7 +411,6 @@ int main( int argc, char ** argv)
 	fds.events = POLLIN;
 	fds.revents= 0;
 	slct = poll( &fds, 1, -1 );
-	if (slct == -1 ) lprintf( L_ERROR, "poll error" );
 	lprintf( L_NOISE, "poll returned %d", slct );
 #endif
 
@@ -450,7 +463,7 @@ int main( int argc, char ** argv)
 	log_level++; /*FIXME: remove this - for debugging only !!!!!!!!!!!*/
 	if ( ! direct_line )
 	  if ( do_chat( call_chat_seq, call_chat_actions, &what_action,
-                        call_chat_timeout, TRUE, FALSE ) == FAIL )
+                        call_chat_timeout, TRUE, FALSE, virtual_ring ) == FAIL)
 	{
 	    if ( what_action == A_FAX )
 	    {
