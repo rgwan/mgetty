@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 3.23 1996/11/07 20:26:59 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 3.24 1996/11/08 20:52:15 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -91,7 +91,8 @@ time_t		time _PROTO(( long * tloc ));
 
 /* logname.c */
 int getlogname _PROTO(( char * prompt, TIO * termio,
-		char * buf, int maxsize, boolean do_timeout ));
+		char * buf, int maxsize, 
+		boolean do_timeout, boolean do_fido ));
 
 /* conf_mg.c */
 void exit_usage _PROTO((int num));
@@ -993,7 +994,10 @@ Ring_got_action:
 	   for c_oflag */
 
 	if ( getlogname( c_string(login_prompt), &tio, buf, sizeof(buf), 
-			 !c_bool(blocking) ) == -1 ) continue;
+			 !c_bool(blocking), c_bool(do_send_emsi) ) == -1 ) 
+	{
+	     continue;
+	}
 
 	/* remove PID file (mgetty is due to exec() login) */
 #ifdef MGETTY_PID_FILE

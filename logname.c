@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 3.13 1996/07/16 17:03:03 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 3.14 1996/11/08 20:52:15 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include "syslibs.h"
@@ -229,9 +229,9 @@ static RETSIGTYPE getlog_timeout()
  * If ENV_TTYPROMPT is set, do not read anything
  */
 
-int getlogname _P5( (prompt, tio, buf, maxsize, do_timeout),
+int getlogname _P6( (prompt, tio, buf, maxsize, do_timeout, do_fido),
 		    char * prompt, TIO * tio, char * buf,
-		    int maxsize, boolean do_timeout )
+		    int maxsize, boolean do_timeout, boolean do_fido )
 {
     int	 i, r;
     char ch;
@@ -271,7 +271,9 @@ int getlogname _P5( (prompt, tio, buf, maxsize, do_timeout),
 
   newlogin:
 #ifdef FIDO
-    printf( "**EMSI_REQA77E\r\021              \r" );
+    /* send EMSI Request for FIDO (if desired) */
+    if ( do_fido )
+        printf( "**EMSI_REQA77E\r\021              \r" );
   newlogin_noemsi:
 #endif
 
