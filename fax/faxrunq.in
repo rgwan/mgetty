@@ -9,7 +9,7 @@
 # There are still a lot rough edges - but it works, and should give you an
 # idea how to improve it
 #
-# SCCS: $Id: faxrunq.in,v 4.7 1998/05/25 11:46:04 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxrunq.in,v 4.8 1998/08/20 10:19:47 gert Exp $ Copyright (C) 1994 Gert Doering
 
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -245,34 +245,39 @@ do
 	    rm -rf `dirname $job`
 	fi
 
-    elif [ $status -lt 10 ]	
-    then
-	# error before starting to transmit (try again)
+    else 
+	# error codes < 10: error before starting to transmit (try again)
+	# error codes >=10: error while transmitting, considered fatal
+	comment="failed"
 	why="unknown" ; case $status in
 	    1) why="errors in command line" ;;
 	    2) why="cannot open fax device (locked?)" ;;
 	    3) why="modem initialization error" ;;
 	    4) why="dial failed - BUSY" ;;
 	    5) why="dial failed - NO DIALTONE" ;;
+	    10) why="dial failed - NO CARRIER" ; comment="FATAL FAILURE";;
+	    11) why="protocol failure, waiting for XON" ; comment="FATAL FAILURE";;
+	    12) why="protocol failure sending page" ; comment="FATAL FAILURE";;
 	esac
-	$echo "Status "`date`" failed, exit($status): $why" >>JOB
-    else
-	# error while transmitting, considered fatal
-	why="unknown" ; case $status in
-	    10) why="dial failed - NO CARRIER" ;;
-	    11) why="protocol failure, waiting for XON" ;;
-	    12) why="protocol failure sending page" ;;
-	esac
-	$echo "Status "`date`" FATAL FAILURE, exit($status): $why" >>JOB
+	$echo "Status "`date`" $comment, exit($status): $why" >>JOB
 
 	# update accounting log
-	$echo "$MAIL_TO "`dirname $job`" |$PHONE |$AH|"`date`"| fail: $why" >>$FAX_ACCT
+	$echo "$MAIL_TO "`dirname $job`" |$PHONE |$AH|"`date`"| fail $status: $why" >>$FAX_ACCT
 
-	# if failed <max_fail_costly> times, suspend job
+	# if failed <max_fail_costly> or <max_fail_total> times, suspend job
+	suspend="";
 	if [ `grep "FATAL FAILURE" JOB | wc -l` -ge $max_fail_costly ]
 	then
 	    $echo "Status "`date`" job suspended: too many FATAL errors" >>JOB
+	    suspend=true
+	elif [ `grep "Status " JOB | wc -l` -ge $max_fail_total ]
+	then
+	    $echo "Status "`date`" job suspended: too many tries" >>JOB
+	    suspend=true
+	fi
 
+	if [ -n "$suspend" ]
+	then
 	    # send mail, if requested
 	    if [ -n "$do_mail_f" ] ; then
 		echo "    send mail to $MAIL_TO..."
