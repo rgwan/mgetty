@@ -9,10 +9,15 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.63 2002/11/23 16:52:18 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.64 2003/01/07 14:48:52 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.64  2003/01/07 14:48:52  gert
+# If a job is re-queued, heavily penalize previously used modem.
+# This way, a defective modem (or a modem that has problems connecting to
+# just a few destination numbers) has less impact on overall stability.
+#
 # Revision 1.63  2002/11/23 16:52:18  gert
 # make messages more clear, print warning if running as root
 #
@@ -608,6 +613,7 @@ close FSO;
 #   - no other job for this phone number already queued
 #   - this modem must be allowed for that job
 #   - if multiple queues allowed, take the shortest one
+#   - the modem used previously is heavily penalized
 #
 # called whenever a job's $queue{$job}->{status} changes to 'active'
 #
@@ -661,6 +667,9 @@ sub put_job_to_modem_queue
 		               @{$queue{$j}->{ttys}} : @standard_ttys;
 
     # find tty with the shortest queue (among those that are allowed)
+    #
+    # the previously used modem always gets a queue len of "9998", and is 
+    # thus only used if no other modem is available
     my $min_l = 9999;
     my $min_t = $ttys[0];
 
@@ -674,9 +683,12 @@ sub put_job_to_modem_queue
 	    $tty_in_use{$t}=0;
 	}
 
-	if ( $mq_length{$t}+$mq_badness{$t} < $min_l )
+	my $this_q_len = ( $t eq $queue{$j}->{last_modem} ) ? 9998 :
+				$mq_length{$t}+$mq_badness{$t};
+
+	if ( $this_q_len < $min_l )
 	{
-	    $min_l = $mq_length{$t}+$mq_badness{$t}; $min_t = $t;
+	    $min_l = $this_q_len; $min_t = $t;
 	}
     }
 
@@ -701,7 +713,7 @@ sub put_job_to_modem_queue
     $queue{$j}->{weight} = 1 + scalar( @{$queue{$j}->{pages}} );
     $mq_length{$min_t} += $queue{$j}->{weight};
 
-    print LOG "$j: possible ttys: " . join( ':', @ttys ) . " -> queue selected: $min_t (l: $min_l->" . $mq_length{$min_t} . ")\n"  if $opt_d;
+    print LOG "$j: possible ttys: " . join( ':', @ttys ) . " last: ". $queue{$j}->{last_modem} . " -> queue selected: $min_t (l: $min_l->" . $mq_length{$min_t} . ")\n"  if $opt_d;
 
     # rotate @standard_ttys, to distribute load more evenly among modems
     push @standard_ttys, (shift @standard_ttys);
@@ -804,6 +816,7 @@ sub read_job_to_queue
 	}
 
 	$queue{$job}->{'tries'} = $queue{$job}->{'tries_c'} = 0;
+	$queue{$job}->{'last_modem'} = 'unknown';
 
 	while( <J> )
 	{
@@ -1442,6 +1455,9 @@ sub handle_return_code
 	# write status line to JOB file
 	my $fstr = ( $ex<10 )? "failed" : "FATAL FAILURE";
 	&wstat( $j, "Status " . localtime() . " $fstr, exit($ex): $verb_ex\n");
+
+	# remember tty used (try to get another one for next call)
+	$queue{$j}->{last_modem} = $tty;
 
 	# write acct.log
 	&wacct($j, "fail $ex: $verb_ex");
