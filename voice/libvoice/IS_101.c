@@ -5,7 +5,7 @@
  * follow the IS-101 interim standard for voice modems. Since the commands
  * are set in the modem structure, it should be quite generic.
  *
- * $Id: IS_101.c,v 1.11 2000/08/09 20:09:48 marcs Exp $
+ * $Id: IS_101.c,v 1.12 2000/09/01 19:25:58 gert Exp $
  *
  */
 
@@ -588,6 +588,7 @@ int IS_101_play_file(FILE *fd, int bps)
                {
                lprintf(L_JUNK, "%s: <VOICE DATA %d bytes>", program_name, count);
                reset_watchdog();
+               watchdog_reset = time(NULL) + (cvd.watchdog_timeout.d.i / 2);
                count = 0;
                }
 
@@ -732,6 +733,7 @@ int IS_101_record_file(FILE *fd, int bps)
                     lprintf(L_JUNK, "%s: <VOICE DATA %d bytes>", voice_modem_name,
                      count);
                     reset_watchdog();
+                    watchdog_reset = time(NULL) + (cvd.watchdog_timeout.d.i / 2);
                     count = 0;
                     }
 
