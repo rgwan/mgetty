@@ -1,4 +1,8 @@
 README
 INSTALL.README
-webfax_0.9_a.tar
-webfax_cern_0.8.tar
+faxq-v.in
+faxq.in
+index-d.in
+faxhist.in
+Makefile
+viewfax.in
