@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 1.32 1994/03/15 11:23:05 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 1.33 1994/04/09 14:10:58 gert Exp $ Copyright (c) Gert Doering"
 ;
 #include <stdio.h>
 #ifndef _NOSTDLIB_H
@@ -47,11 +47,11 @@ int strappnd _P2((s1,s2), char * s1, char * s2 )
 char * ln_escape_prompt _P1( (ep), char * ep )
 {
 #define MAX_PROMPT_LENGTH 140
-    char * p;
+    static char * p = NULL;
     int    i;
     extern char * Device;		/* mgetty.c */
 
-    p = malloc( MAX_PROMPT_LENGTH );
+    if ( p == NULL ) p = malloc( MAX_PROMPT_LENGTH );
     if ( p == NULL ) return NULL;
 
     i = 0;
@@ -238,7 +238,6 @@ char * final_prompt;
     tio_set( STDIN, tio );
     buf[0] = 0;
     set_env_var( "TTYPROMPT", final_prompt );
-    free( final_prompt );
     return 0;
 #else			/* !ENV_TTYPROMPT */
 
@@ -349,7 +348,6 @@ newlogin:
 #endif
 	
     alarm(0);
-    free( final_prompt );
 
     buf[--i] = 0;
 
