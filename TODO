@@ -301,3 +301,7 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
      ELSA "RING;fm;to\n" message type, distinctive RING / MSN matching, ...)
 
      Watch out for RING\n vs. RING 1\n vs. RING;fm;to\n ...
+
+222) fix "g3cat"'s line width correction algorithm - include black dot.
+
+223) faxrunqd: combine multiple jobs to same number
