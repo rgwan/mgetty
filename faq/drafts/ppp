@@ -1,10 +1,13 @@
 Subject: Use of mgetty with pppd (FAQ addition, not yet inside official FAQ)
 
-$Id: ppp,v 1.1 1999/10/28 17:49:57 schaefer Exp $
+$Id: ppp,v 1.2 1999/10/30 15:46:45 schaefer Exp $
 
 [ This is very Linux specific. However, the basics should work
   with usual pppd configurations on other UNIX systems too
 ]
+
++++ The goal is to merge this with the general mgetty FAQ once this
++++ stabilizes and I have understood SGML :)
 
 People like to have users dial in with PPP instead of normal login. This
 can be safer and also easier to use / more powerful. Using pppd with
@@ -42,17 +45,22 @@ you would use something like this:
 
    /AutoPPP/ -    a_ppp   /usr/sbin/pppd crtscts modem -detach debug 192.168.2.1:
 
-Of course, this doesn't authentify the user, doesn't support connecting to
-other computers than the PPP server, and so on.
+Of course, this doesn't authentify the user, doesn't support
+connecting to other computers than the PPP server, and so on. This
+above examples forces only the server IP address. See below for
+forcing both (only works for one port. For more than one port you need
+either per-user IP addresses, explained below, or per-port IP address,
+explained here (*)).
 
 For authentification, you must add the auth keyword on the pppd command 
-line(*). Then, you have the following choices:
+line. Then, you have the following choices:
 
 [
 (*) a ``better'' approach can be to put all those options in /etc/ppp/options.
     You could create an option file per port your are activating, e.g.
     if you want to statically set up static addresses per tty, and not
-    per user.
+    per user. WARNING: this is incompatible with the version presented
+                       here. We assume one IP per user, not one IP per port.
     Example:
        /etc/ppp/options.ttyS0
           pppserver:pppserver-ttyS0   # converted by DNS to IP addresses
@@ -151,10 +159,78 @@ dial-in clients (it works better that way it seems).
 You may also want to configure your /etc/ppp/options file, e.g. for
 supporting extensions such as the Microsoft DNS or WINS handshake.
 
+Typical problems that can happen:
+   - /var/log/messages complaining about some ppp-* modules not found
+        Edit /etc/conf.modules
+           alias ppp-compress-21 bsd_comp
+           alias ppp-compress-24 ppp_deflate
+           alias ppp-compress-26 ppp_deflate
+        Check that you have those modules in /lib/modules/VERSION/net/.
+
+Typical questions:
+   Q: What are supported pppd versions ?
+   A: I don't really know. I use ppp-2.2.0f, which is damn old.
+
+   Q: Can you explain the mgetty/pppd interactions ?
+   A: Basically, mgetty never runs when pppd (or login, or uucico, or
+      a shell after login) runs. mgetty will be relaunched by init when
+      the last child dies (be it the shell, pppd, etc).
+
+      In more details:
+	 1 the user dials the number, the modem returns CONNECT, mgetty
+	   has the modem line on the other end.
+
+	 2 mgetty probes the line for a
+	      - fidonet prompt
+	      - PPP sequence
+	   If the appropriate sequence is received, the appropriate program 
+	   is launched (depending on login.conf /AutoPPP/ and /fido/ I think. 
+	   Else, a login: prompt is sent.
+
+	 3 Based on the login received and login.conf, the appropriate login
+	   program is launched.
+
+	Basically, the call is no longer mgetty's business either at the
+        reception of the PPP frame, fido frame, or login name. That's why
+        we don't like to do PPP support in the mgetty mailing-list.
+
+	Now, if you don't want to use AutoPPP, you can well have a special   
+	username launching pppd in login.conf, or even a special user, a
+	password, and pppd as login shell in a way it works (this involves
+        suid root, special groups, etc). But all this means you need the
+        client to not just send a PPP frame, but to send a chatting sequence
+        --- much more complicated.
+
+	CHAP or PAP is an additional authentification. You don't need it if
+        you use a special user + password (no AutoPPP). If you use AutoPPP,
+        you are advised to also have CHAP or PAP since else your system is
+        open to any dialer without any authentification (same if the account
+        has no password, or is specified in login.conf)
+
+   Q: How do you tell if my mgetty precompiled binary is recent/contains
+      support for AutoPPP or other features.
+   A: I will give typical commands and their results
+
+         grep getlogname /var/log/vgetty.ttyS0
+         -> 10/25 15:22:29 yS0   getlogname (FIDO AUTO_PPP), read:~[ff]}#[c0]!
+
+         rpm -q -f `which mgetty`
+
+         /usr/lib/mgetty/mgetty -V
+        
+Typical configuration example (one which is used):
+
 If after all this, you still have a problem with pppd and mgetty, post to
 the mailing-list, but make sure that you:
 
    - show clearly if mgetty does launch pppd or not (ie if it's a mgetty
      or pppd problem)
    - show an excerpt from the system pppd log.
+
+Maybe you should also try linux-ppp or other mailing-lists if mgetty
+seems to NOT be the issue.
+
+
+
+
 
