@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 1.23 1994/08/08 12:34:24 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 1.24 1994/08/19 13:57:15 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -95,10 +95,10 @@ int  ix;
     fwf_timeout = FALSE;
     signal( SIGALRM, fwf_sig_alarm );
 
+    alarm( FAX_RESPONSE_TIMEOUT );
+
     do
     {
-	alarm( FAX_RESPONSE_TIMEOUT );
-
 	line = fax_get_line( fd );
 
 	if ( line == NULL )
