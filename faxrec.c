@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 4.10 2001/12/17 22:31:53 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 4.11 2002/01/10 20:11:13 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -70,7 +70,7 @@ extern  char * Device;
 
 #ifdef FAX_USRobotics
     /* the ultra smart USR modems do it in yet another way... */
-    fax_wait_for( "OK", 0 );
+    fax_wait_for( "OK", STDIN );
 #endif
 
     tio_get( STDIN, &tio );
@@ -85,7 +85,7 @@ extern  char * Device;
     /* read: +FTSI:, +FDCS, OK */
 
 #ifndef FAX_USRobotics
-    fax_wait_for( "OK", 0 );
+    fax_wait_for( "OK", STDIN );
 #endif
 
     /* if the "switchbd" flag is set wrongly, the fax_wait_for() command
@@ -122,14 +122,14 @@ extern  char * Device;
     /* tell modem about the flow control used (+FLO=...) */
     fax_set_flowcontrol( STDIN, (FAXREC_FLOW) & FLOW_HARD );
 
-    fax_get_pages( 0, &pagenum, spool_in, uid, gid, mode );
+    fax_get_pages( STDIN, &pagenum, spool_in, uid, gid, mode );
 
     /* send polled documents (very simple yet) */
     if ( faxpoll_server_file != NULL && fax_poll_req )
     {
 	lprintf( L_MESG, "starting fax poll send..." );
 	
-	faxpoll_send_pages( 0, &ppagenum, &tio, faxpoll_server_file );
+	faxpoll_send_pages( STDIN, &ppagenum, &tio, faxpoll_server_file );
     }
 
     call_done = time(NULL);
