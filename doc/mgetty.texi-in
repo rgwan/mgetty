@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.17 1998/04/18 20:59:47 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.18 1998/04/19 12:26:29 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -2727,6 +2727,23 @@ claims so. It will work half-way through, but fail miserably later.
 When sending faxes with an USR faxmodem, set @code{ignore-carrier yes} in
 @file{sendfax.config}.  Otherwise it will fail after the first page with a
 read error and error code -5.
+
+
+Experience shows that recent USR Courier firmware versions (get the latest
+you can, make sure it contains support for ``X.2'') are very stable for
+sending and receiving faxes.  Polling still doesn't work.
+
+Experience also shows that USR Sporsters are quite unreliable.  There are
+firmware versions that work pretty well, and others that do not work at
+all.  So if your modem works, consider yourself lucky, but if it doesn't,
+don't blaim it on me (I got some reports that Hylafax works better,
+driving the modem a bit differently, but I think this was just a lucky
+day).
+
+
+The USR modems support Caller ID delivery (both the I-Modem series and the
+analog ones).  Switch it on with @code{AT#CID=1} and mgetty should
+automatically be able to recognize the incoming caller ID.
 
 @node Elink-ISDN, Class 1, USR, Modems
 @subsection Elink ISDN Terminal Adaptors 293, 310, 393 with X.75 and V.110
