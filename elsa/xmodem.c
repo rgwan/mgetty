@@ -1,4 +1,4 @@
-#ident "$Id: xmodem.c,v 1.2 1999/04/05 20:43:15 gert Exp $"
+#ident "$Id: xmodem.c,v 1.3 1999/04/11 21:11:36 gert Exp $"
 
 /* xmodem.c
  *
@@ -8,6 +8,9 @@
  * warning: these functions use alarm() and mess up SIGALRM handlers
  *
  * $Log: xmodem.c,v $
+ * Revision 1.3  1999/04/11 21:11:36  gert
+ * cleanup
+ *
  * Revision 1.2  1999/04/05 20:43:15  gert
  * - add ELSA-EOT (NAKing EOT doesn't work, recognize 0d/0a/OK/0d/0a
  * - add "all-in-one" download function
@@ -50,6 +53,10 @@ typedef void (*msg_func_t)(char *,...);
 /* semi-globals */
 static int x_fd;			/* file descriptor to "modem" */
 static msg_func_t x_msg_func;		/* message function for logging */
+
+/* prototypes */
+static int x_nak(void);
+int xmodem_rcv_block _PROTO((unsigned char *buf));
 
 /* helper for x_timeout handling */
 static int x_timeout=0;
@@ -136,7 +143,7 @@ again:
 	{ fprintf( stderr, "!Block # %d doesn't match %d\n", ch, xmodem_blk); 
 	  goto send_nak; }
     
-    lprintf( L_NOISE, "expected seq.# %d ok, got:", xmodem_blk );
+    lprintf( L_NOISE, "expected seq.# %d ok, read block", xmodem_blk );
     chks=0;
 
     for( i=0; i<len; i++ )
@@ -146,8 +153,8 @@ again:
     }
 
     if ( read( x_fd, &ch, 1 ) < 1 || ch != (chks &0xff)) 
-	{ fprintf( stderr, "Chksum %02x doesn't match %02x\n", ch, chks); 
-	  goto send_nak; }
+    { lprintf( L_WARN, "Chksum %02x doesn't match %02x\n", ch, (chks & 0xff)); 
+      goto send_nak; }
 
     alarm(0);
     
