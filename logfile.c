@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 1.2 1993/03/09 23:00:15 gert Exp $ (c) Gert Doering"
+#ident "$Id: logfile.c,v 1.3 1993/03/13 22:37:43 gert Exp $ (c) Gert Doering"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -149,8 +149,17 @@ int     errnr;
 	    fflush(log_fp);
 	    if ( level == L_FATAL )
 	    {
-		mail_logfile = TRUE;
-		atexit( logmail );
+	    FILE * cons_fp;
+		if ( ( cons_fp = fopen( CONSOLE, "w" ) ) != NULL )
+		{
+		    fprintf( cons_fp, "\nmgetty FATAL: %s\n", ws );
+		    fclose( cons_fp );
+		}
+		else	/* last resort */
+		{
+		    mail_logfile = TRUE;
+		    atexit( logmail );
+		}
 	    }
 	}
     }
