@@ -1,4 +1,4 @@
-#ident "$Id: faxrecp.c,v 1.4 2001/01/05 11:32:42 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrecp.c,v 1.5 2001/01/05 18:18:54 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrecp.c - part of mgetty+sendfax
  *
@@ -105,50 +105,31 @@ char	DevId[3];
 		DevId );
     i = strlen(temp);
 
-    /* filter out characters that will give problems in the shell */
+    /* filter out all characters but a-z, 0-9 */
     for ( j=0; fax_remote_id[j] != 0; j++ )
     {
 	char c = fax_remote_id[j];
-         if ( c == ' ' || c == '/' || c == '\\'|| c == '&' || c == ';' ||
-	      c == '(' || c == ')' || c == '>' || c == '<' || c == '|' ||
-	      c == '?' || c == '*' || c == '\''|| c == '"' || c == '`' )
-	 {
-	     if ( temp[i-1] != '-' ) temp[i++] = '-' ;
-	 }
-         else if ( c != '"' && c != '\'' ) temp[i++] = c;
+
+	if ( isalnum(c) ) temp[i++] = c;
+	else
+	    { if ( temp[i-1] != '-' ) temp[i++] = '-' ; }
     }
     if ( temp[i-1] == '-' ) i--;
     sprintf( &temp[i], ".%02d", pagenum );
 #endif
 
-    if ( checkspace(directory) )
-	fax_fd = open( temp, O_WRONLY|O_EXCL|O_CREAT, 0440 );
-    else
+    if ( checkspace(directory) < 1 )
     {
-	lprintf( L_ERROR, "Not enough space on %s for fax reception", directory);
-	fax_fd = -1;
+	lprintf( L_ERROR, "Not enough space on %s for fax reception - dropping line", directory);
+	return ERROR;
     }
+
+    fax_fd = open( temp, O_WRONLY|O_EXCL|O_CREAT, 0440 );
 
     if ( fax_fd < 0 )
     {
-	lprintf( L_ERROR, "opening %s failed", temp );
-	sprintf( temp, "/tmp/FAX%c%04x.%02d",
-		       fax_par_d.vr == 0? 'n': 'f',
-		       (int) call_start & 0xffff, pagenum );
-
-	if ( checkspace("/tmp") )
-	    fax_fd = open( temp, O_WRONLY|O_EXCL|O_CREAT, 0440 );
-	else
-	{
-	    lprintf( L_ERROR, "Not enough space on /tmp for fax reception - dropping line");
-	    return ERROR;
-	}
-	    
-	if ( fax_fd < 0 )
-	{
-	    lprintf( L_ERROR, "opening of %s *also* failed - giving up", temp );
-	    return ERROR;
-	}
+	lprintf( L_ERROR, "opening %s failed, giving up", temp );
+	return ERROR;
     }
 
     fax_fp = fdopen( fax_fd, "w" );
@@ -272,11 +253,44 @@ char	DevId[3];
  * will return the number of received pages in *pagenum
  */
 
-int fax_get_pages _P6( (fd, pagenum, directory, uid, gid, mode ),
-		       int fd, int * pagenum, char * directory,
+int fax_get_pages _P6( (fd, pagenum, dirlist, uid, gid, mode ),
+		       int fd, int * pagenum, char * dirlist,
 		       int uid, int gid, int mode )
 {
 static const char start_rcv = DC2;
+
+    char directory[MAXPATH];
+    char * p, * p_help;
+
+    /* find a directory in dirlist that has enough free disk space
+     * (2x minfree). If none has "plenty", use the last one, until
+     * space in there is less than 1x minfree, then give up.
+     */
+    p = dirlist;
+
+    do
+    {
+        int l = strlen(p)+1;
+	if ( l > sizeof(directory)-1 ) l=sizeof(directory)-1;
+
+    	p_help = memccpy( directory, p, ':', l );
+
+	if ( p_help != NULL ) { *(p_help-1) = '\0'; p++; }
+	directory[l] = '\0';
+	p += strlen(directory);
+
+        if ( checkspace(directory) < 2 ) 
+	{
+	    lprintf( L_WARN, "fax_get_pages: not enough disk space in '%s'",
+		     directory);
+	    continue;
+	}
+
+	if ( access( directory, W_OK ) == 0 ) { break; }
+
+	lprintf( L_ERROR, "fax_get_pages: can't write to '%s'", directory);
+    }
+    while( *p != '\0' );
 
     *pagenum = 0;
 
