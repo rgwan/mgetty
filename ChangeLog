@@ -1,3 +1,26 @@
+Sun Aug  6 16:13:43 MEST 2000  Gert Doering (gert@greenie.muc.de)
+
+	* fax/faxspool: convert .pdf files via Acroread (contributed by
+	Michael Fischer v. Mollard, mfvm@gmx.de).
+
+	* Makefile, mksed: introduce $VARRUNDIR
+
+	* fax/faxrunqd.in, fax/faxrunq.in, fax/faxspool.in: change
+	location of ".last_run" to $VARRUNDIR/faxqueue_done (previously,
+	$fax_spool_out/.last_run creation was vulnerable to symlink attacks)
+
+Tue Jul  4 20:56:30 MEST 2000  Gert Doering (gert@greenie.muc.de)
+
+	* cnd.c: add NMBR=<nnn> format for Digi DataFire RAS
+
+Tue Nov 02 15:23:52 1999  Gert Doering (gert@greenie.muc.de)
+
+	* login.c: add \Y hack (simplar to \I) to get CallerID in ut_host field
+
+Sat Jul 31 22:10:09 1999  Gert Doering (gert@greenie.muc.de)
+
+	* faxlib.c: distinguish Elink 310 and Elink 343
+
 Sat Jul 22 11:23:29 2000  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 
 	* SGML FAQ update.
