@@ -1,29 +1,34 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.63 2004/11/08 20:02:25 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.64 2005/02/14 12:47:41 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
 @finalout
 
 @ifinfo
+@dircategory Miscellaneous
+@direntry
+* mgetty: (mgetty).               Smart getty replacement.
+* sendfax: (mgetty).              Standalone backend program to send fax files.
+@end direntry
+
 This is the online documentation for the mgetty + sendfax
 package.
 
-Copyright @copyright{} 1993-2000 Gert Doering
+Copyright @copyright{} 1993-2005 Gert Doering
 @end ifinfo
 
 @titlepage
 @sp 6
 @center @titlefont{mgetty+sendfax}
 @sp 4
-@center Version 1.1.28
+@center Version 1.1.32
 @sp 1
 @center January 2002
 @sp 5
 @center Gert Doering
 @center gert@@greenie.muc.de
-@center gert@@space.net
 
 @vskip 0pt plus 1filll
 @c Copyright @copyright{} 1993-2002 Gert Doering
