@@ -1,0 +1,209 @@
+#!@PERL@
+#
+# delete.cgi -- delete fax
+# 
+# Copyright 2001 Simone Demmel simone@greenie.net
+#
+# RCS: $Id: delete.in,v 1.1 2001/07/16 09:25:06 neko Exp $
+# CVS: $Id: delete.in,v 1.1 2001/07/16 09:25:06 neko Exp $
+#
+# $Log: delete.in,v $
+# Revision 1.1  2001/07/16 09:25:06  neko
+# delete (incoming) fax jobs - if permitted (->wwwgui.conf)
+#
+#
+
+#
+# Script to delete faxes
+#
+
+# sorry, no translation
+# Aufgabe:
+# - Faxe loeschen, falls moeglich.
+#
+
+#
+# don't forget it!
+#
+print "Content-type: text/html\n\n";
+
+#
+# Variables 
+#
+
+# read configuration file
+require "@CONFDIR@/wwwgui.conf";
+
+# read common subroutine file
+require "@LIBDIR@/wwwsub.pl";
+
+# check, if fax-incoming is defined
+check_incoming();
+
+# we will need this later
+# check, if fax-incoming is defined
+check_outgoing();
+
+# check, if the destination-Directory for pictures is readdy
+# we will have to remove tmp-pictures too.
+check_directory($webtmpabs, "webtmpabs");
+if (! -w $webtmpabs)
+    { errormessage("\$webtmpabs : no write-permission for $webtmpabs");}
+if (! -x $webtmpabs)
+    { errormessage("\$webtmpabs : no execute-permission for
+$webtmpabs");}
+
+# check, if $webtmprel is not empty
+if ($webtmprel eq "")
+{
+    errormessage( "\$webtmprel : not configured - please look at the
+configuration-Files and configure the URL for the temporary directory
+\$webtmpabs (\$webtmprel is missing!))");
+}
+
+# check, if $indexpage is not empty
+if ($indexpage eq "")
+{
+    errormessage( "\$indexpage : not configured - please look at the
+configuration-Files and configure the URL for my main-index-page
+(\$indexpage)");
+}
+
+# special version of get_cgi(), don't substitute +->" "
+if (!get_cgi(0))
+{errormessage("ERROR in CGI-Parsing: unsupported submission method");}
+
+# now we have $args{source} and $args{file} and maybe $args{page}
+
+# We need to know if incoming or outgoing, because of
+# different naming-convention
+if (defined $args{source} ) { $source = $args{source};}
+else { errormessage("undefined source - missing \"incoming\" or \"outgoing\"");}
+
+if (defined $args{file}) { $file = $args{file}; }
+   else { print "undefined Filename\n"; }
+
+if (defined $args{page}) { $page = $args{page}; }
+   else { $page = "all"; }
+
+if (! defined $allow_delete) { $allow_delete = 0; }
+
+#
+# start
+#
+
+# outgoing will come later.
+chdir $fax_incoming;
+
+#
+# HTML top-part
+#
+
+print <<EOF;
+<html><head>
+<title>Faxe Löschen</title>
+</head></html>
+<body bgcolor="#ffffff">
+
+$www_logo
+<h1 align="center">Faxmanager - gelöschtes Fax</h1><br clear="all">
+<hr size="5">
+EOF
+
+if (! $allow_delete)
+{
+    print "<h1> delete not allowed</h1>\n";
+	foot();
+	exit 1;
+}
+
+# DEBUGGING
+# print "<br>Page: $page\n";
+
+if ( $page eq "all")
+{
+	# DEBUGGING
+	# print "<br>File: $file\n";
+    my $match = $file;
+    $match =~ s/([+*.?])/\\$1/g;
+	# DEBUGGING
+	# print "<br>match: $match\n";
+
+    # read incoming-Directory DEBUGGING
+    # print "<p>bin im all...<br>";
+
+	# DEBUGGING
+	# print "<br>source: $source\n";
+    if ($source eq "incoming")
+    {
+        opendir DIR, $fax_incoming || print "cannot open incomingdir $fax_incoming\n";
+
+	# DEBUGGING
+    # print "habe $fax_incoming geoeffnet...<br>\n";
+    @dateien = ();
+        foreach $DATEI ( readdir DIR )
+        {
+		# DEBUGGING
+        # print "<br>\n   lese $DATEI ... vergleiche mit $match";
+        if ($DATEI =~ /^$match\.(\d+)$/) 
+		{ 
+		    push @dateien, $DATEI;
+			# DEBUGGING
+			# print "<br>gefunden: $DATEI<br>\n";
+			print "<br>Seite $1 löschen\n";
+			unlink("$fax_incoming/$DATEI")|| print "cannot unlink $fax_incoming/$DATEI: $!\n";
+		}
+        }
+        closedir (DIR);
+    }
+
+
+
+
+
+    elsif ($source eq "outgoing")
+    {
+        opendir DIR, "$fax_outgoing/$match" || print "cannot open
+outgoingdir $fax_outgoing\n";
+
+    # print "habe $fax_outgoing geoeffnet...<br>\n";
+    @dateien = ();
+        foreach $DATEI ( readdir DIR )
+        {
+        # print "<br>\n   lese $DATEI ... vergleiche mit $match";
+        if ($DATEI =~ /^f(\d+).g3$/) { push @dateien, $DATEI;}
+        }
+        closedir (DIR);
+    }
+
+    # foreach $DATEI (sort by_number (@dateien))
+    # {
+	# 	print "<br>$DATEI\n";
+	 #    $DATEI =~ /^f(\d+).g3$/;
+# 
+ #    }
+
+
+}
+
+else
+{
+    print "<br>delete $file: unlink($fax_incoming/$file)<br>\n";
+}
+
+foot();
+
+sub foot
+{
+print <<EOF;
+</div>
+<hr size="5">
+<a href="viewfax.cgi">Eingegangene Faxe</a><br>
+<a href="$indexpage">^Hauptmenue</a>
+</body>
+</html>
+EOF
+}
+
+
+exit 0
