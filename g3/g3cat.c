@@ -1,4 +1,4 @@
-#ident "$Id: g3cat.c,v 1.7 1994/03/07 19:19:50 gert Exp $ (c) Gert Doering"
+#ident "$Id: g3cat.c,v 1.8 1994/03/09 10:59:06 gert Exp $ (c) Gert Doering"
 ;
 /* g3cat.c - concatenate multiple G3-Documents
  *
@@ -334,6 +334,11 @@ do_write:      		/* write eol, separating lines, next file */
     if ( out_hibit != 0 )
         buf[buflen++] = out_byte_tab[out_data & 0xff];
     write( 1, buf, buflen );
+
+    if ( first_file )
+    {
+	fprintf( stderr, "%s: warning: no input file specified, empty g3 file created\n", argv[0] );
+    }
 
     return 0;
 }
