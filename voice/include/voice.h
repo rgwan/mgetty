@@ -4,7 +4,7 @@
  * This is the main header file for vgetty, vm and the pvf tools.
  * It includes other header files and defines some global variables.
  *
- * $Id: voice.h,v 1.5 1998/09/09 21:06:39 gert Exp $
+ * $Id: voice.h,v 1.6 1999/01/30 14:31:02 marcs Exp $
  *
  */
 
@@ -154,6 +154,7 @@ extern void reset_watchdog(void);
 extern int voice_faxsnd(char **name, int switchbd, int max_tries);
 extern void voice_faxrec(char * spool_in, unsigned int switchbd);
 extern int enter_fax_mode(void);
+#define voice_play_dtmf(a) voice_modem->play_dtmf(a)
 
 
 #ifdef USE_VARARGS

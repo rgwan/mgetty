@@ -22,7 +22,7 @@
  *       relevant and in voice mode. Software flow control is no longer
  *       supported. b2:
  *
- * $Id: US_Robotics.c,v 1.4 1998/09/09 21:07:24 gert Exp $
+ * $Id: US_Robotics.c,v 1.5 1999/01/30 14:31:13 marcs Exp $
  *
  */
 
@@ -332,6 +332,9 @@ voice_modem_struct US_Robotics =
      (char *) USR_ask_mode_cmnd,
      (char *) IS_101_ask_mode_answr,
      (char *) IS_101_voice_mode_id,
+     (char *) IS_101_play_dtmf_cmd,
+     (char *) IS_101_play_dtmf_extra,
+     (char *) IS_101_play_dtmf_answr,
      &IS_101_answer_phone,
      &USR_beep,
      &IS_101_dial,
@@ -353,5 +356,9 @@ voice_modem_struct US_Robotics =
      &USR_switch_to_data_fax,
      &IS_101_voice_mode_off,
      &IS_101_voice_mode_on,
-     &IS_101_wait
+     &IS_101_wait,
+     &IS_101_play_dtmf     
      };
+
+
+

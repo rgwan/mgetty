@@ -3,7 +3,7 @@
  *
  * This file contains a dummy event routine.
  *
- * $Id: no_modem.c,v 1.4 1998/09/09 21:07:11 gert Exp $
+ * $Id: no_modem.c,v 1.5 1999/01/30 14:31:03 marcs Exp $
  *
  */
 
@@ -141,6 +141,12 @@ static int no_modem_wait(int wait_timeout)
      return(FAIL);
      }
 
+static int no_modem_play_dtmf(char* number)
+     {
+     LPRINTF(L_WARN, "%s: play_dtmf called", POS);
+     return(FAIL);
+     }
+
 voice_modem_struct no_modem =
      {
      "serial port",
@@ -150,6 +156,9 @@ voice_modem_struct no_modem =
      "",
      "",
      0,
+     "",
+     "",
+     "",
      "",
      "",
      "",
@@ -191,5 +200,6 @@ voice_modem_struct no_modem =
      &no_modem_switch_to_data_fax,
      &no_modem_voice_mode_off,
      &no_modem_voice_mode_on,
-     &no_modem_wait
+     &no_modem_wait,
+     &no_modem_play_dtmf
      };

@@ -6,7 +6,7 @@
  * A first version was written by Russell King <rmk@ecs.soton.ac.uk>,
  * based on the ZyXEL 2864 driver.
  *
- * $Id: Multitech_2834.c,v 1.4 1998/09/09 21:07:20 gert Exp $
+ * $Id: Multitech_2834.c,v 1.5 1999/01/30 14:31:09 marcs Exp $
  *
  */
 
@@ -300,6 +300,9 @@ voice_modem_struct Multitech_2834ZDXv =
      (char *) IS_101_ask_mode_cmnd,
      (char *) IS_101_ask_mode_answr,
      (char *) IS_101_voice_mode_id,
+     (char *) IS_101_play_dtmf_cmd,
+     (char *) IS_101_play_dtmf_extra,
+     (char *) IS_101_play_dtmf_answr,
      &Multitech_2834_answer_phone,
      &IS_101_beep,
      &IS_101_dial,
@@ -321,5 +324,11 @@ voice_modem_struct Multitech_2834ZDXv =
      &Multitech_2834_switch_to_data_fax,
      &Multitech_2834_voice_mode_off,
      &Multitech_2834_voice_mode_on,
-     &IS_101_wait
+     &IS_101_wait,
+     &IS_101_play_dtmf
      };
+
+
+
+
+

@@ -4,7 +4,7 @@
  * Executes the shell script given as the argument. If the argument is
  * empty, commands are read from standard input.
  *
- * $Id: shell.c,v 1.4 1998/09/09 21:07:35 gert Exp $
+ * $Id: shell.c,v 1.5 1999/01/30 14:31:15 marcs Exp $
  *
  */
 
@@ -512,6 +512,24 @@ int voice_shell_handle_event(int event, event_data data)
                          return(FAIL);
 
                     }
+               else if (strncmp(buffer, "DTMF", 4) == 0)
+                    {
+                    char number[VOICE_BUF_LEN] = "";
+
+                    sscanf(buffer, "%*s %s", number);
+
+                    if (voice_write_shell("DTMFING") != OK)
+                         return(FAIL);
+
+                    if (voice_play_dtmf(number) == FAIL)
+
+                         if (voice_write_shell("ERROR") != OK)
+                              return(FAIL);
+
+                    if (voice_write_shell("READY") != OK)
+                         return(FAIL);
+
+                    } 
                else
                     {
 

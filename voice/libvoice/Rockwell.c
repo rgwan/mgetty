@@ -14,7 +14,7 @@
  * Removed most stuff from this file, since the new IS-101 driver can be
  * used now. (Marc 04.01.1997)
  *
- * $Id: Rockwell.c,v 1.4 1998/09/09 21:07:21 gert Exp $
+ * $Id: Rockwell.c,v 1.5 1999/01/30 14:31:10 marcs Exp $
  *
  */
 
@@ -185,6 +185,7 @@ static char Rockwell_stop_rec_cmnd[] = {'!', 0x00};
 static char Rockwell_stop_rec_answr[] = "OK|VCON";
 static char Rockwell_switch_mode_cmnd[] = "AT#CLS=";
 static char Rockwell_ask_mode_cmnd[] = "AT#CLS?";
+static char Rockwell_play_dtmf_cmd[] = "AT#VTS=%c";
 
 voice_modem_struct Rockwell =
      {
@@ -215,6 +216,9 @@ voice_modem_struct Rockwell =
      (char *) Rockwell_ask_mode_cmnd,
      (char *) IS_101_ask_mode_answr,
      (char *) IS_101_voice_mode_id,
+     (char *) Rockwell_play_dtmf_cmd,
+     (char *) IS_101_play_dtmf_extra,
+     (char *) IS_101_play_dtmf_answr,
      &IS_101_answer_phone,
      &IS_101_beep,
      &IS_101_dial,
@@ -236,5 +240,13 @@ voice_modem_struct Rockwell =
      &IS_101_switch_to_data_fax,
      &IS_101_voice_mode_off,
      &IS_101_voice_mode_on,
-     &IS_101_wait
+     &IS_101_wait,
+     &IS_101_play_dtmf
      };
+
+
+
+
+
+
+

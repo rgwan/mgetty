@@ -3,7 +3,7 @@
  *
  * This file contains the ZyXEL 1496 specific hardware stuff.
  *
- * $Id: ZyXEL_1496.c,v 1.4 1998/09/09 21:07:25 gert Exp $
+ * $Id: ZyXEL_1496.c,v 1.5 1999/01/30 14:31:14 marcs Exp $
  *
  */
 
@@ -33,7 +33,7 @@ static int ZyXEL_1496_init (void)
 
      if (voice_command("ATS40.3=1 S40.4=1 S40.5=1 S40.6=1", "OK") !=
       VMA_USER_1)
-          lprintf(L_WARN, "coudn't initialize distinctive RING");
+          lprintf(L_WARN, "couldn't initialize distinctive RING");
 
      /*
       * ATS39.6=1 - Enable DTMF detection after AT+VLS=2
@@ -231,6 +231,9 @@ voice_modem_struct ZyXEL_1496 =
      (char *) IS_101_ask_mode_cmnd,
      (char *) IS_101_ask_mode_answr,
      (char *) IS_101_voice_mode_id,
+     (char *) IS_101_play_dtmf_cmd,
+     (char *) IS_101_play_dtmf_extra,
+     (char *) IS_101_play_dtmf_answr,
      &IS_101_answer_phone,
      &IS_101_beep,
      &IS_101_dial,
@@ -252,5 +255,6 @@ voice_modem_struct ZyXEL_1496 =
      &IS_101_switch_to_data_fax,
      &IS_101_voice_mode_off,
      &IS_101_voice_mode_on,
-     &IS_101_wait
+     &IS_101_wait,
+     &IS_101_play_dtmf
      };

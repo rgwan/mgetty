@@ -393,6 +393,13 @@
  Answers:       "READY": Current action successfully stopped.
 
 
+ Command:       "DTMF"
+ Explanation:   Contributed by <cadams@ro.com>, this adds support for sending
+                DTMFs over the voice modem from the voice shell.
+                The argument is the DTMFs to dial. This can be used for
+                example to use vgetty as a voice-mailbox poller.
+ Answers        "DTMFING", then "READY".
+
 
  If something fails, you get "ERROR" as answer. That can mean two things,
  either you tried to issue multiple commands, e.g. a second PLAY command

@@ -3,7 +3,7 @@
  *
  * Defines the structure with data and routines for the hardware drivers.
  *
- * $Id: hardware.h,v 1.6 1999/01/23 15:17:01 marcs Exp $
+ * $Id: hardware.h,v 1.7 1999/01/30 14:31:01 marcs Exp $
  *
  */
 
@@ -40,6 +40,9 @@ typedef struct
      char *ask_mode_cmnd;
      char *ask_mode_answr;
      char *voice_mode_id;
+     char *play_dtmf_cmd;
+     char *play_dtmf_extra;
+     char *play_dtmf_answr;
      int (*answer_phone) (void);
      int (*beep) (int frequency, int duration);
      int (*dial) (char* number);
@@ -62,6 +65,7 @@ typedef struct
      int (*voice_mode_off) (void);
      int (*voice_mode_on) (void);
      int (*wait) (int timeout);
+     int (*play_dtmf) (char* number);
      } voice_modem_struct;
 
 /*

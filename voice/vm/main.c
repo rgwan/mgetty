@@ -5,7 +5,7 @@
  * supports the shell script execution function to test vgetty scripts
  * and to build special standalone scripts.
  *
- * $Id: main.c,v 1.4 1998/09/09 21:08:12 gert Exp $
+ * $Id: main.c,v 1.5 1999/01/30 14:31:17 marcs Exp $
  *
  */
 
@@ -45,7 +45,8 @@ int main(int argc, char *argv[])
       (strcmp(command, "diagnostics") != 0) &&
       (strcmp(command, "dial") != 0) && (strcmp(command, "play") != 0) &&
       (strcmp(command, "record") != 0) && (strcmp(command, "shell") != 0) &&
-      (strcmp(command, "wait") != 0))
+      (strcmp(command, "wait") != 0) && (strcmp(command, "dtmf") != 0))
+ 
           usage();
 
      optind = 2;
@@ -361,6 +362,28 @@ int main(int argc, char *argv[])
 
           voice_wait(length);
           };
+
+
+
+     if (strcmp(command, "dtmf") == 0)
+          {
+
+          if (optind == argc)
+               fprintf(stderr, "%s: no number given\n",
+                program_name);
+          else
+               {
+
+
+               if (verbose)
+                    fprintf(stderr, "%s: playing number %s\n",
+                     program_name, argv[optind]);
+
+               voice_play_dtmf(argv[optind]);
+               };
+
+          };
+
 
      if (getenv("VOICE_PID") == NULL)
           {

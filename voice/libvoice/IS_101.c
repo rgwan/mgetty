@@ -5,7 +5,7 @@
  * follow the IS-101 interim standard for voice modems. Since the commands
  * are set in the modem structure, it should be quite generic.
  *
- * $Id: IS_101.c,v 1.6 1998/11/17 11:48:37 marc Exp $
+ * $Id: IS_101.c,v 1.7 1999/01/30 14:31:09 marcs Exp $
  *
  */
 
@@ -903,6 +903,31 @@ int IS_101_wait(int wait_timeout)
      return(OK);
      }
 
+int IS_101_play_dtmf(char* number)
+     {
+     char buffer[VOICE_BUF_LEN], buf2[VOICE_BUF_LEN];
+     char *p;
+
+     reset_watchdog();
+     sprintf(buffer, voice_modem->play_dtmf_cmd, number[0]);
+     for (p = &(number[1]); *p != '\0'; p++) {
+            sprintf(buf2, voice_modem->play_dtmf_extra, *p);
+            strncat(buffer, buf2, VOICE_BUF_LEN - 1);
+     }
+
+     if (voice_command(buffer, "") != OK)
+          return(FAIL);
+
+     delay(strlen(number) * 500);
+
+     if ((voice_command("", voice_modem->play_dtmf_answr) & VMA_USER) !=
+      VMA_USER)
+          return(FAIL);
+
+     return(OK);
+     }
+
+
 const char IS_101_pick_phone_cmnd[] = "AT+VLS=2";
 const char IS_101_pick_phone_answr[] = "OK";
 const char IS_101_beep_cmnd[] = "AT+VTS=[%d,0,%d]";
@@ -928,6 +953,9 @@ const char IS_101_switch_mode_answr[] = "OK";
 const char IS_101_ask_mode_cmnd[] = "AT+FCLASS?";
 const char IS_101_ask_mode_answr[] = "OK";
 const char IS_101_voice_mode_id[] = "8";
+const char IS_101_play_dtmf_cmd[] = "AT+VTS=%c";
+const char IS_101_play_dtmf_extra[] = ",%c";
+const char IS_101_play_dtmf_answr[] = "OK";
 
 voice_modem_struct IS_101 =
      {
@@ -958,6 +986,9 @@ voice_modem_struct IS_101 =
      (char *) IS_101_ask_mode_cmnd,
      (char *) IS_101_ask_mode_answr,
      (char *) IS_101_voice_mode_id,
+     (char *) IS_101_play_dtmf_cmd,
+     (char *) IS_101_play_dtmf_extra,
+     (char *) IS_101_play_dtmf_answr,
      &IS_101_answer_phone,
      &IS_101_beep,
      &IS_101_dial,
@@ -979,5 +1010,6 @@ voice_modem_struct IS_101 =
      &IS_101_switch_to_data_fax,
      &IS_101_voice_mode_off,
      &IS_101_voice_mode_on,
-     &IS_101_wait
+     &IS_101_wait,
+     &IS_101_play_dtmf
      };

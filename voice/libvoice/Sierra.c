@@ -7,7 +7,7 @@
  * The Sierra driver is written and maintained by
  * Luke Bowker <puke@suburbia.net>.
  *
- * $Id: Sierra.c,v 1.4 1998/09/09 21:07:22 gert Exp $
+ * $Id: Sierra.c,v 1.5 1999/01/30 14:31:11 marcs Exp $
  *
  */
 
@@ -184,6 +184,9 @@ voice_modem_struct Sierra =
      (char *) IS_101_ask_mode_cmnd,
      (char *) IS_101_ask_mode_answr,
      (char *) IS_101_voice_mode_id,
+     (char *) IS_101_play_dtmf_cmd,
+     (char *) IS_101_play_dtmf_extra,
+     (char *) IS_101_play_dtmf_answr,
      &IS_101_answer_phone,
      &Sierra_beep,
      &IS_101_dial,
@@ -205,5 +208,12 @@ voice_modem_struct Sierra =
      &IS_101_switch_to_data_fax,
      &Sierra_voice_mode_off,
      &Sierra_voice_mode_on,
-     &IS_101_wait
+     &IS_101_wait,
+     &IS_101_play_dtmf
      };
+
+
+
+
+
+

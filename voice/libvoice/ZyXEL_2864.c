@@ -9,7 +9,7 @@
  * This version is a complete rewrite to use the IS 101 mode of the
  * Elite 2864.
  *
- * $Id: ZyXEL_2864.c,v 1.4 1998/09/09 21:07:25 gert Exp $
+ * $Id: ZyXEL_2864.c,v 1.5 1999/01/30 14:31:14 marcs Exp $
  *
  */
 
@@ -55,7 +55,7 @@ static int ZyXEL_2864_init (void)
 
      if (voice_command("ATS40.3=1 S40.4=1 S40.5=1 S40.6=1", "OK") !=
       VMA_USER_1)
-          lprintf(L_WARN, "coudn't initialize distinctive RING");
+          lprintf(L_WARN, "couldn't initialize distinctive RING");
 
      /*
       * AT+VIT=100 - Set inactivity timer to 10 seconds
@@ -262,6 +262,9 @@ voice_modem_struct ZyXEL_2864 =
      (char *) IS_101_ask_mode_cmnd,
      (char *) IS_101_ask_mode_answr,
      (char *) IS_101_voice_mode_id,
+     (char *) IS_101_play_dtmf_cmd,
+     (char *) IS_101_play_dtmf_extra,
+     (char *) IS_101_play_dtmf_answr,
      &ZyXEL_2864_answer_phone,
      &IS_101_beep,
      &IS_101_dial,
@@ -283,5 +286,6 @@ voice_modem_struct ZyXEL_2864 =
      &IS_101_switch_to_data_fax,
      &IS_101_voice_mode_off,
      &IS_101_voice_mode_on,
-     &IS_101_wait
+     &IS_101_wait,
+     &IS_101_play_dtmf
      };

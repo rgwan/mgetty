@@ -3,7 +3,7 @@
  *
  * Defines the functions implemented in the generic IS 101 driver.
  *
- * $Id: IS_101.h,v 1.4 1998/09/09 21:06:31 gert Exp $
+ * $Id: IS_101.h,v 1.5 1999/01/30 14:31:00 marcs Exp $
  *
  */
 
@@ -32,6 +32,10 @@ extern const char IS_101_switch_mode_answr[];
 extern const char IS_101_ask_mode_cmnd[];
 extern const char IS_101_ask_mode_answr[];
 extern const char IS_101_voice_mode_id[];
+extern const char IS_101_play_dtmf_cmd[];
+extern const char IS_101_play_dtmf_extra[];
+extern const char IS_101_play_dtmf_answr[];
+
 
 extern int IS_101_answer_phone (void);
 extern int IS_101_beep (int frequency, int duration);
@@ -56,3 +60,5 @@ extern int IS_101_switch_to_data_fax (char* mode);
 extern int IS_101_voice_mode_off (void);
 extern int IS_101_voice_mode_on (void);
 extern int IS_101_wait (int timeout);
+extern int IS_101_play_dtmf (char* number);
+

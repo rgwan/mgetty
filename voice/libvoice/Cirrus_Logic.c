@@ -27,7 +27,7 @@
  * as per the spec. The silence threshold and time was wrongly set. Fixed now.
  * - Mitch DSouza <Mitch.DSouza@Uk.Sun.COM>
  *
- * $Id: Cirrus_Logic.c,v 1.4 1998/09/09 21:07:14 gert Exp $
+ * $Id: Cirrus_Logic.c,v 1.5 1999/01/30 14:31:05 marcs Exp $
  *
  */
 
@@ -320,6 +320,10 @@ voice_modem_struct Cirrus_Logic =
      (char *) Cirrus_Logic_ask_mode_cmnd,
      (char *) IS_101_ask_mode_answr,
      (char *) Cirrus_Logic_voice_mode_id,
+     (char *) IS_101_play_dtmf_cmd,
+     (char *) IS_101_play_dtmf_extra,
+     (char *) IS_101_play_dtmf_answr,
+
      &Cirrus_Logic_answer_phone,
      &Cirrus_Logic_beep,
      &IS_101_dial,
@@ -341,5 +345,6 @@ voice_modem_struct Cirrus_Logic =
      &Cirrus_Logic_switch_to_data_fax,
      &IS_101_voice_mode_off,
      &IS_101_voice_mode_on,
-     &IS_101_wait
+     &IS_101_wait,
+     &IS_101_play_dtmf
      };
