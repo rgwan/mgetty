@@ -1,4 +1,4 @@
-#ident "$Id: locks.c,v 1.22 1994/01/23 14:01:40 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
+#ident "$Id: locks.c,v 1.23 1994/03/01 15:46:45 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
 ;
 /* large parts of the code in this module are taken from the
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us,
@@ -272,11 +272,14 @@ static char *get_lock_name _P2( (lock, fax_tty),
   struct stat tbuf;
   char ttyname[FILENAME_MAX];
 
-  lprintf(L_NOISE, "get_lock_name(%s,%s) called", lock, fax_tty);
+  lprintf(L_NOISE, "get_lock_name(%s) called", fax_tty);
 
-  sprintf(ttyname, "/dev/%s", fax_tty);
+  if ( strncmp( fax_tty, "/dev/", 5 ) == 0 )
+      strcpy( ttyname, fax_tty );
+  else
+      sprintf(ttyname, "/dev/%s", fax_tty);
   
-  lprintf(L_NOISE, "ttyname %s", ttyname);
+  lprintf(L_NOISE, "-> ttyname %s", ttyname);
 
   if (stat(ttyname, &tbuf) < 0) {
     if(errno == ENOENT) {
@@ -317,10 +320,16 @@ static char * get_lock_name _P2( (lock_name, device),
     {
 	p[i] = tolower( device[i] ); i--;
     }
-    sprintf( lock_name, LOCK, p );
-#else
+
+    device = p;
+#endif	/* LOCKS_LOWERCASE */
+
+    /* throw out all directory prefixes */
+    if ( strchr( device, '/' ) != NULL )
+        device = strrchr( device, '/' ) +1;
+    
     sprintf( lock_name, LOCK, device);
-#endif
+
     return lock_name;
 }
 	
