@@ -156,7 +156,7 @@ should be able to put a header on the page.
 should be able to read TIFF g3 input files.
 
 .SH "SEE ALSO"
-g3cat(1), pbm2g3(1), mgetty(1), faxspool(1)
+g3cat(1), pbm2g3(1), mgetty(1), faxspool(1), faxrunq(1), faxrunqd(8)
 .SH AUTHOR
 .I sendfax
 is Copyright (C) 1993 by Gert Doering, <gert@greenie.muc.de>.
