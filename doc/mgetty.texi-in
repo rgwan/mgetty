@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.34 1998/11/19 20:48:39 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.35 1999/02/16 20:03:22 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -1132,6 +1132,16 @@ whether mgetty should send a FidoNET style ``EMSI_REQA77E'' packet before
 prompting for login. Default is on. Switch this off if you have FIDO
 support compiled in but experience weird problems with some PPP clients
 (or users!) being confused by that string.
+
+@item @code{login-conf-file} @var{pathname}
+
+Specifies the path and filename of the 'login.config' file that tells 
+mgetty which program to call for login.  See the example login.config 
+file to get some ideas what to do with it.
+
+The file name given will be ignored for security reasons if the file is
+not owned by 'root', or is readable or writeable by anybody else than
+'root' (that is, it must be mode 0600 or 0200).
 
 @item @code{fax-id} [-I] @var{local fax number}
 

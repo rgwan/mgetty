@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.c,v 4.9 1998/08/03 20:01:45 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_mg.c,v 4.10 1999/02/16 20:00:05 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_mg.c
  *
@@ -102,6 +102,12 @@ struct conf_data_mgetty c = {
 	{ "login-time", {0}, CT_INT, C_EMPTY },
 #endif
 	{ "fido-send-emsi", {TRUE}, CT_BOOL, C_PRESET },
+
+#ifdef LOGIN_CONFIG
+	{ "login-conf-file", {(p_int) LOGIN_CONFIG}, CT_STRING, C_PRESET },
+#else
+	{ "login-conf-file", {0}, CT_STRING, C_EMPTY },
+#endif
 
 	{ "fax-id", {(p_int)FAX_STATION_ID}, CT_STRING, C_PRESET },
 	{ "fax-min-speed", {0}, CT_INT, C_PRESET },
