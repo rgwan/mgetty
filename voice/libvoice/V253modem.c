@@ -16,7 +16,7 @@
   Hint: Recorded voice files are in .ub format (refer to the sox manpage about this) except the header.
         So you can use this files with sox.
  *
- * $Id: V253modem.c,v 1.6 2002/11/25 21:14:51 gert Exp $
+ * $Id: V253modem.c,v 1.7 2003/01/08 22:03:18 gert Exp $
  *
  */
 
@@ -352,7 +352,7 @@ Table 17/V.253 - Compression method identifier numerics and strings
 
 /* Only verifies the RMD name */
 #define V253modem_RMD_NAME "V253modem"
-#define ELSA_RMD_NAME "ELSA"
+#define ELSA_RMD_NAME "Elsa"
 int V253_check_rmd_adequation(char *rmd_name) 
 {
    return !strncmp(rmd_name,
