@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.22 1993/11/01 22:22:03 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 1.23 1993/11/05 23:09:01 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -83,7 +83,7 @@ TIO tio;
 #endif
 }
 
-sig_t fax_sig_hangup( )
+RETSIGTYPE fax_sig_hangup( )
 {
     signal( SIGHUP, fax_sig_hangup );
     /* exit if we have not read "+FHNG:xxx" yet (unexpected hangup) */
@@ -96,7 +96,7 @@ sig_t fax_sig_hangup( )
 
 static boolean fax_timeout = FALSE;
 
-sig_t fax_sig_alarm( )
+RETSIGTYPE fax_sig_alarm( )
 {
     signal( SIGALRM, fax_sig_alarm );
     lprintf( L_MESG, "timeout..." );
@@ -400,7 +400,16 @@ char *	line;
 	case 0:		/* child */
 	    /* detach from controlling tty -> no SIGHUP */
 	    close( 0 ); close( 1 ); close( 2 );
+#ifdef BSD
+	    setpgrp( 0, getpid() );
+	    if ( ( r = open( "/dev/tty", O_RDWR ) ) >= 0 )
+	    {
+		ioctl( r, TIOCNOTTY, NULL );
+		close( r );
+	    }
+#else
 	    setpgrp();
+#endif
 	    r = system( line );
 
 	    if ( r != 0 )
