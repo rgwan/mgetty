@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 2.4 1995/02/11 22:57:36 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 2.5 1995/03/24 00:11:52 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -666,8 +666,14 @@ Ring_got_action:
 	    /* Answer an incoming call, after the desired number of
 	       RINGs. If we have caller ID information, and checking
 	       it is desired, do it now, and possibly reject call if
-	       not allowed in */
-	    
+	       not allowed in. If we have to do some chat with the modem
+	       to get the Caller ID, do it now. */
+
+	    if ( c_isset(getcnd_chat) )
+	    {
+		do_chat( STDIN, c_chat(getcnd_chat), NULL, NULL, 10, TRUE );
+	    }
+		
 	    if ( !cndlookup() )
 	    {
 		lprintf( L_AUDIT, "denied caller dev=%s, pid=%d, caller=%s",
