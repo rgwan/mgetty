@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.56 1994/07/21 21:40:17 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.57 1994/07/27 11:02:04 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -101,11 +101,18 @@
  *
  * If you want logging messages of type L_AUDIT, L_ERROR and L_FATAL
  * to go to the "syslog", define this.
- * mgetty will use the facility "LOG_DAEMON", and the priorities
+ * mgetty will use the facility "LOG_AUTH", and the priorities
  * LOG_NOTICE, LOG_ERR and LOG_ALERT, respectively.
  */
 /* #define SYSLOG */
 
+/* Syslog facility
+ *
+ * This is the facility mgetty uses for logging. Ususally, this will be
+ * LOG_AUTH, but on some systems, this may not exist, try LOG_DAEMON
+ * instead (or look into the syslog manpage for available options)
+ */
+#define SYSLOG_FC LOG_AUTH
 
 /* login stuff */
 
