@@ -1,9 +1,11 @@
-#ident "$Id: faxsend.c,v 1.4 1994/04/24 12:49:42 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: faxsend.c,v 1.5 1994/05/14 16:05:48 gert Exp $ Copyright (c) 1994 Gert Doering"
 ;
 /* faxsend.c
  *
- * Send single fax pages using a class 2 faxmodem.
+ * Send single fax pages using a class 2 or class 2.0 faxmodem.
  * Called by faxrec.c (poll server) and sendfax.c (sending faxes).
+ *
+ * Depends on "modem_type" being set to Mt_class2_0 for 2.0 support.
  *
  * Eventually add headers to each page.
  *
@@ -14,9 +16,8 @@
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
-#ifndef _NOSTDLIB_H
-#include <stdlib.h>
-#endif
+#include "syslibs.h"
+
 #ifndef sun
 #include <sys/ioctl.h>
 #endif
@@ -91,8 +92,9 @@ static void fax_send_panic_exit _P1( (fd), int fd )
  * NO page punctuation is transmitted -> caller can concatenate
  * multiple parts onto one page
  */
-int fax_send_page _P3( (g3_file, tio, fd),
-		       char * g3_file, TIO * tio, int fd )
+int fax_send_page _P4( (g3_file, tio, ppm, fd),
+		       char * g3_file, TIO * tio,
+		       Post_page_messages ppm, int fd )
 {
 int g3fd;
 char ch;
@@ -122,28 +124,31 @@ int w_total = 0;		/* total bytes written */
     /* when modem is ready to receive data, it will send us an XON
      * (20 seconds timeout)
      *
-     * unfortunately, not all issues of the class 2 draft require this
-     * XON - so, it's optional
+     * Not all issues of the class 2 draft require this Xon, and, further,
+     * the class 2.0 standard does *not* have it, so it's optional.
      */
 
 #ifndef FAXSEND_NO_XON
-    lprintf( L_NOISE, "waiting for XON, got:" );
-
-    signal( SIGALRM, fax_send_timeout );
-    alarm( 20 );
-    do
+    if ( modem_type != Mt_class2_0 )
     {
-	if ( fax_read_byte( fd, &ch ) != 1 )
+	lprintf( L_NOISE, "waiting for XON, got:" );
+
+	signal( SIGALRM, fax_send_timeout );
+	alarm( 20 );
+	do
 	{
-	    lprintf( L_ERROR, "timeout waiting for XON" );
-	    fprintf( stderr, "error waiting for XON!\n" );
-	    close( fd );
-	    exit(11);		/*! FIXME! should be done farther up */
+	    if ( fax_read_byte( fd, &ch ) != 1 )
+	    {
+		lprintf( L_ERROR, "timeout waiting for XON" );
+		fprintf( stderr, "error waiting for XON!\n" );
+		close( fd );
+		exit(11);		/*! FIXME! should be done farther up */
+	    }
+	    lputc( L_NOISE, ch );
 	}
-	lputc( L_NOISE, ch );
-    }
-    while ( ch != XON );
-    alarm(0);
+	while ( ch != XON );
+	alarm(0);
+    }					/* end if ( mt != class 2.0 ) */
 #endif
 
     /* Since some faxmodems (ZyXELs!) do need XON/XOFF flow control
@@ -218,15 +223,11 @@ int w_total = 0;		/* total bytes written */
 		}
 	    }
 
-	    /* escape DLE characters. If necessary (rockjunk!), swap bits */
+	    /* escape DLE characters. If necessary (+FBO=0), swap bits */
 	    
 	    for ( w = 0; i < r; i++ )
 	    {
-#if REVERSE
-		wbuf[ w ] = swap_bits( buf[ i ] );
-#else
-		wbuf[ w ] = buf[ i ];
-#endif
+		wbuf[ w ] = fax_send_swaptable[ (unsigned char) buf[i] ];
 		if ( wbuf[ w++ ] == DLE ) wbuf[ w++ ] = DLE;
 	    }
 
@@ -253,7 +254,7 @@ int w_total = 0;		/* total bytes written */
 	     * problems with missing scan lines, you could try this)
 	     */
 #if 0
-	    ioctl( fd, TCSETAW, &fax_tio );
+	    ioctl( fd, TCSETAW, tio );
 #endif
 
 	    /* look if there's something to read
@@ -286,15 +287,125 @@ int w_total = 0;		/* total bytes written */
 	}		/* end while (more g3 data to read) */
     }			/* end if (open file succeeded) */
 
-    /* transmit end of page */
-    lprintf( L_NOISE, "sending DLE ETX..." );
-    write( fd, fax_end_of_page, sizeof( fax_end_of_page ));
+    lprintf( L_MESG, "page complete, %d bytes sent", w_total );
+
+    /* send end-of-page characters and post-page-message */
+    fax_send_ppm( fd, tio, ppm );
 
     alarm(0);
 
-    if ( fax_wait_for( "OK", fd ) == ERROR ) return ERROR;
-
-    lprintf( L_MESG, "page complete, %d bytes sent", w_total );
-
     return NOERROR;
+}
+
+/* send end-of-page code, set fax_page_transmit_status
+ *
+ * class 2  : send <DLE> <ETX>, then send AT+FET=... according to "type"
+ * class 2.0: send <DLE>{<mps>|<eop>|<eom>}, then send AT+FPS?
+ */
+int fax_send_ppm _P3( (fd, tio, ppm),
+		      int fd, TIO * tio, Post_page_messages ppm )
+{
+    int rc;
+    
+    if ( modem_type == Mt_class2_0 )
+    {
+	/* in class 2.0, end-of-page *and* page punctuation are
+	 * transmitted in one. The modem will return OK or ERROR,
+	 * depending on the remote page transmit status
+	 */
+	/* EIA 592, 8.3.3.7 */
+	char ppm_char, ppm_buf[2], *ppm_r;
+	
+	switch( ppm )
+	{
+	  case pp_mps:		/* another page next */
+	    ppm_char = 0x2c; break;
+	  case pp_eom:		/* last page, another document next */
+	    ppm_char = 0x3b; break;
+	  case pp_eop:		/* no more pages or documents */
+	    ppm_char = 0x2e; break;
+	  default:
+	    lprintf( L_WARN, "ppm type %d not implemented", ppm );
+	    return ERROR;
+	}
+
+	lprintf( L_MESG, "sending DLE '" );
+	lputc( L_MESG, ppm_char ); lputc( L_MESG, '\'' );
+	
+	ppm_buf[0] = DLE; ppm_buf[1] = ppm_char;
+	if ( write( fd, ppm_buf, 2 ) != 2 )
+	{
+	    lprintf( L_ERROR, "cannot write PPM" );
+	    return ERROR;
+	}
+
+	/* FIXME: I think this should be fax_wait_for()! */
+	do
+	{
+	    ppm_r = fax_get_line( fd );
+	    if ( ppm_r == NULL ) return ERROR;
+
+	    /* hangup code. See fax_wait_for() for comments */
+	    if ( strncmp( ppm_r, "+FHS:", 5 ) == 0 )
+	    {
+		fax_hangup = 1;
+		signal( SIGHUP, SIG_IGN );
+		sscanf( &ppm_r[5], "%d", &fax_hangup_code );
+		lprintf( L_MESG, "connection hangup: '%s'", ppm_r );
+		lprintf( L_NOISE,"(%s)", fax_strerror( fax_hangup_code ));
+	    }
+	}
+	while ( strcmp( ppm_r, "OK" ) != 0 &&
+	        strcmp( ppm_r, "ERROR" ) != 0 );
+	lprintf( L_MESG, "got response: '%s'", ppm_r );
+
+	/* fax page status is encoded here! */
+	/* FIXME: query page tx status from modem */
+	fax_page_tx_status = ( strcmp( ppm_r, "OK" ) == 0 ) ? 1: 2;
+
+	/* FIXME: this way? */
+/*	fax_command( "AT+FPS?", "OK", fd ); */
+	
+	return NOERROR;
+    }
+    else
+    {
+	/* transmit end of page (<DLE><ETX> -> OK) */
+
+	lprintf( L_MESG, "sending DLE ETX..." );
+	write( fd, fax_end_of_page, sizeof( fax_end_of_page ));
+	
+	if ( fax_wait_for( "OK", fd ) == ERROR ) return ERROR;
+
+	/* transmit page punctuation */
+
+	switch ( ppm )
+	{
+	  case pp_mps:		/* another page next */
+	    rc = fax_command( "AT+FET=0", "OK", fd );
+	    break;
+	  case pp_eom:		/* last page, another document next */
+	    rc = fax_command( "AT+FET=1", "OK", fd );
+	    break;
+	  case pp_eop:		/* no more pages or documents, over & out */
+
+	    /* take care of modems pulling DCD low before the final
+	     * result code has reached the host
+	     */
+	    tio_carrier( tio, FALSE );
+#ifdef sun
+	    /* HW handshake has to be off while carrier is low */
+	    tio_set_flow_control(fd, tio, (FAXSEND_FLOW) & FLOW_XON_OUT);
+#endif
+	    tio_set( fd, tio );
+
+	    rc = fax_command( "AT+FET=2", "OK", fd );
+	    break;
+	  default:		/* pri-xxx codes */
+	    lprintf( L_WARN, "ppm type %d not implemented", ppm );
+	    rc = ERROR;
+	}
+
+	return rc;
+    }				/* end if ( ! modem == 2.0 ) */
 }
