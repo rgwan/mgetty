@@ -5,7 +5,7 @@
  * possibilities given in expected_answers in the form "OK|BUSY".
  * If this fails, try to detect some standard voice modem answers.
  *
- * $Id: analyze.c,v 1.4 1998/09/09 21:07:26 gert Exp $
+ * $Id: analyze.c,v 1.5 2001/02/24 10:21:26 marcs Exp $
  *
  */
 
@@ -28,6 +28,7 @@ one_modem_answer modem_answers[] =
      {"NO ANSWER", VMA_NO_ANSWER},
      {"NO CARRIER", VMA_NO_CARRIER},
      {"NO DIAL TONE", VMA_NO_DIAL_TONE},
+     {"NO DIALTONE", VMA_NO_DIAL_TONE},
      {"OK", VMA_OK},
      {"RINGING", VMA_RINGING},
      {"RING1", VMA_RING_1},

@@ -3,7 +3,7 @@
  *
  * autodetect the modemtype we are connected to.
  *
- * $Id: detect.c,v 1.29 2000/12/16 10:58:43 marcs Exp $
+ * $Id: detect.c,v 1.30 2001/02/24 10:21:27 marcs Exp $
  *
  */
 
@@ -124,7 +124,8 @@ static const struct modem_type_struct modem_database[] =
 #endif
 
      {ati4, "WS-3314JS3", NULL, &Rockwell},
-
+     {ati, "LT V.90 1.0 MT5634ZPX-PCI Internal Data/Fax/Voice Modem Version 4.18f",
+                                   NULL, &Multitech_5634ZPX},                                                        
      {NULL, NULL, NULL, NULL}
      };
 

@@ -3,7 +3,7 @@
 #
 # This is the Makefile for libvoice.
 #
-# $Id: Makefile,v 1.13 2000/09/13 19:37:12 marcs Exp $
+# $Id: Makefile,v 1.14 2001/02/24 10:21:26 marcs Exp $
 #
 
 VOICEOBJS=analyze.o close.o command.o detect.o event.o flush.o \
@@ -12,7 +12,7 @@ VOICEOBJS=analyze.o close.o command.o detect.o event.o flush.o \
 	Cirrus_Logic.o Digi_RAS.o Dolphin.o Dr_Neuhaus.o Elsa.o V253modem.o IS_101.o \
 	ISDN4Linux.o Multitech_2834.o Rockwell.o Sierra.o Supra.o UMC.o \
 	US_Robotics.o ZyXEL_1496.o ZyXEL_2864.o ZyXEL_Omni56K.o \
-	Multitech_5634.o Multitech_5600ZDXv.o Supra56ePRO.o
+	Multitech_5634.o Multitech_5634ZPX.o Multitech_5600ZDXv.o Supra56ePRO.o
 
 .c.o:
 	$(CC) $(CFLAGS) -c $*.c

@@ -4,7 +4,7 @@
  * pvftormd converts from the pvf (portable voice format) format to the
  * rmd (raw modem data) format.
  *
- * $Id: pvftormd.c,v 1.12 2000/09/09 08:50:11 marcs Exp $
+ * $Id: pvftormd.c,v 1.13 2001/02/24 10:21:27 marcs Exp $
  *
  */
 
@@ -35,6 +35,7 @@ static void supported_formats (void)
      fprintf(stderr, " - V253modem     8 bit PCM\n");
      fprintf(stderr, " - ISDN4Linux    2, 3 and 4 bit ZyXEL ADPCM\n");
      fprintf(stderr, " - MT_2834       4 bit IMA ADPCM\n");
+     fprintf(stderr, " - MT_5634       4 bit IMA ADPCM\n");
      fprintf(stderr, " - Rockwell      2, 3 and 4 bit Rockwell ADPCM\n");
      fprintf(stderr, " - Rockwell      8 bit Rockwell PCM\n");
      fprintf(stderr, " - UMC           4 bit G.721 ADPCM\n");
@@ -92,6 +93,9 @@ int main (int argc, char *argv[])
      if (strcmp(modem_type, "MT_2834") == 0)
           modem_type = "Multitech2834";
 
+     if (strcmp(modem_type, "MT_5634") == 0)
+          modem_type = "Multitech5634";
+
      if (strcmp(modem_type, "UMC") == 0)
           modem_type = "UMC";
 
@@ -115,6 +119,7 @@ int main (int argc, char *argv[])
       (strcmp(modem_type, "V253modem") == 0) ||
       (strcmp(modem_type, "ISDN4Linux") == 0) ||
       (strcmp(modem_type, "Multitech2834") == 0) ||
+      (strcmp(modem_type, "Multitech5634") == 0) ||
       (strcmp(modem_type, "Rockwell") == 0) ||
       (strcmp(modem_type, "US Robotics") == 0) ||
       (strcmp(modem_type, "UMC") == 0) ||
@@ -277,6 +282,27 @@ int main (int argc, char *argv[])
      if (strcmp(modem_type, "Multitech2834") == 0 && compression == 4)
           {
           header_out.bits = compression;
+
+          if (write_rmd_header(fd_out, &header_out) != OK)
+               {
+               fclose(fd_out);
+
+               if (fd_out != stdout)
+                    unlink(name_out);
+
+               exit(ERROR);
+               }
+
+          if (pvftoimaadpcm(fd_in, fd_out, &header_in) == OK)
+               exit(OK);
+
+          }
+
+     if (strcmp(modem_type, "Multitech5634") == 0)
+          {
+	    /* hard coded bits and compression */  
+          header_out.bits = 4;
+	  header_out.compression = htons(132);
 
           if (write_rmd_header(fd_out, &header_out) != OK)
                {

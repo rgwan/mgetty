@@ -217,3 +217,11 @@ Compaq_VS.o: Compaq_VS.c ../include/voice.h ../include/../../mgetty.h \
  ../include/util.h ../include/config.h ../include/default.h \
  ../include/event.h ../include/hardware.h ../include/header.h \
  ../include/paths.h ../include/pvf.h ../include/wav.h
+Multitech_5634ZPX.o: Multitech_5634ZPX.c ../include/voice.h \
+ ../include/../../mgetty.h ../include/../../ugly.h \
+ ../include/../../config.h ../include/../../policy.h \
+ ../include/../../tio.h ../include/../../fax_lib.h ../include/IS_101.h \
+ ../include/bitsizes.h ../include/util.h ../include/config.h \
+ ../include/default.h ../include/event.h ../include/hardware.h \
+ ../include/header.h ../include/paths.h ../include/pvf.h \
+ ../include/wav.h
