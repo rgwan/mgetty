@@ -1,4 +1,4 @@
-#ident "$Id: fax_lib.h,v 1.4 1993/07/03 15:10:41 gert Exp $ Gert Doering"
+#ident "$Id: fax_lib.h,v 1.5 1993/07/25 14:13:40 gert Exp $ Gert Doering"
 
 /* fax_lib.h
  * 
@@ -13,6 +13,7 @@ int fax_command( char * send, char * expect, int fd );
 
 int fax_get_pages( int fd, int * pagenum, char * directory );
 int fax_get_page_data( int modem_fd, int pagenum, char * directory );
+int fax_read_byte( int fd, char * c );
 
 unsigned char swap_bits(unsigned char c);
 
