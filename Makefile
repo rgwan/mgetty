@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.3 1997/03/09 10:57:09 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.4 1997/05/05 19:19:26 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -190,7 +190,7 @@ SBINDIR=$(prefix)/sbin
 #
 BINDIR=$(prefix)/bin
 #
-# where the font+coverpage files go to (check vs. policy.h!)
+# where the font+coverpage files go
 #
 LIBDIR=$(prefix)/lib/mgetty+sendfax
 #
@@ -282,7 +282,8 @@ MV=mv
 # Nothing to change below this line ---------------------------------!
 #
 MR=1.1
-SR=3
+SR=6
+DIFFR=1.1.5
 #
 #
 OBJS=mgetty.o logfile.o do_chat.o locks.o utmp.o logname.o login.o \
@@ -375,7 +376,7 @@ DISTRIB=README.1st THANKS TODO BUGS FTP FAQ inittab.aix inst.sh version.h \
 	cnd.c getdisk.c mksed.c utmp.c mg_utmp.h syslibs.h goodies.c \
 	g3/Makefile g3/g3cat.c g3/g32pbm.c g3/g3.c g3/g3.h \
 	g3/pbm2g3.c g3/run_tbl.c \
-	tools/kvg.in
+	tools/Makefile tools/kvg.in tools/ltest.c
 
 noident: policy.h
 	    for file in `find . -type f -name "*.[ch]" -print` ; do \
@@ -441,6 +442,20 @@ mgetty$(MR).$(SR).tar.gz:	$(DISTRIB)
 
 tar:	mgetty$(MR).$(SR).tar.gz
 
+diff:	mgetty$(DIFFR)-$(MR).$(SR).diff
+
+mgetty$(DIFFR)-$(MR).$(SR).diff: \
+	mgetty$(DIFFR).tar.gz mgetty$(MR).$(SR).tar.gz
+	-rm -rf /tmp/mgd
+	mkdir /tmp/mgd
+	gtar xvCfz /tmp/mgd mgetty$(DIFFR).tar.gz
+	gtar xvCfz /tmp/mgd mgetty$(MR).$(SR).tar.gz
+	( cd /tmp/mgd ; \
+	  gdiff -u3 +ignore-space-change +recursive +new-file \
+		mgetty-$(DIFFR) mgetty-$(MR).$(SR) ; \
+		exit 0 ) >mgetty$(DIFFR)-$(MR).$(SR).diff
+	rm -rf /tmp/mgd
+
 mg.uue:	mgetty$(MR).$(SR).tar.gz
 	uuencode mgetty$(MR).$(SR)-`date +%b%d`.tar.gz <mgetty$(MR).$(SR).tar.gz >mg.uue
 
@@ -452,13 +467,13 @@ uu2:	mg.uue
 # this is for automatic uploading to the beta site. 
 # DO NOT USE IT if you're not ME! Please!
 #
-beta:	mgetty$(MR).$(SR).tar.gz
+beta:	mgetty$(MR).$(SR).tar.gz diff
 	test `hostname` = greenie.muc.de || exit 1
 # local
 	cp mgetty$(MR).$(SR).tar.gz /pub/uploads/
 
 # beta ftp site
-	-./ftp.sh $(MR).$(SR) hprbg7.informatik.tu-muenchen.de \
+	-./ftp.sh $(MR).$(SR) hp2 \
 		'~ftp/pub/comp/networking/communication/modem/mgetty' && \
 	ssh hp2 -l doering 'cd $$HOME ; ./beta'
 
@@ -519,7 +534,7 @@ newslock: compat/newslock.c
 # internal: use this to create a "clean" mgetty+sendfax tree
 bindist: all doc-all sedscript
 	-rm -rf bindist
-	mkidirs bindist$(prefix) bindist$(spool)
+	./mkidirs bindist$(prefix) bindist$(spool)
 	bd=`pwd`/bindist; PATH=`pwd`:"$$PATH" $(MAKE) prefix=$$bd$(prefix) \
 		BINDIR=$$bd$(BINDIR) SBINDIR=$$bd$(SBINDIR) \
 		LIBDIR=$$bd$(LIBDIR) CONFDIR=$$bd$(CONFDIR) \
@@ -535,16 +550,15 @@ bindist: all doc-all sedscript
 
 install: install.bin install.doc
 
-install.bin: mgetty sendfax kvg newslock \
+install.bin: mgetty sendfax newslock \
 		login.config mgetty.config sendfax.config 
 #
 # binaries
 #
-	-test -d $(BINDIR)  || ( mkidirs $(BINDIR)  ; chmod 755 $(BINDIR)  )
-	$(INSTALL) -m 755 kvg $(BINDIR)
+	-test -d $(BINDIR)  || ( ./mkidirs $(BINDIR)  ; chmod 755 $(BINDIR)  )
 	$(INSTALL) -m 755 newslock $(BINDIR)
 
-	-test -d $(SBINDIR) || ( mkidirs $(SBINDIR) ; chmod 755 $(SBINDIR) )
+	-test -d $(SBINDIR) || ( ./mkidirs $(SBINDIR) ; chmod 755 $(SBINDIR) )
 	-mv -f $(SBINDIR)/mgetty $(SBINDIR)/mgetty.old
 	-mv -f $(SBINDIR)/sendfax $(SBINDIR)/sendfax.old
 	$(INSTALL) -s -m 700 mgetty $(SBINDIR)
@@ -553,9 +567,9 @@ install.bin: mgetty sendfax kvg newslock \
 # data files + directories
 #
 	test -d $(LIBDIR)  || \
-		( mkidirs $(LIBDIR) ; chmod 755 $(LIBDIR) )
+		( ./mkidirs $(LIBDIR) ; chmod 755 $(LIBDIR) )
 	test -d $(CONFDIR) || \
-		( mkidirs $(CONFDIR); chmod 755 $(CONFDIR))
+		( ./mkidirs $(CONFDIR); chmod 755 $(CONFDIR))
 	test -f $(CONFDIR)/login.config || \
 		$(INSTALL) -o root -m 600 login.config $(CONFDIR)/
 	test -f $(CONFDIR)/mgetty.config || \
