@@ -1,4 +1,4 @@
-#ident "$Id: tio.h,v 1.21 1994/10/06 14:12:17 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.h,v 1.22 1994/10/21 23:07:39 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 #ifndef __TIO_H__
 #define __TIO_H__
@@ -159,7 +159,11 @@ int  tio_flush_queue _PROTO(( int fd, int queue ));
 int  tio_flow        _PROTO(( int fd, int restart_output ));
 
 extern struct	speedtab {
+#ifdef POSIX_TERMIOS
+    speed_t	cbaud;
+#else
     unsigned short cbaud;	/* baud rate, e.g. B9600 */
+#endif
     int	 nspeed;		/* speed in numeric format */
     char *speed;		/* speed in display format */
 } speedtab[];
