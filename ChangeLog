@@ -1,3 +1,92 @@
+Sun Mar 13 12:43:08 MET 2005  Gert Doering <gert@greenie.muc.de>
+
+	* release 1.1.32
+
+	* voice/<lots of files>: import vgetty jumbo patch from Juergen
+	Kosel, adding full duplex voice (experimental) and V.253 fixes
+
+	* voice/libpvf/wav.c, voice/pvftools/pvfcut.c, pvfecho.c,
+	pvfreverse.c: fix realloc(NULL) induced core dumps on older OSes
+
+Sun Feb 27 12:58:29 MET 2005  Gert Doering <gert@greenie.muc.de>
+
+	* g3/Makefile: add tests for g3cat -L/-w
+
+	* g3/g3cat.c: add -L <max length> switch (cap lines in output file)
+
+	* doc/g3cat.1in: document all command line switches
+
+	* Makefile, mksed.c: new setting: SHELL_TRAP_POSIX
+
+	* t/t_trap.in: test for correct shell/trap behaviour
+
+	* fax/faxrunq.in: get correct "trap 0" syntax from sedscript
+
+Thu Feb 24 17:24:18 MET 2005  Gert Doering <gd@medat.de>
+
+	* fax/faxq-helper.c: fix scrubbing of JOB file lines, 
+	create "user" line if not present
+
+	* fax/faxspool.in: don't pass logname/id information to faxq-helper 
+	anymore (unless "-u" is set) - caused weird problems, gains nothing
+
+Thu Feb 17 12:08:13 MET 2005  Gert Doering <gd@medat.de>
+
+	* fax/faxrunqd.in: speed up detection of new jobs in queue (<10s)
+
+	* fax/faxrunqd.in: change over to 'use strict' perl
+
+Mon Feb 14 13:41:49 MET 2005  Karsten Keil <kkeil@suse.de>
+
+	* doc/mgetty.texi-in: dirindex node
+
+	* mgetty.h: on __powerpc64__ platforms, define PTR_IS_LONG
+
+Wed Feb  9 10:46:08 MET 2005  Gert Doering <gert@greenie.muc.de>
+
+	* config.h: portability fixes ((int) cast) for 64bit platforms
+
+Mon Jan  3 17:46:36 MET 2005  Matthias Andree <matthias.andree@gmx.de>
+
+	* fax/faxrunq.in: workaround for bash 3.x "trap" incompatibility
+
+Wed Nov 24 14:33:43 MET 2004  Gert Doering <gd@medat.de>
+
+	* tools/microcom.c: add utra-light terminal program
+
+	* fax/faxrunqd.in: Implement 'sendfax-tty-map' (run 
+			   tty-specific sendfax binary)
+
+	* fax/faxrunqd.in, faxrunq.in: implement update-call-program
+
+Sun Nov 14 21:28:07 MET 2004  fdc@cliwe.ping.de (Frank D. Cringle)
+
+	* frontends/X11/viewfax: import viewfax-2.6
+
+Sat Nov 13 23:12:53 MET 2004  Gert Doering <gert@greenie.muc.de>
+
+	* doc/faxrunqd.8in: document sendfax-tty-map & update-call-program
+
+	* fax/faxspool.in: fix wrong test for "$HOME/.make.coverpg"
+
+	* fax/faxspool.in: fix spooling from stdin ("faxspool 123 -")
+
+	* faxlib.c: recognize "Eicon ISDN Modem" as DIVA card with class 2
+
+Thu Nov 11 21:54:11 MET 2004  Gert Doering <gert@greenie.muc.de>
+
+	* t/Makefile, t/t_echo.sh: add tests for $ECHO setting
+
+Mon Nov  8 21:07:35 MET 2004  Gert Doering <gert@greenie.muc.de>
+
+	* incorporate portability patches from NetBSD pkgsrc tree
+
+Tue Nov  2 09:17:37 MET 2004  Gert Doering <gert@greenie.muc.de>
+
+	* add t/ subdirectory and t/t_conf.c struct/int size test program
+
+	* Makefile: call t/Makefile for "make test"
+
 Sat Jul 24 16:54:52 MEST 2004  Gert Doering <gert@greenie.muc.de>
 
 	* release 1.1.31
