@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 3.2 1995/09/06 19:05:50 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 3.3 1995/09/19 23:10:13 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -633,6 +633,11 @@ int main _P2( (argc, argv),
 	}
 	else
 	{
+	    /* class 2.0 modems use the correct byte order, Rockwell-
+	     * compatible class 2 modems get it wrong.
+	     */
+	    if ( modem_type == Mt_class2_0 ) fax_set_bor( fd, 1 );
+	    
 	    /* switch to fax receiver flow control */
 	    tio_set_flow_control( fd, &fax_tio,
 				 (FAXREC_FLOW) & (FLOW_HARD|FLOW_XON_IN) );
