@@ -1,4 +1,4 @@
-#ident "$Id: faxsend.c,v 1.8 1994/08/08 12:34:25 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: faxsend.c,v 1.9 1994/08/12 22:59:47 gert Exp $ Copyright (c) 1994 Gert Doering"
 
 /* faxsend.c
  *
@@ -89,8 +89,7 @@ static void fax_send_panic_exit _P1( (fd), int fd )
 /* fax_send_page - send one complete fax-G3-file to the modem
  *
  * modem has to be in sync, waiting for at+fdt
- * NO page punctuation is transmitted -> caller can concatenate
- * multiple parts onto one page
+ * page punctuation is transmitted according to "ppm"
  */
 int fax_send_page _P4( (g3_file, tio, ppm, fd),
 		       char * g3_file, TIO * tio,
@@ -102,6 +101,8 @@ char buf[256];
 char wbuf[ sizeof(buf) * 2 ];
 
 int w_total = 0;		/* total bytes written */
+
+int rc;				/* return code */
 
     lprintf( L_NOISE, "fax_send_page(\"%s\") started...", g3_file );
 
@@ -290,11 +291,11 @@ int w_total = 0;		/* total bytes written */
     lprintf( L_MESG, "page complete, %d bytes sent", w_total );
 
     /* send end-of-page characters and post-page-message */
-    fax_send_ppm( fd, tio, ppm );
+    rc = fax_send_ppm( fd, tio, ppm );
 
     alarm(0);
 
-    return NOERROR;
+    return rc;
 }
 
 /* send end-of-page code, set fax_page_transmit_status
