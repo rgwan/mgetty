@@ -1,3 +1,10 @@
+Thu Jan  4 18:32:24 CET 2001   Gert Doering (gert@mobile.greenie.muc.de)
+
+	* locks.c: use mkstemp() to create tmp file, if available, 
+	  open( O_EXCL|O_CREAT ) otherwise.
+
+	* goodies.c: FreeBSD 3.3 already has /proc/<pid>/cmdline
+
 Thu Dec 21 23:04:25 MET 2000   Gert Doering (gert@greenie.muc.de)
 
 	* release 1.1.23
