@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.42 2000/08/14 19:41:18 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.43 2000/12/21 22:16:37 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -119,7 +119,7 @@ CFLAGS=-O2 -Wall -pipe
 #CFLAGS=-DNEXTSGTTY -DBSD -O2			# for NeXT with sgtty (better!)
 #CFLAGS=-posix -DUSE_VARARGS -DBSD -O2		# for NeXT with POSIX
 #CFLAGS=-D_HPUX_SOURCE -Aa -DBSDSTATFS		# for HP-UX 9.x
-#CFLAGS=-cckr -D__STDC__ -O -DUSE_READ 		# for IRIX 5.2
+#CFLAGS=-cckr -D__STDC__ -O -DUSE_READ 		# for IRIX 5.2 and up
 
 
 #
@@ -292,8 +292,8 @@ MV=mv
 # Nothing to change below this line ---------------------------------!
 #
 MR=1.1
-SR=22
-DIFFR=1.1.21
+SR=23
+DIFFR=1.1.22
 #
 #
 OBJS=mgetty.o logfile.o do_chat.o locks.o utmp.o logname.o login.o \
@@ -501,7 +501,7 @@ beta:	tar diff sign
 	ssh hp2 -l doering 'cd $$HOME ; ./beta'
 
 # send to Marc and Knarf
-	head -30 ChangeLog |mail -s "mgetty$(MR).$(SR).tar.gz on greenie/alpha" knarf@camelot.de Marc@ThPhy.Uni-Duesseldorf.DE
+	head -30 ChangeLog |mail -s "mgetty$(MR).$(SR).tar.gz on greenie/alpha" knarf@camelot.de marc marcs
 #	-./ftp.sh $(MR).$(SR) ftp.camelot.de /pub/incoming
 #	-./ftp.sh $(MR).$(SR) poseidon.thphy.uni-duesseldorf.de /incoming
 	-cvs commit -m 'new version released' version.h
