@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 1.39 1994/05/24 13:39:50 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 1.40 1994/07/06 00:33:08 gert Exp $ Copyright (c) Gert Doering"
 ;
 #include <stdio.h>
 #include "syslibs.h"
@@ -49,7 +49,7 @@ char * ln_escape_prompt _P1( (ep), char * ep )
     extern char * Device;		/* mgetty.c */
 
     if ( p == NULL ) p = malloc( MAX_PROMPT_LENGTH );
-    if ( p == NULL ) return NULL;
+    if ( p == NULL ) return ep;
 
     i = 0;
     
