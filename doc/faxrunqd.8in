@@ -63,8 +63,8 @@ etc.).  Both programs are fully compatible in this respect.
 
 Some aspects of the behaviour of 
 .I faxrunqd
-can be controlled by a configuration file, @CONFDIR@/faxrunq.config (this
-is the same file that
+can be controlled by a configuration file, usually named 
+@CONFDIR@/faxrunq.config (this is the same file that
 .I faxrunq(1)
 uses, but there are additional options for
 .I faxrunqd).  In
@@ -112,6 +112,7 @@ should delete jobs after sending, or leave them in the fax queue (while
 moving the "JOB" file to "JOB.done") so that they can be seen at by
 "faxq -o". The default value is "do not delete sent faxes".
 
+.LP
 The options that are specific to
 .I faxrunqd
 are:
@@ -163,13 +164,17 @@ behaviour, you can send it the following signals:
 
 .TP
 .B SIGHUP
+.TP
 .B SIGINT
+.TP
 .B SIGTERM
 remove lock file, remove pid file, terminate immediately.
 
+.TP
 .B SIGUSR1
 close, roll, and re-open log file.
 
+.TP
 .B SIGUSR2
 finish all fax jobs that are currently being sent, then terminate  (this
 is used to signal faxrunqd "I want you to terminate" without disturbing
@@ -179,7 +184,8 @@ sent twice).
 .IX fax
 .SH BUGS
 .I faxrunqd
-isn't very smart about distributing jobs to modems.
+isn't very smart about distributing jobs to modems (it relies on "sendfax
+will pick the proper one").
 
 .I faxrunq
 doesn't handle time scheduling yet
