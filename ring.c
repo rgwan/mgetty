@@ -1,4 +1,4 @@
-#ident "$Id: ring.c,v 4.13 1999/07/15 13:34:28 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: ring.c,v 4.14 1999/07/22 20:32:56 gert Exp $ Copyright (c) Gert Doering"
 
 /* ring.c
  *
@@ -68,7 +68,7 @@ char * p;
 /* ELSA CallerID data comes in as "RING;<from>[;<to>]"
  *
  * this function is also used for others that report the number in
- * the format <from>[non-digit(s)]<to>
+ * the format [non-digit(s)]<from>[non-digit(s)]<to>
  */
 static int ring_handle_ELSA _P2((string, msn_list),
 				 char * string, char ** msn_list )
@@ -76,7 +76,10 @@ static int ring_handle_ELSA _P2((string, msn_list),
 char * p;
     lprintf( L_MESG, "ELSA: '%s'", string );
 
-    string++;
+    /* skip over leading "garbage" */
+    while( *string != '\0' && !isdigit(*string) ) string++;
+
+    /* grab caller number (all up to the first non-digit) */
     p=string;
     while( isdigit(*p) ) p++;
 
