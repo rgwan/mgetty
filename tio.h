@@ -1,4 +1,4 @@
-#ident "$Id: tio.h,v 1.16 1994/04/18 15:56:07 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.h,v 1.17 1994/04/23 21:42:53 gert Exp $ Copyright (c) 1993 Gert Doering"
 ;
 #ifndef __TIO_H__
 #define __TIO_H__
@@ -133,6 +133,11 @@ typedef tcflag_t tioflag_t;
 #define FLOW_XON_OUT	0x04		/* send data, honor xon/xoff */
 #define FLOW_SOFT	(FLOW_XON_IN | FLOW_XON_OUT)
 
+/* queue selection flags (for tio_flush_queue) */
+#define TIO_Q_IN	0x01		/* incoming data queue */
+#define TIO_Q_OUT	0x02		/* outgoing data queue */
+#define TIO_Q_BOTH	( TIO_Q_IN | TIO_Q_OUT )
+
 /* function prototypes */
 int  tio_get _PROTO (( int fd, TIO *t ));
 int  tio_set _PROTO (( int fd, TIO *t ));
@@ -148,6 +153,8 @@ int  tio_set_flow_control  _PROTO(( int fd, TIO *t, int flowctrl_type ));
 int  tio_set_flow_control2 _PROTO(( int fd, int flowctrl_type ));
 void tio_carrier     _PROTO (( TIO *t, int carrier_sensitive ));
 int  tio_toggle_dtr  _PROTO(( int fd, int msec_wait ));
+int  tio_flush_queue _PROTO(( int fd, int queue ));
+int  tio_flow        _PROTO(( int fd, int restart_output ));
 
 extern struct	speedtab {
     unsigned short cbaud;	/* baud rate, e.g. B9600 */
