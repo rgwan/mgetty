@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.41 1999/08/08 17:27:18 marcs Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.42 2000/02/13 19:46:09 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -4025,10 +4025,6 @@ license. You can find it in @file{/pub/ghost/aladdin} on
 
 GhostScript is huge and slow... if you don't need it for other purposes,
 you could use Chris Lewis' hp2pbm package, placed at
-
-ftp.uunet.ca:@file{distrib/chris_lewis/hp2pbm/*}
-
-and on
 
 ftp.leo.org as @file{hp2pbm*} (in the mgetty directory mentioned above).
 
