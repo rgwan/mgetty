@@ -14,6 +14,7 @@ sendfax \- send group 3 fax files (G3 files) with a class 2 faxmodem
 .RB [ -S ]
 .RB [ -n ]
 .RB [ -r ]
+.RB [ -D <dial prefix> ]
 .RI phone-number
 .RI [ g3file ]
 ...
@@ -86,6 +87,12 @@ that a partially-sended fax isn't retransmitted as a whole every time.
 
 If this option is set, sendfax will not (!) complain if not all files named
 on the command line exist.
+.TP
+.B -D <dial prefix>
+Override the default (set by sendfax.config or in policy.h) for the 'ATxxx'
+command to dial the remote number.  This is rarely used from the command
+line, but you might want to use it in combination with faxrunqd's policy 
+routing option (see example in faxrunqd.policy(5)).
 
 .SH CONFIG FILE
 If compiled accordingly,
