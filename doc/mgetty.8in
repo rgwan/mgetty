@@ -134,6 +134,9 @@ mgetty -m '"" ATH0 OK'
 
 .SH FILES
 .TP
+.B @CONFDIR@/mgetty.config
+Main configuration file.
+.TP
 .B @CONFDIR@/login.config
 controls whether (and when)
 .I mgetty
@@ -151,6 +154,9 @@ example, to stop mgetty during day time, and let it pick up at night only,
 by creating and removing @NOLOGIN@ via the 
 .I cron
 program at the appropriate time.
+.TP
+.B @LOG_PATH@
+Debug log file, see below.
 
 .SH DIAGNOSTICS
 If
