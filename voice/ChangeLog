@@ -1,3 +1,32 @@
+Tue Sep 12 23:09:42 2000  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* All of below is 0.9.18
+
+	* Added new modem type Supra56ePRO, strongly based on
+	Supra.c; submitted by Rojhalat Ibrahim, roschi@ribrahim.de.
+	It seems we had to also implement ATI3 detection.
+	
+Mon Sep 11 13:30:25 2000  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+	
+	* libvoice/ISDN4Linux.c: using correct return code (cosmetic)
+	in answer_phone().
+
+	* libvoice/US_Robotics.c: using correct return code (cosmetic)
+	in answer_phone().
+
+	* vgetty/answer.c: if modem-specific code returns fax, forward
+ 	that to the mgetty caller. Note that mgetty doesn't yet support
+ 	this fully.
+	
+Sun Sep 10 09:36:26 2000  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* libvoice/V253modem.c: fix Kompressionmethod default setting
+	(gcc warning; could lead to Kompressionmethod 0 in an uncontrolled
+	way). Fixed comment for compression method 9.
+
+	* vgetty/answer.c: voice message file with a more unique name
+	(with timestamp).
+
 Sat Sep  9 09:57:31 2000  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 
 	* All of below is 0.9.17
