@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 4.33 2001/12/17 22:31:52 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 4.34 2002/11/06 22:55:06 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -31,9 +31,6 @@
 
 #ifdef VOICE
 #include "voice/include/voice.h"
-# ifndef DIST_RING
-#  define DIST_RING
-# endif
 #endif
 
 /* how much time may pass between two RINGs until mgetty goes into */
