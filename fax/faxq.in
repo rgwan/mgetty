@@ -4,7 +4,7 @@
 #
 # like "lpq" or "mailq", show jobs waiting in the output queue
 #
-# SCCS: $Id: faxq.in,v 4.8 2002/11/23 15:16:30 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxq.in,v 4.9 2002/11/23 18:57:58 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -152,5 +152,5 @@ do
 done
 
 test -n "$verbose" -a -n "$jobs" -a -r faxqueue_done &&
-    $echo "\nLast \`\`faxrunq'' run at: `cat faxqueue_done
+    $echo "\nLast \`\`faxrunq'' run at: `cat faxqueue_done`"
 
