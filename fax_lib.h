@@ -1,4 +1,4 @@
-#ident "$Id: fax_lib.h,v 4.3 1997/10/31 07:18:41 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: fax_lib.h,v 4.4 1997/10/31 18:18:31 gert Exp $ Copyright (c) Gert Doering"
 
 
 /* fax_lib.h
@@ -92,3 +92,4 @@ extern	int	modem_quirks;			/* modem specials */
 
 #define MQ_NEED2	0x01	/* must be in +FCLASS=2 for +FAA=1 to work */
 #define MQ_FBOR_OK	0x02	/* +FBOR implemented correctly (Multitech) */
+#define MQ_NO_LQC	0x04	/* +FPS:x,lc,blc can't be trusted */

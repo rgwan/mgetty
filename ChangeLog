@@ -1,5 +1,9 @@
 Fri Oct 31 13:54:39 1997  Gert Doering  (gert@greenie.muc.de)
 
+	* faxlib.c, faxrecp.c: if modem autodetect finds a Rockwell modem
+	  (ATI returns 28800 or 33600), disable line quality check, because 
+	  Rockwell modems usually don't understand AT+FPS=2.  Junk.
+
 	* sendfax.c, conf_sf.h, conf_sf.c: add "open-delay <msec>" option
 
 	* fax/faxrunqd.in: start external processes with "</dev/null"

@@ -1,4 +1,4 @@
-#ident "$Id: faxrecp.c,v 1.1 1997/02/24 22:28:50 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrecp.c,v 1.2 1997/10/31 18:18:33 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrecp.c - part of mgetty+sendfax
  *
@@ -321,12 +321,16 @@ static const char start_rcv = DC2;
 	/* check line count and bad line count. If page too short (less
 	 * than 50 lines) or bad line count too high (> lc/5), reject
 	 * page (+FPS=2, MPS, page bad - retrain requested)
+	 *
+	 * Don't do this on generic Rockwell modems.  It won't work.
 	 */
 
-	if ( fhs_details &&
-	    ( fhs_lc < 50 || fhs_blc > (fhs_lc/10)+30 || fhs_blc > 500 ) )
+	if ( ( modem_quirks & MQ_NO_LQC ) == 0 &&
+	     fhs_details &&
+	     ( fhs_lc < 50 || fhs_blc > (fhs_lc/10)+30 || fhs_blc > 500 ) )
 	{
 	    lprintf( L_WARN, "Page doesn't look good, request retrain (MPS)" );
+
 	    fax_command( "AT+FPS=2", "OK", fd );
 	}
 
