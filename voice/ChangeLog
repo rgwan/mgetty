@@ -1,3 +1,12 @@
+Sun Jan 14 15:17:34 2001  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* All of below is 0.9.23
+
+	* Fixed buffer overflow in vm and vgetty, submitted by Georg
+ 	Kirschbaum, <Georg.Kirschbaum@gimmel.franken.de>. Impact would
+	not have been very big since only DTMFs are under control
+	of the user.
+
 Sat Dec 16 10:36:34 2000  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 
 	* All of below is 0.9.22

@@ -3,7 +3,7 @@
  *
  * Here is the vgetty specific voice event handler.
  *
- * $Id: event.c,v 1.4 1998/09/09 21:08:07 gert Exp $
+ * $Id: event.c,v 1.5 2001/01/14 14:33:01 marcs Exp $
  *
  */
 
@@ -79,8 +79,18 @@ int vgetty_handle_event(int event, event_data data)
                     };
 
                first_dtmf = FALSE;
-               execute_dtmf_script = TRUE;
                length = strlen(dtmf_code);
+
+               /* Avoid buffer overflow.
+                * -- Georg.Kirschbaum@gimmel.franken.de
+                */
+               if (length >= (VOICE_BUF_LEN - 1))  + {
+                    voice_stop_current_action();
+                    hangup_requested = TRUE;
+                    return(OK);
+               }
+
+               execute_dtmf_script = TRUE;  
                dtmf_code[length + 1] = 0x00;
                dtmf_code[length] = data.c;
                return(OK);

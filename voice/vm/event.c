@@ -2,7 +2,7 @@
  *
  * This is the handle event routine for the VoiceModem program.
  *
- * $Id: event.c,v 1.4 1998/09/09 21:08:11 gert Exp $
+ * $Id: event.c,v 1.5 2001/01/14 14:33:01 marcs Exp $
  *
  */
 
@@ -44,25 +44,27 @@ int handle_event(int event, event_data data)
                     voice_stop_current_action();
                     return(OK);
                case READ_DTMF_STRING:
+		    {
+                       int length;
 
-                    if (data.c == '*')
-                         {
-                         dtmf_string_buffer[0] = 0x00;
-                         return(OK);
-                         };
+		       if (data.c == '*')
+			    {
+			    dtmf_string_buffer[0] = 0x00;
+			    return(OK);
+			    };
 
-                    if (data.c != '#')
-                         {
-                         int length = strlen(dtmf_string_buffer);
+		       length = strlen(dtmf_string_buffer);
+		       if ((data.c != '#') && (length <  (VOICE_BUF_LEN - 1)))
+			    {
+			    dtmf_string_buffer[length + 1] = 0x00;
+			    dtmf_string_buffer[length] = data.c;
+			    return(OK);
+			    };
 
-                         dtmf_string_buffer[length + 1] = 0x00;
-                         dtmf_string_buffer[length] = data.c;
-                         return(OK);
-                         };
-
-                    printf("%s\n", dtmf_string_buffer);
-                    voice_stop_current_action();
-                    return(OK);
+		       printf("%s\n", dtmf_string_buffer);
+		       voice_stop_current_action();
+		       return(OK);
+                    }
                };
 
      if (event == SIGNAL_SIGINT)
@@ -70,3 +72,7 @@ int handle_event(int event, event_data data)
 
      return(UNKNOWN_EVENT);
      }
+
+
+
+
