@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.47 1993/12/03 00:31:07 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.48 1993/12/18 18:46:33 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* sendfax.c
  *
@@ -93,8 +93,13 @@ int	fd;
      */
     tio_mode_sane( &fax_tio, TRUE );
     tio_set_speed( &fax_tio, FAX_SEND_BAUD );
-    tio_set_flow_control( fd, &fax_tio, (FAXSEND_FLOW) & FLOW_HARD );
     tio_mode_raw( &fax_tio );
+#ifdef sun
+    /* sunos does not rx with RTSCTS unless carrier present */
+    tio_set_flow_control( fd, &fax_tio, FLOW_NONE );
+#else
+    tio_set_flow_control( fd, &fax_tio, (FAXSEND_FLOW) & FLOW_HARD );
+#endif
     
     if ( tio_set( fd, &fax_tio ) == ERROR )
     {
@@ -527,6 +532,10 @@ int	tries;
 
     /* by now, the modem should have raised DCD, so remove CLOCAL flag */
     tio_carrier( &fax_tio, TRUE );
+#ifdef sun
+    /* now we can request hardware flow control since we have carrier */
+    tio_set_flow_control( fd, &fax_tio, (FAXSEND_FLOW) & (FLOW_HARD|FLOW_XON_OUT) );
+#endif /* sun */
     tio_set( fd, &fax_tio );
 
     /* process all files to send / abort, if Modem sent +FHNG result */
@@ -564,6 +573,10 @@ int	tries;
 	  {
 	    /* take care of some modems pulling cd low too soon */
 	    tio_carrier( &fax_tio, FALSE );
+#ifdef sun
+	    /* HW handshake has to be off while carrier is low */
+	    tio_set_flow_control(fd, &fax_tio, (FAXSEND_FLOW) & FLOW_XON_OUT);
+#endif
 	    tio_set( fd, &fax_tio );
 
 	    fax_command( "AT+FET=2", "OK", fd );	/* end session */
