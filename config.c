@@ -1,4 +1,4 @@
-#ident "$Id: config.c,v 3.2 1995/12/02 00:09:41 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: config.c,v 3.3 1996/03/26 13:22:31 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /*
  * config.c
@@ -151,22 +151,25 @@ int	quote;
 char ** p;
 char *  s;
 
+    /* get number of distinct strings in this chat, for allocation */
     quote=0;
     for ( cnt = i = 0; line[i]; i++ )
     {
-	if ( line[i] == '"' ) quote = !quote;
+	if ( line[i] == '"' && ( i==0 || line[i-1]!='\\' ) ) quote = !quote;
 	if ( line[i] == ' ' && !quote ) cnt++;
     }
     cnt+=2;
 
 /* lprintf( L_JUNK, "gc: %d strings", cnt-1 ); */
 
+    /* allocate memory for ptr list and chat script itself */
     p = (char **) malloc( cnt * sizeof( char * ) + strlen(line) +1 );
     if ( p == 0 )
         { lprintf( L_ERROR, "conf_get_chat: cannot malloc" ); return NULL; }
 
     s = (char * ) &p[cnt];		/* pointer to data area */
 
+    /* build up ptr list, and copy script over */
     quote = 0;
     p[ cnt=0 ] = s;
     while( *line )
@@ -176,6 +179,24 @@ char *  s;
 	  if ( *line == ' ' && ! quote )
 	{
 	    *(s++) = 0; cnt++; p[cnt] = s;
+	}
+	else				/* handle a few escape sequences */
+	  if ( *line == '\\' && *(line+1) )
+	{
+	  switch( *(++line) ) {
+	  case 'r':
+	    *(s++) = '\r'; break;
+	  case 'n':
+	    *(s++) = '\n'; break;
+	  case 't':
+	    *(s++) = '\t'; break;
+	  case '\\': 
+	  case '\"':
+	    *(s++) = *line; break;
+	  default:	/* rest is handled in do_chat.c, especially "\c" */
+	    *(s++) = '\\';
+	    *(s++) = *line;
+	  }
 	}
 	else
 	  *(s++) = *line;
