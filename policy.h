@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.50 1994/03/01 23:28:24 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.51 1994/04/05 21:37:28 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -22,9 +22,18 @@
  *
  * WARNING: make sure that this file isn't world-accessable (SECURITY!)
  *
- * If you want to call /bin/login all the time, do not define this
+ * If you want to call /bin/login in any case, do not define this
  */
 #define LOGIN_CFG_FILE "/usr/local/lib/mgetty+sendfax/mgetty.login"
+
+/* default login program
+ *
+ * If LOGIN_CFG_FILE is not defined, or does not exist, or doesn't
+ * have a default entry, this program is called for user logins.
+ * Normally, this is "/bin/login", just a few (STUPID!) systems put
+ * "login" it elsewhere.
+ */
+#define DEFAULT_LOGIN_PROGRAM "/bin/login"
 
 /* If you want to use /etc/gettydefs to set tty flags, define this
  */

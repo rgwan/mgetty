@@ -1,4 +1,4 @@
-#ident "$Id: login.c,v 1.3 1994/03/07 21:17:56 gert Exp $ Copyright (C) 1993 Gert Doering"
+#ident "$Id: login.c,v 1.4 1994/04/05 21:37:40 gert Exp $ Copyright (C) 1993 Gert Doering"
 ;
 
 /* login.c
@@ -181,7 +181,7 @@ void login _P1( (user), char * user )
     /* default to /bin/login */
     if ( argc == 0 )
     {
-	cmd = "/bin/login";
+	cmd = DEFAULT_LOGIN_PROGRAM;
 	argv[argc++] = "login";
     }
 
