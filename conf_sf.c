@@ -1,10 +1,11 @@
-#ident "$Id: conf_sf.c,v 1.1 1994/12/05 20:52:13 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_sf.c,v 1.2 1994/12/05 20:54:19 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_sf.c
  *
  * configuration defaults / configuration reading code for sendfax
  */
 
+#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 
