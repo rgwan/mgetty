@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.36 1993/10/06 01:07:19 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.37 1993/10/07 18:11:45 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -355,7 +355,7 @@ boolean fax_poll_req = FALSE;
 char * 	fax_page_header = NULL;
 char *	poll_directory = ".";			/* override with "-d" */
 
-char 	fax_device_string[] = FAX_MODEM_TTYS;	/* writable! */
+static char 	fax_device_string[] = FAX_MODEM_TTYS;	/* writable! */
 char *	fax_devices = fax_device_string;	/* override with "-l" */
 int	fax_res_fine = 1;			/* override with "-n" */
 
