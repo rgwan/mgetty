@@ -3,7 +3,7 @@
  *
  * autodetect the modemtype we are connected to.
  *
- * $Id: detect.c,v 1.24 2000/08/14 20:13:55 gert Exp $
+ * $Id: detect.c,v 1.25 2000/08/15 08:51:59 gert Exp $
  *
  */
 
@@ -28,6 +28,7 @@ struct pnp_modem_type_struct
 static const struct pnp_modem_type_struct pnp_modem_database[] =
      {
      {"SUP", NULL, &Supra, "SupraFAX modem (generic)" },
+     {"ZYX", "02FF", &ZyXEL_2864, "ZyXEL 2864I (DSS1)" },
      {"ELS", "0687", &Elsa, "ELSA ML 56k DE" },
      {"ELS", "0566", &Elsa, "ELSA ML 56k CH" },
      {"ELS", "0707", &Elsa, "ELSA ML 56k AT" },
@@ -205,7 +206,7 @@ int voice_detect_modemtype(void)
 	      if ( s[1] == '\1' )	/* binary format "(^Ax" */
 		  s+=3;
 	      else			/* ASCII format: "(1.0[0]" */
-	          do { s++; } while( isdigit(*s) || *s == '.' ) );
+	          do { s++; } while( isdigit(*s) || *s == '.' );
 
 	      lprintf(L_NOISE, "PNP String: '%s'", s);
 	      i = 0;
