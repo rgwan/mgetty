@@ -1,4 +1,4 @@
-#ident "$Id: ring.c,v 4.5 1998/05/02 18:58:29 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: ring.c,v 4.6 1998/07/05 20:30:18 gert Exp $ Copyright (c) Gert Doering"
 
 /* ring.c
  *
@@ -221,9 +221,11 @@ boolean	got_dle;		/* for <DLE><char> events (voice mode) */
 	     strncmp( buf, "TO:", 3 ) == 0 )
 	    { *dist_ring_number = ring_handle_ZyXEL( buf, msn_list ); break; }
 
-	/* now check the different RING types */
-	if ( strncmp( buf, "RING", 4 ) != 0 )	/* not RING<whatever> */
-		continue;			/* get next line */
+	/* now check the different RING types 
+	 * if not "RING<whatever>", clear buffer and get next line
+	 */
+	if ( strncmp( buf, "RING", 4 ) != 0 )
+	    { w = 0; lprintf( L_NOISE, "got: " ); continue; }
 
 	p=&buf[4];
 	while( isspace(*p) ) p++;
