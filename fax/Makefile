@@ -1,7 +1,7 @@
 # Makefile for the "fax" subtree
 # of mgetty+sendfax
 #
-# SCCS: $Id: Makefile,v 4.4 2002/11/16 22:21:35 gert Exp $ Copyright (c) Gert Doering
+# SCCS: $Id: Makefile,v 4.5 2002/11/17 22:37:44 gert Exp $ Copyright (c) Gert Doering
 #
 
 CC=gcc
@@ -42,7 +42,11 @@ faxq-helper: faxq-helper.o
 	SU chmod 4711 faxq-helper
 
 faxq-helper.o: faxq-helper.c
-	$(CC) $(CFLAGS) -DFAX_SPOOL_OUT=\"$(FAX_SPOOL_OUT)\" -c faxq-helper.c
+	$(CC) $(CFLAGS) -DFAX_SPOOL_OUT=\"$(FAX_SPOOL_OUT)\" \
+		-DFAX_OUT_USER=\"$(FAX_OUT_USER)\" \
+		-DFAX_ALLOW=\"$(CONFDIR)/fax.allow\" \
+		-DFAX_DENY=\"$(CONFDIR)/fax.deny\" \
+		-c faxq-helper.c
 
 clean:
 	-rm -f $(FAX_SCRIPTS) faxrunqd faxheader
