@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 4.18 2002/11/25 13:07:25 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 4.19 2002/12/05 11:52:42 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration defaults for mgetty / sendfax
  * are specified.
@@ -451,10 +451,11 @@
  * of switching baud rates is broken, and came up with something new
  * --- broken as well (why bother switching rates at all?) --- this
  * and other USR Courier Fax follies will be handled by enabling the
- * following define (if you have an USR faxmodem that does *not* need
- * this, please send me a mail!)
- * It seems as if the newest V.34 modems do not need this anymore, please
- * try it out...
+ * following define.
+ *
+ * This should NOT be needed for recent V.34 or ISDN modems anymore
+ * (anything built after 1999).  In doubt, make sure your firmware is
+ * up to date before experimenting with this.
  */
 /* #define FAX_USRobotics */
 
