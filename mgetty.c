@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.5 1993/02/24 17:19:13 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.6 1993/02/25 12:07:14 gert Exp $ (c) Gert Doering";
 /* some parts of the code are loosely based on the 
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us
  */
@@ -376,6 +376,7 @@ int main( int argc, char ** argv)
 	    if ( what_action == A_FAX )
 	    {
 		lprintf( L_MESG, "action is A_FAX, start fax receiver...");
+		termio.c_iflag = 0;		/* do NOT process input! */
 		termio.c_lflag &= ~ISIG;	/* disable signals! */
 		ioctl (STDIN, TCSETAF, &termio);
 		faxrec();
