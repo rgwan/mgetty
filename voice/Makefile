@@ -3,7 +3,7 @@
 #
 # This is the Makefile for the whole vgetty stuff.
 #
-# $Id: Makefile,v 1.5 2000/08/14 19:51:48 gert Exp $
+# $Id: Makefile,v 1.6 2001/12/22 18:43:55 marcs Exp $
 #
 
 AR=ar
@@ -91,6 +91,7 @@ vgetty-install: vgetty-all
 	done
 	$(INSTALL) -m 644 man/man1/zplay.1 $(MAN1DIR)
 	$(INSTALL) -m 644 man/man1/pvf.1 $(MAN1DIR)
+	$(INSTALL) -m 644 man/man8/pvf.8 $(MAN8DIR)
 	cd $(MAN1DIR); \
 	for i in $(PVFTOOLS); \
 	do \
