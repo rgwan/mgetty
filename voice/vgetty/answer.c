@@ -1,7 +1,7 @@
 /*
  * answer.c
  *
- * $Id: answer.c,v 1.4 1998/03/26 09:30:54 gert Exp $
+ * $Id: answer.c,v 1.5 1998/07/02 12:02:35 gert Exp $
  *
  */
 
@@ -274,7 +274,7 @@ static void remove_message(char *message)
 
      }
 
-int vgetty_answer(int rings, int rings_wanted, action_t ring_action)
+int vgetty_answer(int rings, int rings_wanted, int dist_ring)
      {
      time_t call_start;
      time_t call_end;
@@ -295,24 +295,27 @@ int vgetty_answer(int rings, int rings_wanted, action_t ring_action)
      if (virtual_ring)
           ring_type = "virtual";
 
-     switch (ring_action)
+     switch (dist_ring)
           {
-          case A_RING1:
-               ring_type = "ring1";
-               break;
-          case A_RING2:
-               ring_type = "ring2";
-               break;
-          case A_RING3:
-               ring_type = "ring3";
-               break;
-          case A_RING4:
-               ring_type = "ring4";
-               break;
-          case A_RING5:
-               ring_type = "ring5";
-               break;
+	  case 0: 
+	       break;
+	  case 1:
+	       ring_type = "ring1";
+	       break;
+	  case 2:
+	       ring_type = "ring2";
+	       break;
+	  case 3:
+	       ring_type = "ring3";
+	       break;
+	  case 4:
+	       ring_type = "ring4";
+	       break;
+	  case 5:
+	       ring_type = "ring5";
+	       break;
           default:
+	       lprintf( L_WARN, "%s: yet unknown dist_ring_type %d, accept as RING 0", program_name, dist_ring );
                break;
           };
 
