@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.37 1993/10/07 18:11:45 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.38 1993/10/18 20:24:35 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -273,7 +273,7 @@ static	char	fax_end_of_page[] = { DLE, ETX };
                 else
                 if ( r < 10 || buf[0] != 0 )
 		{
-		    lprintf( L_WARN, "file looks 'suspicious'" );
+		    lprintf( L_WARN, "file looks 'suspicious', buf=%02x %02x %02x %02x...", buf[0] &0xff, buf[1] &0xff, buf[2] &0xff, buf[3] &0xff );
                     fprintf( stderr, "WARNING: are you sure that this is a G3 fax file? Doesn't seem to be...\n" );
 		}
 	    }
@@ -439,8 +439,9 @@ int	tries;
 	exit(2);
     }
 
-    sprintf( buf, "AT+FCLASS=2;+FLID=\"%s\"", FAX_STATION_ID);
+    sprintf( buf, "AT+FLID=\"%s\"", FAX_STATION_ID);
     if ( fax_command( "AT", "OK", fd ) == ERROR ||
+         fax_command( "AT+FCLASS=2", "OK", fd ) == ERROR ||
          fax_command( buf, "OK", fd ) == ERROR )
     {
 	lprintf( L_ERROR, "cannot initialize faxmodem" );
