@@ -3,7 +3,7 @@
  *
  * autodetect the modemtype we are connected to.
  *
- * $Id: detect.c,v 1.4 1998/09/09 21:07:29 gert Exp $
+ * $Id: detect.c,v 1.5 1998/11/17 11:48:40 marc Exp $
  *
  */
 
@@ -22,37 +22,38 @@ const char ati6[] = "ATI6";
 
 static const struct modem_type_struct modem_database[] =
      {
-     {ati, "1.04",              NULL,   &Cirrus_Logic},
-     {ati, "144",               NULL,   &UMC},
-     {ati, "144 VOICE",         NULL,   &Rockwell},
-     {ati, "14400",             NULL,   &Rockwell},
-     {ati, "1443",              NULL,   &Dolphin},
-     {ati, "1445",              NULL,   &US_Robotics},
-     {ati, "1496",              NULL,   &ZyXEL_1496},
-     {ati, "247",               NULL,   &Multitech_2834ZDXv},
-     {ati, "248",               NULL,   &Sierra},
-     {ati, "249",               NULL,   &Rockwell},
-     {ati, "282",               NULL,   &Elsa},
-     {ati, "288",               NULL,   &ZyXEL_2864},
-     {ati, "2864",              NULL,   &ZyXEL_2864},
-     {ati, "28641",             NULL,   &ZyXEL_2864},
-     {ati, "28642",             NULL,   &ZyXEL_2864},
-     {ati, "28643",             NULL,   &ZyXEL_2864},
-     {ati, "28800",             "ATI6", NULL},
-     {ati, "2886",              NULL,   &US_Robotics},
-     {ati, "336",               NULL,   &Rockwell},
-     {ati, "3361",              NULL,   &US_Robotics},
-     {ati, "3362",              NULL,   &US_Robotics},
-     {ati, "3366",              NULL,   &US_Robotics},
-     {ati, "33600",             NULL,   &Rockwell},
-     {ati, "3X WYSIWYF 628DBX", NULL,   &Rockwell},
-     {ati, "56000",             NULL,   &Rockwell},
-     {ati, "5601",              NULL,   &US_Robotics},
-     {ati, "961",               NULL,   &Rockwell},
-     {ati, "Linux ISDN",        NULL,   &ISDN4Linux},
+     {ati, "1.04",                 NULL,   &Cirrus_Logic},
+     {ati, "144",                  NULL,   &UMC},
+     {ati, "144 VOICE",            NULL,   &Rockwell},
+     {ati, "14400",                NULL,   &Rockwell},
+     {ati, "1443",                 NULL,   &Dolphin},
+     {ati, "1445",                 NULL,   &US_Robotics},
+     {ati, "1496",                 NULL,   &ZyXEL_1496},
+     {ati, "247",                  NULL,   &Multitech_2834ZDXv},
+     {ati, "248",                  NULL,   &Sierra},
+     {ati, "249",                  NULL,   &Rockwell},
+     {ati, "282",                  NULL,   &Elsa},
+     {ati, "288",                  NULL,   &ZyXEL_2864},
+     {ati, "2864",                 NULL,   &ZyXEL_2864},
+     {ati, "28641",                NULL,   &ZyXEL_2864},
+     {ati, "28642",                NULL,   &ZyXEL_2864},
+     {ati, "28643",                NULL,   &ZyXEL_2864},
+     {ati, "28800",                "ATI6", NULL},
+     {ati, "2886",                 NULL,   &US_Robotics},
+     {ati, "336",                  NULL,   &Rockwell},
+     {ati, "3361",                 NULL,   &US_Robotics},
+     {ati, "3362",                 NULL,   &US_Robotics},
+     {ati, "3366",                 NULL,   &US_Robotics},
+     {ati, "33600",                NULL,   &Rockwell},
+     {ati, "3X WYSIWYF 628DBX",    NULL,   &Rockwell},
+     {ati, "56000",                NULL,   &Rockwell},
+     {ati, "5601",                 NULL,   &US_Robotics},
+     {ati, "961",                  NULL,   &Rockwell},
+     {ati, "Digi RAS modem 56000", NULL,&Digi_RAS},
+     {ati, "Linux ISDN",           NULL,   &ISDN4Linux},
 
-     {ati6, "OK",     NULL, &Dr_Neuhaus},
-     {ati6, "RCV288", NULL, &Rockwell},
+     {ati6, "OK",      NULL, &Dr_Neuhaus},
+     {ati6, "RCV288*", NULL, &Rockwell},
 
      {NULL, NULL, NULL, NULL}
      };

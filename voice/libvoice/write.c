@@ -3,7 +3,7 @@
  *
  * Write data to the voice modem device.
  *
- * $Id: write.c,v 1.4 1998/09/09 21:07:38 gert Exp $
+ * $Id: write.c,v 1.5 1998/11/17 11:48:42 marc Exp $
  *
  */
 
@@ -65,7 +65,8 @@ int voice_write_char(char charout)
           if (result == 1)
                return(OK);
 
-          if ((result < 0) && (errno != 0) && (errno != EINTR))
+          if ((result < 0) && (errno != 0) && (errno != EINTR) && (errno !=
+           EAGAIN))
                {
                lprintf(L_WARN, "%s: could not write character to voice modem",
                 program_name);

@@ -5,7 +5,7 @@
  * follow the IS-101 interim standard for voice modems. Since the commands
  * are set in the modem structure, it should be quite generic.
  *
- * $Id: IS_101.c,v 1.5 1998/09/09 21:07:18 gert Exp $
+ * $Id: IS_101.c,v 1.6 1998/11/17 11:48:37 marc Exp $
  *
  */
 
@@ -298,7 +298,7 @@ int IS_101_handle_dle(char data)
            * Loop current break
            */
 
-          case 'I':
+          case 'l':
                return(queue_event(create_event(LOOP_BREAK)));
 
           /*

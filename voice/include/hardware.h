@@ -3,7 +3,7 @@
  *
  * Defines the structure with data and routines for the hardware drivers.
  *
- * $Id: hardware.h,v 1.4 1998/09/09 21:06:35 gert Exp $
+ * $Id: hardware.h,v 1.5 1998/11/17 11:48:35 marc Exp $
  *
  */
 
@@ -81,6 +81,7 @@ extern int rom_release;
 extern voice_modem_struct no_modem;
 extern voice_modem_struct Cirrus_Logic;
 extern voice_modem_struct Dolphin;
+extern voice_modem_struct Digi_RAS;
 extern voice_modem_struct Dr_Neuhaus;
 extern voice_modem_struct Elsa;
 extern voice_modem_struct IS_101;

@@ -24,4 +24,7 @@
      voice mode. This is possible with ISDN cards and maybe with some
      modems. Probably requires huge changes to the sources.
 
-$Id: ToDo,v 1.4 1998/09/09 21:06:14 gert Exp $
+ 40) Check that mgetty and vgetty speeds do match. If not use mgettys
+     speed and log a warning.
+
+$Id: ToDo,v 1.5 1998/11/17 11:48:33 marc Exp $

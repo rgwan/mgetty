@@ -73,10 +73,17 @@ permits me to accept unified diffs. This is, because I'm never adding new
 code directly to the sources, I'm always reading your changes and then I
 decide, whether I will include them or not. Thanks for your help!
 
-Vgetty is currently developed and maintained by
+Vgetty was developed and maintained by
 
   Marc Eberhard <marc@greenie.net>
 
-with help from many other people. See the Credits file for details.
+up to this release with help from many other people. See the Credits file
+for details.
 
-$Id: Readme,v 1.4 1998/09/09 21:06:13 gert Exp $
+From this release on the new maintainer and developer of vgetty is
+
+  Marc Schaefer <schaefer@alphanet.ch>
+
+and I wish him good luck and all the best!
+
+$Id: Readme,v 1.5 1998/11/17 11:48:33 marc Exp $

@@ -6,6 +6,13 @@ Cirrus_Logic.o: Cirrus_Logic.c ../include/voice.h \
  ../include/default.h ../include/event.h ../include/hardware.h \
  ../include/header.h ../include/paths.h ../include/pvf.h \
  ../include/wav.h
+Digi_RAS.o: Digi_RAS.c ../include/voice.h ../include/../../mgetty.h \
+ ../include/../../ugly.h ../include/../../config.h \
+ ../include/../../policy.h ../include/../../tio.h \
+ ../include/../../fax_lib.h ../include/IS_101.h ../include/bitsizes.h \
+ ../include/util.h ../include/config.h ../include/default.h \
+ ../include/event.h ../include/hardware.h ../include/header.h \
+ ../include/paths.h ../include/pvf.h ../include/wav.h
 Dolphin.o: Dolphin.c ../include/voice.h ../include/../../mgetty.h \
  ../include/../../ugly.h ../include/../../config.h \
  ../include/../../policy.h ../include/../../tio.h \
