@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 4.30 2000/12/17 22:20:26 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 4.31 2001/01/05 18:03:57 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -902,7 +902,7 @@ Ring_got_action:
 
 	    lprintf( L_MESG, "start fax receiver..." );
 	    get_ugid( &c.fax_owner, &c.fax_group, &uid, &gid );
-	    faxrec( FAX_SPOOL_IN, c_int(switchbd),
+	    faxrec( c_string(fax_spool_in), c_int(switchbd),
 		    uid, gid, c_int(fax_mode),
 		    c_isset(notify_mail)? c_string(notify_mail): NULL );
 

@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.c,v 4.13 1999/02/28 19:13:07 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_mg.c,v 4.14 2001/01/05 18:03:58 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_mg.c
  *
@@ -130,6 +130,11 @@ struct conf_data_mgetty c = {
 	{ "fax-group", {0}, CT_STRING, C_EMPTY },
 #endif
 	{ "fax-mode", {FAX_FILE_MODE}, CT_INT, C_PRESET },
+#ifdef __STDC__
+	{ "fax-spool-in", {(p_int) FAX_SPOOL_IN ":/tmp"}, CT_STRING, C_PRESET },
+#else
+	{ "fax-spool-in", {(p_int) FAX_SPOOL_IN}, CT_STRING, C_PRESET },
+#endif
 
 	{ "debug", {LOG_LEVEL}, CT_INT, C_PRESET },
 	

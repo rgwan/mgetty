@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.h,v 4.9 1999/02/28 19:13:08 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: conf_mg.h,v 4.10 2001/01/05 18:03:58 gert Exp $ Copyright (c) 1994 Gert Doering"
 
 /* all (dynamic) mgetty configuration is contained in this structure.
  * It is initialized and loaded in conf_mg.c and accessed from mgetty.c
@@ -58,6 +58,7 @@ extern struct conf_data_mgetty {
 	fax_owner,				/* "fax" */
 	fax_group,				/* "staff" */
 	fax_mode,				/* "660" */
+	fax_spool_in,				/* "/var/fax/inc:/tmp" */
 
 	debug,					/* log level */
     
