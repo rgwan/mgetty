@@ -4,9 +4,12 @@
 # 
 # Copyright 1998 Simone Demmel simone@greenie.net
 #
-# RCS: $Id: nph-vf-gif.in,v 1.7 1999/05/27 15:12:16 gert Exp $
+# RCS: $Id: nph-vf-gif.in,v 1.8 2001/02/23 09:18:33 gert Exp $
 #
 # $Log: nph-vf-gif.in,v $
+# Revision 1.8  2001/02/23 09:18:33  gert
+# regex umgestellt, 2 warnings weniger
+#
 # Revision 1.7  1999/05/27 15:12:16  gert
 # add support for viewing 'outgoing' fax queue
 # (means restructuring about everything because of different directory layout)
@@ -283,7 +286,7 @@ elsif ($page eq "overview")
     www_head_overview();
 
     my $match = $file;
-    $match =~ s/([+*.?])/\\\1/g;
+    $match =~ s/([+*.?])/\\$1/g;
   
     # read incoming-Directory
     # print "<p>bin im else...<br>";
@@ -343,7 +346,7 @@ elsif ($page eq "overview")
 else { # $page eq "all"
     www_head_gif();
     my $match = $file;
-    $match =~ s/([+*.?])/\\\1/g;
+    $match =~ s/([+*.?])/\\$1/g;
 
     # read incoming-Directory
     # print "<p>bin im else...<br>";
