@@ -1,4 +1,4 @@
-#ident "@(#)getdisk.c $Id: getdisk.c,v 1.11 1994/09/26 01:40:09 gert Exp $ Copyright (c) 1994 Elegant Communications Inc."
+#ident "@(#)getdisk.c $Id: getdisk.c,v 1.12 1994/09/28 17:27:25 gert Exp $ Copyright (c) 1994 Elegant Communications Inc."
 
 /*
 
@@ -120,7 +120,7 @@
 #   ifdef __osf__
 #    include <sys/mount.h>
 #   else
-#    ifndef BSD
+#    if !defiend(BSD) || defined(NeXT)
 #     include <sys/vfs.h>
 #    endif 	/* !BSD */
 #   endif	/* !__osf__ */
