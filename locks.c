@@ -1,4 +1,4 @@
-#ident "$Id: locks.c,v 2.1 1994/11/30 23:20:42 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
+#ident "$Id: locks.c,v 2.2 1995/04/23 11:24:52 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
 
 /* large parts of the code in this module are taken from the
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us,
@@ -161,11 +161,17 @@ int makelock _P1( (device),
 
 int makelock_file _P1( (file), char * file )
 {
+    int retcode;
+    
     lprintf(L_NOISE, "makelock_file(%s) called", file);
 
     strcpy( lock, file );
     
-    return do_makelock();
+    retcode = do_makelock();
+
+    if ( retcode == FAIL ) lock[0] = 0;		/* make sure rmlocks knows */
+						/* that we *don't* have it */
+    return retcode;
 }
    
 /*
