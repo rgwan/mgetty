@@ -1,4 +1,4 @@
-#ident "$Id: mid.c,v 1.8 2000/09/02 18:18:19 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mid.c,v 1.9 2002/11/23 20:35:50 gert Exp $ Copyright (c) Gert Doering"
 
 /* mid.c
  *
@@ -32,7 +32,11 @@ char * query_strings[] = { "ATE1Q0V1",
 			   NULL };
 
 /* we don't want logging here */
+#ifdef USE_VARARGS
 int lprintf() { return 0; }
+#else
+int lprintf(int level, const char *format, ...) { return 0; }
+#endif
 int lputs( int level, char * string ) { return 0; }
 
 /* interrupt handler for SIGALARM */
