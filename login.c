@@ -1,4 +1,4 @@
-#ident "$Id: login.c,v 4.11 1999/11/02 14:23:39 gert Exp $ Copyright (C) 1993 Gert Doering"
+#ident "$Id: login.c,v 4.12 2001/03/13 20:32:40 gert Exp $ Copyright (C) 1993 Gert Doering"
 
 
 /* login.c
@@ -369,4 +369,5 @@ void setup_environment _P0(void)
     set_env_var( "CALLER_ID", CallerId );
     set_env_var( "CALLED_ID", CalledNr );
     set_env_var( "CONNECT", Connect );
+    set_env_var( "DEVICE", Device );
 }
