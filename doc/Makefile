@@ -1,6 +1,6 @@
 # doc/Makefile
 #
-# SCCS: $Id: Makefile,v 1.8 1994/11/04 14:35:03 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: Makefile,v 1.9 1994/11/04 14:36:31 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 
 NROFF=nroff
@@ -90,6 +90,7 @@ doc-tar: ../mgetty0$(VS)doc.tar.gz
 
 # explicit man page dependencies
 
+fax.1: fax.1in ../sedscript
 faxq.1: faxq.1in ../sedscript
 faxqueue.5: faxqueue.5in ../sedscript
 faxrm.1: faxrm.1in ../sedscript
