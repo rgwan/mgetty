@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 3.3 1995/09/19 23:10:13 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 3.4 1995/09/23 16:21:34 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -18,6 +18,9 @@
 #endif
 #include <signal.h>
 #include <sys/types.h>
+#ifndef ENOENT
+# include <errno.h>
+#endif
 
 #include "mgetty.h"
 #include "tio.h"
