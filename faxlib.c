@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 1.4 1993/06/01 22:51:21 gert Exp $ Gert Doering"
+#ident "$Id: faxlib.c,v 1.5 1993/07/03 15:10:42 gert Exp $ Gert Doering"
 
 /* faxlib.c
  *
@@ -19,7 +19,8 @@ char	fax_remote_id[1000];		/* remote FAX id +FTSI */
 char	fax_param[1000];		/* transm. parameters +FDCS */
 fax_param_t	fax_par_d;		/* fax params detailed */
 char	fax_hangup = 0;
-int	fax_hangup_code = 0;		/* hangup cause */
+int	fax_hangup_code = 0;		/* hangup cause +FHNG:<xxx> */
+int	fax_page_tx_status = 0;		/* +FPTS:<ppm> */
 boolean	fax_to_poll = FALSE;		/* there's something to poll */
 
 static boolean fwf_timeout = FALSE;
@@ -97,13 +98,22 @@ int bufferp;
 	{
 	    /* hangup. Set flag to indicate hangup.
 	     * if the wait_for string is not "OK", return immediately,
-	     * since that is all that the modem will send after +FHNG
+	     * since that is all that the modem can send after +FHNG
 	     */
 	    lprintf( L_MESG, "connection hangup: '%s'", buffer );
 	    fax_hangup = 1;
 	    sscanf( &buffer[6], "%d", &fax_hangup_code );
 
 	    if ( strcmp( s, "OK" ) != 0 ) break;
+	}
+
+	else if ( strncmp( buffer, "+FPTS:", 6 ) == 0 )
+	{
+	    /* page transmit status
+	     * store into global variable (read by sendfax.c)
+	     */
+	    lprintf( L_MESG, "page status: %s", buffer );
+	    sscanf( &buffer[6], "%d", &fax_page_tx_status );
 	}
 
 	else if ( strcmp( buffer, "+FPOLL" ) == 0 )

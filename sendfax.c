@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.19 1993/06/28 11:48:15 gert Exp $ (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.20 1993/07/03 15:10:38 gert Exp $ (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -305,6 +305,8 @@ boolean fax_poll_req = FALSE;
 char * 	fax_page_header = NULL;
 char	poll_directory[MAXPATH] = ".";		/* FIXME: parameter */
 
+int	tries;
+
     /* initialize logging */
     strcpy( log_path, FAX_LOG );
     log_level = L_NOISE;
@@ -414,6 +416,7 @@ char	poll_directory[MAXPATH] = ".";		/* FIXME: parameter */
 
     /* process all files to send / abort, if Modem sent +FHNG result */
 
+    tries = 0;
     while ( argidx < argc && ! fax_hangup )
     {
 	/* send page header, if requested */
@@ -432,11 +435,12 @@ char	poll_directory[MAXPATH] = ".";		/* FIXME: parameter */
 	if ( verbose ) printf( "sending '%s'...\n", argv[ argidx ] );
 	if ( fax_send_page( argv[ argidx ], fd ) == ERROR ) break;
 
-	argidx++;
-
         /* transmit page punctuation
 	 * (three cases: more pages, last page but polling, last page at all)
+	 * then evaluate +FPTS: result code
 	 */
+
+	fax_page_tx_status = -1;
 
 	if ( argidx == argc )		/* was this the last page to send? */
 	  if ( fax_poll_req && fax_to_poll )
@@ -445,16 +449,57 @@ char	poll_directory[MAXPATH] = ".";		/* FIXME: parameter */
 	    fax_command( "AT+FET=2", "OK", fd );	/* end session */
 	else
 	    fax_command( "AT+FET=0", "OK", fd );	/* end page */
+
+	/* after the page punctuation command, the modem
+	 * will send us a +FPTS:<ppm> page transmit status.
+	 * The ppm value is written to fax_page_tx_status by
+	 * fax_wait_for()
+	 * If the other side requests retransmission, do so.
+	 */
+
+	switch ( fax_page_tx_status )
+	{
+	    case 1: tries = 0; break;		/* page good */
+						/* page bad - r. req. */
+	    case 2: fprintf( stderr, "ERROR: page bad - retrain requested\n" );
+		    tries ++;
+		    if ( tries >= FAX_SEND_MAX_TRIES )
+		    {
+			fprintf( stderr, "ERROR: too many retries - aborting send\n" );
+			fax_hangup_code = -1;
+			fax_hangup = 1;
+		    }
+		    else
+		    {
+			if ( verbose )
+			    printf( "sending page again (retry %d)\n", tries );
+			continue;	/* don't go to next page */
+		    }
+		    break;
+	    case 3: fprintf( stderr, "WARNING: page good, but retrain requested\n" ); break;
+		    break;
+	    case 4:
+	    case 5: fprintf( stderr, "WARNING: procedure interrupt requested - don't know how to handle it\n" );
+		    break;
+	    default:fprintf( stderr, "WARNING: invalid code: +FPTS:%d\n",
+	            fax_page_tx_status );
+		    break;
+	}
+	argidx++;
     }
 
     if ( argidx < argc || fax_hangup_code != 0 )
     {
 	lprintf( L_WARN, "Failure transmitting %s: +FHNG:%2d",
 		 argv[argidx-1], fax_hangup_code );
-	fprintf( stderr,
-		 "\n%s: FAILED transmitting '%s'.\n"
-		 "Transmission error: +FHNG:%2d\n", 
-		 argv[0], argv[argidx-1], fax_hangup_code );
+	fprintf( stderr, "\n%s: FAILED to transmit '%s'.\n",
+		         argv[0], argv[argidx-1] );
+
+	if ( fax_hangup_code == -1 )
+	    fprintf( stderr, "(number of tries exhausted)\n" );
+	else
+	    fprintf( stderr, "Transmission error: +FHNG:%2d\n",
+			     fax_hangup_code );
 	fax_close( fd );
 	exit(12);
     }

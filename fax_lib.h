@@ -1,4 +1,4 @@
-#ident "$Id: fax_lib.h,v 1.3 1993/03/21 10:40:23 gert Exp $ Gert Doering"
+#ident "$Id: fax_lib.h,v 1.4 1993/07/03 15:10:41 gert Exp $ Gert Doering"
 
 /* fax_lib.h
  * 
@@ -22,6 +22,7 @@ extern	char	fax_remote_id[];		/* remote FAX id +FTSI */
 extern	char	fax_param[];			/* transm. parameters +FDCS */
 extern	char	fax_hangup;
 extern	int	fax_hangup_code;
+extern	int	fax_page_tx_status;
 extern	fax_param_t	fax_par_d;
 extern	boolean	fax_to_poll;			/* there's something to poll */
 
