@@ -1,4 +1,4 @@
-#ident "$Id: faxsend.c,v 2.1 1994/11/30 23:20:40 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: faxsend.c,v 2.2 1994/12/12 22:30:06 gert Exp $ Copyright (c) 1994 Gert Doering"
 
 /* faxsend.c
  *
@@ -27,9 +27,6 @@
 #include "tio.h"
 #include "policy.h"
 #include "fax_lib.h"
-
-/* I don't know *why*, but the ZyXEL wants all bytes reversed */
-#define REVERSE 1
 
 static boolean fax_sendpg_timeout = FALSE;
 
