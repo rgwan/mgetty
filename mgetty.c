@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.113 1994/07/11 19:15:36 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.114 1994/07/12 22:36:21 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -204,7 +204,7 @@ int main _P2((argc, argv), int argc, char ** argv)
      */
 
     /* some magic done by the command's name */
-    if ( strcmp( basename( argv[0] ), "getty" ) == NULL )
+    if ( strcmp( get_basename( argv[0] ), "getty" ) == 0 )
     {
 	blocking_open = TRUE;
 	direct_line = TRUE;
@@ -281,7 +281,7 @@ int main _P2((argc, argv), int argc, char ** argv)
      */
     
     if (optind < argc)
-    Device = argv[optind++];
+        Device = argv[optind++];
     else {
 	lprintf(L_FATAL,"no line given");
 	exit_usage(2);
@@ -291,11 +291,11 @@ int main _P2((argc, argv), int argc, char ** argv)
     if ( strncmp( Device, "/dev/", 5 ) == 0 ) Device += 5;
 
     /* need full name of the device */
-    sprintf(devname, "/dev/%s", Device);
+    sprintf( devname, "/dev/%s", Device);
 
     /* name of the logfile is device-dependant */
-    sprintf( buf, LOG_PATH, strrchr( devname, '/' ) + 1 );
-    log_init_paths( argv[0], buf, &devname[strlen(devname)-2] );
+    sprintf( buf, LOG_PATH, get_basename( Device ) );
+    log_init_paths( argv[0], buf, &Device[strlen(Device)-2] );
 
 #ifdef USE_GETTYDEFS
     if (optind < argc)
