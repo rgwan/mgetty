@@ -23,3 +23,16 @@
 
 7) nph-vf-gif: make nice buttons for turn left/turn next, go to
    next/pref page (-> Neko, GIMP)
+
+
+8) make "sendfax" frontend
+
+8a) features: coverpage <yes/no>, full name for sender/receiver, fax 
+   number (fax address book? cookie?), short text for cover page.
+
+8b) configurable buttons to add standard documents ("Wegbeschreibung",
+   "Netzantrag", "Domain-Antrag") via wwwgui.conf to outgoing fax
+
+
+9) internationalization - put all message strings into "wwwlang.conf" 
+   (or something like this). HARD.
