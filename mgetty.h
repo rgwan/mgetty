@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.32 1993/10/20 14:18:27 gert Exp $ Copyright (c) Gert Doering */
+/* $Id: mgetty.h,v 1.33 1993/10/27 01:20:49 gert Exp $ Copyright (c) Gert Doering */
 
 /* ANSI vs. non-ANSI support */
 #ifdef __STDC__
@@ -104,31 +104,6 @@ int	get_current_users _PROTO(( void ));
 #define FAX_RESPONSE_TIMEOUT	120
 /* how much time may pass while receiving a fax without getting data */
 #define	FAX_PAGE_TIMEOUT	60
-
-/* gettydefs.c */
-
-#ifdef USE_GETTYDEFS
-struct tio {
-    unsigned short c_iflag;
-    unsigned short c_oflag;
-    unsigned short c_cflag;
-    unsigned short c_lflag;
-};
-
-struct gdentry {
-    char *tag;
-    struct tio before;
-    struct tio after;
-    char *prompt;
-    char *nexttag;
-};
-
-/* number of gettydefs entries to make */
-#define GDENTRYMAX 200
-
-int		loadgettydefs _PROTO(void);
-struct gdentry	*getgettydef _PROTO((char *s));
-#endif
 
 /********* system prototypes **************/
 extern char * mktemp _PROTO(( char * template ));
