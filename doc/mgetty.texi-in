@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.5 1997/11/28 21:25:40 gert Exp $ (c) 1993-1997 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.6 1997/12/05 23:55:04 gert Exp $ (c) 1993-1997 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -215,10 +215,10 @@ systems:
     SVR4.2 Unix                                 (needs more testing)
     AT&T 3B1 3.51m                              (well tested)
     HP-UX 8.x and 9.x                           (well tested)
-    AIX 3.2.5 and 4.2                           (well tested)
+    AIX 3.2.5, 4.1 and 4.2                      (very well tested)
     SunOS 4                                     (well tested)
     Solaris 2.x                                 (well tested)  
-    NetBSD / FreeBSD                         (well tested)
+    NetBSD / FreeBSD (all versions)            (very well tested)
 @end display
 
 It should be possible to run mgetty on any other Unix with @file{termio.h}
@@ -236,6 +236,12 @@ exhaustive list) in fax mode:
     ZyXEL U1496 (various ROM releases)
         (very well tested, a couple of problems remain, depending on the
          ROM release)
+
+    ZyXEL 2864/2864I (various ROM releases)
+        (very well tested, some firmware versions have problems)
+
+    USR Courier/Sportster series
+        (well tested, Couriers work great, Sportsters are ok)
 
     MultiTech (various models)
         (tested, works very well, very good fax implementation)
@@ -276,7 +282,7 @@ After that, a @samp{make} should build the programs, and @samp{make
 install} should install them.
   
 If your compiler complains about the @code{#ident} lines I use for
-@file{SCCS}, please run @code{make noident}, that will take care of those
+@file{RCS}, please run @code{make noident}, that will take care of those
 lines.
 
 If you get an error message about ``unresolved symbols'' when linking, you
@@ -813,7 +819,10 @@ Specifies the kind of modem connected to the port. Default is
 @item auto
 
 Mgetty will detect the modem type itself (which may occasionally be not
-desirable, or it may fail on old modem equipment).
+desirable, or it may fail on old modem equipment).  Mgetty will use 
+the @code{ATI} command to find out the modem type, and select the proper
+fax class accordingly.  If that fails (unknown modem type), mgetty will
+try class 2.0 and then class 2.
 
 @item c2.0
 
@@ -825,16 +834,26 @@ available, because its better standardized. Known to work with USR, ZyXEL
 
 Modem is a @var{class 2} fax modem, mgetty will not try class 2.0.
 
+@item c2.1
+
+Modem conforms to the new ITU T.32 standard (class 2.1).  To my knowledge,
+there are no such modems available yet, but supporting them will be easy
+as class 2.1 is very similar to class 2.0.
+
+@item cls1
+
+Modem can only do class 1 fax.  NOT IMPLEMENTED YET.  (And not recommended
+anyway).
+
+@item c1.0
+
+Modem can do class 1 fax conforming to ITU T.31 standard.  This isn't 
+much better than class 1 (use class 2 / 2.0 if available!), but is better
+standardized.  NOT IMPLEMENTED YET.
+
 @item cls2ok
 
-Modem is a @var{class 2} fax modem that does the bit order upon reception
-@emph{right}. Most modems do it wrong (for compatibility with Rockwell, who
-botched it in the first place), but some, for example MultiTech modems, do
-it right, and it will make programs like @code{mgetty} fail. You'll see if
-your modem falls into this category if decoding of incoming faxes with
-@code{g32pbm} doesn't work, but @code{2pbm @strong{-r}} does. This
-won't affect the reliability of fax reception at all, it will only ease
-decoding of the received pages. @strong{Not implemented yet}.
+(obsolete, use @code{modem-quirks 02})
 
 @item data
 
@@ -844,6 +863,15 @@ Do not try fax initialization, same as if @samp{-D} given.
 There is no way (yet) to tell mgetty to use @strong{only} fax mode and
 refuse data calls with this option, use the @code{fax-only true} statement
 for that.
+
+@item @code{modem-quirks} @var{bitmask}
+
+Some modems have a very peculiar interpretation of the fax standards. 
+Some of the internal operations of @code{mgetty+sendfax} can be adapted
+to that.  The argument is a number, constructed from valies in
+@file{fax_lib.h}, one bit per "quirk".  Usually you won't need this 
+option, because those modems really needing it are auto-detected and
+handled properly anyway.
 
 @item @code{init-chat} [-m] @var{expect send expect send ...}
 
@@ -1706,6 +1734,11 @@ Force the modem command set to use. Default is @samp{auto} (auto-detect,
 which may not work on very cheap modems), possible other values are
 @samp{cls2}, for ``class 2 only'' modems, and @samp{c2.0} for ``class 2.0''
 faxmodems. Default is @code{DEFAULT_MODEMTYPE}. @xref{runtime-mgetty}
+
+@item @code{modem-quirks} @var{bitmask}
+
+Same as in @code{mgetty}, this can be used to adapt @code{sendfax} to
+some peculiarities in certain modems. @xref{runtime-mgetty}
 
 @item @code{max-tries} @var{nnn}
 
@@ -2587,7 +2620,7 @@ with Rockwell, who botched it in the first place). Thus, @code{g32pbm}
 won't be able to decode the data, unless you call it as @code{g32pbm -r}.
 (You can see if the bit order is wrong if g32pbm complains in every single
 line). I'll work something out for one of the next releases to work around
-this (@var{modem-type cls2ok}).
+this (@var{modem-quirks 02}).
 
 BUT: There seems to be a way to tell the modem to behave like a Rockwell
 one and use the "wrong" byte order. Carlos Fonseca found the following
