@@ -1,14 +1,14 @@
 # Makefile for the "tools" subtree
 # of mgetty+sendfax
 #
-# RCS: $Id: Makefile,v 1.6 1999/01/04 21:47:36 gert Exp $
+# RCS: $Id: Makefile,v 1.7 2004/11/24 15:24:25 gert Exp $
 #
 
 CC=gcc
 CFLAGS=-O2 -I..
 
 SCRIPTS=kvg cutbl
-PROGRAMS=ltest mid
+PROGRAMS=ltest mid microcom
 TOOLS=
 
 all: $(SCRIPTS) $(PROGRAMS)
@@ -34,6 +34,13 @@ mid: mid.o ../tio.o ../io.o ../locks.o
 
 mid.o: mid.c ../tio.h ../mgetty.h
 	$(CC) $(CFLAGS) -c -o mid.o mid.c
+
+microcom: microcom.o ../tio.o ../io.o ../locks.o
+	$(CC) $(CFLAGS) -o microcom $(LDFLAGS) microcom.o ../tio.o \
+		../io.o ../locks.o $(LIBS)
+
+microcom.o: microcom.c ../tio.h ../mgetty.h
+	$(CC) $(CFLAGS) -c -o microcom.o microcom.c
 
 vhangup: vhangup.c
 	$(CC) $(CFLAGS) -o vhangup vhangup.c
