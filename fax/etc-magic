@@ -36,6 +36,11 @@
 0	short		0x8b1f		GNUzip compressed
 
 4	string		Research,	Digifax-G3-File
+>29	byte		1		, fine resolution
+>29	byte		0		, normal resolution
 
 0x10	string		TeX output	TeX DVI file
 0	string		\documentstyle	LaTeX source file
+
+0	short		0x0100		raw G3 data, byte-padded
+0	short		0x1400		raw G3 data
