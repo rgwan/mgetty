@@ -1,12 +1,12 @@
 # doc/Makefile
 #
-# SCCS: $Id: Makefile,v 1.2 1994/03/02 14:09:38 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: Makefile,v 1.3 1994/08/04 17:21:34 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 MAN1PAGES=g3topbm.1 g3cat.1 pbmtog3.1 \
 	  faxspool.1 faxrunq.1 faxq.1 faxrm.1
 MAN4PAGES=mgettydefs.4
 MAN5PAGES=faxqueue.5
-MAN8PAGES=sendfax.8
+MAN8PAGES=sendfax.8 mgetty.8
 MAN1DIR=/usr/local/man/man1
 MAN4DIR=/usr/local/man/man4
 MAN8DIR=/usr/local/man/man8
@@ -19,7 +19,7 @@ MAN_FMT_PRG=nroff -man
 
 all:
 
-doc-all: mgetty.1 mgetty.info mgetty.dvi mgetty.ps fmt-manpages
+doc-all: mgetty.ms mgetty.info mgetty.dvi mgetty.ps fmt-manpages
 
 fmt-manpages:
 	for i in $(MAN1PAGES) $(MAN4PAGES) $(MAN5PAGES) $(MAN8PAGES); do \
@@ -27,8 +27,8 @@ fmt-manpages:
 		$(MAN_FMT_PRG) $$i >`expr $$i : "\([^.]*\)"`.man ; \
 	done
 
-mgetty.1: mgetty.texi
-	-texi2roff -ms <mgetty.texi >mgetty.1
+mgetty.ms: mgetty.texi
+	-texi2roff -ms <mgetty.texi >mgetty.ms
 
 mgetty.info: mgetty.texi
 	-makeinfo mgetty.texi
@@ -46,7 +46,7 @@ clean:
 	      mgetty.toc mgetty.tp mgetty.vr
 
 fullclean: clean
-	rm -f mgetty.ps mgetty.dvi mgetty.aux mgetty.info* mgetty.1
+	rm -f mgetty.ps mgetty.dvi mgetty.aux mgetty.info* mgetty.ms
 
 install: $(MAN1PAGES) $(MAN4PAGES) mgetty.info
 	for i in $(MAN1PAGES) ; do \
@@ -70,5 +70,5 @@ doc-tar: ../mgetty0$(VS)doc.tar.gz
 ../mgetty0$(VS)doc.tar.gz: doc-all
 	gtar cvvf ../mgetty0$(VS)doc.tar mgetty.texi mgetty.info* \
 				         mgetty.dvi mgetty.ps \
-				         mgetty.1 *.man
+				         mgetty.ms *.man
 	gzip -f -9 -v ../mgetty0$(VS)doc.tar
