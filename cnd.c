@@ -1,4 +1,4 @@
-#ident "@(#)cnd.c	$Id: cnd.c,v 4.10 1998/06/01 17:26:53 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "@(#)cnd.c	$Id: cnd.c,v 4.11 1998/06/09 09:39:32 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 
 #include <stdio.h>
 #include <string.h>
@@ -235,12 +235,13 @@ int cnd_call _P3((name, tty, dist_ring),
     int rc;
 
     program = malloc( strlen(name) + strlen(tty) + 
-		      strlen( CallerId ) + strlen( CalledNr ) + 20 );
+		      strlen( CallerId ) + strlen( CalledNr ) +
+		      sizeof( CONSOLE ) + 50 );
     if ( program == NULL )
 	    { lprintf( L_ERROR, "cnd_call: can't malloc" ); return 0; }
 
-    sprintf( program, "%s %s '%s' %d '%s'", name, tty, 
-		      CallerId, dist_ring, CalledNr );
+    sprintf( program, "%s %s '%s' %d '%s' >%s 2>&1 </dev/null", name, tty, 
+		      CallerId, dist_ring, CalledNr, CONSOLE );
     lprintf( L_NOISE, "CND: program \"%s\"", program );
 
     rc = system(program);
