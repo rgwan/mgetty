@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.87 1994/01/20 18:22:30 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.88 1994/01/23 17:36:12 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -90,7 +90,7 @@ chat_action_t	ring_chat_actions[] = { { "CONNECT",	A_CONN },
 					{ NULL,		A_FAIL } };
 
 #ifdef VOICE
-char *	answer_chat_seq[] = { "", "\\dATA", "VCON", NULL };
+char *	answer_chat_seq[] = { "", VOICE_ATA, "VCON", NULL };
 #else
 char *	answer_chat_seq[] = { "", "ATA", "CONNECT", "\\c", "\n", NULL };
 #endif
@@ -182,6 +182,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 
 #ifdef VOICE
 	int answer_mode;
+	voice_path_init();
 #endif
 	
 #ifndef NO_FAX
