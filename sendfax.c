@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.61 1994/05/19 09:01:16 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.62 1994/06/28 22:06:30 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* sendfax.c
  *
@@ -371,7 +371,7 @@ int	tries;
     {
 	if ( strncmp( extra_modem_init, "AT", 2 ) != 0 )
 	{
-	    fax_send( "AT", fd );
+	    write( fd, "AT", 2 );
 	}
 
 	if ( fax_command( extra_modem_init, "OK", fd ) == ERROR )
