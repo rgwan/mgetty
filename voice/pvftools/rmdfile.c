@@ -3,11 +3,12 @@
  *
  * rmdfile prints out some useful information about .rmd files.
  *
+ * $Id: rmdfile.c,v 1.3 1998/03/25 23:06:07 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
 
-char *rmdfile_c = "$Id: rmdfile.c,v 1.2 1998/01/21 10:25:18 marc Exp $";
 char *program_name;
 
 static void usage (void)

@@ -4,11 +4,11 @@
  * This command records voice data from the voice modem and
  * saves them in the given file.
  *
+ * $Id: record.c,v 1.3 1998/03/25 23:05:48 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
-
-char *libvoice_record_c = "$Id: record.c,v 1.2 1998/01/21 10:25:02 marc Exp $";
 
 int voice_record_file (char *name)
      {
@@ -23,16 +23,14 @@ int voice_record_file (char *name)
 
      if (fd == NULL)
           {
-          errno = 0;
-          lprintf(L_ERROR, "%s: Could not open voice file", program_name);
+          lprintf(L_WARN, "%s: Could not open voice file", program_name);
           return(FAIL);
           }
 
      if (voice_modem->set_compression(&cvd.rec_compression.d.i,
       &cvd.rec_speed.d.i, &bits) != OK)
           {
-          errno = 0;
-          lprintf(L_ERROR, "%s: Illeagal compression method 0x%04x, speed %d",
+          lprintf(L_WARN, "%s: Illegal compression method 0x%04x, speed %d",
            program_name, cvd.rec_compression.d.i, cvd.rec_speed.d.i);
           fclose(fd);
           return(FAIL);
@@ -49,8 +47,7 @@ int voice_record_file (char *name)
 
           if (fwrite(&header, sizeof(rmd_header), 1, fd) != 1)
                {
-               errno = 0;
-               lprintf(L_ERROR, "%s: Could not write header", program_name);
+               lprintf(L_WARN, "%s: Could not write header", program_name);
                return(FAIL);
                }
 

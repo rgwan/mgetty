@@ -4,7 +4,7 @@
  * details.  THERE IS ABSOLUTELY NO WARRANTY FOR THIS SOFTWARE.
  */
 
-/* $Header: /u2/cvs/mgetty/voice/libmgsm/rpe.c,v 1.2 1998/01/21 10:24:25 marc Exp $ */
+/* $Id: rpe.c,v 1.3 1998/03/25 23:05:12 marc Exp $ */
 
 #include <stdio.h>
 #include <assert.h>

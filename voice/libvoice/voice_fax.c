@@ -2,9 +2,9 @@
  * This file is only temporarily needed until the fax part and the voice
  * part are better integrated
  *
+ * $Id: voice_fax.c,v 1.3 1998/03/25 23:05:50 marc Exp $
+ *
  */
-
-char *voice_fax_c = "$Id: voice_fax.c,v 1.2 1998/01/21 10:25:04 marc Exp $";
 
 #include <stdio.h>
 #include <string.h>

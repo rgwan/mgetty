@@ -13,14 +13,14 @@ config.o: config.c ../include/voice.h ../include/../../mgetty.h \
  ../include/util.h ../include/config.h ../include/default.h \
  ../include/event.h ../include/hardware.h ../include/header.h \
  ../include/paths.h ../include/pvf.h ../include/wav.h
-no_modem.o: no_modem.c ../include/voice.h ../include/../../mgetty.h \
+make_path.o: make_path.c ../include/voice.h ../include/../../mgetty.h \
  ../include/../../ugly.h ../include/../../config.h \
  ../include/../../policy.h ../include/../../tio.h \
  ../include/../../fax_lib.h ../include/IS_101.h ../include/bitsizes.h \
  ../include/util.h ../include/config.h ../include/default.h \
  ../include/event.h ../include/hardware.h ../include/header.h \
  ../include/paths.h ../include/pvf.h ../include/wav.h
-make_path.o: make_path.c ../include/voice.h ../include/../../mgetty.h \
+no_modem.o: no_modem.c ../include/voice.h ../include/../../mgetty.h \
  ../include/../../ugly.h ../include/../../config.h \
  ../include/../../policy.h ../include/../../tio.h \
  ../include/../../fax_lib.h ../include/IS_101.h ../include/bitsizes.h \
@@ -34,3 +34,11 @@ strsep.o: strsep.c ../include/voice.h ../include/../../mgetty.h \
  ../include/util.h ../include/config.h ../include/default.h \
  ../include/event.h ../include/hardware.h ../include/header.h \
  ../include/paths.h ../include/pvf.h ../include/wav.h
+variables.o: variables.c ../include/voice.h ../include/../../mgetty.h \
+ ../include/../../ugly.h ../include/../../config.h \
+ ../include/../../policy.h ../include/../../tio.h \
+ ../include/../../fax_lib.h ../include/IS_101.h ../include/bitsizes.h \
+ ../include/util.h ../include/config.h ../include/default.h \
+ ../include/event.h ../include/hardware.h ../include/header.h \
+ ../include/paths.h ../include/pvf.h ../include/wav.h \
+ ../include/version.h

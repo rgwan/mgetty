@@ -3,11 +3,11 @@
  *
  * This command plays the given file.
  *
+ * $Id: play.c,v 1.3 1998/03/25 23:05:46 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
-
-char *libvoice_play_c = "$Id: play.c,v 1.2 1998/01/21 10:25:00 marc Exp $";
 
 int voice_play_file (char *name)
      {
@@ -23,8 +23,7 @@ int voice_play_file (char *name)
 
      if (fd == NULL)
           {
-          errno = 0;
-          lprintf(L_ERROR, "%s: Could not open voice file", program_name);
+          lprintf(L_WARN, "%s: Could not open voice file", program_name);
           return(FAIL);
           };
 
@@ -33,15 +32,13 @@ int voice_play_file (char *name)
 
           if (fread(&header, sizeof(rmd_header), 1, fd) != 1)
                {
-               errno = 0;
-               lprintf(L_ERROR, "%s: Could not read header", program_name);
+               lprintf(L_WARN, "%s: Could not read header", program_name);
                return(FAIL);
                };
 
           if (strncmp(header.magic, "RMD1", 4) != 0)
                {
-               errno = 0;
-               lprintf(L_ERROR, "%s: No raw modem data header found",
+               lprintf(L_WARN, "%s: No raw modem data header found",
                 program_name);
                return(FAIL);
                }
@@ -52,8 +49,7 @@ int voice_play_file (char *name)
           if (strncmp(header.voice_modem_type, voice_modem_rmd_name,
            strlen(voice_modem_rmd_name)) != 0)
                {
-               errno = 0;
-               lprintf(L_ERROR, "%s: Wrong modem type found", program_name);
+               lprintf(L_WARN, "%s: Wrong modem type found", program_name);
                return(FAIL);
                }
           else
@@ -74,7 +70,7 @@ int voice_play_file (char *name)
 
      if (voice_modem->set_compression(&compression, &speed, &bits) != OK)
           {
-          lprintf(L_ERROR, "%s: Illeagal compression method", program_name);
+          lprintf(L_WARN, "%s: Illegal compression method", program_name);
           return(FAIL);
           }
 
@@ -82,13 +78,13 @@ int voice_play_file (char *name)
 
           if (voice_modem->start_play_file() != OK)
                {
-               lprintf(L_ERROR, "%s: start_play_file command failed", program_name);
+               lprintf(L_WARN, "%s: start_play_file command failed", program_name);
                return(FAIL);
                }
 
      if (voice_modem->play_file(fd, speed * bits) != OK)
           {
-          lprintf(L_ERROR, "%s: play_file command failed", program_name);
+          lprintf(L_WARN, "%s: play_file command failed", program_name);
           return(FAIL);
           }
 
@@ -96,7 +92,7 @@ int voice_play_file (char *name)
 
           if (voice_modem->stop_play_file() != OK)
                {
-               lprintf(L_ERROR, "%s: stop_play_file command failed", program_name);
+               lprintf(L_WARN, "%s: stop_play_file command failed", program_name);
                return(FAIL);
                }
 

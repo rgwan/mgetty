@@ -14,20 +14,37 @@
  * Removed most stuff from this file, since the new IS-101 driver can be
  * used now. (Marc 04.01.1997)
  *
+ * $Id: Rockwell.c,v 1.3 1998/03/25 23:05:36 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
 
-char *Rockwell_c = "$Id: Rockwell.c,v 1.2 1998/01/21 10:24:49 marc Exp $";
+static int Rockwell_handle_dle(char data)
+     {
+
+     switch (data)
+          {
+
+          /*
+           * Local handset goes off hook
+           */
+
+          case 't':
+               return(queue_event(create_event(HANDSET_OFF_HOOK)));
+
+          }
+
+     return(IS_101_handle_dle(data));
+     }
 
 static int Rockwell_init(void)
      {
      char buffer[VOICE_BUF_LEN];
 
-     reset_watchdog(0);
+     reset_watchdog();
      lprintf(L_MESG, "initializing ROCKWELL voice modem");
      voice_modem_state = INITIALIZING;
-     voice_modem->voice_mode_on();
      sprintf(buffer, "AT#VSP=%1u", cvd.rec_silence_len.d.i);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
@@ -42,7 +59,7 @@ static int Rockwell_init(void)
      if ((cvd.rec_silence_threshold.d.i > 100) ||
       (cvd.rec_silence_threshold.d.i < 0))
           {
-          lprintf(L_ERROR, "Invalid threshold value.");
+          lprintf(L_WARN, "Invalid threshold value.");
           return(ERROR);
           }
 
@@ -50,8 +67,6 @@ static int Rockwell_init(void)
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "can't set silence threshold");
-
-     voice_modem->voice_mode_off();
 
      if (voice_command("AT&K3", "OK") == VMA_USER_1)
           {
@@ -69,7 +84,7 @@ static int Rockwell_init(void)
 
 static int Rockwell_set_compression (int *compression, int *speed, int *bits)
      {
-     reset_watchdog(0);
+     reset_watchdog();
 
      if (*compression == 0)
           *compression = 2;
@@ -79,7 +94,7 @@ static int Rockwell_set_compression (int *compression, int *speed, int *bits)
 
      if (*speed != 7200)
           {
-          lprintf(L_WARN, "%s: Illeagal sample rate (%d)", voice_modem_name,
+          lprintf(L_WARN, "%s: Illegal sample rate (%d)", voice_modem_name,
            *speed);
           return(FAIL);
           };
@@ -125,7 +140,7 @@ static int Rockwell_set_compression (int *compression, int *speed, int *bits)
 static int Rockwell_set_device (int device)
      {
      static int current_device = -1;
-     reset_watchdog(0);
+     reset_watchdog();
 
      if ((current_device != device) && (current_device >= 0))
           voice_command("ATH0","VCON|OK");
@@ -161,7 +176,7 @@ static char Rockwell_pick_phone_answr[] = "VCON";
 static char Rockwell_beep_cmnd[] = "AT#VTS=[%d,0,%d]";
 #define     Rockwell_beep_timeunit 100
 static char Rockwell_hardflow_cmnd[] = "AT&K3";
-static char Rockwell_softflow_cmnd[] = "AT&K6";
+static char Rockwell_softflow_cmnd[] = "AT&K4";
 static char Rockwell_start_play_cmnd[] = "AT#VTX";
 static char Rockwell_intr_play_answr[] = "OK|VCON";
 static char Rockwell_stop_play_answr[] = "OK|VCON";
@@ -203,13 +218,13 @@ voice_modem_struct Rockwell =
      &IS_101_answer_phone,
      &IS_101_beep,
      &IS_101_dial,
-     &IS_101_handle_dle,
+     &Rockwell_handle_dle,
      &Rockwell_init,
      &IS_101_message_light_off,
      &IS_101_message_light_on,
+     &IS_101_start_play_file,
      NULL,
-     NULL,
-     NULL,
+     &IS_101_stop_play_file,
      &IS_101_play_file,
      &IS_101_record_file,
      &Rockwell_set_compression,

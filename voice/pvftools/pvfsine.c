@@ -4,11 +4,12 @@
  * pvfsine produces a simple sine wave. Output is in the pvf
  * (portable voice format) format.
  *
+ * $Id: pvfsine.c,v 1.3 1998/03/25 23:06:01 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
 
-char *pvfsine_c = "$Id: pvfsine.c,v 1.2 1998/01/21 10:25:13 marc Exp $";
 char *program_name;
 
 static void usage (void)

@@ -16,13 +16,13 @@
  *
  * - Third, if the number of rings is less than 2 it is set to 2.
  *
+ * $Id: rings.c,v 1.3 1998/03/25 23:06:19 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
 
-char *vgetty_rings_c = "$Id: rings.c,v 1.2 1998/01/21 10:25:32 marc Exp $";
-
-void vgetty_rings _P1((rings_wanted), int *rings_wanted)
+void vgetty_rings(int *rings_wanted)
      {
 
      if (strlen(cvd.rings.d.p) != 0)

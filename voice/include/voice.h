@@ -4,17 +4,9 @@
  * This is the main header file for vgetty, vm and the pvf tools.
  * It includes other header files and defines some global variables.
  *
+ * $Id: voice.h,v 1.3 1998/03/25 23:04:58 marc Exp $
+ *
  */
-
-#ifdef MAIN
-# include "version.h"
-
-# ifndef VOICE
-#  include "../../version.h"
-# endif
-
-char *voice_h = "$Id: voice.h,v 1.2 1998/01/21 10:24:12 marc Exp $";
-#endif
 
 #ifndef _NOSTDLIB_H
 # include <stdlib.h>
@@ -55,7 +47,6 @@ char *voice_h = "$Id: voice.h,v 1.2 1998/01/21 10:24:12 marc Exp $";
 #include "bitsizes.h"
 #include "util.h"
 #include "config.h"
-#include "default.h"
 #include "event.h"
 #include "hardware.h"
 #include "header.h"
@@ -66,12 +57,7 @@ char *voice_h = "$Id: voice.h,v 1.2 1998/01/21 10:24:12 marc Exp $";
  * Debugging info
  */
 
-#ifdef MAIN
-char POS[80];
-#else
 extern char POS[80];
-#endif
-
 #define LPRINTF sprintf(POS, "%s%s%03d%s%s%s", \
  __FILE__, " [", __LINE__, "] ", __FUNCTION__, ":"); lprintf
 
@@ -79,14 +65,13 @@ extern char POS[80];
  * Buffer length for commands, voice modem answers and so on
  */
 
-#define VOICE_BUF_LEN (1024)
+#define VOICE_BUF_LEN (256)
 
 /*
  * Program and release information
  */
 
 extern char *vgetty_version;
-extern char *mgetty_version;
 extern char *program_name;
 
 /*
@@ -164,7 +149,7 @@ extern char *voice_strsep(char **stringp, const char *delim);
 #define voice_switch_to_data_fax(a) voice_modem->switch_to_data_fax(a)
 extern int voice_unregister_event_handler(void);
 #define voice_wait(a) voice_modem->wait(a)
-extern void reset_watchdog(int count);
+extern void reset_watchdog(void);
 extern int voice_faxsnd(char **name, int switchbd, int max_tries);
 extern void voice_faxrec(char * spool_in, unsigned int switchbd);
 extern int enter_fax_mode(void);

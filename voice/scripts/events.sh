@@ -4,7 +4,7 @@
 # This is a demo script for the new event handling interface between
 # shell scripts and the voice library.
 #
-# $Id: events.sh,v 1.2 1998/01/21 10:25:22 marc Exp $
+# $Id: events.sh,v 1.3 1998/03/25 23:06:12 marc Exp $
 #
 
 #

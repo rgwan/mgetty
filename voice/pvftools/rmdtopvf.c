@@ -4,11 +4,12 @@
  * rmdtopvf converts from the rmd (raw modem data) format to the pvf
  * (portable voice format) format.
  *
+ * $Id: rmdtopvf.c,v 1.3 1998/03/25 23:06:07 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
 
-char *rmdtopvf_c = "$Id: rmdtopvf.c,v 1.2 1998/01/21 10:25:18 marc Exp $";
 char *program_name;
 
 static void usage (void)

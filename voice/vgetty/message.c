@@ -8,13 +8,13 @@
  * cvd.message_flag_file, is created. After listening to the new
  * messages, the file is again removed.
  *
+ * $Id: message.c,v 1.3 1998/03/25 23:06:18 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
 
-char *vgetty_message_c = "$Id: message.c,v 1.2 1998/01/21 10:25:32 marc Exp $";
-
-void vgetty_message_light _P0(void)
+void vgetty_message_light(void)
      {
 
      if (cvd.do_message_light.d.p && (strlen(cvd.message_flag_file.d.p) != 0))
@@ -40,7 +40,7 @@ void vgetty_message_light _P0(void)
 
      }
 
-void vgetty_create_message_flag_file _P0(void)
+void vgetty_create_message_flag_file(void)
      {
 
      if (strlen(cvd.message_flag_file.d.p) != 0)

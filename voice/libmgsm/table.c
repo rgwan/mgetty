@@ -4,7 +4,7 @@
  * details.  THERE IS ABSOLUTELY NO WARRANTY FOR THIS SOFTWARE.
  */
 
-/* $Header: /u2/cvs/mgetty/voice/libmgsm/table.c,v 1.2 1998/01/21 10:24:27 marc Exp $ */
+/* $Id: table.c,v 1.3 1998/03/25 23:05:14 marc Exp $ */
 
 /*  Most of these tables are inlined at their point of use.
  */

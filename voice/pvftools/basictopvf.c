@@ -6,11 +6,12 @@
  * denominator audio format", which is 8-bit ISDN uLaw (PCM) at
  * a sampling rate of 8000 Hz to the pvf (portable voice format) format.
  *
+ * $Id: basictopvf.c,v 1.3 1998/03/25 23:05:55 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
 
-char *basictopvf_c = "$Id: basictopvf.c,v 1.2 1998/01/21 10:25:07 marc Exp $";
 char *program_name;
 
 static void usage (void)

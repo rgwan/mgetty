@@ -8,13 +8,20 @@
      to prevent dialout, if the local phone if off-hook (can only be
      detected in voice mode)
 
- 29) Fix lprintf({L_ERROR|L_FATAL},...) by setting errno to a value, that
-     makes sense for the error reported
-
  32) Add a new option to wait between answering the phone and playing
      of the greeting message to allow some modems to detect fax calls
      more reliable.
 
- 36)
+ 36) Add comments to the pvf header (analogous to the pbm tools).
 
-$Id: ToDo,v 1.2 1998/01/21 10:24:00 marc Exp $
+ 37) New RMD2 format, that includes timing marks and <DLE> shielding.
+
+ 38) Option to send received voice data to a file and to an audio device,
+     so that it is possible to listen to incoming messages even without
+     the modem speaker.
+
+ 39) New bi-directional mode for voice operation to allow full duplex
+     voice mode. This is possible with ISDN cards and maybe with some
+     modems. Probably requires huge changes to the sources.
+
+$Id: ToDo,v 1.3 1998/03/25 23:04:47 marc Exp $

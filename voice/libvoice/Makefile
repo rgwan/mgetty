@@ -3,7 +3,7 @@
 #
 # This is the Makefile for libvoice.
 #
-# $Id: Makefile,v 1.2 1998/01/21 10:24:48 marc Exp $
+# $Id: Makefile,v 1.3 1998/03/25 23:05:35 marc Exp $
 #
 
 VOICEOBJS=analyze.o close.o command.o detect.o event.o flush.o \

@@ -9,17 +9,17 @@
  * This version is a complete rewrite to use the IS 101 mode of the
  * Elite 2864.
  *
+ * $Id: ZyXEL_2864.c,v 1.3 1998/03/25 23:05:40 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
-
-char *libvoice_ZyXEL_2864_c = "$Id: ZyXEL_2864.c,v 1.2 1998/01/21 10:24:54 marc Exp $";
 
 static int ZyXEL_2864_answer_phone (void)
      {
      int result;
 
-     reset_watchdog(0);
+     reset_watchdog();
 
      if (((result = voice_command("AT+VLS=2", "OK|CONNECT")) & VMA_USER) !=
       VMA_USER)
@@ -35,7 +35,7 @@ static int ZyXEL_2864_init (void)
      {
      char buffer[VOICE_BUF_LEN];
 
-     reset_watchdog(0);
+     reset_watchdog();
      voice_modem_state = INITIALIZING;
      lprintf(L_MESG, "initializing ZyXEL 2864 voice modem");
 
@@ -118,7 +118,7 @@ static int ZyXEL_2864_set_compression (int *compression, int *speed, int *bits)
      {
      char buffer[VOICE_BUF_LEN];
 
-     reset_watchdog(0);
+     reset_watchdog();
 
      if (*compression == 0)
           *compression = 2;
@@ -129,7 +129,7 @@ static int ZyXEL_2864_set_compression (int *compression, int *speed, int *bits)
      if ((*speed != 7200) && (*speed != 8000) && (*speed != 9600) &&
       (*speed != 11025))
           {
-          lprintf(L_WARN, "%s: Illeagal sample rate (%d)", voice_modem_name,
+          lprintf(L_WARN, "%s: Illegal sample rate (%d)", voice_modem_name,
            *speed);
           return(FAIL);
           };
@@ -193,7 +193,7 @@ static int ZyXEL_2864_set_compression (int *compression, int *speed, int *bits)
 
                break;
           default:
-               lprintf(L_WARN, "%s: Illeagal voice compression method (%d)",
+               lprintf(L_WARN, "%s: Illegal voice compression method (%d)",
                 voice_modem_name, *compression);
                return(FAIL);
           };
@@ -204,7 +204,7 @@ static int ZyXEL_2864_set_compression (int *compression, int *speed, int *bits)
 
 static int ZyXEL_2864_set_device (int device)
      {
-     reset_watchdog(0);
+     reset_watchdog();
 
      switch (device)
           {

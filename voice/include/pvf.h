@@ -2,11 +2,10 @@
  * pvf.h
  *
  * Contains the constants and function prototypes for the pvf tools
+ *
+ * $Id: pvf.h,v 1.3 1998/03/25 23:04:56 marc Exp $
+ *
  */
-
-#ifdef MAIN
-char *pvf_h = "$Id: pvf.h,v 1.2 1998/01/21 10:24:10 marc Exp $";
-#endif
 
 #include "wav.h"
 

@@ -10,11 +10,12 @@
  *   contact me!
  *
  * New updated driver by Jens Adner <Jens.Adner@Wirtschaft.TU-Ilmenau.DE>.
+ *
+ * $Id: UMC.c,v 1.3 1998/03/25 23:05:38 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
-
-char *libvoice_UMC_c = "$Id: UMC.c,v 1.2 1998/01/21 10:24:51 marc Exp $";
 
 #define UMC_RELEASE "0.01"
 #define UMC_VTS_WORKAROUND yes
@@ -39,10 +40,9 @@ static int UMC_init(void)
      {
      char buffer[VOICE_BUF_LEN];
 
-     reset_watchdog(0);
+     reset_watchdog();
      lprintf(L_MESG, "initializing UMC voice modem");
      voice_modem_state = INITIALIZING;
-     voice_modem->voice_mode_on();
      sprintf(buffer, "AT#VSP=%1u", cvd.rec_silence_len.d.i);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
@@ -57,7 +57,7 @@ static int UMC_init(void)
      if ((cvd.rec_silence_threshold.d.i > 100) ||
       (cvd.rec_silence_threshold.d.i < 0))
           {
-          lprintf(L_ERROR, "Invalid threshold value.");
+          lprintf(L_WARN, "Invalid threshold value.");
           return(ERROR);
           }
 
@@ -65,8 +65,6 @@ static int UMC_init(void)
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "can't set silence threshold");
-
-     voice_modem->voice_mode_off();
 
      if (voice_command("AT\\Q3", "OK") == VMA_USER_1)
           {
@@ -84,7 +82,7 @@ static int UMC_init(void)
 
 static int UMC_set_compression(int *compression, int *speed, int *bits)
      {
-     reset_watchdog(0);
+     reset_watchdog();
 
      if (*compression == 0)
           *compression = 2;
@@ -125,7 +123,7 @@ static int UMC_set_compression(int *compression, int *speed, int *bits)
 
 static int UMC_set_device(int device)
      {
-     reset_watchdog(0);
+     reset_watchdog();
 
      if ((current_device != device) && (current_device >= 0))
           voice_command("ATH0","VCON|OK");
@@ -168,14 +166,12 @@ static int UMC_beep(int frequency, int length)
       * sorry: just a near miss.
       */
 
-     TIO tio_save;
      TIO tio;
      char *sinewave="\x37\x8c\xc8\x73";
      int sinelen=4;
      int i;
 
      tio_get(voice_fd, &tio);
-     tio_save = tio;
      tio_set_flow_control(voice_fd, &tio, FLOW_HARD);
      tio_set(voice_fd, &tio);
 
@@ -188,7 +184,7 @@ static int UMC_beep(int frequency, int length)
           {
 
           if (write(voice_fd,sinewave,sinelen) != sinelen)
-               lprintf(L_ERROR, "%s->%s: write error (errno 0x%x)",
+               lprintf(L_WARN, "%s->%s: write error (errno 0x%x)",
                 program_name, voice_modem_name, errno);
 
           }
@@ -196,15 +192,15 @@ static int UMC_beep(int frequency, int length)
      lprintf(L_JUNK, "%s->%s: <DLE> <ETX>", program_name, voice_modem_name);
 
      if (write(voice_fd, dletx , 2) != 2)
-          lprintf(L_ERROR, "%s->%s: write error (errno 0x%x)",
+          lprintf(L_WARN, "%s->%s: write error (errno 0x%x)",
            program_name, voice_modem_name, errno);
 
-     tio_set(voice_fd, &tio_save);
+     tio_set(voice_fd, &voice_tio);
      voice_command("", "VCON");
 #else
      char buffer[VOICE_BUF_LEN];
 
-     reset_watchdog(0);
+     reset_watchdog();
      sprintf(buffer, "AT#VTS=[%d,0,%d]", frequency, length / 10);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
@@ -216,7 +212,7 @@ static int UMC_beep(int frequency, int length)
 int UMC_switch_to_data_fax(char *mode)
      {
      char buffer[VOICE_BUF_LEN];
-     reset_watchdog(0);
+     reset_watchdog();
      sprintf(buffer, "AT+FCLASS=%s", mode);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)

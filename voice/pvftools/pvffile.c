@@ -3,11 +3,12 @@
  *
  * pvffile prints out some useful information about .pvf files.
  *
+ * $Id: pvffile.c,v 1.3 1998/03/25 23:05:59 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
 
-char *pvffile_c = "$Id: pvffile.c,v 1.2 1998/01/21 10:25:11 marc Exp $";
 char *program_name;
 
 static void usage (void)

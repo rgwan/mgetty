@@ -3,11 +3,12 @@
  *
  * Original code by ulrich@Gaston.westfalen.de (Heinz Ulrich Stille).
  *
+ * $Id: fft.c,v 1.3 1998/03/25 23:05:17 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
 
-char *libpvf_fft_c = "$Id: fft.c,v 1.2 1998/01/21 10:24:30 marc Exp $";
 
 static void fft (float *real, float *imag, int n)
      {

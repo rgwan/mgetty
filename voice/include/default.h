@@ -3,13 +3,21 @@
  *
  * This file contains the default values for vgetty, vm and the pvf
  * tools. All of these values can be changed by the configuration
- * file and by command line arguments.
+ * file.
+ *
+ * $Id: default.h,v 1.3 1998/03/25 23:04:53 marc Exp $
  *
  */
 
-#ifdef MAIN
-char *voice_default_h = "$Id: default.h,v 1.2 1998/01/21 10:24:07 marc Exp $";
-#endif
+/*
+ * Keywords
+ * --------
+ */
+
+KEYWORD(part)
+KEYWORD(program)
+KEYWORD(port)
+KEYWORD(ring_type)
 
 /*
  * Common defaults
@@ -20,41 +28,42 @@ char *voice_default_h = "$Id: default.h,v 1.2 1998/01/21 10:24:07 marc Exp $";
  * Default log level for the voice programs.
  */
 
-#define VOICE_LOG_LEVEL L_MESG
+CONF(voice_log_level, L_MESG, CT_INT)
 
 /*
  * Default shell to invoke for shell scripts. The default is "/bin/sh"
  */
 
-#define VOICE_SHELL "/bin/sh"
+CONF(voice_shell, STRING "/bin/sh", CT_STRING)
 
 /*
  * Default port speed. The bps rate must be high enough for the compression
- * mode used. Note that this is an integer, not one of the Bxxxx defines.
- * This must be set to 38400 for Rockell modems. The default value is 38400.
+ * mode used. Note that this is an integer, not one of the Bxxxx defines. 
+ * This must be set to 38400 for some old Rockell modems. The default value
+ * is 38400.
  */
 
-#define PORT_SPEED 38400
+CONF(port_speed, 38400, CT_INT)
 
 /*
  * Default port timeout in seconds for a read or write operation. The
  * default value is 10 seconds.
  */
 
-#define PORT_TIMEOUT 10
+CONF(port_timeout, 10, CT_INT)
 
 /*
  * Default timeout for a dialout in seconds. The default value is 90 seconds.
  */
 
-#define DIAL_TIMEOUT 90
+CONF(dial_timeout, 90, CT_INT)
 
 /*
  * Delay before sending a new voice command to the modem in milliseconds.
  * The default is 100 milliseconds.
  */
 
-#define COMMAND_DELAY 100
+CONF(command_delay, 100, CT_INT)
 
 /*
  * Minimum length of detected DTMF tones, in milliseconds. This is
@@ -62,7 +71,7 @@ char *voice_default_h = "$Id: default.h,v 1.2 1998/01/21 10:24:07 marc Exp $";
  * or above. The default is 30 milliseconds.
  */
 
-#define DTMF_LEN 30
+CONF(dtmf_len, 30, CT_INT)
 
 /*
  * DTMF tone detection threshold in percent (0% to 100%). Increase this
@@ -71,14 +80,14 @@ char *voice_default_h = "$Id: default.h,v 1.2 1998/01/21 10:24:07 marc Exp $";
  * with a ROM release of 6.12 or above. The default is 40%.
  */
 
-#define DTMF_THRESHOLD 40
+CONF(dtmf_threshold, 40, CT_INT)
 
 /*
  * Time to wait for a DTMF tone to arrive when recording or waiting
  * for DTMF input in seconds. The default is to wait for 7 seconds.
  */
 
-#define DTMF_WAIT 7
+CONF(dtmf_wait, 7, CT_INT)
 
 /*
  * In Australia the frequency of the busy signal is the same as the
@@ -95,14 +104,14 @@ char *voice_default_h = "$Id: default.h,v 1.2 1998/01/21 10:24:07 marc Exp $";
  * The default is of course off.
  */
 
-#define IGNORE_FAX_DLE FALSE
+CONF(ignore_fax_dle, FALSE, CT_BOOL)
 
 /*
  * Output recorded voice samples without header and expect raw voice
  * data on input for playback. This feature is turned off by default.
  */
 
-#define RAW_DATA FALSE
+CONF(raw_data, FALSE, CT_BOOL)
 
 /*
  * This is the default compression mode for vgetty for incoming voice
@@ -111,7 +120,7 @@ char *voice_default_h = "$Id: default.h,v 1.2 1998/01/21 10:24:07 marc Exp $";
  * modem. The default is 0.
  */
 
-#define REC_COMPRESSION 0
+CONF(rec_compression, 0, CT_INT)
 
 /*
  * This is the default recording speed for vgetty for incoming voice
@@ -120,7 +129,7 @@ char *voice_default_h = "$Id: default.h,v 1.2 1998/01/21 10:24:07 marc Exp $";
  * choose a sane default value for every modem. The default is 0.
  */
 
-#define REC_SPEED 0
+CONF(rec_speed, 0, CT_INT)
 
 /*
  * Silence detection length in 0.1 seconds. If the modem detects silence
@@ -128,7 +137,7 @@ char *voice_default_h = "$Id: default.h,v 1.2 1998/01/21 10:24:07 marc Exp $";
  * 7 seconds (70 * 0.1 seconds).
  */
 
-#define REC_SILENCE_LEN 70
+CONF(rec_silence_len, 70, CT_INT)
 
 /*
  * Silence detection threshold in percent (0% to 100%). Increase this value
@@ -136,7 +145,7 @@ char *voice_default_h = "$Id: default.h,v 1.2 1998/01/21 10:24:07 marc Exp $";
  * reliably. The default is 40%.
  */
 
-#define REC_SILENCE_THRESHOLD 40
+CONF(rec_silence_threshold, 40, CT_INT)
 
 /*
  * If REC_REMOVE_SILENCE is enabled, the trailing silence of an incoming
@@ -146,14 +155,14 @@ char *voice_default_h = "$Id: default.h,v 1.2 1998/01/21 10:24:07 marc Exp $";
  * don't define this. This feature is turned off by default.
  */
 
-#define REC_REMOVE_SILENCE FALSE
+CONF(rec_remove_silence, FALSE, CT_BOOL)
 
 /*
  * Maximum recording length in seconds. Hang up if somebody talks
  * longer than this. Default is 5 minutes (300 seconds).
  */
 
-#define REC_MAX_LEN 300
+CONF(rec_max_len, 300, CT_INT)
 
 /*
  * Minimum recording length in seconds. Some modems can not detect
@@ -161,14 +170,14 @@ char *voice_default_h = "$Id: default.h,v 1.2 1998/01/21 10:24:07 marc Exp $";
  * what it is. This feature is by default disabled.
  */
 
-#define REC_MIN_LEN 0
+CONF(rec_min_len, 6, CT_INT)
 
 /*
  * Enable hardware flow in record and playback mode if the modem
  * supports it. This option is by default on.
  */
 
-#define DO_HARD_FLOW TRUE
+CONF(do_hard_flow, TRUE, CT_BOOL)
 
 /*
  * When switching to data or fax mode, always switch to fax mode and
@@ -176,14 +185,14 @@ char *voice_default_h = "$Id: default.h,v 1.2 1998/01/21 10:24:07 marc Exp $";
  * and so the predetection with DLE codes does not work.
  */
 
-#define FORCE_AUTODETECT FALSE
+CONF(force_autodetect, FALSE, CT_BOOL)
 
 /*
  * Default timeout for the voice watchdog. If this timer expires, the
  * running program will be terminated. The default is 60 seconds.
  */
 
-#define WATCHDOG_TIMEOUT 60
+CONF(watchdog_timeout, 60, CT_INT)
 
 /*
  * Some modems support setting the receive gain. This value can be set in
@@ -192,7 +201,7 @@ char *voice_default_h = "$Id: default.h,v 1.2 1998/01/21 10:24:07 marc Exp $";
  *
  */
 
-#define RECEIVE_GAIN -1
+CONF(receive_gain, -1, CT_INT)
 
 /*
  * Some modems support setting the transmit gain. This value can be set in
@@ -201,7 +210,7 @@ char *voice_default_h = "$Id: default.h,v 1.2 1998/01/21 10:24:07 marc Exp $";
  *
  */
 
-#define TRANSMIT_GAIN -1
+CONF(transmit_gain, -1, CT_INT)
 
 /*
  * Usually command echo from the modem should be enabled. Since some modems
@@ -213,14 +222,15 @@ char *voice_default_h = "$Id: default.h,v 1.2 1998/01/21 10:24:07 marc Exp $";
  *
  */
 
-#define ENABLE_COMMAND_ECHO FALSE
+CONF(enable_command_echo, FALSE, CT_BOOL)
 
 /*
- * Time in msec for the delay, when no new data are received from the modem. A higher value will decrease
- * machine load by increasing vgettys reaction time. The default is 10 msec.
+ * Time in msec for the delay, when no new data are received from the modem.
+ * A higher value will decrease machine load by increasing vgettys reaction
+ * time. The default is 10 msec.
  */
 
-#define POLL_INTERVAL 10
+CONF(poll_interval, 10, CT_INT)
 
 /*
  * Default values for vgetty
@@ -240,7 +250,7 @@ char *voice_default_h = "$Id: default.h,v 1.2 1998/01/21 10:24:07 marc Exp $";
  * The default is "3"
  */
 
-#define RINGS "3"
+CONF(rings, STRING "3", CT_STRING)
 
 /*
  * Default answer mode when vgetty picks up the phone after incoming
@@ -252,7 +262,7 @@ char *voice_default_h = "$Id: default.h,v 1.2 1998/01/21 10:24:07 marc Exp $";
  * The default is "voice:fax:data".
  */
 
-#define ANSWER_MODE "voice:fax:data"
+CONF(answer_mode, STRING "voice:fax:data", CT_STRING)
 
 /*
  * If vgetty knows that there are new messages (the flag file exists),
@@ -261,7 +271,7 @@ char *voice_default_h = "$Id: default.h,v 1.2 1998/01/21 10:24:07 marc Exp $";
  * default. This feature is turned off by default.
  */
 
-#define TOLL_SAVER_RINGS 0
+CONF(toll_saver_rings, 0, CT_INT)
 
 /*
  * Should the recorded voice message file be kept even if data, fax or
@@ -273,77 +283,56 @@ char *voice_default_h = "$Id: default.h,v 1.2 1998/01/21 10:24:07 marc Exp $";
  * even more beautiful. This feature is enabled by default.
  */
 
-#define REC_ALWAYS_KEEP TRUE
-
-/*
- * The R_FFT_PROGRAM is responsible for distinguishing voice and
- * data calls if the line is not silent. It checks the power spectrum
- * of the sound data and, if it only contains few frequencies, sends
- * a SIGUSR2 to vgetty to make it stop recording. This is also quite
- * effective against dial tones. (Code by ulrich@gaston.westfalen.de)
- *
- * It needs to convert the voice data, i.e. it currently
- * works only for ZyXEL adpcm-2 and adpcm-3. It is automatically
- * disabled if it can't deal with the voice data.
- *
- * There are a few configurable parameters, check the top of
- * pvffft.c for details. The defaults seem to work quite well.
- *
- * Undefine R_FFT_PROGRAM if you don't want this, i.e. if you
- * have a slow machine that can't handle the additional CPU load.
- */
-
-#define FFT_PROGRAM ""
-/* #define FFT_PROGRAM "vg_fft" */
+CONF(rec_always_keep, TRUE, CT_BOOL)
 
 /*
  * Primary voice directory for vgetty.
  */
 
-#define VOICE_DIR "/var/spool/voice"
+CONF(voice_dir, STRING "/var/spool/voice", CT_STRING)
 
 /*
  * Default owner, group, and file mode for incoming voice messages
  */
 
-#define PHONE_OWNER "root"
-#define PHONE_GROUP "phone"
-#define PHONE_MODE 0660
+CONF(phone_owner, STRING "root", CT_STRING)
+CONF(phone_group, STRING "phone", CT_STRING)
+CONF(phone_mode, 0660, CT_INT)
 
 /*
  * Location of the flag file for new incoming messages relative to the
  * primary voice directory.
  */
 
-#define MESSAGE_FLAG_FILE ".flag"
+CONF(message_flag_file, STRING ".flag", CT_STRING)
 
 /*
  * Location where vgetty stores the incoming voice messages relative to
  * the primary voice directory.
  */
 
-#define RECEIVE_DIR "incoming"
+CONF(receive_dir, STRING "incoming", CT_STRING)
 
 /*
  * Directory containing the messages for vgetty (greeting, handling the
  * answering machine) relative to the primary voice directory.
  */
 
-#define MESSAGE_DIR "messages"
+CONF(message_dir, STRING "messages", CT_STRING)
 
 /*
  * Name of the file in MESSAGE_DIR that contains the names of
  * the greeting message files (one per line, no white space).
  */
 
-#define MESSAGE_LIST "Index"
+CONF(message_list, STRING "Index", CT_STRING)
 
 /*
  * Filename of a backup greeting message in MESSAGE_DIR (used if
  * the random selection fails to find a message).
  */
 
-#define BACKUP_MESSAGE "standard"
+CONF(backup_message, STRING "standard", CT_STRING)
 
 /*
  * The programs defined below get called by vgetty.
@@ -364,7 +353,7 @@ char *voice_default_h = "$Id: default.h,v 1.2 1998/01/21 10:24:07 marc Exp $";
  * The default value is "".
  */
 
-#define BUTTON_PROGRAM   ""
+CONF(button_program, STRING "", CT_STRING)
 
 /*
  * Program called when the phone is answered, this is instead
@@ -376,7 +365,7 @@ char *voice_default_h = "$Id: default.h,v 1.2 1998/01/21 10:24:07 marc Exp $";
  * The default value is "".
  */
 
-#define CALL_PROGRAM ""
+CONF(call_program, STRING "", CT_STRING)
 
 /*
  * Program called when a DTMF command in the form '*digits#' is received.
@@ -384,7 +373,7 @@ char *voice_default_h = "$Id: default.h,v 1.2 1998/01/21 10:24:07 marc Exp $";
  * The default value is "dtmf.sh".
  */
 
-#define DTMF_PROGRAM "dtmf.sh"
+CONF(dtmf_program, STRING "dtmf.sh", CT_STRING)
 
 /*
  * Program called when a voice message has been received.
@@ -392,7 +381,7 @@ char *voice_default_h = "$Id: default.h,v 1.2 1998/01/21 10:24:07 marc Exp $";
  * The default value is "".
  */
 
-#define MESSAGE_PROGRAM ""
+CONF(message_program, STRING "", CT_STRING)
 
 /*
  * Should vgetty use the AA LED on some modems to indicate that new
@@ -402,7 +391,7 @@ char *voice_default_h = "$Id: default.h,v 1.2 1998/01/21 10:24:07 marc Exp $";
  * This option is by default off.
  */
 
-#define DO_MESSAGE_LIGHT FALSE
+CONF(do_message_light, FALSE, CT_BOOL)
 
 /*
  * Default values for vm
@@ -413,33 +402,33 @@ char *voice_default_h = "$Id: default.h,v 1.2 1998/01/21 10:24:07 marc Exp $";
  * Frequency for the beep command in Hz. The default is 933Hz.
  */
 
-#define BEEP_FREQUENCY 933
+CONF(beep_frequency, 933, CT_INT)
 
 /*
  * Length for the beep command in msec. The default is 1.5 seconds
  * (1500 * 0.001 seconds).
  */
 
-#define BEEP_LENGTH 1500
+CONF(beep_length, 1500, CT_INT)
 
 /*
  * Number of tries to open a voice modem device. The default is 3.
  */
 
-#define MAX_TRIES 3
+CONF(max_tries, 3, CT_INT)
 
 /*
  * Delay between two tries to open a voice device in seconds. The default
  * is 5 seconds.
  */
 
-#define RETRY_DELAY 5
+CONF(retry_delay, 5, CT_INT)
 
 /*
  * Timeout for a dialout operation in seconds. The default is 90 seconds.
  */
 
-#define DIALOUT_TIMEOUT 90
+CONF(dialout_timeout, 90, CT_INT)
 
 /*
  * Default values for the pvf tools
@@ -449,3 +438,5 @@ char *voice_default_h = "$Id: default.h,v 1.2 1998/01/21 10:24:07 marc Exp $";
 /*
  * There are currently no defaults.
  */
+
+CONF(voice_devices, STRING "", CT_STRING)

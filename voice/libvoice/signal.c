@@ -4,11 +4,11 @@
  * Installs the signal handlers for the voice code and contains the
  * signal handler functions.
  *
+ * $Id: signal.c,v 1.3 1998/03/25 23:05:49 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
-
-char *libvoice_signal_c = "$Id: signal.c,v 1.2 1998/01/21 10:25:04 marc Exp $";
 
 static int signals_initialized = FALSE;
 
@@ -22,70 +22,70 @@ void (*old_sigterm) (int);
 void (*old_sigusr1) (int);
 void (*old_sigusr2) (int);
 
-static void signal_sigalrm _P1((sig), int sig)
+static void signal_sigalrm(int sig)
      {
-     lprintf(L_FATAL, "%s: Watchdog timer expired, exiting...",
+     lprintf(L_WARN, "%s: Watchdog timer expired, exiting...",
       program_name);
      exit(FAIL);
      }
 
-static void signal_sigchld _P1((sig), int sig)
+static void signal_sigchld(int sig)
      {
      signal(SIGCHLD, signal_sigchld);
      lprintf(L_JUNK, "%s: Got child changed status signal", program_name);
      queue_event(create_event(SIGNAL_SIGCHLD));
      }
 
-static void signal_sighup _P1((sig), int sig)
+static void signal_sighup(int sig)
      {
      signal(SIGHUP, signal_sighup);
      lprintf(L_JUNK, "%s: Got hangup signal", program_name);
      queue_event(create_event(SIGNAL_SIGHUP));
      }
 
-static void signal_sigint _P1((sig), int sig)
+static void signal_sigint(int sig)
      {
      signal(SIGINT, signal_sigint);
      lprintf(L_JUNK, "%s: Got interrupt signal", program_name);
      queue_event(create_event(SIGNAL_SIGINT));
      }
 
-static void signal_sigpipe _P1((sig), int sig)
+static void signal_sigpipe(int sig)
      {
      signal(SIGPIPE, signal_sigpipe);
      lprintf(L_JUNK, "%s: Got pipe signal", program_name);
      queue_event(create_event(SIGNAL_SIGPIPE));
      }
 
-static void signal_sigquit _P1((sig), int sig)
+static void signal_sigquit(int sig)
      {
      signal(SIGQUIT, signal_sigquit);
      lprintf(L_JUNK, "%s: Got quit signal", program_name);
      queue_event(create_event(SIGNAL_SIGQUIT));
      }
 
-static void signal_sigterm _P1((sig), int sig)
+static void signal_sigterm(int sig)
      {
      signal(SIGTERM, signal_sigterm);
      lprintf(L_JUNK, "%s: Got terminate signal", program_name);
      queue_event(create_event(SIGNAL_SIGTERM));
      }
 
-static void signal_sigusr1 _P1((sig), int sig)
+static void signal_sigusr1(int sig)
      {
      signal(SIGUSR1, signal_sigusr1);
      lprintf(L_JUNK, "%s: Got user 1 signal", program_name);
      queue_event(create_event(SIGNAL_SIGUSR1));
      }
 
-static void signal_sigusr2 _P1((sig), int sig)
+static void signal_sigusr2(int sig)
      {
      signal(SIGUSR2, signal_sigusr2);
      lprintf(L_JUNK, "%s: Got user 2 signal", program_name);
      queue_event(create_event(SIGNAL_SIGUSR2));
      }
 
-int voice_install_signal_handler _P0(void)
+int voice_install_signal_handler(void)
      {
      lprintf(L_NOISE, "%s: Installing signal handlers", program_name);
 
@@ -121,7 +121,7 @@ int voice_install_signal_handler _P0(void)
      return(OK);
      }
 
-int voice_restore_signal_handler _P0(void)
+int voice_restore_signal_handler(void)
      {
      lprintf(L_NOISE, "%s: Restoring signal handlers", program_name);
 

@@ -2,26 +2,32 @@
  *
  * This is the handle event routine for the VoiceModem program.
  *
+ * $Id: event.c,v 1.3 1998/03/25 23:06:22 marc Exp $
+ *
  */
 
 #include "vm.h"
 
-char *vm_event_c = "$Id: event.c,v 1.2 1998/01/21 10:25:34 marc Exp $";
-
-int handle_event _P2((event, data), int event, event_data data)
+int handle_event(int event, event_data data)
      {
 
      if ((use_on_hook_off_hook) && (event == HANDSET_OFF_HOOK) &&
       (voice_modem_state == WAITING))
           {
           voice_stop_waiting();
-          start_recording = TRUE;
+          start_action = TRUE;
           };
 
      if ((use_on_hook_off_hook) && (event == HANDSET_ON_HOOK) &&
-      (voice_modem_state == RECORDING))
+      (voice_modem_state == RECORDING)) 
           {
           voice_stop_recording();
+          };
+
+     if ((use_on_hook_off_hook) && (event == HANDSET_ON_HOOK) &&
+			(voice_modem_state == PLAYING))
+          {
+          voice_stop_playing();
           };
 
      if ((event == HANDSET_OFF_HOOK) || (event == HANDSET_ON_HOOK))

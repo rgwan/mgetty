@@ -3,11 +3,9 @@
  *
  * Defines the header for raw modem data.
  *
+ * $Id: header.h,v 1.3 1998/03/25 23:04:55 marc Exp $
+ *
  */
-
-#ifdef MAIN
-char *voice_header_h = "$Id: header.h,v 1.2 1998/01/21 10:24:09 marc Exp $";
-#endif
 
 typedef struct
      {

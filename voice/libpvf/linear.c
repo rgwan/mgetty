@@ -3,11 +3,11 @@
  *
  * Converts pvf <--> linear.
  *
+ * $Id: linear.c,v 1.3 1998/03/25 23:05:19 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
-
-char *libpvf_linear_c = "$Id: linear.c,v 1.2 1998/01/21 10:24:32 marc Exp $";
 
 int pvftolin (FILE *fd_in, FILE *fd_out, pvf_header *header_in, int is_signed,
  int bits16, int intel)

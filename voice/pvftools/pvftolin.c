@@ -4,11 +4,12 @@
  * pvftolin converts from the pvf (portable voice format) format to linear
  * headerless samples.
  *
+ * $Id: pvftolin.c,v 1.3 1998/03/25 23:06:04 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
 
-char *pvftovoc_c = "$Id: pvftolin.c,v 1.2 1998/01/21 10:25:15 marc Exp $";
 char *program_name;
 
 static void usage (void)

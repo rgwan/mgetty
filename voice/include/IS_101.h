@@ -3,11 +3,9 @@
  *
  * Defines the functions implemented in the generic IS 101 driver.
  *
+ * $Id: IS_101.h,v 1.3 1998/03/25 23:04:50 marc Exp $
+ *
  */
-
-#ifdef MAIN
-char *voice_IS_101_h = "$Id: IS_101.h,v 1.2 1998/01/21 10:24:04 marc Exp $";
-#endif
 
 extern const char IS_101_pick_phone_cmnd[];
 extern const char IS_101_pick_phone_answr[];

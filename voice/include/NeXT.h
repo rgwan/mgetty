@@ -3,11 +3,9 @@
  *
  * Ugly hack to get varargs to work on NeXTstep.
  *
+ * $Id: NeXT.h,v 1.3 1998/03/25 23:04:51 marc Exp $
+ *
  */
-
-#ifdef MAIN
-char *NeXT_args_h = "$Id: NeXT.h,v 1.2 1998/01/21 10:24:04 marc Exp $";
-#endif
 
 /*
  * On NeXTstep, we have to use this *UGLY* way to cheat varargs/stdarg

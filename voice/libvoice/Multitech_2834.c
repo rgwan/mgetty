@@ -5,17 +5,18 @@
  *
  * A first version was written by Russell King <rmk@ecs.soton.ac.uk>,
  * based on the ZyXEL 2864 driver.
+ *
+ * $Id: Multitech_2834.c,v 1.3 1998/03/25 23:05:35 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
-
-char *libvoice_Multitech_2834_c = "$Id: Multitech_2834.c,v 1.2 1998/01/21 10:24:48 marc Exp $";
 
 static int Multitech_2834_answer_phone(void)
      {
      int result;
 
-     reset_watchdog(0);
+     reset_watchdog();
 
      if (((result = voice_command("AT+VLS=1", "OK|CONNECT")) & VMA_USER) !=
       VMA_USER)
@@ -31,7 +32,7 @@ static int Multitech_2834_init(void)
      {
      char buffer[VOICE_BUF_LEN];
 
-     reset_watchdog(0);
+     reset_watchdog();
      voice_modem_state = INITIALIZING;
      lprintf(L_MESG, "initializing Multitech 2834 voice modem");
 
@@ -97,7 +98,7 @@ static int Multitech_2834_set_compression(int *compression, int *speed,
      {
      char buffer[VOICE_BUF_LEN];
 
-     reset_watchdog(0);
+     reset_watchdog();
 
      if (*compression == 0)
           *compression = 4;
@@ -107,7 +108,7 @@ static int Multitech_2834_set_compression(int *compression, int *speed,
 
      if (*speed != 8000)
           {
-          lprintf(L_WARN, "%s: Illeagal sample rate (%d)", voice_modem_name,
+          lprintf(L_WARN, "%s: Illegal sample rate (%d)", voice_modem_name,
            *speed);
           return(FAIL);
           }
@@ -131,7 +132,7 @@ static int Multitech_2834_set_compression(int *compression, int *speed,
 
                break;
           default:
-               lprintf(L_WARN, "%s: Illeagal voice compression method (%d)",
+               lprintf(L_WARN, "%s: Illegal voice compression method (%d)",
                 voice_modem_name, *compression);
                return(FAIL);
           }
@@ -141,7 +142,7 @@ static int Multitech_2834_set_compression(int *compression, int *speed,
 
 static int Multitech_2834_set_device(int device)
      {
-     reset_watchdog(0);
+     reset_watchdog();
 
      switch (device)
           {

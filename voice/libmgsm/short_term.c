@@ -4,7 +4,7 @@
  * details.  THERE IS ABSOLUTELY NO WARRANTY FOR THIS SOFTWARE.
  */
 
-/* $Header: /u2/cvs/mgetty/voice/libmgsm/short_term.c,v 1.2 1998/01/21 10:24:26 marc Exp $ */
+/* $Id: short_term.c,v 1.3 1998/03/25 23:05:13 marc Exp $ */
 
 #include <stdio.h>
 #include <assert.h>

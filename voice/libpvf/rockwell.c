@@ -54,13 +54,13 @@
  *
  * -----------------------------------------------------------------------
  *
+ * $Id: rockwell.c,v 1.3 1998/03/25 23:05:20 marc Exp $
+ *
  */
 
 #define RV_HONOUR_SILENCE_CODEWORDS
 
 #include "../include/voice.h"
-
-const char *rockwell_c = "$Id: rockwell.c,v 1.2 1998/01/21 10:24:32 marc Exp $";
 
 /*
    PJ:
@@ -194,7 +194,7 @@ static vgetty_s_int16 RV_di;
      Output:   DI points to (QDataIndex+7)%8.
    */
 
-static void RV_pzPred _P1 ((cx), vgetty_s_int16 cx){
+static void RV_pzPred(vgetty_s_int16 cx){
 /*
    A little explanation is required here. Rockwell uses 16bit
    integers to represent numbers in [-1,1). They take 0x8000 to be -1
@@ -291,7 +291,7 @@ static void RV_pzPred _P1 ((cx), vgetty_s_int16 cx){
 
  */
 
-static vgetty_s_int32 RV_XpzCalc _P1 ((cx), vgetty_s_int16 cx){
+static vgetty_s_int32 RV_XpzCalc(vgetty_s_int16 cx){
   /*
      Linear pole and zero predictor calculate.  CX,BX register pair is the
      32 bit accumulator.  Local to this module.
@@ -319,7 +319,7 @@ static vgetty_s_int32 RV_XpzCalc _P1 ((cx), vgetty_s_int16 cx){
   return (vgetty_s_int32) sum;
 }
 
-static void RV_Reset _P1 ((bps),int bps){
+static void RV_Reset(int bps){
   int i;
   vgetty_u_int16 tmp_int16 = 0;
   vgetty_u_int32 tmp_int32 = 0;
@@ -363,7 +363,7 @@ static vgetty_s_int16 RV_P8Table[6] =    /* Adaptive post filter number 1 coeffi
 static vgetty_s_int16 RV_PM5Table[6] =   /* Adaptive post filter number 2 coefficients */
 {0xc000, 0xe000, 0xf000, 0xf800, 0xfc00, 0xfe00};
 
-static vgetty_s_int32 RV_App1Calc _P1 ((cx), vgetty_s_int16 cx){
+static vgetty_s_int32 RV_App1Calc(vgetty_s_int16 cx){
   /*  Adaptive post filter number 1  */
   /*
      Load pointers to the predictor table and the pointer
@@ -404,7 +404,7 @@ static vgetty_s_int32 RV_App1Calc _P1 ((cx), vgetty_s_int16 cx){
   return (vgetty_s_int32) sum;
 }
 
-static vgetty_s_int32 RV_App2Calc _P1 ((cx), vgetty_s_int16 cx){
+static vgetty_s_int32 RV_App2Calc(vgetty_s_int16 cx){
 
   /*  Adaptive post filter number 2  */
   /*
@@ -447,7 +447,7 @@ static vgetty_s_int32 RV_App2Calc _P1 ((cx), vgetty_s_int16 cx){
 
 #endif
 
-static vgetty_s_int16 RV_DecomOne _P2 ((ax,bx), vgetty_s_int16 ax, vgetty_s_int16 bx){
+static vgetty_s_int16 RV_DecomOne(vgetty_s_int16 ax, vgetty_s_int16 bx){
 /*
    RVDecomOne
 
@@ -516,7 +516,7 @@ static vgetty_s_int16 RV_cdx_length[3] = { 1,3,7 };
 static vgetty_s_int16 *RV_cd;
 static vgetty_s_int16 RV_cd_length;
 
-static vgetty_s_int32 RV_ComOne _P1 ((ax), vgetty_s_int16 ax)
+static vgetty_s_int32 RV_ComOne(vgetty_s_int16 ax)
 {
 /*
    RVComOne
@@ -600,7 +600,7 @@ static vgetty_s_int32 RV_ComOne _P1 ((ax), vgetty_s_int16 ax)
 
 #ifdef RV_HONOUR_SILENCE_CODEWORDS       /* Honour silence codewords and insert the requested silence */
 
-static void put_silence _P2 ((num_samples, out), vgetty_s_int32 num_samples, FILE * out)
+static void put_silence(vgetty_s_int32 num_samples, FILE * out)
 {
   /*      Write num_samples 16 bit ints of value 0    */
   num_samples *= 2;
@@ -615,7 +615,7 @@ static void put_silence _P2 ((num_samples, out), vgetty_s_int32 num_samples, FIL
     }
 }
 
-static int getcodeword _P2 ((in,cw), FILE * in, vgetty_s_int32 *codeword){
+static int getcodeword(FILE * in, vgetty_s_int32 *codeword){
  /*
     Rockwell modems always pass on 16bit ints in little-endian format.
     Therefore, we have to read the data the same way if we don't want

@@ -3,11 +3,11 @@
  *
  * Write data to the voice modem device.
  *
+ * $Id: write.c,v 1.3 1998/03/25 23:05:51 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
-
-char *libvoice_write_c = "$Id: write.c,v 1.2 1998/01/21 10:25:05 marc Exp $";
 
 #if !defined(NeXT) || defined(NEXTSGTTY)
 # ifdef USE_VARARGS
@@ -67,16 +67,14 @@ int voice_write_char(char charout)
 
           if ((result < 0) && (errno != 0) && (errno != EINTR))
                {
-               errno = 0;
-               lprintf(L_ERROR, "%s: could not write character to voice modem",
+               lprintf(L_WARN, "%s: could not write character to voice modem",
                 program_name);
                return(FAIL);
                };
 
           };
 
-     errno = 0;
-     lprintf(L_ERROR, "%s: timeout while writing character to voice modem",
+     lprintf(L_WARN, "%s: timeout while writing character to voice modem",
       program_name);
      return(FAIL);
      }
@@ -93,10 +91,10 @@ int voice_write_raw(char *buffer, int count)
 
           result = write(voice_fd, buffer, count);
 
-          if ((result < 0) && (errno != 0) && (errno != EINTR))
+          if ((result < 0) && (errno != 0) && (errno != EINTR) && (errno !=
+           EAGAIN))
                {
-               errno = 0;
-               lprintf(L_ERROR, "%s: could not write buffer to voice modem",
+               lprintf(L_WARN, "%s: could not write buffer to voice modem",
                 program_name);
                return(FAIL);
                };
@@ -107,13 +105,16 @@ int voice_write_raw(char *buffer, int count)
                count -= result;
                };
 
+          if (result == 0)
+               delay(cvd.poll_interval.d.i);
+
+          voice_check_events();
           };
 
      if (count == 0)
           return(OK);
 
-     errno = 0;
-     lprintf(L_ERROR, "%s: timeout while writing buffer to voice modem",
+     lprintf(L_WARN, "%s: timeout while writing buffer to voice modem",
       program_name);
      return(FAIL);
      }

@@ -5,11 +5,12 @@
  * wavtopvf converts from the Windows-Format .wav. to pvf
  * (portable voice format)
  *
+ * $Id: wavtopvf.c,v 1.3 1998/03/25 23:06:09 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
 
-char *wavtopvf_c = "$Id: wavtopvf.c,v 1.2 1998/01/21 10:25:19 marc Exp $";
 char *program_name;
 
 static void usage (void)

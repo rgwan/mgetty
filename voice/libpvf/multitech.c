@@ -4,7 +4,11 @@
  * Covert pvf <-> IMA ADPCM
  *
  * Modified for use with vgetty, Russell King (rmk@ecs.soton.ac.uk)
+ *
+ * $Id: multitech.c,v 1.2 1998/03/25 23:05:19 marc Exp $
+ *
  */
+
 #include "../include/voice.h"
 
 /***********************************************************

@@ -3,13 +3,11 @@
  * This file contains definitions for global variables and functions
  * for the VoiceModem program.
  *
+ * $Id: vm.h,v 1.3 1998/03/25 23:06:24 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
-
-#ifdef MAIN
-char *vm_h = "$Id: vm.h,v 1.2 1998/01/21 10:25:36 marc Exp $";
-#endif
 
 /*
  * DTMF code handling defines
@@ -26,11 +24,11 @@ char *vm_h = "$Id: vm.h,v 1.2 1998/01/21 10:25:36 marc Exp $";
 extern int dtmf_mode;
 extern char dtmf_string_buffer[VOICE_BUF_LEN];
 extern int use_on_hook_off_hook;
-extern int start_recording;
+extern int start_action;
 
 /*
  * Function prototypes
  */
 
-extern int handle_event _PROTO((int event, event_data data));
-extern void usage _PROTO(());
+extern int handle_event(int event, event_data data);
+extern void usage();

@@ -3,11 +3,9 @@
  *
  * This file includes the definitions for the wav file format.
  *
+ * $Id: wav.h,v 1.3 1998/03/25 23:04:58 marc Exp $
+ *
  */
-
-#ifdef MAIN
-char *wav_h = "$Id: wav.h,v 1.2 1998/01/21 10:24:12 marc Exp $";
-#endif
 
 #define   WAVE_FORMAT_UNKNOWN      (0x0000)
 #define   WAVE_FORMAT_PCM          (0x0001)

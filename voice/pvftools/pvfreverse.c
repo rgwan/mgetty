@@ -4,11 +4,12 @@
  * pvfreverse reverses the voice file (it plays it from end to start).
  * Input and output is in the pvf (portable voice format) format.
  *
+ * $Id: pvfreverse.c,v 1.3 1998/03/25 23:06:00 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
 
-char *pvfreverse_c = "$Id: pvfreverse.c,v 1.2 1998/01/21 10:25:12 marc Exp $";
 char *program_name;
 
 static void usage (void)

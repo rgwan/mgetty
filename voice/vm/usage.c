@@ -3,13 +3,13 @@
  * VoiceModem is the program for handling the voice modem functionality
  * from shell scripts.
  *
+ * $Id: usage.c,v 1.3 1998/03/25 23:06:23 marc Exp $
+ *
  */
 
 #include "vm.h"
 
-char *vm_usage_c = "$Id: usage.c,v 1.2 1998/01/21 10:25:36 marc Exp $";
-
-void usage _P0(void)
+void usage(void)
      {
      fprintf(stderr, "\n%s %s\n\n", program_name, vgetty_version);
      fprintf(stderr, "usage:\n");

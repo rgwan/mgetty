@@ -3,11 +3,11 @@
  *
  * autodetect the modemtype we are connected to.
  *
+ * $Id: detect.c,v 1.3 1998/03/25 23:05:43 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
-
-char *libvoice_detect_c = "$Id: detect.c,v 1.2 1998/01/21 10:24:56 marc Exp $";
 
 struct modem_type_struct
      {
@@ -42,11 +42,13 @@ static const struct modem_type_struct modem_database[] =
      {ati, "2886",              NULL,   &US_Robotics},
      {ati, "336",               NULL,   &Rockwell},
      {ati, "3361",              NULL,   &US_Robotics},
+     {ati, "3362",              NULL,   &US_Robotics},
      {ati, "3366",              NULL,   &US_Robotics},
      {ati, "33600",             NULL,   &Rockwell},
      {ati, "3X WYSIWYF 628DBX", NULL,   &Rockwell},
      {ati, "56000",             NULL,   &Rockwell},
      {ati, "5601",              NULL,   &US_Robotics},
+     {ati, "961",               NULL,   &Rockwell},
      {ati, "Linux ISDN",        NULL,   &ISDN4Linux},
 
      {ati6, "OK",     NULL, &Dr_Neuhaus},
@@ -55,7 +57,7 @@ static const struct modem_type_struct modem_database[] =
      {NULL, NULL, NULL, NULL}
      };
 
-int voice_detect_modemtype _P0(void)
+int voice_detect_modemtype(void)
      {
      char buffer[VOICE_BUF_LEN];
      char *cmnd;
@@ -84,7 +86,7 @@ int voice_detect_modemtype _P0(void)
 
                if (voice_write("ATE1") != OK)
                     {
-                    lprintf(L_FATAL, "modem detection failed");
+                    lprintf(L_WARN, "modem detection failed");
                     exit(FAIL);
                     }
 
@@ -92,7 +94,7 @@ int voice_detect_modemtype _P0(void)
                     voice_flush(1);
                else
                     {
-                    lprintf(L_FATAL, "modem detection failed");
+                    lprintf(L_WARN, "modem detection failed");
                     exit(FAIL);
                     }
 
@@ -102,7 +104,7 @@ int voice_detect_modemtype _P0(void)
 
                if (voice_write("ATE0") != OK)
                     {
-                    lprintf(L_FATAL, "modem detection failed");
+                    lprintf(L_WARN, "modem detection failed");
                     exit(FAIL);
                     }
 
@@ -117,7 +119,7 @@ int voice_detect_modemtype _P0(void)
 
           if (voice_command(cmnd, "") != OK)
                {
-               lprintf(L_FATAL, "modem detection failed");
+               lprintf(L_WARN, "modem detection failed");
                exit(FAIL);
                }
 
@@ -128,7 +130,7 @@ int voice_detect_modemtype _P0(void)
 
                if (voice_read(buffer) != OK)
                     {
-                    lprintf(L_FATAL, "modem detection failed");
+                    lprintf(L_WARN, "modem detection failed");
                     exit(FAIL);
                     }
 
@@ -162,7 +164,7 @@ int voice_detect_modemtype _P0(void)
 
                               if (voice_command(cmnd, "") != OK)
                                    {
-                                   lprintf(L_FATAL, "modem detection failed");
+                                   lprintf(L_WARN, "modem detection failed");
                                    exit(FAIL);
                                    }
 
@@ -185,8 +187,7 @@ int voice_detect_modemtype _P0(void)
 
      if (voice_modem->init == NULL)
           {
-          errno = ENOSYS;
-          lprintf(L_ERROR, "%s detected, but driver is not available",
+          lprintf(L_WARN, "%s detected, but driver is not available",
            voice_modem->name);
           voice_modem = &no_modem;
           exit(FAIL);
@@ -200,6 +201,6 @@ int voice_detect_modemtype _P0(void)
 
      voice_flush(1);
      voice_modem = &no_modem;
-     lprintf(L_ERROR, "no voice modem detected");
+     lprintf(L_WARN, "no voice modem detected");
      exit(FAIL);
      }

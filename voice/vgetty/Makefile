@@ -3,7 +3,7 @@
 #
 # This is the Makefile for vgetty.
 #
-# $Id: Makefile,v 1.2 1998/01/21 10:25:27 marc Exp $
+# $Id: Makefile,v 1.3 1998/03/25 23:06:14 marc Exp $
 #
 
 VGETTYOBJS=vgetty.o answer.o button.o event.o message.o rings.o
@@ -34,8 +34,7 @@ vgetty.o: ../../mgetty.o
 	$(RM) -f vgetty.c ;\
 	$(LN) -s mgetty.c vgetty.c
 	cd ../.. ;\
-	$(CC) $(CFLAGS) -DMAIN -DVOICE -DFAX_SPOOL_IN=\"$(FAX_SPOOL_IN)\" \
-	 -c vgetty.c
+	$(CC) $(CFLAGS) -DVOICE -DFAX_SPOOL_IN=\"$(FAX_SPOOL_IN)\" -c vgetty.c
 	@$(MV) ../../vgetty.o vgetty.o
 
 vgetty: $(VGETTYOBJS) $(MGETTYOBJS) $(VOICELIBS)

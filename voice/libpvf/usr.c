@@ -3,6 +3,8 @@
  *
  * Conversion pvf <--> USR GSM and ADPCM formats.
  *
+ * $Id: usr.c,v 1.3 1998/03/25 23:05:21 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
@@ -46,9 +48,16 @@ int usrtopvf (FILE *fd_in, FILE *fd_out, int compression,
 /* USR's GSM data format consists of 38-byte frames of data where the
  * first two bytes of the frame (usually "0xFE 0xFE" for valid data and
  * "0xB6 0xB6" for silence, and 3 bytes of trailer ("0x0 0xA5 0xA5") can
- * be discarded, and the rest can be passed to your garden variety GSM
- * decode process.  In my case, I used GSM 06.10 from Technische
+ * be discarded, giving 33 bytes of useful data.
+ * Newer models can also generate frames with raw data (without the
+ * trailing and leading bytes).
+ * The decoding function tries to detect the frame type and pass the
+ * 33 bytes of data to a garden variety GSM  decode process.
+ * In my case, I used GSM 06.10 from Technische
  * Universitaet Berlin ftp://ftp.cs.tu-berlin.de/pub/local/kbs/tubmik/gsm/
+ *
+ * The pvftousrgsm function just generates the old type of frame 
+ * since it can be played on both new and old models.
  */
 unsigned char gsm_head[2] = { 0xfe, 0xfe };
 unsigned char gsm_tail[3] = { 0x0, 0xa5, 0xa5 };
@@ -106,11 +115,11 @@ static int usrgsmtopvf (FILE *fd_in, FILE *fd_out, pvf_header *header_out)
      {
      unsigned char   inbuf[38];
      gsm             r;
-     gsm_byte        *s = &inbuf[2];
+     gsm_byte        *s;
      gsm_signal      d[ 160 ];
      int             opt_fast = 0;
      int             opt_verbose = 0;
-     int i, sample;
+     int i, sample, bytes2read, chunksread;
 
      if (!(r = gsm_create())) {
        perror("gsm_create");
@@ -120,15 +129,31 @@ static int usrgsmtopvf (FILE *fd_in, FILE *fd_out, pvf_header *header_out)
      (void)gsm_option(r, GSM_OPT_FAST,       &opt_fast);
      (void)gsm_option(r, GSM_OPT_VERBOSE,    &opt_verbose);
 
-     while (fread(inbuf, sizeof(inbuf), 1, fd_in) > 0) {
-       if ((inbuf[0] != inbuf[1]) || ((inbuf[0] != 0xfe) && (inbuf[0] != 0xb6))
-           || (inbuf[35] != 0) || (inbuf[36] != 0xa5) || (inbuf[37] != 0xa5)) {
-         fprintf(stderr, "%s: input doesn't appear to be USR GSM data\n",
-                 program_name);
-         gsm_destroy(r);
-         return(ERROR);
-       }
-
+      /* 
+       * read the first frame to see if it has an
+       * header or is raw data
+       */
+      if ((chunksread=fread(inbuf, 33, 1, fd_in)) > 0) {
+        if ((inbuf[0] == inbuf[1]) &&
+            ((inbuf[0] == 0xfe) || (inbuf[0] == 0xb6))) {
+          /* 
+           * has an header 
+           */
+          fread(&inbuf[33], 5, 1, fd_in);
+          s=&inbuf[2];
+          bytes2read=38;
+        } else
+        {
+          /*
+           * raw data
+           */
+          s=&inbuf[0];
+          bytes2read=33;
+        }   
+      } 
+ 
+      while (chunksread > 0) {
+ 
        /* --- MNI_p/JoSch --->
         *   I don'n know how this (now redundant to leave libmgsm untouched
         *   -> see ../libmgsm/decode.c line 20) control for GSM_MAGIC
@@ -142,7 +167,7 @@ static int usrgsmtopvf (FILE *fd_in, FILE *fd_out, pvf_header *header_out)
         *   for me until I get informations from the USR-Support.
         */
 
-       if (((*s >> 4) & 0x0F) != GSM_MAGIC)
+       if ((((*s >> 4) & 0x0F) != GSM_MAGIC) || (((*s >> 4) & 0x0F) != 0))
          *s |= (GSM_MAGIC << 4);
 
        /* <--- MNI_p/JoSch --- */
@@ -159,6 +184,7 @@ static int usrgsmtopvf (FILE *fd_in, FILE *fd_out, pvf_header *header_out)
          }
          header_out->write_pvf_data(fd_out, sample << 8);
        }
+       chunksread=fread(inbuf, bytes2read, 1, fd_in);
      }
      return(OK);
 }

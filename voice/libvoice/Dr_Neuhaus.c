@@ -3,21 +3,19 @@
  *
  * This file contains the Dr. Neuhaus Cybermod specific hardware stuff.
  *
+ * $Id: Dr_Neuhaus.c,v 1.3 1998/03/25 23:05:31 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
-
-char *libvoice_Dr_Neuhaus_c = "$Id: Dr_Neuhaus.c,v 1.2 1998/01/21 10:24:44 marc Exp $";
 
 static int Dr_Neuhaus_init (void)
      {
      char buffer[VOICE_BUF_LEN];
 
-     reset_watchdog(0);
+     reset_watchdog();
      voice_modem_state = INITIALIZING;
      lprintf(L_MESG, "initializing Dr. Neuhaus voice modem");
-
-     voice_modem->voice_mode_on();
 
      /*
       * AT+VSD=x,y - Set silence threshold and duration.
@@ -64,14 +62,13 @@ static int Dr_Neuhaus_init (void)
      if (voice_command("AT+VLS=0", "OK") != VMA_USER_1)
           lprintf(L_WARN, "can't deselect all input/output devices");
 
-     voice_modem->voice_mode_off();
      voice_modem_state = IDLE;
      return(OK);
      }
 
 static int Dr_Neuhaus_set_compression (int *compression, int *speed, int *bits)
      {
-     reset_watchdog(0);
+     reset_watchdog();
 
      if (*compression == 0)
           *compression = 129;
@@ -81,7 +78,7 @@ static int Dr_Neuhaus_set_compression (int *compression, int *speed, int *bits)
 
      if (*speed != 8000)
           {
-          lprintf(L_WARN, "%s: Illeagal sample rate (%d)", voice_modem_name,
+          lprintf(L_WARN, "%s: Illegal sample rate (%d)", voice_modem_name,
            *speed);
           return(FAIL);
           };
@@ -110,7 +107,7 @@ static int Dr_Neuhaus_set_compression (int *compression, int *speed, int *bits)
 
                break;
           default:
-               lprintf(L_WARN, "%s: Illeagal voice compression method (%d)",
+               lprintf(L_WARN, "%s: Illegal voice compression method (%d)",
                 voice_modem_name, *compression);
                return(FAIL);
           };
@@ -120,7 +117,7 @@ static int Dr_Neuhaus_set_compression (int *compression, int *speed, int *bits)
 
 static int Dr_Neuhaus_set_device (int device)
      {
-     reset_watchdog(0);
+     reset_watchdog();
 
      switch (device)
           {

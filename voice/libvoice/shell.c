@@ -4,11 +4,11 @@
  * Executes the shell script given as the argument. If the argument is
  * empty, commands are read from standard input.
  *
+ * $Id: shell.c,v 1.3 1998/03/25 23:05:49 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
-
-char *libvoice_shell_c = "$Id: shell.c,v 1.2 1998/01/21 10:25:03 marc Exp $";
 
 static int events_to_shell = FALSE;
 int voice_shell_state = OFF_LINE;
@@ -40,13 +40,13 @@ int voice_execute_shell_script(char *shell_script, char **shell_options)
 
           if (pipe(pipe_in))
                {
-               lprintf(L_ERROR, "%s: cannot open input pipe!", program_name);
+               lprintf(L_WARN, "%s: cannot open input pipe!", program_name);
                return(FAIL);
                };
 
           if (pipe(pipe_out))
                {
-               lprintf(L_ERROR, "%s: cannot open output pipe!", program_name);
+               lprintf(L_WARN, "%s: cannot open output pipe!", program_name);
                return(FAIL);
                };
 
@@ -55,7 +55,7 @@ int voice_execute_shell_script(char *shell_script, char **shell_options)
           switch((child_pid = fork()))
                {
                case -1:
-                    lprintf(L_ERROR, "%s: cannot fork!", program_name);
+                    lprintf(L_WARN, "%s: cannot fork!", program_name);
                     return(FAIL);
                case 0:
                     {
@@ -148,7 +148,7 @@ int voice_execute_shell_script(char *shell_script, char **shell_options)
 
      shell_arguments[arg_index + start_index] = NULL;
      execv(cvd.voice_shell.d.p, shell_arguments);
-     lprintf(L_ERROR, "%s: cannot execute %s %s", program_name,
+     lprintf(L_WARN, "%s: cannot execute %s %s", program_name,
       cvd.voice_shell.d.p, shell_script);
      exit(99);
      }
@@ -191,7 +191,7 @@ int voice_shell_notify()
      return 0;
      }
 
-int voice_shell_handle_event _P2((event, data), int event, event_data data)
+int voice_shell_handle_event(int event, event_data data)
      {
 
      if (voice_shell_state == OFF_LINE)
@@ -218,7 +218,7 @@ int voice_shell_handle_event _P2((event, data), int event, event_data data)
 
                if (strcmp(buffer, "HELLO VOICE PROGRAM") != 0)
                     {
-                    lprintf(L_ERROR, "%s: cannot initialize communication!", program_name);
+                    lprintf(L_WARN, "%s: cannot initialize communication!", program_name);
                     voice_shell_state = OFF_LINE;
                     return(FAIL);
                     };
@@ -695,7 +695,7 @@ int voice_read_shell(char *buffer)
 
           if (read(voice_shell_input_fd, &char_read, 1) != 1)
                {
-               lprintf(L_ERROR, "could not read from shell");
+               lprintf(L_WARN, "could not read from shell");
 
                if (child_pid != 0)
                     kill(child_pid, SIGKILL);
@@ -754,7 +754,7 @@ int voice_write_shell(const char *format, ...)
      if ((write(voice_shell_output_fd, answer, strlen(answer)) !=
       strlen(answer)) || (write(voice_shell_output_fd, "\n", 1) != 1))
           {
-          lprintf(L_ERROR, "%s: could not write to shell", program_name);
+          lprintf(L_WARN, "%s: could not write to shell", program_name);
 
           if (child_pid != 0)
                kill(child_pid, SIGKILL);

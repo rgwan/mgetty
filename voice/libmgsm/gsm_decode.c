@@ -4,7 +4,7 @@
  * details.  THERE IS ABSOLUTELY NO WARRANTY FOR THIS SOFTWARE.
  */
 
-/* $Header: /u2/cvs/mgetty/voice/libmgsm/gsm_decode.c,v 1.2 1998/01/21 10:24:18 marc Exp $ */
+/* $Id: gsm_decode.c,v 1.3 1998/03/25 23:05:05 marc Exp $ */
 
 #include "private.h"
 
@@ -17,7 +17,8 @@ int gsm_decode P3((s, c, target), gsm s, gsm_byte * c, gsm_signal * target)
 
      /* GSM_MAGIC  = (*c >> 4) & 0xF; */
 
-     if (((*c >> 4) & 0x0F) != GSM_MAGIC) return -1;
+     if (((*c >> 4) & 0x0F) != GSM_MAGIC)
+      return -1;
 
      LARc[0]  = (*c++ & 0xF) << 2;      /* 1 */
      LARc[0] |= (*c >> 6) & 0x3;

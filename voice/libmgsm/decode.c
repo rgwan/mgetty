@@ -4,7 +4,7 @@
  * details.  THERE IS ABSOLUTELY NO WARRANTY FOR THIS SOFTWARE.
  */
 
-/* $Header: /u2/cvs/mgetty/voice/libmgsm/decode.c,v 1.2 1998/01/21 10:24:16 marc Exp $ */
+/* $Id: decode.c,v 1.3 1998/03/25 23:05:03 marc Exp $ */
 
 #include <stdio.h>
 

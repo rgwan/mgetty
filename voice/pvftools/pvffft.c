@@ -5,11 +5,12 @@
  * output the result in form of a table or decides, whether the input
  * samples belong to a data call or to a voice call.
  *
+ * $Id: pvffft.c,v 1.3 1998/03/25 23:05:59 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
 
-char *pvffft_c = "$Id: pvffft.c,v 1.2 1998/01/21 10:25:11 marc Exp $";
 char *program_name;
 
 static void usage (void)

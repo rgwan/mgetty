@@ -4,11 +4,12 @@
  * voctopvf converts from the voc (Creativ voice file) format to the pvf
  * (portable voice format) format.
  *
+ * $Id: lintopvf.c,v 1.3 1998/03/25 23:05:56 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
 
-char *voctopvf_c = "$Id: lintopvf.c,v 1.2 1998/01/21 10:25:08 marc Exp $";
 char *program_name;
 
 static void usage (void)

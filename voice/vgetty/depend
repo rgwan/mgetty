@@ -36,10 +36,9 @@ rings.o: rings.c ../include/voice.h ../include/../../mgetty.h \
 vgetty.o: ../../mgetty.c ../../syslibs.h ../../version.h \
  ../../mgetty.h ../../ugly.h ../../policy.h ../../tio.h \
  ../../fax_lib.h ../../mg_utmp.h ../../config.h ../../conf_mg.h \
- ../../voice/include/voice.h ../../voice/include/version.h \
- ../../voice/include/IS_101.h ../../voice/include/bitsizes.h \
- ../../voice/include/util.h ../../voice/include/config.h \
- ../../voice/include/default.h ../../voice/include/event.h \
- ../../voice/include/hardware.h ../../voice/include/header.h \
- ../../voice/include/paths.h ../../voice/include/pvf.h \
- ../../voice/include/wav.h
+ ../../voice/include/voice.h ../../voice/include/IS_101.h \
+ ../../voice/include/bitsizes.h ../../voice/include/util.h \
+ ../../voice/include/config.h ../../voice/include/default.h \
+ ../../voice/include/event.h ../../voice/include/hardware.h \
+ ../../voice/include/header.h ../../voice/include/paths.h \
+ ../../voice/include/pvf.h ../../voice/include/wav.h

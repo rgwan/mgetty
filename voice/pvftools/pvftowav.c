@@ -4,11 +4,12 @@
  * pvftowav converts from the pvf (portable voice format) format to the
  * Windows-Format .wav.
  *
+ * $Id: pvftowav.c,v 1.3 1998/03/25 23:06:06 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
 
-char *pvftowav_c = "$Id: pvftowav.c,v 1.2 1998/01/21 10:25:17 marc Exp $";
 char *program_name;
 
 static void usage (void)

@@ -3,11 +3,11 @@
  *
  * Parses a string into tokens. Should be equivalent to the Linux strsep function.
  *
+ * $Id: strsep.c,v 1.3 1998/03/25 23:05:29 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
-
-char *libutil_strsep_c = "$Id: strsep.c,v 1.2 1998/01/21 10:24:41 marc Exp $";
 
 char *voice_strsep(char **stringp, const char *delim)
      {

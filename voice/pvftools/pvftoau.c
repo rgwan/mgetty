@@ -4,11 +4,12 @@
  * pvftoau converts from the pvf (portable voice format) format to the
  * au (Sun audio) format.
  *
+ * $Id: pvftoau.c,v 1.3 1998/03/25 23:06:03 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
 
-char *pvftoau_c = "$Id: pvftoau.c,v 1.2 1998/01/21 10:25:14 marc Exp $";
 char *program_name;
 
 static void usage (void)

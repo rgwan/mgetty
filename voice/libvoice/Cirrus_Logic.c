@@ -26,11 +26,12 @@
  * rec_compression parameter in voice.conf can now be 1 (default), 3 or 4
  * as per the spec. The silence threshold and time was wrongly set. Fixed now.
  * - Mitch DSouza <Mitch.DSouza@Uk.Sun.COM>
+ *
+ * $Id: Cirrus_Logic.c,v 1.3 1998/03/25 23:05:30 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
-
-char *Cirrus_Logic_c = "$Id: Cirrus_Logic.c,v 1.2 1998/01/21 10:24:42 marc Exp $";
 
 /*
  * Here we save the current mode of operation of the voice modem when
@@ -61,7 +62,7 @@ static void get_range(char *buf, range *r)
 
 int Cirrus_Logic_answer_phone (void)
      {
-     reset_watchdog(0);
+     reset_watchdog();
      lprintf(L_MESG, "Answering Call");
 
      if (voice_command("AT#VLN=1", "OK") != VMA_USER_1)
@@ -76,8 +77,9 @@ int Cirrus_Logic_answer_phone (void)
 int Cirrus_Logic_beep (int frequency, int length)
      {
      char buffer[VOICE_BUF_LEN];
+     int watchdog_count = 0;
 
-     reset_watchdog(0);
+     reset_watchdog();
      sprintf(buffer, "AT#VBP");
      lprintf(L_MESG, "Checking Beep");
 
@@ -86,9 +88,16 @@ int Cirrus_Logic_beep (int frequency, int length)
 
      while (!check_for_input(voice_fd))
           {
-          reset_watchdog(100);
-          delay(10);
-          };
+          
+          if ((watchdog_count--) <= 0)
+               {
+               reset_watchdog();
+               watchdog_count = cvd.watchdog_timeout.d.i * 1000 /
+                cvd.poll_interval.d.i / 2;
+               }
+
+          delay(cvd.poll_interval.d.i);
+          }
 
      if (voice_command("", "OK") != VMA_USER_1)
           return(FAIL);
@@ -103,10 +112,9 @@ int Cirrus_Logic_init (void)
      range rec_range = {0, 0};
      range rec_silence_threshold = {0, 0};
 
-     reset_watchdog(0);
+     reset_watchdog();
      lprintf(L_MESG, "Initializing Cirrus Logic voice modem");
      voice_modem_state = INITIALIZING;
-     voice_modem->voice_mode_on();
 
      /* Get the record volume range available from modem */
      voice_command("AT#VRL=?", "");
@@ -141,7 +149,7 @@ int Cirrus_Logic_init (void)
      if ((cvd.rec_silence_threshold.d.i > 100) ||
         (cvd.rec_silence_threshold.d.i < 0))
           {
-          lprintf(L_ERROR, "Invalid threshold value.");
+          lprintf(L_WARN, "Invalid threshold value.");
           return(ERROR);
           }
 
@@ -168,8 +176,6 @@ int Cirrus_Logic_init (void)
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "can't set silence period record and command mode");
 
-     voice_modem->voice_mode_off();
-
      if (voice_command("AT\\Q3", "OK") == VMA_USER_1)
           {
           TIO tio;
@@ -193,7 +199,7 @@ static int Cirrus_Logic_set_compression (int *compression, int *speed,
  int *bits)
      {
      lprintf(L_MESG, "Setting compression");
-     reset_watchdog(0);
+     reset_watchdog();
 
      if (*compression == 0)
           *compression = 1;
@@ -231,7 +237,7 @@ static int Cirrus_Logic_set_compression (int *compression, int *speed,
 
 int Cirrus_Logic_set_device (int device)
      {
-     reset_watchdog(0);
+     reset_watchdog();
      lprintf(L_MESG, "Setting device");
 
      switch (device)
@@ -263,7 +269,7 @@ int Cirrus_Logic_switch_to_data_fax (char *mode)
      char buffer[VOICE_BUF_LEN];
 
      lprintf(L_MESG, "Switching to data/fax");
-     reset_watchdog(0);
+     reset_watchdog();
      sprintf(buffer, "AT+FCLASS=%s", mode);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)

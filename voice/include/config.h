@@ -1,68 +1,66 @@
 /*
  * voice_config.h
  *
- * This is the definition of the voice config file parameters.
+ * This file contains the definitions for the structure and the prototype of
+ * the configuration data. This is a bit tricky, but that way we can have
+ * the complete description of the options in default.h, which makes it much
+ * easier to add new options.
+ *
+ * $Id: config.h,v 1.3 1998/03/25 23:04:52 marc Exp $
  *
  */
 
-#ifdef MAIN
-char *voice_config_h = "$Id: config.h,v 1.2 1998/01/21 10:24:06 marc Exp $";
-#endif
+/*
+ * If CONFIG_C is set, we have to include the definition of the
+ * configuration structure otherwise only the prototype.
+ *
+ */
+
+#ifdef CONFIG_C
+
+#undef KEYWORD
+#undef CONF
+#define KEYWORD(name) \
+ {# name, {0}, CT_KEYWORD, C_IGNORE},
+#define CONF(field_name, default_value, value_type) \
+ {# field_name, {default_value}, value_type, C_PRESET},
+ 
+struct conf_voice_data cvd =
+     {
+           
+#else
+
+#define STRING (p_int)
+#define KEYWORD(name) \
+ struct conf_data name;
+#define CONF(field_name, default_value, value_type) \
+ struct conf_data field_name;
 
 extern struct conf_voice_data
      {
-     struct conf_data ignore1;
-     struct conf_data ignore2;
-     struct conf_data ignore3;
-     struct conf_data ignore4;
-     struct conf_data voice_log_level;
-     struct conf_data voice_devices;
-     struct conf_data port_speed;
-     struct conf_data port_timeout;
-     struct conf_data dtmf_len;
-     struct conf_data dtmf_threshold;
-     struct conf_data dtmf_wait;
-     struct conf_data rec_compression;
-     struct conf_data rec_speed;
-     struct conf_data rec_silence_len;
-     struct conf_data rec_silence_threshold;
-     struct conf_data rec_remove_silence;
-     struct conf_data rec_max_len;
-     struct conf_data receive_gain;
-     struct conf_data transmit_gain;
-     struct conf_data rings;
-     struct conf_data answer_mode;
-     struct conf_data toll_saver_rings;
-     struct conf_data rec_always_keep;
-     struct conf_data voice_dir;
-     struct conf_data phone_owner;
-     struct conf_data phone_group;
-     struct conf_data phone_mode;
-     struct conf_data message_flag_file;
-     struct conf_data receive_dir;
-     struct conf_data message_dir;
-     struct conf_data message_list;
-     struct conf_data backup_message;
-     struct conf_data dialout_timeout;
-     struct conf_data beep_frequency;
-     struct conf_data beep_length;
-     struct conf_data raw_data;
-     struct conf_data max_tries;
-     struct conf_data retry_delay;
-     struct conf_data voice_shell;
-     struct conf_data button_program;
-     struct conf_data call_program;
-     struct conf_data dtmf_program;
-     struct conf_data message_program;
-     struct conf_data do_message_light;
-     struct conf_data do_hard_flow;
-     struct conf_data force_autodetect;
-     struct conf_data watchdog_timeout;
-     struct conf_data rec_min_len;
-     struct conf_data command_delay;
-     struct conf_data ignore_fax_dle;
-     struct conf_data dial_timeout;
-     struct conf_data enable_command_echo;
-     struct conf_data poll_interval;
+
+#endif
+
+/*
+ * Now we read the default values into the structure or prototype.
+ *
+ */
+
+#include "default.h"
+
+/*
+ * And now we have to add the code for the end of the definition.
+ *
+ */
+
+#ifdef CONFIG_C
+
+     {NULL, {(p_int) ""}, CT_STRING, C_EMPTY}
+     };
+
+#else
+
      struct conf_data end_of_config;
      } cvd;
+
+#endif

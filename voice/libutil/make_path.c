@@ -3,14 +3,13 @@
  *
  * Builds a complete file path from a directory name and a filename.
  *
+ * $Id: make_path.c,v 1.3 1998/03/25 23:05:28 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
 
-char *libutil_make_path_c = "$Id: make_path.c,v 1.2 1998/01/21 10:24:40 marc Exp $";
-
-void make_path _P3((result, path, name), char *result, char *path,
- char *name)
+void make_path(char *result, char *path, char *name)
      {
 
      if (name[0] == '/')

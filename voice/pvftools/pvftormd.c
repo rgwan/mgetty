@@ -4,11 +4,12 @@
  * pvftormd converts from the pvf (portable voice format) format to the
  * rmd (raw modem data) format.
  *
+ * $Id: pvftormd.c,v 1.3 1998/03/25 23:06:05 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
 
-char *pvftormd_c = "$Id: pvftormd.c,v 1.2 1998/01/21 10:25:16 marc Exp $";
 char *program_name;
 
 static void usage (void)

@@ -3,11 +3,11 @@
  *
  * Conversion pvf <--> au.
  *
+ * $Id: au.c,v 1.3 1998/03/25 23:05:16 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
-
-char *libpvf_au_c = "$Id: au.c,v 1.2 1998/01/21 10:24:29 marc Exp $";
 
 typedef long Word; /* must be 32 bits */
 

@@ -7,11 +7,11 @@
  * The Sierra driver is written and maintained by
  * Luke Bowker <puke@suburbia.net>.
  *
+ * $Id: Sierra.c,v 1.3 1998/03/25 23:05:37 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
-
-char *libvoice_Sierra_c = "$Id: Sierra.c,v 1.2 1998/01/21 10:24:50 marc Exp $";
 
 #define Sierra_BUFFER_SIZE 255
 #define ACK    0x06
@@ -23,14 +23,14 @@ static int buffer_size = Sierra_BUFFER_SIZE;
 
 int Sierra_init(void)
      {
-     return(voice_modem->voice_mode_on());
+     return(OK);
      }
 
 static int Sierra_voice_mode_on(void)
      {
      char buffer[Sierra_BUFFER_SIZE];
 
-     reset_watchdog(0);
+     reset_watchdog();
      voice_modem_state = INITIALIZING;
      lprintf(L_MESG, "initializing Sierra voice modem");
      tio_get(voice_fd, &tio);
@@ -62,7 +62,7 @@ static int Sierra_voice_mode_on(void)
 
 int Sierra_voice_mode_off(void)
      {
-     reset_watchdog(0);
+     reset_watchdog();
 
      if (voice_command("AT#VS0", "OK") != VMA_USER_1)
           return(FAIL);
@@ -73,7 +73,7 @@ int Sierra_voice_mode_off(void)
 
 static int Sierra_set_compression(int *compression, int *speed, int *bits)
      {
-     reset_watchdog(0);
+     reset_watchdog();
 
      if (*compression == 0)
           *compression = 2;

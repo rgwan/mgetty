@@ -7,11 +7,12 @@
  *
  * The ZyXEL 2864 and the ISDN4Linux driver can also store voice data in
  * this format.
+ *
+ * $Id: zyxel.c,v 1.3 1998/03/25 23:05:24 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
-
-char *libpvf_zyxel_c = "$Id: zyxel.c,v 1.2 1998/01/21 10:24:36 marc Exp $";
 
 static int Mx[3][8] =
      {

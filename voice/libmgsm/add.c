@@ -4,7 +4,7 @@
  * details.  THERE IS ABSOLUTELY NO WARRANTY FOR THIS SOFTWARE.
  */
 
-/* $Header: /u2/cvs/mgetty/voice/libmgsm/add.c,v 1.2 1998/01/21 10:24:14 marc Exp $ */
+/* $Id: add.c,v 1.3 1998/03/25 23:05:00 marc Exp $ */
 
 /*
  *  See private.h for the more commonly used macro versions.

@@ -5,11 +5,12 @@
  * interpolating the samples at the new rate. Input and output is in
  * the pvf (portable voice format) format.
  *
+ * $Id: pvfspeed.c,v 1.3 1998/03/25 23:06:02 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
 
-char *pvfspeed_c = "$Id: pvfspeed.c,v 1.2 1998/01/21 10:25:13 marc Exp $";
 char *program_name;
 
 static void usage (void)

@@ -4,11 +4,11 @@
  * Read input from the voice modem device until (timeout * 0.1 seconds)
  * have passed without a new character arrived.
  *
+ * $Id: flush.c,v 1.3 1998/03/25 23:05:44 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
-
-char *libvocice_flush_c = "$Id: flush.c,v 1.2 1998/01/21 10:24:58 marc Exp $";
 
 void voice_flush(int timeout)
      {

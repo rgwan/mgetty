@@ -3,13 +3,13 @@
  *
  * Close the voice device.
  *
+ * $Id: close.c,v 1.3 1998/03/25 23:05:41 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
 
-char *libvoice_close_c = "$Id: close.c,v 1.2 1998/01/21 10:24:55 marc Exp $";
-
-int voice_close_device _P0(void)
+int voice_close_device(void)
      {
      lprintf(L_MESG, "closing voice modem device");
 
@@ -19,7 +19,6 @@ int voice_close_device _P0(void)
           return(FAIL);
           };
 
-     voice_flush(1);
      close(voice_fd);
      voice_fd = NO_VOICE_FD;
      rmlocks();

@@ -3,13 +3,13 @@
  *
  * Here is the vgetty specific voice event handler.
  *
+ * $Id: event.c,v 1.3 1998/03/25 23:06:17 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
 
-char *vgetty_event_c = "$Id: event.c,v 1.2 1998/01/21 10:25:31 marc Exp $";
-
-int vgetty_handle_event _P2((event, data), int event, event_data data)
+int vgetty_handle_event(int event, event_data data)
      {
 
      switch (event)

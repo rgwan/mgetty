@@ -4,16 +4,15 @@
  * Initialize the open port to some sane defaults, detect the
  * type of voice modem connected and initialize the voice modem.
  *
+ * $Id: init.c,v 1.3 1998/03/25 23:05:45 marc Exp $
  */
 
 #include "../include/voice.h"
 
-char *libvoice_init_c = "$Id: init.c,v 1.2 1998/01/21 10:24:58 marc Exp $";
-
 TIO tio_save;
 TIO voice_tio;
 
-int voice_init _P0(void)
+int voice_init(void)
      {
 
      /*
@@ -30,7 +29,7 @@ int voice_init _P0(void)
           }
      else
           {
-          lprintf(L_FATAL, "invalid port speed: %d", cvd.port_speed.d.i);
+          lprintf(L_WARN, "invalid port speed: %d", cvd.port_speed.d.i);
           close(voice_fd);
           rmlocks();
           exit(FAIL);
@@ -44,7 +43,7 @@ int voice_init _P0(void)
 
      if (tio_set(voice_fd, &voice_tio) == FAIL)
           {
-          lprintf(L_FATAL, "error in tio_set");
+          lprintf(L_WARN, "error in tio_set");
           close(voice_fd);
           rmlocks();
           exit(FAIL);
@@ -54,7 +53,21 @@ int voice_init _P0(void)
           {
           voice_flush(1);
 
-          if (voice_modem->init() == OK)
+          if (voice_mode_on() != OK)
+               {
+               close(voice_fd);
+               rmlocks();
+               return(FAIL);
+               }
+
+          if (voice_modem->init() != OK)
+               {
+               close(voice_fd);
+               rmlocks();
+               return(FAIL);
+               }
+
+          if (voice_mode_off() == OK)
                return(OK);
 
           }

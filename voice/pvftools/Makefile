@@ -3,13 +3,13 @@
 #
 # This is the Makefile for the pvftools.
 #
-# $Id: Makefile,v 1.2 1998/01/21 10:25:06 marc Exp $
+# $Id: Makefile,v 1.3 1998/03/25 23:05:54 marc Exp $
 #
 
 VOICELIBS=$(LIBPVF) $(LIBUTIL)
 
 .c.o:
-	$(CC) $(CFLAGS) -DMAIN -c $*.c
+	$(CC) $(CFLAGS) -c $*.c
 
 all: $(PVFTOOLS)
 

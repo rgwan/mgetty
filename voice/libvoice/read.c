@@ -3,11 +3,11 @@
  *
  * Read data from the voice modem device.
  *
+ * $Id: read.c,v 1.3 1998/03/25 23:05:47 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
-
-char *libvoice_read_c = "$Id: read.c,v 1.2 1998/01/21 10:25:01 marc Exp $";
 
 static unsigned char input_buffer[1024];
 static int input_pos = 0;
@@ -74,14 +74,14 @@ int voice_read_char(void)
 
           if ((result < 0) && ((result != -EINTR) && (result != -EAGAIN)))
                {
-               lprintf(L_ERROR, "%s: could not read character from voice modem", program_name);
+               lprintf(L_WARN, "%s: could not read character from voice modem", program_name);
                return(FAIL);
                };
 
           delay(cvd.poll_interval.d.i);
           };
 
-     lprintf(L_ERROR, "%s: timeout while reading character from voice modem", program_name);
+     lprintf(L_WARN, "%s: timeout while reading character from voice modem", program_name);
      return(FAIL);
      }
 

@@ -4,11 +4,12 @@
  * pvfcut removes heading and/or trailing parts of a voice file. Input and
  * output is in the pvf (portable voice format) format.
  *
+ * $Id: pvfcut.c,v 1.3 1998/03/25 23:05:57 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
 
-char *pvfcut_c = "$Id: pvfcut.c,v 1.2 1998/01/21 10:25:09 marc Exp $";
 char *program_name;
 
 static void usage (void)

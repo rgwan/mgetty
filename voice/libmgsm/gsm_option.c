@@ -4,7 +4,7 @@
  * details.  THERE IS ABSOLUTELY NO WARRANTY FOR THIS SOFTWARE.
  */
 
-/* $Header: /u2/cvs/mgetty/voice/libmgsm/gsm_option.c,v 1.2 1998/01/21 10:24:20 marc Exp $ */
+/* $Id: gsm_option.c,v 1.3 1998/03/25 23:05:07 marc Exp $ */
 
 #include "private.h"
 

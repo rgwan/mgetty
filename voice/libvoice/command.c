@@ -3,14 +3,13 @@
  *
  * Execute the given command and wait for an answer.
  *
+ * $Id: command.c,v 1.3 1998/03/25 23:05:42 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
 
-char *libvoice_command_c = "$Id: command.c,v 1.2 1998/01/21 10:24:55 marc Exp $";
-
-int voice_command _P2((command, expected_answer), char *command,
- char *expected_answer)
+int voice_command(char *command, char *expected_answer)
      {
      char buffer[VOICE_BUF_LEN];
      int result = VMA_FAIL;
@@ -45,8 +44,7 @@ int voice_command _P2((command, expected_answer), char *command,
 
                     if (result == VMA_FAIL)
                          {
-                         errno = 0;
-                         lprintf(L_ERROR,
+                         lprintf(L_WARN,
                           "%s: Modem did not echo the command", program_name);
                          voice_flush(1);
                          return(VMA_FAIL);
@@ -54,8 +52,7 @@ int voice_command _P2((command, expected_answer), char *command,
 
                     if (result == VMA_ERROR)
                          {
-                         errno = 0;
-                         lprintf(L_ERROR, "%s: Modem returned ERROR",
+                         lprintf(L_WARN, "%s: Modem returned ERROR",
                           program_name);
                          voice_flush(1);
                          return(VMA_FAIL);
@@ -83,8 +80,7 @@ int voice_command _P2((command, expected_answer), char *command,
 
                if (result == VMA_FAIL)
                     {
-                    errno = 0;
-                    lprintf(L_ERROR, "%s: Invalid modem answer",
+                    lprintf(L_WARN, "%s: Invalid modem answer",
                      program_name);
                     voice_flush(1);
                     return(VMA_FAIL);
@@ -92,8 +88,7 @@ int voice_command _P2((command, expected_answer), char *command,
 
                if (result == VMA_ERROR)
                     {
-                    errno = 0;
-                    lprintf(L_ERROR, "%s: Modem returned ERROR",
+                    lprintf(L_WARN, "%s: Modem returned ERROR",
                      program_name);
                     voice_flush(1);
                     return(VMA_FAIL);

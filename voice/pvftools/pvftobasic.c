@@ -7,11 +7,12 @@
  * uLaw (PCM) at a sampling rate of 8000 Hz to the pvf (portable voice
  * format) format.
  *
+ * $Id: pvftobasic.c,v 1.3 1998/03/25 23:06:03 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
 
-char *pvftobasic_c = "$Id: pvftobasic.c,v 1.2 1998/01/21 10:25:15 marc Exp $";
 char *program_name;
 
 static void usage (void)

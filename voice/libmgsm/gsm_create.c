@@ -4,7 +4,7 @@
  * details.  THERE IS ABSOLUTELY NO WARRANTY FOR THIS SOFTWARE.
  */
 
-char gsm_create_ident[] = "$Header: /u2/cvs/mgetty/voice/libmgsm/gsm_create.c,v 1.2 1998/01/21 10:24:18 marc Exp $";
+/* $Id: gsm_create.c,v 1.3 1998/03/25 23:05:04 marc Exp $ */
 
 #include  "config.h"
 

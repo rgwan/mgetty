@@ -4,13 +4,13 @@
  * Try all available voice devices and open the first one that
  * suceeds and initialize it.
  *
+ * $Id: open.c,v 1.3 1998/03/25 23:05:46 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
 
-char *libvoice_open_c = "$Id: open.c,v 1.2 1998/01/21 10:24:59 marc Exp $";
-
-int voice_open_device _P0(void)
+int voice_open_device(void)
      {
      char *voice_tty_start;
      char *voice_tty_end;
@@ -20,7 +20,7 @@ int voice_open_device _P0(void)
 
      if (strlen(cvd.voice_devices.d.p) == 0)
           {
-          lprintf(L_FATAL,
+          lprintf(L_WARN,
            "no voice modem devices configured in config file");
           exit(FAIL);
           };
@@ -46,7 +46,7 @@ int voice_open_device _P0(void)
 
                if ((voice_fd = open(voice_tty, O_RDWR | O_NDELAY | O_NOCTTY)) == FAIL)
                     {
-                    lprintf(L_ERROR, "error opening %s", voice_tty);
+                    lprintf(L_WARN, "error opening %s", voice_tty);
                     rmlocks();
                     voice_fd = NO_VOICE_FD;
                     }

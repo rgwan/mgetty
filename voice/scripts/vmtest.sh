@@ -4,7 +4,7 @@
 # This is the vmtest script. You can call this script to test voice shell
 # commands interactively
 #
-# $Id: vmtest.sh,v 1.2 1998/01/21 10:25:25 marc Exp $
+# $Id: vmtest.sh,v 1.3 1998/03/25 23:06:13 marc Exp $
 #
 
 #

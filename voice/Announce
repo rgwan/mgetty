@@ -1,18 +1,16 @@
 Hi all,
 
-this is a new experimental vgetty release. I tried to integrate vgetty and
-mgetty parts more closely. Since this included some modifications to some
-vgetty low level parts, quite a few things and drivers might be broken in
-this release. But I'm sure, it will be easy to fix them soon.
+this is a new vgetty beta release. Judging from the reports on the mailing
+list, this release should be quite stable and reliable. Feedback is, as
+always, very welcome. There are no great new features, but a lot of bug
+fixes and small enhancements.
 
-As always this is yet another vgetty test release. I incorporated many
-changes and I probably forgot some of the patches, that you mail me. Please
-feel free to resubmit them. If you plan to submit buxfixes or changes to me,
-please keep in mind: I only accept a unified diff against the latest
-released mgetty/vgetty version. Everything else is more work for me and I
-don't have the time for that. You can produce a unified diff by first
-copying the original unchanged file to something like file.c.orig and then
-use the command "diff -u file.c.orig file.c > patch_for_marc". Thanks a lot!
+If you plan to submit buxfixes or changes to me, please keep in mind: I only
+accept a unified diff against the latest released mgetty/vgetty version.
+Everything else is more work for me and I don't have the time for that. You
+can produce a unified diff by first copying the original unchanged file to
+something like file.c.orig and then use the command "diff -u file.c.orig
+file.c > patch_for_marc". Thanks a lot!
 
 Please have a look at the voice/ToDo file. If there is something missing,
 that you would like to see, please let me know, I probably add it to the
@@ -23,21 +21,10 @@ Also if you did something for vgetty and I didn't put you in the voice/Credits
 file, please mail me! I don't want to forget someone, but I probably did
 already.
 
-Now the good things:
-
-* Tighter integration of mgetty and vgetty low level parts.
-
-* Some USR modems produced gsm data, that were not accepted by the gsm
-  library.
-
-* Changed the base unit for the beep command to milliseconds.
-
-* Quite a lot other minor changes, I forgot...
-
 The new release is included in the latest mgetty-beta on ftp.leo.org as
 always.
 
 Enjoy,
 Marc
 
-$Id: Announce,v 1.3 1998/01/21 10:23:55 marc Exp $
+$Id: Announce,v 1.4 1998/03/25 23:04:44 marc Exp $

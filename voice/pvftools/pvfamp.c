@@ -4,11 +4,12 @@
  * pvfamp increases or decreases the volume of the sound signal. Input and
  * output is in the pvf (portable voice format) format.
  *
+ * $Id: pvfamp.c,v 1.3 1998/03/25 23:05:57 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
 
-char *pvfamp_c = "$Id: pvfamp.c,v 1.2 1998/01/21 10:25:09 marc Exp $";
 char *program_name;
 
 static void usage (void)

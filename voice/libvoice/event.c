@@ -4,18 +4,18 @@
  * This is the callback function for the modem to the higher level
  * routines.
  *
+ * $Id: event.c,v 1.3 1998/03/25 23:05:43 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
 
-char *libvoice_event_c = "$Id: event.c,v 1.2 1998/01/21 10:24:57 marc Exp $";
-
 static volatile int event_count = 0;
 static volatile int first_event = 0;
 static volatile int last_event = 0;
-int (*program_handle_event) _PROTO((int event, event_data data)) = NULL;
+int (*program_handle_event) (int event, event_data data) = NULL;
 
-#define MAX_EVENTS 1024
+#define MAX_EVENTS 64
 
 static volatile struct
      {
@@ -78,16 +78,9 @@ char *event_name(int event)
      return(tmp_string);
      }
 
-void reset_watchdog(int count)
+void reset_watchdog(void)
      {
-     static int skip_count = 0;
-
-     if (skip_count++ >= count)
-          {
-          skip_count = 0;
-          queue_event(create_event(RESET_WATCHDOG));
-          }
-
+     queue_event(create_event(RESET_WATCHDOG));
      }
 
 int voice_handle_event(int event, event_data data)
@@ -192,7 +185,7 @@ int voice_handle_event(int event, event_data data)
      return(UNKNOWN_EVENT);
      }
 
-void voice_check_events _P0(void)
+void voice_check_events(void)
      {
      event_type* event;
 
@@ -201,8 +194,7 @@ void voice_check_events _P0(void)
 
           if (voice_handle_event(event->event, event->data) == FAIL)
                {
-               errno = 0;
-               lprintf(L_ERROR, "%s: Could not handle event, something failed", program_name);
+               lprintf(L_WARN, "%s: Could not handle event, something failed", program_name);
                exit(99);
                };
 
@@ -211,7 +203,7 @@ void voice_check_events _P0(void)
 
      }
 
-int voice_stop_current_action _P0(void)
+int voice_stop_current_action(void)
      {
 
      switch (voice_modem_state)
@@ -251,7 +243,7 @@ event_type* create_event(int event)
      if (new_event != NULL)
           new_event->event = event;
      else
-          lprintf(L_ERROR, "%s: Could not allocate memory for event record", program_name);
+          lprintf(L_WARN, "%s: Could not allocate memory for event record", program_name);
 
      return(new_event);
      }
@@ -274,7 +266,7 @@ int queue_event(event_type* event)
 
      if (event_count >= MAX_EVENTS)
           {
-          lprintf(L_ERROR, "%s: event queue full, ignoring event", program_name);
+          lprintf(L_WARN, "%s: event queue full, ignoring event", program_name);
           event_queue[event_number].write_lock--;
           event_count--;
           return(FAIL);

@@ -5,11 +5,11 @@
  * possibilities given in expected_answers in the form "OK|BUSY".
  * If this fails, try to detect some standard voice modem answers.
  *
+ * $Id: analyze.c,v 1.3 1998/03/25 23:05:41 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
-
-char *libvoice_analyze_c = "$Id: analyze.c,v 1.2 1998/01/21 10:24:54 marc Exp $";
 
 typedef struct
      {
@@ -52,8 +52,7 @@ one_modem_answer modem_answers[] =
      {NULL, VMA_FAIL}
      };
 
-int voice_analyze _P2((buffer, expected_answers), char *buffer,
- char *expected_answers)
+int voice_analyze(char *buffer, char *expected_answers)
      {
      int current;
      char *user_answer;

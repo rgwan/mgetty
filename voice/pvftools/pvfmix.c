@@ -4,11 +4,12 @@
  * pvfmix mixes two voice files into one voice file. Input and output
  * is in the pvf (portable voice format) format.
  *
+ * $Id: pvfmix.c,v 1.3 1998/03/25 23:06:00 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
 
-char *pvfmix_c = "$Id: pvfmix.c,v 1.2 1998/01/21 10:25:12 marc Exp $";
 char *program_name;
 
 static void usage (void)

@@ -8,13 +8,13 @@
  * the received voice messages. Otherwise vgetty leaves the voice mode
  * and tries a data or fax connection.
  *
+ * $Id: button.c,v 1.3 1998/03/25 23:06:16 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
 
-char *vgetty_button_c = "$Id: button.c,v 1.2 1998/01/21 10:25:30 marc Exp $";
-
-void vgetty_button _P1((rings), int rings)
+void vgetty_button(int rings)
      {
 
      if ((rings == 0) && (strlen(cvd.button_program.d.p) != 0))
@@ -23,11 +23,10 @@ void vgetty_button _P1((rings), int rings)
 
           make_path(file_name, cvd.voice_dir.d.p,
            cvd.button_program.d.p);
-          voice_install_signal_handler();
-          voice_answer_phone();
+          voice_mode_on();
           voice_execute_shell_script(file_name, NULL);
+          voice_mode_off();
           exit(0);
           };
 
-     voice_mode_off();
      }

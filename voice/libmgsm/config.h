@@ -4,7 +4,7 @@
  * details.  THERE IS ABSOLUTELY NO WARRANTY FOR THIS SOFTWARE.
  */
 
-/*$Header: /u2/cvs/mgetty/voice/libmgsm/config.h,v 1.2 1998/01/21 10:24:16 marc Exp $*/
+/* $Id */
 
 #ifndef   CONFIG_H
 #define   CONFIG_H

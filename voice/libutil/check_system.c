@@ -4,12 +4,12 @@
  * Check, that the system we are running on has proper bit sizes and
  * does proper handling of right bit shift operations
  *
+ * $Id: check_system.c,v 1.3 1998/03/25 23:05:26 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
 #include <assert.h>
-
-char *libutil_check_system_c = "$Id: check_system.c,v 1.2 1998/01/21 10:24:38 marc Exp $";
 
 void check_system (void)
      {

@@ -37,11 +37,11 @@
  *   ATS18=1 OK
  * there your isdn-tty won't pick up data calls.
  *
- * */
+ * $Id: ISDN4Linux.c,v 1.3 1998/03/25 23:05:33 marc Exp $
+ * 
+ */
 
 #include "../include/voice.h"
-
-char *libvoice_ISDN4Linux_c = "$Id: ISDN4Linux.c,v 1.2 1998/01/21 10:24:46 marc Exp $";
 
 static int is_voicecall;
 static int got_DLE_DC4 = FALSE;
@@ -81,7 +81,7 @@ static int ISDN4Linux_answer_phone(void)
      {
      int result;
 
-     reset_watchdog(0);
+     reset_watchdog();
 
      /* Check call-type:
       * S20 = 1 -> voice call
@@ -104,7 +104,7 @@ static int ISDN4Linux_init(void)
 
      voice_modem_state = INITIALIZING;
      lprintf(L_MESG, "initializing ISDN4Linux voice mode");
-     reset_watchdog(0);
+     reset_watchdog();
 
      /* Enable voice calls (set bit 1 in register S18) */
 
@@ -181,7 +181,7 @@ static int ISDN4Linux_beep(int frequency, int length)
 static int ISDN4Linux_set_compression(int *compression, int *speed, int *bits)
      {
      char buffer[VOICE_BUF_LEN];
-     reset_watchdog(0);
+     reset_watchdog();
 
      if (*compression == 0)
           *compression = 2;
@@ -232,7 +232,7 @@ static int ISDN4Linux_set_compression(int *compression, int *speed, int *bits)
 static int ISDN4Linux_set_device(int device)
      {
      int result;
-     reset_watchdog(0);
+     reset_watchdog();
 
      switch (device)
           {
@@ -322,7 +322,7 @@ static char ISDN4Linux_intr_play_answr[] = "OK|VCON";
 static char ISDN4Linux_stop_play_answr[] = "OK|VCON";
 static char ISDN4Linux_start_rec_answr[] = "CONNECT|NO ANSWER";
 static char ISDN4Linux_stop_rec_cmnd[] = {DLE, DC4, 0x00};
-static char ISDN4Linux_stop_rec_answr[] = "OK|VCON";
+static char ISDN4Linux_stop_rec_answr[] = "OK|VCON|NO CARRIER";
 
 voice_modem_struct ISDN4Linux =
      {

@@ -3,11 +3,11 @@
  *
  * Converts pvf <--> voc.
  *
+ * $Id: voc.c,v 1.3 1998/03/25 23:05:22 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
-
-char *libpvf_voc_c = "$Id: voc.c,v 1.2 1998/01/21 10:24:34 marc Exp $";
 
 static char voc_hdr[32] =
      {

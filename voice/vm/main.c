@@ -5,11 +5,11 @@
  * supports the shell script execution function to test vgetty scripts
  * and to build special standalone scripts.
  *
+ * $Id: main.c,v 1.3 1998/03/25 23:06:22 marc Exp $
+ *
  */
 
 #include "vm.h"
-
-char *vm_main_c = "$Id: main.c,v 1.2 1998/01/21 10:25:35 marc Exp $";
 
 /*
  * Global variables definition
@@ -18,7 +18,7 @@ char *vm_main_c = "$Id: main.c,v 1.2 1998/01/21 10:25:35 marc Exp $";
 int dtmf_mode = IGNORE_DTMF;
 char dtmf_string_buffer[VOICE_BUF_LEN] = "";
 int use_on_hook_off_hook = FALSE;
-int start_recording = TRUE;
+int start_action = TRUE;
 char *DevID = "/dev/null";
 char *Device = NULL;
 
@@ -26,7 +26,7 @@ char *Device = NULL;
  * Main function
  */
 
-int main _P2((argc, argv), int argc, char *argv[])
+int main(int argc, char *argv[])
      {
      int option;
      char *command = argv[1];
@@ -135,7 +135,6 @@ int main _P2((argc, argv), int argc, char *argv[])
                rom_release = 0;
                printf("*\n* Diagnostics for device /dev/%s\n*\n", device);
                printf("* vgetty %s\n", vgetty_version);
-               printf("* mgetty %s\n*\n", mgetty_version);
 
                while (((result = voice_open_device()) != OK) && ((++tries) <
                 cvd.max_tries.d.i))
@@ -264,18 +263,32 @@ int main _P2((argc, argv), int argc, char *argv[])
      if (strcmp(command, "play") == 0)
           {
 
-          while (optind < argc)
+          if (use_on_hook_off_hook)
                {
+               start_action = FALSE;
+               printf("Waiting to start playing. ");
+               printf("Please pick up local handset...\n");
+               voice_wait(60);
+               }
 
-               if (verbose)
-                    fprintf(stderr, "%s: playing voice file %s\n",
-                     program_name, argv[optind]);
+          if (start_action) {
 
-               if (voice_play_file(argv[optind]) == INTERRUPTED)
-                    break;
+               while (optind < argc)
+                    {
 
-               optind++;
-               };
+                    if (verbose)
+                         fprintf(stderr, "%s: playing voice file %s\n",
+                          program_name, argv[optind]);
+
+                    if (voice_play_file(argv[optind]) == INTERRUPTED)
+                         break;
+
+                    optind++;
+                    };
+
+               }
+          else
+               printf("Phone wasn't picked up, exiting.\n");
 
           };
 
@@ -294,13 +307,13 @@ int main _P2((argc, argv), int argc, char *argv[])
 
                if (use_on_hook_off_hook)
                     {
-                    start_recording = FALSE;
+                    start_action = FALSE;
                     printf("Waiting to start recording. ");
                     printf("Please pick up local handset...\n");
                     voice_wait(60);
                     }
 
-               if (start_recording)
+               if (start_action)
                     {
                     printf("Recording message...\n");
                     voice_record_file(argv[optind]);

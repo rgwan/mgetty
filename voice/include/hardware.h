@@ -3,11 +3,9 @@
  *
  * Defines the structure with data and routines for the hardware drivers.
  *
+ * $Id: hardware.h,v 1.3 1998/03/25 23:04:54 marc Exp $
+ *
  */
-
-#ifdef MAIN
-char *voice_hardware_h = "$Id: hardware.h,v 1.2 1998/01/21 10:24:08 marc Exp $";
-#endif
 
 /*
  * Structure with voice modem hardware informations and functions

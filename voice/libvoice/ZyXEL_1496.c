@@ -3,17 +3,17 @@
  *
  * This file contains the ZyXEL 1496 specific hardware stuff.
  *
+ * $Id: ZyXEL_1496.c,v 1.3 1998/03/25 23:05:39 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
-
-char *libvoice_ZyXEL_1496_c = "$Id: ZyXEL_1496.c,v 1.2 1998/01/21 10:24:53 marc Exp $";
 
 static int ZyXEL_1496_init (void)
      {
      char buffer[VOICE_BUF_LEN];
 
-     reset_watchdog(0);
+     reset_watchdog();
      voice_modem_state = INITIALIZING;
      voice_command("ATI1", "");
      voice_read(buffer);
@@ -112,7 +112,7 @@ static int ZyXEL_1496_set_compression (int *compression, int *speed, int *bits)
 
      if (*speed != 9600)
           {
-          lprintf(L_WARN, "%s: Illeagal sample rate (%d)", voice_modem_name,
+          lprintf(L_WARN, "%s: Illegal sample rate (%d)", voice_modem_name,
            *speed);
           return(FAIL);
           };
@@ -155,7 +155,7 @@ static int ZyXEL_1496_set_compression (int *compression, int *speed, int *bits)
 
                break;
           default:
-               lprintf(L_WARN, "%s: Illeagal voice compression method (%d)",
+               lprintf(L_WARN, "%s: Illegal voice compression method (%d)",
                 voice_modem_name, *compression);
                return(FAIL);
           };

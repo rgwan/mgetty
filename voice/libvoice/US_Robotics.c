@@ -21,11 +21,12 @@
  * V0.4 :Moved all voice configuring commands so that they occur where they're
  *       relevant and in voice mode. Software flow control is no longer
  *       supported. b2:
+ *
+ * $Id: US_Robotics.c,v 1.3 1998/03/25 23:05:39 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
-
-char *libvoice_US_Robotics_c = "$Id: US_Robotics.c,v 1.2 1998/01/21 10:24:52 marc Exp $";
 
 #define COMPRESSION_DEFAULT 0
 #define COMPRESSION_GSM 1
@@ -42,11 +43,31 @@ static int probed_for_adpcm = FALSE;
 static int in_adpcm_mode = FALSE;
 static int internal_speaker_used = FALSE;
 
+static int USR_beep(int frequency, int length)
+     {
+
+     /*
+      * Ugly hack: my USRobotics SportsterFlash doesn't catch dtmf codes
+      * after a beep.  If I send it the "AT#VLS=4A" (answer phone) string
+      * after an "AT#VTS[%d,0,%d]" (beep) command it would resume detecting
+      * tones
+      * 
+      */
+      
+     if (IS_101_beep(frequency, length) != OK)
+          return(FAIL);
+          
+     if (IS_101_answer_phone() != VMA_OK)
+          return(FAIL);
+     
+     return(OK);
+     } 
+
 static int USR_init(void)
      {
      static char buffer[VOICE_BUF_LEN];
 
-     reset_watchdog(0);
+     reset_watchdog();
      lprintf(L_MESG, "US Robotics voice modem");
      lprintf(L_WARN, "This is a driver beta version. V0.4.b3");
      voice_modem_state = INITIALIZING;
@@ -85,11 +106,16 @@ static int USR_stop_play_file(void)
      {
      int stop_playing = IS_101_stop_play_file();
 
-     if (voice_write_raw("ATE1\r",5) != OK)
-          return(FAIL);
+     if (cvd.enable_command_echo.d.i)
+          {
 
-     if ((voice_command("", "OK|VCON") & VMA_USER) != VMA_USER)
-          return(FAIL);
+          if (voice_write_raw("ATE1\r",5) != OK)
+               return(FAIL);
+
+          if ((voice_command("", "OK|VCON") & VMA_USER) != VMA_USER)
+               return(FAIL);
+               
+          }
 
      if (voice_command("AT", "OK") != VMA_USER_1)
           return(FAIL);
@@ -134,7 +160,7 @@ static int USR_set_compression(int *compression, int *speed, int *bits)
 
           if (!(supports_adpcm =
            (voice_command("AT#VSM=129,8000", "OK") == VMA_USER_1)))
-               lprintf(L_ERROR,"%s: Ignore the above error!", program_name);
+               lprintf(L_WARN,"%s: Ignore the above error!", program_name);
           else
                in_adpcm_mode = TRUE;
 
@@ -185,7 +211,7 @@ static int USR_set_compression(int *compression, int *speed, int *bits)
                /* This is the adpcm 3 bits per sample mode */
           case COMPRESSION_ADPCM_4:
                /* This is the adpcm 4 bits per sample mode */
-
+               *bits = *compression;
 
                if ((supports_adpcm) && (!in_adpcm_mode))
                     {
@@ -216,7 +242,7 @@ static int USR_set_compression(int *compression, int *speed, int *bits)
 
 static int USR_set_device(int device)
      {
-     reset_watchdog(0);
+     reset_watchdog();
      internal_speaker_used = FALSE;
 
      switch (device)
@@ -251,7 +277,7 @@ static int USR_switch_to_data_fax (char *mode)
      {
      char buffer[VOICE_BUF_LEN];
 
-     reset_watchdog(0);
+     reset_watchdog();
      voice_modem->voice_mode_off();
      sprintf(buffer, "AT+FCLASS=%s", mode);
 
@@ -307,7 +333,7 @@ voice_modem_struct US_Robotics =
      (char *) IS_101_ask_mode_answr,
      (char *) IS_101_voice_mode_id,
      &IS_101_answer_phone,
-     &IS_101_beep,
+     &USR_beep,
      &IS_101_dial,
      &IS_101_handle_dle,
      &USR_init,

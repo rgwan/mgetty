@@ -4,11 +4,9 @@
  * Defines the event_data structure for information exchange between
  * the hardware specific parts and the generic code.
  *
+ * $Id: event.h,v 1.3 1998/03/25 23:04:53 marc Exp $
+ *
  */
-
-#ifdef MAIN
-char *voice_event_h = "$Id: event.h,v 1.2 1998/01/21 10:24:07 marc Exp $";
-#endif
 
 /*
  * Dummy empty event.
@@ -112,9 +110,9 @@ typedef struct
  * Event handling functions
  */
 
-extern event_type* create_event _PROTO((int event));
-extern void clear_event _PROTO((event_type* event));
-extern int queue_event _PROTO((event_type* event));
-extern event_type* unqueue_event _PROTO((void));
-extern int voice_install_signal_handler _PROTO((void));
-extern int voice_restore_signal_handler _PROTO((void));
+extern event_type* create_event(int event);
+extern void clear_event(event_type* event);
+extern int queue_event(event_type* event);
+extern event_type* unqueue_event(void);
+extern int voice_install_signal_handler(void);
+extern int voice_restore_signal_handler(void);

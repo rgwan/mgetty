@@ -5,11 +5,11 @@
  * follow the IS-101 interim standard for voice modems. Since the commands
  * are set in the modem structure, it should be quite generic.
  *
+ * $Id: IS_101.c,v 1.3 1998/03/25 23:05:34 marc Exp $
+ *
  */
 
 #include "../include/voice.h"
-
-char *libvoice_IS_101_c = "$Id: IS_101.c,v 1.2 1998/01/21 10:24:47 marc Exp $";
 
 /*
  * Here we save the current mode of operation of the voice modem when
@@ -17,13 +17,6 @@ char *libvoice_IS_101_c = "$Id: IS_101.c,v 1.2 1998/01/21 10:24:47 marc Exp $";
  */
 
 static char mode_save[16] = "";
-
-/*
- * This variable holds the original tio settings during playback and
- * recording, so that they can be restored afterwards.
- */
-
-TIO tio_save;
 
 /*
  * Internal status variables for stoping voice modem actions.
@@ -49,7 +42,7 @@ int IS_101_beep(int frequency, int length)
      char buffer[VOICE_BUF_LEN];
      int true_length = length / voice_modem->beep_timeunit;
 
-     reset_watchdog(0);
+     reset_watchdog();
      sprintf(buffer, voice_modem->beep_cmnd, frequency, true_length);
 
      if (voice_command(buffer, "") != OK)
@@ -69,11 +62,12 @@ int IS_101_dial(char *number)
      char buffer[VOICE_BUF_LEN];
      time_t timeout;
      int result = FAIL;
+     int watchdog_count = 0;
 
      voice_check_events();
      voice_modem_state = DIALING;
      stop_dialing = FALSE;
-     reset_watchdog(0);
+     reset_watchdog();
      timeout = time(NULL) + cvd.dial_timeout.d.i;
      sprintf(command, "ATD%s", (char*) number);
 
@@ -89,7 +83,13 @@ int IS_101_dial(char *number)
 
      while ((!stop_dialing) && (timeout >= time(NULL)))
           {
-          reset_watchdog(10);
+
+          if ((watchdog_count--) <= 0)
+               {
+               reset_watchdog();
+               watchdog_count = cvd.watchdog_timeout.d.i * 1000 / 
+                cvd.poll_interval.d.i / 2;
+               }
 
           if (check_for_input(voice_fd))
                {
@@ -134,7 +134,7 @@ int IS_101_dial(char *number)
 
                }
           else
-               delay(100);
+               delay(cvd.poll_interval.d.i);
 
           voice_check_events();
           }
@@ -424,8 +424,7 @@ int IS_101_handle_dle(char data)
 
 int IS_101_init(void)
      {
-     errno = ENOSYS;
-     LPRINTF(L_ERROR, "%s: init called", voice_modem_name);
+     LPRINTF(L_WARN, "%s: init called", POS);
      return(FAIL);
      }
 
@@ -451,12 +450,11 @@ int IS_101_start_play_file(void)
      {
      TIO tio;
 
-     reset_watchdog(0);
+     reset_watchdog();
      stop_playing = FALSE;
      voice_modem_state = PLAYING;
      voice_check_events();
      tio_get(voice_fd, &tio);
-     tio_save = tio;
 
      if (cvd.do_hard_flow.d.i)
           {
@@ -504,7 +502,7 @@ int IS_101_stop_play_file(void)
           {
           tio_flush_queue(voice_fd, TIO_Q_OUT);
 
-          if (voice_write_raw("", 1) != OK)
+          if (voice_write_char(0x00) != OK)
                return(FAIL);
 
           if (voice_write_raw(voice_modem->intr_play_cmnd, strlen(
@@ -531,7 +529,7 @@ int IS_101_stop_play_file(void)
                return(FAIL);
           }
 
-     tio_set(voice_fd, &tio_save);
+     tio_set(voice_fd, &voice_tio);
      voice_check_events();
      voice_modem_state = IDLE;
      return(OK);
@@ -539,11 +537,16 @@ int IS_101_stop_play_file(void)
 
 int IS_101_play_file(FILE *fd, int bps)
      {
-     static char output_buffer[1025];
+     #define PLAY_BUFFER_SIZE 1023
+     static char output_buffer[PLAY_BUFFER_SIZE + 1];
      int bytes_out;
+     int bytes_max = bps / 8 / 10;
      int count = 0;
      int count_limit = bps / 8 * cvd.watchdog_timeout.d.i / 2;
      int play_complete = FALSE;
+
+     if (bytes_max > PLAY_BUFFER_SIZE)
+          bytes_max = PLAY_BUFFER_SIZE;
 
      while ((!stop_playing) && (!play_complete))
           {
@@ -552,7 +555,7 @@ int IS_101_play_file(FILE *fd, int bps)
 
           bytes_out = 0;
 
-          while (bytes_out < 1024)
+          while (bytes_out < bytes_max)
                {
 
                if ((data_byte = fgetc(fd)) == EOF)
@@ -576,7 +579,7 @@ int IS_101_play_file(FILE *fd, int bps)
           if (count > count_limit)
                {
                lprintf(L_JUNK, "%s: <VOICE DATA %d bytes>", program_name, count);
-               reset_watchdog(0);
+               reset_watchdog();
                count = 0;
                }
 
@@ -605,7 +608,7 @@ int IS_101_play_file(FILE *fd, int bps)
      if (count > 0)
           {
           lprintf(L_JUNK, "%s: <VOICE DATA %d bytes>", program_name, count);
-          reset_watchdog(0);
+          reset_watchdog();
           }
 
      return(OK);
@@ -613,7 +616,6 @@ int IS_101_play_file(FILE *fd, int bps)
 
 int IS_101_record_file(FILE *fd, int bps)
      {
-     TIO tio_save;
      TIO tio;
      time_t timeout;
      int input_byte;
@@ -623,13 +625,12 @@ int IS_101_record_file(FILE *fd, int bps)
      int count = 0;
      int count_limit = bps / 8 * cvd.watchdog_timeout.d.i / 2;
 
-     reset_watchdog(0);
+     reset_watchdog();
      timeout = time(NULL) + cvd.rec_max_len.d.i;
      stop_recording = FALSE;
      voice_modem_state = RECORDING;
      voice_check_events();
      tio_get(voice_fd, &tio);
-     tio_save = tio;
 
      if (cvd.do_hard_flow.d.i)
           {
@@ -720,7 +721,7 @@ int IS_101_record_file(FILE *fd, int bps)
                     {
                     lprintf(L_JUNK, "%s: <VOICE DATA %d bytes>", voice_modem_name,
                      count);
-                    reset_watchdog(0);
+                    reset_watchdog();
                     count = 0;
                     }
 
@@ -733,7 +734,7 @@ int IS_101_record_file(FILE *fd, int bps)
 
           }
 
-     tio_set(voice_fd, &tio_save);
+     tio_set(voice_fd, &voice_tio);
 
      if ((voice_command("", voice_modem->stop_rec_answr) & VMA_USER) !=
       VMA_USER)
@@ -746,15 +747,13 @@ int IS_101_record_file(FILE *fd, int bps)
 
 int IS_101_set_compression(int *compression, int *speed, int *bits)
      {
-     errno = ENOSYS;
-     LPRINTF(L_ERROR, "%s: set_compression called", voice_modem_name);
+     LPRINTF(L_WARN, "%s: set_compression called", POS);
      return(FAIL);
      }
 
 int IS_101_set_device(int device)
      {
-     errno = ENOSYS;
-     LPRINTF(L_ERROR, "%s: set_device called", voice_modem_name);
+     LPRINTF(L_WARN, "%s: set_device called", POS);
      return(FAIL);
      }
 
@@ -847,8 +846,9 @@ int IS_101_voice_mode_on(void)
 int IS_101_wait(int wait_timeout)
      {
      time_t timeout;
+     int watchdog_count = 0;
 
-     reset_watchdog(0);
+     reset_watchdog();
      stop_waiting = FALSE;
      voice_modem_state = WAITING;
      voice_check_events();
@@ -858,7 +858,12 @@ int IS_101_wait(int wait_timeout)
           {
           static int char_read;
 
-          reset_watchdog(100);
+          if ((watchdog_count--) <= 0)
+               {
+               reset_watchdog();
+               watchdog_count = cvd.watchdog_timeout.d.i * 1000 / 
+                cvd.poll_interval.d.i / 2;
+               }
 
           while ((char_read = voice_read_byte()) >= 0)
                {

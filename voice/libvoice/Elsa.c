@@ -6,15 +6,14 @@
  * it was written by Karlo Gross kg@orion.ddorf.rhein-ruhr.de
  * by using the old version from Stefan Froehlich and the
  * help from Marc Eberhard.
- * This is the 1. alpha release from 1996/11/14
  * You have set port_timeout in voice.conf to a minimum of 15
  * if you use 38400 Baud
+ *
+ * $Id: Elsa.c,v 1.3 1998/03/25 23:05:32 marc Exp $
  *
  */
 
 #include "../include/voice.h"
-
-char *libvoice_Elsa_c = "$Id: Elsa.c,v 1.2 1998/01/21 10:24:45 marc Exp $";
 
 static int Elsa_set_device (int device);
 
@@ -22,10 +21,9 @@ static int Elsa_init (void)
      {
      char buffer[VOICE_BUF_LEN];
 
-     reset_watchdog(0);
+     reset_watchdog();
      voice_modem_state = INITIALIZING;
      lprintf(L_MESG, "initializing Elsa voice modem");
-     voice_modem->voice_mode_on();
 
      sprintf(buffer, "AT#VSP=%1u", cvd.rec_silence_len.d.i);
 
@@ -94,13 +92,12 @@ static int Elsa_init (void)
           lprintf(L_WARN, "can't turn on hardware flow control");
 
      voice_modem_state = IDLE;
-     voice_modem->voice_mode_off();
      return(OK);
      }
 
 static int Elsa_set_compression (int *compression, int *speed, int *bits)
      {
-     reset_watchdog(0);
+     reset_watchdog();
 
      if (*compression == 0)
           *compression = 2;
@@ -110,7 +107,7 @@ static int Elsa_set_compression (int *compression, int *speed, int *bits)
 
      if (*speed != 7200)
           {
-          lprintf(L_WARN, "%s: Illeagal sample speed (%d)",
+          lprintf(L_WARN, "%s: Illegal sample speed (%d)",
            voice_modem_name, *speed);
           return(FAIL);
           };
@@ -134,14 +131,14 @@ static int Elsa_set_compression (int *compression, int *speed, int *bits)
           return(OK);
           }
 
-     lprintf(L_WARN, "%s: Illeagal voice compression method (%d)",
+     lprintf(L_WARN, "%s: Illegal voice compression method (%d)",
       voice_modem_name, *compression);
      return(FAIL);
      }
 
 static int Elsa_set_device (int device)
      {
-     reset_watchdog(0);
+     reset_watchdog();
 
      switch (device)
           {

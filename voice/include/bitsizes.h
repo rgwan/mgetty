@@ -2,11 +2,10 @@
  * bitsizes.h
  *
  * Declaration for variable types with defined bit sizes
+ *
+ * $Id: bitsizes.h,v 1.3 1998/03/25 23:04:52 marc Exp $
+ *
  */
-
-#ifdef MAIN
-char *bitsizes_h = "$Id: bitsizes.h,v 1.2 1998/01/21 10:24:05 marc Exp $";
-#endif
 
 typedef short              vgetty_s_int16;
 typedef unsigned short     vgetty_u_int16;
