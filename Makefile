@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.24 1998/04/02 21:05:26 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.25 1998/04/02 21:21:52 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -464,7 +464,7 @@ mgetty$(DIFFR)-$(MR).$(SR).diff.gz: \
 		mgetty-$(DIFFR) mgetty-$(MR).$(SR) ; \
 		exit 0 ) >mgetty$(DIFFR)-$(MR).$(SR).diff
 	rm -rf /tmp/mgd
-	gzip -9v mgetty$(DIFFR)-$(MR).$(SR).diff
+	gzip -f -9 -v mgetty$(DIFFR)-$(MR).$(SR).diff
 
 mg.uue:	mgetty$(MR).$(SR).tar.gz
 	uuencode mgetty$(MR).$(SR)-`date +%b%d`.tar.gz <mgetty$(MR).$(SR).tar.gz >mg.uue
@@ -481,7 +481,7 @@ beta:	mgetty$(MR).$(SR).tar.gz diff
 	test `hostname` = greenie.muc.de || exit 1
 # local
 	cp mgetty$(MR).$(SR).tar.gz /pub/mgetty-archive/
-	cp mgetty$(DIFFR)-$(MR).$(SR).diff /pub/mgetty-archive/
+	cp mgetty$(DIFFR)-$(MR).$(SR).diff.gz /pub/mgetty-archive/
 
 # master ftp/www site
 	./ftp.sh $(MR).$(SR) alpha.greenie.net \
