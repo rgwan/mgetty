@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.44 1994/01/12 21:47:19 gert Exp $ Copyright (c) Gert Doering */
+/* $Id: mgetty.h,v 1.45 1994/01/14 20:07:25 gert Exp $ Copyright (c) Gert Doering */
 
 /* ANSI vs. non-ANSI support */
 #ifdef __STDC__
@@ -8,9 +8,11 @@
 #define _P2(x,a1,a2)	(a1,a2)
 #define _P3(x,a1,a2,a3)	(a1,a2,a3)
 #define _P4(x,a1,a2,a3,a4)	(a1,a2,a3,a4)
+#define _P5(x,a1,a2,a3,a4,a5)	(a1,a2,a3,a4,a5)
 #define _P6(x,a1,a2,a3,a4,a5,a6)	(a1,a2,a3,a4,a5,a6)
 #define _P7(x,a1,a2,a3,a4,a5,a6,a7)	(a1,a2,a3,a4,a5,a6,a7)
 #define _P8(x,a1,a2,a3,a4,a5,a6,a7,a8)	(a1,a2,a3,a4,a5,a6,a7,a8)
+#define _P9(x,a1,a2,a3,a4,a5,a6,a7,a8,a9)	(a1,a2,a3,a4,a5,a6,a7,a8,a9)
 #else
 #define _PROTO(x)	()
 #define _P0(x)		()
@@ -18,10 +20,13 @@
 #define _P2(x,a1,a2)	x a1;a2;
 #define _P3(x,a1,a2,a3)	x a1;a2;a3;
 #define _P4(x,a1,a2,a3,a4)	x a1;a2;a3;a4;
+#define _P5(x,a1,a2,a3,a4,a5)	x a1;a2;a3;a4;a5;
 #define _P6(x,a1,a2,a3,a4,a5,a6)	x a1;a2;a3;a4;a5;a6;
 #define _P7(x,a1,a2,a3,a4,a5,a6,a7)	x a1;a2;a3;a4;a5;a6;a7;
 #define _P8(x,a1,a2,a3,a4,a5,a6,a7,a8)	x a1;a2;a3;a4;a5;a6;a7;a8;
+#define _P9(x,a1,a2,a3,a4,a5,a6,a7,a8,a9)	x a1;a2;a3;a4;a5;a6;a7;a8;a9;
 #define const
+#define volatile
 #endif
 
 /* some generic, useful defines */
@@ -123,6 +128,34 @@ int	get_current_users _PROTO(( void ));
 #define FAX_RESPONSE_TIMEOUT	120
 /* how much time may pass while receiving a fax without getting data */
 #define	FAX_PAGE_TIMEOUT	60
+
+/* cnd.c */
+
+extern char *Connect;
+extern char *CallerId;
+extern char *CallTime;
+extern char *CallName;
+
+void cndfind _PROTO((char *str));
+int cndlookup _PROTO((void));
+
+/* disk statistics retrieval in getdisk.c */
+
+struct mountinfo {
+    long	mi_bsize;	/* fundamental block size */
+    long	mi_blocks;	/* number of blocks in file system */
+    long	mi_bfree;	/* number of free blocks in file system */
+    long	mi_bavail;	/* blocks available to non-super user */
+    long	mi_files;	/* number of file nodes in file system */
+    long	mi_ffree;	/* number of free nodes in fs */
+};
+
+typedef struct mountinfo	mntinf;
+
+extern long minfreespace;
+
+int checkspace _PROTO((char *path));
+int getdiskstats _PROTO ((char *path, mntinf *mi));
 
 /********* system prototypes **************/
 extern char * mktemp _PROTO(( char * template ));
