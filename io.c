@@ -1,4 +1,4 @@
-#ident "$Id: io.c,v 1.13 1994/01/18 23:12:49 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: io.c,v 1.14 1994/01/23 13:12:35 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* io.c
  *
@@ -34,7 +34,12 @@ int poll _PROTO(( struct pollfd fds[], unsigned long nfds, int timeout ));
 # else				/* not sys/types.h + sys/time.h */
 #  include <sys/select.h>
 # endif
-#endif
+
+# ifdef NEED_BZERO
+#  define bzero( ptr, length ) memset( ptr, 0, length )
+# endif
+	       
+#endif /* USE_SELECT */
 
 void delay _P1( (waittime),
 		int waittime )		/* wait waittime milliseconds */
