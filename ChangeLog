@@ -1,3 +1,51 @@
+Tue Dec 16 12:35:47 1997  Gert Doering  (gert@greenie.muc.de)
+
+	* release 1.1.11
+
+	* voice/: revert to 1.1.9
+
+	* div: put single quotes around all occurences of "caller=<CND>" 
+	in L_AUDIT messages - <CND> may contain whitespace.
+
+	* logfile: do not convert trailing \n for L_AUDIT lines to "_"
+
+Mon Dec 15 00:22:04 1997  Gert Doering  (gert@greenie.muc.de)
+
+	* class1.c, class1lib.c, class1.h: preliminary work for class 1
+	support
+
+Fri Dec 12 15:12:49 1997  Gert Doering  (gert@greenie.muc.de)
+
+	* fax/faxrunq.in: change format of 'acct.log' into a more machine-
+	readable form (same as faxrunqd uses)
+
+	* sendfax.c, faxlib.c: add necessary "hooks" for first class 1
+	implementation
+
+	* class1lib.c: start low-level class 1 work
+
+Wed Dec 10 12:52:13 1997  Gert Doering  (gd@medat.de)
+
+	* fax/faxrunqd.in: use age of job in sorting queue (to prevent
+	starving very long jobs on very busy machines)
+
+	* fax/faxrunqd.in: correctly handle case if sendfax is killed by
+	an unexpected/uncaught signal.
+
+	* fax/faxq.in: add "-P" option, create .queue-changed if -r/-P used
+
+	* fax/faxrunqd.in: if $FAX_SPOO_OUT/.queue-changed exists, flush
+	in-memory queue and re-read fax queue from disk
+
+Tue Dec 09 13:31:19 1997  Gert Doering  (gert@greenie.muc.de)
+
+	* frontends/voice: add am_tools.tar (answering machine)
+
+	* faxlib.c: add 56k Rockwell modems (ATI -> 56000)
+
+	* faxsend.c, policy.h: FAXSEND_NO_XON is obsolete, use
+	"modem-quirks 0x08" in sendfax.config instead.
+
 Sun Dec 07 13:50:01 1997  Gert Doering  (gert@greenie.muc.de)
 	
 	* release 1.1.10
