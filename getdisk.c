@@ -1,4 +1,4 @@
-#ident "@(#)getdisk.c $Id: getdisk.c,v 1.10 1994/08/08 12:34:26 gert Exp $ Copyright (c) 1994 Elegant Communications Inc."
+#ident "@(#)getdisk.c $Id: getdisk.c,v 1.11 1994/09/26 01:40:09 gert Exp $ Copyright (c) 1994 Elegant Communications Inc."
 
 /*
 
@@ -109,6 +109,7 @@
 #ifdef HASDISKSTAT
 # if !defined(vsnxdyn) && !defined(vdomain)
 #  include <sys/types.h>
+#  include <sys/param.h>
 #  include <sys/mount.h>
 # endif
 
