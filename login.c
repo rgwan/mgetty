@@ -1,4 +1,4 @@
-#ident "$Id: login.c,v 4.4 1998/05/12 15:15:21 gert Exp $ Copyright (C) 1993 Gert Doering"
+#ident "$Id: login.c,v 4.5 1998/06/10 13:31:49 gert Exp $ Copyright (C) 1993 Gert Doering"
 
 
 /* login.c
@@ -177,6 +177,23 @@ void login_dispatch _P2( (user, is_callback ),
 		user++;
 	    }
 #endif
+	    /* in version 2 files, the next field is used to qualify
+	     * this line for callback only/never/don't care
+	     */
+	    if ( file_version > 1 )
+	    {
+		char cbq = toupper( *(line++) );
+
+		if ( ( cbq == 'Y' && ! is_callback ) ||
+		     ( cbq == 'N' &&   is_callback ) )
+		{
+		    lprintf( L_NOISE, "-> skipped: %c/%d", cbq, is_callback );
+		    continue;
+		}
+		/* skip to next field */
+		while( *line && !isspace(*line) ) line++;
+		while( isspace(*line) ) line++;
+	    }
 
 	    /* get (login) user id */
 	    user_id = strtok( line, " \t" );
