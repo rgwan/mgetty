@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 4.15 1998/07/02 09:23:49 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 4.16 1999/03/13 19:21:44 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -470,8 +470,12 @@ int main _P2( (argc, argv),
     fax_set_bor( fd, 1 );
 #endif
 
+    /* AT+FNR=... is necessary in class 2.0 to make the modem tell us 
+     * about the remote fax ID, transmission speed, NSFs, etc.
+     */
     if ( modem_type == Mt_class2_0 )
-        mdm_command( "AT+FNR=1,1,1,0", fd );
+	mdm_command( (modem_quirks & MQ_SHOW_NSF)? "AT+FNR=1,1,1,1"
+						 : "AT+FNR=1,1,1,0", fd );
 
     /* tell the modem if we are willing to poll faxes
      */

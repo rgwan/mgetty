@@ -1,4 +1,4 @@
-#ident "$Id: mg_m_init.c,v 4.6 1999/02/28 19:15:41 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_m_init.c,v 4.7 1999/03/13 19:21:42 gert Exp $ Copyright (c) Gert Doering"
 
 /* mg_m_init.c - part of mgetty+sendfax
  *
@@ -62,7 +62,7 @@ int mg_init_data _P4( (fd, chat_seq, need_dsr, force_chat_seq),
         int rs_lines = tio_get_rs232_lines(fd);
 
 	if ( rs_lines != -1 && 
-	      ( (rs_lines & (TIO_F_DSR|TIO_F_CTS) ) == 0 )
+	      (rs_lines & (TIO_F_DSR|TIO_F_CTS) ) == 0 )
 	{
 	    lprintf( L_WARN, "No DSR/CTS signals, assuming modem is switched off, waiting..." );
 	    while( (tio_get_rs232_lines(fd) & (TIO_F_DSR|TIO_F_CTS) ) == 0)
@@ -137,8 +137,9 @@ int mg_init_fax _P5( (fd, mclass, fax_id, fax_only, fax_max_speed),
 	    fax_set_bor( fd, 0 );
 	}
 
-	/* report everything except NSF */
-	mdm_command( "AT+FNR=1,1,1,0", fd );
+	/* report everything except NSF (unless asked for it) */
+	mdm_command( (modem_quirks & MQ_SHOW_NSF)? "AT+FNR=1,1,1,1"
+						 : "AT+FNR=1,1,1,0", fd );
     }
 
     if ( modem_type == Mt_class2 )
