@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 3.14 1996/11/08 20:52:15 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 3.15 1996/11/10 21:44:27 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include "syslibs.h"
@@ -391,6 +391,11 @@ int getlogname _P6( (prompt, tio, buf, maxsize, do_timeout, do_fido),
 	if ( i == 0 && ch == 0x18 )
 	    continue; 
 #endif
+
+	/* ignore [00] and [01] bytes - seem to be spuriously generated
+	 * when dialing into a ZyXEL 2864DI with X.75 (sometimes)
+	 */
+	if ( ch == 0 || ch == 1 ) continue;
 
 	ch = ch & 0x7f;					/* strip to 7 bit */
 
