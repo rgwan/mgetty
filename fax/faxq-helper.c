@@ -1,4 +1,4 @@
-#ident "$Id: faxq-helper.c,v 4.12 2003/02/04 20:29:37 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxq-helper.c,v 4.13 2003/06/28 20:17:33 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxq-helper.c
  *
@@ -372,7 +372,7 @@ int fd, r, w;
 
     while( *p != '\0' )
     {
-	if ( *p != '.' && *p != ':' && ! isalnum(*p) )
+	if ( *p == '/' || *p == '\\' || isspace(*p) || !isprint(*p) )
 	{
 	    eout( "invalid char. '%c' in file name '%s', abort\n",
 		  *p, outfilename );
