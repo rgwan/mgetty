@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.h,v 1.60 1994/07/22 10:52:37 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 1.61 1994/08/02 19:00:24 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.h
  *
@@ -117,7 +117,7 @@ char * mydup _PROTO(( char *s ));
 
 /* io.c */
 boolean	check_for_input _PROTO (( int fd ));
-void    wait_for_input  _PROTO (( int fd ));
+boolean wait_for_input  _PROTO (( int fd, int seconds ));
 void	delay _PROTO(( int waittime ));
 
 /* locks.c */
