@@ -319,3 +319,5 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
      "caller ID" (for speedups, Caller ID is counted as "RING", to
      avoid waiting for the next real RING which might delay answering 
      by a number of seconds)
+
+233) have different login: prompts for callback/non-callback logins
