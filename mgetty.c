@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.22 1993/03/23 16:44:14 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.23 1993/03/26 20:34:30 gert Exp $ (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -538,7 +538,8 @@ int main( int argc, char ** argv)
 		(void) ioctl(STDIN, TCGETA, &termio);
 		termio.c_iflag = BRKINT | IGNPAR | IXON | IXANY;
 		termio.c_oflag = OPOST | TAB3;
-		termio.c_cflag = CS8 | portspeed | CREAD | HUPCL;
+		termio.c_cflag = CS8 | portspeed | CREAD | HUPCL |
+			 	 HARDWARE_HANDSHAKE;
 		termio.c_lflag = ECHOK | ECHOE | ECHO | ISIG | ICANON;
 		termio.c_line = 0;
 
