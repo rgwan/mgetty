@@ -1,4 +1,4 @@
-#ident "$Id: goodies.c,v 4.3 2001/01/04 16:23:05 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: goodies.c,v 4.4 2001/01/08 10:16:14 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /*
  * goodies.c
@@ -12,6 +12,7 @@
 #include "syslibs.h"
 #include <ctype.h>
 #include <string.h>
+#include <fcntl.h>
 #include <unistd.h>
 
 #include <sys/types.h>
@@ -31,12 +32,6 @@
 
 #ifdef SVR4
 # include <sys/procfs.h>
-# include <fcntl.h>
-#endif
-
-#ifdef linux
-# include <fcntl.h>
-# include <unistd.h>
 #endif
 
 /* get the base file name of a file path */
