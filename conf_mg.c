@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.c,v 4.3 1997/07/05 17:16:15 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_mg.c,v 4.4 1997/07/05 17:19:56 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_mg.c
  *
@@ -245,6 +245,10 @@ conf_data c_a[2];
 		    mgetty_version);
 	    printf("log file written to '");
 	    printf(LOG_PATH, "<ttyX>");
+#ifdef MGETTY_CONFIG
+            printf("'\nconfig file read from '%s", 
+			makepath( MGETTY_CONFIG, CONFDIR ));
+#endif
 	    printf("'\n\n");
 	    exit(0);
 	  case '?':
