@@ -1,3 +1,37 @@
+Mon Dec 16 14:08:06 MET 2002  Gert Doering (gert@greenie.muc.de)
+
+	* release 1.1.30
+
+Sun Dec 15 20:45:48 MET 2002  Gert Doering (gert@greenie.muc.de)
+
+	* voice/vgetty/answer.c, voice/include/default.c: integrate Paul
+	Fox' pre_message and beep_sound patches
+
+Thu Dec 12 07:33:12 MET 2002  Gert Doering (gert@greenie.muc.de)
+
+	* voice/libvoice/detect.c: recognize MultiTech MT3334ZDXV
+
+	* faxhng.c: add some result codes for the i4l DIVA driver
+
+	* voice/libvoice/IS_101.c: fix DTMF events for the unshielded case
+
+Thu Dec  5 17:40:05 MET 2002  Gert Doering (gert@greenie.muc.de)
+
+	* voice/vgetty/answer.c: accept arbitrary ring types, not only 0..6
+
+Wed Dec  4 09:15:47 MET 2002  Gert Doering (gert@greenie.muc.de)
+
+	* ring.c: map DRON/DROF return codes to binary word, use result
+	  as distinctive RING number
+
+Tue Dec  3 23:10:05 MET 2002  Gert Doering (gert@greenie.muc.de)
+
+	* frontends/www/README: add user authentication example
+
+Mon Nov 25 22:16:41 MET 2002  Gert Doering (gert@greenie.muc.de)
+
+	* voice/libvoice/V253modem.c: repair messed-up 16 bit PCM patch
+
 Mon Nov 25 14:05:20 MET 2002  Gert Doering (gert@greenie.muc.de)
 
 	* release 1.1.29
