@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 1.43 1994/09/13 11:19:54 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logfile.c,v 1.44 1994/09/26 15:52:58 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -38,7 +38,7 @@ extern int atexit _PROTO(( void (*)(void) ));
    of those systems that _do_ declare them, it won't hurt */
 
 extern int sys_nerr;
-#ifndef __NetBSD__
+#if !defiend(__NetBSD__) && !defined( __FreeBSD__ )
 extern char *sys_errlist[];
 #endif
 
