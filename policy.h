@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 4.2 1997/05/14 21:12:14 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 4.3 1997/06/05 23:19:55 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration defaults for mgetty / sendfax
  * are specified.
@@ -120,10 +120,12 @@
 #define CONSOLE "/dev/console"
 
 /* Name of the mgetty log file
- * e.g. "/usr/spool/log/mgetty.log.%s"
+ * e.g. "/usr/spool/log/mgetty.log.%s" or "/tmp/log_mg.%s"
  * a "%s" will be replaced by the device name, e.g. "tty2a"
+ *
+ * if the directory does not exist, the log file goes to CONSOLE (!)
  */
-#define LOG_PATH "/tmp/log_mg.%s"
+#define LOG_PATH "/var/log/mgetty.%s"
 
 /* Default log error level threshold. Possible error levels are
  * L_FATAL, L_ERROR, L_WARN, L_AUDIT, L_MESG, L_NOISE, L_JUNK (see mgetty.h)
