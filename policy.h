@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.45 1994/01/27 21:09:52 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.46 1994/01/29 22:48:49 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -357,6 +357,8 @@
 /* When sending a fax, if the other side says "page bad, retrain
  * requested", sendfax will retry the page. Specifiy here the maximum
  * number of retries (I recommend 3) before hanging up.
+ *
+ * If you set it to "0", sendfax will *never* retransmit a page
  */
 #define FAX_SEND_MAX_TRIES 3
 
@@ -365,6 +367,22 @@
  * (without (!) leading /dev/)
  */
 #define FAX_MODEM_TTYS	"tty4c:tty4d"
+
+/* some modems, notably some GVC modems and the german telecom approved
+ * ZyXEL EG+ have the annoying behaviour of lowering and raising the
+ * DCD line during the pre- and post-page handshake (when sending).
+ *
+ * If your modem does this, sendfax will terminate immediately after
+ * starting to send the first page, or between the first and second
+ * page, and the fax log file will show something like
+ * "read failed, I/O error".
+ *
+ * If you define this, sendfax will (try to) ignore that line
+ */
+
+/* #define FAX_SEND_IGNORE_CARRIER */
+
+
 
 /* define mailer that accepts destination on command line and mail text
  * on stdin. For mailers with user friendly interfaces, (such as mail,
