@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.34 1993/11/03 19:22:34 gert Exp $ Copyright (c) Gert Doering */
+/* $Id: mgetty.h,v 1.35 1993/11/05 23:08:13 gert Exp $ Copyright (c) Gert Doering */
 
 /* ANSI vs. non-ANSI support */
 #ifdef __STDC__
@@ -70,7 +70,7 @@ int lprintf _PROTO(());
 #define USE_SELECT
 #endif
 
-typedef	void	sig_t;
+typedef	void	RETSIGTYPE;
 typedef	char	boolean;
 
 #define MAXLINE 256		/* max. # chars in a line */
@@ -94,9 +94,9 @@ void    wait_for_input  _PROTO (( int fd ));
 void	delay _PROTO(( int waittime ));
 
 /* locks.c */
-int	makelock _PROTO((char * device));
-boolean	checklock _PROTO((char * device));
-sig_t	rmlocks _PROTO (());
+int		makelock _PROTO((char * device));
+boolean		checklock _PROTO((char * device));
+RETSIGTYPE	rmlocks _PROTO (());
   
 /* fax stuff */
 void	faxrec _PROTO(( char * spool_dir ));
