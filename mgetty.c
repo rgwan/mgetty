@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.18 1993/03/22 22:25:56 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.19 1993/03/23 10:57:55 gert Exp $ (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -334,6 +334,12 @@ int main( int argc, char ** argv)
 	termio.c_cc[VMIN] = 1;
 	termio.c_cc[VTIME]= 0;
 	ioctl (STDIN, TCSETAF, &termio);
+
+	/* drain input - make sure there are no leftover "NO CARRIER"s
+	 * or "ERROR"s lying around from some dial-out
+	 */
+
+	clean_line(1);
 
 	/* handle init chat if requested
 	 */
