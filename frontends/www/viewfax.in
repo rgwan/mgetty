@@ -4,9 +4,12 @@
 # 
 # Copyright 1998 Simone Demmel simone@greenie.net
 #
-# RCS: $Id: viewfax.in,v 1.8 2001/04/02 07:39:30 gert Exp $
+# RCS: $Id: viewfax.in,v 1.9 2001/07/16 09:24:14 neko Exp $
 #
 # $Log: viewfax.in,v $
+# Revision 1.9  2001/07/16 09:24:14  neko
+# add delete fax function
+#
 # Revision 1.8  2001/04/02 07:39:30  gert
 # change sort order: show most recent faxes at top of list
 #
@@ -108,8 +111,11 @@ $www_logo
 	<th>Fax-ID</th>
 	<th>Seiten</th>
 	<th>Seitenansicht</th>
-</tr>
 EOF
+
+if ( $allow_delete ) { print "<th>Action</th>\n"; }
+
+print "</tr>\n";
 
 # generieren:
 # <tr>
@@ -179,7 +185,16 @@ EOF
 	}
     }
 
-    print "</td>\n</tr>\n";
+	if ( $allow_delete )
+	{
+    print <<EOF ;
+    </td>
+    <td><a href="delete.cgi?source=incoming&file=$basename{$id}">$delete</a></td>
+    </tr>
+EOF
+    }
+    else { print "</td>\n</tr>\n"; }
+
 }
 
 print <<EOF;
