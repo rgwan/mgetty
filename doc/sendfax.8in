@@ -16,7 +16,7 @@ sendfax \- send group 3 fax files (G3 files) with a class 2 faxmodem
 .RB [ -r ]
 .RB [ -D <dial prefix> ]
 .RI phone-number
-.RI [ g3file ]
+.RI [ g3file(s) ]
 ...
 .SH DESCRIPTION
 Send the named g3 fax files to the fax machine at "phone number". The g3
