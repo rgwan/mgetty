@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 4.3 1997/06/05 23:19:55 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 4.4 1997/10/21 12:34:38 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration defaults for mgetty / sendfax
  * are specified.
@@ -189,6 +189,14 @@
  * To use this feature, define ENV_TTYPROMPT.
  */
 /* #define ENV_TTYPROMPT */
+
+/* Some very old terminals can only generate UPPERCASE letters.
+ * Traditional getty variants detect this, and then set the
+ * corresponding termio(s) flags to convert upper/lower case letters
+ * "on the fly".  Mgetty can do it, but since this is hardly
+ * needed nowadays, the default is off.
+ */
+/* #define DO_LCUC_MAP */
 
 /* Maximum time before login name has to be entered (in seconds)
  * (after that time a warning will be issued, after that, the call is

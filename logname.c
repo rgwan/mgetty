@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 4.1 1997/01/12 14:53:41 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 4.2 1997/10/21 12:34:39 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include "syslibs.h"
@@ -172,6 +172,7 @@ char * ln_escape_prompt _P1( (ep), char * ep )
 /* return TRUE if all letters found in the string are uppercase
  */
 
+#ifdef DO_LCUC_MAP
 boolean ln_all_upper _P1( (string), char * string )
 {
     int i;
@@ -188,6 +189,7 @@ boolean ln_all_upper _P1( (string), char * string )
 
     return TRUE;
 }
+#endif
 	
 
 /* set_env_var( var, string )
@@ -499,8 +501,10 @@ int getlogname _P6( (prompt, tio, buf, maxsize, max_login_time, do_fido),
     /* check whether all letters entered were uppercase, if yes, tell
        user to try again with l/c, if it's all uppercase again on the
        second try, enable UC<->LC mapping
+       (this is mainly for full historic compatibility - off by default)
        */
 
+#ifdef DO_LCUC_MAP
     if ( ln_all_upper( buf ) )
     {
 	if ( !was_all_uc )	/* first time */
@@ -518,6 +522,7 @@ int getlogname _P6( (prompt, tio, buf, maxsize, max_login_time, do_fido),
 	    lprintf( L_MESG, "login name all uppercase, set IUCLC OLCUC" );
 	}
     }
+#endif
 
     /* set CR/LF mapping according to the character the input was
        ended with
