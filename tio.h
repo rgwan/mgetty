@@ -1,4 +1,4 @@
-#ident "$Id: tio.h,v 1.6 1993/11/29 11:49:50 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.h,v 1.7 1993/11/29 22:27:34 gert Exp $ Copyright (c) 1993 Gert Doering"
 ;
 /* tio.h
  *
@@ -7,7 +7,7 @@
  */
 
 #if !defined( POSIX_TERMIOS ) && !defined( BSD_SGTTY ) && !defined( SYSV_TERMIO)
-# if defined(linux) || defined(sun)
+# if defined(linux) || defined(sun) || defined(_AIX)
 #  define POSIX_TERMIOS
 # else
 #  define SYSV_TERMIO
