@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.51 1999/06/29 14:23:07 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.52 2000/06/30 09:42:28 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.52  2000/06/30 09:42:28  gert
+# write command line to log file
+#
 # Revision 1.51  1999/06/29 14:23:07  gert
 # use faxrunqd.config for maximum number of pages in combined jobs
 #
@@ -134,6 +137,7 @@ $max_combined_pages=10;
 #
 # command line options
 #
+$saved_cli=join( " ", @ARGV );		# print command line to LOG later
 $opt_d = 0;					# debug
 $opt_v = 0;					# verbose
 $opt_V = 0;					# print version number
@@ -287,7 +291,8 @@ opendir FSO, "." ||
 open( LOG, ">>$faxrd_log" ) ||
 	    die "can't write log file '$faxrd_log'";
 LOG->autoflush(1);
-print LOG "\n" . localtime() .": faxrunqd starting, pid=$$\n$rcs_id\n";
+print LOG "\n" . localtime() .": faxrunqd starting, pid=$$\n";
+print LOG "command line arguments: $0 $saved_cli\n$rcs_id\n";
 
 #
 # internal queue
