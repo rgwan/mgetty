@@ -5,7 +5,7 @@
  * follow the IS-101 interim standard for voice modems. Since the commands
  * are set in the modem structure, it should be quite generic.
  *
- * $Id: IS_101.c,v 1.14 2001/08/06 17:46:18 marcs Exp $
+ * $Id: IS_101.c,v 1.15 2002/11/06 23:39:21 gert Exp $
  *
  */
 
@@ -145,6 +145,7 @@ int IS_101_dial(char *number)
 
 int IS_101_handle_dle(char data)
      {
+     static int hearing_dtmf = 0;	/* flag variable for shielded DTMF */
 
      switch (data)
           {
@@ -186,8 +187,9 @@ int IS_101_handle_dle(char data)
            */
 
           case '/':
-               lprintf(L_WARN, "%s: Start of DTMF shielding received",
-                program_name);
+               lprintf(L_NOISE, "%s: Start of DTMF shielding received",
+                       program_name);
+               hearing_dtmf = 0;
                return(OK);
 
           /*
@@ -195,8 +197,9 @@ int IS_101_handle_dle(char data)
            */
 
           case '~':
-               lprintf(L_WARN, "%s: End of DTMF shielding received",
-                program_name);
+               lprintf(L_NOISE, "%s: End of DTMF shielding received",
+                       program_name);
+               hearing_dtmf = 0;
                return(OK);
 
           /*
@@ -219,16 +222,22 @@ int IS_101_handle_dle(char data)
           case 'B':
           case 'C':
           case 'D':
-               {
-               event_type *event;
-               event_data dtmf;
+               /* IS-101 DTMF sequence: <DLE></><DLE><value>...<DLE><~>
+                *     <DLE><value> is repeated every 70 ms during tone
+		* -> use hearing_dtmf flag to generate only one event
+		*/
+               if (! hearing_dtmf) 
+	       {
+                    event_type *event;
+                    event_data dtmf;
 
-               event = create_event(RECEIVED_DTMF);
-               dtmf.c = data;
-               event->data = dtmf;
-               queue_event(event);
+                    event = create_event(RECEIVED_DTMF);
+                    dtmf.c = data;
+                    event->data = dtmf;
+                    queue_event(event);
+	       }
+               hearing_dtmf = 1;
                return(OK);
-               }
 
           /*
            * Data or fax answer detected
