@@ -1,3 +1,29 @@
+Sat Jul 22 11:17:13 2000  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* All of below is 0.9.11
+
+	* Implemented ringback in Elsa.c, requested by Martin
+ 	Haefele <mhaefe@correo.e-technik.uni-ulm.de>.
+
+	* Patch from Juergen Kosel <Juergen.Kosel@elsa.de> for supporting
+	the V250modem, for which a 115200 bps is recommended.
+
+	* Patch from Const Kaplinsky <const@ce.cctpu.edu.ru> fixing
+	the long-standing WAV conversion bugs. Added comment in
+	the example conversion script.
+	The patch fixes:
+           - byte order problems in writing 16- and 32-bit samples to WAV
+             (RIFF) files;
+           - unsafe code for reading 16-bit samples from WAV files;
+           - a problem with error message "unsupported number of bits per
+             sample" which was printing on each sample of input WAV files.
+	
+	* Patch from Const Kaplinsky <const@ce.cctpu.edu.ru> for
+	support of the Omni 56k in the PVF utilities.
+
+	* Fix for libvoice/ZyXEL_Omni56K.c (also use the RMD adequation
+	routine of IS101 we introduced in 0.9.10).
+
 Sun Jun 11 12:56:41 2000  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 
 	* All of below is 0.9.10
@@ -13,8 +39,8 @@ Sun Jun 11 12:56:41 2000  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 	* Added support for ZyXEL Omni 56k, submitted by 
 	<const@ce.cctpu.edu.ru>. Also patch for libvoice/write.c
 	from same author I haven't yet understood the reason for.
-        I haven't applied the faxlib patch. This however includes
-        Russian Caller-ID for ZyXEL Omni 56k.
+        I haven't applied the faxlib patch (this is for gert to
+	apply). This however includes Russian Caller-ID for ZyXEL Omni 56k.
 
 	* Applied patch for vm help submitted by <const@ce.cctpu.edu.ru>.
 
