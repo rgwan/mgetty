@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.121 1994/08/08 12:34:32 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.122 1994/08/08 14:17:12 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -471,7 +471,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 #if ( defined(linux) && defined(NO_SYSVINIT) ) || defined(sysV68)
     /* on linux, "simple init" does not make a wtmp entry when you
      * log so we have to do it here (otherwise, "who" won't work) */
-    make_utmp_wtmp( Device, UT_INIT, "uugetty" );
+    make_utmp_wtmp( Device, UT_INIT, "uugetty", NULL );
 #endif
 
 #ifdef VOICE
@@ -651,7 +651,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 	     * (don't do this on two-user-license systems!)
 	     */
 #ifndef USER_LIMIT
-	    make_utmp_wtmp( Device, UT_USER, "dialout" );
+	    make_utmp_wtmp( Device, UT_USER, "dialout", NULL );
 #endif
 
 	    /* this is kind of tricky: sometimes uucico dial-outs do still
@@ -869,7 +869,7 @@ int main _P2((argc, argv), int argc, char ** argv)
     
     /* make utmp and wtmp entry (otherwise login won't work)
      */
-    make_utmp_wtmp( Device, UT_LOGIN, "LOGIN" );
+    make_utmp_wtmp( Device, UT_LOGIN, "LOGIN", NULL );
 
     /* wait a little bit befor printing login: prompt (to give
      * the other side time to get ready)
