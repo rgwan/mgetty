@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 1.1 1993/10/04 15:40:19 gert Exp $ (c) 1993 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 1.2 1993/10/05 00:51:43 gert Exp $ (c) 1993 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -842,9 +842,13 @@ and @code{FAX_SEND_BAUD} to @code{B19200} in @file{policy.h}). Remember
 to change the modem initialization strings to the proper values for
 your modem, that is, change @code{AT&H3&N0&K4} to @code{AT&K3}.
 
-Especially for the @samp{SupraFax} modem, I've been told that you have to
-define @code{FAX_MODEM_HANDSHAKE} to @code{&K4} and initialize the modem
-with @code{AT&s0}. Further, you have to define @code{FAX_SEND_USE_IXON}
+Especially for the @samp{SupraFax} modem, I've been told that you have
+to define @code{FAX_MODEM_HANDSHAKE} to @code{&K3} and initialize the
+modem with @code{AT&S0&D2&K3}. Since the modem does not like being
+reset with DTR->low (@code{&D3}), an @code{ATZ} in the first
+initizalization string in @file{mgetty.h} to reset the modem into a
+known state is a good idea, too.
+
 (Thanks to Christof Junge, chris@@cj.in-berlin.de, for trying out several
 weeks until everything worked!}
 
