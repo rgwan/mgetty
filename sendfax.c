@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 3.9 1996/05/27 19:48:44 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 3.10 1996/07/10 22:28:28 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -57,7 +57,7 @@ void exit_usage _P2( (program, msg ),
 }
 
 TIO fax_tio;
-char * Device;
+char *Device = "unset";
 
 int fax_open_device _P2( (fax_tty, use_stdin),
 			 char * fax_tty, boolean use_stdin )
@@ -240,8 +240,10 @@ RETSIGTYPE fax_sig_goodbye _P1( (signo), int signo )
 {
     if ( call_start == 0 ) call_start = time(NULL);
     
-    lprintf( L_AUDIT, "failed: got signal %d, pid=%d, time=%ds, acct=\"%s\"", 
-	     signo, getpid(), ( time(NULL)-call_start ), c_string(acct_handle));
+    lprintf( L_AUDIT, 
+	     "failed: got signal %d, pid=%d, dev=%s, time=%ds, acct=\"%s\"", 
+	     signo, getpid(), Device,
+	     ( time(NULL)-call_start ), c_string(acct_handle));
     rmlocks();
     exit(15);				/* will close the fax device */
 }
@@ -454,9 +456,9 @@ int main _P2( (argc, argv),
     sprintf( buf, "%s%s", c_string(dial_prefix), fac_tel_no );
     if ( fax_command( buf, "OK", fd ) == ERROR )
     {
-	lprintf( L_AUDIT, "failed dialing, phone=\"%s\", +FHS:%02d, time=%ds, acct=\"%s\"",
-		 fac_tel_no, fax_hangup_code, ( time(NULL)-call_start ),
-		 c_string(acct_handle) );
+	lprintf( L_AUDIT, "failed dialing, phone=\"%s\", +FHS:%02d, dev=%s, time=%ds, acct=\"%s\"",
+		 fac_tel_no, fax_hangup_code, Device,
+		 ( time(NULL)-call_start ), c_string(acct_handle) );
 
 	/* close fax line */
 	fax_close( fd );
@@ -622,8 +624,8 @@ int main _P2( (argc, argv),
 
     if ( argidx < argc || ( fax_hangup && fax_hangup_code != 0 ) )
     {
-	lprintf( L_AUDIT, "failed transmitting %s: phone=\"%s\", +FHS:%02d, time=%ds, acct=\"%s\"",
-		 argv[argidx], fac_tel_no, fax_hangup_code, 
+	lprintf( L_AUDIT, "failed transmitting %s: phone=\"%s\", +FHS:%02d, dev=%s, time=%ds, acct=\"%s\"",
+		 argv[argidx], fac_tel_no, fax_hangup_code, Device,
 		 ( time(NULL)-call_start ), c_string(acct_handle) );
 
 	fprintf( stderr, "\n%s: FAILED to transmit '%s'.\n",
@@ -669,9 +671,9 @@ int main _P2( (argc, argv),
 			        -1, -1, -1 ) == ERROR )
 	    {
 		fprintf( stderr, "warning: polling failed\n" );
-		lprintf( L_AUDIT, "failed: polling failed, phone=\"%s\", +FHS:%02d, time=%ds, acct=\"%s\"",
-			 fac_tel_no, fax_hangup_code, ( time(NULL)-call_start ),
-			 c_string(acct_handle) );
+		lprintf( L_AUDIT, "failed: polling failed, phone=\"%s\", +FHS:%02d, dev=%s, time=%ds, acct=\"%s\"",
+			 fac_tel_no, fax_hangup_code, Device,
+			 ( time(NULL)-call_start ), c_string(acct_handle) );
 		fax_close( fd );
 		exit(12);
 	    }
@@ -681,8 +683,8 @@ int main _P2( (argc, argv),
 
     fax_close( fd );
 
-    lprintf( L_AUDIT, "success, phone=\"%s\", time=%ds, pages=%d(+%d), bytes=%d, acct=\"%s\"",
-	              fac_tel_no, ( time(NULL)-call_start ),
+    lprintf( L_AUDIT, "success, phone=\"%s\", dev=%s, time=%ds, pages=%d(+%d), bytes=%d, acct=\"%s\"",
+	              fac_tel_no, Device, ( time(NULL)-call_start ),
 	              total_pages, total_resent, total_bytes,
 	              c_string(acct_handle) );
     return 0;
