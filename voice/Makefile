@@ -3,7 +3,7 @@
 #
 # This is the Makefile for the whole vgetty stuff.
 #
-# $Id: Makefile,v 1.3 1998/01/22 07:29:06 gert Exp $
+# $Id: Makefile,v 1.4 1998/09/09 21:06:12 gert Exp $
 #
 
 AR=ar
@@ -26,10 +26,10 @@ LIBGSM=../libmgsm/libmgsm.a
 
 PROGRAMDIRS=pvftools vgetty vm
 
-PVFTOOLS=pvfamp pvfcut pvfecho pvffile pvffft pvfmix pvfreverse \
-	pvfsine pvfspeed \
-	pvftormd rmdtopvf rmdfile pvftovoc voctopvf pvftolin lintopvf \
-	pvftobasic basictopvf pvftoau autopvf pvftowav wavtopvf
+PVFTOOLS=pvfamp pvfcut pvfecho pvffile pvffilter pvffft pvfmix pvfnoise \
+	pvfreverse pvfsine pvfspeed pvftormd rmdtopvf rmdfile pvftovoc \
+	voctopvf pvftolin lintopvf pvftobasic basictopvf pvftoau autopvf \
+	pvftowav wavtopvf
                         
 SUBDIRS=$(LIBDIRS) $(PROGRAMDIRS)
 

@@ -4,7 +4,7 @@
  * pvftolin converts from the pvf (portable voice format) format to linear
  * headerless samples.
  *
- * $Id: pvftolin.c,v 1.3 1998/03/25 23:06:04 marc Exp $
+ * $Id: pvftolin.c,v 1.4 1998/09/09 21:07:52 gert Exp $
  *
  */
 

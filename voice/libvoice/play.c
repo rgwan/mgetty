@@ -3,7 +3,7 @@
  *
  * This command plays the given file.
  *
- * $Id: play.c,v 1.3 1998/03/25 23:05:46 marc Exp $
+ * $Id: play.c,v 1.4 1998/09/09 21:07:33 gert Exp $
  *
  */
 

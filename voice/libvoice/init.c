@@ -4,7 +4,7 @@
  * Initialize the open port to some sane defaults, detect the
  * type of voice modem connected and initialize the voice modem.
  *
- * $Id: init.c,v 1.3 1998/03/25 23:05:45 marc Exp $
+ * $Id: init.c,v 1.4 1998/09/09 21:07:31 gert Exp $
  */
 
 #include "../include/voice.h"

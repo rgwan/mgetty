@@ -5,7 +5,7 @@
  * supports the shell script execution function to test vgetty scripts
  * and to build special standalone scripts.
  *
- * $Id: main.c,v 1.3 1998/03/25 23:06:22 marc Exp $
+ * $Id: main.c,v 1.4 1998/09/09 21:08:12 gert Exp $
  *
  */
 
@@ -181,7 +181,8 @@ int main(int argc, char *argv[])
 
                          printf("%s\n", buffer);
                          }
-                    while ((voice_analyze(buffer, "OK|ERROR") & VMA_USER) == 0);
+                    while ((voice_analyze(buffer, "OK|ERROR", TRUE) &
+                     VMA_USER) == 0);
 
                     };
 

@@ -1,7 +1,7 @@
 /*
  * answer.c
  *
- * $Id: answer.c,v 1.5 1998/07/02 12:02:35 gert Exp $
+ * $Id: answer.c,v 1.6 1998/09/09 21:08:05 gert Exp $
  *
  */
 

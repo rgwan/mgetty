@@ -3,7 +3,7 @@
  *
  * Defines the header for raw modem data.
  *
- * $Id: header.h,v 1.3 1998/03/25 23:04:55 marc Exp $
+ * $Id: header.h,v 1.4 1998/09/09 21:06:35 gert Exp $
  *
  */
 

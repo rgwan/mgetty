@@ -7,7 +7,7 @@
  * wav.c, found in sox-11-gamma. Thank you for some funtions.
  * This is the 1. alpha release from 1997/2/14
  *
- * $Id: wav.c,v 1.4 1998/07/15 08:28:18 marc Exp $
+ * $Id: wav.c,v 1.5 1998/09/09 21:07:06 gert Exp $
  */
 
 #include "../include/voice.h"

@@ -3,7 +3,7 @@
 #
 # This is the Makefile for libpvf.
 #
-# $Id: Makefile,v 1.3 1998/03/25 23:05:00 marc Exp $
+# $Id: Makefile,v 1.4 1998/09/09 21:06:41 gert Exp $
 #
 
 GSMOBJS=code.o decode.o gsm_create.o gsm_decode.o gsm_destroy.o gsm_encode.o \

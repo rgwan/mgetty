@@ -3,13 +3,14 @@
 #
 # This is the Makefile for libvoice.
 #
-# $Id: Makefile,v 1.3 1998/03/25 23:06:20 marc Exp $
+# $Id: Makefile,v 1.4 1998/09/09 21:08:10 gert Exp $
 #
 
-MGETTYOBJS=../../cnd.o ../../faxhng.o ../../faxlib.o ../../faxrecp.o \
-        ../../faxsend.o
-
 VMOBJS=main.o event.o usage.o
+
+MGETTYOBJS=../../cnd.o ../../faxhng.o ../../faxlib.o ../../faxrec.o \
+	../../faxrecp.o ../../faxsend.o ../../gettydefs.o ../../login.o \
+	../../logname.o ../../utmp.o
 
 VOICELIBS=$(MGETTYLIB) $(LIBVOICE) $(LIBUTIL)
 

@@ -41,13 +41,6 @@ pvfecho.o: pvfecho.c ../include/voice.h ../include/../../mgetty.h \
  ../include/util.h ../include/config.h ../include/default.h \
  ../include/event.h ../include/hardware.h ../include/header.h \
  ../include/paths.h ../include/pvf.h ../include/wav.h
-pvffile.o: pvffile.c ../include/voice.h ../include/../../mgetty.h \
- ../include/../../ugly.h ../include/../../config.h \
- ../include/../../policy.h ../include/../../tio.h \
- ../include/../../fax_lib.h ../include/IS_101.h ../include/bitsizes.h \
- ../include/util.h ../include/config.h ../include/default.h \
- ../include/event.h ../include/hardware.h ../include/header.h \
- ../include/paths.h ../include/pvf.h ../include/wav.h
 pvffft.o: pvffft.c ../include/voice.h ../include/../../mgetty.h \
  ../include/../../ugly.h ../include/../../config.h \
  ../include/../../policy.h ../include/../../tio.h \
@@ -55,7 +48,28 @@ pvffft.o: pvffft.c ../include/voice.h ../include/../../mgetty.h \
  ../include/util.h ../include/config.h ../include/default.h \
  ../include/event.h ../include/hardware.h ../include/header.h \
  ../include/paths.h ../include/pvf.h ../include/wav.h
+pvffile.o: pvffile.c ../include/voice.h ../include/../../mgetty.h \
+ ../include/../../ugly.h ../include/../../config.h \
+ ../include/../../policy.h ../include/../../tio.h \
+ ../include/../../fax_lib.h ../include/IS_101.h ../include/bitsizes.h \
+ ../include/util.h ../include/config.h ../include/default.h \
+ ../include/event.h ../include/hardware.h ../include/header.h \
+ ../include/paths.h ../include/pvf.h ../include/wav.h
+pvffilter.o: pvffilter.c ../include/voice.h ../include/../../mgetty.h \
+ ../include/../../ugly.h ../include/../../config.h \
+ ../include/../../policy.h ../include/../../tio.h \
+ ../include/../../fax_lib.h ../include/IS_101.h ../include/bitsizes.h \
+ ../include/util.h ../include/config.h ../include/default.h \
+ ../include/event.h ../include/hardware.h ../include/header.h \
+ ../include/paths.h ../include/pvf.h ../include/wav.h
 pvfmix.o: pvfmix.c ../include/voice.h ../include/../../mgetty.h \
+ ../include/../../ugly.h ../include/../../config.h \
+ ../include/../../policy.h ../include/../../tio.h \
+ ../include/../../fax_lib.h ../include/IS_101.h ../include/bitsizes.h \
+ ../include/util.h ../include/config.h ../include/default.h \
+ ../include/event.h ../include/hardware.h ../include/header.h \
+ ../include/paths.h ../include/pvf.h ../include/wav.h
+pvfnoise.o: pvfnoise.c ../include/voice.h ../include/../../mgetty.h \
  ../include/../../ugly.h ../include/../../config.h \
  ../include/../../policy.h ../include/../../tio.h \
  ../include/../../fax_lib.h ../include/IS_101.h ../include/bitsizes.h \
@@ -141,6 +155,7 @@ rmdtopvf.o: rmdtopvf.c ../include/voice.h ../include/../../mgetty.h \
  ../include/util.h ../include/config.h ../include/default.h \
  ../include/event.h ../include/hardware.h ../include/header.h \
  ../include/paths.h ../include/pvf.h ../include/wav.h
+usrgsm.o: usrgsm.c
 voctopvf.o: voctopvf.c ../include/voice.h ../include/../../mgetty.h \
  ../include/../../ugly.h ../include/../../config.h \
  ../include/../../policy.h ../include/../../tio.h \

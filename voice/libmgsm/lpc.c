@@ -4,7 +4,7 @@
  * details.  THERE IS ABSOLUTELY NO WARRANTY FOR THIS SOFTWARE.
  */
 
-/* $Id: lpc.c,v 1.3 1998/03/25 23:05:09 marc Exp $ */
+/* $Id: lpc.c,v 1.4 1998/09/09 21:06:50 gert Exp $ */
 
 #include <stdio.h>
 #include <assert.h>

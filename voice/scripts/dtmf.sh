@@ -7,7 +7,7 @@
 # $1 - received DTMF code
 # $2 - name of the recorded voice file
 #
-# $Id: dtmf.sh,v 1.3 1998/03/25 23:06:11 marc Exp $
+# $Id: dtmf.sh,v 1.4 1998/09/09 21:08:01 gert Exp $
 #
 
 VOICE_DIR=/var/spool/voice

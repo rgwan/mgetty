@@ -4,7 +4,7 @@
  * pvftormd converts from the pvf (portable voice format) format to the
  * rmd (raw modem data) format.
  *
- * $Id: pvftormd.c,v 1.3 1998/03/25 23:06:05 marc Exp $
+ * $Id: pvftormd.c,v 1.4 1998/09/09 21:07:53 gert Exp $
  *
  */
 

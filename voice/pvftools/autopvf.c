@@ -4,7 +4,7 @@
  * autopvf converts from the au (Sun audio) format to the pvf (portable
  * voice format) format.
  *
- * $Id: autopvf.c,v 1.3 1998/03/25 23:05:55 marc Exp $
+ * $Id: autopvf.c,v 1.4 1998/09/09 21:07:41 gert Exp $
  *
  */
 

@@ -6,7 +6,7 @@
 #
 # Derived from dtmf.sh by Thomas Ziegler <zie@lte.e-technik.uni-erlangen.de>
 #
-# $Id: button.sh,v 1.2 1998/03/25 23:06:10 marc Exp $
+# $Id: button.sh,v 1.3 1998/09/09 21:07:59 gert Exp $
 #
 
 VOICE_DIR=/var/spool/voice
@@ -147,7 +147,7 @@ function messages
 
           if [ $TIME = yes ]; then
                (touch $LOCK ;\
-               $VOICE_DIR/speakdate.sh $i >$TMP ;\
+               $VOICE_DIR/speakdate.sh $i 9600 ZyXEL_1496 2 >$TMP ;\
                rm $LOCK) &
           fi
 

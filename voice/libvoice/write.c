@@ -3,7 +3,7 @@
  *
  * Write data to the voice modem device.
  *
- * $Id: write.c,v 1.3 1998/03/25 23:05:51 marc Exp $
+ * $Id: write.c,v 1.4 1998/09/09 21:07:38 gert Exp $
  *
  */
 

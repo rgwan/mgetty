@@ -4,7 +4,7 @@
  * Installs the signal handlers for the voice code and contains the
  * signal handler functions.
  *
- * $Id: signal.c,v 1.3 1998/03/25 23:05:49 marc Exp $
+ * $Id: signal.c,v 1.4 1998/09/09 21:07:36 gert Exp $
  *
  */
 

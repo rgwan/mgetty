@@ -5,7 +5,7 @@
  * follow the IS-101 interim standard for voice modems. Since the commands
  * are set in the modem structure, it should be quite generic.
  *
- * $Id: IS_101.c,v 1.4 1998/07/20 09:56:51 marc Exp $
+ * $Id: IS_101.c,v 1.5 1998/09/09 21:07:18 gert Exp $
  *
  */
 
@@ -97,7 +97,7 @@ int IS_101_dial(char *number)
                if (voice_read(buffer) != OK)
                     return(FAIL);
 
-               result = voice_analyze(buffer, command);
+               result = voice_analyze(buffer, command, TRUE);
 
                switch (result)
                     {

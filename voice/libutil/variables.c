@@ -3,7 +3,7 @@
  *
  * Just defines necessary global variables.
  *
- * $Id: variables.c,v 1.1 1998/03/25 23:14:08 marc Exp $
+ * $Id: variables.c,v 1.2 1998/09/09 21:07:12 gert Exp $
  *
  */
 

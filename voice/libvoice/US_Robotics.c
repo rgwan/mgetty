@@ -22,7 +22,7 @@
  *       relevant and in voice mode. Software flow control is no longer
  *       supported. b2:
  *
- * $Id: US_Robotics.c,v 1.3 1998/03/25 23:05:39 marc Exp $
+ * $Id: US_Robotics.c,v 1.4 1998/09/09 21:07:24 gert Exp $
  *
  */
 

@@ -6,7 +6,7 @@
  * the complete description of the options in default.h, which makes it much
  * easier to add new options.
  *
- * $Id: config.h,v 1.3 1998/03/25 23:04:52 marc Exp $
+ * $Id: config.h,v 1.4 1998/09/09 21:06:32 gert Exp $
  *
  */
 

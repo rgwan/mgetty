@@ -2,7 +2,7 @@
  *
  * This is the handle event routine for the VoiceModem program.
  *
- * $Id: event.c,v 1.3 1998/03/25 23:06:22 marc Exp $
+ * $Id: event.c,v 1.4 1998/09/09 21:08:11 gert Exp $
  *
  */
 

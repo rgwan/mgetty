@@ -3,7 +3,7 @@
  *
  * Defines the structure with data and routines for the hardware drivers.
  *
- * $Id: hardware.h,v 1.3 1998/03/25 23:04:54 marc Exp $
+ * $Id: hardware.h,v 1.4 1998/09/09 21:06:35 gert Exp $
  *
  */
 

@@ -3,7 +3,7 @@
 #
 # This is the Makefile for the pvftools.
 #
-# $Id: Makefile,v 1.3 1998/03/25 23:05:54 marc Exp $
+# $Id: Makefile,v 1.4 1998/09/09 21:07:41 gert Exp $
 #
 
 VOICELIBS=$(LIBPVF) $(LIBUTIL)
@@ -32,11 +32,17 @@ pvfecho: pvfecho.o $(VOICELIBS)
 pvffile: pvffile.o $(VOICELIBS)
 	$(CC) $(LDFLAGS) -o pvffile pvffile.o $(VOICELIBS) $(LIBS) 
 
+pvffilter: pvffilter.o $(VOICELIBS)
+	$(CC) $(LDFLAGS) -o pvffilter pvffilter.o $(VOICELIBS) $(LIBS) -lm
+
 pvffft: pvffft.o $(VOICELIBS)
 	$(CC) $(LDFLAGS) -o pvffft pvffft.o $(VOICELIBS) $(LIBS) -lm
 
 pvfmix: pvfmix.o $(VOICELIBS)
 	$(CC) $(LDFLAGS) -o pvfmix pvfmix.o $(VOICELIBS) $(LIBS) 
+
+pvfnoise: pvfnoise.o $(VOICELIBS)
+	$(CC) $(LDFLAGS) -o pvfnoise pvfnoise.o $(VOICELIBS) $(LIBS) 
 
 pvfreverse: pvfreverse.o $(VOICELIBS)
 	$(CC) $(LDFLAGS) -o pvfreverse pvfreverse.o $(VOICELIBS) $(LIBS) 

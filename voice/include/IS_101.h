@@ -3,7 +3,7 @@
  *
  * Defines the functions implemented in the generic IS 101 driver.
  *
- * $Id: IS_101.h,v 1.3 1998/03/25 23:04:50 marc Exp $
+ * $Id: IS_101.h,v 1.4 1998/09/09 21:06:31 gert Exp $
  *
  */
 

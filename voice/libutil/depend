@@ -34,6 +34,7 @@ strsep.o: strsep.c ../include/voice.h ../include/../../mgetty.h \
  ../include/util.h ../include/config.h ../include/default.h \
  ../include/event.h ../include/hardware.h ../include/header.h \
  ../include/paths.h ../include/pvf.h ../include/wav.h
+test_wildmat.o: test_wildmat.c
 variables.o: variables.c ../include/voice.h ../include/../../mgetty.h \
  ../include/../../ugly.h ../include/../../config.h \
  ../include/../../policy.h ../include/../../tio.h \
@@ -42,3 +43,4 @@ variables.o: variables.c ../include/voice.h ../include/../../mgetty.h \
  ../include/event.h ../include/hardware.h ../include/header.h \
  ../include/paths.h ../include/pvf.h ../include/wav.h \
  ../include/version.h
+wildmat.o: wildmat.c

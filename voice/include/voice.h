@@ -4,7 +4,7 @@
  * This is the main header file for vgetty, vm and the pvf tools.
  * It includes other header files and defines some global variables.
  *
- * $Id: voice.h,v 1.4 1998/07/02 12:02:14 gert Exp $
+ * $Id: voice.h,v 1.5 1998/09/09 21:06:39 gert Exp $
  *
  */
 
@@ -110,7 +110,8 @@ extern void get_ugid(char* user, char* group, uid_t* uid, gid_t* gid);
  * The voice library functions
  */
 
-extern int voice_analyze(char *buffer, char *expected_answers);
+extern int voice_analyze(char *buffer, char *expected_answers,
+ int exact_match);
 #define voice_answer_phone() voice_modem->answer_phone()
 #define voice_beep(a,b) voice_modem->beep(a,b)
 extern int voice_check_for_input(void);

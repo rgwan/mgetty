@@ -4,7 +4,7 @@
  * voctopvf converts from the voc (Creativ voice file) format to the pvf
  * (portable voice format) format.
  *
- * $Id: voctopvf.c,v 1.3 1998/03/25 23:06:08 marc Exp $
+ * $Id: voctopvf.c,v 1.4 1998/09/09 21:07:57 gert Exp $
  *
  */
 

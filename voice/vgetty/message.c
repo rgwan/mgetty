@@ -8,7 +8,7 @@
  * cvd.message_flag_file, is created. After listening to the new
  * messages, the file is again removed.
  *
- * $Id: message.c,v 1.3 1998/03/25 23:06:18 marc Exp $
+ * $Id: message.c,v 1.4 1998/09/09 21:08:08 gert Exp $
  *
  */
 

@@ -3,16 +3,15 @@
 #
 # This is the Makefile for vgetty.
 #
-# $Id: Makefile,v 1.4 1998/04/19 09:27:33 gert Exp $
+# $Id: Makefile,v 1.5 1998/09/09 21:08:04 gert Exp $
 #
 
 VGETTYOBJS=vgetty.o answer.o button.o event.o message.o rings.o
 
 MGETTYOBJS=../../cnd.o ../../conf_mg.o ../../do_chat.o ../../do_stat.o \
 	../../faxhng.o ../../faxlib.o ../../faxrec.o ../../faxrecp.o \
-	../../faxsend.o ../../ring.o \
-	../../gettydefs.o ../../login.o ../../logname.o ../../mg_m_init.o \
-	../../utmp.o 
+	../../faxsend.o ../../gettydefs.o ../../login.o ../../logname.o \
+	../../mg_m_init.o ../../utmp.o ../../ring.o
 
 VOICELIBS=$(MGETTYLIB) $(LIBVOICE) $(LIBUTIL)
 

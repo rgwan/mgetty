@@ -4,7 +4,7 @@
  * pvfmix mixes two voice files into one voice file. Input and output
  * is in the pvf (portable voice format) format.
  *
- * $Id: pvfmix.c,v 1.3 1998/03/25 23:06:00 marc Exp $
+ * $Id: pvfmix.c,v 1.4 1998/09/09 21:07:48 gert Exp $
  *
  */
 

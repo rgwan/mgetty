@@ -4,7 +4,7 @@
  * rmdtopvf converts from the rmd (raw modem data) format to the pvf
  * (portable voice format) format.
  *
- * $Id: rmdtopvf.c,v 1.3 1998/03/25 23:06:07 marc Exp $
+ * $Id: rmdtopvf.c,v 1.4 1998/09/09 21:07:56 gert Exp $
  *
  */
 

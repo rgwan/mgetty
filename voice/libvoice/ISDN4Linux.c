@@ -37,7 +37,7 @@
  *   ATS18=1 OK
  * there your isdn-tty won't pick up data calls.
  *
- * $Id: ISDN4Linux.c,v 1.3 1998/03/25 23:05:33 marc Exp $
+ * $Id: ISDN4Linux.c,v 1.4 1998/09/09 21:07:17 gert Exp $
  * 
  */
 

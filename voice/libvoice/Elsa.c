@@ -9,7 +9,7 @@
  * You have set port_timeout in voice.conf to a minimum of 15
  * if you use 38400 Baud
  *
- * $Id: Elsa.c,v 1.3 1998/03/25 23:05:32 marc Exp $
+ * $Id: Elsa.c,v 1.4 1998/09/09 21:07:16 gert Exp $
  *
  */
 

@@ -4,7 +4,7 @@
  * pvfreverse reverses the voice file (it plays it from end to start).
  * Input and output is in the pvf (portable voice format) format.
  *
- * $Id: pvfreverse.c,v 1.3 1998/03/25 23:06:00 marc Exp $
+ * $Id: pvfreverse.c,v 1.4 1998/09/09 21:07:49 gert Exp $
  *
  */
 

@@ -4,7 +4,7 @@
  * details.  THERE IS ABSOLUTELY NO WARRANTY FOR THIS SOFTWARE.
  */
 
-/* $Id: table.c,v 1.3 1998/03/25 23:05:14 marc Exp $ */
+/* $Id: table.c,v 1.4 1998/09/09 21:06:55 gert Exp $ */
 
 /*  Most of these tables are inlined at their point of use.
  */

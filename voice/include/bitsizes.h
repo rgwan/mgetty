@@ -3,7 +3,7 @@
  *
  * Declaration for variable types with defined bit sizes
  *
- * $Id: bitsizes.h,v 1.3 1998/03/25 23:04:52 marc Exp $
+ * $Id: bitsizes.h,v 1.4 1998/09/09 21:06:32 gert Exp $
  *
  */
 

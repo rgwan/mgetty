@@ -4,7 +4,7 @@
  * details.  THERE IS ABSOLUTELY NO WARRANTY FOR THIS SOFTWARE.
  */
 
-/* $Id: preprocess.c,v 1.3 1998/03/25 23:05:10 marc Exp $ */
+/* $Id: preprocess.c,v 1.4 1998/09/09 21:06:51 gert Exp $ */
 
 #include  <stdio.h>
 #include  <assert.h>

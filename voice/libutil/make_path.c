@@ -3,7 +3,7 @@
  *
  * Builds a complete file path from a directory name and a filename.
  *
- * $Id: make_path.c,v 1.3 1998/03/25 23:05:28 marc Exp $
+ * $Id: make_path.c,v 1.4 1998/09/09 21:07:10 gert Exp $
  *
  */
 

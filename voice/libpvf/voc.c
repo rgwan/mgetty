@@ -3,7 +3,7 @@
  *
  * Converts pvf <--> voc.
  *
- * $Id: voc.c,v 1.3 1998/03/25 23:05:22 marc Exp $
+ * $Id: voc.c,v 1.4 1998/09/09 21:07:05 gert Exp $
  *
  */
 

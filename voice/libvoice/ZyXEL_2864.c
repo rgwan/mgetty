@@ -9,7 +9,7 @@
  * This version is a complete rewrite to use the IS 101 mode of the
  * Elite 2864.
  *
- * $Id: ZyXEL_2864.c,v 1.3 1998/03/25 23:05:40 marc Exp $
+ * $Id: ZyXEL_2864.c,v 1.4 1998/09/09 21:07:25 gert Exp $
  *
  */
 
@@ -21,7 +21,7 @@ static int ZyXEL_2864_answer_phone (void)
 
      reset_watchdog();
 
-     if (((result = voice_command("AT+VLS=2", "OK|CONNECT")) & VMA_USER) !=
+     if (((result = voice_command("AT+VLS=2", "OK|CONNECT*")) & VMA_USER) !=
       VMA_USER)
           return(VMA_ERROR);
 
@@ -215,7 +215,10 @@ static int ZyXEL_2864_set_device (int device)
                voice_command("AT+VLS=1", "OK");
                return(OK);
           case DIALUP_LINE:
-               voice_command("AT+VLS=2", "OK");
+          
+               if (voice_command("AT+VLS=2", "OK|CONNECT*") == VMA_USER_2)
+                    return(VMA_CONNECT);
+                    
                return(OK);
           case EXTERNAL_MICROPHONE:
                voice_command("AT+VLS=8", "OK");

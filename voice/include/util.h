@@ -3,7 +3,7 @@
  *
  * Some useful defines.
  *
- * $Id: util.h,v 1.3 1998/03/25 23:04:56 marc Exp $
+ * $Id: util.h,v 1.4 1998/09/09 21:06:38 gert Exp $
  *
  */
 
@@ -66,3 +66,9 @@ extern void check_system (void);
  */
 
 extern void make_path (char *result, char *path, char *name);
+
+/*
+ * Wildmat match for strings
+ */
+ 
+extern int wildmat(char *text, char *p, int length);

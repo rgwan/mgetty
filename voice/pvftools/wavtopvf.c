@@ -5,7 +5,7 @@
  * wavtopvf converts from the Windows-Format .wav. to pvf
  * (portable voice format)
  *
- * $Id: wavtopvf.c,v 1.3 1998/03/25 23:06:09 marc Exp $
+ * $Id: wavtopvf.c,v 1.4 1998/09/09 21:07:57 gert Exp $
  *
  */
 

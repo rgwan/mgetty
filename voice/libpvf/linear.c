@@ -3,7 +3,7 @@
  *
  * Converts pvf <--> linear.
  *
- * $Id: linear.c,v 1.3 1998/03/25 23:05:19 marc Exp $
+ * $Id: linear.c,v 1.4 1998/09/09 21:07:01 gert Exp $
  *
  */
 

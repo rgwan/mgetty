@@ -3,7 +3,7 @@
  *
  * Execute the given command and wait for an answer.
  *
- * $Id: command.c,v 1.3 1998/03/25 23:05:42 marc Exp $
+ * $Id: command.c,v 1.4 1998/09/09 21:07:27 gert Exp $
  *
  */
 
@@ -40,7 +40,7 @@ int voice_command(char *command, char *expected_answer)
                          return(VMA_FAIL);
                          };
 
-                    result = voice_analyze(buffer, command);
+                    result = voice_analyze(buffer, command, TRUE);
 
                     if (result == VMA_FAIL)
                          {
@@ -76,7 +76,7 @@ int voice_command(char *command, char *expected_answer)
                     return(VMA_FAIL);
                     };
 
-               result = voice_analyze(buffer, expected_answer);
+               result = voice_analyze(buffer, expected_answer, FALSE);
 
                if (result == VMA_FAIL)
                     {

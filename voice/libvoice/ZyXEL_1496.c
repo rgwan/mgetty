@@ -3,7 +3,7 @@
  *
  * This file contains the ZyXEL 1496 specific hardware stuff.
  *
- * $Id: ZyXEL_1496.c,v 1.3 1998/03/25 23:05:39 marc Exp $
+ * $Id: ZyXEL_1496.c,v 1.4 1998/09/09 21:07:25 gert Exp $
  *
  */
 

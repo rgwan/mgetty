@@ -5,7 +5,7 @@
  * possibilities given in expected_answers in the form "OK|BUSY".
  * If this fails, try to detect some standard voice modem answers.
  *
- * $Id: analyze.c,v 1.3 1998/03/25 23:05:41 marc Exp $
+ * $Id: analyze.c,v 1.4 1998/09/09 21:07:26 gert Exp $
  *
  */
 
@@ -52,7 +52,7 @@ one_modem_answer modem_answers[] =
      {NULL, VMA_FAIL}
      };
 
-int voice_analyze(char *buffer, char *expected_answers)
+int voice_analyze(char *buffer, char *expected_answers, int exact_match)
      {
      int current;
      char *user_answer;
@@ -74,8 +74,20 @@ int voice_analyze(char *buffer, char *expected_answers)
           else
                user_answer_length = (int) (new_user_answer - user_answer);
 
-          if (strncmp(buffer, user_answer, user_answer_length) == 0)
-               return(current + VMA_USER);
+          if (exact_match)
+               {
+
+               if (strncmp(buffer, user_answer, user_answer_length) == 0)
+                    return(current + VMA_USER);
+
+               }
+          else
+               {
+
+               if (wildmat(buffer, user_answer, user_answer_length) != 0)
+                    return(current + VMA_USER);
+
+               }
 
           if (new_user_answer == NULL)
                user_answer = NULL;

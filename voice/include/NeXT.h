@@ -3,7 +3,7 @@
  *
  * Ugly hack to get varargs to work on NeXTstep.
  *
- * $Id: NeXT.h,v 1.3 1998/03/25 23:04:51 marc Exp $
+ * $Id: NeXT.h,v 1.4 1998/09/09 21:06:31 gert Exp $
  *
  */
 

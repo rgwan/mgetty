@@ -3,7 +3,7 @@
  *
  * Contains the functions voice_mode_on and voice_mode_off.
  *
- * $Id: mode.c,v 1.3 1998/03/25 23:05:45 marc Exp $
+ * $Id: mode.c,v 1.4 1998/09/09 21:07:32 gert Exp $
  *
  */
 

@@ -3,7 +3,7 @@
  *
  * rmdfile prints out some useful information about .rmd files.
  *
- * $Id: rmdfile.c,v 1.3 1998/03/25 23:06:07 marc Exp $
+ * $Id: rmdfile.c,v 1.4 1998/09/09 21:07:55 gert Exp $
  *
  */
 

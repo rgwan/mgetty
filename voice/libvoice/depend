@@ -28,13 +28,6 @@ Elsa.o: Elsa.c ../include/voice.h ../include/../../mgetty.h \
  ../include/util.h ../include/config.h ../include/default.h \
  ../include/event.h ../include/hardware.h ../include/header.h \
  ../include/paths.h ../include/pvf.h ../include/wav.h
-IS_101.o: IS_101.c ../include/voice.h ../include/../../mgetty.h \
- ../include/../../ugly.h ../include/../../config.h \
- ../include/../../policy.h ../include/../../tio.h \
- ../include/../../fax_lib.h ../include/IS_101.h ../include/bitsizes.h \
- ../include/util.h ../include/config.h ../include/default.h \
- ../include/event.h ../include/hardware.h ../include/header.h \
- ../include/paths.h ../include/pvf.h ../include/wav.h
 ISDN4Linux.o: ISDN4Linux.c ../include/voice.h \
  ../include/../../mgetty.h ../include/../../ugly.h \
  ../include/../../config.h ../include/../../policy.h \
@@ -43,6 +36,13 @@ ISDN4Linux.o: ISDN4Linux.c ../include/voice.h \
  ../include/default.h ../include/event.h ../include/hardware.h \
  ../include/header.h ../include/paths.h ../include/pvf.h \
  ../include/wav.h
+IS_101.o: IS_101.c ../include/voice.h ../include/../../mgetty.h \
+ ../include/../../ugly.h ../include/../../config.h \
+ ../include/../../policy.h ../include/../../tio.h \
+ ../include/../../fax_lib.h ../include/IS_101.h ../include/bitsizes.h \
+ ../include/util.h ../include/config.h ../include/default.h \
+ ../include/event.h ../include/hardware.h ../include/header.h \
+ ../include/paths.h ../include/pvf.h ../include/wav.h
 Multitech_2834.o: Multitech_2834.c ../include/voice.h \
  ../include/../../mgetty.h ../include/../../ugly.h \
  ../include/../../config.h ../include/../../policy.h \
@@ -197,6 +197,13 @@ signal.o: signal.c ../include/voice.h ../include/../../mgetty.h \
 voice_fax.o: voice_fax.c ../../syslibs.h ../../mgetty.h ../../ugly.h \
  ../../tio.h ../../policy.h ../../fax_lib.h
 write.o: write.c ../include/voice.h ../include/../../mgetty.h \
+ ../include/../../ugly.h ../include/../../config.h \
+ ../include/../../policy.h ../include/../../tio.h \
+ ../include/../../fax_lib.h ../include/IS_101.h ../include/bitsizes.h \
+ ../include/util.h ../include/config.h ../include/default.h \
+ ../include/event.h ../include/hardware.h ../include/header.h \
+ ../include/paths.h ../include/pvf.h ../include/wav.h
+Compaq_VS.o: Compaq_VS.c ../include/voice.h ../include/../../mgetty.h \
  ../include/../../ugly.h ../include/../../config.h \
  ../include/../../policy.h ../include/../../tio.h \
  ../include/../../fax_lib.h ../include/IS_101.h ../include/bitsizes.h \

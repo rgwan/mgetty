@@ -6,11 +6,13 @@
  * A first version was written by Russell King <rmk@ecs.soton.ac.uk>,
  * based on the ZyXEL 2864 driver.
  *
- * $Id: Multitech_2834.c,v 1.3 1998/03/25 23:05:35 marc Exp $
+ * $Id: Multitech_2834.c,v 1.4 1998/09/09 21:07:20 gert Exp $
  *
  */
 
 #include "../include/voice.h"
+
+static char mode_save[16] = "";
 
 static int Multitech_2834_answer_phone(void)
      {
@@ -150,7 +152,7 @@ static int Multitech_2834_set_device(int device)
                voice_command("AT+VLS=0", "OK");
                return(OK);
           case LOCAL_HANDSET:
-               voice_command("AT+VLS=11", "OK");
+               voice_command("AT+VLS=2", "OK");
                return(OK);
           case DIALUP_LINE:
                voice_command("AT+VLS=2", "OK");
@@ -168,6 +170,107 @@ static int Multitech_2834_set_device(int device)
      return(FAIL);
      }
 
+void Multitech_2834_fix_modem(int expect_error)
+{
+	char buffer[VOICE_BUF_LEN];
+	int result = VMA_FAIL;
+
+	/* my ZDXv with 0416A firmware seems to exhibit a bug here -
+	 * if you send the modem 'AT', it echos 'TA'.  If you send it
+	 * 'ATI', it echos 'TIA'!
+	 */
+	voice_write("AT");
+	do {
+		if (voice_read(buffer) != OK) {
+			voice_flush(1);
+			break;
+		}
+
+		result = voice_analyze(buffer, "AT", TRUE);
+
+		if (result == VMA_FAIL) {
+			voice_flush(1);
+			break;
+		}
+
+		if (result == VMA_ERROR) {
+			lprintf(L_WARN, "%s: Modem returned ERROR",
+	        		program_name);
+			voice_flush(1);
+			break;
+		}
+	} while (result != VMA_USER_1);
+
+	if (result == VMA_USER_1 && expect_error)
+        	lprintf(L_WARN, "%s: Modem answered correctly - mail rmk@arm.uk.linux.org",
+        		program_name);
+        if (result != VMA_USER_1 && !expect_error)
+        	lprintf(L_WARN, "%s: Modem answered incorrectly - mail rmk@arm.uk.linux.org",
+			program_name); 
+}
+
+static int Multitech_2834_switch_to_data_fax(char *mode)
+{
+	char buffer[VOICE_BUF_LEN];
+
+	sprintf(buffer, "%s%s", voice_modem->switch_mode_cmnd, mode);
+
+	if ((voice_command(buffer, voice_modem->switch_mode_answr) & VMA_USER) !=
+	    VMA_USER)
+		return FAIL;
+
+	Multitech_2834_fix_modem(1);
+
+	return OK;
+}
+
+static int Multitech_2834_voice_mode_off(void)
+{
+	char buffer[VOICE_BUF_LEN];
+
+	sprintf(buffer, "%s%s", voice_modem->switch_mode_cmnd, mode_save);
+
+	if ((voice_command(buffer, voice_modem->switch_mode_answr) & VMA_USER) !=
+	    VMA_USER)
+		return FAIL;
+
+	Multitech_2834_fix_modem(1);
+
+	return OK;
+}
+
+static int Multitech_2834_voice_mode_on(void)
+{
+	char buffer[VOICE_BUF_LEN];
+
+	if (voice_command(voice_modem->ask_mode_cmnd, "") != OK)
+		return FAIL;
+
+	do {
+		if (voice_read(mode_save) != OK)
+			return FAIL;
+	} while (strlen(mode_save) == 0);
+
+	if (strncmp(mode_save, "+FCLASS=", 8) == 0)
+        	memmove(mode_save, mode_save + 8, strlen(mode_save) - 8 + 1);
+
+	if ((voice_command("", voice_modem->ask_mode_answr) & VMA_USER) != VMA_USER)
+		return FAIL;
+
+	sprintf(buffer, "%s%s", voice_modem->switch_mode_cmnd,
+		voice_modem->voice_mode_id);
+
+	if ((voice_command(buffer, voice_modem->switch_mode_answr) & VMA_USER) !=
+	    VMA_USER)
+		return FAIL;
+
+	Multitech_2834_fix_modem(0);
+
+	return OK;
+}
+
+#define Multitech_beep_timeunit	100
+
 voice_modem_struct Multitech_2834ZDXv =
      {
      "Multitech 2834ZDXv",
@@ -176,7 +279,7 @@ voice_modem_struct Multitech_2834ZDXv =
      (char *) IS_101_pick_phone_answr,
      (char *) IS_101_beep_cmnd,
      (char *) IS_101_beep_answr,
-              IS_101_beep_timeunit,
+              Multitech_beep_timeunit,
      (char *) IS_101_hardflow_cmnd,
      (char *) IS_101_hardflow_answr,
      (char *) IS_101_softflow_cmnd,
@@ -215,8 +318,8 @@ voice_modem_struct Multitech_2834ZDXv =
      &IS_101_stop_playing,
      &IS_101_stop_recording,
      &IS_101_stop_waiting,
-     &IS_101_switch_to_data_fax,
-     &IS_101_voice_mode_off,
-     &IS_101_voice_mode_on,
+     &Multitech_2834_switch_to_data_fax,
+     &Multitech_2834_voice_mode_off,
+     &Multitech_2834_voice_mode_on,
      &IS_101_wait
      };

@@ -1,16 +1,28 @@
 Hi all,
 
-this is a new vgetty beta release. Judging from the reports on the mailing
-list, this release should be quite stable and reliable. Feedback is, as
-always, very welcome. There are no great new features, but a lot of bug
-fixes and small enhancements.
+this is a new vgetty beta release. As desasters tend to happen, when you do
+not have time for them, I destroyed my working copy of the voice source code
+and had to reload the last checked in version from the CVS archive. That
+means, I might have missed some patches mailed to me. Please everyone, who
+mailed me a patch: Check if the patch is included in the new release and if
+not, please mail me the patch again. Thanks!!! I apologize for this stupid
+mistake.
 
-If you plan to submit buxfixes or changes to me, please keep in mind: I only
-accept a unified diff against the latest released mgetty/vgetty version.
-Everything else is more work for me and I don't have the time for that. You
-can produce a unified diff by first copying the original unchanged file to
-something like file.c.orig and then use the command "diff -u file.c.orig
-file.c > patch_for_marc". Thanks a lot!
+Apart from that, a few bugs were fixed and the Perl interface is now finally
+part of vgetty. Since it is far better then the shell, I would like to
+encourage everyone to switch over to that new Perl interface. I didn't have
+time to test this new release, so be careful. Keep your old copy of the
+sources!
+
+If you plan to submit buxfixes or changes to me, please keep in mind: I can
+only accept a unified diff against the latest released mgetty/vgetty version
+unfortunately. Everything else is more work for me and I don't have the time
+for that. You can produce a unified diff by first copying the original
+unchanged file to something like file.c.orig and then use the command:
+ 
+  diff -u file.c.orig file.c > patch_for_marc
+
+Thanks a lot!
 
 Please have a look at the voice/ToDo file. If there is something missing,
 that you would like to see, please let me know, I probably add it to the
@@ -21,10 +33,10 @@ Also if you did something for vgetty and I didn't put you in the voice/Credits
 file, please mail me! I don't want to forget someone, but I probably did
 already.
 
-The new release is included in the latest mgetty-beta on ftp.leo.org as
-always.
+The new release is included in the latest mgetty-beta on alpha.greenie.net
+as always. See http://alpha.greenie.net/mgetty for details.
 
 Enjoy,
 Marc
 
-$Id: Announce,v 1.4 1998/03/25 23:04:44 marc Exp $
+$Id: Announce,v 1.5 1998/09/09 21:06:09 gert Exp $

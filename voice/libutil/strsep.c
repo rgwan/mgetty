@@ -3,7 +3,7 @@
  *
  * Parses a string into tokens. Should be equivalent to the Linux strsep function.
  *
- * $Id: strsep.c,v 1.3 1998/03/25 23:05:29 marc Exp $
+ * $Id: strsep.c,v 1.4 1998/09/09 21:07:12 gert Exp $
  *
  */
 

@@ -4,7 +4,7 @@
  * pvftovoc converts from the pvf (portable voice format) format to the
  * voc (Creativ voice file) format.
  *
- * $Id: pvftovoc.c,v 1.3 1998/03/25 23:06:05 marc Exp $
+ * $Id: pvftovoc.c,v 1.4 1998/09/09 21:07:54 gert Exp $
  *
  */
 

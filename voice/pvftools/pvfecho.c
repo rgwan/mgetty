@@ -4,7 +4,7 @@
  * pvfecho adds echo to the sound signal. Input and output is in the pvf
  * (portable voice format) format.
  *
- * $Id: pvfecho.c,v 1.3 1998/03/25 23:05:58 marc Exp $
+ * $Id: pvfecho.c,v 1.4 1998/09/09 21:07:46 gert Exp $
  *
  */
 

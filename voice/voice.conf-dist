@@ -2,7 +2,7 @@
 # Sample voice configuration file
 # -------------------------------
 #
-# $Id: voice.conf-dist,v 1.3 1998/03/25 23:04:49 marc Exp $
+# $Id: voice.conf-dist,v 1.4 1998/09/09 21:06:15 gert Exp $
 #
 # This file is read twice: First the program configuration is read and
 # second the port configuration. This means that generic values at the

@@ -4,7 +4,7 @@
  * details.  THERE IS ABSOLUTELY NO WARRANTY FOR THIS SOFTWARE.
  */
 
-/* $Id: private.h,v 1.3 1998/03/25 23:05:11 marc Exp $ */
+/* $Id: private.h,v 1.4 1998/09/09 21:06:52 gert Exp $ */
 
 #ifndef   PRIVATE_H
 #define   PRIVATE_H

@@ -3,7 +3,7 @@
  *
  * autodetect the modemtype we are connected to.
  *
- * $Id: detect.c,v 1.3 1998/03/25 23:05:43 marc Exp $
+ * $Id: detect.c,v 1.4 1998/09/09 21:07:29 gert Exp $
  *
  */
 
@@ -179,8 +179,8 @@ int voice_detect_modemtype(void)
                     }
 
                }
-          while ((voice_modem == &no_modem) && (voice_analyze(buffer, "") !=
-           VMA_FAIL));
+          while ((voice_modem == &no_modem) &&
+           (voice_analyze(buffer, "", TRUE) != VMA_FAIL));
 
           voice_flush(1);
           }
