@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 4.1 1997/01/12 14:53:46 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 4.2 1997/08/17 15:33:32 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* tio.c
  *
@@ -555,6 +555,8 @@ int tio_set_flow_control _P3( (fd, t, type), int fd, TIO * t, int type )
 
     /* SVR4 came up with a new method of setting h/w flow control */
 #ifdef USE_TERMIOX
+    lprintf( L_NOISE, "tio_set_flow_control: using termiox" );
+
     if (ioctl(fd, TCGETX, &tix) < 0)
     {
 	lprintf( L_ERROR, "ioctl TCGETX" ); return ERROR;
@@ -569,11 +571,17 @@ int tio_set_flow_control _P3( (fd, t, type), int fd, TIO * t, int type )
 	lprintf( L_ERROR, "ioctl TCSETX" ); return ERROR;
     }
 #endif
-    /* AIX has yet another method to set hardware flow control (yuck!) */
-#ifdef _AIX
+    /* AIX has yet another method to set hardware flow control
+     * interesting enough, in AIX 4, this ioctl still exists but doesn't
+     * work anymore -- instead, they have adopted termiox. *bah*
+     */
+#if defined(_AIX) && !defined(USE_TERMIOX)
+    lprintf( L_NOISE, "tio_set_flow_control: using TXADDCD" );
+
     if ( ioctl( fd, ( type & FLOW_HARD ) ? TXADDCD : TXDELCD, "rts" ) < 0 )
     {
-	lprintf( L_ERROR, "ioctl TXADDCD/TXDELCD" ); return ERROR;
+	lprintf( L_NOISE, "ioctl TXADDCD/TXDELCD failed, errno=%d", errno);
+	return ERROR;
     }
 #ifdef DEBUG
     {	union txname t; int i;
@@ -599,6 +607,8 @@ int tio_set_flow_control _P3( (fd, t, type), int fd, TIO * t, int type )
  * details.
  */
 #ifdef sysV68
+    lprintf( L_NOISE, "tio_set_flow_control: using TCSETHW" );
+
     if ( type & FLOW_HARD ) {
 	if ( ioctl(fd, TCSETHW, 1) < 0 ) {
 		lprintf( L_ERROR, "ioctl TCSETHW on failed" );

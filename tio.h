@@ -1,4 +1,4 @@
-#ident "$Id: tio.h,v 4.1 1997/01/12 14:53:46 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.h,v 4.2 1997/08/17 15:33:31 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 #ifndef __TIO_H__
 #define __TIO_H__
@@ -83,6 +83,11 @@ typedef tcflag_t tioflag_t;
 /* unfortunately, it's broken in 4.2 and Solaris2, and not there in IRIX! */
 #if defined(SVR4) && \
     !defined(SVR42) && !defined(solaris2) && !defined(sgi)
+# define USE_TERMIOX
+#endif
+
+/* AIX 4.x has it as well */
+#if defined(_AIX) && !defined(AIX3_FLOW) && !defined(USE_TERMIOX) 
 # define USE_TERMIOX
 #endif
 
