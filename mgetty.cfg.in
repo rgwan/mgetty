@@ -61,6 +61,7 @@ speed @SPEED@
 #  modem-type cls2
 
 # direct connection of a VT100 terminal which doesn't like DTR drops
+# ("direct" meaning "*no* *modem*".  NEVER enable "direct yes" on modem lines!)
 #
 #port ttyS3
 #  direct y
