@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.83 1994/01/05 23:16:31 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.84 1994/01/12 22:30:03 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -97,11 +97,10 @@ char *	answer_chat_seq[] = { "", "ATA", "CONNECT", "\\c", "\n", NULL };
 
 int	answer_chat_timeout = 80;
 
-/* change this to "8" if you assume that you'll never have the modem
- * pick up the phone by pressing DATA/VOICE, and mgetty answers the
- * phone otherwise if not expected to (two calls with just one RING each)
- */
-int     ring_chat_timeout = 60;
+/* how much time may pass between two RINGs until mgetty goes into */
+/* "waiting" state again */
+
+int     ring_chat_timeout = 10;
 
 /* the same actions are recognized while answering as are */
 /* when waiting for RING, except for "CONNECT" */
@@ -455,6 +454,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 	voice_message_light(&rings_wanted);
 #endif /* VOICE */
 	
+waiting:
 	/* wait for incoming characters (using select() or poll() to
 	 * prevent eating away from processes dialing out)
 	 */
@@ -533,6 +533,13 @@ int main _P2((argc, argv), int argc, char ** argv)
 		rings++;
 	    }
 
+	    /* timeout - the phone stopped ringing? (human picked up) */
+	    if ( rings < rings_wanted && what_action == A_TIMOUT )
+	    {
+		lprintf( L_MESG, "phone stopped ringing" );
+		goto waiting;
+	    }
+
 	    /* answer phone only, if we got all "RING"s (otherwise, the */
 	    /* modem may have auto-answered (urk), the user may have */
 	    /* pressed a "data/voice" button, ..., and we fall right */
@@ -553,7 +560,8 @@ int main _P2((argc, argv), int argc, char ** argv)
 		    exit(1);
 		}
 
-		lprintf( L_MESG, "chat failed (timeout or A_FAIL), exiting..." );
+		lprintf( L_MESG, "chat failed (%s), exiting...",
+			 what_action == A_TIMOUT? "timeout" : "A_FAIL" );
 		rmlocks();
 		exit(1);
 	    }
