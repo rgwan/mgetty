@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 1.21 1993/11/29 11:50:25 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 1.22 1993/12/13 17:14:34 gert Exp $ Copyright (c) Gert Doering"
 ;
 #include <stdio.h>
 #ifndef _NOSTDLIB_H
@@ -271,10 +271,11 @@ newlogin:
 	}
 	else
 	{
-	    if ( i < maxsize )
-		buf[i++] = ch;
+	    if ( i >= maxsize ||			/* buffer full */
+		 ( ch == ' ' && i == 0 ) )		/* or leading ' ' */
+		fputs( "\b \b", stdout );		/* -> ignore */
 	    else
-		fputs( "\b \b", stdout );
+		buf[i++] = ch;
 #ifdef FIDO
 	    if ( i >= 10 && strncmp( &buf[i-10], "**EMSI_INQ", 10 ) == 0 )
 	    {
