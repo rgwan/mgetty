@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.27 1993/09/28 17:49:35 gert Exp $ (c) Gert Doering */
+/* $Id: mgetty.h,v 1.28 1993/10/02 15:57:28 gert Exp $ (c) Gert Doering */
 
 /* stuff in logfile.c */
 
@@ -51,11 +51,11 @@ typedef struct	chat_actions {
 			action_t action; } chat_action_t ;
 
 /* do_chat.c */
-int	do_chat( char * expect_send[],
+int	do_chat( int filedesc, char * expect_send[],
 	     	 chat_action_t actions[], action_t * action,
 		 int chat_timeout_time, boolean timeout_first,
 		 boolean locks, boolean virtual_rings );
-int	clean_line( int tenths );
+int	clean_line( int filedesc, int tenths );
 
 /* io.c */
 boolean	check_for_input( int fd );
