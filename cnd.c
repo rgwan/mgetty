@@ -1,4 +1,4 @@
-#ident "@(#)cnd.c	$Id: cnd.c,v 4.14 1999/01/12 23:08:15 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "@(#)cnd.c	$Id: cnd.c,v 4.15 1999/09/13 19:55:28 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 
 #include <stdio.h>
 #include <string.h>
@@ -65,6 +65,10 @@ struct cndtable cndtable[] =
     {"NAME = ",			&CallName},
     {"MESG = ",			&CallMsg1},
     {"MESG = ",			&CallMsg2},
+
+    /* some Rockwell chips intro the Caller ID as follows */
+    /* (contributed by Edmund Bacon, ebacon@onesystem.com) */
+    {"DDN_NMBR= ",		&CallerId},
 
     /* yet another incompatible modem... */
     {"CALLER'S NUMBER: ",	&CallerId},
