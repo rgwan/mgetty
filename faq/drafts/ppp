@@ -1,0 +1,160 @@
+Subject: Use of mgetty with pppd (FAQ addition, not yet inside official FAQ)
+
+$Id: ppp,v 1.1 1999/10/28 17:49:57 schaefer Exp $
+
+[ This is very Linux specific. However, the basics should work
+  with usual pppd configurations on other UNIX systems too
+]
+
+People like to have users dial in with PPP instead of normal login. This
+can be safer and also easier to use / more powerful. Using pppd with
+mgetty is twoafold: first, you need to make so that pppd is launched one
+way or another. There are two ways:
+
+   1. make so that mgetty auto-detects a PPP frame before
+      (technically: after) even sending the login: prompt.
+      This means thats the people will not have to login first
+      (in clear: no ogin:/sword: chat scripts needed).
+
+   2. make so that the user first logs in with a special user, and
+      then either pppd is the user's shell, or the user launches
+      pppd from there manually.
+
+Although technically possible, method 2 is discouraged and will not be
+described here. Method 1 is the suggested method and will be discussed
+here.
+
+To use method 1, the following are mgetty pre-requisites:
+
+   - mgetty must have been compiled with -DAUTO_PPP (see mgetty's
+     documentation and other FAQ entries)
+   - The /AutoPPP/ demonstration line in login.config must be uncommented,
+     and all arguments checked, such as e.g. path to pppd executable, etc.
+
+Other pre-requisites that will not be detailed here are of course PPP
+support in your OS/kernel, a working pppd, etc.
+
+What do you put on the pppd command line in login.config ?  It really
+depends how you want to handle your incoming PPP connections. Assuming
+you assigned the IP address 192.168.2.1 to your PPP server, and that you
+want some debugging in the system log (on Linux: /var/log/messages),
+you would use something like this:
+
+   /AutoPPP/ -    a_ppp   /usr/sbin/pppd crtscts modem -detach debug 192.168.2.1:
+
+Of course, this doesn't authentify the user, doesn't support connecting to
+other computers than the PPP server, and so on.
+
+For authentification, you must add the auth keyword on the pppd command 
+line(*). Then, you have the following choices:
+
+[
+(*) a ``better'' approach can be to put all those options in /etc/ppp/options.
+    You could create an option file per port your are activating, e.g.
+    if you want to statically set up static addresses per tty, and not
+    per user.
+    Example:
+       /etc/ppp/options.ttyS0
+          pppserver:pppserver-ttyS0   # converted by DNS to IP addresses
+          asyncmap 0
+          proxyarp
+          modem
+          auth
+          crtscts
+          require-chap
+          ktune
+          name ppp-server
+          netmask 255.255.255.0
+          ms-dns 192.168.15.1
+          ms-dns 192.168.15.2
+
+    AT LEAST: you should not have some options in /etc/ppp/options, and
+              some more on the command line. Keep everything in the
+              same place.
+]
+
+   - you can use a password database in /etc/ppp/, be it chap-secrets or
+     pap-secrets (chap-secrets contains cleartext passwords, but password
+     hashes only are transmitted in clear; pap-secrets works mostly like
+     UNIX authentification: the crypted password is stored and the
+     unencrypted is transmitted).
+
+        auth -pap +chap
+        auth +pap -chap
+
+   - you can use PAP, but with the /etc/passwd database (or possibly even
+     the PAM authentifications). This is the ``login'' option.
+
+        auth +pap -chap login
+
+Assuming you use PAP, you need to modify the /etc/ppp/pap-secrets, unless
+you used the login option: in that case, valid users in /etc/passwd make
+valid users for PPP. Possibly the IP address is then taken from
+/etc/ppp/pap-secrets, still (but I am not sure of it --- I don't use the
+login option, I use CHAP anyway).
+
+Note that you can force an IP address for the client either by listing it
+on the right of the /etc/ppp/chap-secrets or /etc/ppp/pap-secrets, or in
+the command line (192.168.2.1:192.168.2.2 forces 192.168.2.2 as client).
+
+Of course, forcing for both only works either if you have only one
+PPP dialup line, or if you assigned specific configurations/addresses
+per tty (see the bracketed comments above about /etc/ppp/options.ttySx).
+
+Note that if the client not only authentifies itself to the server but
+also requests authentification from the PPP server, things get more
+complicated. In most setups you don't need this, so do not use auth
+keyword on the pppd client.
+
+Some users report that some distributions ship pppd without the
+execute bit set. This will even prevent root from executing it.
+
+   chmod 555 `which pppd`
+   chown root.root `which pppd`
+
+You don't need the setuid or setgid or any other things when
+running from mgetty login.config.
+
+Other users reported that pppd version 2.3.7 has a bug which causes
+not passing of utmp parameters with /AutoPPP/, ``hence you will never
+get a login using /etc/passwd''. Versions 2.3.8 and 2.3.9 seem
+unaffected.  Well, I don't really understand why utmp should be
+related to that problem.
+
+To allow the newly connected user to connect to any computer of the local
+network where the PPP server is located, you need this:
+
+   - The IP addresses must be in the same routing zone as the ones from
+     the local network. This means: if the Ethernet network uses
+     192.168.2.X (or 192.168.2.0/24 as people like to write it), your
+     PPP server and the PPP users must get assigned addresses in this
+     zone too.
+
+   - You must add the ``proxyarp'' option to the AutoPPP line above. This
+     tells pppd that it should advertises the user PPP connected address
+     on the Ethernet.
+
+   - Your kernel must have IP forwarding on, and in some cases the option
+     ktune should also be given to pppd so it can set it for that
+     interface (assuming you don't forward by default).
+
+Alternatively, you can set up your PPP server with completely different
+addresses, but then you need to either have all computers on the Ethernet
+to have default route on the PPP server or to have specific routing.
+
+That will not make proprietary non-routable protocols such as NetBEUI
+work: typically the ``Network neighbourhood'' of MS-WINDOWS'* will fail.
+For that to work, you need to have a WINS server on the network (be it on
+the Ethernet or the PPP server itself), and reference it in hard in the
+dial-in clients (it works better that way it seems).
+
+You may also want to configure your /etc/ppp/options file, e.g. for
+supporting extensions such as the Microsoft DNS or WINS handshake.
+
+If after all this, you still have a problem with pppd and mgetty, post to
+the mailing-list, but make sure that you:
+
+   - show clearly if mgetty does launch pppd or not (ie if it's a mgetty
+     or pppd problem)
+   - show an excerpt from the system pppd log.
+
