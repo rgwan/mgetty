@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 3.4 1995/11/05 15:45:24 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 3.5 1996/02/15 16:53:01 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -214,7 +214,7 @@ fs_cvt_ascii()
     test X$3 = X-n && driver=dfaxlow
 
     gs -sDEVICE=$driver -sOutputFile=$2%02d -dNOPAUSE \
-        -- gslp.ps -B $1
+        -- gslp.ps -fCourier-Bold10 -B $1
 
 #####
 # via hp2pbm:
