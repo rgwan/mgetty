@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.18 1993/06/04 20:49:01 gert Exp $ (c) Gert Doering */
+/* $Id: mgetty.h,v 1.19 1993/06/05 11:08:48 gert Exp $ (c) Gert Doering */
 
 /* stuff in logfile.c */
 
@@ -55,12 +55,15 @@ typedef struct	chat_actions {
 			action_t action; } chat_action_t ;
 
 /* do_chat.c */
-void delay( int waittime );
-int do_chat( char * expect_send[],
-	     chat_action_t actions[], action_t * action,
-             int chat_timeout_time, boolean timeout_first,
-             boolean locks );
-int clean_line( int tenths );
+void	delay( int waittime );
+int	do_chat( char * expect_send[],
+	     	 chat_action_t actions[], action_t * action,
+		 int chat_timeout_time, boolean timeout_first,
+		 boolean locks );
+int	clean_line( int tenths );
+
+/* io.c */
+boolean	check_for_input( int fd );
 
 /* locks.c */
 
@@ -130,6 +133,6 @@ extern char *	optarg;
 #define HARDWARE_HANDSHAKE CTSFLOW
 #endif
 
-#endif
+#endif			/* cs8 */
 
 #include "policy.h"
