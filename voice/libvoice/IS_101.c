@@ -5,7 +5,7 @@
  * follow the IS-101 interim standard for voice modems. Since the commands
  * are set in the modem structure, it should be quite generic.
  *
- * $Id: IS_101.c,v 1.3 1998/03/25 23:05:34 marc Exp $
+ * $Id: IS_101.c,v 1.4 1998/07/20 09:56:51 marc Exp $
  *
  */
 
@@ -797,6 +797,9 @@ int IS_101_switch_to_data_fax(char *mode)
       VMA_USER)
           return(FAIL);
 
+     if (voice_command("AT", "OK") != VMA_USER_1)
+          return(FAIL);
+
      return(OK);
      }
 
@@ -808,6 +811,9 @@ int IS_101_voice_mode_off(void)
 
      if ((voice_command(buffer, voice_modem->switch_mode_answr) & VMA_USER) !=
       VMA_USER)
+          return(FAIL);
+
+     if (voice_command("AT", "OK") != VMA_USER_1)
           return(FAIL);
 
      return(OK);
@@ -838,6 +844,9 @@ int IS_101_voice_mode_on(void)
 
      if ((voice_command(buffer, voice_modem->switch_mode_answr) & VMA_USER) !=
       VMA_USER)
+          return(FAIL);
+
+     if (voice_command("AT", "OK") != VMA_USER_1)
           return(FAIL);
 
      return(OK);
