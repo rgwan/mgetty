@@ -1,4 +1,4 @@
-#ident "$Id: login.c,v 4.6 1998/07/05 21:11:24 gert Exp $ Copyright (C) 1993 Gert Doering"
+#ident "$Id: login.c,v 4.7 1999/01/17 17:29:19 gert Exp $ Copyright (C) 1993 Gert Doering"
 
 
 /* login.c
@@ -106,7 +106,8 @@ boolean match _P2( (user,key), char * user, char * key )
 void login_dispatch _P2( (user, is_callback ),  
 			 char * user, boolean is_callback )
 {
-    char * argv[10];
+#define MAX_LOGIN_ARGS 9
+    char * argv[MAX_LOGIN_ARGS+1];
     int	argc = 0;
     char * cmd = NULL;
     int i;
@@ -276,7 +277,7 @@ void login_dispatch _P2( (user, is_callback ),
 	    
 	    argc = 1;
 	    p = strtok( NULL, " \t" );
-	    while ( argc < 9 && p != NULL )
+	    while ( argc < MAX_LOGIN_ARGS && p != NULL )
 	    {
 		if ( strcmp( p, "@" ) == 0 )		/* user name */
 		{
@@ -294,6 +295,9 @@ void login_dispatch _P2( (user, is_callback ),
 		
 		p = strtok( NULL, " \t" );
 	    }
+
+	    if ( p != NULL )			/* arguments left? */
+		lprintf( L_WARN, "login.config: max. %d command line arguments possible", MAX_LOGIN_ARGS );
 
 	    break;
 	}		/* end if (matching line found) */
