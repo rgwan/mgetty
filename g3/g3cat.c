@@ -1,4 +1,4 @@
-#ident "$Id: g3cat.c,v 4.4 2003/09/29 21:29:51 gert Exp $ (c) Gert Doering"
+#ident "$Id: g3cat.c,v 4.5 2005/02/27 19:03:37 gert Exp $ (c) Gert Doering"
 
 /* g3cat.c - concatenate multiple G3-Documents
  *
@@ -194,6 +194,9 @@ int main _P2( (argc, argv),
     int empty_lines = 0;	/* blank lines at top of page */
     int line_width = 1728;	/* "force perfect" G3 file */
     int opt_R = 0;		/* suppress generation of RTC */
+    int max_length = 0;		/* limit max. G3 file length */
+
+    int lines_out = 0;		/* total lines in output file */
 
     /* initialize lookup trees */
     build_tree( &white, t_white );
@@ -207,7 +210,7 @@ int main _P2( (argc, argv),
     /* process the command line
      */
 
-    while ( (i = getopt(argc, argv, "lah:p:w:R")) != EOF )
+    while ( (i = getopt(argc, argv, "lah:p:w:RL:")) != EOF )
     {
 	switch (i)
 	{
@@ -217,6 +220,7 @@ int main _P2( (argc, argv),
 	  case 'p': padding = atoi( optarg ); break;
 	  case 'w': line_width = atoi( optarg ); break;
 	  case 'R': opt_R = 1; break;
+	  case 'L': max_length = atoi( optarg ); break;
 	  case '?': exit_usage(argv[0]); break;
 	}
     }
@@ -254,6 +258,7 @@ int main _P2( (argc, argv),
 	    {
 		putwhitespan( line_width );
 		puteol();
+		lines_out++;
 	    }
 	}
 	
@@ -418,6 +423,9 @@ int main _P2( (argc, argv),
 		    row++; col=0;
 		    cons_eol = 0;
 		    puteol();
+		    lines_out++;
+		    if ( max_length > 0 && 
+			 lines_out >= max_length ) { goto do_write; }
 		}
 	    }
 	    else		/* not eol, write out code */
@@ -453,6 +461,10 @@ int main _P2( (argc, argv),
 do_write:      		/* write eol, separating lines, next file */
 
 	if( fd != 0 ) close(fd);	/* close input file */
+
+	/* if maximum lines has been reached, leave outer loop */
+	if ( max_length > 0 && 
+	     lines_out >= max_length ) { break; }
 
 #ifdef DEBUG
 	fprintf( stderr, "%s: number of EOLs: %d (%d)\n", argv[i], eols,cons_eols );
