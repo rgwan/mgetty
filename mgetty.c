@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 4.20 1998/08/02 20:50:40 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 4.21 1998/08/03 20:02:08 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -496,6 +496,15 @@ int main _P2((argc, argv), int argc, char ** argv)
     }
 #endif /* VOICE */
 
+	/* some modems forget some of their settings during fax/voice
+	 * initialization -- use this as 'last chance' to set those things
+	 * [don't care for errors here]
+	 */
+	if ( c_isset( post_init_chat ) )
+	{
+	    lprintf( L_NOISE, "running post_init_chat" );
+	    do_chat( STDIN, c_chat(post_init_chat), NULL, NULL, 10, TRUE );
+	}
     }
 
     /* wait .3s for line to clear (some modems send a \n after "OK",
