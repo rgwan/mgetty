@@ -31,6 +31,9 @@ file to match that of a "fine resolution" fax file.  This might not seem
 like it belongs here, but it's 
 .I much
 faster than using pnmscale|pgmtopbm later.
+.B -s 
+is activated automatically if the file is specified on the command 
+line and its name starts with "fn..." (fax/normal).
 .TP
 .B -l(aserjet)
 Instead of a portable bitmap (PBM), output HP laserjet files, suitable for
