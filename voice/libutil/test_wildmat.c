@@ -4,8 +4,6 @@
 
 #include <stdio.h>
 
-/* Yes, we use gets not fgets.  Sue me. */
-extern char     *gets();
 extern int wildmat(char *text, char *p, int length);
 
 int
@@ -21,12 +19,12 @@ main()
     for ( ; ; ) {
         printf("\nEnter pattern:  ");
         (void)fflush(stdout);
-        if (gets(p) == NULL || p[0] == '\0')
+        if ( fgets(p, sizeof(p)-1, stdin) == NULL || p[0] == '\0')
             break;
         for ( ; ; ) {
             printf("Enter text:  ");
             (void)fflush(stdout);
-            if (gets(text) == NULL)
+            if (fgets(text, sizeof(text)-1, stdin) == NULL)
                 exit(0);
             if (text[0] == '\0')
                 /* Blank line; go back and get a new pattern. */
