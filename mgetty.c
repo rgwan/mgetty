@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.71 1993/12/01 20:29:53 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.72 1993/12/15 11:53:11 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -196,8 +196,6 @@ int main _P2((argc, argv), int argc, char ** argv)
 	gid_t	uucpgid = 0;
 
 	char *issue = "/etc/issue";		/* default issue file */
-
-	char *login = "/bin/login";		/* default login program */
 
 	char * login_prompt = NULL;	/* default login prompt */
 
@@ -637,50 +635,9 @@ int main _P2((argc, argv), int argc, char ** argv)
                 if ( getlogname( login_prompt, &tio,
 				 buf, sizeof(buf) ) == -1 ) continue;
 
-		lprintf( L_AUDIT, "device=%s, pid=%d, calling 'login %s'...\n", Device, getpid(), buf );
-
-		/* hand off to login, (can be a shell script!) */
+		/* hand off to login (dispatcher) */
+		login( buf );
 		
-#ifdef UGLY_TAYLOR_UUCP_HACK
-		/* this is a hack to spare me creating real logins for
-		 * all UUCP callers. Instead, authentification is done
-		 * by Taylor UUCICO. It is passed the "login name" with
-		 * the "-L" switch (another hack by me).
-		 *
-		 * The real benefit is that Taylor UUCICO can thus also
-		 * run as "uucpd", without having to enter all passwords
-		 * twice, once in the system passwd and once in taylor's.
-		 */
-		 
-		if ( buf[0] == 'U' && strlen(buf) > 1 )
-		{
-		    setluid(uucpuid);			/* login user id */
-		    setuid(uucpuid);			/* user id */
-		    
-		    execl( "/usr/lib/uucp/uucico", "uucico", "-L",
-			  buf, NULL );
-		}
-#endif
-
-#if FIDO
-		/* if the first character of the buffer is 0xff (\377),
-		 * it's a fido call (0xff cannot appear in the buffer
-		 * otherwise). Call "ifcico".
-		 */
-		if ( buf[0] == '\377' )
-		{
-		    setluid(uucpuid);
-		    setuid(uucpuid);
-
-		    execl( "/usr/local/lib/fnet/ifcico", "ifcico", &buf[1],
-			  NULL );
-		}
-#endif
-		
-		(void) execl(login, "login", buf[0]? buf: NULL, NULL);
-		(void) execl("/bin/sh", "sh", "-c",
-				login, buf, (char *) NULL);
-		lprintf(L_FATAL, "cannot execute %s", login);
 		exit(FAIL);
 	}
 }
