@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.70 1994/09/10 22:17:22 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.71 1994/09/20 16:43:24 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -56,16 +56,27 @@ int fax_open_device _P2( (fax_tty, use_stdin),
     }
     else
     {
+	int tries;
+	
 	/* ignore leading "/dev/" prefix */
 	if ( strncmp( fax_tty, "/dev/", 5 ) == 0 ) fax_tty += 5;
 	
 	if ( verbose ) printf( "Trying fax device '/dev/%s'... ", fax_tty );
 
-	if ( makelock( fax_tty ) != SUCCESS )
+	tries = 0;
+	while ( makelock( fax_tty ) != SUCCESS )
 	{
-	    if ( verbose ) printf( "locked!\n" );
-	    lprintf( L_MESG, "cannot lock %s", fax_tty );
-	    return -1;
+	    if ( ++ tries < 3 )
+	    {
+	        if ( verbose ) { printf( "locked... " ); fflush( stdout ); }
+		sleep(5);
+	    }
+	    else
+	    {
+	        if ( verbose ) printf( "locked, give up!\n" );
+		lprintf( L_MESG, "cannot lock %s", fax_tty );
+		return -1;
+	    }
 	}
 	
 	sprintf( device, "/dev/%s", fax_tty );
