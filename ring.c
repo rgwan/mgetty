@@ -1,4 +1,4 @@
-#ident "$Id: ring.c,v 4.9 1998/11/19 20:48:22 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: ring.c,v 4.10 1999/05/09 11:09:44 gert Exp $ Copyright (c) Gert Doering"
 
 /* ring.c
  *
@@ -234,6 +234,12 @@ boolean	got_dle;		/* for <DLE><char> events (voice mode) */
 	if ( strncmp( buf, "FM:", 3 ) == 0 ||
 	     strncmp( buf, "TO:", 3 ) == 0 )
 	    { *dist_ring_number = ring_handle_ZyXEL( buf, msn_list ); break; }
+
+	/* Rockwell (et al) caller ID - handled by cndfind(), but
+	 * we count it as "RING" to be able to pick up immediately 
+	 * instead of waiting for the next "real" RING
+	 */
+	if ( strncmp( buf, "NMBR", 4 ) == 0 ) { break; }
 
 	/* now check the different RING types 
 	 * if not "RING<whatever>", clear buffer and get next line
