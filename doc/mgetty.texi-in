@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.16 1998/04/05 13:17:13 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.17 1998/04/18 20:59:47 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -921,6 +921,15 @@ whatever reason, set this to something @strong{different} than the value
 set with @code{ATS0=mmm}, otherwise the modems autoanswer and mgettys
 manual answer will collide (most modems hang up if a command is received
 during auto-answer)
+
+@item @code{msn-list} @var{msn1 msn2 msn3...}
+
+If you have an ISDN modem that signals the called party number (MSN) to
+the host, you can use this statement to map the MSN numbers to distictive
+RINGs.  The MSN called will be compared the list, and the first match is
+used for as distinctive RING number.
+
+This is known to work with ELSA and ZyXEL ISDN terminal adaptors.
 
 @item @code{get-cnd-chat} @var{chat sequence}
 
