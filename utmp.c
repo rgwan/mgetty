@@ -1,4 +1,4 @@
-#ident "$Id: utmp.c,v 3.1 1995/08/30 12:41:03 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: utmp.c,v 3.2 1996/06/25 18:02:59 gert Exp $ Copyright (c) Gert Doering"
 
 /* some parts of the code (writing of the utmp entry)
  * is based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
@@ -165,6 +165,7 @@ FILE *	fp;
 #endif	/* !SVR4 */
 
 	    lprintf(L_NOISE, "utmp + wtmp entry made");
+	    break;
 	}
     }
     endutent();
