@@ -292,3 +292,5 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
 
 213) add support for Mark Himsley (mark@mdsh.com)'s weird 2400/fax modem,
      requiring multiple baud rate switches
+
+214) implement setting of "modem quirks" from {sendfax,mgetty}.config
