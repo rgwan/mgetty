@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.31 1993/10/19 22:25:06 gert Exp $ Copyright (c) Gert Doering */
+/* $Id: mgetty.h,v 1.32 1993/10/20 14:18:27 gert Exp $ Copyright (c) Gert Doering */
 
 /* ANSI vs. non-ANSI support */
 #ifdef __STDC__
@@ -8,6 +8,7 @@
 #define _P2(x,a1,a2)	(a1,a2)
 #define _P3(x,a1,a2,a3)	(a1,a2,a3)
 #define _P4(x,a1,a2,a3,a4)	(a1,a2,a3,a4)
+#define _P6(x,a1,a2,a3,a4,a5,a6)	(a1,a2,a3,a4,a5,a6)
 #define _P7(x,a1,a2,a3,a4,a5,a6,a7)	(a1,a2,a3,a4,a5,a6,a7)
 #define _P8(x,a1,a2,a3,a4,a5,a6,a7,a8)	(a1,a2,a3,a4,a5,a6,a7,a8)
 #else
@@ -17,6 +18,7 @@
 #define _P2(x,a1,a2)	x a1;a2;
 #define _P3(x,a1,a2,a3)	x a1;a2;a3;
 #define _P4(x,a1,a2,a3,a4)	x a1;a2;a3;a4;
+#define _P6(x,a1,a2,a3,a4,a5,a6)	x a1;a2;a3;a4;a5;a6;
 #define _P7(x,a1,a2,a3,a4,a5,a6,a7)	x a1;a2;a3;a4;a5;a6;a7;
 #define _P8(x,a1,a2,a3,a4,a5,a6,a7,a8)	x a1;a2;a3;a4;a5;a6;a7;a8;
 #define const
@@ -78,8 +80,7 @@ typedef struct	chat_actions {
 /* do_chat.c */
 int	do_chat _PROTO(( int filedesc, char * expect_send[],
 	     	 chat_action_t actions[], action_t * action,
-		 int chat_timeout_time, boolean timeout_first,
-		 boolean locks, boolean virtual_rings ));
+		 int chat_timeout_time, boolean timeout_first ));
 int	clean_line _PROTO(( int filedesc, int tenths ));
 
 /* io.c */
