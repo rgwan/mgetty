@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.28 1993/11/19 13:52:18 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: faxrec.c,v 1.29 1993/11/20 10:19:56 gert Exp $ Copyright (c) Gert Doering";
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -286,6 +286,7 @@ static const char start_rcv = DC2;
 
 	if ( fax_get_page_data( fd, ++(*pagenum), directory ) == ERROR )
 	{
+	    fax_hangup_code = -1;
 	    return ERROR;
 	}
 
