@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.30 1998/08/03 19:50:54 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.31 1998/08/04 13:38:45 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -918,6 +918,17 @@ to that.  The argument is a number, constructed from valies in
 @file{fax_lib.h}, one bit per "quirk".  Usually you won't need this 
 option, because those modems really needing it are auto-detected and
 handled properly anyway.
+
+Right now, the following quirks are defined:
+@display
+0x01  leave the modem in class 2 mode instead of switching
+      to class 0 before sending ATA (you might try this if
+      adaptive fax/data answer doesn't work).
+0x02  class 2 bit order is correct (MultiTech) - unimplemented
+0x04  do not trust +FPTS:x,lc,blc values
+0x08  do not wait for XON character when sending pages
+0x20  old USR Courier V.32 AT+FCC/+FMINSP bug workaround
+@end display
 
 @item @code{init-chat} [-m] @var{expect send expect send ...}
 
