@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.13 1993/06/01 22:51:19 gert Exp $ (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.14 1993/06/02 14:11:13 gert Exp $ (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -474,6 +474,11 @@ char	poll_directory[MAXPATH] = ".";		/* FIXME: parameter */
 	}
 	else
 	{
+#ifdef FAX_SEND_USE_IXON
+	    /* disable output flow control! It would eat XON/XOFF otherwise! */
+	    fax_termio.c_iflag &= ~IXON;
+	    ioctl( fd, TCSETAW, &fax_termio );
+#endif
 	    if ( fax_get_pages( fd, &pagenum, poll_directory ) == ERROR )
 	    {
 		fprintf( stderr, "warning: polling failed\n" );
