@@ -1,4 +1,25 @@
-Tue Jun 15 14:28:20 MEST DST   Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+Sun Jun 27 12:16:20 MEST 1999  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* The owner, groups and mode were only set after the file
+ 	recording was complete. Moreover, the file was created without any
+ 	correct security checks. Now, we switch the EUID/EGID/umask of the
+ 	process when opening the file. That should fix the specific user
+ 	request (not having files root.root 644 when recording), and also
+ 	fix more serious security problems. Additionnally, we now do the
+ 	same when playing a file. This is done through a new set of
+	functions in libutil/access.c. Problem reported by
+	uzs7ph@uni-bonn.de.
+
+	* Calling the new function setup_environment() from
+	vgetty/answer.c's vgetty_answer function. This renders *some*
+	of the called-ID specific patch obsolete, and it was slightly
+	rewritten for that purpose. This was suggested by gert.
+
+	* Added new set_device mode definitions (suggestion by
+	Steffen Klupsch <steffen@vlsi.informatik.tu-darmstadt.de>, see
+	also voice/contrib/Steffen_Klupsch-new-set-device-modes).
+
+Tue Jun 15 14:28:20 MEST 1999  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 
 	* Added a modem quirk field in the include/hardware.h modem structure.
 	Defined VMQ_NEEDS_SET_DEVICE_BEFORE_ANSWER to reverse, if set, the

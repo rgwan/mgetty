@@ -1,7 +1,7 @@
 /*
  * answer.c
  *
- * $Id: answer.c,v 1.11 1999/06/15 12:38:37 marcs Exp $
+ * $Id: answer.c,v 1.12 1999/06/27 14:29:03 marcs Exp $
  *
  */
 
@@ -284,14 +284,14 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
      time_t call_start;
      time_t call_end;
      time_t call_length;
-     uid_t uid;
-     gid_t gid;
      char greeting_message[VOICE_BUF_LEN];
      char receive_dir[VOICE_BUF_LEN];
      char message[VOICE_BUF_LEN];
      char message_name[VOICE_BUF_LEN] = "vXXXXXX";
      char *ring_type = "ring";
      int result;
+
+     setup_environment(); /* caller ID, called ID and stuff */
 
      /*
       * Mapping from mgetty's answer mode detection to the new vgetty way
@@ -662,24 +662,9 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
 
      time(&call_end);
      call_length = call_end - call_start;
-     get_ugid((char *) &cvd.phone_owner, (char *) &cvd.phone_group, &uid,
-      &gid);
-
-     /*
-      * change file mode 
-      */
-
-     if ((cvd.phone_mode.d.i != -1) && (chmod(message, cvd.phone_mode.d.i) !=
-      0))
-          lprintf(L_WARN, "%s: cannont change file mode", program_name);
-
      /* 
-      * change file owner and group 
+      * change file owner, group and mode done by function
       */
-
-     if (chown(message, (uid_t) uid, (gid_t) gid) != 0)
-          lprintf(L_WARN, "%s: cannot change owner and/or group",
-           program_name);
 
      if ((cvd.rec_min_len.d.i != 0) && (call_length <= cvd.rec_min_len.d.i))
           switch_to_data_fax_mode = TRUE;

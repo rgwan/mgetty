@@ -4,7 +4,7 @@
  * This is the main header file for vgetty, vm and the pvf tools.
  * It includes other header files and defines some global variables.
  *
- * $Id: voice.h,v 1.7 1999/06/15 12:38:22 marcs Exp $
+ * $Id: voice.h,v 1.8 1999/06/27 14:28:59 marcs Exp $
  *
  */
 
@@ -119,6 +119,8 @@ extern int voice_close_device(void);
 extern int voice_command(char *command, char *expected_answers);
 extern int voice_config(char *new_program_name, char *DevID);
 extern int voice_detect_modemtype(void);
+extern int voice_impersonify(void);
+extern int voice_desimpersonify(void);
 #define voice_dial(a) voice_modem->dial(a)
 extern int voice_execute_shell_script(char *shell_script,
  char **shell_options);
@@ -196,7 +198,8 @@ extern void vgetty_rings(int *rings_wanted);
 #define NO_VOICE_FD (-1)
 
 /*
- * Possible input or output devices
+ * Possible input or output devices. For details look in
+ * contrib/Steffen_Klupsch-new-set-device-modes
  */
 
 #define NO_DEVICE           (0x0001)
@@ -206,6 +209,14 @@ extern void vgetty_rings(int *rings_wanted);
 #define EXTERNAL_SPEAKER    (0x0005)
 #define INTERNAL_SPEAKER    (0x0006)
 #define LOCAL_HANDSET       (0x0007)
+
+#define DIALUP_WITH_EXT_SPEAKER              (0x0008)
+#define DIALUP_WITH_INT_SPEAKER              (0x0009)
+#define DIALUP_WITH_LOCAL_HANDSET            (0x000A)
+#define DIALUP_WITH_EXTERNAL_MIC_AND_SPEAKER (0x000B)
+#define DIALUP_WITH_INTERNAL_MIC_AND_SPEAKER (0x000C)
+
+
 
 /*
  * Voice modem answers

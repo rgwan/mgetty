@@ -3,11 +3,11 @@
 #
 # This is the Makefile for libutil.
 #
-# $Id: Makefile,v 1.4 1998/09/09 21:07:08 gert Exp $
+# $Id: Makefile,v 1.5 1999/06/27 14:29:00 marcs Exp $
 #
 
 UTILOBJS=check_system.o config.o no_modem.o make_path.o strsep.o variables.o \
-	 wildmat.o ../../config.o ../../logfile.o
+         access.o wildmat.o ../../config.o ../../logfile.o
 
 .c.o:
 	$(CC) $(CFLAGS) -c $*.c

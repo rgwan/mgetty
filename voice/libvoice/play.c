@@ -3,7 +3,7 @@
  *
  * This command plays the given file.
  *
- * $Id: play.c,v 1.4 1998/09/09 21:07:33 gert Exp $
+ * $Id: play.c,v 1.5 1999/06/27 14:29:01 marcs Exp $
  *
  */
 
@@ -19,7 +19,18 @@ int voice_play_file (char *name)
 
      lprintf(L_MESG, "playing voice file %s", name);
 
+     if (!voice_impersonify()) {
+        return(FAIL);
+     }
+
      fd = fopen(name, "r");
+
+     if (!voice_desimpersonify()) {
+        if (fd) {
+          fclose(fd);
+        }
+        return(FAIL);
+     }
 
      if (fd == NULL)
           {

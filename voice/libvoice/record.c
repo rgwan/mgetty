@@ -4,7 +4,7 @@
  * This command records voice data from the voice modem and
  * saves them in the given file.
  *
- * $Id: record.c,v 1.4 1998/09/09 21:07:34 gert Exp $
+ * $Id: record.c,v 1.5 1999/06/27 14:29:02 marcs Exp $
  *
  */
 
@@ -19,7 +19,18 @@ int voice_record_file (char *name)
 
      lprintf(L_MESG, "recording voice file %s", name);
 
+     if (!voice_impersonify()) {
+        return(FAIL);
+     }
+
      fd = fopen(name, "w");
+
+     if (!voice_desimpersonify()) {
+        if (fd) {
+          fclose(fd);
+        }
+        return(FAIL);
+     }
 
      if (fd == NULL)
           {
@@ -57,3 +68,9 @@ int voice_record_file (char *name)
      fclose(fd);
      return(result);
      }
+
+
+
+
+
+
