@@ -4,7 +4,7 @@
  * pvftormd converts from the pvf (portable voice format) format to the
  * rmd (raw modem data) format.
  *
- * $Id: pvftormd.c,v 1.6 1999/03/16 09:59:25 marcs Exp $
+ * $Id: pvftormd.c,v 1.7 1999/06/15 13:04:04 marcs Exp $
  *
  */
 
@@ -36,6 +36,7 @@ static void supported_formats (void)
      fprintf(stderr, " - MT_2834     4 bit IMA ADPCM\n");
      fprintf(stderr, " - Rockwell    2, 3 and 4 bit Rockwell ADPCM\n");
      fprintf(stderr, " - Rockwell    8 bit Rockwell PCM\n");
+     fprintf(stderr, " - UMC         4 bit G.721 ADPCM\n");
      fprintf(stderr, " - US_Robotics 1 and 4 (GSM and G.721 ADPCM)\n");
      fprintf(stderr, " - ZyXEL_1496  2, 3 and 4 bit ZyXEL ADPCM\n");
      fprintf(stderr, " - ZyXEL_2864  2, 3 and 4 bit ZyXEL ADPCM\n");
@@ -89,6 +90,9 @@ int main (int argc, char *argv[])
      if (strcmp(modem_type, "MT_2834") == 0)
           modem_type = "Multitech2834";
 
+     if (strcmp(modem_type, "UMC") == 0)
+          modem_type = "UMC";
+
      if (strcmp(modem_type, "US_Robotics") == 0)
           modem_type = "US Robotics";
 
@@ -107,6 +111,7 @@ int main (int argc, char *argv[])
       (strcmp(modem_type, "Multitech2834") == 0) ||
       (strcmp(modem_type, "Rockwell") == 0) ||
       (strcmp(modem_type, "US Robotics") == 0) ||
+      (strcmp(modem_type, "UMC") == 0) ||
       (strcmp(modem_type, "ZyXEL 1496") == 0) ||
       (strcmp(modem_type, "ZyXEL 2864") == 0))
           strcpy(header_out.voice_modem_type, modem_type);
@@ -400,6 +405,40 @@ int main (int argc, char *argv[])
                };
 
           if (pvftorockwellpcm(fd_in, fd_out, compression, &header_in) == OK)
+               exit(OK);
+
+          };
+
+     if ((strcmp(modem_type, "UMC") == 0) && (compression == 4))
+          {
+          header_out.bits = compression;
+
+          if (header_in.speed != 7200)
+               {
+               fprintf(stderr, "%s: Unsupported sample speed (%d)\n",
+                program_name, header_in.speed);
+               fprintf(stderr,
+                "%s: UMC modems only support 7200 samples per second\n",
+                program_name);
+               fclose(fd_out);
+
+               if (fd_out != stdout)
+                    unlink(name_out);
+
+               exit(FAIL);
+               };
+
+          if (write_rmd_header(fd_out, &header_out) != OK)
+               {
+               fclose(fd_out);
+
+               if (fd_out != stdout)
+                    unlink(name_out);
+
+               exit(ERROR);
+               };
+
+          if (pvftousr(fd_in, fd_out, compression, &header_in) == OK)
                exit(OK);
 
           };

@@ -11,14 +11,14 @@
  *
  * New updated driver by Jens Adner <Jens.Adner@Wirtschaft.TU-Ilmenau.DE>.
  *
- * $Id: UMC.c,v 1.6 1999/06/15 12:38:33 marcs Exp $
+ * $Id: UMC.c,v 1.7 1999/06/15 13:04:01 marcs Exp $
  *
  */
 
 #include "../include/voice.h"
 
-#define UMC_RELEASE "0.01"
-#define UMC_VTS_WORKAROUND yes
+#define UMC_RELEASE "0.02"
+// #define UMC_VTS_WORKAROUND yes
 /* #define UMC_EXTENDED_DETECTION yes */
 #define UMC_SPEAKER_ON yes
 /* workaround: it should set by vgetty
@@ -85,7 +85,7 @@ static int UMC_set_compression(int *compression, int *speed, int *bits)
      reset_watchdog();
 
      if (*compression == 0)
-          *compression = 2;
+          *compression = 4;
 
      if (*speed == 0)
           *speed = 7200;
@@ -209,7 +209,14 @@ static int UMC_beep(int frequency, int length)
      char buffer[VOICE_BUF_LEN];
 
      reset_watchdog();
-     sprintf(buffer, "AT#VTS=[%d,0,%d]", frequency, length / 10);
+     if (length > 4000 )
+          lprintf(L_WARN, "%s->%s: Warning beeps longer than 4000 ms might not be supported.",
+	   program_name, voice_modem_name);
+
+     lprintf(L_JUNK, "%s->%s: Some UMC modems beep with fixed frequency. This is a not a software bug.",
+      program_name, voice_modem_name);
+
+     sprintf(buffer, "AT#VTS=[%d,0,%d]", frequency, length / 100);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           return(FAIL);
@@ -221,7 +228,7 @@ int UMC_switch_to_data_fax(char *mode)
      {
      char buffer[VOICE_BUF_LEN];
      reset_watchdog();
-     sprintf(buffer, "AT+FCLASS=%s", mode);
+     sprintf(buffer, "AT#CLS=%s", mode);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           return(FAIL);
