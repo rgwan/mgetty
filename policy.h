@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.55 1994/07/21 19:42:32 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.56 1994/07/21 21:40:17 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -155,7 +155,7 @@
  * If you define this, mgetty will create a file with the given name and
  * put its process ID in it. A "%s" will be replaced by the device id.
  */
-#define MGETTY_PID_FILE	"/etc/mg-pid.%d"
+#define MGETTY_PID_FILE	"/etc/mg-pid.%s"
 
 /* Path for the lock files. A %s will be replaced with the device name,
  * e.g. tty2a -> /usr/spool/uucp/LCK..tty2a
