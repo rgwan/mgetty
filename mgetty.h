@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.10 1993/03/20 17:47:24 gert Exp $ (c) Gert Doering */
+/* $Id: mgetty.h,v 1.11 1993/03/21 23:35:56 gert Exp $ (c) Gert Doering */
 
 /* stuff in logfile.c */
 
@@ -16,7 +16,17 @@ int lprintf();
 
 /* various defines */
 
+/* define here, what function to use for sleeping less than one second.
+ * Chose one of the following: USE_SELECT, USE_POLL, USE_NAP
+ * I recommend USE_POLL on SCO unix, and USE_SELECT on linux
+ * (select() seems not be able to sleep *exactly* 500 msec on SCO!??)
+ */
+
 #ifndef linux
+#define USE_POLL
+#endif
+
+#ifndef USE_SELECT
 #define USE_POLL
 #endif
 
