@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.45 1993/11/29 11:50:08 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.46 1993/12/03 00:20:15 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* sendfax.c
  *
@@ -147,6 +147,13 @@ void fax_close _P1( (fd),
 {
     close( fd );
     rmlocks();
+}
+
+RETSIGTYPE fax_sig_goodbye( int signo )
+{
+    lprintf( L_AUDIT, "got signal %d, exiting...", signo );
+    rmlocks();
+    exit(15);				/* will close the fax device */
 }
 
 RETSIGTYPE fax_send_timeout()
@@ -438,6 +445,11 @@ int	tries;
 	fprintf( stderr, "%s: cannot access fax device(s) (locked?)\n", argv[0] );
 	exit(2);
     }
+
+    /* arrange that lock files get removed if INTR or QUIT is pressed */
+    signal( SIGINT, fax_sig_goodbye );
+    signal( SIGQUIT, fax_sig_goodbye );
+    signal( SIGTERM, fax_sig_goodbye );
 
     sprintf( buf, "AT+FLID=\"%s\"", FAX_STATION_ID);
     if ( fax_command( "AT", "OK", fd ) == ERROR ||
