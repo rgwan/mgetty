@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.15 1998/04/05 13:16:00 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.16 1998/04/05 13:17:13 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -990,7 +990,8 @@ result in hanging modems, etc.
 @item @code{issue-file} [-i] @var{file}
 
 This is the file printed before the login prompt. Default is
-@samp{/etc/issue}.
+@samp{/etc/issue}.  Some special characters are substituted by connect
+speed, date, etc. - see below (login-prompt) for a list.
 
 @item @code{prompt-waittime} @var{msecs}
 
