@@ -37,6 +37,13 @@ separate files with a one-pixel wide black line.
 specifies the number of blank lines
 .I g3cat
 should prepend to each page. Default is 0.
+.TP
+.B "\-w <width>"
+specifies the desired page width in pixels per line. Default is 1728 PELs,
+and this is mandatory if you want to send the fax to a standard fax machine.
+If one of the input files doesn't match this line width (for example because
+it was created by a broken G3 creator), a warning is printed, and the line
+width is transparently fixed.
 
 .PP
 .SH "Example"
@@ -51,13 +58,7 @@ echo '$header' | pbmtext | pbmtog3 | g3cat \- page1 >page2
 .fi
 
 .SH BUGS
-.I "g3cat "
-could be smarter about handling erroneous g3 data, filling a malformed
-line with white pixels up to the proper width.
-
-.I "g3cat "
-should pad files that are less than 1728 pixels wide to the required
-width.
+Hopefully none :-).
 
 .SH "SEE ALSO"
 g3topbm(1), sendfax(8), faxspool(1)
