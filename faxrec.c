@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.36 1994/01/05 04:42:02 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 1.37 1994/01/05 04:48:53 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -389,7 +389,7 @@ time_t	ti;
     fprintf( pipe_fp, "Pages received: %d\n", pagenum );
     if ( fax_poll_req )
     {
-	fprintf( pipe_fd, "Pages sent    : %s\n", faxpoll_server_file );
+	fprintf( pipe_fp, "Pages sent    : %s\n", faxpoll_server_file );
     }
 
     fprintf( pipe_fp, "\nCommunication parameters: %s\n", fax_param );
