@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.47 2001/10/21 16:10:46 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.48 2001/12/23 14:23:55 marcs Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -682,7 +682,7 @@ vgetty:
 vgetty-install: sedscript
 	cd voice; $(MAKE) CFLAGS="$(CFLAGS)" CC="$(CC)" LDFLAGS="$(LDFLAGS)" \
 	BINDIR="$(BINDIR)" SBINDIR="$(SBINDIR)" LIBDIR="$(LIBDIR)" \
-	CONFDIR="$(CONFDIR)" MAN1DIR="$(MAN1DIR)" INSTALL="$(INSTALL)" \
+	CONFDIR="$(CONFDIR)" MAN1DIR="$(MAN1DIR)" MAN8DIR="$(MAN8DIR)" INSTALL="$(INSTALL)" \
 	PHONE_GROUP="$(PHONE_GROUP)" PHONE_PERMS="$(PHONE_PERMS)" \
 	LN="$(LN)" MV="$(MV)" RM="$(RM)" \
 	LIBS="$(LIBS)" vgetty-install
