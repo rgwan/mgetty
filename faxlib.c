@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.33 1998/01/14 20:00:49 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.34 1998/02/12 08:25:32 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -734,10 +734,17 @@ int mdm_identify _P1( (fd), int fd )
 	    modem_type=Mt_data;
 	}
 	/* got this from bruce@hn.pl.net */
-	else if ( strncmp( l, "1.03", 4 ) == 4 )
+	else if ( strncmp( l, "1.03", 4 ) == 0 )
 	{
 	    lprintf( L_MESG, "Ellcon 14.4+Voice detected" );
 	    modem_type=Mt_data;
+	}
+	/* got this from Matt Atkins, matta@cl-sys.com */
+	else if ( strncmp( l, "1.0", 3 ) == 0 )
+	{
+	    lprintf( L_MESG, "Cirrus Logic Communicator 56 detected" );
+	    modem_type=Mt_unknown;
+	    mis = mdm_get_idstring( "ATI3", 1, fd );
 	}
     }
 
