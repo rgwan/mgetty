@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.17 1997/12/12 12:00:37 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.18 1998/01/20 12:07:33 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.18  1998/01/20 12:07:33  gert
+# change format for faxrunqd.policy (separate field for "ttys")
+#
 # Revision 1.17  1997/12/12 12:00:37  gert
 # change time bonus to 1 page / 2 minutes
 #
@@ -262,8 +265,10 @@ if ( $policy_config ne '' && -f $policy_config )
 	    next if /^\s*$/;			# empty lines
 	    print "  pcfg: $_" if $opt_d;
 	    chomp;
-	    my ( $m, $s, @a ) = split( /\s+/, $_ );
-	    push @policy, { 'match' => $m, 'substitute' => $s, 'args' => [@a]};
+	    my ( $m, $s, $t, @a ) = split( /\s+/, $_ );
+
+	    push @policy, { 'match' => $m, 'substitute' => $s, 
+			    'ttys' => $t, 'args' => [@a]};
 	}
 	close(P);
     }
