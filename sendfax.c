@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.25 1993/07/21 17:45:11 gert Exp $ (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.26 1993/07/22 20:17:14 gert Exp $ (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -147,8 +147,6 @@ sig_t fax_send_timeout()
     lprintf( L_ERROR, "timeout!" );
 }
 
-char fax_end_of_page[] = { DLE, ETX };
-
 /* fax_send_page - send one complete fax-G3-file to the modem
  *
  * modem has to be in sync, waiting for at+fdt
@@ -161,6 +159,8 @@ int g3fd;
 char ch;
 char buf[256];
 char wbuf[ sizeof(buf) * 2 ];
+
+static	char	fax_end_of_page[] = { DLE, ETX };
 
     lprintf( L_NOISE, "fax_send_page(\"%s\") started...", g3_file );
 
@@ -239,6 +239,15 @@ char wbuf[ sizeof(buf) * 2 ];
 		{
 		    lprintf( L_MESG, "skipping over GhostScript header" );
 		    i = 64;
+		    /* for dfax files, we can check if the resolutions match
+		     */
+		    if ( ( fax_par_d.vr != 0 ) != ( buf[29] != 0 ) )
+		    {
+			fprintf( stderr, "WARNING: sending in %s mode, fax data is %s mode\n",
+				 fax_par_d.vr? "fine" : "normal",
+				 buf[29]     ? "fine" : "normal" );
+			lprintf( L_WARN, "resolution mismatch" );
+		    }
 		}
 	    }
 
