@@ -1,4 +1,4 @@
-#ident "$Id: conf_sf.c,v 3.6 1996/05/27 19:44:27 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_sf.c,v 3.7 1996/06/04 19:51:08 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_sf.c
  *
@@ -31,18 +31,18 @@ struct conf_data_sendfax c = {
 	{ "fax-devices", 0, CT_STRING, C_IGNORE },
 	{ "modem-init", 0, CT_STRING, C_EMPTY },
 #ifdef FAX_MODEM_HANDSHAKE
-	{ "modem-handshake", (int) FAX_MODEM_HANDSHAKE, CT_STRING, C_PRESET },
+	{ "modem-handshake", (p_int) FAX_MODEM_HANDSHAKE, CT_STRING, C_PRESET },
 #else
 	{ "modem-handshake", 0, CT_STRING, C_EMPTY },
 #endif
-	{ "modem-type", (int) DEFAULT_MODEMTYPE, CT_STRING, C_PRESET },
+	{ "modem-type", (p_int) DEFAULT_MODEMTYPE, CT_STRING, C_PRESET },
 	{ "max-tries", FAX_SEND_MAX_TRIES, CT_INT, C_PRESET },
 	{ "max-tries-continue", TRUE, CT_BOOL, C_PRESET },
 	{ "speed", FAX_SEND_BAUD, CT_INT, C_PRESET },
 	{ "switchbd", FAX_SEND_SWITCHBD, CT_INT, C_PRESET },
-	{ "dial-prefix", (int) FAX_DIAL_PREFIX, CT_STRING, C_PRESET },
-	{ "fax-id", (int)FAX_STATION_ID, CT_STRING, C_PRESET },
-	{ "poll-dir", (int)".", CT_STRING, C_PRESET },
+	{ "dial-prefix", (p_int) FAX_DIAL_PREFIX, CT_STRING, C_PRESET },
+	{ "fax-id", (p_int)FAX_STATION_ID, CT_STRING, C_PRESET },
+	{ "poll-dir", (p_int)".", CT_STRING, C_PRESET },
 	{ "normal-res", 0, CT_BOOL, C_PRESET },
 	{ "debug", LOG_LEVEL, CT_INT, C_PRESET },
 	{ "verbose", FALSE, CT_BOOL, C_PRESET },
@@ -50,7 +50,7 @@ struct conf_data_sendfax c = {
 	{ "page-header", 0, CT_STRING, C_EMPTY },
 	{ "" /* stdin */, FALSE, CT_BOOL, C_PRESET },
 	{ "" /* rename */, FALSE, CT_BOOL, C_PRESET },
-	{ "" /* acct_handle */, (int)"", CT_STRING, C_PRESET },
+	{ "" /* acct_handle */, (p_int)"", CT_STRING, C_PRESET },
 	{ NULL, 0, CT_STRING, C_EMPTY }};
 
 int sendfax_parse_args _P2( (argc,argv), int argc, char ** argv )
