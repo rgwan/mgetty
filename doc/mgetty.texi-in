@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.64 2005/02/14 12:47:41 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.65 2005/02/15 10:28:37 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -2943,7 +2943,8 @@ them have flash ROM to be upgraded to newer firmware.  For data, this
 modem is quite good.  For fax, it might work, and it might not -- I have
 received a very high number of ``it doesn't work at all'' reports, and
 also a number of ``it works very well for me'' reports.  If you plan to
-buy one, make sure you can return it if it doesn't work.
+buy one, make sure you can return it if it doesn't work.  (See below for
+some specific issues and workarounds).
 
 @item Internal PC card -- I haven't been able to find out yet whether that
 is a ``Sportster'' or a ``Courier'', but it seems to be a Sportster, with
@@ -2978,6 +2979,14 @@ to negotiate 7200 bps transmission speed.  If the receiving modem won't
 accept 9600 bps, transmission will fail after sending three DCS frames,
 with the error code +FHS:25.  In that case, try setting 
 @code{fax-max-speed 7200} in @file{sendfax.config}.
+
+@code{RSPEC errors}: some series of USR Sportsters and early Couriers 
+have bugs in the handling of the @code{AT+FCC} command.  It's meant to specify
+the maximum transmission speed, like ``14400'', but these modems interpret
+it as @strong{minimum} speed, so they fail if sending to a machine that
+can only do 9600 bps.  If you see RSPEC errors in the sendfax log (+FHS:24), 
+try the setting @code{modem-quirks 0x20} in @file{sendfax.config}.  This
+will tell @code{sendfax} not to set the corresponding @code{AT+FCC} parameter.
 
 
 The USR modems support Caller ID delivery (both the I-Modem series and the
