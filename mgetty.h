@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.5 1993/02/26 17:55:05 gert Exp $ (c) Gert Doering */
+/* $Id: mgetty.h,v 1.6 1993/03/06 16:12:46 gert Exp $ (c) Gert Doering */
 
 /* stuff in logfile.c */
 
@@ -72,8 +72,9 @@ void faxrec( void );
 #define FAX_RECEIVER	"/u/softadm/zfax2/recfax"
 #define MAILER		"/usr/lib/sendmail"
 #define MAIL_TO		"gert"
+#define FAX_STATION_ID	" +49-89-3243228 Gert"
 /* how long should I wait for a string from modem */
-#define FAX_RESPONSE_TIMEOUT	60
+#define FAX_RESPONSE_TIMEOUT	120
 /* how much time may pass while receiving a fax without getting data */
 #define	FAX_PAGE_TIMEOUT	60
 
