@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.8 1993/03/06 16:24:17 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.9 1993/03/06 19:40:02 gert Exp $ (c) Gert Doering";
 /* some parts of the code are loosely based on the 
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us
  */
@@ -11,7 +11,9 @@
 #include <pwd.h>
 #include <sys/types.h>
 #include <sys/times.h>
+#ifndef linux
 #include <sys/select.h>
+#endif
 #include <sys/stat.h>
 #include <signal.h>
 #include <utmp.h>
@@ -277,7 +279,7 @@ int main( int argc, char ** argv)
 
 	termio.c_iflag = ICRNL | IXANY;	/*!!!!!! ICRNL??? */
 	termio.c_oflag = OPOST | ONLCR;
-#ifdef LINUX
+#ifdef linux
 	termio.c_cflag = portspeed | CS8 | CREAD | HUPCL | CLOCAL |
                          CRTSCTS;
 #else
@@ -361,7 +363,7 @@ int main( int argc, char ** argv)
 	if ( access( buf, F_OK ) == 0 )
 	{
 	    lprintf( L_MESG, "%s exists - do not accept call!", buf );
-	    clean_line( 50 );		/* wait for last ring */
+	    clean_line( 80 );		/* wait for last ring */
 	    exit(1);
 	}
 
@@ -492,10 +494,10 @@ int main( int argc, char ** argv)
 		termio.c_lflag = ECHOK | ECHOE | ECHO | ISIG | ICANON;
 
 		termio.c_cc[VEOF] = 0x04;	/* ^D */
-#ifndef LINUX
+#ifndef linux
 		termio.c_cc[VEOL] = 0;		/* ^J */
 #endif
-#ifdef LINUX
+#ifdef linux
 #define VSWTCH VSWTC
 #endif
 		termio.c_cc[VSWTCH] = 0;
