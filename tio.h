@@ -1,4 +1,4 @@
-#ident "$Id: tio.h,v 1.3 1993/11/07 01:52:09 gert Exp $ Copyright (c) 1993 Gert Doering";
+#ident "$Id: tio.h,v 1.4 1993/11/12 15:22:07 gert Exp $ Copyright (c) 1993 Gert Doering";
 
 /* tio.h
  *
@@ -17,7 +17,7 @@
 #ifdef SYSV_TERMIO
 
 #undef POSIX_TERMIOS
-#undef BSG_SGTTY
+#undef BSD_SGTTY
 #include <termio.h>
 typedef struct termio TIO;
 #endif
@@ -31,6 +31,69 @@ typedef struct termios TIO;
 #ifdef BSD_SGTTY
 #include <sgtty.h>
 typedef struct sgttyb TIO;
+#endif
+
+#ifdef SYSV_TERMIO
+
+/* You may have to look at sys/termio.h to determine the type of the
+ * c_?flag structure members.
+ */
+typedef unsigned short tioflag_t;
+
+#define TIONCC NCC
+#else
+#ifdef POSIX_TERMIOS
+typedef tcflag_t tioflag_t;
+#define TIONCC NCCS
+#else
+#include "do not support sgetty yet"
+#endif
+#endif
+
+#if	!defined(VSWTCH) && defined(VSWTC)
+#define	VSWTCH	VSWTC
+#endif
+
+#ifndef _POSIX_VDISABLE
+#define _POSIX_VDISABLE '\377'
+#endif
+
+/* default control chars */
+#ifndef CESC
+#define	CESC	'\\'
+#endif
+#ifndef CINTR
+#define	CINTR	0177	/* DEL */
+#endif
+#ifndef CQUIT
+#define	CQUIT	034	/* FS, cntl | */
+#endif
+#ifndef CERASE
+#define	CERASE	'\b'	/* BS, nonstandard */
+#endif
+#ifndef CKILL
+#define	CKILL	'\025'	/* NAK, nonstandard */
+#endif
+#ifndef CEOF
+#define	CEOF	04	/* cntl d */
+#endif
+#ifndef CSTART
+#define	CSTART	021	/* cntl q */
+#endif
+#ifndef CSTOP
+#define	CSTOP	023	/* cntl s */
+#endif
+#ifndef CEOL
+#define	CEOL	000	/* cntl j */
+#endif
+#ifndef CSWTCH
+#define CSWTCH	000	/* cntl z */
+#endif
+#ifdef CNSWTCH
+#define CNSWTCH	0
+#endif
+#ifndef CSUSP
+#define CSUSP _POSIX_VDISABLE
 #endif
 
 /* hardware handshake flags */
@@ -48,8 +111,8 @@ void tio_mode_raw    _PROTO (( TIO *t ));
 void tio_mode_cbreak _PROTO (( TIO *t ));
 void tio_mode_sane   _PROTO (( TIO *t, int set_clocal_flag ));
 void tio_map_cr      _PROTO (( TIO *t, int perform_crnl_mapping ));
-int  tio_set_flow_control  _PROTO(( TIO *t, int flowctrl_type ));
-int  tio_set_flow_control2 _PROTO(( int fd, int clowctrl_type ));
+int  tio_set_flow_control  _PROTO(( int fd, TIO *t, int flowctrl_type ));
+int  tio_set_flow_control2 _PROTO(( int fd, int flowctrl_type ));
 void tio_carrier     _PROTO (( TIO *t, int carrier_sensitive ));
 int  tio_toggle_dtr  _PROTO(( int fd, int msec_wait ));
 
