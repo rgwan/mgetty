@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 1.22 1993/12/13 17:14:34 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 1.23 1993/12/18 19:03:57 gert Exp $ Copyright (c) Gert Doering"
 ;
 #include <stdio.h>
 #ifndef _NOSTDLIB_H
@@ -36,6 +36,12 @@
  * If the resulting string would be too long, it's silently truncated.
  */
 
+int strappnd _P2((s1,s2), char * s1, char * s2 )
+{
+    strcpy( s1, s2 );
+    return strlen( s1 );
+}
+
 char * ln_escape_prompt _P1( (ep), char * ep )
 {
 #define MAX_PROMPT_LENGTH 140
@@ -54,12 +60,12 @@ char * ln_escape_prompt _P1( (ep), char * ep )
 	{
 #ifdef SYSTEM
 	    if ( sizeof( SYSTEM ) + i > MAX_PROMPT_LENGTH ) break;
-	    i += sprintf( &p[i], "%s", SYSTEM );
+	    i += strappnd( &p[i], SYSTEM );
 #else
 	    struct utsname un;
 	    uname( &un );
 	    if ( strlen( un.nodename ) +1 +i > MAX_PROMPT_LENGTH ) break;
-	    i += sprintf( &p[i], "%s", un.nodename );
+	    i += strappnd( &p[i], un.nodename );
 #endif
 	}
 	else if ( *ep != '\\' ) p[i++] = *ep;
@@ -77,25 +83,26 @@ char * ln_escape_prompt _P1( (ep), char * ep )
 	      case 't': p[i++] = '\t'; break;
 	      case 'L':
 		if ( i + strlen(Device) +1 > MAX_PROMPT_LENGTH ) break;
-		i += sprintf( &p[i], "%s", Device );
+		i += strappnd( &p[i], Device );
 		break;
 	      case 'C':
 		{
 		    time_t ti = time(NULL);
 		    char * h = ctime( &ti );
 		    if ( strlen(h) +1 +i > MAX_PROMPT_LENGTH ) break;
-		    i += sprintf( &p[i], "%s", h ) -1;
+		    i += strappnd( &p[i], h ) -1;
 		    break;
 		}
 	      case 'N':
 	      case 'U':
-		i += sprintf( &p[i], "%d", get_current_users() );
+		sprintf( &p[i], "%d", get_current_users() );
+		i = strlen(p);
 		break;
 	      case 'D':			/* fallthrough */
 	      case 'T':
 		if ( i + 30 > MAX_PROMPT_LENGTH )
 		{
-		    i += sprintf( &p[i], "(x)" ); break;
+		    i += strappnd( &p[i], "(x)" ); break;
 		}
 		else
 		{
@@ -105,11 +112,12 @@ char * ln_escape_prompt _P1( (ep), char * ep )
 		    if ( tm == NULL ) break;
 
 		    if ( *ep == 'D' )
-		        i += sprintf( &p[i], "%d/%d/%d", tm->tm_mon+1,
-				     tm->tm_mday, tm->tm_year + 1900 );
+		        sprintf( &p[i], "%d/%d/%d", tm->tm_mon+1,
+				 tm->tm_mday, tm->tm_year + 1900 );
 		    else
-		        i += sprintf( &p[i], "%02d:%02d:%02d", tm->tm_hour,
-				     tm->tm_min, tm->tm_sec );
+		        sprintf( &p[i], "%02d:%02d:%02d", tm->tm_hour,
+				 tm->tm_min, tm->tm_sec );
+		    i = strlen(p);
 		}
 		break;
 	      default:		/* not a recognized string */
