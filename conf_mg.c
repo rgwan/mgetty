@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.c,v 3.1 1995/08/30 12:40:23 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_mg.c,v 3.2 1995/11/27 19:00:10 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_mg.c
  *
@@ -16,6 +16,8 @@
 
 #include "config.h"
 #include "conf_mg.h"
+
+extern char * mgetty_version;		/* mgetty.c/version.h */
 
 #ifndef MODEM_CHECK_TIME
 # define MODEM_CHECK_TIME -1		/* no check */
@@ -169,7 +171,7 @@ conf_data c_a[2];
 	conf_set_bool( &c.direct_line, TRUE );
     }
 
-    while ((opt = getopt(argc, argv, "c:x:s:rp:n:R:i:DC:FS:k:m:I:ba")) != EOF)
+    while ((opt = getopt(argc, argv, "c:x:s:rp:n:R:i:DC:FS:k:m:I:baV")) != EOF)
     {
 	switch (opt)
 	{
@@ -232,6 +234,10 @@ conf_data c_a[2];
 	    c.init_chat.flags = C_OVERRIDE;
 	    c.init_chat.d.p = conf_get_chat( optarg );
 	    break;
+	  case 'V':			/* show version number */
+	    printf("\nmgetty+sendfax by Gert Doering\n%s\n\n",
+		    mgetty_version);
+	    exit(0);
 	  case '?':
 	    exit_usage(2);
 	    break;
