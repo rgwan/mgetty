@@ -21,6 +21,20 @@ the job fails five times "fatally", that is, not with a locked or engaged
 line, but with "NO CARRIER" (no fax machine, or line noise), the job is
 suspended, and the requestor gets a mail, telling him so.
 
+.I faxrunq
+can be run from the command line (but make sure the user doing this
+has write access to the modem device and to the fax queue, that is,
+usually this should be done by "root").  In a production environment, it's
+more useful to start 
+.I faxrunq
+from
+.I cron(8)
+in regular intervals, like "run it every 5 minutes".  See the
+.I cron(8)
+and/or
+.I crontab(1)
+man pages for this (which man page exists depends on your system).
+
 .SH OPTIONS
 .TP
 .B -q
