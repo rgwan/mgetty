@@ -1,6 +1,7 @@
-#ident "$Id: g32pbm.c,v 1.3 1993/09/29 17:15:20 gert Exp $ (c) Gert Doering";
+#ident "$Id: g32pbm.c,v 1.4 1993/10/03 15:19:35 gert Exp $ (c) Gert Doering";
 
 #include <stdio.h>
+#include <unistd.h>
 #include <malloc.h>
 #include <string.h>
 #include <fcntl.h>
@@ -323,7 +324,7 @@ void print_g3_tree( char * t, struct g3_tree * p )
 int i;
     if ( p->nr_bits )
 	fprintf( stderr, "%s (%08x) leaf( nr_bits=%2d, PELs=%3d )\n",
-		 t, (int) p, p->nr_bits, (struct g3_leaf *) p->nr_pels );
+		 t, (int) p, p->nr_bits, ((struct g3_leaf *) p)->nr_pels );
     else
     {
 #if DEBUG > 1
