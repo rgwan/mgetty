@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 3.11 1996/10/17 17:36:17 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 3.12 1996/11/13 20:20:03 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -309,7 +309,7 @@ test -z "$USER" && USER=$user
 ##########
 eval ` $AWK '$1=="fax-id" { printf "FAX_STATION_ID=\"%s", $2; \
 			    for(i=3;i<=NF;i++) printf " %s", $i; print "\""; }
-             $1=="port"   { exit }' @CONFDIR@/sendfax.config `
+             $1=="port"   { exit }' @CONFDIR@/sendfax.config 2>/dev/null`
 
 # everything else is initialized empty
 ##########
