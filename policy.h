@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.37 1993/12/15 14:08:00 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.38 1993/12/17 17:47:49 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -264,11 +264,16 @@
 #define FAXREC_FLOW	FLOW_HARD | FLOW_SOFT
 
 /* And this is for sending faxes
+ *
  * Wrong settings here will typically result in that the first few
  * centimeters of a transmitted fax look perfect, and then (the buffer
  * has filled up), the rest is more or less illegible junk.
  * For most faxes, this has to be FLOW_SOFT, though the Supra and ZyXEL
  * modems will (sometimes) do hardware flow control, too. Try it.
+ *
+ * If you see a large number of [11] and [13] characters in the sendfax
+ * log file, your modem is propably doing software flow control - and
+ * you've definitely set FAXSEND_FLOW to FLOW_HARD...
  */
 #define FAXSEND_FLOW	FLOW_HARD | FLOW_SOFT
  
