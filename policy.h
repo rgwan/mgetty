@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.7 1993/05/22 16:39:44 gert Exp $ (c) Gert Doering"
+#ident "$Id: policy.h,v 1.8 1993/05/22 17:56:09 gert Exp $ (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -84,8 +84,9 @@
 
 /* the baudrate used for *sending* faxes. ZyXELs should handle 38400,
  * SUPRAs (and other rockwell-based faxmodems) do not
+ * I recommend 38400, since 19200 may be to slow for 14400 bps faxmodems!
  */
-#define FAX_SEND_BAUD B19200
+#define FAX_SEND_BAUD B38400
 
 /* if your faxmodem insists on using XON/XOFF flow control in class 2 fax
  * mode (even when told not to), define this (ZyXELs are know to do this).
