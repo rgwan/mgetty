@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 4.23 1998/09/01 11:14:45 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 4.24 1999/01/05 19:44:50 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -414,9 +414,10 @@ int main _P2((argc, argv), int argc, char ** argv)
     if ( c_isset(port_mode) ) 
 	chmod( devname, c_int(port_mode) );
 
-    /* if necessary, kill any dangling processes (Marc Boucher) */
-#if defined( EXEC_FUSER ) && ! ( defined(M_UNIX) || defined(sunos4) || \
-				 defined(linux) )
+    /* if necessary, kill any processes that still has the serial device 
+     * open (Marc Boucher, Marc Schaefer).
+     */
+#if defined( EXEC_FUSER )
     sprintf( buf, EXEC_FUSER, devname );
     if ( ( i = system( buf ) ) != 0 )
         lprintf( L_WARN, "%s: return code %d", buf, i );
