@@ -1,3 +1,32 @@
+Tue Jul 20 08:49:10 MEST 1999  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* Timeouts for ringback: if no ringback is detected within the timeout
+	time, the modem assumes the other side answered the phone (was
+	needed for outgoing dial). Note that not all modems support these
+	commands (+VRA/+VRN). Notably the Multitechs don't. This adds new
+	configuration options: ``ringback_goes_away'' and
+	``CONF(ringback_never_came, 100, CT_INT)'', see include/default.h
+	and voice.conf-dist.
+ 	
+	* The US Robotics modem forgets its voice setting when it leaves voice
+ 	mode: a special function voice_mode_on() was created.
+ 	
+	* Sending a beep to US Robotics turns the speaker on, we shut it
+ 	down (best way would be to keep it how it was).
+ 	
+	* Added ``GET MODEM'' voice shell interface command to get the
+ 	underlying modem hardware type (e.g. for sending the right RMD file
+ 	type).
+ 	
+	* Added a new ``linger'' optional argument to the play command. When
+ 	given, it will make the multi-DTMF detection more reliable when used
+ 	with ``AUTOSTOP'': with some modems, or with some configurations, it
+ 	seems that between the time ``PLAY'' and ``WAIT'' are issued you can
+ 	loose key-presses, especially with US Robotics modems.
+
+	* All the above for Jul 20 was submitted by Al BORCHERS,
+	<alborchers@steinerpoint.com>
+
 Sun Jul 18 19:31:49 MEST 1999  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 
 	* Incremental bug fix for US_Robotics.c submitted by
