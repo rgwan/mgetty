@@ -1,6 +1,6 @@
-#ident "$Id: g32pbm.c,v 3.3 1996/08/22 22:23:46 gert Exp $ (c) Gert Doering, Chris Lewis et.al."
+#ident "$Id: g32pbm.c,v 3.4 1997/01/02 15:35:39 gert Exp $ (c) Gert Doering, Chris Lewis et.al."
 
-/* G3topbm.c
+/* G32pbm.c
  *
  * convert raw G3 data (optionally with a digifax header) to PBM or
  * Laserjet, optionally scaling the image in the process.
@@ -85,7 +85,7 @@ char *scalebm _P5( (res, cols, rows, map, bperrow),
     newmap = malloc(nr * newbperrow );
     if (!newmap)
     {
-	fprintf (stderr, "g3topbm: cannot allocate %d bytes for scale raster\n",
+	fprintf (stderr, "g32pbm: cannot allocate %d bytes for scale raster\n",
 	                 nr * newbperrow );
 	exit(1);
     }
@@ -98,7 +98,7 @@ char *scalebm _P5( (res, cols, rows, map, bperrow),
 	mulvec = (MVTYPE *) malloc(max * sizeof(MVTYPE));
 	if (!mulvec)
 	{
-	    fprintf (stderr, "g3topbm: cannot allocate multiplier vector\n");
+	    fprintf (stderr, "g32pbm: cannot allocate multiplier vector\n");
 	    exit(1);
 	}
 	for (mv = mulvec, i = 0; i < max; i++)
@@ -164,7 +164,7 @@ int byte, bit;
 
     if ( newmap == NULL )
     {
-	fprintf( stderr, "g3topbm: cannot allocate %d bytes for turn bitmap",
+	fprintf( stderr, "g32pbm: cannot allocate %d bytes for turn bitmap",
 			 nr * newbperrow );
 	exit(1);
     }
@@ -248,7 +248,7 @@ int	resolution = BASERES;
 		if ( resolution != 75 && resolution != 150 &&
 		     resolution != 300 )
 		{
-		    fprintf( stderr, "g3topbm: only supports 75, 150, or 300 dpi\n");
+		    fprintf( stderr, "g32pbm: only supports 75, 150, or 300 dpi\n");
 		    exit(1);
 		}
 		break;
@@ -256,7 +256,7 @@ int	resolution = BASERES;
 		o_turn++;
 		break;
 	    case '?':
-		fprintf( stderr, "usage: g3topbm [-l|-r|-n/f|-d <dpi>|-t] [g3 file]\n");
+		fprintf( stderr, "usage: g32pbm [-l|-r|-n/f|-d <dpi>|-t] [g3 file]\n");
 		exit(1);
 	}
     }
@@ -524,7 +524,7 @@ void emitpbm _P4(( hcol, row, bitmap, bperrow),
 
 /* The following code is copyright 1994, Chris Lewis.  Permission is hereby
    permanently granted to Gert Doering to include this software in his
-   g3topbm program, whether distributed as freeware or commercially.
+   g32pbm program, whether distributed as freeware or commercially.
  */
 
 #define ESCLEN	25	/* avg # bytes in raster escape prolog/epilog */
