@@ -1,4 +1,4 @@
-#ident "$Id: locks.c,v 4.2 1997/02/05 20:46:46 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
+#ident "$Id: locks.c,v 4.3 1998/12/06 19:06:27 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
 
 /* large parts of the code in this module are taken from the
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us,
@@ -36,6 +36,7 @@
 static int readlock _PROTO(( char * name ));
 static char *  get_lock_name _PROTO(( char * lock_name, char * device ));
 static int lock_write_pid _PROTO(( int fd ));
+static int we_have_lock = FALSE;
 
 /*
  *	do_makelock() - attempt to create a lockfile
@@ -47,6 +48,8 @@ int do_makelock _P0( void )
 {
 	int fd, pid;
 	char *temp, buf[MAXLINE+1];
+
+	we_have_lock = FALSE;
 
 	lprintf( L_NOISE, "do_makelock: lock='%s'", lock );
 
@@ -91,8 +94,7 @@ int do_makelock _P0( void )
 		    if (pid == getpid())	/* huh? WE locked the line!*/
 		    {
 			lprintf( L_WARN, "we *have* the line!" );
-			unlink(temp);
-			return SUCCESS;
+			break;
 		    }
 
 		    if ((kill(pid, 0) == FAIL) && errno == ESRCH)
@@ -118,6 +120,7 @@ int do_makelock _P0( void )
 	
 	lprintf(L_NOISE, "lock made");
 	(void) unlink(temp);
+	we_have_lock = TRUE;
 	return(SUCCESS);
 }
 
@@ -130,8 +133,6 @@ int do_makelock _P0( void )
 int makelock _P1( (device),
 		  char *device)
 {
-    int retcode;
-    
     lprintf(L_NOISE, "makelock(%s) called", device);
 
     if ( get_lock_name( lock, device ) == NULL )
@@ -140,11 +141,7 @@ int makelock _P1( (device),
 	return FAIL;
     }
 
-    retcode = do_makelock();
-
-    if ( retcode == FAIL ) lock[0] = 0;		/* rmlock(): don't touch! */
-
-    return retcode;
+    return do_makelock();
 }
 
 /* steal_lock( device, process id )
@@ -182,29 +179,23 @@ int steal_lock _P2((device, pid), char * device, int pid )
 
     retcode = lock_write_pid( fd );
 
-    if ( retcode == FAIL ) lock[0] = 0;		/* rmlock(): don't touch! */
+    if ( retcode == SUCCESS ) we_have_lock = TRUE;
     return retcode;
 }
 
 /* makelock_file( lock file )
  *
- * make a lock file with a given name (uses for locking of other files
+ * make a lock file with a given name (used for locking of other files
  * than device nodes)
  */
 
 int makelock_file _P1( (file), char * file )
 {
-    int retcode;
-    
     lprintf(L_NOISE, "makelock_file(%s) called", file);
 
     strcpy( lock, file );
     
-    retcode = do_makelock();
-
-    if ( retcode == FAIL ) lock[0] = 0;		/* make sure rmlocks knows */
-						/* that we *don't* have it */
-    return retcode;
+    return do_makelock();
 }
    
 /*
@@ -328,14 +319,14 @@ static int lock_write_pid _P1((fd), int fd)
 
 RETSIGTYPE rmlocks(SIG_HDLR_ARGS)
 {
-    if ( lock[0] != 0 )
+    if ( we_have_lock )
     {
 	lprintf( L_NOISE, "removing lock file" );
 	if ( unlink(lock) == -1 )
 	    lprintf( L_ERROR, "error removing lock file (huh?!)" );
     }
     /* mark lock file as 'not set' */
-    lock[0] = 0;
+    we_have_lock = FALSE;
 }
 
 /* get_lock_name()
