@@ -3,5 +3,6 @@ README
 kvg.in
 ltest.c
 mid.c
+microcom.c
 cutbl.in
 vhangup.c
