@@ -1,4 +1,4 @@
-#ident "$Id: mid.c,v 1.9 2002/11/23 20:35:50 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mid.c,v 1.10 2003/11/17 19:05:10 gert Exp $ Copyright (c) Gert Doering"
 
 /* mid.c
  *
@@ -29,6 +29,7 @@ char * query_strings[] = { "ATE1Q0V1",
 			   "AT+FMFR?", "AT+FMDL?", "AT+FREV?",
 			   "AT+FMI?", "AT+FMM?", "AT+FMR?",
 			   "AT+GMI?", "AT+GMM?", "AT+GMR?", "AT+GCAP?",
+			   "AT+FCLASS=8", "AT+VSM=?",
 			   NULL };
 
 /* we don't want logging here */
