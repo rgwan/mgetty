@@ -3,7 +3,7 @@
  *
  * This file contains the ZyXEL 1496 specific hardware stuff.
  *
- * $Id: ZyXEL_1496.c,v 1.6 1999/06/15 12:38:35 marcs Exp $
+ * $Id: ZyXEL_1496.c,v 1.7 1999/07/20 07:26:01 marcs Exp $
  *
  */
 
@@ -96,6 +96,17 @@ static int ZyXEL_1496_init (void)
 
      if (voice_command("AT+VNH=1", "OK") != VMA_USER_1)
           lprintf(L_WARN, "can't disable autohangup");
+
+     /* -- alborchers@steinerpoint.com
+      * AT+VRA and AT+VRN - Delay after ringback or before any ringback
+      *                     before modem assumes phone has been answered.
+      */
+
+     sprintf(buffer, "AT+VRA=%d+VRN=%d",
+      cvd.ringback_goes_away.d.i, cvd.ringback_never_came.d.i);
+
+     if (voice_command(buffer, "OK") != VMA_USER_1)
+          lprintf(L_WARN,"setting ringback delay didn't work");
 
      voice_modem_state = IDLE;
      return(OK);

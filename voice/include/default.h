@@ -5,7 +5,7 @@
  * tools. All of these values can be changed by the configuration
  * file.
  *
- * $Id: default.h,v 1.4 1998/09/09 21:06:33 gert Exp $
+ * $Id: default.h,v 1.5 1999/07/20 07:25:58 marcs Exp $
  *
  */
 
@@ -429,6 +429,26 @@ CONF(retry_delay, 5, CT_INT)
  */
 
 CONF(dialout_timeout, 90, CT_INT)
+
+/* -- alborchers@steinerpoint.com
+ * Timeout for deciding that a dialout call has been answered; if more
+ * than this many 1/10ths of a second have passed since the last ringback,
+ * the modem assumes the call has been answered and the ATDT... command
+ * exits with response VCON.  A value of 0 causes ATDT... to return VCON
+ * immediately.  Default is 70 (7 sec).
+ */
+
+CONF(ringback_goes_away, 70, CT_INT)
+
+/* -- alborchers@steinerpoint.com
+ * Timeout for deciding that a dialout call has been answered; if more
+ * than this many 1/10ths of a second have passed without any ringback
+ * the modem assumes the call has been answered and the ATDT... command
+ * exits with response VCON.  A value of 0 causes ATDT... to return VCON
+ * immediately.  Default is 100 (10 sec).
+ */
+
+CONF(ringback_never_came, 100, CT_INT)
 
 /*
  * Default values for the pvf tools

@@ -2,7 +2,7 @@
 # Sample voice configuration file
 # -------------------------------
 #
-# $Id: voice.conf-dist,v 1.5 1999/01/23 20:06:22 marcs Exp $
+# $Id: voice.conf-dist,v 1.6 1999/07/20 07:25:56 marcs Exp $
 #
 # This file is read twice: First the program configuration is read and
 # second the port configuration. This means that generic values at the
@@ -463,6 +463,22 @@ voice_devices
 #
 
 dialout_timeout 90
+
+#
+# Timeout for deciding that a dialout call has been answered; if more
+# than this many 1/10ths of a second have passed since the last ringback,
+# the modem assumes the call has been answered.  Default is 70 (7 sec).
+#
+
+ringback_goes_away 70
+
+#
+# Timeout for deciding that a dialout call has been answered; if more
+# than this many 1/10ths of a second have passed without any ringback
+# the modem assumes the call has been answered.  Default is 100 (10 sec).
+#
+
+ringback_never_came 100
 
 #
 # Default values for the pvf tools

@@ -24,7 +24,7 @@
  * A very good US Robotics technical reference manual is available
  * at: http://www.alliancedatacom.com/us-robotics-manuals.htm (not a typo).
  *
- * $Id: US_Robotics.c,v 1.8 1999/07/18 17:29:54 marcs Exp $
+ * $Id: US_Robotics.c,v 1.9 1999/07/20 07:26:00 marcs Exp $
  *
  */
 
@@ -115,6 +115,17 @@ static int USR_init(void)
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN,"setting recording preferences didn't work");
+
+     /* -- alborchers@steinerpoint.com
+      * AT+VRA and AT+VRN - Delay after ringback or before any ringback
+      *                     before modem assumes phone has been answered.
+      */
+
+     sprintf(buffer, "AT+VRA=%d+VRN=%d",
+      cvd.ringback_goes_away.d.i, cvd.ringback_never_came.d.i);
+
+     if (voice_command(buffer, "OK") != VMA_USER_1)
+          lprintf(L_WARN,"setting ringback delay didn't work");
 
      voice_modem_state = IDLE;
      return(OK);
