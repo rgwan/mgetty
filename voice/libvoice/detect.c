@@ -3,7 +3,7 @@
  *
  * autodetect the modemtype we are connected to.
  *
- * $Id: detect.c,v 1.28 2000/11/16 10:40:39 marcs Exp $
+ * $Id: detect.c,v 1.29 2000/12/16 10:58:43 marcs Exp $
  *
  */
 
@@ -24,6 +24,11 @@ struct pnp_modem_type_struct
      voice_modem_struct *modem_type;
      const char *verbose;
      };
+
+typedef struct {
+   char *s;
+   voice_modem_struct *modem_type;
+} pnp_partial_matches_t;
 
 static const struct pnp_modem_type_struct pnp_modem_database[] =
      {
@@ -81,14 +86,17 @@ static const struct modem_type_struct modem_database[] =
      {ati, "3361",                 NULL,   &US_Robotics},
      {ati, "3362",                 NULL,   &US_Robotics},
      {ati, "3366",                 NULL,   &US_Robotics},
-#if 0
-     {ati, "33600",                NULL,   &Rockwell},
-#else
-     /* This could break Rockwell modems, but is needed for some
-      * Neuhaus variants (Smarty). We keep it visible for some time in case.
+
+     /* 2000-12-16 schaefer@alphanet.ch
+      * NOTES
+      *    - This is the same as returned by some Neuhaus variant.
+      *      However we will do ATI9 detection first, which should
+      *      detect it. If you have a Neuhaus modem which now breaks,
+      *      please report the problem to me, including full vgetty
+      *      log at log level 6 and mid output.
       */
-     {ati, "33600",                ati6, NULL},
-#endif
+     {ati, "33600",                NULL,   &Rockwell},
+
      {ati, "3X WYSIWYF 628DBX",    NULL,   &Rockwell},
      {ati, "56000",                NULL,   &Rockwell},
      {ati, "5601",                 NULL,   &US_Robotics},
@@ -103,7 +111,7 @@ static const struct modem_type_struct modem_database[] =
      {ati6, "RCV336DPFSP Rev 44BC",
                                    NULL, &Rockwell},
      {ati, "ERROR", ati0, NULL}, /* it also shows up as North America,
-                                  *  then OK in ATI9. Please also read
+                                  * then OK in ATI9. Please also read
                                   * libvoice/README.lucent.
                                   */
 
@@ -118,6 +126,11 @@ static const struct modem_type_struct modem_database[] =
      {ati4, "WS-3314JS3", NULL, &Rockwell},
 
      {NULL, NULL, NULL, NULL}
+     };
+
+static const pnp_partial_matches_t pnp_partial_matches[]
+   = { { "SMARTY ", &Dr_Neuhaus },
+       { NULL, NULL }
      };
 
 int voice_detect_modemtype(void)
@@ -201,6 +214,31 @@ int voice_detect_modemtype(void)
                     lprintf(L_WARN, "modem detection failed");
                     exit(FAIL);
 	  }
+
+          /* Some modems have no meaningful output except in ATI9, but
+           * they do not respect the standard. For them we will use
+           * another table of partial matches. We do not want to slow
+           * even more by adding ATI9s to the global table.
+           */
+
+          i = 0;
+          while ((voice_modem == &no_modem) && (pnp_partial_matches[i].s)) {
+             if (!strncmp(pnp_partial_matches[i].s,
+                          buffer,
+                          strlen(pnp_partial_matches[i].s))) {
+                voice_modem = pnp_partial_matches[i].modem_type;
+             }
+             i++;
+          }
+
+          if (voice_modem != &no_modem) {
+             lprintf(L_MESG, "%s detected", voice_modem->name);
+             lprintf(L_NOISE,
+                     "voice modem type was set by ATI9 partial match");
+             return(OK);
+          }
+
+          /* Else, standard ATI9 */
 
 	  s = strchr(buffer, '(');
 	  if ( s && s[1] != '\0' )
