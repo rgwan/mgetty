@@ -1,10 +1,12 @@
-#ident "$Id: tio.c,v 1.11 1993/12/27 22:10:24 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 1.12 1994/01/03 23:29:36 gert Exp $ Copyright (c) 1993 Gert Doering"
 ;
 /* tio.c
  *
  * contains routines dealing with SysV termio / POSIX termios / BSD sgtty
  *
  */
+
+#include <sys/types.h>
 
 #ifdef _AIX
 #include <sys/ioctl.h>
@@ -114,6 +116,38 @@ int tio_set_speed _P2( (t, speed ), TIO *t, int speed )
 #endif
     return NOERROR;
 }
+
+/* defined in mgetty.c */
+
+extern struct	speedtab {
+	ushort	cbaud;		/* baud rate */
+	int	nspeed;		/* speed in numeric format */
+	char	*speed;		/* speed in display format */
+} speedtab[];
+
+
+/* get port speed. Return integer value, not symbolic constant */
+
+int tio_get_speed _P1( (t), TIO *t )
+{
+#ifdef SYSV_TERMIO
+    ushort cbaud = t->c_cflag & CBAUD;
+#endif
+#ifdef POSIX_TERMIOS
+    speed_t cbaud = cfgetospeed( t );
+#endif
+#ifdef BSD_SGTTY
+    int cbaud = t->sg_ospeed;
+#endif
+    struct speedtab * p;
+
+    for ( p=speedtab; p->nspeed != 0; p++ )
+    {
+	if ( p->cbaud == cbaud ) break;
+    }
+    return p->nspeed;
+}
+ 
 
 /* set "raw" mode: do not process input or output, do not buffer */
 /* do not touch cflags or xon/xoff flow control flags */
