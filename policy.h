@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.27 1993/10/29 10:53:19 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.28 1993/11/04 19:28:32 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -67,6 +67,19 @@
  * override with "-p <prompt>" switch
  */
 #define LOGIN_PROMPT	"%s!login:"
+
+/* On SVR4, maybe on other systems too, you can cause the 'login' program
+ * to prompt with the same string as mgetty did, instead of the standard
+ * "login:" prompt. The string will be passed to the 'login' program
+ * in the environment variable TTYPROMPT.
+ * This is done by putting "login" into a special (brain-dead) "ttymon"-
+ * compatibility mode. In that mode, mgetty doesn't ask for a login name
+ * at all, so mgetty won't work if you enable that feature and your
+ * login program doesn't support it. (You can see if it doesn't work
+ * if the user gets a double login prompt or none at all).
+ * To use that feature, define ENV_TTYPROMPT.
+ */
+/* #define ENV_TTYPROMPT */
 
 /* Maximum time before login name has to be entered (in seconds)
  * (after that time a warning will be issued, after that, the call is
