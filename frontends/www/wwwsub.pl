@@ -1,7 +1,7 @@
 #
 # mgetty WWW gui common "things"
 #
-# RCS: $Id: wwwsub.pl,v 1.5 1999/05/27 15:07:45 gert Exp $
+# RCS: $Id: wwwsub.pl,v 1.6 2004/11/17 14:12:55 gert Exp $
 #
 # $Log
 
@@ -82,8 +82,9 @@ sub get_cgi
 	  if ($do_plus) {$value =~ s/\+/ /go;}
 	  $value =~ s/\%([0-9a-f]{2})/pack(C,hex($1))/eig;
      
+          if ( !defined $args{"$key"} ) { $args{"$key"} = ''; }
 	  $args{"$key"}=$args{"$key"} . " " . $value if ($value!~/^\s*$/);
-	  $args{"$key"} =~ s/^\s*//o;
+	  $args{"$key"} =~ s/^\s+//o;
        }
     }
 
