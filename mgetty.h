@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.2 1993/02/13 15:29:56 gert Exp $ (c) Gert Doering */
+/* $Id: mgetty.h,v 1.3 1993/02/16 14:01:10 gert Exp $ (c) Gert Doering */
 
 /* stuff in logfile.c */
 
@@ -14,7 +14,9 @@ int lputc( int level, char ch );
 int lputs( int level, char * s );
 int lprintf();
 
+#ifndef LINUX
 #define USE_POLL
+#endif
 
 #define TRUE (1==1)
 #define FALSE (1==0)

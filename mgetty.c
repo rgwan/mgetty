@@ -1,4 +1,4 @@
-static char sccsid[] = "$Id: mgetty.c,v 1.2 1993/02/13 15:29:54 gert Exp $ (c) Gert Doering";
+static char sccsid[] = "$Id: mgetty.c,v 1.3 1993/02/16 14:01:08 gert Exp $ (c) Gert Doering";
 /* some parts of the code are loosely based on the 
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us
  */
@@ -281,8 +281,13 @@ int main( int argc, char ** argv)
 
 	termio.c_iflag = ICRNL | IXANY;	/*!!!!!! ICRNL??? */
 	termio.c_oflag = OPOST | ONLCR;
+#ifdef LINUX
+	termio.c_cflag = portspeed | CS8 | CREAD | HUPCL | CLOCAL |
+                         CRTSCTS;
+#else
 	termio.c_cflag = portspeed | CS8 | CREAD | HUPCL | CLOCAL |
                          RTSFLOW | CTSFLOW;
+#endif
 	termio.c_lflag = ISIG;		/* no echo for chat with modem! */
 	termio.c_line = 0;
 	termio.c_cc[VMIN] = 1;
@@ -477,8 +482,14 @@ int main( int argc, char ** argv)
 		termio.c_lflag = ECHOK | ECHOE | ECHO | ISIG | ICANON;
 
 		termio.c_cc[VEOF] = 0x04;	/* ^D */
+#ifndef LINUX
 		termio.c_cc[VEOL] = 0;		/* ^J */
+#endif
+#ifdef LINUX
+#define VSWTCH VSWTC
+#endif
 		termio.c_cc[VSWTCH] = 0;
+
 		(void) ioctl(STDIN, TCSETAW, &termio);
 
 		lprintf( L_MESG, "pid=%d, calling 'login %s'...\n", pid, buf );

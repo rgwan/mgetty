@@ -1,8 +1,17 @@
-#ident "$Id: logname.c,v 1.1 1993/02/13 16:32:09 gert Exp $ (c) Gert Doering"
+#ident "$Id: logname.c,v 1.2 1993/02/16 14:01:07 gert Exp $ (c) Gert Doering"
 #include <stdio.h>
 #include <termio.h>
 
 #include "mgetty.h"
+
+/* Linux apparently does not define these constants */
+#ifdef LINUX
+#define CQUIT	034		/* FS,  ^\ */
+#define CEOF	004		/* EOT, ^D */
+#define CKILL	025		/* NAK, ^U */
+#define CERASE	010		/* BS,  ^H */
+#define CINTR	0177		/* DEL, ^? */
+#endif
 
 int getlogname( struct termio * termio, char * buf, int maxsize )
 {
@@ -33,13 +42,17 @@ newlogin:
 
 	if ( ch == CKILL ) goto newlogin;
 
-	if ( ch == CERASE )
+	/* since some OSes use backspace and others DEL -> accept both */
+
+	if ( ch == CERASE || ch == CINTR )
 	{
 	    if ( i > 0 )
 	    {
 		fputs( " \b", stdout );
 		i--;
 	    }
+            else
+		fputc( ' ', stdout );
 	}
 	else
 	{
@@ -62,6 +75,7 @@ newlogin:
 	termio->c_iflag |= ICRNL;
 	termio->c_oflag |= ONLCR;
 	putc( '\n', stdout );
+	lprintf( L_NOISE, "input finished with '\r', setting ICRNL ONLCR" );
     }
 
     if ( i == 0 ) return -1;
