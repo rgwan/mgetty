@@ -1,4 +1,4 @@
-#ident "$Id: locks.c,v 4.3 1998/12/06 19:06:27 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
+#ident "$Id: locks.c,v 4.4 2001/01/01 13:26:00 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
 
 /* large parts of the code in this module are taken from the
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us,
@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
 #include <fcntl.h>
 #include <signal.h>
 #include <string.h>
@@ -48,6 +49,7 @@ int do_makelock _P0( void )
 {
 	int fd, pid;
 	char *temp, buf[MAXLINE+1];
+	int tries = 0;
 
 	we_have_lock = FALSE;
 
@@ -55,11 +57,26 @@ int do_makelock _P0( void )
 
 	/* first make a temp file */
 
-	(void) sprintf(buf, LOCK, "TM.XXXXXX");
-	if ((fd = creat((temp=mktemp(buf)), 0644)) == FAIL) {
+#ifdef HAVE_MKSTEMP
+	/* secure, but not as portable */
+	temp=buf;
+	sprintf(buf, LOCK, "TM.XXXXXX");
+	if ((fd = mkstemp(temp)) == FAIL ) {
 		lprintf(L_ERROR, "cannot create tempfile (%s)", temp);
 		return(FAIL);
 	}
+#else
+	/* portable, but subject to some problems on some platforms */
+again:
+	sprintf(buf, LOCK, "TM.XXXXXX");
+	temp = mktemp(buf);
+	unlink(temp);
+	if ((fd = open(temp, O_CREAT|O_WRONLY|O_EXCL, 0644)) == FAIL) {
+		lprintf(L_ERROR, "cannot create tempfile (%s)", temp);
+		if ( errno == EEXIST && ++tries < 20 ) goto again;
+		return(FAIL);
+	}
+#endif
 
 	/* just in case some "umask" is set (errors are ignored) */
 	chmod( temp, 0644 );
