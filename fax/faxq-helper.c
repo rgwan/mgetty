@@ -1,4 +1,4 @@
-#ident "$Id: faxq-helper.c,v 4.2 2002/11/14 22:51:24 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxq-helper.c,v 4.3 2002/11/15 09:32:05 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxq-helper.c
  *
@@ -15,7 +15,7 @@
  *
  * faxq-helper activate $ID
  *       chown/chmod $OUT/.inF000134/ directory to user "fax"
- *       chown + check files in the directory (no symlinks)
+ *       [chown +] check files in the directory (no symlinks)
  *       take prototype JOB file from stdin, 
  *	     check that "pages ..." does not reference any non-local 
  *	     or non-existing files
@@ -25,7 +25,8 @@
  *
  * faxq-helper remove $ID
  *       check that $OUT/$ID/ exists and belongs to the calling user
- *       remove directory plus all files/subdirs in it
+ *       lock JOB
+ *       chown() $ID and $ID/JOB* back to calling user, so he can "rm -r" it
  *
  * faxq-helper requeue $ID
  *       check that $OUT/$ID/ exists and belongs to the calling user
@@ -225,11 +226,28 @@ char dirbuf[100];
     return 0;
 }
 
-/* remove a complete directory hierarchy
+/* change directory + JOB file permissions back to original user
+ * (this is used if "activate" fails due to weird files, or for the
+ * "remove" command).
+ * The actual "rm -rf" is done by the caller script with user permissions
  */
-void remove_broken_dir( char * directory )
+int rollback_dir( char * directory )
 {
-    error_and_exit( "not implemented" );
+char jobbuf[MAXJIDLEN+30];
+
+    sprintf( jobbuf, "%s/JOB", directory );
+
+    if ( chown( jobbuf, real_user_id, 0 ) < 0 && errno != ENOENT )
+    {
+	eout( "can't change '%s' back to uid %d: %s\n",
+	       jobbuf, real_user_id, strerror(errno) );
+    }
+
+    if ( chown( directory, real_user_id, 0 ) < 0 )
+    {
+	eout( "can't change '%s' back to uid %d: %s\n",
+	       directory, real_user_id, strerror(errno) );
+    }
 }
 
 /* make sure that all path names in the following list (separated by
@@ -285,7 +303,7 @@ char buf[1000], *p;
 int fd;
 
     sprintf( dir1, ".in%s", JID );
-    if ( stat( dir1, &stb ) < 0 )
+    if ( lstat( dir1, &stb ) < 0 )
     {
 	eout( "can't stat '%s': %s\n", dir1, strerror(errno) );
 	return -1;
@@ -310,11 +328,11 @@ int fd;
 
     sprintf( buf, "%s/JOB", dir1 );
 
-/* TODO: check if this catches symlinks to non-existant files! */
+/* TODO: check if this portably catches symlinks to non-existant files! */
     if ( ( fd = open( buf, O_WRONLY | O_CREAT | O_EXCL, 0644 ) ) < 0 )
     {
 	eout( "can't create JOB file '%s': %s\n", buf, strerror(errno) );
-	remove_broken_dir(dir1);
+	rollback_dir(dir1);
 	return -1;
     }
 
@@ -324,7 +342,7 @@ int fd;
 	eout( "can't chown '%s' to uid %d: %s\n", 
 	      buf, fax_out_uid, strerror(errno) );
 	close(fd);
-	remove_broken_dir(dir1);
+	rollback_dir(dir1);
 	return -1;
     }
 
@@ -365,14 +383,14 @@ int fd;
     close(fd);
     if ( p != NULL )	/* loop aborted */
     {
-	remove_broken_dir(dir1); return -1;
+	rollback_dir(dir1); return -1;
     }
 
     /* now move directory in final place */
     if ( rename( dir1, JID ) < 0 )
     {
 	eout( "can't rename '%s' to '%s': %s\n", dir1, JID, strerror(errno));
-	remove_broken_dir(dir1); return -1;
+	rollback_dir(dir1); return -1;
     }
 
     return 0;
