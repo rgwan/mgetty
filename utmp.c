@@ -1,4 +1,4 @@
-#ident "$Id: utmp.c,v 2.2 1995/07/30 19:46:02 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: utmp.c,v 2.3 1995/07/30 19:47:33 gert Exp $ Copyright (c) Gert Doering"
 
 /* some parts of the code (writing of the utmp entry)
  * is based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
@@ -132,7 +132,6 @@ FILE *	fp;
 	    if (ut_host != NULL)
 	    {
 	    	strncpy( utmp->ut_host, ut_host, sizeof( utmp->ut_host ) - 1);
-	    	utmp->ut_host [ sizeof( utmp->ut_host ) - 1 ] = '\0';
 # ifdef solaris2		/* Solaris 2.x */
 	    	utmp->ut_syslen = strlen(utmp->ut_host) + 1;
 # endif
