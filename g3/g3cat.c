@@ -1,4 +1,4 @@
-#ident "$Id: g3cat.c,v 1.11 1994/08/08 12:38:17 gert Exp $ (c) Gert Doering"
+#ident "$Id: g3cat.c,v 1.12 1994/09/07 22:25:49 gert Exp $ (c) Gert Doering"
 
 /* g3cat.c - concatenate multiple G3-Documents
  *
@@ -203,7 +203,11 @@ int main _P2( (argc, argv),
 		    rs = read( fd, rbuf, sizeof( rbuf ) );
 		    if ( rs < 0 ) { perror( "read2"); break; }
 		    rp = 0;
-		    if ( rs == 0 ) { fprintf( stderr, "EOF!" ); goto do_write;}
+		    if ( rs == 0 ) {
+#ifdef DEBUG
+			fprintf( stderr, "EOF!" );
+#endif
+			goto do_write;}
 		}
 #ifdef DEBUG
 		fprintf( stderr, "hibit=%2d, data=", hibit );
