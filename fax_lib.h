@@ -1,4 +1,4 @@
-#ident "$Id: fax_lib.h,v 4.6 1997/11/28 11:41:33 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: fax_lib.h,v 4.7 1997/12/03 19:22:37 gert Exp $ Copyright (c) Gert Doering"
 
 
 /* fax_lib.h
@@ -11,10 +11,10 @@
 /* data types + variables */
 
 typedef enum { Mt_unknown, Mt_data, 
-		Mt_class1,	/* TIA-EIA 591 standard */
+		Mt_class1,	/* TIA/EIA 578 standard */
 		Mt_class1_0,	/* ITU T.31 standard */
-		Mt_class2, 	/* TIA-EIA 592 drafts */
-		Mt_class2_0,	/* TIA-EIA 592 standard */
+		Mt_class2, 	/* SP-2388 / EIA 592 drafts */
+		Mt_class2_0,	/* TIA/EIA 592 standard */
 		Mt_class2_1	/* ITU T.32 standard */
 		} Modem_type;
 extern Modem_type modem_type;
