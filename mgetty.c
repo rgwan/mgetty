@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.23 1993/03/26 20:34:30 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.24 1993/04/05 00:54:36 gert Exp $ (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -130,6 +130,8 @@ int	toggle_dtr_waittime = 500;	/* milliseconds while DTR is low */
 int	prompt_waittime = 500;		/* milliseconds between CONNECT and */
 					/* login: -prompt */
 
+boolean	direct_line = FALSE;
+
 int main( int argc, char ** argv)
 {
 	register int c, fd;
@@ -177,7 +179,7 @@ int main( int argc, char ** argv)
 	/* process the command line
 	 */
 
-	while ((c = getopt(argc, argv, "x:s:")) != EOF) {
+	while ((c = getopt(argc, argv, "x:s:r")) != EOF) {
 		switch (c) {
 		case 'x':
 			log_level = atoi(optarg);
@@ -197,6 +199,9 @@ int main( int argc, char ** argv)
 			    lprintf( L_FATAL, "invalid port speed: %s", optarg);
 			    exit_usage(2);
 			}
+			break;
+		case 'r':
+			direct_line = TRUE;
 			break;
 		case '?':
 			exit_usage(2);
@@ -342,8 +347,9 @@ int main( int argc, char ** argv)
 
 	/* handle init chat if requested
 	 */
-	if ( do_chat( init_chat_seq, init_chat_actions, &what_action,
-                      init_chat_timeout, TRUE, FALSE ) == FAIL )
+	if ( ! direct_line )
+	  if ( do_chat( init_chat_seq, init_chat_actions, &what_action,
+                        init_chat_timeout, TRUE, FALSE ) == FAIL )
 	{
 	    lprintf( L_MESG, "init chat failed, exiting..." );
 	    rmlocks();
@@ -434,8 +440,9 @@ int main( int argc, char ** argv)
            and send manual answer string to the modem */
 
 	log_level++; /*FIXME: remove this - for debugging only !!!!!!!!!!!*/
-	if ( do_chat( call_chat_seq, call_chat_actions, &what_action,
-                      call_chat_timeout, TRUE, FALSE ) == FAIL )
+	if ( ! direct_line )
+	  if ( do_chat( call_chat_seq, call_chat_actions, &what_action,
+                        call_chat_timeout, TRUE, FALSE ) == FAIL )
 	{
 	    if ( what_action == A_FAX )
 	    {
@@ -619,7 +626,7 @@ timeout()
 
 void exit_usage( int code )
 {
-    lprintf( L_FATAL, "Usage: mgetty [-x debug] [-s speed] line" );
+    lprintf( L_FATAL, "Usage: mgetty [-x debug] [-s speed] [-d] line" );
     exit(code);
 }
 
