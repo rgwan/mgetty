@@ -1,4 +1,4 @@
-#ident "$Id: conf_sf.c,v 1.2 1994/12/05 20:54:19 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_sf.c,v 1.3 1994/12/06 17:14:01 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_sf.c
  *
@@ -27,7 +27,11 @@
 struct conf_data_sendfax c = {
 	{ "fax-devices", 0, CT_STRING, C_EMPTY },
 	{ "modem-init", 0, CT_STRING, C_EMPTY },
+#ifdef FAX_MODEM_HANDSHAKE
 	{ "modem-handshake", (int) FAX_MODEM_HANDSHAKE, CT_STRING, C_PRESET },
+#else
+	{ "modem-handshake", 0, CT_STRING, C_EMPTY },
+#endif
 	{ "modem-type", (int) DEFAULT_MODEMTYPE, CT_STRING, C_PRESET },
 	{ "max-tries", FAX_SEND_MAX_TRIES, CT_INT, C_PRESET },
 	{ "speed", FAX_SEND_BAUD, CT_INT, C_PRESET },
