@@ -1,4 +1,4 @@
-#ident "@(#)cnd.c	$Id: cnd.c,v 4.9 1998/05/02 18:58:01 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "@(#)cnd.c	$Id: cnd.c,v 4.10 1998/06/01 17:26:53 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 
 #include <stdio.h>
 #include <string.h>
@@ -225,4 +225,31 @@ int cndlookup _P0 (void)
     fclose(cndfile);
 #endif
     return(match);
+}
+
+/* check Caller ID via external program call */
+int cnd_call _P3((name, tty, dist_ring),
+		 char * name, char * tty, int dist_ring )
+{
+    char * program;
+    int rc;
+
+    program = malloc( strlen(name) + strlen(tty) + 
+		      strlen( CallerId ) + strlen( CalledNr ) + 20 );
+    if ( program == NULL )
+	    { lprintf( L_ERROR, "cnd_call: can't malloc" ); return 0; }
+
+    sprintf( program, "%s %s '%s' %d '%s'", name, tty, 
+		      CallerId, dist_ring, CalledNr );
+    lprintf( L_NOISE, "CND: program \"%s\"", program );
+
+    rc = system(program);
+
+    if ( rc < 0 )
+    { lprintf( L_ERROR, "cnd_call: system failed" ); free(program); return 0; }
+
+    lprintf( L_NOISE, "CND: rc=0x%x", rc );
+    free(program);
+
+    return rc>>8;
 }
