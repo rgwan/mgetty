@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 3.7 1996/01/04 00:19:25 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 3.8 1996/02/04 15:32:39 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -637,7 +637,7 @@ void faxpoll_send_pages _P3( (fd, tio, pollfile),
 
     file = fgetline( fp );
 
-    while ( file != NULL )
+    while ( file != NULL && !fax_hangup )
     {
 	/* copy filename (we need to know *before* sending the file
 	   whether it's the last one, and fgetline() uses a static buffer)
@@ -662,12 +662,16 @@ void faxpoll_send_pages _P3( (fd, tio, pollfile),
 	        fax_send_page( buf, NULL, tio, pp_mps, fd );
 	    tries++;
 
+	    if ( fax_hangup )
+	    {
+		lprintf( L_WARN, "fax poll failed: +FHNG:%d (%s)",
+			 fax_hangup_code, fax_strerror(fax_hangup_code));
+		break;
+	    }
 	    if ( fax_page_tx_status != 1 )
 	        lprintf( L_WARN, "fax poll: +FPS: %d", fax_page_tx_status );
 	}
 	while( fax_page_tx_status == 2 && tries < 2 );
-
-
     }
     fclose( fp );
 }
