@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.31 1998/08/04 13:38:45 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.32 1998/08/31 18:43:24 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -998,7 +998,8 @@ during auto-answer)
 If you have an ISDN modem that signals the called party number (MSN) to
 the host, you can use this statement to map the MSN numbers to distictive
 RINGs.  The MSN called will be compared the list, and the first match is
-used for as distinctive RING number.
+used for the distinctive RING number.  The list is searched from left to
+right.
 
 This is known to work with ELSA and ZyXEL ISDN terminal adaptors.
 
