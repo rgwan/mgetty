@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 3.7 1996/01/03 20:23:57 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 3.8 1996/02/24 22:01:45 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include "syslibs.h"
@@ -449,6 +449,18 @@ int getlogname _P5( (prompt, tio, buf, maxsize, do_timeout),
 	strcpy(buf,"janus");
 #endif
 
+    /* for modems that are misconfigured and do not raise/lower DCD
+       properly, check for some standard modem error codes now
+     */
+
+    if( strcmp(buf,"NO CARRIER") == 0 ||
+        strcmp(buf,"ERROR") == 0 )
+    {
+	lprintf( L_AUDIT, "failed dev=%s, pid=%d, got modem error '%s'",
+                 Device, getpid(), buf );
+	exit(0);
+    }
+
     /* check whether all letters entered were uppercase, if yes, tell
        user to try again with l/c, if it's all uppercase again on the
        second try, enable UC<->LC mapping
@@ -472,7 +484,7 @@ int getlogname _P5( (prompt, tio, buf, maxsize, do_timeout),
 	}
     }
 
-    /* set CR/LF mapping according to the caracter the input was
+    /* set CR/LF mapping according to the character the input was
        ended with
        */
     
