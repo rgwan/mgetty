@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.21 1993/07/19 13:30:12 gert Exp $ (c) Gert Doering */
+/* $Id: mgetty.h,v 1.22 1993/07/22 20:45:38 gert Exp $ (c) Gert Doering */
 
 /* stuff in logfile.c */
 
@@ -104,17 +104,21 @@ extern char *	optarg;
 #ifdef CS8
 
 #ifdef CRTSCTS
-#define HARDWARE_HANDSHAKE CRTSCTS
+# define HARDWARE_HANDSHAKE CRTSCTS
 #else
-#ifdef CRTSFL
-#define HARDWARE_HANDSHAKE CRTSFL
-#else
-#ifdef RTSFLOW
-#define HARDWARE_HANDSHAKE RTSFLOW | CTSFLOW
-#else
-#define HARDWARE_HANDSHAKE 0
-#endif
-#endif
+# ifdef CRTSFL
+#  define HARDWARE_HANDSHAKE CRTSFL
+# else
+#  ifdef RTSFLOW
+#   define HARDWARE_HANDSHAKE RTSFLOW | CTSFLOW
+#  else
+#   ifdef CTSCD
+#    define HARDWARE_HANDSHAKE CTSCD
+#   else
+#    define HARDWARE_HANDSHAKE 0
+#   endif
+#  endif
+# endif
 #endif
 
 /* I've got reports telling me that dial-in / dial-out on SCO 3.2.4
