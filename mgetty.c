@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.55 1993/10/27 01:18:56 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.56 1993/10/27 01:35:24 gert Exp $ Copyright (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -588,7 +588,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 		/* hand off to login, (can be a shell script!) */
 
 #ifdef USE_GETTYDEFS
-		tio_set(STDIN, gettermio(GettyID, FALSE, (char *) NULL));
+		tio_set(STDIN, gettermio(GettyID, FALSE, (char **) NULL));
 #endif
 		(void) execl(login, "login", buf, (char *) NULL);
 		(void) execl("/bin/sh", "sh", "-c",
@@ -636,7 +636,7 @@ gettermio _P3 ((id, first, prompt), char *id, boolean first, char **prompt) {
 	}
 	loaded = 1;
     }
-    if (gdp = getgettydef(id)) {
+    if ( (gdp = getgettydef(id)) != NULL ) {
 	lprintf(L_NOISE, "Using %s gettydefs entry", gdp->tag);
 	if (first) {
 	    termio = gdp->before;
