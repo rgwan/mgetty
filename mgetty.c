@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.41 1993/08/04 11:37:45 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.42 1993/09/01 00:34:19 gert Exp $ (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -17,7 +17,6 @@
 
 #include <sys/stat.h>
 #include <signal.h>
-#include <utmp.h>
 #include <fcntl.h>
 
 #ifndef ENOENT
@@ -114,16 +113,6 @@ void		exit_usage();
 /* prototypes for system functions (that are missing in some 
  * system header files)
  */
-
-#if !defined(SVR4) && !defined(linux)
-
-struct	utmp	*getutent();
-struct	utmp	*pututline(struct utmp * utmp);
-void		setutent(void);
-void		endutent(void);
-
-#endif
-
 time_t		time( long * tloc );
 
 /* logname.c */
@@ -154,15 +143,11 @@ int main( int argc, char ** argv)
 	char buf[MAXLINE+1];
 	struct termio termio;
 	FILE *fp;
-	struct utmp *utmp;
-	struct stat st;
 	int Nusers;
 	int i;
 	int cspeed;
 
 	action_t	what_action;
-
-	time_t	clock;
 
 #ifdef USE_SELECT
 	fd_set	readfds;
@@ -175,8 +160,6 @@ int main( int argc, char ** argv)
 	struct passwd *pwd;
 	uid_t	uucpuid = UUCPID;
 	gid_t	uucpgid = 0;
-
-	int pid;
 
 	char *issue = "/etc/issue";		/* default issue file */
 
@@ -393,6 +376,13 @@ int main( int argc, char ** argv)
 
 	signal( SIGUSR1, sig_pick_phone );
 
+#ifdef linux
+	/* on linux, "init" does not make a wtmp entry when you log out,
+	 * so we have to do it here (otherwise, "who" won't work)
+	 */
+	make_utmp_wtmp( Device, FALSE );
+#endif
+
 	/* wait for incoming characters.
 	   I use select() instead of a blocking read(), since select()
 	   does *not* eat up characters and thus prevents collisions
@@ -495,56 +485,19 @@ int main( int argc, char ** argv)
 	(void) signal(SIGQUIT, rmlocks);
 	(void) signal(SIGTERM, rmlocks);
 
-	/* make utmp entry (otherwise login won't work)
+	/* make utmp and wtmp entry (otherwise login won't work)
 	 */
-
-	pid = getpid();
-	while ((utmp = getutent()) != (struct utmp *) NULL) {
-		if (utmp->ut_type == INIT_PROCESS && utmp->ut_pid == pid) {
-
-			lprintf(L_NOISE, "utmp entry made");
-			/* show login process in utmp
-			 */
-			strcpy(utmp->ut_line, Device);
-			strcpy(utmp->ut_user, "LOGIN");
-			utmp->ut_pid = pid;
-			utmp->ut_type = LOGIN_PROCESS;
-			(void) time(&clock);
-			utmp->ut_time = clock;
-			pututline(utmp);
-
-			/* write same record to end of wtmp
-			 * if wtmp file exists
-			 */
-			if (stat(WTMP_FILE, &st) && errno == ENOENT)
-				break;
-			if ((fp = fopen(WTMP_FILE, "a")) != (FILE *) NULL) {
-				(void) fseek(fp, 0L, 2);
-				(void) fwrite((char *)utmp,sizeof(*utmp),1,fp);
-				(void) fclose(fp);
-			}
-		}
-	}
-	endutent();
+	make_utmp_wtmp( Device, TRUE );
 
         delay( prompt_waittime );
 	/* loop until a successful login is made
 	 */
 	for (;;) {
 
-		/* set Nusers value to number of users
+		/* set Nusers value to number of users currently logged in
 		 */
-		Nusers = 0;
-		setutent();
-		while ((utmp = getutent()) != (struct utmp *) NULL) {
-		    if (utmp->ut_type == USER_PROCESS)
-		    {
-			Nusers++;
-			/*lprintf(L_NOISE, "utmp entry (%s)", utmp->ut_name); */
-		    }
-		}
-		endutent();
-		/*lprintf(L_NOISE, "Nusers=%d", Nusers);*/
+		Nusers = get_current_users();
+		/* lprintf(L_NOISE, "Nusers=%d", Nusers); */
 
 		fputc('\r', stdout);	/* just in case */
 
@@ -599,7 +552,7 @@ int main( int argc, char ** argv)
 
 		(void) ioctl(STDIN, TCSETAW, &termio);
 
-		lprintf( L_MESG, "device=%s, pid=%d, calling 'login %s'...\n", Device, pid, buf );
+		lprintf( L_MESG, "device=%s, pid=%d, calling 'login %s'...\n", Device, getpid(), buf );
 
 		/* hand off to login, (can be a shell script!) */
 

@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.24 1993/08/24 23:18:49 gert Exp $ (c) Gert Doering */
+/* $Id: mgetty.h,v 1.25 1993/09/01 00:34:24 gert Exp $ (c) Gert Doering */
 
 /* stuff in logfile.c */
 
@@ -51,7 +51,6 @@ typedef struct	chat_actions {
 			action_t action; } chat_action_t ;
 
 /* do_chat.c */
-void	delay( int waittime );
 int	do_chat( char * expect_send[],
 	     	 chat_action_t actions[], action_t * action,
 		 int chat_timeout_time, boolean timeout_first,
@@ -60,6 +59,7 @@ int	clean_line( int tenths );
 
 /* io.c */
 boolean	check_for_input( int fd );
+void	delay( int waittime );
 
 /* locks.c */
 int	makelock(char * device);
@@ -68,6 +68,10 @@ sig_t	rmlocks();
   
 /* fax stuff */
 void faxrec( char * spool_dir );
+
+/* utmp.c */
+void make_utmp_wtmp( char * line, boolean login_process );
+int get_current_users( void );
 
 /* how long should I wait for a string from modem */
 #define FAX_RESPONSE_TIMEOUT	120
