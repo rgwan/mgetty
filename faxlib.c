@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.31 1997/12/11 22:11:39 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.32 1997/12/14 14:44:13 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -436,7 +436,7 @@ int fax_set_bor _P2( (fd, bor), int fd, int bor )
     char buf[20];
 #ifdef CLASS1
     if ( modem_type == Mt_class1 )
-		fax1_set_bor( fd, bor );
+		return fax1_set_bor( fd, bor );
 #endif
 
     faxmodem_bit_order = bor;
