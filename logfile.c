@@ -1,15 +1,8 @@
-#ident "$Id: logfile.c,v 4.8 2002/11/25 13:08:26 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logfile.c,v 4.9 2003/01/14 14:04:14 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
-#ifdef USE_VARARGS
-# if !defined(NeXT) || defined(NEXTSGTTY)
-#  include <varargs.h>
-# endif
-#else
-# include <stdarg.h>
-#endif
 #include <sys/types.h>
 #include <time.h>
 #include <errno.h>
@@ -18,6 +11,15 @@
 
 #include "mgetty.h"
 #include "policy.h"
+
+/* this must be included after ugly.h (sets USE_VARARGS on non-ANSI cc's) */
+#ifdef USE_VARARGS
+# if !defined(NeXT) || defined(NEXTSGTTY)
+#  include <varargs.h>
+# endif
+#else
+# include <stdarg.h>
+#endif
 
 #ifdef SYSLOG
 #include <syslog.h>
