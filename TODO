@@ -241,12 +241,7 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
 
 195) make "logging *only* to syslog" conditional compile
 
-196) add "post-faxinit-chat" ability - some modems (SUPRA) forget their
-     setup when receiving AT+FCLASS=<anything>. michal@math.ualberta.ca.
-
 197) +FAP (Sub-Adressing frames) support?
-
-198) rewrite RING / CND handling (completely!), get rid of #ifdef DIST_RING
 
 199) selectively reject fax reception (on sender ID)?
      http://www.vix.com/hylafax/setup-advanced.html#QualifyTSI
