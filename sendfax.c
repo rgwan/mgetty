@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 2.4 1994/12/11 18:12:13 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 2.5 1995/02/10 19:48:04 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -225,6 +225,8 @@ static int faxpoll_client_init _P2( (fd, cid), int fd, char * cid )
 
 RETSIGTYPE fax_sig_goodbye _P1( (signo), int signo )
 {
+    if ( call_start == 0 ) call_start = time(NULL);
+    
     lprintf( L_AUDIT, "failed, pid=%d, time=%ds, got signal %d, exiting...", 
 	     getpid(), ( time(NULL)-call_start ), signo );
     rmlocks();
