@@ -1,4 +1,4 @@
-#ident "@(#)cnd.c	$Id: cnd.c,v 3.2 1996/01/15 18:21:30 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "@(#)cnd.c	$Id: cnd.c,v 3.3 1996/11/10 18:45:26 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 
 #include <stdio.h>
 #include <string.h>
@@ -83,14 +83,14 @@ cndfind _P1((str), char *str)
        line consisting only of digits. So, if we get a line starting
        with a digit, let's assume that it's the CID...
      */
-#ifdef ELINK
     if ( isdigit(*str) )
     {
 	CallerId = p = strdup(str);
 	while( isdigit(*p) ) p++;
 	*p = 0;
+	lprintf( L_NOISE, "CND: ELink caller ID: '%s'", CallerId );
+	return;
     }
-#endif
 
     for (cp = cndtable; cp->string; cp++)
     {
