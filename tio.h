@@ -1,4 +1,4 @@
-#ident "$Id: tio.h,v 3.3 1996/02/25 22:19:44 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.h,v 3.4 1996/02/25 22:23:32 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 #ifndef __TIO_H__
 #define __TIO_H__
@@ -140,7 +140,7 @@ typedef tcflag_t tioflag_t;
 #define FLOW_XON_OUT	0x04		/* send data, honor xon/xoff */
 #define FLOW_SOFT	(FLOW_XON_IN | FLOW_XON_OUT)
 #define FLOW_BOTH	(FLOW_HARD | FLOW_SOFT )
-#deinfe FLOW_XON_IXANY	0x08		/* set IXANY flag together with IXON */
+#define FLOW_XON_IXANY	0x08		/* set IXANY flag together with IXON */
 
 /* queue selection flags (for tio_flush_queue) */
 #define TIO_Q_IN	0x01		/* incoming data queue */
