@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.65 1993/11/25 23:19:30 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.66 1993/11/26 22:21:13 gert Exp $ Copyright (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -614,6 +614,21 @@ int main _P2((argc, argv), int argc, char ** argv)
 		    
 		    execl( "/usr/lib/uucp/uucico", "uucico", "-L",
 			  buf, NULL );
+		}
+#endif
+
+#if FIDO
+		/* if the first character of the buffer is 0xff (\377),
+		 * it's a fido call (0xff cannot appear in the buffer
+		 * otherwise). Call "ifcico".
+		 */
+		if ( buf[0] == '\377' )
+		{
+		    setluid(uucpuid);
+		    setuid(uucpuid);
+
+		    execl( "/usr/local/lib/fnet/ifcico", "ifcico", buf,
+			  NULL );
 		}
 #endif
 		
