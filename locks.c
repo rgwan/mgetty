@@ -1,4 +1,4 @@
-#ident "$Id: locks.c,v 1.23 1994/03/01 15:46:45 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
+#ident "$Id: locks.c,v 1.24 1994/03/01 15:50:37 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
 ;
 /* large parts of the code in this module are taken from the
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us,
@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <ctype.h>
