@@ -1,3 +1,44 @@
+Sat Feb 24 10:25:25 2001  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* All of below is 0.9.25.
+
+	* Support for the Lucent-based Modem Blaster USB modem,
+	contributed by Glen Stewart <root@associate.com>.
+
+	* Steffen Klupsch <steffen@vlsi.informatik.tu-darmstadt.de>
+ 	and Juergen.Kosel@gmx.de contributed changes to enhance
+ 	voice_set_device(), and V253modem definitions.
+	Enhanced distinctive ringing. Enhancements for ELSA and
+	V253modem. New `forceV253' option in configuration to override
+	detection. Fixed dependancies. New `devicetest' command in vm, which
+	lists the supported output devices. Different set of message
+	files option in configuration. Out of area and private service
+	token.
+	
+	* Fixes from Matti Airas <mairas@iki.fi> for a better hangup
+	detection with ISDN4Linux. Will probably require similar changes
+	to all of the drivers. Also fix for Vgetty.pm to support it,
+	including documentation, and fix to avoid Vgetty.pm to litter
+	STDERR with `uninitialized value' errors.
+
+	* Added reference to an Interactive Voice Response System
+	which uses the pvftools, but otherwise seems to have reimplemented,
+	in Perl, the US Robotics modem support, to the Readme.
+
+	* Added two documentations in doc/, contributed by
+	Juergen.Kosel@gmx.de.
+	
+	* Added support for the internal modem MultiTech MT5634ZPX-PCI,
+	contributed by Michael Dratz <md@1box.de>, including changes
+	to pvf utils.
+
+	* Added synonymous "NO DIALTONE" in libvoice/analyze.c, contributed
+	by Michael Dratz <md@1box.de> and required in at least one
+	Multitech variant.
+
+	* Contribution from Hermann Hüni for using the vgetty interface
+	from a Tcl/Tk script.
+
 Mon Jan 29 23:38:15 MET 2001  Gert Doering <gert@greenie.muc.de>
 
 	* voice/libvoice/init.c: make "mgetty" speed the same as 
