@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.62 1993/11/12 15:19:16 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.63 1993/11/13 19:28:54 gert Exp $ Copyright (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -586,6 +586,28 @@ int main _P2((argc, argv), int argc, char ** argv)
 		lprintf( L_MESG, "device=%s, pid=%d, calling 'login %s'...\n", Device, getpid(), buf );
 
 		/* hand off to login, (can be a shell script!) */
+		
+#ifdef UGLY_TAYLOR_UUCP_HACK
+		/* this is a hack to spare me creating real logins for
+		 * all UUCP callers. Instead, authentification is done
+		 * by Taylor UUCICO. It is passed the "login name" with
+		 * the "-L" switch (another hack by me).
+		 *
+		 * The real benefit is that Taylor UUCICO can thus also
+		 * run as "uucpd", without having to enter all passwords
+		 * twice, once in the system passwd and once in taylor's.
+		 */
+		 
+		if ( buf[0] == 'U' && strlen(buf) > 1 )
+		{
+		    setluid(uucpuid);			/* login user id */
+		    setuid(uucpuid);			/* user id */
+		    
+		    execl( "/usr/lib/uucp/uucico", "uucico", "-L",
+			  buf, NULL );
+		}
+#endif
+		
 		(void) execl(login, "login", buf[0]? buf: NULL, NULL);
 		(void) execl("/bin/sh", "sh", "-c",
 				login, buf, (char *) NULL);
