@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.43 2000/12/21 22:16:37 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.44 2001/01/05 17:51:46 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -292,8 +292,8 @@ MV=mv
 # Nothing to change below this line ---------------------------------!
 #
 MR=1.1
-SR=23
-DIFFR=1.1.22
+SR=24
+DIFFR=1.1.23
 #
 #
 OBJS=mgetty.o logfile.o do_chat.o locks.o utmp.o logname.o login.o \
@@ -314,12 +314,12 @@ bin-all: mgetty sendfax newslock subdirs call-back
 
 mgetty.o : mgetty.c syslibs.h mgetty.h ugly.h policy.h tio.h fax_lib.h \
 	config.h mg_utmp.h Makefile
-	$(CC) $(CFLAGS) -DFAX_SPOOL_IN=\"$(FAX_SPOOL_IN)\" \
-		-DVARRUNDIR=\"$(VARRUNDIR)\" -c mgetty.c
+	$(CC) $(CFLAGS) -DVARRUNDIR=\"$(VARRUNDIR)\" -c mgetty.c
 
 conf_mg.o : conf_mg.c mgetty.h ugly.h policy.h syslibs.h \
 	config.h conf_mg.h Makefile
-	$(CC) $(CFLAGS) -DCONFDIR=\"$(CONFDIR)\" -c conf_mg.c
+	$(CC) $(CFLAGS) -DFAX_SPOOL_IN=\"$(FAX_SPOOL_IN)\" \
+		-DCONFDIR=\"$(CONFDIR)\" -c conf_mg.c
 
 conf_sf.o : conf_sf.c mgetty.h ugly.h policy.h syslibs.h \
 	config.h conf_sf.h Makefile
