@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 4.6 1997/10/31 12:54:21 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 4.7 1997/11/26 17:09:58 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -53,7 +53,7 @@ void exit_usage _P2( (program, msg ),
     fprintf( stderr,
 	     "usage: %s [options] <fax-number> <page(s) in g3-format>\n", program);
     fprintf( stderr,
-	     "\tvalid options: -p, -h, -v, -l <device(s)>, -x <debug>, -n, -S, -r\n");
+	     "\tvalid options: -p, -v, -l <device(s)>, -x <debug>, -n, -S, -r, -D <x>\n");
     lprintf( L_AUDIT, "failed: command line error" );
     exit(1);
 }
