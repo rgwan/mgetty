@@ -4,7 +4,7 @@
  * rmdtopvf converts from the rmd (raw modem data) format to the pvf
  * (portable voice format) format.
  *
- * $Id: rmdtopvf.c,v 1.8 2000/06/11 16:19:14 marcs Exp $
+ * $Id: rmdtopvf.c,v 1.9 2000/07/22 10:01:02 marcs Exp $
  *
  */
 
@@ -42,7 +42,7 @@ static void supported_formats (void)
      fprintf(stderr, " - US Robotics    1 and 4 (GSM and G.721 ADPCM)\n");
      fprintf(stderr, " - ZyXEL 1496     2, 3 and 4 bit ZyXEL ADPCM\n");
      fprintf(stderr, " - ZyXEL 2864     2, 3 and 4 bit ZyXEL ADPCM\n");
-     fprintf(stderr, " - ZyXEL Omni 56K 4 bit IMA ADPCM\n\n");
+     fprintf(stderr, " - ZyXEL Omni 56K 4 bit Digispeech ADPCM (?)\n\n");
      exit(ERROR);
      }
 
@@ -149,12 +149,18 @@ int main (int argc, char *argv[])
           exit(ERROR);
           }
 
-     if ((strcmp(modem_type, "Multitech2834") == 0 ||
-          strcmp(modem_type, "ZyXEL Omni 56K") == 0) &&
-         (compression == 4))
+     if (strcmp(modem_type, "Multitech2834") == 0 && compression == 4)
           {
 
           if (imaadpcmtopvf(fd_in, fd_out, &header_out) == OK)
+               exit(OK);
+
+          }
+
+     if (strcmp(modem_type, "ZyXEL Omni 56K") == 0 && compression == 4)
+          {
+
+          if (zo56ktopvf(fd_in, fd_out, &header_out) == OK)
                exit(OK);
 
           }

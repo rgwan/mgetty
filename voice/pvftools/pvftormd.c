@@ -4,7 +4,7 @@
  * pvftormd converts from the pvf (portable voice format) format to the
  * rmd (raw modem data) format.
  *
- * $Id: pvftormd.c,v 1.8 2000/06/11 16:19:14 marcs Exp $
+ * $Id: pvftormd.c,v 1.9 2000/07/22 10:01:01 marcs Exp $
  *
  */
 
@@ -40,7 +40,7 @@ static void supported_formats (void)
      fprintf(stderr, " - US_Robotics   1 and 4 (GSM and G.721 ADPCM)\n");
      fprintf(stderr, " - ZyXEL_1496    2, 3 and 4 bit ZyXEL ADPCM\n");
      fprintf(stderr, " - ZyXEL_2864    2, 3 and 4 bit ZyXEL ADPCM\n");
-     fprintf(stderr, " - ZyXEL_Omni56K 4 bit IMA ADPCM\n");
+     fprintf(stderr, " - ZyXEL_Omni56K 4 bit Digispeech ADPCM (?)\n");
      fprintf(stderr, "\nexample:\n\t%s Rockwell 4 infile.pvf outfile.rmd\n\n",
       program_name);
      exit(ERROR);
@@ -253,9 +253,7 @@ int main (int argc, char *argv[])
 
           };
 
-     if ((strcmp(modem_type, "Multitech2834") == 0 ||
-          strcmp(modem_type, "ZyXEL Omni 56K") == 0) &&
-         (compression == 4))
+     if (strcmp(modem_type, "Multitech2834") == 0 && compression == 4)
           {
           header_out.bits = compression;
 
@@ -270,6 +268,40 @@ int main (int argc, char *argv[])
                }
 
           if (pvftoimaadpcm(fd_in, fd_out, &header_in) == OK)
+               exit(OK);
+
+          }
+
+     if (strcmp(modem_type, "ZyXEL Omni 56K") == 0 && compression == 4)
+          {
+          header_out.bits = compression;
+
+          if (header_in.speed != 9600)
+               {
+               fprintf(stderr, "%s: Unsupported sample speed (%d)\n",
+                program_name, header_in.speed);
+               fprintf(stderr, "%s: The ZyXEL Omni 56K"
+                " only supports 9600 samples per second\n",
+                program_name);
+               fclose(fd_out);
+
+               if (fd_out != stdout)
+                    unlink(name_out);
+
+               exit(FAIL);
+               };
+
+          if (write_rmd_header(fd_out, &header_out) != OK)
+               {
+               fclose(fd_out);
+
+               if (fd_out != stdout)
+                    unlink(name_out);
+
+               exit(ERROR);
+               }
+
+          if (pvftozo56k(fd_in, fd_out, &header_in) == OK)
                exit(OK);
 
           }

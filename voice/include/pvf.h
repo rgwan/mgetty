@@ -3,7 +3,7 @@
  *
  * Contains the constants and function prototypes for the pvf tools
  *
- * $Id: pvf.h,v 1.5 1999/01/30 18:42:24 marcs Exp $
+ * $Id: pvf.h,v 1.6 2000/07/22 10:01:01 marcs Exp $
  *
  */
 
@@ -89,6 +89,9 @@ extern int pvftozyxel (FILE *fd_in, FILE *fd_out, int nbits,
  pvf_header *header_in);
 extern int zyxeltopvf (FILE *fd_in, FILE *fd_out, int nbits,
  pvf_header *header_out);
+
+extern int pvftozo56k (FILE *fd_in, FILE *fd_out, pvf_header *header_in);
+extern int zo56ktopvf (FILE *fd_in, FILE *fd_out, pvf_header *header_out);
 
 extern int pvftousr (FILE *fd_in, FILE *fd_out, int compression,
  pvf_header *header_in);

@@ -3,10 +3,11 @@
 #
 # This is the Makefile for libpvf.
 #
-# $Id: Makefile,v 1.4 1998/09/09 21:06:57 gert Exp $
+# $Id: Makefile,v 1.5 2000/07/22 10:01:01 marcs Exp $
 #
 
-PVFOBJS=au.o fft.o lib.o linear.o multitech.o rockwell.o usr.o voc.o wav.o zyxel.o
+PVFOBJS=au.o fft.o lib.o linear.o multitech.o rockwell.o usr.o voc.o wav.o \
+	zyxel.o zyxel-o56k.o
 
 .c.o:
 	$(CC) $(CFLAGS) -c $*.c
