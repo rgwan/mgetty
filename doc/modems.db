@@ -1305,3 +1305,27 @@ However, it seems that work is in progress for fax class 1 support 8-)
 I use efax for sending faxes right now.
 
 -----------------------------------------------------------------------
+Date: Wed, 22 Jul 1998 19:16:04 -0300
+From: Claudemir Todo Bom <allgood@conection.com.br>
+To: Gert Doering <gert@greenie.muc.de>, mgetty@muc.de
+Subject: Re: Problems on sending to a Toshiba fax machine
+
+Modem brand/modem:	"Yanco NetSpeed ESV33.6"
+at+fmfr?		CIS
+at+fmdl?		RM-3314E,VERSION 1.10.1a,04-05-02
+at+frev?		VERSION 1.10.1a,04-05-02
+ati3			same as at+fmdl?
+tested on:		Linux 2.0.33
+working:		sendfax, faxspool, faxrunq (mgetty not tested)
+remarks:		Great work with fax transmission, not tested
+			for incoming faxes and mgetty. Transmits faxes
+			from Brazil to various european countries.
+			Probably available only on Brazilian stores.
+
+#define DEFAULT_MODEMTYPE "cls2"	/* or auto */
+#define FAX_MODEM_HANDSHAKE "AT&K3" 	/* Rockwell based */
+#define FAX_SEND_IGNORE_CARRIER		/* only tested with this */
+#define FAXSEND_NO_XON			/* needed */
+
+
+-----------------------------------------------------------------------
