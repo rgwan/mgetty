@@ -1,4 +1,4 @@
-#ident "$Id: gettydefs.c,v 3.1 1995/08/30 12:40:40 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "$Id: gettydefs.c,v 3.2 1996/12/01 13:59:29 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 
 /* gettydefs.c
  *
@@ -146,6 +146,9 @@ static struct modeword cflags[] = {
 #endif
 #ifdef B57600
     { "B57600", B57600, CBAUD },
+#endif
+#ifdef B76800
+    { "B76800", B76800, CBAUD },
 #endif
 #ifdef B115200
     { "B115200", B115200, CBAUD },

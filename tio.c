@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 3.11 1996/11/24 12:11:25 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 3.12 1996/12/01 13:59:28 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* tio.c
  *
@@ -114,6 +114,9 @@ static struct	speedtab {
 #endif
 #ifdef	B57600
 	{ B57600, 57600, "57600" },
+#endif
+#ifdef	B76800
+	{ B76800, 76800, "76800" },
 #endif
 #ifdef	B115200
 	{ B115200,115200,"115200"},
