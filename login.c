@@ -1,4 +1,4 @@
-#ident "$Id: login.c,v 4.3 1998/04/16 08:01:20 gert Exp $ Copyright (C) 1993 Gert Doering"
+#ident "$Id: login.c,v 4.4 1998/05/12 15:15:21 gert Exp $ Copyright (C) 1993 Gert Doering"
 
 
 /* login.c
@@ -102,7 +102,8 @@ boolean match _P2( (user,key), char * user, char * key )
  * does *NOT* return
  */
 
-void login_dispatch _P1( (user), char * user )
+void login_dispatch _P2( (user, is_callback ),  
+			 char * user, boolean is_callback )
 {
     char * argv[10];
     int	argc = 0;
@@ -112,6 +113,7 @@ void login_dispatch _P1( (user), char * user )
     /* read "mgetty.login" config file */
 #ifdef LOGIN_CFG_FILE
     FILE * fp = NULL;
+    int file_version = 1;		/* login.config format changed! */
     char * line, * key, *p;
     struct passwd * pw;
     extern struct passwd * getpwnam();
@@ -146,6 +148,22 @@ void login_dispatch _P1( (user), char * user )
 	while ( ( line = fgetline( fp ) ) != NULL )
     {
 	norm_line( &line, &key );
+
+	/* as the format of login.config has changed over time, we have
+	 * to have "file versions", set by the '!version <n>' keyword
+	 */
+	if ( strcmp( key, "!version" ) == 0 )
+	{
+	    file_version = atoi(line);
+	    if ( file_version < 1 || file_version > 2 )
+	    {
+		errno = EINVAL;
+		lprintf( L_ERROR, "login: invalid file version '%s'", line);
+		file_version = 1;
+	    }
+	    lprintf( L_NOISE, "login: version %d", file_version);
+	    continue;
+	}
 
 	if ( match( user, key ) )
 	{
