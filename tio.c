@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 1.4 1993/10/29 19:44:04 gert Exp $ Copyright (c) 1993 Gert Doering";
+#ident "$Id: tio.c,v 1.5 1993/11/05 23:06:29 gert Exp $ Copyright (c) 1993 Gert Doering";
 
 /* tio.c
  *
@@ -16,6 +16,17 @@ static char tio_compilation_type[]="@(#) compiled with SYSV_TERMIO";
 #endif
 #ifdef BSD_SGTTY
 static char tio_compilation_type[]="@(#) compiled with BSD_SGTTY";
+#endif
+
+/* some systems do not define all flags needed later, e.g. NetBSD */
+
+#ifdef BSD
+# ifndef IUCLC
+# define IUCLC 0
+# endif
+# ifndef TAB3
+# define TAB3 OXTABS
+# endif
 #endif
 
 int tio_get _P2((fd, t), int fd, TIO *t )
@@ -133,7 +144,7 @@ void tio_mode_sane _P2( (t, local), TIO * t, int local )
     t->c_cflag|= CS8 | CREAD | HUPCL | ( local? CLOCAL:0 );
     t->c_lflag = ECHOK | ECHOE | ECHO | ISIG | ICANON;
 
-#if !defined(__hpux) && !defined(SVR4)
+#if !defined(POSIX_TERMIOS)
     t->c_line  = 0;
 #endif
     
