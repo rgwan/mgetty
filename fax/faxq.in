@@ -4,7 +4,7 @@
 #
 # like "lpq" or "mailq", show jobs waiting in the output queue
 #
-# SCCS: $Id: faxq.in,v 3.1 1995/08/30 12:38:50 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxq.in,v 3.2 1995/09/15 13:57:13 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -82,6 +82,7 @@ do
        test ! -z "$INPUT" && \
 	$echo "\t    Input: $INPUT"
 	$echo "\t    Pages: $PAGES"
+       test ! -z "$TIME" && \
 	$echo "\tSend time: $TIME"
 	sed -e '/Status/!d' -e 's/Status/           Status:/' $i
 	expr $i : ".*done$" >/dev/null ||
