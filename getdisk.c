@@ -1,4 +1,4 @@
-#ident "@(#)getdisk.c $Id: getdisk.c,v 3.1 1995/08/30 12:40:39 gert Exp $ Copyright (c) 1994 Elegant Communications Inc."
+#ident "@(#)getdisk.c $Id: getdisk.c,v 3.2 1995/11/24 21:36:45 gert Exp $ Copyright (c) 1994 Elegant Communications Inc."
 
 /*
 
@@ -45,6 +45,12 @@
 
 #include "policy.h"
 #include "mgetty.h"
+
+/* some systems define this in an include file somewhere below, and mgetty.h
+   defines it as well. So just #undef it, we don't need it here anyway
+ */
+#undef MAXPATH
+
 
 /* for the most part, these defines are simply used to show which
    systems need which type of statfs/ustat().  They can all be
