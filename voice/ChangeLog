@@ -2,6 +2,8 @@
 
 	* All of below is 0.9.32
 
+	* Fixed libpvf/usr.c compilation warning.
+
 	* Enhancements to doc/Readme.voice_shell.
 
 	* Fix to libvoice/shell.c
