@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 1.26 1994/01/17 18:27:19 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logfile.c,v 1.27 1994/01/23 11:50:23 gert Exp $ Copyright (c) Gert Doering"
 ;
 #include <stdio.h>
 #include <unistd.h>
@@ -15,8 +15,11 @@
 #ifdef SYSLOG
 #include <syslog.h>
 
+#ifndef linux
 int openlog _PROTO(( char *, int, int ));
 int syslog _PROTO(( int, char *, ... ));
+#endif
+
 #endif
 
 int log_level = LOG_LEVEL;	/* set default log level threshold (jcp) */
