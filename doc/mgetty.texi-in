@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.21 1998/06/01 16:25:03 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.22 1998/06/09 21:44:43 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -716,6 +716,10 @@ Note: this can not only be used to decide whether to accept a call or not.
 You could as well use it to display the caller ID on an external LCD
 screen, in an X11 window, print it, initiate a D-Channel Callback, or do 
 whatever you want that needs the Caller ID data.
+
+@strong{Note2: be careful what kind of programs you call! They run with
+user id 0 (root), so that could easily be a security risk if you're not
+careful.}
 
 @node runtime-mgetty,  , Caller-ID, mgetty
 @section Runtime configuration for mgetty: @file{mgetty.config}
@@ -3818,9 +3822,11 @@ ftp.leo.org:@file{/pub/comp/os/unix/networking/mgetty/*}
 
 ftp.mathematik.th-darmstadt.de:@file{/pub/linux/mirrors/misc/mgetty/*}
 
-linux.nrao.edu:@file{/pub/packages/mgetty+sendfax/*}
+linux.nrao.edu:@file{/pub/src/mgetty/*}
 
 ftp.chem.tue.nl:@file{/pub/mgetty/*}
+
+http://linux.mit-lab.co.kr/mgetty/*
 
 ... and on all sites that mirror SunSITE.unc.edu or tsx-11.
 
