@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.45 1994/04/27 00:24:33 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 1.46 1994/05/14 16:11:28 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -12,9 +12,7 @@
  */
 
 #include <stdio.h>
-#ifndef _NOSTDLIB_H
-#include <stdlib.h>
-#endif
+#include "syslibs.h"
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
@@ -22,7 +20,6 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/times.h>
-#include <malloc.h>
 
 #ifndef sun
 #include <sys/ioctl.h>
@@ -75,13 +72,18 @@ extern  char * Device;
 
     tio_mode_raw( &tio );		/* no input or output post-*/
 					/* processing, no signals */
-    tio_set_flow_control( STDIN, &tio,
-			 (FAXREC_FLOW) & (FLOW_HARD|FLOW_XON_IN) );
     tio_set( STDIN, &tio );
 
     /* read: +FTSI:, +FDCS, OK */
 
     fax_wait_for( "OK", 0 );
+
+    /* *now* set flow control (we could have set it earlier, but on SunOS,
+     * enabling CRTSCTS while DCD is low will make the port hang)
+     */
+    tio_set_flow_control( STDIN, &tio,
+			 (FAXREC_FLOW) & (FLOW_HARD|FLOW_XON_IN) );
+    tio_set( STDIN, &tio );
 
     fax_get_pages( 0, &pagenum, spool_in );
 
@@ -89,10 +91,8 @@ extern  char * Device;
     if ( faxpoll_server_file != NULL && fax_poll_req )
     {
 	lprintf( L_AUDIT, "fax poll: send %s...", faxpoll_server_file );
-	/* send page */
-	fax_send_page( faxpoll_server_file, &tio, 0 );
-	/* no more pages */
-	fax_command( "AT+FET=2", "OK", 0 );
+	/* send page, no mor pages to follow */
+	fax_send_page( faxpoll_server_file, &tio, pp_eop, 0 );
     }
 
     call_done = time(NULL);
@@ -295,7 +295,12 @@ extern  char * Device;
 	{
 	    if ( c == DLE ) fputc( c, fax_fp );		/* DLE DLE -> DLE */
 	    else
-	    if ( c == ETX ) break;			/* DLE ETX -> end */
+	      if ( c == SUB )				/* DLE SUB -> 2x DLE */
+	    {						/* (class 2.0) */
+		fputc( DLE, fax_fp ); fputc( DLE, fax_fp );
+	    }
+	    else
+	      if ( c == ETX ) break;			/* DLE ETX -> end */
 	    
 	    WasDLE = 0;
 	}
@@ -385,7 +390,7 @@ static const char start_rcv = DC2;
 	/* send command to receive next page
 	 * and to release post page response (+FPTS) to remote fax
 	 */
-	fax_send( "AT+FDR\r\n", fd );
+	fax_send( "AT+FDR", fd );
 
 	/* read: +FCFR, [+FDCS:], CONNECT */
 	/* if it was the *last* page, modem will send +FHNG:0 ->
