@@ -7,7 +7,7 @@
  * wav.c, found in sox-11-gamma. Thank you for some funtions.
  * This is the 1. alpha release from 1997/2/14
  *
- * $Id: wav.c,v 1.6 2000/07/22 09:57:46 marcs Exp $
+ * $Id: wav.c,v 1.7 2005/03/13 11:40:10 gert Exp $
  */
 
 #include "../include/voice.h"
@@ -448,7 +448,10 @@ int pvftowav (FILE *fd_in, FILE *fd_out, pvf_header *header_in, int wav_bits)
           if (voice_samples >= buffer_size)
                {
                buffer_size += BLOCK_SIZE;
-               buffer = (int *) realloc(buffer, buffer_size * sizeof(int));
+	       if ( buffer == NULL )
+		   buffer = (int *) malloc( buffer_size * sizeof(int) );
+	       else
+                   buffer = (int *) realloc(buffer, buffer_size * sizeof(int));
 
                if (buffer == NULL)
                     {

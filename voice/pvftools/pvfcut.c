@@ -4,7 +4,7 @@
  * pvfcut removes heading and/or trailing parts of a voice file. Input and
  * output is in the pvf (portable voice format) format.
  *
- * $Id: pvfcut.c,v 1.5 1999/03/16 09:59:22 marcs Exp $
+ * $Id: pvfcut.c,v 1.6 2005/03/13 11:39:32 gert Exp $
  *
  */
 
@@ -142,7 +142,10 @@ int main (int argc, char *argv[])
           if (voice_samples >= buffer_size)
                {
                buffer_size += BLOCK_SIZE;
-               buffer = (int *) realloc(buffer, buffer_size * sizeof(int));
+	       if ( buffer == NULL )
+		   buffer = (int *) malloc(buffer_size * sizeof(int));
+	       else
+		   buffer = (int *) realloc(buffer, buffer_size * sizeof(int));
 
                if (buffer == NULL)
                     {
