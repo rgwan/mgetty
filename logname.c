@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 4.3 1998/04/02 16:45:08 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 4.4 1998/04/05 13:15:11 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include "syslibs.h"
@@ -88,6 +88,13 @@ char * ln_escape_prompt _P1( (ep), char * ep )
 	      case 'v': p[i++] = '\013'; break;
 	      case 'f': p[i++] = '\f'; break;
 	      case 't': p[i++] = '\t'; break;
+	      case 'Y':					/* Caller ID */
+		{
+		extern char * CallerId;
+		    if ( i + strlen(CallerId) +1 > MAX_PROMPT_LENGTH ) break;
+		    i += strappnd( &p[i], CallerId );
+		    break;
+		}
 	      case 'P':					/* port name */
 	      case 'L':					/* tty line */
 		{
