@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 1.19 1994/04/24 12:53:59 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 1.20 1994/04/25 01:22:32 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there).
@@ -242,7 +242,7 @@ DISTRIB=README.1st THANKS TODO FTP inittab.aix inst.sh \
 	contrib/gslp-iso.p contrib/dvi-fax \
 	contrib/new_fax.lj contrib/new_fax.mail contrib/new_fax.pbm \
 	contrib/log_diags \
-	dialog/playback.sh dialog/faxv \
+	dialog/faxv dialog/listen \
 	doc/Makefile doc/modems.db doc/mgetty.texi \
 	doc/g3topbm.1 doc/g3cat.1 doc/sendfax.8 doc/faxspool.1 \
 	doc/faxrunq.1 doc/faxq.1 doc/faxrm.1 doc/mgettydefs.4 \
@@ -255,8 +255,9 @@ DISTRIB=README.1st THANKS TODO FTP inittab.aix inst.sh \
 	voice/pvfutil.c voice/pvfadpcm.c voice/pvfau.c voice/pvfvoc.c \
 	voice/pvfsine.c \
 	voice/rsynth-0.9.linuxA.pch voice/speakdate \
-	voice/vg_button voice/vg_dtmf voice/vg_message voice/vg_nmp \
-	voice/vg_say voice/play_messages voice/pvf.1 voice/zplay.1
+	voice/vg_button.in voice/vg_dtmf.in voice/vg_message.in \
+	voice/vg_nmp.in voice/vg_say.in voice/play_messages.in \
+	voice/pvf.1 voice/zplay.1
 
 noident: policy.h
 	    for file in $(DISTRIB) policy.h ; do \
@@ -284,6 +285,7 @@ mksed: mksed.c policy.h Makefile
 		-DLIBDIR=\"$(LIBDIR)\" \
 		-DFAX_SPOOL_OUT=\"$(FAX_SPOOL)/outgoing\" \
 		-DAWK=\"$(AWK)\" \
+		-DVOICE_DIR=\"$(VOICE_DIR)\" \
 	-o mksed mksed.c
 
 policy.h-dist: policy.h
@@ -397,7 +399,7 @@ vgetty:
 	LN="$(LN)" ZYXEL_R610=$(ZYXEL_R610) VOICE_DIR="$(VOICE_DIR)" \
 	vgetty-all
 
-vgetty-install:
+vgetty-install: sedscript
 	cd voice; $(MAKE) CFLAGS="$(CFLAGS)" CC="$(CC)" LDFLAGS="$(LDFLAGS)" \
 	BINDIR="$(BINDIR)" SBINDIR="$(SBINDIR)" LIBDIR="$(LIBDIR)" \
 	MAN1DIR="$(MAN1DIR)" INSTALL="$(INSTALL)" \
