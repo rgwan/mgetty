@@ -1,10 +1,10 @@
-#ident "$Id: mg_utmp.h,v 1.2 1994/04/29 01:15:27 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_utmp.h,v 1.3 1994/06/03 21:56:19 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* definitions for utmp reading / writing routines,
  * highly SysV / BSD dependent
  */
 
-#if !defined(sun) && !defined(BSD)		/* SysV style */
+#if !defined(sun) && !defined(BSD) && !defined(ultrix) /* SysV style */
 
 #include <utmp.h>
 

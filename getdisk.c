@@ -1,4 +1,4 @@
-#ident "@(#)getdisk.c $Id: getdisk.c,v 1.7 1994/05/29 22:32:22 gert Exp $ Copyright (c) 1994 Elegant Communications Inc."
+#ident "@(#)getdisk.c $Id: getdisk.c,v 1.8 1994/06/03 21:56:20 gert Exp $ Copyright (c) 1994 Elegant Communications Inc."
 ;
 /*
 
@@ -80,7 +80,7 @@
 # define SVR4
 #endif
 
-#if defined(vriscultrix) || defined(vultrix)
+#ifdef ultrix
 # define ULTRIXSTATFS
 #endif
 
