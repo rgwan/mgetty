@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.124 1994/08/09 11:29:16 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.125 1994/08/09 11:33:23 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -632,7 +632,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 	      case A_FAX:	/* +FCON */
 		mgetty_state = St_incoming_fax; break;
 	      default:
-		lprintf( L_MESG, "unecpected action: %d", what_action );
+		lprintf( L_MESG, "unexpected action: %d", what_action );
 		exit(20);
 	    }
 #endif
@@ -737,7 +737,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 			          Device, getpid(), CallerId );
 		exit(20);
 	      default:
-		lprintf( L_MESG, "unecpected action: %d", what_action );
+		lprintf( L_MESG, "unexpected action: %d", what_action );
 		exit(20);
 	    }
 	    break;
