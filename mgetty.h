@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.h,v 1.51 1994/03/06 17:02:16 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 1.52 1994/03/08 15:35:16 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.h
  *
@@ -109,10 +109,6 @@ void	faxpoll_server_init _PROTO(( char * fax_server_file ));
 
 /* login stuff */
 void login _PROTO(( char * user ));
-
-/* utmp.c */
-void	make_utmp_wtmp _PROTO(( char * line, boolean login_process ));
-int	get_current_users _PROTO(( void ));
 
 /* how long should I wait for a string from modem */
 #define FAX_RESPONSE_TIMEOUT	120
