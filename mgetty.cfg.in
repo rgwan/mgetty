@@ -51,7 +51,7 @@ speed @SPEED@
 #  speed 38400
 #  switchbd 19200
 
-# ZyXEL 2864, connected to ttyS1: maximum debugging, grab statistics
+# ZyXEL 2864, connected to ttyS2: maximum debugging, grab statistics
 #
 #port ttyS2
 #  debug 8
