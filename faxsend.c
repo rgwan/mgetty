@@ -1,4 +1,4 @@
-#ident "$Id: faxsend.c,v 1.10 1994/08/22 01:27:59 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: faxsend.c,v 1.11 1994/09/21 14:42:02 gert Exp $ Copyright (c) 1994 Gert Doering"
 
 /* faxsend.c
  *
@@ -122,6 +122,9 @@ int rc;				/* return code */
 	return ERROR;
     }
 
+    /* alarm handler */
+    signal( SIGALRM, fax_send_timeout );
+
     /* when modem is ready to receive data, it will send us an XON
      * (20 seconds timeout)
      *
@@ -134,7 +137,6 @@ int rc;				/* return code */
     {
 	lprintf( L_NOISE, "waiting for XON, got:" );
 
-	signal( SIGALRM, fax_send_timeout );
 	alarm( 20 );
 	do
 	{
@@ -249,15 +251,6 @@ int rc;				/* return code */
 	    w_total += w;
 	    w_refresh += w;
 	    
-	    /* drain output */
-	    /* well, since the handshake stuff seems to work now,
-	     * this shouldn't be necessary anymore (but if you have
-	     * problems with missing scan lines, you could try this)
-	     */
-#if 0
-	    ioctl( fd, TCSETAW, tio );
-#endif
-
 	    /* look if there's something to read
 	     *
 	     * normally there shouldn't be anything, but I have
@@ -307,6 +300,11 @@ int fax_send_ppm _P3( (fd, tio, ppm),
 		      int fd, TIO * tio, Post_page_messages ppm )
 {
     int rc;
+
+    /* set alarm clock to a time long enough to handle *very* slow links
+     * on modems with *very* large buffers (2400 / ZyXEL...)
+     */
+    alarm( FAX_RESPONSE_TIMEOUT );
     
     if ( modem_type == Mt_class2_0 )
     {
