@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 3.1 1995/08/30 12:40:50 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 3.2 1995/11/12 15:27:23 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -325,7 +325,7 @@ int main _P2((argc, argv), int argc, char ** argv)
        - loading the gettydefs file if enabled.
        - setting port speed appropriately, if not set yet.
        */
-    gettermio(c_string(gettydefs_tag), TRUE, &tio);
+    gettermio(c_string(gettydefs_tag), TRUE, (TIO *) NULL);
 
     /* open + initialize device (mg_m_init.c) */
     if ( mg_get_device( devname, c_bool(blocking),
@@ -917,7 +917,7 @@ gettermio _P3 ((id, first, tio), char *id, boolean first, TIO *tio )
 #endif
 
     /* default setting */
-    tio_mode_sane( tio, FALSE );
+    if ( tio != NULL ) tio_mode_sane( tio, FALSE );
     rp = NULL;
 
 #ifdef USE_GETTYDEFS
@@ -940,6 +940,7 @@ gettermio _P3 ((id, first, tio), char *id, boolean first, TIO *tio )
 		 c.speed.flags == C_PRESET )	/* -> use gettydefs */
 	        conf_set_int( &c.speed, tio_get_speed( &(gdp->before)) );
 	} else		/* "after" -> set termio flags *BUT NOT* speed */
+            if ( tio != NULL )
 	{
 	    *tio = gdp->after;
 	    tio_set_speed( tio, c_int(speed) );
