@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.53 1993/10/22 11:13:55 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.54 1993/10/26 22:09:45 gert Exp $ Copyright (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -163,7 +163,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 	action_t	what_action;
 	int		rings;
 
-#ifdef _3B1_
+#if defined(_3B1_) || defined(MEIBE)
 	typedef ushort uid_t;
 	typedef ushort gid_t;
 	extern struct passwd *getpwuid(), *getpwnam();
