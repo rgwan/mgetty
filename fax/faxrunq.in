@@ -9,7 +9,7 @@
 # There are still a lot rough edges - but it works, and should give you an
 # idea how to improve it
 #
-# SCCS: $Id: faxrunq.in,v 1.9 1994/03/07 18:57:52 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxrunq.in,v 1.10 1994/04/09 13:47:28 gert Exp $ Copyright (C) 1994 Gert Doering
 
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -132,7 +132,10 @@ do
 	  $echo "Your fax has been sent successfully at: \c"
 	  date
 	  $echo "\n\nJob / Log file:"
-	  cat JOB.locked ) |
+	  cat JOB.locked
+	  tries=`grep Status JOB.locked | sed -e '1d' | wc -l`
+	  $echo "\nSending succeeded after" $tries "unsuccessful tries."
+	) |
 	$MAILER "$MAIL_TO"
 
 	# update accounting log
