@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 3.5 1997/01/08 08:33:06 gert Exp $ (c) 1993,1994 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 3.6 1997/01/12 14:51:06 gert Exp $ (c) 1993,1994 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -1003,15 +1003,13 @@ This specifies the maximum time the user can take to log in. If no login
 has occured after that time, @code{mgetty} will hang up. Default is
 @code{MAX_LOGIN_TIME} from @file{policy.h}.
 
-@strong{NOT implemented yet}
-
 @item @code{fido-send-emsi} @var{yes/no}
 
 Only relevant when mgetty was compiled with @code{-DFIDO}. Controls
 whether mgetty should send a FidoNET style ``EMSI_REQA77E'' packet before
 prompting for login. Default is on. Switch this off if you have FIDO
 support compiled in but experience weird problems with some PPP clients
-or some being confused by that string.
+(or users!) being confused by that string.
 
 @item @code{fax-id} [-I] @var{local fax number}
 
@@ -1735,6 +1733,19 @@ specify this, @code{sendfax} will switch from @code{speed} to
 @code{switchbd} right after setting the modem to class 2/2.0. Default is
 @code{FAX_SEND_SWITCHBD}, I'd recommend @strong{not} using it unless you're
 sure that you need it.
+
+@item @code{ignore-carrier} @var{y|n}
+
+Some misbehaving modems lower the DCD (carrier detect) line briefly
+between sending multiple pages.  Depending on the operating system used,
+this may cause all subsequent port accesses on this serial port to fail.
+You'll recognize it if you get a ``weird-looking'' log file that works
+fine up to the end of the first page, and then aborts with @samp{I/O
+error} or so.
+
+Unfortunately, this option is @strong{NOT implemented} yet. Instead, use
+the @code{#define FAX_SEND_IGNORE_CARRIER} in @file{policy.h} and
+recompile @code{sendfax}. Don't forget to re-install!
 
 @item @code{dial-prefix} @var{command}
 
