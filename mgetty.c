@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 4.6 1997/03/31 20:27:04 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 4.7 1997/04/06 17:26:39 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -568,7 +568,6 @@ int main _P2((argc, argv), int argc, char ** argv)
 	    if ( ! c_bool(blocking) )
 	    {
 		int wait_time = c_int(modem_check_time)*1000;
-		if ( c_bool(direct_line) ) wait_time = -1;	/* forever */
 
 		if ( ! wait_for_input( STDIN, wait_time ) &&
 		     ! c_bool(direct_line) && ! virtual_ring )
