@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 1.29 1994/03/01 01:10:16 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logfile.c,v 1.30 1994/04/11 11:53:22 gert Exp $ Copyright (c) Gert Doering"
 ;
 #include <stdio.h>
 #include <unistd.h>
@@ -8,6 +8,7 @@
 #include <time.h>
 #include <errno.h>
 #include <ctype.h>
+#include <string.h>
 
 #include "mgetty.h"
 #include "policy.h"
@@ -22,11 +23,14 @@ int syslog _PROTO(( int, char *, ... ));
 
 #endif
 
-int log_level = LOG_LEVEL;	/* set default log level threshold (jcp) */
+static int log_level = LOG_LEVEL;  /* set default log level threshold (jcp) */
 
 static FILE * log_fp;
 static boolean mail_logfile = FALSE;
-char log_path[ MAXPATH ];
+static char log_path[ MAXPATH ];
+
+static char log_infix[10];	   /* printed between time stamp and text */
+static char * log_program = "mgetty";
 
 extern int atexit _PROTO(( void (*)(void) ));
 
@@ -45,6 +49,34 @@ extern int errno;
 # define atexit(dummy) 
 #endif
 
+void log_init_paths _P3 ( (l_program, l_path, l_infix),
+		           char * l_program, char * l_path, char * l_infix )
+{
+    if ( l_program != NULL )
+    {
+	log_program = l_program;
+    }
+    if ( l_path != NULL )
+    {
+	strncpy( log_path, l_path, sizeof(log_path)-1 );
+	log_path[sizeof(log_path)-1] = 0;
+	if ( strlen(l_path) >= sizeof(log_path) )
+	{
+	    lprintf( L_FATAL, "internal error: log file path too long!" );
+	}
+    }
+    if ( l_infix != NULL )
+    {
+	sprintf( log_infix, "%.*s ", (int) sizeof(log_infix)-2, l_infix );
+    }
+}
+
+void log_set_llevel _P1( (l_level), int level )
+{
+    log_level = level;
+}
+	
+	    
 void logmail _P0( void )
 {
 char	ws[MAXPATH+100];
@@ -152,8 +184,8 @@ int     errnr;
 	    /* use /dev/console for logging, if possible */
 	    if ( ( log_fp = fopen( CONSOLE, "w" ) ) != NULL )
 	    {
-		fprintf( log_fp, "\nmgetty: resorting to logging to %s\n",
-			CONSOLE );
+		fprintf( log_fp, "\n%s: resorting to logging to %s\n",
+			log_program, CONSOLE );
 	    }
 	    else	/* give up, disable logging */
 	    {
@@ -177,7 +209,7 @@ int     errnr;
 	fprintf( log_fp, "\n--" );
 #ifdef SYSLOG
 	/* initialize syslog logging */
-	openlog( "mgetty", LOG_PID, LOG_DAEMON );
+	openlog( log_program, LOG_PID, LOG_DAEMON );
 #endif
     }
 
@@ -197,15 +229,17 @@ int     errnr;
     }
     else if ( level != L_ERROR && level != L_FATAL )
     {
-	fprintf(log_fp, "\n%02d/%02d %02d:%02d:%02d  %s",
+	fprintf(log_fp, "\n%02d/%02d %02d:%02d:%02d %s %s",
 		             tm->tm_mon+1,  tm->tm_mday,
-			     tm->tm_hour, tm->tm_min, tm->tm_sec, ws );
+			     tm->tm_hour, tm->tm_min, tm->tm_sec,
+		             log_infix, ws );
     }
     else		/* ERROR or FATAL */
     {
-	fprintf(log_fp, "\n%02d/%02d %02d:%02d:%02d  %s: %s",
+	fprintf(log_fp, "\n%02d/%02d %02d:%02d:%02d %s %s: %s",
 		             tm->tm_mon+1,  tm->tm_mday,
-			     tm->tm_hour, tm->tm_min, tm->tm_sec, ws,
+			     tm->tm_hour, tm->tm_min, tm->tm_sec,
+		             log_infix, ws,
 			     ( errnr <= sys_nerr ) ? sys_errlist[errnr]:
 			     "<error not in list>" );
 #ifdef SYSLOG
@@ -216,7 +250,8 @@ int     errnr;
 	    FILE * cons_fp;
 	    if ( ( cons_fp = fopen( CONSOLE, "w" ) ) != NULL )
 	    {
-		fprintf( cons_fp, "\nmgetty FATAL: %s\n", ws );
+		fprintf( cons_fp, "\n%s FATAL: %s %s\n",
+			          log_program, log_infix, ws );
 		fclose( cons_fp );
 	    }
 	    else	/* last resort */
