@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 1.15 1993/11/06 15:31:13 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 1.16 1993/11/06 15:55:09 gert Exp $ Copyright (c) Gert Doering"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -80,6 +80,9 @@ char * ln_escape_prompt _P1( (ep), char * ep )
 	      case 'v': p[i++] = '\013'; break;
 	      case 'f': p[i++] = '\f'; break;
 	      case 't': p[i++] = '\t'; break;
+	      case 'U':
+		i += sprintf( &p[i], "%d", get_current_users() );
+		break;
 	      case 'D':			/* fallthrough */
 	      case 'T':
 		if ( i + 30 > MAX_PROMPT_LENGTH )
