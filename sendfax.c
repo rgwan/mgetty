@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 2.11 1995/07/29 13:56:07 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 2.12 1995/07/29 14:32:30 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -396,7 +396,7 @@ int main _P2( (argc, argv),
     fax_set_bor( fd, 1 );
 #endif
 
-    if ( modem_type = Mt_class2_0 )
+    if ( modem_type == Mt_class2_0 )
         mdm_command( "AT+FNR=1,1,1,0", fd );
 
     /* tell the modem if we are willing to poll faxes
