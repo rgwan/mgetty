@@ -1,4 +1,4 @@
-[ $Id: README,v 1.4 1998/12/01 15:16:33 gert Exp $ ]
+[ $Id: README,v 1.5 2001/06/14 07:29:26 neko Exp $ ]
 
 This is a collection of tools to maintain mgetty using a WWW interface
 (CGI binaries and a couple of static pages).
@@ -100,7 +100,10 @@ you're in doubt, do NOT change anything outside quotation marks (or change
 it back if things didn't work).   You can test if you got the syntax
 right by running "perl -c wwwgui.conf".
 
+PICTURES, LOGOS
 
+In some places you can configure pictures. The pictures itself are not
+installes, you must put them manually in the right place.
 
 INSTALLATION
 
