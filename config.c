@@ -1,4 +1,4 @@
-#ident "$Id: config.c,v 1.5 1995/03/26 18:51:39 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: config.c,v 1.6 1995/07/24 15:22:11 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /*
  * config.c
@@ -86,9 +86,15 @@ char	*	p;
 	}
 
 	/* comments */
-	if ( bufidx > 0 && bufp[ 0 ] == '#' )
+	if ( bufidx > 0 )
 	{
-	    bufidx = 0; continue;
+	    char * sp = bufp;
+	    while( isspace( *sp ) ) sp++;		/* skip whitespace */
+	    
+	    if ( *sp == '#' )
+	    {
+		bufidx = 0; continue;
+	    }
 	}
 	break;
     }
@@ -259,7 +265,7 @@ int ignore = 0;		/* ignore keywords in non-matching section */
     while ( ( line = fgetline( conf_fp ) ) != NULL )
     {
 	norm_line( &line, &key );
-	if ( key[0] == 0 ) continue;		/* emtpy line */
+	if ( key[0] == 0 ) continue;		/* empty line */
 
 	lprintf( L_NOISE, "conf lib: read: '%s %s'", key, line );
 
