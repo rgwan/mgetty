@@ -7,7 +7,7 @@
  *    - Something I do not like is that it looks like we use non
  *      reentrant functions in the signal handlers (log, etc).
  *
- * $Id: signal.c,v 1.5 1999/09/16 09:16:09 marcs Exp $
+ * $Id: signal.c,v 1.6 1999/10/09 16:22:06 marcs Exp $
  *
  */
 
@@ -34,11 +34,23 @@ static void signal_sigalrm(int sig)
 
 static void signal_sigchld(int sig)
      {
-     wait(NULL); /* This appears to fix core dumps on HPUX. Maybe this
-                  * also fixes the same problem on Solaris.
-                  */
+     pid_t pid;
+     int status;
+     pid = wait(&status); /* This appears to fix core dumps on HPUX. Maybe this
+                           * also fixes the same problem on Solaris.
+                           */
      signal(SIGCHLD, signal_sigchld);
-     lprintf(L_JUNK, "%s: Got child changed status signal", program_name);
+     if (status) {
+        lprintf(L_WARN, "%s: Got child %d exit status %d signal",
+                pid,
+                status
+                program_name);
+     }
+     else {
+        lprintf(L_JUNK, "%s: Got child %d exit signal",
+                pid,
+                program_name);
+     }
      queue_event(create_event(SIGNAL_SIGCHLD));
      }
 
