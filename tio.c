@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 1.6 1993/11/12 15:21:15 gert Exp $ Copyright (c) 1993 Gert Doering";
+#ident "$Id: tio.c,v 1.7 1993/11/24 14:03:56 gert Exp $ Copyright (c) 1993 Gert Doering";
 
 /* tio.c
  *
@@ -31,6 +31,10 @@ static char tio_compilation_type[]="@(#) compiled with BSD_SGTTY";
 # ifndef TAB3
 # define TAB3 OXTABS
 # endif
+#endif
+
+#ifdef _AIX
+#include <sys/ioctl.h>
 #endif
 
 int tio_get _P2((fd, t), int fd, TIO *t )
@@ -289,6 +293,27 @@ int tio_set_flow_control _P3( (fd, t, type), int fd, TIO * t, int type )
 	lprintf( L_ERROR, "ioctl TCSETX" ); return ERROR;
     }
 #endif
+    /* AIX has yet another method to set hardware flow control (yuck!) */
+#ifdef _AIX
+    if ( ioctl( fd, ( type & FLOW_HARD ) ? TXADDCD : TXDELCD, "rts" ) < 0 )
+    {
+	lprintf( L_ERROR, "ioctl TXADDCD/TXDELCD" ); return ERROR;
+    }
+#ifdef DEBUG
+    {	union txname t; int i;
+	lprintf( L_NOISE, "control disciplines:");
+	for ( i=1; ; i++ ) {
+	    t.tx_which = i;
+	    if ( ioctl( fd, TXGETCD, &t ) ) {
+		lprintf( L_FATAL, "TXGETCD error" ); break;
+	    }
+	    if ( t.tx_name == NULL || !t.tx_name[0] ) break;
+	    lputc( L_NOISE, ' ');
+	    lputs( L_NOISE, t.tx_name );
+	}
+    }
+#endif			/* DEBUG */
+#endif			/* _AIX */
     return NOERROR;
 }
 
