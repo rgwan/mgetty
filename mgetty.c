@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 2.3 1995/01/15 10:17:46 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 2.4 1995/02/11 22:57:36 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -860,6 +860,14 @@ Ring_got_action:
 #ifdef MGETTY_PID_FILE
 	(void) unlink( pid_file_name );
 #endif
+
+	/* dreadful hack for Linux, set TERM if desired */
+	if ( c_isset(termtype) )
+	{
+	    char * t = malloc( 6 + strlen( c_string(termtype)) );
+	    if ( t != NULL )
+	        { sprintf( t, "TERM=%s", c_string(termtype) ); putenv(t); }
+	}
 	
 	/* hand off to login dispatcher (which will call /bin/login) */
 	login_dispatch( buf );
