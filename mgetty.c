@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 3.28 1996/12/15 16:45:45 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 3.29 1997/01/12 14:53:04 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -91,8 +91,8 @@ time_t		time _PROTO(( long * tloc ));
 
 /* logname.c */
 int getlogname _PROTO(( char * prompt, TIO * termio,
-		char * buf, int maxsize, 
-		boolean do_timeout, boolean do_fido ));
+		char * buf, int maxsize, int max_login_time, 
+		boolean do_fido ));
 
 /* conf_mg.c */
 void exit_usage _PROTO((int num));
@@ -1002,7 +1002,8 @@ Ring_got_action:
 	   for c_oflag */
 
 	if ( getlogname( c_string(login_prompt), &tio, buf, sizeof(buf), 
-			 !c_bool(blocking), c_bool(do_send_emsi) ) == -1 ) 
+			 c_bool(blocking)? 0: c_int(login_time), 
+			 c_bool(do_send_emsi) ) == -1 ) 
 	{
 	     continue;
 	}

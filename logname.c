@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 3.16 1996/12/15 16:45:44 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 3.17 1997/01/12 14:53:04 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include "syslibs.h"
@@ -210,7 +210,6 @@ void set_env_var _P2( (var,string), char * var, char * string )
 }
 
 static int timeouts = 0;
-#ifdef MAX_LOGIN_TIME
 static RETSIGTYPE getlog_timeout(SIG_HDLR_ARGS)
 {
     signal( SIGALRM, getlog_timeout );
@@ -218,7 +217,6 @@ static RETSIGTYPE getlog_timeout(SIG_HDLR_ARGS)
     lprintf( L_WARN, "getlogname: timeout\n" );
     timeouts++;
 }
-#endif
 
 /* getlogname()
  *
@@ -229,9 +227,9 @@ static RETSIGTYPE getlog_timeout(SIG_HDLR_ARGS)
  * If ENV_TTYPROMPT is set, do not read anything
  */
 
-int getlogname _P6( (prompt, tio, buf, maxsize, do_timeout, do_fido),
+int getlogname _P6( (prompt, tio, buf, maxsize, max_login_time, do_fido),
 		    char * prompt, TIO * tio, char * buf,
-		    int maxsize, boolean do_timeout, boolean do_fido )
+		    int maxsize, int max_login_time, boolean do_fido )
 {
     int	 i, r;
     char ch;
@@ -261,13 +259,11 @@ int getlogname _P6( (prompt, tio, buf, maxsize, do_timeout, do_fido),
     return 0;
 #else			/* !ENV_TTYPROMPT */
 
-#ifdef MAX_LOGIN_TIME
-    if ( do_timeout )
+    if ( max_login_time > 0 )
     {
 	signal( SIGALRM, getlog_timeout );
-	alarm( MAX_LOGIN_TIME );
+	alarm( max_login_time );
     }
-#endif
 
   newlogin:
 #ifdef FIDO
@@ -313,7 +309,6 @@ int getlogname _P6( (prompt, tio, buf, maxsize, do_timeout, do_fido),
 	    
 	    if ( errno != EINTR ) exit(0);		/* HUP/^D/timeout */
 
-#ifdef MAX_LOGIN_TIME
 	    if ( timeouts <= 1 )			/* first timeout */
 	    {
 		printf( "\r\n\07\r\nHey! Please login now. You have one minute left\r\n" );
@@ -322,14 +317,13 @@ int getlogname _P6( (prompt, tio, buf, maxsize, do_timeout, do_fido),
 	    else					/* second */
 	    {
 		printf( "\r\n\07\r\nYour login time (%d minutes) ran out. Goodbye.\r\n",
-		       MAX_LOGIN_TIME / 60 );
+		       (max_login_time / 60)+1 );
 		
 		sleep(3);		/* give message time to xmit */
 		lprintf( L_AUDIT, "failed dev=%s, pid=%d, login time out",
 			 Device, getpid() );
 		exit(0);		/* bye bye... */
 	    }
-#endif
 	    ch = CKILL;			/* timeout #1 -> clear input */
 	}
 
