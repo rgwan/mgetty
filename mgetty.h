@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.h,v 2.3 1995/03/15 00:34:31 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 2.4 1995/04/04 00:49:17 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -119,6 +119,9 @@ int	do_chat _PROTO(( int filedesc, char * expect_send[],
 	     	 chat_action_t actions[], action_t * action,
 		 int chat_timeout_time, boolean timeout_first ));
 int	clean_line _PROTO(( int filedesc, int tenths ));
+
+/* do_stat.c */
+int	get_statistics _PROTO(( int filedesc, char ** chat, char * file ));
 
 /* goodies.c */
 char * get_basename _PROTO(( char * ));
