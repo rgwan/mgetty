@@ -1,4 +1,4 @@
-#ident "$Id: tio.h,v 1.2 1993/10/27 01:42:30 gert Exp $ Copyright (c) 1993 Gert Doering";
+#ident "$Id: tio.h,v 1.3 1993/11/07 01:52:09 gert Exp $ Copyright (c) 1993 Gert Doering";
 
 /* tio.h
  *
@@ -34,10 +34,11 @@ typedef struct sgttyb TIO;
 #endif
 
 /* hardware handshake flags */
+#define FLOW_NONE	0x00
 #define FLOW_HARD	0x01		/* rts/cts */
 #define FLOW_XON_IN	0x02		/* incoming data, send xon/xoff */
 #define FLOW_XON_OUT	0x04		/* send data, honor xon/xoff */
-#define FLOW_SOFT	FLOW_XON | FLOW_XOFF 
+#define FLOW_SOFT	(FLOW_XON_IN | FLOW_XON_OUT)
 
 /* function prototypes */
 int  tio_get _PROTO (( int fd, TIO *t ));
