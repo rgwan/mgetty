@@ -1,4 +1,4 @@
-#ident "$Id: g32pbm.c,v 1.11 1994/02/12 13:59:11 gert Exp $ (c) Gert Doering"
+#ident "$Id: g32pbm.c,v 1.12 1994/03/09 10:54:48 gert Exp $ (c) Gert Doering"
 ;
 #include <stdio.h>
 #include <unistd.h>
@@ -25,6 +25,7 @@ unsigned long i = 0x80000000;
 #endif
 
 static int byte_tab[ 256 ];
+static int o_stretch;			/* -stretch: double each line */
 
 struct g3_tree * black, * white;
 
@@ -66,6 +67,10 @@ int	col, hcol;
 	if ( argv[i][1] == 'r' )	/* -reversebits */
 	{
 	    init_byte_tab( 1, byte_tab );
+	}
+	else if (argv[i][1] == 's')
+	{
+	    o_stretch++;		/* -stretch this normal-res g3 */
 	}
 	i++;
     }
@@ -252,15 +257,24 @@ do_write:      	/* write pbm (or whatever) file */
     fprintf( stderr, "consecutive EOLs: %d, max columns: %d\n", cons_eol, hcol );
 #endif
 
-    sprintf( rbuf, "P4\n%d %d\n", hcol, row );
+    sprintf( rbuf, "P4\n%d %d\n", hcol, ( o_stretch? row*2 : row ) );
     write( 1, rbuf, strlen( rbuf ));
 
-    if ( hcol == MAX_COLS )
+    if ( hcol == MAX_COLS && !o_stretch )
         write( 1, bitmap, (MAX_COLS/8) * row );
     else
     {
-	for ( i=0; i<row; i++ )
-	  write( 1, &bitmap[ i*(MAX_COLS/8) ], (hcol+7)/8 );
+	if ( !o_stretch )
+	  for ( i=0; i<row; i++ )
+	{
+	    write( 1, &bitmap[ i*(MAX_COLS/8) ], (hcol+7)/8 );
+	}
+	else				/* Double each row */
+	  for ( i=0; i<row; i++ )
+        {
+	    write( 1, &bitmap[ i*(MAX_COLS/8) ], (hcol+7)/8 );
+	    write( 1, &bitmap[ i*(MAX_COLS/8) ], (hcol+7)/8 );
+	}
     }
 
     return 0;
