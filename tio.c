@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 1.37 1994/10/21 21:32:39 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 1.38 1994/10/22 16:27:40 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* tio.c
  *
@@ -60,8 +60,15 @@ static char tio_compilation_type[]="@(#)tio.c compiled with BSD_SGTTY";
 #endif
 
 /* baud rate table */
-
-static struct speedtab speedtab[] = {
+static struct	speedtab {
+#ifdef POSIX_TERMIOS
+    speed_t	cbaud;
+#else
+    unsigned short cbaud;	/* baud rate, e.g. B9600 */
+#endif
+    int	 nspeed;		/* speed in numeric format */
+    char *speed;		/* speed in display format */
+} speedtab[] = {
 	{ B50,	  50,	 "50"	 },
 	{ B75,	  75,	 "75"	 },
 	{ B110,	  110,	 "110"	 },
