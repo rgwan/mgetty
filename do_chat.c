@@ -1,4 +1,4 @@
-#ident "$Id: do_chat.c,v 1.30 1994/01/14 20:11:40 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: do_chat.c,v 1.31 1994/02/04 21:46:42 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* do_chat.c
  *
@@ -227,6 +227,9 @@ static	char	*lptr = lbuf;
 
 int clean_line _P2 ((fd, waittime), int fd, int waittime )
 {
+#ifdef MEIBE
+    lprintf( L_NOISE, "clean_line() not available on MEIBE" );
+#else
 TIO	tio, save_tio;
 char	buffer[2];
 
@@ -247,5 +250,6 @@ char	buffer[2];
     /* reset terminal settings */
     tio_set( fd, &save_tio );
     
+#endif	/* MEIBE */
     return 0;
 }
