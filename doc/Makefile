@@ -1,6 +1,6 @@
 # doc/Makefile
 #
-# SCCS: $Id: Makefile,v 1.9 1994/11/04 14:36:31 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: Makefile,v 1.10 1994/11/06 10:38:19 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 
 NROFF=nroff
@@ -59,7 +59,7 @@ fullclean: clean
 	      *.man *.[1-9]
 
 install: $(MANSRC) mgetty.info
-	-mkdir $(MAN1DIR) $(MAN4DIR) $(MAN5DIR) $(MAN8DIR)
+	-mkdir $(MAN1DIR) $(MAN4DIR) $(MAN5DIR) $(MAN8DIR) 2>/dev/null
 	for i in $(MAN1PAGES) ; do \
 		$(INSTALL) -m 644 $$i $(MAN1DIR) ; \
 	done
