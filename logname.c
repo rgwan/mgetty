@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 1.30 1994/03/07 23:39:00 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 1.31 1994/03/14 12:22:43 gert Exp $ Copyright (c) Gert Doering"
 ;
 #include <stdio.h>
 #ifndef _NOSTDLIB_H
@@ -22,6 +22,7 @@
 #include "mgetty.h"
 #include "policy.h"
 #include "tio.h"
+#include "mg_utmp.h"
 
 #ifndef SYSTEM
 #include <sys/utsname.h>
@@ -337,6 +338,11 @@ newlogin:
 	{
 	    lprintf( L_MESG, "non-INQ EMSI packet: '%.15s...', length %d",
 		              buf, i-1 );
+	    if ( strncmp( buf, "\377**EMSI_CLI", 11 ) == 0 )
+	    {
+		lprintf( L_MESG, "got EMSI_CLI packet, re-read login name" );
+		goto newlogin;
+	    }
 	}
     }
 #endif
