@@ -2,9 +2,13 @@
                            vgetty voice shell commands
                           -----------------------------
 
-              The voice extensions for the mgetty+sendfax package
+              The voice extensions for the mgetty package
 
                     Copyright (C) 1995, 1997 Marc Eberhard.
+                    Many contributions by others, including
+                    Marc SCHAEFER <schaefer@alphanet.ch>, the
+                    current vgetty maintainer.
+                       http://www-internal.alphanet.ch/~schaefer/vgetty.html
 
                           Voice shell command guide
 
@@ -335,7 +339,7 @@
 
  Command:       "DEVICE argument"
  Possible Args: NO_DEVICE, DIALUP_LINE, EXTERNAL_MICROPHONE, INTERNAL_SPEAKER,
-                LOCAL_HANDSET
+                LOCAL_HANDSET, EXTERNAL_SPEAKER
  Explanation:   This command sets the device that vgetty will use.
  Answers:       "READY": Voice lib got your request.
 
@@ -355,6 +359,14 @@
  Answers:       DevID: Device id.
                 "READY": Voicelib ready for next command.
 
+ Command:       "GET MODEM"
+ Explanation:   Returns the voice modem driver name, for example
+                "US Robotics", see ../libvoice/*.c, at the end
+                of the file (the big structure). Then returns "READY".
+                The goal of this function is to for example choose the
+                right RMD file format to pass for PLAY.
+ Answers:       "READY" after <voice driver name>
+
  Command:       "AUTOSTOP argument"
  Possible Args: ON, OFF
  Explanation:   With AUTOSTOP on, the voicelib will automatically abort a
@@ -371,6 +383,10 @@
                 your modem's format!!! See section 7)
  Answers:       "PLAYING": 'filename' is being played.
                 "READY": Playing of 'filename' has ended.
+ Notes: if you specify an optional non zero third numerical argument, this
+        changes the DTMF semantic: it will make the multi-DTMF detection more
+        reliable when used with ``AUTOSTOP''. For details, please look
+        at Al Borcher's perl vgetty shell script.
 
  Command:       "RECORD filename"
  Explanation:   Records filename from the chosen device (recorded file will be
