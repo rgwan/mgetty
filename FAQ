@@ -7,14 +7,15 @@ Keywords: class2 fax mgetty sendfax modem digifax
 Approved: news-answers-request@mit.edu
 
 Archive-name: fax-faq/mgetty+sendfax+vgetty
-Last-modified: 1998/03/12
+Last-modified: 1999/04/18
 URL: http://www.webforum.de/mgetty-faq.txt
 Maintainer: Klaus Lichtenwalder <Lichtenwalder@ACM.org>
 
 			  ``mgetty+sendfax''
 		Answers to Frequently-Asked Questions
        regarding Gert Doering's Fax-enabled getty replacement,
-       with Klaus Weidner and Marc Eberhard's voice extensions
+       with Klaus Weidner and Marc Eberhard's voice extensions,
+              which are now maintained by Marc Schaeffer
 
 			 Klaus Lichtenwalder
 		        Lichtenwalder@ACM.org
@@ -77,8 +78,16 @@ Part 2: Other questions
  The user's shell doesn't get killed after the line drops
  AutoPPP appears in "who" listing
  Things to think of if using AutoPPP, or, as you might call it, ppp connections
+ Viewing received faxes from a PC running windows
+ Howto setup MSN/distinctive rings mappings
+ Howto convert wav's to rmd's for mgetty
+ Where can I get hp2pbm?
+ My (ISDN/digital) modem doesn't say RING when being called
 Part 3: Compatibility Issues
  Suspicious fax machines
+ Caller ID
+ Subject: Referral for Zyxel in US
+
 Part 4: Compiling, installing and using vgetty
  Compiling vgetty
  US Robotics voice format converter
@@ -122,11 +131,12 @@ to "login").
 
 Unlike traditional versions of getty or uugetty, which will put a
 modem into auto-answer mode, mgetty does not.  When an incoming call
-occurs, mgetty sees the "RING"s when they occur.  When they do occur,
-mgetty tells the modem to answer, and the modem will tell mgetty what
-kind of connection happens.  If it is FAX, mgetty will receive the
-FAX.  If data, mgetty prompts for a userid, then hands the open line
-off to login for a normal data login.
+occurs, mgetty sees the "RING"s when they occur (see note below for
+ISDN/digital modems).  When they do occur, mgetty tells the modem to
+answer, and the modem will tell mgetty what kind of connection
+happens.  If it is FAX, mgetty will receive the FAX.  If data, mgetty
+prompts for a userid, then hands the open line off to login for a
+normal data login.
 
 Note that it's the modem's job to distinguish a FAX call from a data
 call.  Not all fax modems can do this, and if yours _can't_ there is no way
@@ -147,7 +157,8 @@ modem reports a RING, vgetty has the modem pick up the line and
 play a voice message (the greeting).  If the modem detects a data or
 fax calling tone, it reports this back to vgetty with special codes
 (DLE-sequences) which causes vgetty to switch to either mode. Else
-voice mode is used.
+voice mode is used. This comportment can be modified by using a
+voice script, for example ``mvm'' (see below).
 
 If instead the modem hears nothing following the greeting (a
 certain level of silence that continues for a certain number of
@@ -161,14 +172,25 @@ wish.  (This description of voice modem behavior applies to the
 ZyXELs; I [steve@work.bellingham.wa.us] assume other voice modems
 are similar.)
 
-For an example on how a voice mail system looks like, there is the
-voice_mail.sh script in voice/scripts from Marc Schaefer. Since the voice
-shell is independent of the real modem hardware, it works on all supported
-modems, not just ZyXELs. The hardware drivers hide the modem specific stuff,
-so that the voice shell can provide a general interface that is completely
-modem independant. Of course the reliability of the whole systems relies on
-the reliability of the used voice modem. And there are quite notably
-differences between different modems.
+For an example on how a voice mail system looks like, there is the mvm
+from Marc Schaefer, <URL:http://www-internal.alphanet.ch/~schaefer/mvm>.
+Since the voice shell is independent of the real modem hardware, it
+works on all supported modems, not just ZyXELs. The hardware drivers
+hide the modem specific stuff, so that the voice shell can provide a
+general interface that is completely modem independant. Of course the
+reliability of the whole systems relies on the reliability of the used
+voice modem. And there are quite notably differences between different
+modems. 
+
+mvm offers the following features: multiple voice mailboxes with each
+a number and a password, multiple languages, voice message
+forwarding/copying/notification by e-mail, WWW gateway for reading and
+sending voice messages, English and French number synthesis, multiple
+voice mailboxes instances based on called MSN ID (ISDN), dynamic menu
+system with access levels editable on-line. Some of the features need
+some patches to vgetty (see below). mvm also fixes some of the below
+mentionned modem/voice sharing problems (either by requiring a DTMF to
+be pressed to go into voice modem, or with the called MSN ID).
 
 vgetty is intended for people who want to share a phone line for
 data and voice use, with the main focus being voice calls. It is
@@ -182,10 +204,13 @@ to data/fax mode. In countries where distinctive ring is supported,
 you can have dialup and voice on the same line without problems.
 
 Voice extensions were originally written by Klaus Weidner
-(klaus@snarc.greenie.muc.de) but are now maintained by Marc Eberhard
-(Marc.Eberhard@Uni-Duesseldorf.DE).  Direct questions about them to that
-address.
-
+(klaus@snarc.greenie.muc.de) and then Marc Eberhard
+(Marc.Eberhard@Uni-Duesseldorf.DE) but are now being maintained by
+Marc Schaefer (schaefer@alphanet.ch).  Direct questions about them to
+that address. The official vgetty server is
+   <URL:http://www-internal.alphanet.ch/~schaefer/vgetty>
+There you will find special patches, too.
+ 
 More from the distribution (some edits):
 
 This is what you can do with `sendfax' if you have a standard class
@@ -212,7 +237,7 @@ and dialing out.
 * Incoming calls are answered manually (`RING' -> `ATA' ->
   `CONNECT') instead of using auto-answer (`ATS0=1'), this way the
   modem won't pick up the phone when the machine is down or logins
-  are not allowed.
+  are not allowed. (but see note below for ISDN/digital modems)
 
 * mgetty completely replaces getty and/or uugetty.  Like uugetty,
   supports lock files in a fashion compatible with almost all known
@@ -277,6 +302,8 @@ ones:
 * voice conversion utilities - play messages on /dev/audio
   (Not for all supported modems, some voice modems use a proprietary
   format)
+
+* and more, more features available through the voice library/mvm
 
 ------------------------------
 
@@ -437,10 +464,14 @@ The home page is at http://www.leo.org/~doering/mgetty/
 
 The official release sites are these URLs:
 
-  ftp://ftp.leo.org/pub/comp/networking/communication/modem/mgetty
-  ftp://sunsite.unc.edu/pub/Linux/system/Serial/mgetty+sendfax*
-  ftp://tsx-11.mit.edu/pub/linux/sources/usr.bin/... (or so)
-  ftp://linux.nrao.edu/pub/packages/mgetty+sendfax/
+The master site is:
+  ftp://alpha.greenie.net/pub/mgetty/
+resp.
+  http://alpha.greenie.net/mgetty/
+
+Mirrors are at:
+
+  ftp://ftp.leo.org/pub/comp/os/unix/networking/mgetty
 
 ------------------------------
 
@@ -515,8 +546,8 @@ Subject: Where is the list archived?
 From: Gert Doering <gert@greenie.muc.de>
 
 A pointer to the archive as well as lots of other documentation can be
-found at <URL:http://www.leo.org/~doering/mgetty>. The archive itself
-can be found at <URL:http://eli.wariat.org/mgarc/index.html>
+found at <URL:http://alpha.greenie.net/mgetty>. The archive itself
+can be found at <URL:http://www.elilabs.com/mgarc/index.html>
 
 ------------------------------
 
@@ -530,12 +561,18 @@ From: ezmlm at crynwr
 A mailing list exists. Due to its international character, the only
 supported language on this list is *English*, though it's gated to
 some local newsgroups, de.alt.comm.mgetty for example. To subscribe to
-the list, send mail to mgetty-subscribe@crynwr.com, to unsubscribe, 
+the list, send mail to mgetty-subscribe@crynwr.com, to unsubscribe,
 send a mail to mgetty-unsubscribe@crynwr.com, NOT to mgetty@muc.de.
-If you want to specify a different e-mail address for your subscribtion
-than the address you send your subscribe request, send it to
-mgetty-subscribe-<your e-mail address with @ replaced by =>@crynwr.com.
-This address gets checked by sending a confirmation message.
+If you want to specify a different e-mail address for your
+subscribtion than the address you send your subscribe request, send it
+to mgetty-subscribe-<your e-mail address with @ replaced by
+=>@crynwr.com.  This address gets checked by sending a confirmation
+message. Due to the fact that this list is a *mailing-list*, even
+though you can also see it in newsgroups you *have* to use a valid
+e-mail address. Not complying to this (e.g., you add the dreaded
+-NOSPAM- somewhere in your address) you can't be reached for
+answers. And most of the time people who care to answer don't check
+for rules how to legalize your mail address for lack of time.
 
 Example (from mgetty-help@crynwr.com): to specify God@heaven.af.mil as
 your subscription address, send mail to
@@ -643,9 +680,10 @@ to - PBM converter yet."
 
 Subject:  Why doesn't mgetty use the modem's autoanswer capabilities?
 
-1. Because it isn't possible to distinguish a fax from a data call if you
-don't have full modem control. Besides, it will make sure that the modem
-doesn't answer the phone while the host isn't ready for it.
+1. Because it isn't possible to distinguish a fax from a data call if
+you don't have full modem control. Besides, it will make sure that the
+modem doesn't answer the phone while the host isn't ready for it. (but
+see note below for ISDN and digital modems)
 
 2. And callerid won't work without extreme difficulty.
  
@@ -801,6 +839,10 @@ Q: I have a Linux system, and while trying to dial out on /dev/cua1
 
 A: use the same device (always!!) for dial-in and dial-out.
    On Linux, use /dev/ttySx, on SunOS and *BSD use /dev/cuax.
+   And while you're at it, dont' use links like /dev/modem. You'll
+   end up confused and will most certainly forget it. But you have to
+   not only use the same device for all those programs but in fact
+   also the same *name*, for the lock file will be named appropriately.
 
 Q: If I create a fax file with "gs -sDEVICE=dfaxhigh ..." and send it with
    sendfax, everything works *great*. If I run it through "faxspool", the
@@ -859,10 +901,12 @@ A: When you see something like this in your log:
   > 03/22 19:15:58 yS1  fax_read_byte: read returned 0: Unknown error
   > 03/22 19:15:58 yS1  fax_get_line: cannot read byte, return: Unknown error
   > 03/22 19:15:58 ##### failed transmitting f1.g3: +FHS:-4, time=55s
-  you should define FAX_SEND_IGNORE_CARRIER in policy.h and recompile
-  your binaries. There are some modems that drop the DCD line between
-  pages. Alternatively, you can define ''ignore-carrier true'' in your
-  config file.
+  or (the newer log entries)
+  > sendfax: FAILED to transmit 'f1.g3'.
+  > Transmission error: +FHNG:-5 (Unexpected hangup / read() error / write()
+  > error (int.))
+
+  you should define ''ignore-carrier yes'' in your sendfax.config file.
 
 Q: The message "WARING: DSR off - modem turned off or bad cable?" keeps
    showing up in the mgetty logfile.
@@ -873,6 +917,12 @@ A: If you see this message, it basically means that mgetty can't get
    give you the status of dsr. If you are running mgetty on a different
    platform, you might consider checking your cable or the modem
    setting.
+
+Q: How many slashes do I need to put into mgetty.config to have mgetty
+   send a \N3 to the modem?
+
+A: Well, four. Why did you ask? The syntax for a \N3 is \\\\N3
+  (Tnx to: Ruud van Tol <rvtol@isolution.nl>)
 
 ------------------------------
 
@@ -1046,6 +1096,94 @@ doesn't seem to get ppp-frames and waits for something it can decide
 what to do. As you are most probably using a script for the
 connection, there should be no problem to send that string.
 
+
+------------------------------
+
+Subject: Viewing received faxes from a PC running windows
+From: Amadeu Pi <AmadeuP@santiveri.es>
+
+Software needed:
+Unix side: libtiff available at ftp://ftp.sgi.com/graphics/tiff
+PC side: MS Imaging 
+  W95     -> http://www.microsoft.com/windows/windows95/info/wang.htm
+  WNT4    -> It comes with standard distribution
+  WNT3.51 -> NT4 version can be made to work here (contact me if interested)
+Howto:
+Probably from FAX_NOTIFY_PROGRAM run fax2tiff to generate a single tif file
+from all the received g3 page files, example:
+     fax2tiff -M -R 98 -o fax.tif fn54d6e4eS1.01 fn54d6e4eS1.02
+where -M means Treat input data as having bits filled from MSB to LSB.
+      -R is the vertical resolution (196 for fine 98 for low)
+      -o is the name of the output file
+One interesting point of this approach is that g3 to tiff conversion is
+very, very fast (a lot faster the g3 to gif or g3 to pbm).
+Once you have generated the tiff file you can place it in a samba share so a
+PC can access it or you can mail it to a PC user (see samples/new_fax.mime)
+or any other thing that suits you.
+When you have the tiff file on the PC side use wangimg.exe (MS Imaging) to
+view it (or just doble click on the file). This program developed by Wang
+has several fancy features that will allow you change page orientation,
+print several or all pages, annotate...
+
+------------------------------
+
+Subject: Howto setup MSN/distinctive rings mappings
+From: Gert Doering <gert@greenie.muc.de>
+
+To define the list of msns and map them to the distinctive rings add
+the parameter `msn-list <nrs>+' to mgetty.config, i.e.
+
+  msn-list 35655071 023 025 024
+
+the list is matched left-to-right, the numbers themselves right-to-left.
+The <n>th number in the list will be mapped to dist-ring <n>, for example,
+a call to 35655025 will be treated as "distinctive ring 3".
+
+(Counting starts from 1, because dist-ring 0 is "unspecified RING").
+
+
+------------------------------
+
+Subject: Howto convert wav's to rmd's for mgetty
+From: Andy Fraser <andy@bramble.force9.co.uk>
+
+Q: I am trying to convert a file that I have recorded in WAV to the
+RMD type required by my modem. However, when I convert it using
+'wavtopvf' and then 'pvfspeed' to adjust the sampling rate to 7200
+required by my modem and then listen to the file it sounds as if the
+message has been slowed down.
+
+A: Your WAV file may be in stereo and this will mean that it won't
+convert properly. Simply convert your WAV file to mono and then try
+the process again.
+
+
+------------------------------
+
+Subject: Where can I get hp2pbm?
+From: Gert Doering <gert@greenie.muc.de>
+
+hp2pbm can be found at <URL:ftp://alpha.greenie.net/pub/mgetty/> or at
+<URL:ftp://ftp.leo.org/pub/comp/os/unix/networking/mgetty/>
+
+
+
+------------------------------
+
+Subject: My (ISDN/digital) modem doesn't say RING when being called
+From: Jason Spence <thalakan@technologist.com>
+
+Try ATS0=3.  It used to be a safe assumption that all modems would say
+"RING", even if auto-answer is turned off.  However, many newer
+digital modems (like the Digi RasFire series) can tell the switch at
+your phone company's central office that it's not going to answer the
+phone, so anyone who tries to call the number your modem is attached
+to will just get a busy signal.  You MUST change the default init
+string in login.config to ATS0=3 (or some other number > 1).
+
+This behaviour is almost guaranteed for ISDN PRI (23B + 1D) modem bank cards.
+
+
 ------------------------------
 
 Subject: Part 3: Compatibility Issues
@@ -1123,6 +1261,32 @@ Here's what's already in the list:
 
 ------------------------------
 
+Subject:  Caller ID
+From: the list <mgetty@muc.de>
+
+This is a delicate issue, as the format for caller id is different
+from country to country. So, as a rule of thumb, you have to check
+with the modem-{manual,manufacturer} whether the national format of
+caller id is supported. Most of the time it will only support the
+american format for caller id, if not otherwise specified
+
+
+------------------------------
+
+Subject: Referral for Zyxel in US
+
+I've got my Zyxel 1496E modem, after much trouble in locating a vendor.
+
+So, for your information, if someone asks you about where to get these
+in the USA, refer them to www.modemstore.com.  Zyxel points to this company
+also.
+
+
+Forrest
+(Sorry, I don't know the full name of Forrest nor his e-mail address. This quote was forwarded by Marc Schaeffer for inclusion)
+
+------------------------------
+
 Subject: Part 4: Compiling, installing and using vgetty
 
 ------------------------------
@@ -1161,5 +1325,3 @@ extract GSM data and to "pack" GSM data into rmd files off of his page.
 Unforutnately, I didn't save the URL.
 
  -Scott Hutton, UCS Messaging Team, Indiana Univeristy
-
-
