@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.53 2002/01/04 18:49:22 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.54 2002/01/05 10:12:50 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -3709,7 +3709,10 @@ At run time, as far as I could see, the internal Mac modem is available on
 @file{/dev/tty.modem}.  The macintosh I had for testing also had "KeyUSA"
 USB-to-Serial ports that appeared as @file{/dev/tty.KeyUSA28X913.1} and
 @file{.2} - so other serial ports should also appear as @file{/dev/tty.*}
-devices.
+devices.  Note: there seem to be ''cu'' devices as well
+(@file{/dev/cu.modem}), as in older Linux variants.  I did only try
+sending faxes via @file{tty.modem} yet, but to resolve locking issues, 
+it might be neccesary to use @file{cu.*} devices.  To be continued...
 
 Mgetty should be run from @file{/etc/ttys} as in other BSDs, see 
 @code{man ttys} (there is no @file{/etc/inittab}).
@@ -3717,6 +3720,7 @@ Mgetty should be run from @file{/etc/ttys} as in other BSDs, see
 Open issues:
 @itemize
 @c @item how to access external serial ports?
+@item is it better to use @file{/dev/cu.*} or @file{/dev/tty.*}?
 @item how is tty locking done?  Couldn't find UUCP lock files
 @item any tricky things about logging in remotely?  utmp/wtmp?
 @item where should the log files go to?  /var/log doesn't seem to exist.
