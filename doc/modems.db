@@ -1395,4 +1395,54 @@ port ttyXX
 ## NO_XON before sending next fax page although Class 2 modem:
   modem-quirks 8
 -----------------------------------------------------------------------
+Date: Sat, 3 Oct 1998 09:28:44 +0200
+From: Ulf Steinberg <ulmo@rz.uni-karlsruhe.de>
+
+Modem brand/model:     USRobotics Sportster Message Plus
+AT+FMFR?               ???
+AT+FMDL?               ???
+AT+FREV?               ???
+ATI0                   5601
+ATI1                   5D48
+ATI4 U.S. Robotics 56K Message Settings...
+
+     B0  E1  F1  L1  M1  Q0  V1  X4  Y0
+     BAUD=115200  PARITY=N  WORDLEN=8
+     DIAL=PULSE   ON HOOK
+     [...]
+
+ATI7
+Configuration Profile...
+
+Product type           Germany External
+Product ID:            02206800
+Options                V32bis,V.34+,x2,V.90
+Fax Options            Class 1/Class 2.0
+Voice Options          Speaker Phone, TAD
+Clock Freq             92.0Mhz
+EPROM                  256k
+RAM                    32k
+
+FLASH date             2/24/98
+FLASH rev              12.1.14
+
+DSP date               2/24/98
+DSP rev                12.1.14
+
+tested on:              Linux (SuSE 5.2)
+                        Kernel 2.0.33
+working:                sendfax, mgetty, vgetty
+
+remarks:		Fax polling isn't working (due to the modem.)
+			for vgetty, the AT+MCS=0 command is very important
+			to "revive" the modem after a voice session.
+
+contributor:		ulmo@rz.uni-karlsruhe.de
+thanksto:		Michael Witschke
+
+Defines in policy.h
+#define MODEM_INIT_STRING "AT+MCS=0S0=0Q0&D3&C1" //To turn of the local mode
+#define FAX_USRobotics //respectively modem-quirks 0x20 (Error +FHS:25...)
+
+-----------------------------------------------------------------------
 
