@@ -1,4 +1,4 @@
-#ident "$Id: faxsend.c,v 3.2 1995/11/04 16:51:04 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: faxsend.c,v 3.3 1995/12/18 22:38:12 gert Exp $ Copyright (c) 1994 Gert Doering"
 
 /* faxsend.c
  *
@@ -87,19 +87,20 @@ static void fax_send_panic_exit _P1( (fd), int fd )
  *
  * modem has to be in sync, waiting for at+fdt
  * page punctuation is transmitted according to "ppm"
+ * number of bytes transmitted is added to "*bytes_sent" (for statistics)
  */
-int fax_send_page _P4( (g3_file, tio, ppm, fd),
-		       char * g3_file, TIO * tio,
+int fax_send_page _P5( (g3_file, bytes_sent, tio, ppm, fd),
+		       char * g3_file, int * bytes_sent, TIO * tio,
 		       Post_page_messages ppm, int fd )
 {
-int g3fd;
-char ch;
-char buf[256];
-char wbuf[ sizeof(buf) * 2 ];
+    int g3fd;
+    char ch;
+    char buf[256];			/* read chunk */
+    char wbuf[ sizeof(buf) * 2 ];	/* worst case: size doubles */
 
-int w_total = 0;		/* total bytes written */
+    int w_total = 0;			/* total bytes written */
 
-int rc;				/* return code */
+    int rc;				/* return code */
 
     lprintf( L_NOISE, "fax_send_page(\"%s\") started...", g3_file );
 
@@ -280,6 +281,9 @@ int rc;				/* return code */
     }			/* end if (open file succeeded) */
 
     lprintf( L_MESG, "page complete, %d bytes sent", w_total );
+
+    if ( bytes_sent != NULL )
+            *bytes_sent += w_total;
 
     /* send end-of-page characters and post-page-message */
     rc = fax_send_ppm( fd, tio, ppm );
