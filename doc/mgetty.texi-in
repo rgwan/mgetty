@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.36 1999/03/13 19:23:23 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.37 1999/03/14 21:50:25 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -2792,6 +2792,13 @@ port <whatever2>
   init-chat "" \d\d\d+++\d\d\dATH0&F OK ATX4&D3 OK ATQ0L0M0S0=0 OK
   modem-type cls2
 @end example
+
+Some of the newer 56k-capable MultiTech modems have voice functionality,
+but some firmware versions are very much broken.  Others seem to work more
+or less.  So make sure you can return your modem to the dealer if it
+doesn't work - and if the dealer isn't willing to do this, get a different
+modem.  Russell King told me that the firmware version 0316D should be
+working ok, but I got some negative reports as well. Hmmm.
 
 @node USR, Elink-ISDN, MultiTech, Modems
 @subsection US Robotics (now 3com) Courier/Sportster Fax/Data modems
