@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.30 1998/04/23 14:25:13 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.31 1998/05/07 08:59:23 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.31  1998/05/07 08:59:23  gert
+# make number of logfiles to keep configurable
+#
 # Revision 1.30  1998/04/23 14:25:13  gert
 # add 'modem badness' counter ($mq_badness{$tty}) to avoid using a modem
 # that is broken (locked forever / cannot be initialized / NO DIALTONE)
@@ -173,6 +176,8 @@ if ( open( CF, $faxrunq_cf ) )
 		{ $opt_l = "$1"  if $opt_l eq ''; }
 	elsif ( /^\s*faxrunqd-log\s+(\S+)/ )
 		{ $faxrd_log = "$1"; }
+	elsif ( /^\s*faxrunqd-keep-logs\s+(\d+)/ )
+		{ $roll_level = $1; }
 	elsif ( /^\s*acct-log\s+(\S+)/ )
 		{ $fax_acct = "$1"; }
 	elsif ( /^\s*policy-config\s+(\S+)/ )
