@@ -4,9 +4,12 @@
 # 
 # Copyright 1998 Simone Demmel simone@greenie.net
 #
-# CVS: $Id: faxq.in,v 1.5 1998/10/27 14:18:02 gert Exp $
+# CVS: $Id: faxq.in,v 1.6 1998/10/27 15:37:10 gert Exp $
 #
 # $Log: faxq.in,v $
+# Revision 1.6  1998/10/27 15:37:10  gert
+# if JOB file doesn't exist, just say so, but don't write a red error message
+#
 # Revision 1.5  1998/10/27 14:18:02  gert
 # change comments to English
 # use wwwsub.pl for error reporting
@@ -198,6 +201,10 @@ print <<EOF;
   	<td><a href="faxq-v.cgi?name=$DATEI">Details</a></td>
 </tr>
 EOF
+  }
+  elsif (!-f $target)
+  {
+    print "<tr><td>$DATEI</td><td>$status</td><td colspan=\"6\">keine JOB-Datei</td></tr>\n";
   }
   else 
   {
