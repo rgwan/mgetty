@@ -1,10 +1,10 @@
-#ident "$Id: do_stat.c,v 4.1 1997/01/12 14:53:37 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: do_stat.c,v 4.2 1997/12/08 07:47:01 gert Exp $ Copyright (c) Gert Doering"
 
 /* do_stat.c
  *
  * This module handles grabbing the modem call statistics and logging it
  * (basically, it's a stripped down version of do_chat() with different
- * logging capabilities)
+ * logging capabilities, working only on a line-by-line basis)
  */
 
 #include <stdio.h>
