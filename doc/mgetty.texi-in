@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.13 1998/04/01 18:01:20 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.14 1998/04/02 08:11:50 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -2937,13 +2937,18 @@ gettydefs tag (@code{mgetty} will ignore it if not compiled with
 
 In current stable kernels (i.e. the latest 2.0.xx release or even
 one of the 1.2.xx series) and current shared libraries (libc version
-5.2.xx) there should be no bug to interfere with this software.
+5.x) there should be no bug to interfere with this software.
 
 If you have a really old Linux system, notice that Linux kernel
 versions prior to 0.99pl15 have a bug in the serial handshake code,
 that is, if the `CRTSCTS' flag is set, software flow control (XON/XOFF)
 won't work. The alarm() call is broken in 4.1 and 4.4.2 libraries,
 which sometimes results in aborting the fax receiving.
+
+On very recent systems using the GNU Libc, you @strong{must} use 
+mgetty 1.1.10 or higher, as the timeout handling on all previous 
+versions doesn't work under glibc.  Unfortunately, this means that 
+the version of mgetty shipped with RedHat 5.0 (1.1.9) won't work. Upgrade!
 
 Hardware handshake (RTS+CTS) on Linux works flawlessly (but only if mgetty
 is compiled with POSIX_TERMIOS, but that is default on Linux
@@ -4016,6 +4021,16 @@ read this manual and correct all the nasty bugs.
 @item
 Russel Nelson, nelson@@crynwr.com, for hosting the mgetty mailing list
 since December '96.
+
+@item
+Medat Computer GmbH, Munich, for using mgetty+sendfax and paying me for
+improvements (faxrunqd rewrite and lots of detail work).
+
+@item
+SpaceNet GmbH, Munich, for sponsoring IP connectivity for alpha.greenie.net.
+Should you ever need an Internet Service Provider in Germany, look at
+http://www.space.net/...
+
 
 @item
 @dots{} and to all others who tested release after release.
