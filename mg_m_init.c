@@ -1,4 +1,4 @@
-#ident "$Id: mg_m_init.c,v 3.6 1996/07/09 12:00:01 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_m_init.c,v 3.7 1996/07/09 16:54:29 gert Exp $ Copyright (c) Gert Doering"
 
 /* mg_m_init.c - part of mgetty+sendfax
  *
@@ -56,9 +56,12 @@ int mg_init_data _P3( (fd, chat_seq, force_chat_seq),
 	lprintf( L_WARN, "init chat timed out, trying force-init-chat" );
 
 	if ( do_chat( fd, force_chat_seq, init_chat_actions,
-		     &what_action, init_chat_timeout, TRUE ) == SUCCESS )
+		     &what_action, init_chat_timeout, TRUE ) == SUCCESS ||
+	     what_action != A_TIMOUT )
         {
 	    lprintf( L_NOISE, "force-init succeeded, retrying init-chat");
+
+	    clean_line(fd, 3);
 	    if ( do_chat( fd, chat_seq, init_chat_actions,
 			 &what_action, init_chat_timeout, TRUE ) == SUCCESS )
 	    {
