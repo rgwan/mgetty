@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 3.6 1996/07/09 13:21:02 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 3.7 1996/08/03 23:01:00 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration defaults for mgetty / sendfax
  * are specified.
@@ -181,7 +181,10 @@
  * at all, so mgetty won't work if you enable that feature and your
  * login program doesn't support it. (You can see if it doesn't work
  * if the user gets a double login prompt or none at all).
- * To use that feature, define ENV_TTYPROMPT.
+ *
+ * This feature automatically disables FIDO and AutoPPP support!
+ *
+ * To use this feature, define ENV_TTYPROMPT.
  */
 /* #define ENV_TTYPROMPT */
 
