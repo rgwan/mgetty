@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.52 1994/01/29 23:02:54 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.53 1994/02/14 01:23:56 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* sendfax.c
  *
@@ -451,7 +451,7 @@ int	tries;
 	argidx++;
     }				/* end main page loop */
 
-    if ( argidx < argc || fax_hangup_code != 0 )
+    if ( argidx < argc || ( fax_hangup && fax_hangup_code != 0 ) )
     {
 	lprintf( L_WARN, "Failure transmitting %s: +FHNG:%2d",
 		 argv[argidx], fax_hangup_code );
