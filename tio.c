@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 1.19 1994/03/14 23:08:46 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 1.20 1994/04/18 15:36:10 gert Exp $ Copyright (c) 1993 Gert Doering"
 ;
 /* tio.c
  *
@@ -323,6 +323,29 @@ void tio_map_cr _P2( (t, perform_mapping), TIO * t, int
     {
 	t->c_iflag &= ~ICRNL;
 	t->c_oflag &= ~ONLCR;
+    }
+#else
+#include "not implemented yet"
+#endif
+}
+
+/* enable uppercase <-> lowercase mapping */
+
+void tio_map_uclc _P2( (t, perform_mapping), TIO * t, int
+		    perform_mapping )
+{
+#if defined(SYSV_TERMIO) || defined(POSIX_TERMIOS)
+    if ( perform_mapping )
+    {
+	t->c_iflag |= IUCLC;
+	t->c_oflag |= OLCUC;
+	t->c_lflag |= XCASE;
+    }
+    else
+    {
+	t->c_iflag &= ~IUCLC;
+	t->c_oflag &= ~OLCUC;
+	t->c_lflag &= ~XCASE;
     }
 #else
 #include "not implemented yet"
