@@ -4,7 +4,7 @@
  * rmdtopvf converts from the rmd (raw modem data) format to the pvf
  * (portable voice format) format.
  *
- * $Id: rmdtopvf.c,v 1.17 2001/12/22 16:08:02 marcs Exp $
+ * $Id: rmdtopvf.c,v 1.18 2002/11/19 15:39:34 gert Exp $
  *
  */
 
@@ -47,6 +47,7 @@ static void supported_formats (void)
      fprintf(stderr, " - V.253          2 and 4 bit Rockwell ADPCM,\n");
      fprintf(stderr, "                  4 bit IMA ADPCM\n");
      fprintf(stderr, "                  8 bit linear signed/unsigned PCM\n");
+     fprintf(stderr, "                  16 bit linear signed PCM Intel Order\n");
      fprintf(stderr, "                  G.711u/A PCM\n");
      fprintf(stderr, " - ZyXEL 1496     2, 3 and 4 bit ZyXEL ADPCM\n");
      fprintf(stderr, " - ZyXEL 2864     2, 3 and 4 bit ZyXEL ADPCM\n");
@@ -318,6 +319,11 @@ int main (int argc, char *argv[])
             else exit(FAIL);
           case 9:
             if (lintopvf(fd_in, fd_out, &header_out, 1, 0, 0) == OK)   /* signed linear */
+               exit(OK);
+            else exit(FAIL);
+          case 12:
+            /* signed linear PCM 16-bit Inter bit order */
+            if (lintopvf(fd_in, fd_out, &header_out, 1, 16, 1) == OK)
                exit(OK);
             else exit(FAIL);
           case 2:

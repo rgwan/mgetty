@@ -4,7 +4,7 @@
  * pvftormd converts from the pvf (portable voice format) format to the
  * rmd (raw modem data) format.
  *
- * $Id: pvftormd.c,v 1.16 2001/05/14 09:52:30 marcs Exp $
+ * $Id: pvftormd.c,v 1.17 2002/11/19 15:39:34 gert Exp $
  *
  */
 
@@ -54,6 +54,7 @@ static void supported_formats (void)
      fprintf(stderr, " - V253modem      7        G.711A PCM\n");
      fprintf(stderr, " - V253modem      8        8-bit linear unsigned PCM\n");
      fprintf(stderr, " - V253modem      9        8-bit linear signed PCM\n");
+     fprintf(stderr, " - V253modem      12       16-bit linear signed PCM Intel Order\n");
      fprintf(stderr, " - ZyXEL_1496     2, 3, 4  2/3/4-bit ZyXEL ADPCM\n");
      fprintf(stderr, " - ZyXEL_2864     2, 3, 4  2/3/4-bit ZyXEL ADPCM\n");
      fprintf(stderr, " - ZyXEL_2864     81       8-bit Rockwell PCM\n");
@@ -873,6 +874,25 @@ int main (int argc, char *argv[])
                exit(ERROR);
                };
           if (pvftolin(fd_in, fd_out, &header_in, 1, 0, 0) == OK)
+               exit(OK);
+
+          };
+
+     if ((strcmp(modem_type, "V253modem") == 0) && (compression == 12))
+          {
+          header_out.bits = 16;
+
+          if (write_rmd_header(fd_out, &header_out) != OK)
+               {
+               fclose(fd_out);
+
+               if (fd_out != stdout)
+                    unlink(name_out);
+
+               exit(ERROR);
+               };
+          /* Signed PCM 16-bit Intel bit ordering */
+          if (pvftolin(fd_in, fd_out, &header_in, 1, 16, 1) == OK)
                exit(OK);
 
           };
