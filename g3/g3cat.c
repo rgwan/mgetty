@@ -1,4 +1,4 @@
-#ident "$Id: g3cat.c,v 4.2 1998/05/07 10:37:37 gert Exp $ (c) Gert Doering"
+#ident "$Id: g3cat.c,v 4.3 1999/04/08 15:05:42 gert Exp $ (c) Gert Doering"
 
 /* g3cat.c - concatenate multiple G3-Documents
  *
@@ -192,6 +192,7 @@ int main _P2( (argc, argv),
 				/* starting the first g3 file */
     int empty_lines = 0;	/* blank lines at top of page */
     int line_width = 1728;	/* "force perfect" G3 file */
+    int opt_R = 0;		/* suppress generation of RTC */
 
     /* initialize lookup trees */
     build_tree( &white, t_white );
@@ -205,7 +206,7 @@ int main _P2( (argc, argv),
     /* process the command line
      */
 
-    while ( (i = getopt(argc, argv, "lah:p:w:")) != EOF )
+    while ( (i = getopt(argc, argv, "lah:p:w:R")) != EOF )
     {
 	switch (i)
 	{
@@ -214,6 +215,7 @@ int main _P2( (argc, argv),
 	  case 'h': empty_lines = atoi( optarg ); break;
 	  case 'p': padding = atoi( optarg ); break;
 	  case 'w': line_width = atoi( optarg ); break;
+	  case 'R': opt_R = 1; break;
 	  case '?': exit_usage(argv[0]); break;
 	}
     }
@@ -469,8 +471,11 @@ do_write:      		/* write eol, separating lines, next file */
 
     }	/* end for (all arguments) */
 
-    /* output final RTC */
-    for ( i=0; i<6; i++ ) puteol();
+    if ( ! opt_R )
+    {
+	/* output final RTC */
+	for ( i=0; i<6; i++ ) puteol();
+    }
 
     /* flush buffer */
     if ( out_hibit != 0 )
