@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 2.13 1995/06/05 11:43:50 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 2.14 1995/06/09 23:36:45 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -436,6 +436,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 	     * /etc/nologin file), do some cleanups, and go back to
 	     * field one: St_waiting
 	     */
+	    CallTime = CallName = CallerId = "";	/* dirty */
 	    rmlocks();
 	    mgetty_state = St_waiting;
 	    break;
