@@ -5,7 +5,7 @@
  * follow the IS-101 interim standard for voice modems. Since the commands
  * are set in the modem structure, it should be quite generic.
  *
- * $Id: IS_101.c,v 1.13 2001/02/24 10:26:12 marcs Exp $
+ * $Id: IS_101.c,v 1.14 2001/08/06 17:46:18 marcs Exp $
  *
  */
 
@@ -869,6 +869,7 @@ int IS_101_wait(int wait_timeout)
      {
      time_t timeout;
      int watchdog_count = 0;
+     int in_dle = FALSE;
 
      reset_watchdog();
      stop_waiting = FALSE;
@@ -887,29 +888,34 @@ int IS_101_wait(int wait_timeout)
                 cvd.poll_interval.d.i / 2;
                }
 
-          while ((char_read = voice_read_byte()) >= 0)
-               {
-
-               if (char_read == DLE)
-                    {
-
-                    if ((char_read = voice_read_byte()) <= 0)
-                         return(FAIL);
-
-                    lprintf(L_JUNK, "%s: <DLE> <%c>", voice_modem_name,
-                     char_read);
-                    voice_modem->handle_dle(char_read);
-                    }
-               else
-                    lprintf(L_WARN,
-                     "%s: unexpected byte <%c> from voice modem",
-                     program_name, char_read);
-
-               };
+          while ((char_read = voice_read_byte()) >= 0) {
+             if (in_dle) {
+                lprintf(L_JUNK,
+                        "%s: <DLE> <%c>",
+                        voice_modem_name,
+                        char_read);
+                voice_modem->handle_dle(char_read);
+                in_dle = FALSE;
+             }
+             else if (char_read == DLE) {
+                in_dle = TRUE;
+             }
+             else {
+                  lprintf(L_WARN,
+                   "%s: unexpected byte <%c> from voice modem",
+                   program_name, char_read);
+             }
+	  };
 
           voice_check_events();
           delay(cvd.poll_interval.d.i);
           };
+
+     /* We didn't receive the accompanying byte */
+     if (in_dle) {
+        lprintf(L_FATAL, "%s: <DLE> not followed by anything", program_name);
+        return FAIL;
+     }
 
      voice_check_events();
      voice_modem_state = IDLE;
