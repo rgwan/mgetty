@@ -4,7 +4,7 @@
  * Hacked by <Harlan.Stenn@pfcs.com>. Maybe will be merged
  * with the other Multitech driver.
  *
- * $Id: Multitech_5634.c,v 1.1 1999/01/30 18:08:57 marcs Exp $
+ * $Id: Multitech_5634.c,v 1.2 1999/01/30 18:21:27 marcs Exp $
  *
  */
 
@@ -327,10 +327,10 @@ voice_modem_struct Multitech_5634ZBAV =
      (char *) IS_101_ask_mode_cmnd,
      (char *) IS_101_ask_mode_answr,
      (char *) IS_101_voice_mode_id,
-     &Multitech_5634_answer_phone,
      (char *) IS_101_play_dtmf_cmd,
      (char *) IS_101_play_dtmf_extra,
      (char *) IS_101_play_dtmf_answr,
+     &Multitech_5634_answer_phone,
      &IS_101_beep,
      &IS_101_dial,
      &IS_101_handle_dle,
