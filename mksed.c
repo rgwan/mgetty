@@ -1,4 +1,4 @@
-#ident "$Id: mksed.c,v 1.7 1994/07/09 16:54:12 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mksed.c,v 1.8 1994/07/31 23:10:57 gert Exp $ Copyright (c) Gert Doering"
 ;
 #include <stdio.h>
 
@@ -17,6 +17,7 @@ int main _P0( void )
     printf( "      -e \"s;@MAILER@;%s;g\"\\\n", MAILER );
     printf( "      -e 's;@FAX_ADMIN@;%s;g'\\\n", MAIL_TO );
     printf( "      -e 's;@AWK@;%s;g'\\\n", AWK );
+    printf( "      -e 's;@ECHO@;%s;g'\\\n", ECHO );
     printf( "      -e 's;@SHELL@;%s;g'\\\n", SHELL );
     printf( "      -e 's;@BINDIR@;%s;g'\\\n", BINDIR );
     printf( "      -e 's;@SBINDIR@;%s;g'\\\n", SBINDIR );
