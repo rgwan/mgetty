@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 3.5 1996/07/01 20:05:01 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logfile.c,v 3.6 1996/11/13 20:19:05 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -18,7 +18,8 @@
 #ifdef SYSLOG
 #include <syslog.h>
 
-#if !defined(linux) && !defined(BSD) && !defined(SVR42) && !defined(solaris2)
+#if !defined(linux) && !defined(BSD) && \
+    !defined(SVR42) && !defined(solaris2) && !defined(_AIX)
 int openlog _PROTO(( char *, int, int ));
 int syslog _PROTO(( int, char *, ... ));
 #endif
