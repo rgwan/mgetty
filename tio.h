@@ -1,4 +1,4 @@
-#ident "$Id: tio.h,v 1.11 1994/02/15 15:48:15 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.h,v 1.12 1994/02/17 18:55:36 gert Exp $ Copyright (c) 1993 Gert Doering"
 ;
 #ifndef __TIO_H__
 #define __TIO_H__
@@ -96,7 +96,7 @@ typedef tcflag_t tioflag_t;
 #ifndef CSWTCH
 #define CSWTCH	000	/* cntl z */
 #endif
-#ifdef CNSWTCH
+#ifndef CNSWTCH
 #define CNSWTCH	0
 #endif
 #ifndef CSUSP
