@@ -321,3 +321,5 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
      by a number of seconds)
 
 233) have different login: prompts for callback/non-callback logins
+
+234) make new_fax path configurable
