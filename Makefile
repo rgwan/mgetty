@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.9 1997/10/30 21:29:12 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.10 1997/10/30 21:41:41 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -515,7 +515,8 @@ clean:
 
 fullclean:
 	rm -f *.o compat/*.o mgetty sendfax testgetty getdisk \
-			mksed sedscript newslock *~
+			mksed sedscript newslock *~ \
+			sendfax.config mgetty.config login.config
 	cd g3 ; $(MAKE) fullclean
 	cd fax ; $(MAKE) fullclean
 	cd tools ; $(MAKE) fullclean
