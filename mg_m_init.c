@@ -1,4 +1,4 @@
-#ident "$Id: mg_m_init.c,v 3.5 1996/03/03 16:30:08 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_m_init.c,v 3.6 1996/07/09 12:00:01 gert Exp $ Copyright (c) Gert Doering"
 
 /* mg_m_init.c - part of mgetty+sendfax
  *
@@ -35,18 +35,43 @@ static int init_chat_timeout = 20;
 
 /* initialize data section */
 
-int mg_init_data _P2( (fd, chat_seq), int fd, char * chat_seq[] )
+int mg_init_data _P3( (fd, chat_seq, force_chat_seq), 
+		      int fd, char * chat_seq[], char * force_chat_seq[] )
 {
     action_t what_action;
     
     if ( do_chat( fd, chat_seq, init_chat_actions,
-		 &what_action, init_chat_timeout, TRUE ) == FAIL )
+		 &what_action, init_chat_timeout, TRUE ) == SUCCESS )
     {
-	errno = ( what_action == A_TIMOUT )? EINTR: EINVAL;
-	lprintf( L_ERROR, "init chat failed, exiting..." );
-	return FAIL;
+	return SUCCESS;
     }
-    return SUCCESS;
+
+    /* if init_chat failed because the modem didn't respond, and we have 
+     * a "force_chat" sequence, try this.
+     * (force_chat might contain DLE ETX for voice modems, or just plain 
+     * simple +++ATH0 for data modems (mis-)configured with AT&D0)
+     */
+    if ( what_action == A_TIMOUT && force_chat_seq != NULL )
+    {
+	lprintf( L_WARN, "init chat timed out, trying force-init-chat" );
+
+	if ( do_chat( fd, force_chat_seq, init_chat_actions,
+		     &what_action, init_chat_timeout, TRUE ) == SUCCESS )
+        {
+	    lprintf( L_NOISE, "force-init succeeded, retrying init-chat");
+	    if ( do_chat( fd, chat_seq, init_chat_actions,
+			 &what_action, init_chat_timeout, TRUE ) == SUCCESS )
+	    {
+		return SUCCESS;
+	    }
+        }
+    }
+
+    /* either no force_chat available, or that didn't help either: BARF!
+     */
+    errno = ( what_action == A_TIMOUT )? EINTR: EINVAL;
+    lprintf( L_ERROR, "init chat failed, exiting..." );
+    return FAIL;
 }
 
 
