@@ -1,4 +1,4 @@
-#ident "$Id: tio.h,v 3.6 1996/06/01 18:57:00 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.h,v 3.7 1996/08/26 13:39:52 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 #ifndef __TIO_H__
 #define __TIO_H__
@@ -159,6 +159,25 @@ typedef tcflag_t tioflag_t;
 #define TIO_Q_IN	0x01		/* incoming data queue */
 #define TIO_Q_OUT	0x02		/* outgoing data queue */
 #define TIO_Q_BOTH	( TIO_Q_IN | TIO_Q_OUT )
+
+/* RS232 line status flags */
+/* system flags are used if available, otherwise we define our own */
+#ifdef TIOCM_DTR
+# define TIO_F_SYSTEM_DEFS
+# define TIO_F_DTR TIOCM_DTR
+# define TIO_F_DSR TIOCM_DSR
+# define TIO_F_RTS TIOCM_RTS
+# define TIO_F_CTS TIOCM_CTS
+# define TIO_F_DCD TIOCM_CAR
+# define TIO_F_RI  TIOCM_RNG
+#else
+# define TIO_F_DTR 0x001
+# define TIO_F_DSR 0x002
+# define TIO_F_RTS 0x004
+# define TIO_F_CTS 0x008
+# define TIO_F_DCD 0x010
+# define TIO_F_RI  0x020
+#endif
 
 /* function prototypes */
 int  tio_get _PROTO (( int fd, TIO *t ));
