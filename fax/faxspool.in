@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 4.10 1999/02/28 20:51:40 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 4.11 1999/05/27 13:48:55 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -25,6 +25,10 @@
 # 15.9.93: use g3cat to concatenate header and page (GD)
 #  3.10.93: use "hp2hig3" for hp-pcl4-files (cl)
 # 19.10.93: phone directories (caz)
+# $Log: faxspool.in,v $
+# Revision 4.11  1999/05/27 13:48:55  gert
+# implement handling of external conversion programs (input to G3)
+#
 
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -56,6 +60,10 @@ PBMFONT_HEADER_N=@LIBDIR@/cour25n.pbm
 # if you want to use pbmtext for converting ASCII texts, use these fonts:
 PBMFONT_BODY_F=@LIBDIR@/cour25.pbm
 PBMFONT_BODY_N=@LIBDIR@/cour25n.pbm
+
+#
+# this file overrides internal conversion functions
+FS_FILTER=@CONFDIR@/faxspool.filter
 
 #
 # these are the drivers used in Ghostscript - choose dfaxhig/low or faxg3
@@ -759,15 +767,27 @@ do
 
     target=$spooldir/i-$F_NO-
 
-    if
-    case $format in
-	ps | ascii | pbm | pgm | ppm |\
-	g3 | dvi   | lj  | xwd | gif | tif ) 
-		fs_cvt_$format $file $target $normal_res
-		;;    
-	*) $echo "$0: unknown format: $format!" >&2 ; exit 8 ;;
-    esac 
-    then : ; else
+    # get & use external filter command (if set)
+    filter=`$AWK '$1 == "FILTER" && $2 == "'"$format$normal_res"'" \
+		    { $1=""; $2=""; print; exit; }' $FS_FILTER 2>/dev/null`
+	
+    if [ -n "$filter" ] 
+    then
+	$echo "calling external filter:\n$filter\n";
+	set -- $file $target $normal_res
+	eval "$filter"
+    else
+	case $format in
+	    ps | ascii | pbm | pgm | ppm |\
+	    g3 | dvi   | lj  | xwd | gif | tif ) 
+		    fs_cvt_$format $file $target $normal_res
+		    ;;    
+	    *) $echo "$0: unknown format: $format!" >&2 ; exit 8 ;;
+	esac 
+    fi
+
+    if [ $? -ne 0 ] 
+    then
 	$echo "\n$0: error spooling \"$file\" - aborting!" >&2 ; exit 8
     fi
 
