@@ -1,4 +1,4 @@
-#ident "$Id: config.c,v 4.1 1997/01/12 14:53:36 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: config.c,v 4.2 1997/01/22 20:59:02 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /*
  * config.c
@@ -284,6 +284,8 @@ int ignore = 0;		/* ignore keywords in non-matching section */
 	    lprintf( L_FATAL, "cannot open %s", conf_file );
 	return ERROR;
     }
+
+    lprintf( L_NOISE, "reading %s...", conf_file );
 
 /* display_cd ( cd ); */
 
