@@ -1,4 +1,4 @@
-.TH fax 1 "27 Oct 94" "greenie" "mgetty+sendfax manual"
+.TH fax 1 "23 Nov 02" "greenie" "mgetty+sendfax manual"
 .IX fax
 .SH NAME
 fax \- fax sending and receiving with mgetty+sendfax
@@ -16,6 +16,9 @@ fax \- fax sending and receiving with mgetty+sendfax
 .RB [options]
 
 .B faxrunq
+.RB [options]
+
+.B faxrunqd
 .RB [options]
 
 .B sendfax
@@ -65,11 +68,28 @@ If transmission isn't possible, the job will be retried later. While meant
 to be run from 
 .I cron,
 .I faxrunq
-can as well be started from the shell (but you must be root).
+can as well be started from the shell (but you must have access to the fax 
+queue and the modems, which means you must be 'root' or '@FAX_OUT_USER@')
+
+.I faxrunqd
+is a replacement for 
+.I faxrunq
+to be used in environments that send a high number of faxes per day, or
+need more flexibility.
 
 .I sendfax
 is the backend used by faxrunq for actually sending the fax. It is not
 meant to be ever called directly, but can be used in own applications.
+
+.I faxq-helper
+is a helper program that is used by
+.I faxspool,
+.I faxq
+and
+.I faxrm
+to access the fax spool directory (which is not world-writeable since
+mgetty version 1.1.29).
+
 
 .sp
 .I mgetty
@@ -107,13 +127,13 @@ outgoing fax spool directory
 incoming faxes
 .TP
 .B @LIBDIR@/
-The cover page program, and a few font files live here.
+The cover page program, faxq-helper, and a few font files live here.
 .TP 
 .B @CONFDIR@/
 most configuration files for mgetty and sendfax live here.
 .TP
 .B @SBINDIR@
-mgetty and sendfax live here
+mgetty, sendfax and faxrunqd live here
 .TP
 .B @BINDIR@
 all the other programs
@@ -153,13 +173,13 @@ runtime configuration file for sendfax (optional).
 Look into the responding man pages.
 
 .SH "SEE ALSO"
-faxspool(1), faxq(1), faxrunq(1), sendfax(8), faxrm(1), mgetty(8),
+faxspool(1), faxq(1), faxrunq(1), faxrunqd(8), sendfax(8), faxrm(1), mgetty(8),
 pbm2g3(1), g32pbm(1), g3cat(1), faxqueue(5), mgettydefs(4), coverpg(1)
 
 mgetty.info
 .SH AUTHOR
 The
 .I mgetty+sendfax
-program suite is Copyright (C) 1993 by Gert Doering, <gert@greenie.muc.de>. 
+program suite is Copyright (C) 1993-2002 by Gert Doering, <gert@greenie.muc.de>. 
 Parts of the programs kindly donated by Chris Lewis, Paul Sutcliffe,
 Klaus Weidner, and numerous others.
