@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.20 1998/05/31 19:54:41 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.21 1998/06/01 16:25:03 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -676,6 +676,47 @@ For the future, Chris Lewis is planning on adding special modem initialization
 strings (e.g., 2400 bps only, fax-only, ...) dependant on the caller
 number.
 
+
+For most applications, this kind of static configuration is enough.  If
+you have special needs, you can choose to run an external program to
+decide this.  The program name is configured with the @code{cnd-program}
+statement in @file{mgetty.config}.  Its command line arguments are:
+
+@example
+  <program> <tty> <CallerID> <dist-ring-nr.> <Called Nr.>
+@end example
+
+@code{CallerID} is the number of the caller, if known, or @samp{none}, if
+not.  @code{dist-ring-nr.} is the RING type, if you have ``distinctive
+RING'' on your telephone line and your modem supports this, or ``0'' 
+for an unidentified call.  @code{Called Nr.} is the number that was called
+(this is only meaningful if you have ISDN, and your modem signals the
+complete number called to the host - e.g. ELSA or ZyXEL 2864I do that).
+
+For example, a call from 12345 to 56789, using ISDN, coming in on ttyS3, 
+could lead to a program called like this:
+
+@example
+  check.cnd ttyS3 12345 0 56789
+@end example
+
+The program return value decides whether the call should be accepted.
+Currently, the following values are defined:
+
+@display
+ 0 - accept call, no specific preferences
+ 1 - reject call
+@end display
+
+Future versions will allow external selection of the way mgetty/vgetty is
+supposed to answer the call (data/voice/fax/...), but that's not
+implemented yet.
+
+Note: this can not only be used to decide whether to accept a call or not.
+You could as well use it to display the caller ID on an external LCD
+screen, in an X11 window, print it, initiate a D-Channel Callback, or do 
+whatever you want that needs the Caller ID data.
+
 @node runtime-mgetty,  , Caller-ID, mgetty
 @section Runtime configuration for mgetty: @file{mgetty.config}
 
@@ -940,6 +981,13 @@ CID-capable modems send the CID on their own and don't need this.
 
 Don't forget to set @code{rings} to at least 2, otherwise the CID grabbing
 code won't work.
+
+@item @code{cnd-program} @var{pathname}
+
+Specify a program to be run before answering an incoming call.  Use this
+if the static Caller ID selection in CNDFILE (policy.h) is not sufficient,
+or if you want to use the Caller ID data for other purposes (displaying,
+for example).  @xref{Caller-ID}
 
 @item @code{answer-chat} @var{chat sequence}
 
