@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 4.1 1997/01/12 14:54:00 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 4.2 1997/03/18 23:02:48 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -680,6 +680,7 @@ do
 	case "`LANG=C file $file | cut -d':' -f2- `" in
 	    *"nglish text"*)	format="ascii" ;;
 	    *"ascii text"*)	format="ascii" ;;
+	    *"ASCII text"*)	format="ascii" ;;
 	    *"ews text"*)	format="ascii" ;;
 	    *"ail text"*)	format="ascii" ;;
 	    *"commands text"*)	format="ascii" ;;
