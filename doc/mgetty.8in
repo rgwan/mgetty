@@ -155,6 +155,11 @@ by creating and removing @NOLOGIN@ via the
 .I cron
 program at the appropriate time.
 .TP
+.B /etc/issue
+will be printed after a connection is established, and before the
+'login:' prompt.  Usually contains a 'Welcome' message. Can be changed 
+with the '-i' option.
+.TP
 .B @LOG_PATH@
 Debug log file, see below.
 
