@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.79 1994/01/02 20:44:40 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.80 1994/01/02 20:53:37 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -516,9 +516,10 @@ int main _P2((argc, argv), int argc, char ** argv)
 	(void) signal(SIGQUIT, sig_goodbye);
 	(void) signal(SIGTERM, sig_goodbye);
 
+#ifdef NOLOGIN_FILE
 	/* check for a "nologin" file (/etc/nologin.<device>) */
-
-	sprintf( buf, "/etc/nologin.%s", Device );
+	
+	sprintf( buf, NOLOGIN_FILE, Device );
 
 	if ( access( buf, F_OK ) == 0 )
 	{
@@ -526,7 +527,8 @@ int main _P2((argc, argv), int argc, char ** argv)
 	    clean_line( STDIN, 80 );		/* wait for ringing to stop */
 	    exit(1);
 	}
-
+#endif
+	
 	/* wait for "RING", if found, send manual answer string (ATA)
 	   to the modem */
 
