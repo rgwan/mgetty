@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 3.4 1996/04/18 19:50:47 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logfile.c,v 3.5 1996/07/01 20:05:01 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -300,6 +300,8 @@ int     errnr;
 #ifdef SYSLOG
 	syslog( level == L_FATAL? LOG_ALERT: LOG_ERR, "%s: %m", ws );
 #endif
+
+#ifndef SYSLOG
 	if ( level == L_FATAL )		/* write to console */
 	{
 	    FILE * cons_fp;
@@ -316,6 +318,7 @@ int     errnr;
 		mail_logfile = TRUE;
 	    }
 	}
+#endif
     }	/* end if ( L_ERROR or L_FATAL ) */
     fflush(log_fp);
 
