@@ -1,4 +1,4 @@
-#ident "$Id: goodies.c,v 1.5 1994/09/11 12:54:25 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: goodies.c,v 1.6 1994/09/28 17:34:50 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /*
  * goodies.c
@@ -116,3 +116,8 @@ char * get_ps_args _P1 ((pid), int pid )
     return NULL;
 #endif
 }
+
+#ifdef NeXT
+  /* provide dummy putenv() function */
+  int putenv( char * s ) { return 0 }
+#endif
