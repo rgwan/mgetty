@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.54 1993/10/26 22:09:45 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.55 1993/10/27 01:18:56 gert Exp $ Copyright (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -55,7 +55,7 @@ struct	speedtab {
 	{ 0,	  0,	 ""	 }
 };
 
-unsigned short portspeed = DEFAULT_PORTSPEED;
+unsigned short portspeed = B0;	/* indicates has not yet been set */
 
 /* warning: some modems (for example my old DISCOVERY 2400P) need
  * some delay before sending the next command after an OK, so give it here
@@ -141,6 +141,7 @@ int	prompt_waittime = 500;		/* milliseconds between CONNECT and */
 TIO *gettermio _PROTO((char * tag, boolean first, char **prompt));
 
 boolean	direct_line = FALSE;
+boolean verbose = FALSE;
 
 boolean virtual_ring = FALSE;
 static void sig_pick_phone()		/* "simulated RING" handler */
@@ -194,8 +195,17 @@ int main _P2((argc, argv), int argc, char ** argv)
 	/* process the command line
 	 */
 
-	while ((c = getopt(argc, argv, "x:s:rp:n:")) != EOF) {
+	while ((c = getopt(argc, argv, "c:x:s:rp:n:")) != EOF) {
 		switch (c) {
+		case 'c':
+#ifdef USE_GETTYDEFS
+			verbose = TRUE;
+			dumpgettydefs(optarg);
+			exit(0);
+#else
+			lprintf( L_FATAL, "gettydefs not supported\n");
+			exit_usage(2);
+#endif
 		case 'x':
 			log_level = atoi(optarg);
 			break;
@@ -295,6 +305,14 @@ int main _P2((argc, argv), int argc, char ** argv)
 		uucpgid = pwd->pw_gid;
 	}
 	(void) chown(devname, uucpuid, uucpgid);
+
+	/* Currently, the tio returned here is ignored.
+	   The invocation is only for the sideeffects of:
+	    - loading the gettydefs file if enabled.
+	    - setting portspeed appropriately, if not defaulted.
+	 */
+
+	tio = *gettermio(GettyID, TRUE, &login_prompt);
 
 	/* the line is mine now ...  */
 
@@ -569,6 +587,9 @@ int main _P2((argc, argv), int argc, char ** argv)
 
 		/* hand off to login, (can be a shell script!) */
 
+#ifdef USE_GETTYDEFS
+		tio_set(STDIN, gettermio(GettyID, FALSE, (char *) NULL));
+#endif
 		(void) execl(login, "login", buf, (char *) NULL);
 		(void) execl("/bin/sh", "sh", "-c",
 				login, buf, (char *) NULL);
@@ -599,7 +620,7 @@ gettermio _P3 ((id, first, prompt), char *id, boolean first, char **prompt) {
 
 #ifdef USE_GETTYDEFS
     static loaded = 0;
-    struct gdentry *gdentry;
+    GDE *gdp;
 #endif
 
     /* default setting */
@@ -610,28 +631,27 @@ gettermio _P3 ((id, first, prompt), char *id, boolean first, char **prompt) {
 #ifdef USE_GETTYDEFS
 
     if (!loaded) {
-	if (!loadgettydefs()) {
+	if (!loadgettydefs(GETTYDEFS)) {
 	    lprintf(L_WARN, "Couldn't load gettydefs - using defaults");
 	}
 	loaded = 1;
     }
-    if (gdentry = getgettydef(id)) {
-	lprintf(L_NOISE, "Using %s gettydefs entry entry", gdentry->tag);
+    if (gdp = getgettydef(id)) {
+	lprintf(L_NOISE, "Using %s gettydefs entry", gdp->tag);
 	if (first) {
-	    termio.c_iflag = gdentry->before.c_iflag;
-	    termio.c_oflag = gdentry->before.c_oflag;
-	    termio.c_cflag = gdentry->before.c_cflag;
-	    termio.c_lflag = gdentry->before.c_lflag;
+	    termio = gdp->before;
 	} else {
-	    termio.c_iflag = gdentry->after.c_iflag;
-	    termio.c_oflag = gdentry->after.c_oflag;
-	    termio.c_cflag = gdentry->after.c_cflag;
-	    termio.c_lflag = gdentry->after.c_lflag;
+	    termio = gdp->after;
 	}
-	rp = gdentry->prompt;
-    }
+	/* side-effect - ignores ``after'' baud setting */
+	if (portspeed == B0)
+	    portspeed = termio.c_cflag & CBAUD;
+	rp = gdp->prompt;
+    } else
 
 #endif
+    if (portspeed == B0)
+	portspeed = DEFAULT_PORTSPEED;
 
     if (prompt && !*prompt) *prompt = rp;
 
