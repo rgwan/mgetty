@@ -86,18 +86,19 @@ if ( !defined $args{files} && !defined $args{message} && $new eq "false")
 }
 else { $files_errmsg = ""; }
 
+if (($new eq "true") || ($error eq "true"))
+{
+
 #
 # $new="true" - errors or no entries...
 
 # set undefined values for printing
 if ( !defined $args{to}      ) { $args{to} = ""; }
-if ( !defined $args{fax}     ) { $args{to} = ""; }
-if ( !defined $args{from}    ) { $args{to} = ""; }
-if ( !defined $args{mail}    ) { $args{to} = ""; }
-if ( !defined $args{message} ) { $args{to} = ""; }
+if ( !defined $args{fax}     ) { $args{fax} = ""; }
+if ( !defined $args{from}    ) { $args{from} = ""; }
+if ( !defined $args{mail}    ) { $args{mail} = ""; }
+if ( !defined $args{message} ) { $args{message} = ""; }
 
-if (($new eq "true") || ($error eq "true"))
-{
 #
 # $documents auswerten und in $options zur Ausgabe vorbereiten
 #
