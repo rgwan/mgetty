@@ -1,4 +1,4 @@
-#ident "$Id: mg_m_init.c,v 2.1 1994/11/30 23:20:44 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_m_init.c,v 2.2 1994/12/23 12:59:21 gert Exp $ Copyright (c) Gert Doering"
 
 /* mg_m_init.c - part of mgetty+sendfax
  *
@@ -30,20 +30,6 @@ chat_action_t	init_chat_actions[] = { { "ERROR", A_FAIL },
 					{ "BUSY", A_FAIL },
 					{ "NO CARRIER", A_FAIL },
 					{ NULL, A_FAIL } };
-
-/* warning: some modems (for example my old DISCOVERY 2400P) need
- * some delay before sending the next command after an OK, so give it here
- * as "\\dAT...".
- * 
- * To send a backslash, you have to use "\\\\" (four backslashes!) */
-
-char *	def_init_chat_seq[] = { "",
-			    "\\d\\d\\d+++\\d\\d\\d\r\\dATQ0V1H0", "OK",
-
-/* initialize the modem - defined in policy.h
- */
-			    MODEM_INIT_STRING, "OK",
-                            NULL };
 
 static int init_chat_timeout = 20;
 
@@ -350,8 +336,8 @@ try_again:
 
 int mg_get_ctty _P2( (fd, devname), int fd, char * devname )
 {
-    /* BSD systems, Linux */
-#if defined( TIOCSCTTY )
+    /* BSD systems, Linux, *NOT* HP-UX */
+#if defined( TIOCSCTTY ) && !defined( _HPUX_SOURCE)
     if ( setsid() == -1 && errno != EPERM )
     {
 	lprintf( L_ERROR, "cannot make myself session leader (setsid)" );
