@@ -1,4 +1,4 @@
-#ident "$Id: tio.h,v 3.1 1995/08/30 12:41:01 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.h,v 3.2 1995/11/02 00:00:35 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 #ifndef __TIO_H__
 #define __TIO_H__
@@ -164,6 +164,8 @@ void tio_carrier     _PROTO (( TIO *t, int carrier_sensitive ));
 int  tio_toggle_dtr  _PROTO(( int fd, int msec_wait ));
 int  tio_flush_queue _PROTO(( int fd, int queue ));
 int  tio_flow        _PROTO(( int fd, int restart_output ));
+int  tio_break       _PROTO(( int fd ));
+int  tio_drain_output _PROTO(( int fd ));
 
 #ifdef USE_GETTYDEFS
 typedef struct {
