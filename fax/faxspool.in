@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 4.20 2002/11/17 22:06:18 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 4.21 2002/11/19 10:08:39 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -26,6 +26,12 @@
 #  3.10.93: use "hp2hig3" for hp-pcl4-files (cl)
 # 19.10.93: phone directories (caz)
 # $Log: faxspool.in,v $
+# Revision 4.21  2002/11/19 10:08:39  gert
+# do not check + mkdir $FAX_SPOOL_OUT/ anymore (faxq-helper does this)
+# do not write to $FAX_SPOOL_OUT/<subdir> directly anymore - create G3 files
+# in $TMP/<subdir>/, use faxq-helper to copy them to fax queue.
+# same applies to .source-files/$b - copy via faxq-helper
+#
 # Revision 4.20  2002/11/17 22:06:18  gert
 # FAX_ALLOW + FAX_DENY moved to fax-helper
 #
@@ -594,21 +600,6 @@ fi
 
 
 #
-# check spool directory permissions
-#
-
-# BIG TODO HERE! -> move to faxq-helper
-if [ ! -d $FAX_SPOOL_OUT ] ; then
-    if mkdir $FAX_SPOOL_OUT ; then :
-    else
-	$echo "cannot create $FAX_SPOOL_OUT" >&2 ; exit 6
-    fi
-    chmod 1777 $FAX_SPOOL_OUT
-    chgrp 0 $FAX_SPOOL_OUT 2>/dev/null
-    chown 0 $FAX_SPOOL_OUT 2>/dev/null
-fi
-
-#
 # get unique directory name, using faxq-helper
 #
 new_seq=`$FAXQ_HELPER new`
@@ -617,21 +608,21 @@ if [ -z "$new_seq" ] ; then
     $echo "can't create new job directory, give up" >&2 ; exit 6
 fi
 
-spooldir=$FAX_SPOOL_OUT/.in$new_seq
+#
+# mkdir a directory in $TMP (or /tmp), convert input to G3 in there
+#
+spooldir=${TMP:-/tmp}/$new_seq.$$.`date +%S`
 
-if [ ! -d $spooldir ] ; then
-    $echo "Ummm, strange - $spooldir does not exist" >&2 ; exit 6
+umask 077
+if mkdir $spooldir ; then
+    $echo "spooling to $spooldir (->$new_seq)..."
+else
+    $echo "ERROR: can't create work dir '$spooldir', giving up" >&2 ; exit 6
 fi
-
-#
-# now: spool all the files to $spooldir
-#
-$echo "spooling to $spooldir..."
 
 #
 # process all input files
 #
-umask 022
 input_data="$*"
 F_NO=0001
 
@@ -797,11 +788,10 @@ done
 #
 if [ ! -z "$copy_source" ] ; then
     $echo "\nCopy source files (for printing, if faxing fails)..."
-    mkdir $spooldir/.source-files
     for file in $input_data
     do
 	b=`basename $file`
-	cp $file $spooldir/.source-files/$b
+	$FAXQ_HELPER input $new_seq .source-files/$b <$file
     done
 fi
 
@@ -876,7 +866,8 @@ else
 			      -e "s;@ID@;$FAX_STATION_ID;g" \
 			      -e "s;@DATE@;`date`;g" \
 	| pbmtext -font $hdrfont | pbm2g3 \
-	| g3cat - $f > f$nr.g3 \
+	| g3cat - $f | \
+	$FAXQ_HELPER input $new_seq f$nr.g3 \
 	&& rm $f
 	finalpg="$finalpg f$nr.g3"
     done
@@ -920,6 +911,11 @@ $echo "pages " $finalpg >>$job.q
     $echo "acct_handle $ACCT_HANDLE" >>$job.q
 
 $FAXQ_HELPER activate $new_seq < $job.q || exit 99
+
+# clean up
+rm $job.q
+cd ..
+rmdir $spooldir
 
 if [ -z "`find $LAST_RUN -ctime -1 -print 2>/dev/null`" ]
 then
