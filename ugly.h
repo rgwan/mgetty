@@ -1,4 +1,4 @@
-#ident "$Id: ugly.h,v 1.1 1994/02/12 14:10:16 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: ugly.h,v 1.2 1994/05/28 10:30:08 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* this module contains various macros that help you write function
  * prototypes that work both with ANSI-C and K&R C
@@ -18,6 +18,7 @@
 #define _P7(x,a1,a2,a3,a4,a5,a6,a7)	(a1,a2,a3,a4,a5,a6,a7)
 #define _P8(x,a1,a2,a3,a4,a5,a6,a7,a8)	(a1,a2,a3,a4,a5,a6,a7,a8)
 #define _P9(x,a1,a2,a3,a4,a5,a6,a7,a8,a9)	(a1,a2,a3,a4,a5,a6,a7,a8,a9)
+#define _P10(x,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10)	(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10)
 
 #else
 
@@ -32,6 +33,7 @@
 #define _P7(x,a1,a2,a3,a4,a5,a6,a7)	x a1;a2;a3;a4;a5;a6;a7;
 #define _P8(x,a1,a2,a3,a4,a5,a6,a7,a8)	x a1;a2;a3;a4;a5;a6;a7;a8;
 #define _P9(x,a1,a2,a3,a4,a5,a6,a7,a8,a9)	x a1;a2;a3;a4;a5;a6;a7;a8;a9;
+#define _P10(x,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10)	x a1;a2;a3;a4;a5;a6;a7;a8;a9;a10;
 
 #define const
 #define volatile
