@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.39 1998/11/22 10:05:52 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.40 1998/12/11 09:27:13 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -759,10 +759,13 @@ int mdm_identify _P1( (fd), int fd )
 	    modem_type=Mt_unknown;
 	    mis = mdm_get_idstring( "ATI3", 1, fd );
 	}
-	/* got this from Andreas Muck, <andi@koala.rhein-neckar.de> */
-	else if ( strncmp( l, "5607A", 5 ) == 0 )
+	/* got this from Andreas Muck, <andi@koala.rhein-neckar.de>
+	 * and Frank Damgaard <frda@post3.tele.dk>
+	 */
+	else if ( strncmp( l, "5607A", 5 ) == 0 ||
+	          strncmp( l, "5607B", 5 ) == 0 )
 	{
-	    lprintf( L_MESG, "USR Courier/Sportster V90 (German?) detected" );
+	    lprintf( L_MESG, "USR Courier/Sportster V90 (national variant?) detected" );
 	    modem_type=Mt_class2_0;
 	    mis = mdm_get_idstring( "ATI3", 1, fd );
 	}
