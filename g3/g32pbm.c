@@ -1,4 +1,4 @@
-#ident "$Id: g32pbm.c,v 1.2 1993/09/29 16:08:56 gert Exp $ (c) Gert Doering";
+#ident "$Id: g32pbm.c,v 1.3 1993/09/29 17:15:20 gert Exp $ (c) Gert Doering";
 
 #include <stdio.h>
 #include <malloc.h>
@@ -215,70 +215,68 @@ struct g3code m_black[28] = {
 
 /* The number of bits looked up simultaneously determines the amount
  * of memory used by the program - some values:
- * 10 bits : 804 Kbytes, 8 bits : 207 Kbytes
- *  5 bits :  29 Kbytes, 1 bit  :   5 Kbytes
+ * 10 bits : 87 Kbytes, 8 bits : 20 Kbytes
+ *  5 bits :  6 Kbytes, 1 bit  :  4 Kbytes
  * - naturally, using less bits is also slower...
  */
 
+/*
 #define BITS 5
 #define BITM 0x1f
+*/
 
-/*
 #define BITS 8
 #define BITM 0xff
-*/
 
 /*
-#define BITS 4
-#define BITM 0x0f
-*/
-
-/*
-#define BITS 10
-#define BITM 0x3ff
+#define BITS 12
+#define BITM 0xfff
 */
 
 #define BITN 1<<BITS
 
-/*!! FIXME: make leafs smaller (two structs instead of union) */
-
 struct g3_tree { int nr_bits;
-		 union d {
-		     struct g3_tree *	nextb[ BITN ];
-		     int		nr_pels;
-		 } d; };
+		 struct g3_tree *	nextb[ BITN ];
+		 };
+
+struct g3_leaf { int nr_bits;
+		 int nr_pels; };
 
 void tree_add_node( struct g3_tree *p, int nr_pels,
 		    int bit_code, int bit_length )
 {
-struct g3_tree *p2;
 int i;
 
     if ( bit_length <= BITS )		/* leaf (multiple bits) */
     {
-	p2 = (struct g3_tree *) calloc( 1, sizeof( struct g3_tree ) );
-	if ( p2 == NULL ) { perror( "malloc(2)"); exit(10); }
+    struct g3_leaf *p3;
 
-	p2->nr_bits = bit_length;	/* leaf tag */
-	p2->d.nr_pels = nr_pels;
+	p3 = (struct g3_leaf *) malloc( sizeof( struct g3_leaf ) );
+	if ( p3 == NULL ) { perror( "malloc(2)"); exit(10); }
+
+	p3->nr_bits = bit_length;	/* leaf tag */
+	p3->nr_pels = nr_pels;
 
 	if ( bit_length == BITS )	/* full width */
 	{
-	    p->d.nextb[ bit_code ] = p2;
+	    p->nextb[ bit_code ] = (struct g3_tree *) p3;
 	}
 	else				/* fill bits */
 	  for ( i=0; i< ( 1 << (BITS-bit_length)); i++ )
 	  {
-	    p->d.nextb[ bit_code + ( i << bit_length ) ] = p2;
+	    p->nextb[ bit_code + ( i << bit_length ) ] = (struct g3_tree *) p3;
 	  }
     }
     else				/* node */
     {
-	p2 = p->d.nextb[ bit_code & BITM ];
+    struct g3_tree *p2;
+
+	p2 = p->nextb[ bit_code & BITM ];
 	if ( p2 == 0 )			/* no sub-node exists */
 	{
-	    p2 = p->d.nextb[ bit_code & BITM ] =
+	    p2 = p->nextb[ bit_code & BITM ] =
 		( struct g3_tree * ) calloc( 1, sizeof( struct g3_tree ));
+	    if ( p2 == NULL ) { perror( "malloc 3" ); exit(11); }
 	    p2->nr_bits = 0;		/* node tag */
 
 	}
@@ -325,14 +323,14 @@ void print_g3_tree( char * t, struct g3_tree * p )
 int i;
     if ( p->nr_bits )
 	fprintf( stderr, "%s (%08x) leaf( nr_bits=%2d, PELs=%3d )\n",
-		 t, (int) p, p->nr_bits, p->d.nr_pels );
+		 t, (int) p, p->nr_bits, (struct g3_leaf *) p->nr_pels );
     else
     {
 #if DEBUG > 1
 	fprintf( stderr, "%s (%08x) node (BITs=%d)\n", t, (int) p, BITS );
 	for ( i=0; i<BITN; i++ )
 	{
-	    fprintf( stderr, "    d[%d]->%08x\n", i, (int) (p->d.nextb[i]) );
+	    fprintf( stderr, "    d[%d]->%08x\n", i, (int) (p->nextb[i]) );
 	}
 #endif
     }
@@ -355,22 +353,20 @@ int i;
      
 struct g3_tree * black, * white;
 
-char obuf[2000];
-
 #define CHUNK 2048;
-static	char rbuf[2048];
-static	int  rp;
-static	int  rs;
+static	char rbuf[2048];	/* read buffer */
+static	int  rp;		/* read pointer */
+static	int  rs;		/* read buffer size */
 
 #define MAX_ROWS 4300
 #define MAX_COLS 1728		/* !! FIXME - command line parameter */
 
-main( int argc, char ** argv )
+int main( int argc, char ** argv )
 {
 int data;
 int hibit;
-unsigned char c;
-struct g3_tree * p;
+struct	g3_tree * p;
+int	nr_pels;
 int fd;
 int color;
 int i;
@@ -449,7 +445,7 @@ int	col;
 		rs = read( fd, rbuf, sizeof( rbuf ) );
 		if ( rs < 0 ) { perror( "read2"); break; }
 		rp = 0;
-		if ( rs == 0 ) { fprintf( stderr, "EOF!" ); goto write; /*!!*/}
+		if ( rs == 0 ) { fprintf( stderr, "EOF!" ); goto write; }
 	    }
 #ifdef DEBUG
 	    fprintf( stderr, "hibit=%2d, data=", hibit );
@@ -465,9 +461,9 @@ int	col;
 #endif
 
 	if ( color == 0 )		/* white */
-	    p = white->d.nextb[ data & BITM ];
+	    p = white->nextb[ data & BITM ];
 	else				/* black */
-	    p = black->d.nextb[ data & BITM ];
+	    p = black->nextb[ data & BITM ];
 
 	while ( p != NULL && ! ( p->nr_bits ) )
 	{
@@ -476,7 +472,7 @@ int	col;
 #endif
 	    data >>= BITS;
 	    hibit -= BITS;
-	    p = p->d.nextb[ data & BITM ];
+	    p = p->nextb[ data & BITM ];
 	}
 
 	if ( p == NULL )	/* invalid code */
@@ -499,26 +495,29 @@ int	col;
 		    }
 		}
 	    }
-	    goto handle_eol;
+	    nr_pels = -1;		/* handle as if eol */
+	}
+	else				/* p != NULL <-> valid code */
+	{
+#if DEBUG > 1
+	    print_g3_tree( "p=", p );
+#endif
+	    data >>= p->nr_bits;
+	    hibit -= p->nr_bits;
+
+	    nr_pels = ( (struct g3_leaf *) p ) ->nr_pels;
+#ifdef DEBUG
+	    fprintf( stderr, "PELs: %d (%c)\n", nr_pels, '0'+color );
+#endif
 	}
 
-#if DEBUG > 1
-	print_g3_tree( "p=", p );
-#endif
-	data >>= p->nr_bits;
-	hibit -= p->nr_bits;
-#ifdef DEBUG
-	fprintf( stderr, "PELs: %d (%c)\n", p->d.nr_pels, '0'+color );
-#endif
-
 	/* handle EOL (including fill bits) */
-	if ( p->d.nr_pels == -1 )
+	if ( nr_pels == -1 )
 	{
 #ifdef DEBUG
 	    fprintf( stderr, "hibit=%2d, data=", hibit );
 	    putbin( data );
 #endif
-handle_eol:
 	    /* skip filler 0bits -> seek for "1"-bit */
 	    while ( ( data & 0x01 ) != 1 )
 	    {
@@ -564,27 +563,29 @@ handle_eol:
 	}
 	else		/* not eol */
 	{
+	    if ( col+nr_pels > MAX_COLS ) nr_pels = MAX_COLS - col;
+
 	    if ( color == 0 )
-		col += p->d.nr_pels;
+		col += nr_pels;
 	    else
 	    {
             register int bit = ( 0x80 >> ( col & 07 ) );
 	    register char *w = & bp[ col>>3 ];
 
-		/*!! FIXME - byte optimizations */
-		  for ( i=p->d.nr_pels; i > 0; i-- )
+		for ( i=nr_pels; i > 0; i-- )
 		{
 		    *w |= bit;
 		    bit >>=1; if ( bit == 0 ) { bit = 0x80; w++; }
 		    col++;
 		}
 	    }
-	    if ( p->d.nr_pels < 64 ) color = !color;	/* terminal code */
+	    if ( nr_pels < 64 ) color = !color;		/* terminal code */
 	}
     }		/* end main loop */
-
 /*!! FIXME - MAX_COLS -> really used COLs */
 write:		/* write pbm (or whatever) file */
+
+    if( fd != 0 ) close(fd);	/* close input file */
 
 fprintf( stderr, "consecutive EOLs: %d\n", cons_eol );
 
