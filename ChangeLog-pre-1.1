@@ -1,0 +1,2688 @@
+Mon Jan 20 11:37:30 1997  Gert Doering  (gert@greenie.muc.de)
+
+	* release 1.1.0
+
+Sun Jan 12 16:24:40 1997  Gert Doering   (gert@greenie.muc.de)
+
+	* doc/mgetty.texi-in: update references to
+	FAX_SEND_IGNORE_CARRIER
+
+	* sendfax.c: throw out #ifdef FAX_SEND_IGNORE_CARRIER, use config
+	  file flag "ignore-carrier y/n"
+
+	* faxsend.c: remove #ifndef's for FAX_SEND_IGNORE_CARRIER - worst
+	  thing that can happen is setting CLOCAL twice, and that should 
+	  not do harm.
+
+	* conf_mg.c, conf_sf.c: add brackets around union initialization
+
+	* release 1.0
+
+Thu Jan 09 21:30:15 1997  Gert Doering   (gert@greenie.muc.de)
+
+	* frontends/tcl/faxview-0.2: patch up to latest Tcl/Tk
+
+	* mgetty.c, logname.c: make login timeout runtime-configurable
+
+	* conf_sf.h, conf_sf.c: add new option "ignore-carrier" (yet unused)
+
+	* fax/faxspool.in: prepend @BINDIR@ to $PATH
+
+Thu Jan 02 15:14:00 1997  Gert Doering  (gert@greenie.muc.de)
+
+	* release 0.99.9
+
+	* everything: rename pbmtog3 to pbm2g3, and g3topbm to g32pbm.
+
+Mon Dec 23 19:06:35 1996  Gert Doering  (gert@greenie.muc.de)
+
+	* release 0.99.8
+
+Sat Dec 21 17:23:28 1996  Gert Doering  (gert@greenie.muc.de)
+
+	* fax/faxspool.in: fix lock file / t-bit problem
+
+	* fax/faxspool.in: move driver selection for ghostscript to top of
+	script, so you can easily use "faxg3" instead of "dfaxhigh".
+
+	* fax/faxspool.in: always call "dvips" with "-P dfaxhigh" (low) now.
+
+	* tio.c, tio.h: move #include <sys/ioctl.h>, for _AIX and TIOCMGET
+
+Sun Dec 15 16:45:56 1996  Gert Doering  (gert@greenie.muc.de)
+
+	* add SIG_HDLR_ARGS definition to all signal handling functions,
+	get rid of compilation warnings on SCO OSR 5.0 [and others]
+
+Thu Dec 12 22:51:43 1996  Gert Doering  (gert@greenie.muc.de)
+
+	* NeXT compilation warning cleanup
+
+	* release 0.99.7
+
+	* new voice code (USR drivers)
+
+Sat Dec 07 18:55:41 1996  Gert Doering  (gert@greenie.muc.de)
+
+	* fax/faxq.in: write "Status re-activated" to JOB file
+
+Wed Dec 04 21:25:36 1996  Gert Doering  (gert@greenie.muc.de)
+
+	* release 0.99.6
+
+	* voice/: new voice release from Marc
+
+Thu Nov 28 22:02:13 1996  Gert Doering  (gd@medat.de)
+
+	* fax/faxq.in: print time of last "faxrunq" run (if "-v")
+
+	* fax/faxrunq.in: make ".last_run" world-readable
+
+	* fax/faxspool.in: new algorithm for naming temporary G3 files:
+	fix problems with file names starting with ".", with *FAST*
+	machines that can do more than one G3 file per second, and with
+	fax files more than 100 pages long.
+
+Tue Nov 26 22:21:43 1996  Gert Doering  (gert@greenie)
+	
+	* dialin.config: must be "all", not "any" for "catch-all" keyword
+
+	* release 0.99.5
+
+	* faxrunq.config: sample file is installed as "starting point"
+
+	* doc/faxrunq.1in: document configuration file
+
+	* faxrunq.in: add configuration file handling (faxrun.config)
+	and more flexibility concerning sending of mails and execution
+	of programs depending on success/failures when sending the faxes.
+
+	* faxspool.in: add "-c" flag, add some more comments
+
+	* faxspool.in: fix "input" flag handling
+
+	* mgetty.c: add quick fix for ZyXEL's "unexpected CONNECT"
+
+Sun Nov 24 12:20:48 1996  Gert Doering  (gert@greenie)
+
+	* mgetty.c (main): fix distinguished ring handling in case of
+	"rings_wanted != 1".
+
+Thu Nov 21 23:09:11 1996  Gert Doering  (gert@greenie)
+
+	* tio.c: on linux, #include <sys/ioctl.h> (compilation warnings)
+
+	* conf_mg.c: make "verbose" #ifdef USE_GETTYDEFS
+
+	* newslock: add <unistd.h>
+
+	* sendfax.c: set port speed *after* reading the device specific 
+	part of sendfax.config (Wim Osterholt)
+
+Mon Nov 18 20:39:27 1996  Gert Doering  (gert@greenie)
+
+	* mg_utmp.h, logfile.c: SCO ODT 5.0 adaptions
+
+Thu Nov 14 22:41:34 1996  Gert Doering  (gert@greenie)
+
+	* release 0.99.4
+
+	* voice/: new voice tree from Marc, more modem drivers
+
+Wed Nov 13 21:24:46 1996  Gert Doering  (gert@greenie)
+
+	* various: small AIX 4 fixes [compiles cleanly and works!]
+
+	* doc/mgetty.texi-in: add some notes to the SunOS4 section
+
+Sun Nov 10 18:30:11 1996  Gert Doering  (gert@greenie)
+
+	* logname.c (getlogname): ignore 0x00 and 0x01 bytes in the log
+	name - ZyXEL 2864DI/X.75 seems to send a couple after CONNECT.
+
+	* callback/callback.c: fix problem with device names containing '/'
+
+	* mg_m_init.c (mg_get_device): barf if DSR is low - it usually
+	means "the modem is switched off" or "the cable is bad"
+
+	* cnd.c (cndfind): remove #ifdef ELINK, always accept "raw" CID
+
+	* conf_mg.c: remove explicit setting of "cnd-chat" if ELINK is
+	defined. If you need it, set "get-cnd-chat AT\\O OK" in mgetty.config.
+
+	* mksed.c: add @LOG_LEVEL@
+
+	* mgetty.cfg.in: change setting of owner/group into an example
+
+Fri Nov 08 20:48:43 1996  Gert Doering / Christoph Lameter
+
+	* logname.c: send Fido's EMSI_REQ only if "do_fido == TRUE"
+
+	* mgetty.c: change getlogname() prototype and call accordingly
+
+	* conf_mg.c, conf_mg.h: add "fido-send-emsi y/n" flag
+
+Thu Nov 07 20:27:25 1996  Gert Doering  (gert@greenie)
+
+	* release 0.99.3
+
+	* doc/Makefile: improve behaviour in absence of text formatting tools
+
+	* voice/: Marc's new ever-improved vgetty-Nov07.
+
+Thu Oct 24 14:24:26 1996  Gert Doering, Al Longyear, Teodore T'so
+
+	* locklib/: starting work on generic, cross-program +
+		    cross-platform device locking library
+
+Mon Oct 21 11:49:36 1996  Gert Doering  (gert@greenie)
+
+	* doc/mgetty.texi: updated Creatix section
+
+	* faxrec.c (notify_mail): change wording in case of fax polling
+
+Fri Oct 18 00:20:17 1996  Gert Doering  (gert@greenie)
+
+	* fax/faxspool.in: fix "test ...]" typo (SCO ksh doesn't care)
+
+Wed Oct 16 13:19:44 1996  Gert Doering  (gert@greenie)
+	
+	* test release 0.99.2
+
+	* patches/fas212.p1: include patch for FAS to enable TIOCMGET & co.
+
+	* tio.c (tio_toggle_dtr): pass mctl as *pointer* unless
+	TIOCM_VALUE is defined (then pass as absolute value).
+
+	* tio.c (tio_toggle_dtr): use TIOCMBIS/BIC to toggle DTR on Linux
+
+Thu Oct 10 23:43:43 1996  Gert Doering / Jamie Zawinski (jwz@netscape.com)
+
+	* various: minor SGI/IRIX portability issues
+
+	* doc/mgetty.texi-in: remove voice chapter, explain why
+
+Sat Oct  5 15:20:48 1996  Gert Doering  (gert@greenie)
+
+	* frontends/fax-by-lpr.txt: include "lpr" backend for faxing (nice!)
+
+	* mgetty.c (main): make logging clearer for "missing ringback"
+
+Thu Oct  3 10:53:46 1996  Gert Doering  (gert@greenie)
+
+	* doc/Makefile (mgetty.dvi): add "-" to texi2dvi and dvips calls
+
+Wed Oct  2 11:31:54 1996  Gert Doering  (gert@greenie)
+
+	* mgetty.c (DIST_RING): make DIST_RING default on #ifdef VOICE
+
+	* Makefile: fix new versioning scheme for "make beta"
+
+	* faxrec.c (faxrec): don't send notify mail if "notify" field empty
+
+Sun Sep 29 17:01:56 1996  Gert Doering  (gert@greenie)
+
+	* fax/faxspool.in ($FAX_SEQ): make job IDs generated a less ugly
+	(using "newslock" instead of unique'ifying job ID with PID)
+
+	* fax/faxq.in (jobs): implement "-r" option (Martin Schulze)
+
+Sat Sep 28 23:34:38 1996 Gert Doering (gert@greenie)
+
+	* Makefile: change version naming, use major/minor numbering
+	scheme similar to Linux kernel (Marc)
+
+Mon Sep 16 21:49:43 1996 Giuseppe Ghibo (ghibo@galileo.polito.it)
+
+	* mgetty.c: fix tio_mode_sane() calls to honour "ignore-carrier"
+
+Sun Sep 15 23:53:51 1996 Gert Doering (gert@greenie)
+
+	* mgetty.c (main): general cleanup, write L_AUDIT message with
+	dev="Device" if mg_init_data fails (Knarf), add dev="Device" to
+	some of the more common error conditions
+
+Tue Sep 10 12:27:29 MET DST 1996  Gert Doering (gert@greenie)
+
+	* sendfax.c (main): log state of FAX_SEND_IGNORE_CARRIER
+	* tio.c: implement tio_get_rs232_lines() function
+	* mgetty.c: if DCD is not active before exec'ing login, log warning
+	* mg_m_init.c: if DCD is active before toggle DTR, log warning
+
+Mon Aug 26 13:38:36 1996  Gert Doering  (gert@greenie)
+
+	* tio.h: add defines for RS232 status lines (TIO_F_*)
+
+Sun Aug 25 10:10:26 1996  Gert Doering  (gert@greenie)
+
+	* sendfax.c: add compilation date and time to log file
+	* mgetty.c: ditto
+
+Thu Aug 22 22:17:58 1996  Gert Doering  (gert@greenie)
+
+	* config.c (display_cd): #ifdef PTR_IS_LONG, print CT_INT with "%ld"
+
+	* callback/conf_cb.c: Alpha fixes ( (int) --> (p_int) )
+
+	* mgetty.h: on __alpha__, #define PTR_IS_LONG (for config.h)
+
+Mon Aug 12 18:56:58 1996  Gert Doering  (gert@greenie)
+
+	* fax/faxrunq.in (jobs): add handling of exit(5): "NO DIALTONE"
+
+Wed Aug 07 11:04:17 1996  Gert Doering  (gert@greenie)
+
+	* doc/mgetty.texi-in: update voice part somewhat
+	* voice/: include current voice tree
+
+Tue Jul 16 17:03:07 1996  Gert Doering  (gert@greenie)
+
+	* logname.c (getlogname): show in log file message exactly which
+	options (FIDO/AUTO_PPP) are compiled into binary
+
+Sat Jul 13 12:31:19 1996  Gert Doering  (gert@greenie)
+
+	* fax/faxspool.in: make sequence number generation a bit smarter
+	: if set in "sendfax.config", take FAX_STATION_ID from there
+
+Wed Jul 10 17:22:53 1996  Gert Doering  (gert@greenie)
+
+	* fax/faxq.in (jobs): add more switches (-aosr), show locked jobs
+
+	* sendfax.c: add "dev=<DEVICE>" to all L_AUDIT messages (an
+	easy way to identify problematical modem/receiver combinations
+	in a multi-line multi-modem environment)
+
+	* fax/faxrunq.in (jobs): change locking strategy. Don't use "mv"
+	any longer, use "link()" [via "newslock.c" from c-news]. Cleaner.
+
+	* fax/faxrunq.in (PATH): prepend @BINDIR@ to PATH
+
+	* compat/: pack "newslock.c" from C-News distribution.
+
+Tue Jul 09 11:29:13 1996  Gert Doering (gert@greenie)
+
+	* policy.h (LOCK): make "/var/lock/LCK..%s" the default for Linux
+
+	* mgetty.h: add "force_seq" to mg_init_data() prototype
+	* mgetty.c:  add "force_init_chat" to call to mg_init_data()
+	* conf_mg.h: add "force_init_chat" to struct c
+	* conf_mg.c: pre-initialize force_init_chat with "DLE ETX +++ATH"
+
+	* mg_m_init.c(mg_init_data): change of modem initialization: do
+	  not send "+++ATH" every time, instead use a shorter (and
+	  quicker) initialization sequence, and only if that fails,
+	  send DLE ETX +++ ATH0 to "force init" the modem. If that
+	  fails as well, complain.
+
+	* doc/mgetty.texi-in: add description of "force-init-chat"
+
+Tue Jul 02 23:55:35 1996  Gert Doering (gert@greenie)
+
+	* Makefile: in "make tar", don't pack ".files" files
+
+Mon Jul  1 19:42:41 1996  Gert Doering  (gert@greenie)
+
+	* doc/mgetty.texi: found the comment that killed "texi2nroff",
+	now the "ASCII manual" is back, finally!!
+
+	* logfile.c (lprintf): don't send L_FATAL errors to console if
+	syslogging is active (let syslogd do that, if desired)
+
+	* login.c (login_dispatch): set env variables CALLER_ID and CONNECT.
+
+	* samples/new_fax.mime2: better Fax-To-MIME converter by M. Spott
+
+Fri Jun 28 23:57:47 1996  Gert Doering  (gert@greenie)
+
+	* voice/: include Marc's vgetty release3
+
+	* logname.c (getlogname): if AutoPPP is detected, switch line to
+	"raw" mode, so we don't echo PPP frames back to the caller
+
+Thu Jun 20 18:39:55 1996 Gert Doering (gert@greenie)
+
+	* callback.c: after CONNECT, wait a bit before signalling mgetty
+	(avoid some weird problem with hanging serial ports on Solaris)
+
+	* conf_cb.c, conf_cb.h: add "prompt-waittime" parameter
+
+Tue Jun 04 19:55:09 1996 Gert Doering (gert@greenie)
+
+	* conf_*.c, config.h: work around sizeof(int) != sizeof(char*)
+	problem on ALPHA machines (ugly, but works).
+
+Sat Jun 01 18:47:59 1996 Olaf Flebbe
+
+	* tio.c/tio.h: IRIX port (SVR4 but has no "termiox")
+
+Mon May 27 19:45:56 1996  Gert Doering  (gert@greenie)
+
+	* sendfax.c (main): write release version string to log file
+
+	* faxrec.c: if first fax_wait_for(OK) fails, it will most likely
+	  be a problem with "switchbd". Write "hint" mesg to the log file.
+
+Sun May 26 11:31:08 1996 Gert Doering (gert@greenie)
+
+	* doc/mgetty.texi: Section about NeXTStep added (thanks!)
+
+	* tools/g3cat.c: make read/write buffers larger -> speedup
+
+	* faxhng.c: add +FHS:-5: "timeout" message
+	* fax_lib.h: add FHUP_TIMEOUT (-5) error code
+	* faxlib.c: if fax_wait_for() hits timeout, set fax_hangup_code
+	  to FHUP_TIMEOUT, so upper layers can print sensible error msg
+	* mgetty.h: add #define HAVE_MMAP (future extentions)
+	* doc/mgetty.texi: typos fixed
+
+Sat May 25 12:28:45 MET DST 1996 Gert Doering (gert@greenie)
+
+	* tools/g3cat.c (main): complete "fixing line width" code
+	* doc/g3cat.1in: document "-w"
+
+Wed May 22 20:28:45 MET DST 1996 Gert Doering (gert@greenie)
+
+	* tools/g3cat.c (main): fix line width on the fly, add "-w" option
+
+Sat May 18 13:25:31 1996  Gert Doering  (gert@greenie)
+
+	* fax/faxspool.in (spooldir): accept "Mail text" and "mail text" etc.
+
+Thu Apr 18 19:50:06 1996  Gert Doering  (gert@greenie)
+
+	* conf_sf.c: fix kaput initialization of "c.acct_handle"
+
+	* logfile.c (lputs): log the string "NULL" if a null pointer is passed
+
+Thu Apr 11 21:33:10 1996  Gert Doering  (gert@greenie)
+
+	* mksed.c (main): generate @KVG_PID_FILE@ for kvg/MGETTY_PID_FILE
+
+Tue Apr  2 13:59:36 MET DST 1996 Gert Doering (gert@mobile.greenie.muc.de)
+
+	* conf_cb.c: "modem_init" is a "chat" now, not a "string" anymore
+
+	* callback.c: do proper modem initialization before dialout (with
+	do_chat() / "modem-init" config file option). Some hacks to glue
+	together do_chat.o and callback.
+
+	* sendfax.c: add 'acct="..."' to all L_AUDIT messages (accounting)
+	* sendfax.c: clean up L_AUDIT messages
+
+	* conf_mg.[ch]: add "ignore-carrier" keyword
+	* mgetty.c (St_get_login): if "ignore_carrier" is set, keep CLOCAL
+
+Thu Mar 28 22:33:16 1996  Gert Doering  (gert@greenie)
+
+	* doc/mgetty.texi-in (Systems): add section about HP-UX
+
+Tue Mar 26 13:01:40 1996  Wolfram Gloger (gert@greenie)
+
+	* config.c: add support for escape sequences (\[rnt "\])
+
+Tue Mar 12 22:04:34 1996  Gert Doering  (gert@greenie)
+
+	* fax/faxrunq.in (jobs): add support for "acct_handle" -> "-A"
+
+	* fax/faxq.in: add support for "acct_handle"
+
+	* fax/faxspool.in: add "-A" option (see below)
+
+Sun Mar 10 22:01:56 1996  Gert Doering  (gert@greenie)
+
+	* conf_sf.c: add "-A" option (set accounting handle -- just plain
+	text data, passed through into log file, for acct. purposes)
+
+	* conf_sf.h: add "acct_handle" to struct config
+
+	* goodies.c: add putenv() and strdup() replacements for NeXT
+
+	* logfile.c: NeXT varargs hack not necessary on non-POSIX systems
+
+Thu Mar  7 19:17:12 1996  Gert Doering  (gert@greenie)
+
+	* logname.c (getlogname): make logging clearer for FIDO/**EMSI case
+
+Wed Mar 06 12:30:04 1996  Gert Doering (gert@greenie)
+
+	* mgetty.c: move NeXT_repair_line() up
+
+	* goodies.c (NeXT_repair_line): remove EVENP/ODDP stuff
+
+Sun Mar  3 16:19:47 1996  Ben Stuyts (ben@stuyts.nl)
+
+	* syslibs.h: include <libc.h> on NeXT systems w/o POSIX
+	
+	* tio.c: BSD_SGTTY adaptions - should work now
+
+	* mg_m_init.c (mg_open_device): NeXT has no O_NOCTTY, so get rid
+	of controlling tty via "ioctl( TIOCNOCTTY )" after open()
+
+        * logname.c (ln_escape_prompt): use gethostname() on NeXTs
+
+	* do_chat.c (clean_line): NeXT/SGTTY adaptions
+
+Sun Feb 25 22:22:22 1996  Gert Doering  (gert@greenie)
+
+	* mgetty.c (St_get_login): set IXANY now, if FLOW_SOFT is reques-
+	ted for FLOW_DATA (easier for users, but can't have it for voice)
+
+	* tio.c (tio_set_flowcontrol): add TIO_XON_IXANY to signal "if
+	IXON is set, set IXANY as well" (conflict voice <-> data login)
+
+Sat Feb 24 22:00:57 1996  Gert Doering  (gert@greenie)
+
+	* logname.c (logname): recognize "NO CARRIER" and "ERROR" as "die
+	immediately, no valid user name" condition
+
+Thu Feb 15 16:52:31 1996  Gert Doering  (gert@greenie)
+
+	* fax/faxspool.in (fs_cvt_ascii): use "Courier-Bold" font for gslp.ps
+
+Thu Feb 15 16:19:33 1996  Frank Bartels (knarf@camelot.de)
+
+	* mgetty.c (main): initialize signal handlers before all else,
+	make sure SIGUSR1 (for callback) is set up before checking for locks
+
+Thu Jan 25 19:14:36 1996  Gert Doering  (gert@greenie)
+
+	* mgetty.c (St_dialout): make utmp entry first, then close()
+	standard file descriptors (fixes "dialout" problem on FreeBSD)
+
+Sat Jan 20 16:08:17 1996  Gert Doering  (gert@greenie)
+
+	* mgetty.h: add prototype for steal_lock()
+	* mgetty.c: upon callback, steal lock file from callout process
+	* locks.c: add steal_lock(), reorganize do_makelock() somewhat
+
+Mon Jan 15 00:14:59 1996  Gert Doering  (gert@greenie)
+
+	* cnd.c (cndtable): add FM: for ZyXEL 2864I, add some comments
+
+	* mgetty.c (st_sig_callback): implemented most "glue" parts needed
+	for callback. It actually works already!
+
+	* locks.c (makelock): make sure, lock[] is *NOT* set if lock file
+	couldn't be made, so that rmlocks() can't remove foreign files
+
+Wed Jan  3 19:23:48 1996  Gert Doering  (gert@greenie)
+
+	* faxrec.c (fax_notify_program): don't call program if no pages
+	received or if no page file names available (won't make sense)
+
+	* fax_lib.h: remove mdm_command() and fax_read_byte() prototypes
+
+	* mgetty.h: add mdm_*() prototypes
+
+	* logname.c: log AUDIT message upon login timeout
+
+Sun Dec 31 00:53:53 1995  Gert Doering  (gert@greenie)
+
+	* policy.h (CALLBACK_CONFIG): add CALLBACK_CONFIG + comments
+
+	* mgetty.c (VOICE): incorporate Marc's new voice changes
+
+	* voice/*: completely new rewrite (Marc)
+
+Mon Dec 18 21:57:53 1995  Gert Doering  (gert@greenie)
+
+	* faxrec.c (fax_poll_send_pages): add "NULL" parameter to
+	call to fax_send_page() [*bytes_sent]
+	(fax_notify_mail): add Device name to mail (Knarf's wish is my command)
+
+	* fax_lib.h: add "bytes_sent" parameter to fax_send_page()
+
+	* sendfax.c (main): add total number of pages, resent pages, and
+	transmitted bytes to "success" log file entry
+
+Sat Dec  2 00:03:24 1995  Gert Doering  (gert@greenie)
+
+	* config.c (get_config): if key matches CT_KEYWORD, ignore
+	everything below up to the next section_key (for Marc)
+
+	* config.h: add "pseudo-type" CT_KEYWORD
+
+Mon Nov 27 18:59:31 1995  Gert Doering  (gert@greenie)
+
+	* conf_mg.c (mgetty_parse_args): add "-V" option: print version nr.
+
+Sat Nov 25 15:11:04 1995  Gernot Zander (gert@greenie)
+
+	* mgetty.c (sig_new_config): if mgetty receives SIGUSR2, it will
+	restart (exit) when idle, ignore the signal otherwise. This can
+	be used to safely reload a configuration without disturbing active
+	calls.
+
+Fri Nov 24 21:26:55 1995  Michael Staats  (gert@greenie)
+
+	* mg_utmp.h: add prototypes for get/setutent(), on _AIX
+        * do_stat.c (get_statistics): ANSI/K&R fixes
+	* mg_m_init.c (mg_init_fax): ANSI/K&R fixes
+	* do_chat.c (do_chat_send): ANSI/K&R fixes
+
+Mon Nov 20 19:34:45 1995  Uwe Storbeck (gert@greenie)
+
+	* faxrec.c (fax_get_page_data): change file permission and
+	ownership before starting actual reception (race condition).
+
+Sun Nov 12 13:10:02 1995  Gert Doering  (gert@greenie)
+
+	* logname.c (getlogname): change input handling (raw mode), should
+	*finally* fix the old BS/DEL/ECHOE problem on Linux
+
+	* mg_m_init.c (mg_open_device): make error messages easier to read
+
+Sun Nov  5 15:45:28 1995  Gert Doering  (gert@greenie)
+
+	* fax/faxspool.in (spooldir): recognize "Mail text" as ASCII
+
+Sat Nov  4 16:48:46 1995  Gert Doering  (gert@greenie)
+
+	* faxsend.c: when switching off H/W flow control on SunOS (because
+	the DCD line will go low after the last page), make sure the buffer
+	is completely drained before -- otherwise, we risk modem overrun.
+	(Thanks to Nils Jonsson).
+
+	* tio.c: implement tio_drain_output()
+
+Wed Nov 1 23:56:36 1995  Gert Doering  (gert@greenie)
+
+	* tio.h: add tio_drain_output() and tio_break()
+	* tio.c: add tio_break() [send a BREAK]
+
+Sun Oct 29 22:46:36 1995  Gert Doering  (gert@greenie)
+
+	* faxspool: if called with "-h -", don't put header line on pages
+
+Wed Oct 25 18:46:36 1995  Gert Doering  (gert@greenie)
+
+	* sendfax.c (main): exit(5) on NO DIALTONE (not exit(10))
+
+	* faxlib.c (fax_wait_for): add proper support for NO DIALTONE
+
+	* fax_lib.h (FHUP_NODIAL): add #define for NO DIALTONE
+
+	* faxhng.c: add NO DIALTONE response, move error numbers
+
+Sun Oct 22 15:50:01 1995  Erik Olson (eriko@wrq.com)
+
+	* logname.c: add auto-detection code for incoming PPP calls
+	* mgetty.h: add defines for PPP
+	* login.cfg.in: add sample /AUTOPPP/ line
+
+Sat Sep 30 10:53:11 1995  Gert Doering  (gert@greenie)
+
+	* tools/g3topbm.c: add credits
+
+Tue Sep 19 23:08:43 1995  Gert Doering  (gert@greenie)
+
+	* sendfax.c (main): correct byte order for polling on class 2.0 (hack)
+
+Sat Sep 16 22:13:51 1995  Gert Doering  (gert@greenie)
+
+	* mksed.c: added PERL and TKPERL
+
+Fri Sep 15 13:56:44 1995  Gert Doering  (gert@greenie)
+
+	* fax/faxspool.in: use only fullname, nothing more, from passwd
+
+	* fax/faxq.in (jobs): print "Send time:" only if set
+
+Wed Sep  6 18:27:00 1995  Gert Doering  (gert@greenie)
+
+	* sendfax.c (main): implement renaming of sent pages ('-r')
+	make exit_usage() messages a bit easier to read
+
+	* conf_sf.c: add "-r" option
+
+	* conf_sf.h: add "rename_files"
+
+Wed Aug 30 13:52:01 1995  Gert Doering  (gert@greenie)
+
+	* release version 0.98
+
+Wed Aug  9 10:06:36 1995  Gert Doering  (gert@greenie)
+
+	* various: include NeXT fixes by Christian Starkjohann <cs@ecs.co.at> 
+
+	* locks.c (do_makelock): if unlink(stale lock) fails, because of
+	permission problems or whatever, we'll loop forever. Fixed.
+
+Sun Aug  6 18:27:06 1995  Gert Doering  (gert@greenie)
+
+	* mgetty.c (main): make "gettydefs tag" message mode understandable
+
+Fri Aug  4 09:23:28 1995  Gert Doering  (gert@greenie)
+
+	* faxrec.c: make receipient of fax_notify mail run-time configurable
+
+Sun Jul 30 19:44:42 1995  Gert Doering  (gert@greenie)
+
+	* utmp.c (make_utmp_wtmp): do not NULL-terminate ut_user field if
+	username is same size as ut_user field
+
+Sat Jul 29 13:55:28 1995  Gert Doering  (gert@greenie)
+
+	* faxlib.c (fax_wait_for): result code of +FPTS: xx,yy,zz is
+	decimally coded, +FPS: in hex
+
+	* sendfax.c (main): in class 2 mode, add AT+FNR=1,1,1,0
+	(otherwise, the modem won't report connection parameters et.al.)
+
+	* added sample mgetty.cfg.in and sendfax.cfg.in files
+
+	* Makefile: install mgetty.config and sendfax.config sample files
+
+Sat Jul 29 13:44:48 1995  Robert Vogelgesang  (gert@greenie)
+
+	* logfile.c (lprintf): set close-on-exec bit for log file
+
+Mon Jul 24 15:20:29 1995  Michael Rendell (michael@cs.mun.ca)
+
+	* config.c (fgetline): skip over leading whitespace in comment lines
+
+Wed Jul  5 15:01:45 1995  Gert Doering  (gert@greenie)
+
+	* policy.h: on SCO, set default MAILER to /usr/lib/mail/execmail
+
+	* logname.c (getlogname): log EOF explicitely
+
+Sun Jul  2 11:39:25 1995  Gert Doering  (gert@greenie)
+
+	* mgetty.c: add +FHS: and +FHNG: to "failure" strings
+
+Fri Jun 30 00:06:57 1995  Gert Doering  (gert@greenie)
+
+	* login.c (login_dispatch): more detailed logging
+
+	* conf_mg.c (mgetty_parse_args): dumb bug, now -C works again
+
+Tue Jun 26 21:23:22 1995  Gert Doering  (gert@greenie)
+
+	* locks.c (rmlocks): barf if unlink() fails
+
+	* mgetty.c (St_go_to_jail): wait for line to settle down before
+	removing locks and go to St_waiting.
+
+	* mgetty.c (init): voice_message_light has to be called *before*
+	removing locks... (only if #ifdev VOICE anyway)
+
+Thu Jun 15 09:23:22 1995  Gert Doering  (gert@greenie)
+
+	* do_stat.c (get_statistics): add current time to statistics_file
+
+Wed Jun 14 20:00:05 1995  Gert Doering  (gert@greenie)
+
+	* fax/faxspool.in (/etc/magic): cut of "foo.bar:" part of file output
+
+	* fax/faxrunq.in (jobs): work around BASH bug with trap/subshell
+
+Mon Jun 12 22:29:39 1995  Gert Doering  (gert@greenie)
+
+	* locks.c (get_lock_name): convert only *last* character to
+	lowercase if LOCKS_LOWERCASE is set.
+
+	* policy.h (LOCKS_LOWERCASE): change comment
+
+Mon Jun  5 10:18:03 1995  Gert Doering  (gert@greenie)
+
+	* mg_m_init.c (mg_init_fax): add "fax_only" setup
+
+	* conf_mg.c: add "fax-only" option / -F command line flag
+
+	* voice/zplay.c: initialize modem with ATV1Q0
+
+	* Makefile: create *all* directories at "make install" time
+
+Thu May 18 23:04:08 1995  Gert Doering  (gert@greenie)
+
+	* fax/faxspool.in (AWK): with gs 3.33, gslp.ps and -dSAFER do not
+	work together. Throw out -dSAFER, won't harm *here*.
+
+Fri Apr 28 00:28:05 1995  Gert Doering  (gert@greenie)
+
+	* mgetty.c (main): fix vgetty problem with number of rings / toll
+	saver feature (vgetty subtracting toll-saver-rings multiple times)
+
+Sun Apr 23 11:22:26 1995  Gert Doering  (gert@greenie)
+
+	* locks.c (makelock): set lock[0] to 0 if do_makelock() fails --
+	some weirdos like to kill running mgettys with "kill" or "init 4"
+	while someone dials out, and mgetty tended to unlink() foreign
+	lock files in that scenario...
+
+Wed Apr 19 14:22:13 1995  Gert Doering  (gert@greenie)
+
+	* do_stat.c (get_statistics): implement (yet-simple) statistics
+	grabbing support (-> Uwe Fuerst, Chris Lewis)
+
+	* do_chat.c: move "send" part into separate function
+
+Tue Apr 18 15:57:11 1995  Russel Nelson (nelson@crynwr.com)
+
+	* tools/g3topbm.c (main): -n/-f flags, auto-detect resolution
+
+Sun Apr 16 22:52:37 1995  Gert Doering  (gert@greenie)
+
+	* config.h: protect against double inclusion (->vgetty)
+
+	* mgetty.h: protect against double inclusion (->vgetty)
+
+Mon Apr 10 22:14:13 1995  Gert Doering  (gert@greenie)
+
+	* mgetty.c (main): conf_set_string doesn't take a ";"...
+
+Thu Apr  6 12:57:26 1995  Gert Doering  (gert@greenie)
+
+	* faxrec.c (faxpoll_send_pages): allow multiple pages to be polled
+
+	* Makefile: included "do_stat.c" (silly me)
+
+Tue Apr  4 00:30:35 1995  Gert Doering  (gert@greenie)
+
+	* fax/faxrunq.in (.last_run): if "set noclobber" is set,
+	overwriting a file with "date >.last_run" won't work. "rm -f".
+
+	* mgetty.c (main): add call to "get_statistics", if desired
+	(main): if issue_file starts with "!", execute via system()
+
+	* conf_mg.h: add "statistics-chat" and "statistics-file"
+
+Fri Mar 31 19:51:08 1995  Stefan Muehlenweg (muehlenw@hydromod.de)
+
+	* doc/mgetty.texi-in (Solaris2): Add section about Solaris
+
+Wed Mar 29 00:21:30 1995  Gert Doering  (gert@greenie)
+
+	* faxsend.c (fax_send_ppm): if FAX_SEND_IGNORE_CARRIER is set, do
+	not call tio_carrier()/tio_set(), because it will mess up some
+	internal kernel structures on SVR42 (and it isn't needed anyway)
+
+Sun Mar 26 19:21:13 1995  Gert Doering  (gert@greenie)
+
+	* fax/faxq.in: add help text
+
+	* fax/faxspool.in (fs_cvt_dvi): add sample code for "dvi2ps"
+	: add a few more suffixes (.asc, .pcl) and "file" results (PCL)
+
+	* fax/faxrunq.in (jobs): return "subject" in status mails
+	(jobs): fix problem with "date +%H%M" and SCCS
+
+	* fax/faxq.in (jobs): print "subject" field as "Re:" if present
+
+Sun Mar 24 19:04:04 1995  Gert Doering  (gert@greenie)
+
+	* faxqueue.5in: add "subject" keyword
+
+Fri Mar 24 00:04:04 1995  Gert Doering  (gert@greenie)
+
+	* sendfax.c (main): implement "max-tries-continue"
+
+	* policy.h: change MODEM_INIT_STRING to a sane default for all
+	modem types. ZyXEL specific stuff goes to config file.
+
+	* conf_sf.c: add "max-tries-continue" keyword
+
+	* tio.h: make POSIX_TERMIOS the default on SCO Unix systems
+
+	* mgetty.c (St_answer_phone): implement get-cnd-chat (for ELINKs)
+
+Tue Mar 14 09:20:33 1995  Tony Leneis  (tony@plaza.ds.adp.com)
+
+	* getdisk.c, tio.h, io.c: some m88k adaptions
+
+Mon Feb 27 16:43:12 1995  Gert Doering  (gert@greenie)
+
+	* sendfax.c (main): handle +FHS:3 and +FHS:4 properly
+
+Fri Feb 24 14:56:28 1995  Gert Doering  (gert@greenie)
+
+	* config.c (get_config): empty string is interpreted as TRUE for
+	boolean configuration values
+
+Thu Feb 23 14:57:03 1995  Gert Doering  (gert@greenie)
+
+	* faxrec.c (faxrec): add explicit ATH0 for creatix (won't return
+	  from bitrate-fixed-to-19200 otherwise).
+
+Sat Feb 11 22:57:04 1995  Gert Doering  (gert@greenie)
+
+	* mgetty.c (main): add option to set TERM=xxx from config file
+
+Fri Feb 10 19:47:30 1995  Gert Doering  (gert@greenie)
+
+	* sendfax.c (fax_sig_goodbye): if <ctrl-C> pressed before starting
+	to dial, log "time=0s".
+
+Tue Jan 31 21:34:37 1995  Gert Doering  (gert@greenie)
+
+	* io.c: fixed problem with system includes on SCO Unix/Xenix
+
+Fri Jan 27 20:29:55 1995  Gert Doering  (gert@greenie)
+
+	* fax/faxspool.in (fs_cvt_ascii): call gslp.ps "-B"
+
+Wed Jan 25 10:54:03 1995  Gert Doering  (gert@greenie)
+
+	* faxrec.c (fax_notify_mail): show in first line whether reception
+	was successful
+
+Sat Jan 14 19:34:43 1995  Gert Doering  (gert@greenie)
+
+	* tio.c: NeXT adaptions
+
+Mon Jan  9 22:56:55 1995  Gert Doering  (gert@greenie)
+
+	* tio.h (FLOW_BOTH): add definition :)
+
+Fri Dec 23 12:04:56 1994  Gert Doering  (gert@greenie)
+
+	* doc/mgetty.texi-in (runtime-mgetty): add description of runtime
+	config files for mgetty
+
+	* config.c (get_config): accept octal / hexadecimal integer values
+	
+	* config.c (conf_get_chat): fix stupid unterminated-string bug
+
+Fri Dec 16 22:09:34 1994  Gert Doering  (gert@greenie)
+
+	* mg_m_init.c (mg_get_ctty): on HP/UX, do not try TIOCSCTTY
+
+Mon Dec 12 16:04:01 1994  Gert Doering  (gert@greenie)
+
+	* faxsend.c: remove REVERSE definition (unused)
+
+	* tio.h: add <sys/ttychars.h> for _AIX (default ctrl keys)
+
+Sun Dec 11 18:20:49 1994  Gert Doering  (gert@greenie)
+
+	* conf_mg.c: change semantics of FAX_IN_OWNER/GROUP
+
+Thu Dec  8 16:14:26 1994  Gert Doering  (gert@greenie)
+
+	* policy.h (MINFREESPACE): change from byte units to kbyte
+
+Tue Dec  6 15:46:27 1994  Gert Doering  (gert@greenie)
+
+	* cnd.c (cndlookup): use makepath() to make "dialin.config"
+	relative to CONFDIR
+
+	* sendfax.c (main): move "invalid modem class" warning
+
+	* conf_sf.c: initialize "modem-handshake" field only if
+	FAX_MODEM_HANDSHAKE is defined
+
+	* policy.h (FAX_STATION_ID): changed default to "xxxxxxxx"
+
+Mon Dec  5 19:07:09 1994  Gert Doering  (gert@greenie)
+
+	* fax/faxspool.in: use @CONFDIR@ for configuration stuff, rename
+	global fax alias file to "faxaliases"
+
+	* doc/mgetty.texi-in (runtime-sendfax): config files documented
+
+Sat Dec  3 22:25:29 1994  Gert Doering  (gert@greenie)
+
+        * Makefile: pack and compile conf_sf.*
+
+        * sendfax.c: add configuration file reading
+
+	* conf_sf.c: reorder confiuration items
+
+	* fax/faxrunq.in (FAX_SENDER): do not set "-l" (->config file)
+
+Thu Dec  1 16:15:41 1994  Gert Doering  (gert@greenie)
+
+	* logfile.c (log_init_paths): if path name changes, and log file
+	is already open, close log and reopen with new name
+
+Wed Nov 30 20:49:36 1994  Gert Doering  (gert@greenie)
+
+	* mksed.c, Makefile: add CONFDIR
+
+	* Makefile: add conf_sf.c/.h
+
+	* policy.h: add SENDFAX_CONFIG, change comments regarding config files
+
+Tue Nov 22 07:58:05 1994  Gert Doering  (gert@greenie)
+
+	* mg_m_init.c (mg_open_device): on errno=EAGAIN, try open() again
+	(Linux sends this if a process blocks on open() and a parallel
+	dial-out finishes)
+
+	* do_chat.c (clean_line): add device name to "got too many junk" line
+
+Mon Nov 21 10:03:09 1994  Gert Doering  (gert@greenie)
+
+	* cnd.c (cndfind): Rockwell format recognition broke ZyXEL CND. Fixed.
+
+	* faxrec.c (faxrec): make baud rate switching dynamic (new
+	argument "switchbd")
+
+	* mgetty.h: change faxrec() prototype
+
+	* mgetty.c (main): change "portspeed" to contain numerical speed
+
+	* mgetty.c (main): call faxrec() with FAX_RECV_SWITCHBD param
+
+	* policy.h: change all occurences of B19200 or B38400 to 19200 and
+	38400, respectively. Change some comments. FAX_RECEIVE_USE_B19200
+	dropped, and FAX_RECV_SWITCHBD introduced.
+
+	* tio.c (tio_set_speed): changed to expect numeric port speed,
+	 lookup symbolic constants here
+
+Sat Nov 19 01:21:07 1994  Gert Doering  (gert@greenie)
+
+	* logfile.c: check for (M_XENIX && !M_UNIX) (SCO Unix defines both)
+
+Wed Nov 16 19:46:42 1994  Gert Doering  (gert@greenie)
+
+	* sendfax.c (fax_open_device): use three digits as device id, not two
+
+Sun Nov 13 23:05:41 1994  Gert Doering  (gert@greenie)
+
+	* faxlib.c (fax_wait_for): accept CONNECT\r and CONNECT <junk>\r
+	-- there are so many broken modems out in the word ("FURY")
+
+Sun Nov 13 13:30:41 1994  Gert Doering  (gert@greenie)
+
+        * release version 0.22
+
+Sun Nov  13 14:46:30 1994  Gert Doering  (gert@greenie)
+
+	* samples/coverpg.*: add "-m <memo-file>" functionality
+	* doc/coverpg.1in: document "-m"
+
+Wed Nov  9 17:46:30 1994  Gert Doering  (gert@greenie)
+
+	* doc/mgetty.texi-in (MultiTech): add some hype about that modem
+
+Fri Nov  4 14:21:52 1994  Gert Doering  (gert@greenie)
+
+	* login.c (login): substitute \I -> Connect ("CONNECT xxx")
+
+	* policy.h: remove FAX_SPOOL and FAX_SPOOL_IN definitions from
+	policy.h, use definitions from Makefile instead
+
+Thu Nov  3 19:08:58 1994  Gert Doering  (gert@greenie)
+
+	* gettydefs.c (parsetermio): accept ^? as <DEL> (0x7f)
+
+Wed Nov  2 10:03:49 1994  Gert Doering  (gert@greenie)
+
+	* mgetty.c (main): on direct lines, set Connect to "DIRECT"
+
+	* logname.c (getlogname): clean up timeout handling: all output is
+	now done outside signal handler (Martin)
+
+	* fax/faxspool.in (finalpg): if no pages created (and not
+	polling), remove spool dir, do not create empty JOB
+	(spooldir): recognize ".t" and ".txt" for ASCII
+
+	* utmp.c (make_utmp_wtmp): add proper UT_USER handling for FreeBSD
+
+	* mgetty.c (main): handle DEFAULT_MODEMTYPE "data" properly
+
+	* logname.c (getlogname): move sleep(3) from getlog_timeout() to
+	getlogname() [problems with signal handler]
+
+Tue Nov  1 20:56:37 1994  Gert Doering  (gert@greenie)
+
+	* mgetty.c (make_pid_file): chown() to 644
+
+	* utmp.c: repair Martins get_current_users() function
+
+Mon Oct 31 11:17:45 1994  Gert Doering  (gert@greenie)
+
+	* mg_m_init.c (mg_init_data): additional argument, chat_seq[]
+
+	* mgetty.c (main): add "-m <modem chat>" option (via conf_get_chat())
+
+	* config.c (conf_get_chat): remove surplus L_JUNK logging
+
+	* mgetty.c (main): call getlogname( do_timeout = !blocking_open )
+	(main): change "-m" option to "-k"
+
+	* logname.c (getlogname): add boolean "do_timeout" parameter
+
+Mon Oct 31 10:53:56 1994  Martin Husemann (martin@euterpe.owl.de)
+
+	* g3cat.c, g3topbm.c: cast for "off_t" (BSD 4.4 uses 64 bit!)
+
+	* mgetty.h: on *BSD include <sys/param.h>, will define the exact
+	BSD type (4_3, 4_4)
+
+	* utmp.c: get_current_users() for BSD added
+
+Thu Oct 27 00:53:56 1994  Gert Doering  (gert@greenie)
+
+	* add "make install-bin" and "make install-doc" targets
+
+	* faxlib.c (fax_set_flowcontrol): typo in prototype
+
+Wed Oct 26 11:29:52 1994  Gert Doering  (gert@greenie)
+
+        * fax/faxspool.in(fax_cvt_ascii): add hp2pbm and pbmtext variants
+	(options): add "-h" option to set private fax page header file
+	(fax_cvt_dvi): add "dvips -P dfaxlow" (optional)
+
+        * fax/faxspool.in: do not call every fax_cvt_xxx() function
+	separately, just call fax_cvt_$format().
+
+	* fax/faxspool.in: add normal resolution conversions
+	* samples/coverpg.*: check "$normal_res" env variable
+
+Tue Oct 25 23:11:20 1994  Gert Doering  (gert@greenie)
+
+	* faxlib.c (fax_wait_for): *stupid* bug in +FHS: handling
+
+Sat Oct 22 15:37:45 1994  Gert Doering  (gert@greenie)
+
+	* mgetty.c (gettermio): drop "tio_get()" call, unneccessary and
+	causing problems
+
+	* logfile.c (lprintf): fix core dump if logfile can't be opened
+
+	* tio.h, tio.c: move declaration of speedtab[] to tio.c
+
+	* mgetty.c, mg_m_init.c: use "int" for portspeed, not short, so it
+	will work on FreeBSD's B115200
+
+	* mg_m_init.c (mg_get_line): new function, will call
+	mg_open_line() and mg_init_line(). If mg_init_line() fails, will
+	try a second time (problem on SunOS / Linux where every port
+	access after hangup will fail).
+
+	* mgetty.c (main): call mg_get_line() instead of open/init_line()
+
+Fri Oct 21 14:58:05 1994  Gert Doering  (gert@greenie)
+
+	* logname.c (getlogname): change <DEL>/<BS> printing a bit
+
+	* tio.c (tio_mode_cbreak): disable ISIG
+
+	* fax/faxrunq.in (jobs): add support for "normal_res" -> "sendfax -n"
+
+Fri Oct 14 00:09:05 1994  Gert Doering  (gert@greenie)
+
+	* faxrec.c (fax_get_pages): if page is bad, request retransmission
+
+Thu Oct 13 14:00:59 1994  Gert Doering  (gert@greenie)
+
+	* faxlib.c (fax_wait_for): evaluate +FHS:x,lc,blc,... code
+
+	* login.c (login): rename login() to login_dispatch()
+
+	* mgetty.c (St_wait_for_RING): implemented "-R" ringback
+	(St_get_login): rename login() to login_dispatch() [BSD conflict]
+
+Sun Oct  9 17:19:12 1994  Gert Doering  (gert@greenie)
+
+	* fax/faxrunq.in (jobs): check send time
+	(jobs): clean bug in "trap" unsetting
+
+	* fax/faxspool.in (PGM): fix test sequence -- didn't work on some
+	non-standard /bin/test programs
+
+Sat Oct  8 22:30:00 1994  Gert Doering  (gert@greenie)
+
+	* fax/faxspool, Makefile: use cour25.pbm instead of cour24i.pbm
+	(better suited for header files)
+
+Thu Oct  6 14:17:21 1994  Gert Doering  (gert@greenie)
+
+	* mgetty.c: use tio_check_speed()
+
+	* tio.c: make struct speedtab static, create tio_check_speed()
+
+Tue Oct  4 10:05:06 1994  Gert Doering  (gert@greenie)
+
+	* sendfax.c (fax_open_device): make "locked, give up!" look nicer.
+
+	* tools/pbmtog3.c (main): fix '-r'-Switch
+
+Mon Oct  3 10:17:33 1994  Gert Doering  (gert@greenie)
+
+	* mgetty.c (St_wait_for_RINGs): if A_CONN is found, get ctty!
+
+Sun Oct  2 18:07:56 1994  Gert Doering  (gert@greenie)
+
+	* fax/faxspool.in (Options): make "usage" output better readable
+	: implement "-t" option
+
+	* fax/faxq.in (jobs): add printing of "time" flag (for "-v")
+
+Thu Sep 29 15:09:22 1994  Gert Doering  (gert@greenie)
+
+	* sendfax.c (main): add L_AUDIT logging of call status (+FHS:xx)
+	and connection time (time=iiis) in seconds.
+
+Wed Sep 28 12:11:47 1994  Gert Doering  (gert@greenie)
+
+	* tio.c: NeXT has no OXTAB or TAB3
+	* syslibs.h: NeXT has no malloc.h
+	* goodies.c: dummy putenv() for NeXT
+	* logfile.c: NeXT (stdargs stuff)
+	* getdisk.c: NeXT (vfs.h)
+
+	* fax/faxspool.in (PGM): allow "-C" switch to set coverpage
+	program with arguments (for "faxmemo")
+	(PGM): give progress messages
+
+Thu Sep 22 00:03:39 1994  Gert Doering  (gert@greenie)
+
+	* fax/faxspool.in (options): add "-C" option to set coverpg pgm
+
+Wed Sep 21 14:06:06 1994  Gert Doering  (gert@greenie)
+
+	* fax/faxspool.in (WARNING): print warning of faxrunq hasn't been
+	run in the last 24 hrs.
+
+	* fax/faxrunq.in (end): touch $FAX_SPOOL_OUT/.last_run (to make
+	faxspool happy)
+
+	* fax/faxspool.in (finalpg): add message "spooling finished. wait
+	for faxrunq"
+
+	* faxsend.c (fax_send_page): remove the "drain output" stuff, it's
+	really not much use anymore (and won't work either)
+	: set SIGALRM handler in class 2.0 (BUG)
+	(fax_send_ppm): set alarm(120) before handling end-of-page (the
+	remaining 20-30 seconds from fax_send_page() may be too short)
+
+	* sendfax.c (main): output "dial failed (BUSY)" to stdout, not stderr
+
+Tue Sep 20 16:39:45 1994  Gert Doering  (gert@greenie)
+
+	* sendfax.c (fax_open_device): try locking three times, with 5
+	seconds delay in between, in case lock is temporary
+
+Mon Sep 19 22:18:01 1994  Gert Doering  (gert@greenie)
+
+	* tio.c (tio_flush_queue): add queue flushing for BSD_SGTTY
+	(tio_flow): add starting/stopping output for BSD_SGTTY
+
+	* Makefile: append proper "chmod" after each "mkdir"
+	introduce $(FAX_SPOOL_OUT)
+
+Sun Sep 18 00:28:01 1994  Gert Doering  (gert@greenie)
+
+	* tio.c (tio_flush_queue): stupid typo (TEMIO instead of TERMIO)
+
+	* moved new_fax sample scripts from contrib/ to samples/
+
+	* mgetty.c (main): system( EXEC_FUSER )
+
+	* policy.h: add EXEC_FUSER
+
+	* mgetty.c (st_dialout): clean up utmp writing / logging in case
+	some other process is already active upon mgetty startup
+
+	* fax/faxspool.in (finalpg): substitute @ID@ in page header
+	add "-F full-name" switch
+	update manpage
+
+	* mksed.c: add @FAX_STATION_ID@
+
+	* fax/faxspool.in: use @LIBDIR@/make.coverpg to generate cover pages
+
+Sat Sep 17 16:56:51 1994  Gert Doering  (gert@greenie)
+
+	* manpages: use "mksed"
+
+	* policy.h (FAX_MODEM_HANDSHAKE): prefix AT to samples
+
+Fri Sep 16 15:28:21 1994  Gert Doering  (gert@greenie)
+
+	* mgetty.c (St_waiting): fix "virtual RING"s, jumped into
+	St_check_modem instead.
+
+Tue Sep 13 11:18:53 1994  Gert Doering  (gert@greenie)
+
+	* logfile.c (lprintf): call atexit(logmail) only once, even if
+	there are more than one L_FATAL errors
+
+Sun Sep 11 12:52:48 1994  Gert Doering  (gert@greenie)
+
+	* tools/g3topbm.c: fixed emitpbm return code
+
+Sat Sep 10 22:13:11 1994  Gert Doering  (gert@greenie)
+
+	* sendfax.c (main): move FAX_MODEM_HANDSHAKE to its own
+	initialization (using mdm_command(), not fax_...)
+	: add FAX_DIAL_PREFIX
+
+	* policy.h (FAX_DIAL_PREFIX): added (with comments, "ATx0DT0wP")
+
+Wed Sep  7 22:25:29 1994  Gert Doering  (gert@greenie)
+
+	* tools/g3cat.c (main): omit that stupid "EOF!" message
+
+Tue Aug 30 23:11:40 1994  Gert Doering  (gert@greenie)
+
+	* fax/faxspool.in: add ``@N@ -> full user name'' substitution
+
+	* io.c: AIX -> _AIX
+
+	* mgetty.c (St_wait_for_RINGs): if "-r" is set, get a controlling
+	tty before entering St_get_login (bugfix)
+
+	* mksed.c (main): new substitution: @LOGIN@ (DEFAULT_LOGIN_PROGRAM)
+
+	* Makefile (login.config): sedscript from login.cfg.in (@LOGIN@)
+
+Wed Aug 24 11:21:22 1994  Gert Doering  (gert@greenie)
+
+	* fax/faxrm.in (suspeded): stupid bug, checking for $JOB not JOB
+
+Mon Aug 22 01:21:50 1994  Gert Doering  (gert@greenie)
+
+	* mg_m_init.c (mg_init_fax): remove warning about class 2.0 (it's
+	well enough tested, not more or less "preliminary" than the rest)
+
+	* goodies.c (get_ps_args): stupid typos
+
+Sun Aug 21 16:46:01 1994  Gert Doering  (gert@greenie)
+
+	* locks.c: make lock[] (lock file name) globally visible
+
+	* mgetty.h: add proto for makelock_file()
+
+Fri Aug 19 13:55:47 1994  Gert Doering  (gert@greenie)
+
+	* mg_m_init.c (mg_get_ctty): log errors in setsid() only if not
+	EPERM (Linux)
+
+	* faxlib.c (fax_wait_for): make timeout cover complete invocation
+	of fax_wait_for(), not restarted for every line read
+
+Sun Aug 14 16:15:30 1994  Gert Doering  (gert@greenie)
+
+	* faxrec.c: remove chmod() prototype altogether
+
+	* fax/faxspool.in (gs): replace all "-dSAVER" by "-dSAFER"
+
+Sat Aug 13 22:59:05 1994  Gert Doering  (gert@greenie)
+
+	* tio.h: make POSIX_TERMIOS the default on SVR4 and Solaris2
+
+	* tio.c (tio_set_flow_control): log flow control type
+
+	* faxrec.c: include <sys/stat.h> for chmod() on SVR4
+
+	* logfile.c (atexit): on SunOS4, use on_exit()
+
+Fri Aug 12 22:59:05 1994  Gert Doering  (gert@greenie)
+
+	* faxsend.c (fax_send_page): return result code of fax_send_ppm()
+
+Thu Aug 11 16:41:16 1994  Gert Doering  (gert@greenie)
+
+	* faxrec.c (fax_get_page_data): filter out "()/\&<>" characters
+	from the remote id when building fax file name
+
+	* tio.c: add unusual baud rates (from gettydefs.c)
+
+	* fax/faxspool.in (spooldir): abort if file format unknown
+
+Wed Aug 10 12:06:35 1994  Gert Doering  (gert@greenie)
+
+	* mgetty.c (St_dialout): put process command line into ut_host field
+
+	* tio.c (tio_set_flow_control): TC[GS]ETX don't work on Solaris
+
+	* mgetty.h: add get_ps_args() prototype
+
+	* mgetty.c (main): use new checklock() return type
+
+	* locks.c (checklock): return int PID (or NO_LOCK) if lock file
+	exists / does not exist, instead of boolean TRUE / FALSE
+
+	* mgetty.h (NO_LOCK): change checklock prototype, define NO_LOCK
+
+Tue Aug  9 11:32:19 1994  Gert Doering  (gert@greenie)
+
+	* mgetty.c (St_wait_for_RINGs): repair DISTINCTIVE RING stuff
+	: fix some typos
+
+Mon Aug  8 13:53:12 1994  Gert Doering  (gert@greenie)
+
+	* mgetty.c (main): make_utmp_wtmp(): add ut_host (=NULL) param
+
+	* login.c (login): put Connect string into utmp(x).ut_host field
+
+	* logfile.c: don't define syslog() prototypes on solaris2
+	
+	* all: remove lines consisting solely of ";" -
+	 "make noident" can do it (with sed \1)
+
+Sun Aug  7 11:05:11 1994  Gert Doering  (gert@greenie)
+
+	* do_chat.c (clean_line): log only first 500 bytes
+	(clean_line): if more than 10000 bytes read, assume something
+	seriously wrong, log a FATAL message, and go ahead (do_chat will
+	quite likely fail, thus restarting mgetty)
+
+Thu Aug  4 16:59:44 1994  Gert Doering  (gert@greenie)
+
+	* io.c (wait_for_input): use L_JUNK instead of L_NOISE
+
+	* do_chat.c (clean_line): on systems with broken termio(s), that
+	is, where VMIN=0 VTIME>0 does not work, use a select()/flush loop
+
+	* mgetty.c (main): multiply MODEM_CHECK_TIME by 1000
+
+	* io.c (wait_for_input): change second argument from seconds to
+	milliseconds	/* msec! */
+
+Wed Aug  3 11:10:41 1994  Gert Doering  (gert@greenie)
+
+	* mg_m_init.c (mg_init_data): if do_chat() fails, log with
+	L_FATAL. Set errno to EINTR / EINVAL, depending on what_action.
+
+	* do_chat.c (do_chat): don't log timeouts with L_ERROR, could be
+	harmless (in case of RING or so), let caller decide
+
+Tue Aug  2 12:46:18 1994  Gert Doering  (gert@greenie)
+
+        * doc/mgetty.8: created, list all options
+
+	* mgetty.c (main): call wait_for_input with timeout, iff it does
+	time out, check whether the modem is still alive
+	(main): shuffle the ctty stuff somewhat around, make sure that
+	there is never the need to get rid of a controlling tty
+
+	* policy.h: add MODEM_CHECK_TIME
+
+	* mgetty.h: change prototype for wait_for_input()
+
+	* io.c (wait_for_input): add second parameter, specifying a
+	timeout time, in seconds. Clean up USE_READ stuff.
+
+	* mgetty.c (main): add autobauding (via "-a" switch)
+	(main): log mgetty_version
+
+	* Makefile (version.h): dynamically create version.h, each time a
+	tar/shar archive is made
+
+Sun Jul 31 22:54:46 1994  Gert Doering  (gert@greenie)
+
+	* fax/faxspool.in (echo): use @ECHO@ for all $echo statements
+	* fax/faxq.in (echo): use @ECHO@
+	* fax/faxrm.in (echo): use @ECHO@
+	* fax/faxrunq.in (echo): use @ECHO@
+
+        * Makefile (ECHO): add ECHO definition + comment
+
+	* mksed.c (main): add ECHO substitution
+
+Wed Jul 27 11:00:45 1994  Gert Doering  (gert@greenie)
+
+	* mg_m_init.c (mg_get_ctty): log errors of setsid() and TIOCSCTTY
+	separately (make error locating easier)
+
+        * policy.h (SYSLOG_FC): make syslog facility configurable
+
+	* logfile.c (lprintf): use SYSLOG_FC instead of LOG_DAEMON
+
+Fri Jul 22 10:50:17 1994  Gert Doering  (gert@greenie)
+
+	* mgetty.c (main): introduce DevID, containing the device name
+	with all '/' converted to '-'.
+	: use DevID for log file, pid file, nologin file name
+	(make_pid_file): use global variable for the file name, unlink()
+	the pid file before calling login()
+
+	* mgetty.h: added prototype for mydup()
+
+Thu Jul 21 19:05:01 1994  Gert Doering  (gert@greenie)
+
+	* faxrec.c (faxrec): #ifdef FAX_USRobotics, wait for the OK
+	*before* changing the baud rate
+
+	* faxlib.c (fax_set_dcc): #ifdef FAX_USRobotics, don't set max
+	speed, USR have broken the AT+FCC command in their modems
+
+	* policy.h: add FAX_USRobotics and MGETTY_PID_FILE
+
+	* fax_lib.h: add prototype for fax_set_flowcontrol
+
+	* faxlib.c (fax_set_flowcontrol): in class 2.0 mode, send AT+FLO
+	command corresponding to the value of hw_flow; in every other
+	mode, do nothing.
+
+	* sendfax.c (main): send class 2.0 flow control cmd
+
+	* faxrec.c (faxrec): send proper class 2.0 flow control cmd to modem
+
+Mon Jul 18 21:21:16 1994  Gert Doering  (gert@greenie)
+
+	* mg_m_init.c (mg_drop_ctty): new function, try to get rid of the
+	damn thing
+
+	* mgetty.c (main): after locking for dialin, get the line as ctty
+
+	* mg_m_init.c (mg_open_device): open() with O_NOCTTY
+	(mg_get_ctty): new function, acquire controlling tty
+
+Tue Jul 12 14:29:53 1994  Gert Doering  (gert@greenie)
+
+	* mgetty.h (SVR42): #ifdef solaris2 -> #define SVR42
+	: change basename() to get_basename()
+
+	* mgetty.c (main): swap chown() and chmod() -> security issue
+
+	* sendfax.c (main): don't barf on absolute device names, just barf
+	if the device name is absolute and not under /dev
+	(fax_open_device): strip leading /dev/ if present.
+
+	* faxrec.c (fax_get_page_data): if the first character of the
+	device id used in the fax name is a "/", use the third-to-last
+	character of the device name. If that's a "/" too, use "-".
+
+	* tio.c: #include <unistd.h>
+
+	* locks.c: #ifdef SVR4 *after* #include "mgetty.h"
+
+	* logname.c (getlogname): change putc() to fputc() [ISC stupidity]
+
+Sat Jul  9 16:43:58 1994  Gert Doering  (gert@greenie)
+
+	* fax/*.in: changed #!/bin/sh to #!@SHELL@
+
+	* mksed.c (main): add @SHELL@ substitution
+
+	* Makefile: comments about SunOS 4, Solaris 2
+
+	* various: change all "#ifdef sun" to "#ifdef sunos4"
+
+	* mgetty.h: make sure that on "sun" always one of
+	"sun4/solaris2/solaris86" is defined
+
+Fri Jul  8 00:32:34 1994  Gert Doering  (gert@greenie)
+
+	* cnd.c (cndfind): ugly workin of Rockwell's multi-line CONNECT
+	messages. Has to know to much about Modem. Not good.
+
+	* mgetty.c (main): if blocking_open == TRUE, don't wait for 
+	a character on the line; output /etc/issue immediately.
+
+Wed Jul  6 00:32:34 1994  Gert Doering  (gert@greenie)
+
+	* mgetty.c (main): implement "-b" flag (and argv[0] == "getty"
+	magic) for opening a port non-blocking
+
+	* logname.c (ln_escape_prompt): if memory is low, return input ptr
+	instead of NULL
+
+Sat Jul  2 23:44:12 1994  Gert Doering  (gert@greenie)
+
+	* fax/faxrm.in ($JOB.suspended): forgot the $jobid/ prefix
+
+Tue Jun 28 22:05:05 1994  Gert Doering  (gert@greenie)
+
+	* sendfax.c (main): don't terminate the AT that is sent befor the
+	extra_modem_init with a "\r"...
+
+Thu Jun 16 02:36:38 1994  Gert Doering  (gert@greenie)
+
+	* fax/faxspool.in (phone): allow ,; in the phone number (delay!)
+
+Fri Jun  3 08:10:35 1994  Gert Doering  (gert@greenie)
+
+	* faxhng.c: added result codes newly introduced by class 2.0
+
+Sun May 29 22:01:53 1994  Gert Doering  (vishy@madrad.radiology.wisc.edu)
+
+	* getdisk.c: adaption for ULTRIXSTATFS
+
+Wed May 25 13:01:53 1994  Gert Doering  (gert@greenie)
+
+	* mgetty.c (main): remove lock file after fax reception
+	(main): sysV86 changes (prototypes / make_utmp_wtmp)
+
+Tue May 24 13:35:52 1994  Gert Doering  (gert@greenie)
+
+	* logname.c (getlogname): ignore leading '-'
+
+Thu May 19 08:56:55 1994  Gert Doering  (gert@greenie)
+
+	* mgetty.c (main): -I <station id> option added
+
+	* sendfax.c (main): -I <station id> option added
+
+Wed May 18 23:52:07 1994  Gert Doering  (gert@greenie)
+
+	* mgetty.c (main): in state St_waiting, set SIGHUP to SIG_IGN
+	(remember, on some systems, on setting B0, every process gets a
+	SIGHUP! So this can happen if something else out-dials!)
+
+	* locks.c (rmlocks): remove lock only if it's ours
+
+Sat May 14 15:04:31 1994  Gert Doering  (gert@greenie)
+
+	* logname.c: <stdlib.h> + <malloc.h> -> "syslibs.h"
+	* (various others): <stdlib.h> or <malloc.h> -> "syslibs.h"
+
+        * faxsend.c (fax_send_page): use fax_send_swaptable[]
+	(fax_send_ppm): scan + evaluate +FHS: response (ugly)
+
+	* faxlib.c (fax_set_bor): init swap tables
+	(fax_wait_for): recognize +FPI: and +FCIG: responses
+
+	* faxlib.c (swap_bits): delete
+
+Thu May 12 23:20:43 1994  Gert Doering  (gert@greenie)
+
+        * sendfax.c (main): move the AT+FET stuff to faxsend.c
+
+	* faxsend.c (fax_send_page): call fax_send_ppm() at the end,
+	do not send DLE ETX yourself
+
+	* faxsend.c (fax_send_ppm): depending on modem_type, send
+	DLE ETX + AT+FET or DLE<x>
+
+	* mg_m_init.c (mg_init_device): acquire new controlling tty (TIOCSCTTY)
+
+Tue May 10 21:38:13 1994  Gert Doering  (gert@greenie)
+
+	* faxlib.c (fax_get_line): created
+	(fax_command): use fax_send()
+	(fax_send): attach MODEM_CMD_SUFFIX to string
+	(mdm_command): created
+	(fax_get_modem_type): created
+
+	* faxrec.c (fax_get_pages): remove \r\n from fax_send() command
+
+	* mgetty.c (main): add "modem_type" + "-C <class>" switch
+
+	* policy.h (DEFAULT_MCLASS): introduced
+	
+Sat May  7 20:02:30 1994  Gert Doering  (gert@greenie)
+
+	* faxlib.c (fax_wait_for): recognize +FHS:xx code
+
+	* faxrec.c (fax_get_page_data): handle <dle><sub> (2.0)
+
+	* fax_lib.h (SUB): add "SUB" (for <dle><sub>)
+
+	* do_chat.c: add #include <string.h>
+
+	* faxlib.c (fax_read_byte): remove ``extern int errno''
+	: remove no-longer used lprintf() statement
+
+	* login.c: remove explicit declaration of ``int errno''
+
+	* logfile.c: remove explicit declaration of ``int errno''
+
+Sun May  1 01:24:07 1994  Gert Doering  (gert@greenie)
+
+	* tio.c (tio_map_uclc): bracked with "#ifndef OLCUC"
+
+	* logfile.c: do not declare sys_errlist[] on __FreeBSD__
+
+	* getdisk.c: shuffle around some #ifdefs for FreeBSD and BSDI
+
+Fri Apr 29 01:15:31 1994  Gert Doering  (gert@greenie)
+
+	* mgetty.c (main): detail changes in St_nologin
+
+	* io.c: don't define poll() prototype on AIX
+
+	* tio.c (tio_map_uclc): not available on BSDI
+
+        * mgetty.c (main): convert to state machine
+
+	* mg_utmp.h: add #include <sys/types.h> before <utmp.h>, for BSD
+
+Thu Apr 28 13:18:16 1994  Gert Doering  (gert@greenie)
+
+	* tools/g3topbm.c (main): if the page is longer than MAX_ROWS,
+	realloc() bitmap, don't dump core!
+
+Wed Apr 27 00:07:55 1994  Gert Doering  (gert@greenie)
+
+	* mg_m_init.c: created. Do all the MGetty-Modem-INITializations
+	here. Functions: mg_init_data(), mg_init_fax().
+
+	* faxrec.c: move faxpoll_server_init() to mg_m_init.c, make
+	faxpoll_server_file global (mg_m_init.c sets it)
+
+	* mgetty.c (main): don't do modem initialization here, call
+	functions in mg_m_init.c
+	(main): add -D (data-only) switch
+
+	* mgetty.h: add prototypes for mg_init functions, change prototype
+	for faxpoll_server_init
+
+Tue Apr 26 22:00:26 1994  Gert Doering  (gert@greenie)
+
+	* mgetty.c: removed #include <ioctl.h> (not needed anymore)
+
+Mon Apr 25 11:59:35 1994  Gert Doering  (gert@greenie)
+
+	* mgetty.c (main): on a system with a two-user-limit, don't make a
+	"dialout" utmp entry
+
+	* released 0.20
+
+Sun Apr 24 11:35:08 1994  Gert Doering  (gert@greenie)
+
+	* logname.c (logname): kludge **EMSI_INQC816 packet handling
+	around D'Bridge bug (no CR at end of packet)
+
+Sat Apr 23 21:32:16 1994  Gert Doering  (gert@greenie)
+
+	* faxsend.c (fax_send_page): timeout-protect sending of the page
+	data (just in case some *&!$%&* modem locks up and leaves the host
+	in ``stopped'' state).
+	* faxsend.c (fax_send_panic_exit): do everything that's possible
+	to hangup + reset modem (everything heavily alarm() protected)
+
+	* tio.h: add prototypes for tio_flush_queue() and tio_flow()
+
+	* tio.c (tio_flush_queue): created [flush in/output queue(s)]
+	* tio.c (tio_flow): created [stop/restart tty output]
+
+Thu Apr 21 10:04:03 1994  Gert Doering  (gert@greenie)
+
+	* mgetty.c: added AT\\OA answer string for the ELINK
+
+	* utmp.c (make_utmp_wtmp): remove check for success again, at
+	least linux' pututline() returns ``void'', no diagnostics :-(
+
+Wed Apr 20 14:57:30 1994  Gert Doering  (gert@greenie)
+
+	* login.c (login): cleanup all the login dispatcher stuff,
+	properly implement utmp entries and "@" -> user substitution, use
+	of strtok() instead of homegrown code, and, most important, syntax
+	error checking
+	(login): be paranoid about ownership / file mode of LOGIN_CFG_FILE
+
+	* logname.c (ln_all_upper): if a \377 is found, assume **EMSI_INQ,
+	return "not all uppercase"
+	(getlogname): fix logging of **EMSI_... packets
+
+	* utmp.c (make_utmp_wtmp): check return code of pututline(), allow
+	changing of LOGIN_PROCESS records
+
+Tue Apr 19 00:01:31 1994  Gert Doering  (gert@greenie)
+
+	* cnd.c (cndfind): for the ELINK modem, accept any line that
+	starts with a digit as CallerId.
+
+	* login.c (login): more checks for validity of LOGIN_CFG_FILE
+
+	* policy.h: changed LOGIN_CFG_FILE to "login.config", added big
+	bright neon warning message (that noone will read) about changes
+
+Mon Apr 18 00:39:10 1994  Gert Doering  (gert@greenie)
+
+	* login.c (login): implement new syntax, with utmp entries and
+	substituting '@' -> user name
+
+	* logname.c (getlogname): implemente uppercase/lowercase mapping
+
+	* tio.c (tio_map_uclc): implemented
+
+	* do_chat.c (do_chat): initialize errno before lprintf( L_ERROR, ..)
+
+	* mgetty.c (main): if waiting for RING times out, and we've read
+	zero RINGs so far, exit(): most likely the modem ``forgot'' its
+	baud rate and needs a reinitialization
+
+Sun Apr 17 14:47:46 1994  Gert Doering  (gert@greenie)
+
+	* doc/mgetty.texi (Receiving): add note about faxv
+
+	* Makefile: add dialog/faxv and dialog/playback.sh to distribution
+
+Sat Apr 16 20:39:36 1994  Gert Doering  (gert@greenie)
+
+	* locks.c (do_makelock): if write()ing the PID to the temp file
+	fails, issue L_FATAL message and fail.
+
+Wed Apr 13 12:52:24 1994  Gert Doering  (gert@greenie)
+
+	* sendfax.c (main): too many tries: page shown was wrong
+	(main, fax_open, fax_open_device): implement "-S"
+
+	* tools/g3cat.c (main): clean up argument handling (long due)
+	(puteol/main): add padding (-p <bytes> switch)
+
+Tue Apr 12 18:43:43 1994  Gert Doering  (gert@greenie)
+
+	* sendfax.c (main): correct the "Failure transmitting (null)" buglet
+
+	* logfile.c (log_init_paths): strip leading file path components
+
+Mon Apr 11 11:39:46 1994  Gert Doering  (gert@greenie)
+
+	* sendfax.c (fax_open_device): set log_infix (via log_init_paths())
+	to the last two characters of the device name
+
+	* sendfax.c (main): use log_init_paths, log_set_llevel
+
+	* mgetty.c (main): use log_init_paths, log_set_llevel
+
+	* contrib/faxin.c (main): use log_init_paths, log_set_llevel
+
+	* logfile.c (log_init_paths,log_set_llevel): created API functions
+	to hide internal data structures (log_path, log_level, ...)
+
+Sat Apr  9 13:56:49 1994  Gert Doering  (gert@greenie)
+
+	* faxrec.c (fax_get_page_data): first chmod(), then chown() fax
+	file (was the other way round)
+
+	* fax/faxspool.in (permissions): create FAX_SPOOL_OUT if it
+	doesn't exist yet (or something removed it)
+	(finalpg): substitute @DATE@ with the output of `date`
+
+	* mgetty.c (main): escape tokens in "/etc/issue" (\U, \D, ...)
+
+	* fax/faxq.in (jobs): change "PAGES" display (in -v mode)
+
+Sat Apr  9 13:47:30 1994  Chris Lewis  (gert@greenie)
+
+	* fax/faxrunq.in (jobs): add "sent successfully after <n>
+	unsuccessful tries" message to success mail
+
+Tue Apr  5 21:37:42 1994  Gert Doering  (gert@greenie)
+
+	* mgetty.c (main): unset O_NDELAY /before/ dup()ing the
+	filedescriptor to stdout/stderr.
+
+	* login.c (login): add DEFAULT_LOGIN_PROGRAM instead of hardcoded
+	"/bin/login" - on FreeBSD, login is located in "/usr/bin". (uh?!)
+
+Thu Mar 24 10:16:28 1994  Uwe Fuerst  (gert@greenie)
+
+	* faxrec.c (fax_get_page_data): change "/" in remote fax id to "-"
+	in fax file names.
+
+Mon Mar 14 12:16:15 1994  Gert Doering  (gert@greenie)
+
+	* logname.c (getlogname): when receiving **EMSI_CLI packet, do not
+	start ifcico, instead, re-read login name
+
+Sun Mar 13 00:19:02 1994  Gert Doering  (gert@greenie)
+
+	* tio.c (tio_toggle_dtr): on SVR4, use TIOCMBI* to toggle DTR
+	(tio_toggle_dtr): on HPUX, use TCGETA/SETAF to toggle DTR
+	change strings used for "tio_compilation_type"
+
+	* mgetty.c (main): call tio_default_cc() for initialization of the
+	TIO->c_cc[] array (so it will be used even if not -DUSE_GETTYDEFS)
+
+	* gettydefs.c: use tio_default_cc to initialize c_cc[] array
+	(ccchars): add SVR4.2 flags
+
+Sat Mar 12 01:10:40 1994  Gert Doering  (gert@greenie)
+
+	* tio.c (tio_default_cc): new function, initialize the c_cc array
+	for POSIX_TERMIOS and SYSV_TERMIO to default values, initialize the
+	(few) sgtty control characters properly.
+	(tio_set_flow_control): on SVR4.2 systems, do *not* use termiox
+
+	* tio.h: add lots of defines (CDSUSP, CLNEXT, ...) used in SVR4.2
+	and a few others
+
+	* Makefile (DISTRIB): sample FAX_NOTIFY_PROGRAMs in contrib/
+
+Fri Mar 11 01:45:55 1994  Gert Doering  (gert@greenie)
+
+	* tools/g3topbm.c (main): fix argument parsing ( i < argc check )
+
+Wed Mar  9 10:59:29 1994  Gert Doering  (gert@greenie)
+
+	* tools/g3cat.c (main): output warning if no input file was
+	specified
+
+	* tools/g3topbm.c (main): fix bug in writing of PBM header when
+	"-stretch" is used
+
+Wed Mar  9 10:45:00 1994  Steven Work (steve@work.bellingham.wa.us)
+
+	* tools/g3topbm.c: implement "-stretch" option to double each row
+	in the g3 file (make image whith "fine" aspect ratio from "normal"
+	resolution fax).
+
+Tue Mar  8 15:34:43 1994  Gert Doering  (gert@greenie)
+
+	* mgetty.c: change make_utmp_wtmp() calls to new argument type,
+	make "dialout" utmp/wtmp entry (so "who" shows dialouts)
+
+	* mgetty.h: remove prototypes for utmp functions (->mg_utmp.h)
+
+Mon Mar  7 12:02:50 1994  Gert Doering  (gert@greenie)
+
+	* logname.c (getlogname): if FIDO is defined, accept not only
+	**EMSI_INQ but all **EMSI...\r packets. (FrontDoor tends to
+	sending **EMSI_DAT instead of **EMSI_INQ)
+
+	* login.c (login): fixed bug in handling of empty lines
+
+	* fax/faxspool.in (phone): change alias handling, accept a comment
+	(->verbose_to) as third field in the alias file; further, accept
+	multiple whitespace between alias name and phone number (use $AWK
+	instead of grep | cut).
+
+	* tools/g3cat.c (main): implement "-h <empty_lines>" option
+
+	* fax/faxrunq.in (jobs): implement locking (JOB <-> JOB.locked),
+	including 'trap'ing all necessary signals
+
+	* mgetty.c (main): put tio_carrier( TRUE ) before
+	delay(prompt_waittime) - there was a (small) time window where
+	the modem could hangup without the host noticing it.
+	(sig_goodbye): add "dev=" to audit message
+
+Fri Mar  4 00:40:47 1994  Gert Doering  (gert@greenie)
+
+	* fax/faxrunq.in: command line parsing, "-q" option
+
+Thu Mar  3 12:30:02 1994  Gert Doering  (gert@greenie)
+
+	* fax/faxspool.in: output note if reading from stdin 
+	: implement command line argument parsing, implement "-f", "-u",
+	"-D", "-p" and "-q" options.
+	: substitute @D@ in the fax header with "verbose_to"
+	(phone): if alias used, and verbose_to is empty, set it to the
+	alias name
+
+	* fax/faxrunq.in (jobs): implement "mail" field
+	(jobs): put double quotes around all "$MAIL_TO" occurences
+
+	* fax/faxq.in (jobs): implement "mail" field
+	(jobs): remove "for" loop for "pages"
+
+Wed Mar  2 14:19:50 1994  Gert Doering  (gert@greenie)
+
+	* fax/faxspool.in (FAX_ALLOW): ignore anything after first blank
+	in .../fax.allow (so Harald Milz can put his user names there)
+
+	* fax/faxrunq.in (jobs): if "poll" flag found, call "sendfax -p"
+
+	* fax/faxspool.in (maxnr): repair page numbering, broken by last
+	change
+	(stdin): if "-" is specified as a file type, use stdin (Matz)
+
+	* fax/faxq.in (jobs): add "verbose_to" token (only for faxq -v)
+
+	* fax/faxspool.in (finalpg): repair `ls -rt` bug (page order was
+	not always correct), using string concatenation instead
+
+Tue Mar  1 01:08:19 1994  Gert Doering  (gert@greenie)
+
+	* sendfax.c (main): #ifdef FAX_SEND_SWITCHBD, change to the given
+	baud rate immediately after sending +FCLASS=2 and receiving OK.
+	(main): call siginterrupt() on systems that have it
+
+	* policy.h: introduce FAXSEND_NO_XON, write comment for it
+	introduce FAX_SEND_SWITCHBD, write comment for it
+
+	* faxsend.c (fax_send_page): make waiting for Xon optional
+
+	* faxrec.c (fax_get_page_data): skip leading junk before receiving
+	page data, but logging it (have seen some error messages here...) 
+
+	* tools/pbmtog3.c (convert_pbm_raw): reading from pipes may return
+	less bytes than requested -> fix it.
+
+	* mgetty.c (main): handle device nodes in subdirectories (use
+	strrchr(...,'/')+1 for log_path and /etc/nologin.$tty)
+
+	* locks.c (get_lock_name): handle file names with and without
+	leading /dev/ (or even /dev/term/...) prefixes
+
+        * tools/Makefile: add pbmtog3, use $(INSTALL)
+
+	* fax/Makefile: use $(INSTALL)
+	: use $(FAX_SCRIPTS) instead of a list of single files each time
+
+	* fax/faxrunq.in (FAX_SENDER): use SBINDIR, not BINDIR
+
+	* Makefile: add + use SBINDIR and INSTALL
+
+	* mksed.c (main): add SBINDIR
+
+	* config.c: do not include termio.h
+
+	* logfile.c: do not include openlog()/syslog() prototypes on BSD
+	systems
+
+	* tio.h: on BSD systems, make POSIX_TERMIOS the default
+
+	* mgetty.h: if __FreeBSD__ is defined, do define BSD.
+        If BSD is defined, don't compile getopt() prototype
+
+Tue Mar  1 00:58:04 1994  Gunther Shadow  (gert@greenie)
+
+	* mgetty.c (main): not all systems default to interruptible system
+	calls, for those that don't, use siginterrupt( ..., TRUE ). Make
+	this the default if BSD is defined.
+
+Mon Feb 28 22:26:15 1994  Gert Doering  (gert@greenie)
+
+	* tio.c: bracked EXTA / EXTB defines in speedtab[] with #ifdef
+	EXTA / #ifdef EXTB
+
+Mon Feb 21 21:22:22 1994  Gert Doering  (gert@greenie)
+
+	* fax/faxspool.in (spooldir): clean up format detection (via "dd
+	bs=1 count=...") and format conversion (fax_cvt_$format).
+
+Sun Feb 20 11:31:42 1994  Gert Doering  (gert@greenie)
+
+	* mgetty.h (MAXLINE): change MAXLINE to 1024 (may be necessary for
+	**EMSI_DAT packet in getlogname())
+
+Sun Feb 20 09:54:06 1994  Eugene Crosser  (crosser@pccross.msk.su)
+
+	* logname.c (getlogname): output XON character after **EMSI_REQ
+
+Sat Feb 19 00:31:22 1994  Gert Doering  (gert@greenie)
+
+	* do_chat.c (do_chat): do a str*n*cmp on "RING", to make sure
+	"RING\r" is matched, too (virtual rings)
+
+Thu Feb 17 18:55:50 1994  Jens Hektor
+
+	* tio.h: #ifdef CNSWTCH should be if*n*def CNSWTCH. changed.
+
+Tue Feb 15 15:48:19 1994  Gert Doering  (gert@greenie)
+
+	* doc/mgetty.texi (Zyxel): add paragraph about S18 register
+
+	* tio.h: add prototype for dumpgettydefs()
+
+Mon Feb 14 01:24:00 1994  Gert Doering  (gert@greenie)
+
+	* sendfax.c (main): broke polling when introduced "FHNG:-4" code,
+	repaired
+
+Sat Feb 12 00:45:36 1994  Gert Doering  (gert@greenie)
+
+        * ugly.h: created from all the K&R / ANSI macros in mgetty.h
+
+	* tools/*.c: replaced mgetty.h by ugly.h
+
+	* fax/faxspool.in: add support for gif, tiff, xwd file types
+
+	* fax/faxspool.in: $echo all error messages to stderr, not stdout
+
+Fri Feb 11 14:49:35 1994  Gert Doering  (gert@greenie)
+
+	* doc/mgetty.texi (ISC): update notes about ISC
+
+	* fax/faxq.in (AWK): use @AWK@ for awk programs
+	* fax/faxspool.in (AWK): ditto
+	* fax/faxrunq.in (AWK): ditto
+
+	* mksed.c (main): add AWK substitution 
+
+	* Makefile (AWK): create a definition for awk, pass it to mksed
+
+Thu Feb 10 22:29:48 1994  Gert Doering  (gert@greenie)
+
+	* mgetty.c (main): if /etc/nologin prevents answering the phone,
+	do not exit(), instead, go to waiting - thus, one can always have
+	the modem pick up the phone manually (DATA/VOICE) without mgettys
+	modem initialiations interfering.
+
+	* faxlib.c (fax_wait_for): accept \r and \n as line separator
+
+Tue Feb  8 23:00:23 1994  Gert Doering  (gert@greenie)
+
+	* logfile.c (lprintf): if opening the log file doesn't work, try
+	to log to console, if that doesn't work either, do not log at all
+	(a lot better than exiting!)
+
+Tue Feb  8 21:22:15 1994  chris@cj.in-berlin.de (Christof Junge)
+
+	* mgetty.c (main): reverse meaning of NO_SYSVINIT (was wrong)
+
+Fri Feb  4 21:50:48 1994  Gert Doering  (gert@greenie)
+
+	* release 0.18
+
+	* documentation changes for some modems
+
+Fri Feb  4 20:00:48 1994  Klaus Weidner  (klaus@snarc)
+
+	* documentation changes for vgetty part 
+
+Fri Feb  4 15:53:33 1994  caz@psq.mei.co.jp (Caz Yokoyama)
+
+	* faxrec.c: ifdef MEIBE -> no chmod() prototype
+
+	* do_chat.c (clean_line): make empty on MEI BE machines
+
+Fri Feb  4 15:53:33 1994  Gert Doering  (gert@greenie)
+
+	* fax/faxrm.in: created, first draft, "-i" not yet working
+
+Thu Feb  3 19:08:34 1994  Gert Doering  (gert@greenie)
+
+	* fax/faxrunq.in (jobs): changed ``requeue'' text, add
+	``verbose_to'' keyword
+
+Sun Jan 30 00:54:33 1994  Gert Doering  (gert@greenie)
+
+	* mksed.c (main): capsulate MAILER with double qoutes (blanks!)
+
+	* faxsend.c (fax_send_page): check fax_hangup, not fax_hangup_code
+
+	* fax/faxspool.in: avoid race condition by first creating JOB.q,
+	then ``mv''ing it to JOB
+
+	* faxlib.c: initialize fax_hangup_code with FHUP_UNKNOWN
+
+	* fax_lib.h: add FHUP_UNKNOWN
+
+	* faxhng.c: add text for FHUP_UNKNOWN
+
+Sat Jan 29 22:48:53 1994  Gert Doering  (gert@greenie)
+
+	* sendfax.c (main): if FAX_SEND_IGNORE_CARRIER is defined, do not
+	clear CLOCAL flag before starting page send
+	(main): if FAX_SEND_MAX_TRIES <= 0, then do not resend page (but
+	print lots of warnings - and you're on your own!)
+
+	* policy.h: add FAX_SEND_IGNORE_CARRIER, add comment about
+	FAX_SEND_MAX_TRIES 0
+
+Thu Jan 27 21:12:39 1994  Earl Hartwig (earl@fozzi.ocunic.on.ca)
+
+	* faxrec.c: #ifndef sun the chmod() prototype
+
+	* policy.h: #ifdef SVR4 || sun the /var/spool/locks path
+
+Sun Jan 23 13:12:39 1994  Klaus Weidner  (klaus@snarc.greenie.muc.de)
+
+	* mgetty.c: send "VOICE_ATA" define instead of "\dATA" - better
+	configuration
+
+	* mgetty.c: call voice_initpaths()
+
+Sun Jan 23 13:12:39 1994  Gert Doering  (gert@greenie.muc.de)
+
+	* locks.c (makelock): create makelock_file() function, rename old
+	makelock() function to do_makelock() (no arguments, use global
+	variable "lock"), create new makelock() function that will have
+	"classic" behaviour.
+
+	* policy.h: changed / clarified comments
+
+	* io.c (bzero): add #define bzero() -> memset() (defined only if
+	NEED_BZERO is set - some systems, e.g. SCO 3.2.2, do not have
+	bzero())
+
+Sun Jan 23 11:49:50 1994  Carsten Paeth  (calle@calle.in-berlin.de)
+
+	* logfile.c: add #ifndef linux around syslog prototypes
+
+Fri Jan 21 00:34:02 1994  Gert Doering (gert@greenie.muc.de)
+
+	* Makefile: "move" stuff into subdirectory mgetty-0.$(VN) (faked)
+
+Thu Jan 20 18:10:02 1994  Gert Doering (gert@greenie.muc.de)
+
+	* mgetty.c: rmlocks() before return to state waiting
+
+Wed Jan 19 22:45:02 1994  Gert Doering (gert@greenie.muc.de)
+
+	* doc/faxspool.1: updated
+
+	* fax/faxspol.in: use $LIBDIR/faxheader as fax page header text
+
+Wed Jan 19 10:25:02 1994  Gert Doering (gert@greenie.muc.de)
+
+	* faxrec.c,policy.c: chmod( fax_file, FAX_FILE_MODE );
+
+Tue Jan 18 23:15:02 1994  Gert Doering (gert@greenie.muc.de)
+
+	* io.c, utmp.c: ISC dependencies
+
+Mon Jan 17 12:15:02 1994  Gert Doering (gert@greenie.muc.de)
+
+	* faxrunq.c: add "-l @FAX_MODEM_TTYS@" to sendfax' argument list
+
+	* mksed.c: add FAX_MODEM_TTYS to sedscript substitutions
+
+	* logfile.c: append '\n' to L_AUDIT messages into the logfile
+	(better readability)
+
+	* faxrec.c (fax_get_page_data) - set call_start if it is not
+	initialized yet.
+
+	* contrib/faxin.c: CallerId, CallName variables added
+
+	* contrib/Makefile: link new modules to faxin
+
+	* mgetty.c: removed log_level++/log_level-- debug stuff
+
+	* mgetty.texi: caller-ID section added
+
+	* fax/faxspool.in: configurable
+
+	* fax/Makefile: check for /etc/magic <-> PBM signature
+
+	* fax/etc-magic: the most important "/etc/magic"s
+
+Sun Jan 16 19:15:02 1994  Gert Doering (gert@greenie.muc.de)
+
+	* dialin.config: provide sample version with comments
+
+	* Makefile: some changes for sedscript / DISTRIB
+
+	* getdisk.c: fixed includes / defines for SCO Unix (M_UNIX->SVR3)
+
+	* faxrec.c: junk faxrec_s_time, use call_start everywhere
+
+Sun Jan 16 19:15:02 1994  Chris Lewis (clewis@ferret.ocunix.on.ca)
+
+	* mgetty.c: initialize call_start
+
+	* faxrec.c: L_AUDIT log call_done - call_start
+
+Fri Jan 14 18:30:02 1994  Chris Lewis (clewis@ferret.ocunix.on.ca)
+
+	* mgetty.c: L_AUDIT message extended
+
+	* do_chat.c: extend comments
+
+	* do_chat.c: build full lines, feed into cndfind(), cnd.c
+
+	* mgetty.h: add external / type declarations for cnd.c and getdisk.c
+
+	* logname.c: connect message token (\I), blank after prompt removed
+
+	* sendfax.c: uglify, add pid to L_AUDIT/fail message
+
+	* doc/mgetty.texi: clarifications for 3B1, spelling errors
+
+	* doc/*.1: "-" -> "\-" in title line
+
+	* config.c: some pointer conversions cleaned
+
+	* login.c: added getpwnam() prototype, extend L_AUDIT logging
+
+	* gettydefs.c: #include <malloc.h>
+
+	* Makefile: cng.o getdisk.o linked
+
+	* getdisk.c: created
+
+	* cng.c: created
+
+Fri Jan 14 18:30:02 1994  Gert Doering  (gert@greenie)
+
+	* various: Chris Lewis' latest (CND, disk space, logging)
+
+Thu Jan 13 18:41:02 1994  Gert Doering  (gert@greenie)
+
+	* fax/faxrunq, fax/faxq: changed to ".in" files, manipulated by
+	``sedscript'', generated by ``mksed.c''
+
+	* doc/faxq.1: created
+
+	* Makefile, fax/Makefile, tools/Makefile: cleaner hierarchy
+
+	* mgetty.texi: added "reset" part to mgetty.texi
+
+Wed Jan 12 21:41:02 1994  Gert Doering  (gert@greenie)
+
+	* do_chat.c: introduce A_TIMOUT for timeout, distinguishable
+	from A_FAIL (BUSY, ERROR, NO CARRIER, ...)
+
+	* mgetty.c: if phone stopps ringing before we get the desired
+	number of rings, do not exit, go to "waiting..." instead
+
+Wed Jan  5 03:41:02 1994  Gert Doering  (gert@greenie)
+
+	* faxrec.c (fax_send_pages): leave page-receive loop if
+	fax_poll_req == TRUE
+	(faxrec): implement very simple fax poll server (1 page)
+	(fax_notify_mail): include polling notification in mail
+
+	* sendfax.c (main): change fax_poll_req to fax_poll_wanted, to
+	avoid confusions with fax_poll_req used in faxlib.c (for remote
+	fax poll requests)
+
+	* faxsend.c: create, with fax_send_page() in here (slightly
+	modified: pass the fax TIO descriptor here, no fax_close() call)
+
+	* sendfax.c: move fax_send_page() to faxsend.c
+
+	* fax_lib.h: add fax_send_page() prototype
+
+	* tio.h: add #define __TIO_H__ (for fax_lib.h)
+
+Tue Jan  4 17:34:23 1994  Gert Doering  (gert@greenie)
+
+	* mgetty.c (main): add "-S" switch, add call to faxpoll_server_init()
+
+	* mgetty.h: add prototype for faxpoll_server_init()
+
+Mon Jan  3 02:35:41 1994  Gert Doering  (gert@greenie)
+
+	* tio.c: move speedtab[] from mgetty.c to tio.h/tio.c
+
+	* logname.c (ln_escape_prompt): add '\S' token (port speed)
+
+	* tio.h: add prototype for tio_get_speed()
+
+	* tio.c: new function, tio_get_speed()
+
+	* logname.c (getlogname): log character before checking for
+	tsync/yoohoo caller and stripping to 7 bit
+
+	* faxlib.c (fax_wait_for): understand +FDTC -> fax_poll_req = TRUE
+
+	* faxlib.c (fax_send): send MODEM_CMD_SUFFIX instead of "\r\n"
+
+Sun Jan  2 18:05:13 1994  Gert Doering  (gert@greenie)
+
+	* do_chat.c (do_chat): send MODEM_CMD_SUFFIX instead of hardcoded
+	"\r\n" (and log what is sent) 
+
+	* mgetty.c (main): use NOLOGIN_FILE instead of hardcoded
+	"/etc/nologin.%s"
+
+	* policy.h: added NOLOGIN_FILE and MODEM_CMD_SUFFIX
+
+	* mgetty.c (main): move signal() calls to before answering phone
+
+	* locks.c (get_lock_name): use lowercase device names for locking
+	purposes if LOCKS_LOWERCASE is set (SCO convention) (MaM)
+	(readlock): after guessing the lock file type, check whether it
+	fits the setting of LOCKS_BINARY, if not, write a warning into the
+	log file.
+
+	* policy.h: add LOCKS_LOWERCASE + comment
+
+	* gettydefs.c (mydup): make mydup() global 
+
+	* mgetty.c (sig_goodbye): added signal handler for signals INT,
+	QUIT, HUP and TERM that will remove locks and log the signal number 
+
+Tue Dec 28 01:22:48 1993  Gert Doering  (gert@greenie)
+
+	* logfile.c (lprintf): move test whether log level is high enough
+	before test whether log file should be opened (avoid noisy
+	printing of "--" to otherwise empty log files)
+
+Mon Dec 27 21:45:28 1993  Gert Doering  (gert@greenie)
+
+	* mgetty.c: added "V1" to first init string (MaM)
+
+	* do_chat.c: added "policy.h" (for DO_CHAT_SEND_DELAY)
+
+Thu Dec 23 12:35:07 1993  Gert Doering  (gert@greenie)
+
+	* utmp.c: ifdef ISC -> typedef short pid_t
+
+Sun Dec 19 23:20:55 1993  Gert Doering  (gert@greenie)
+
+	* mgetty.h: getopt() prototype only if M_UNIX not defined
+
+	* mgetty.c: change order of policy.h and tio.h (USE_GETTYDEFS)
+
+Sat Dec 18 18:50:55 1993  Gert Doering  (gert@greenie)
+
+	* faxrec.c (fax_get_page_data): i = sprintf() -> strlen()
+
+	* logname.c (ln_escape_prompt): SunOS changes - do not use int
+	return code of sprintf() anymore
+
+	* sendfax.c: SunOS changes - FLOW_HARD off while DCD is low
+
+	* mgetty.c: SunOS changes - FLOW_HARD off while DCD is low
+
+	* tio.c (tio_toggle_dtr): SunOS changes - manually enable RTS
+	and DTR lines after hangup
+
+Fri Dec 17 17:50:55 1993  Gert Doering  (gert@greenie)
+
+	* policy.h: add comment about [11] [13] in sendfax log
+
+Wed Dec 15 10:20:01 1993  Gert Doering  (gert@greenie)
+
+	* logfile.c: SYSLOG -> logging to syslogd
+
+	* policy.h: add SYSLOG + comments
+
+	* mgetty.login: comments extended
+
+	* login.c: stupid bug with "*a" and "a*" matching fixed
+
+	* Makefile: link config.o, login.o
+
+	* login.c: nasty bug in parsing of command line fixed
+
+	* mgetty.c: call login( username ) instead of exec(
+	"/bin/login"...)
+
+	* mgetty.c: remove UGLY_TAYLOR_UUCP_HACK and FIDO
+
+	* mgetty.h: add prototype for login()
+
+	* policy.h: add LOGIN_CFG_FILE definition + comments
+
+Mon Dec 13 17:00:01 1993  Gert Doering  (gert@greenie)
+
+	* Makefile: LIBDIR=/usr/local/lib/mgetty+sendfax, install
+	cour24i.pbm font
+
+	* fax/faxspool: use new libdir path
+
+	* logname.c (getlogname): ignore leading blanks (E.Crosser)
+
+Fri Dec 10 15:30:01 1993  Gert Doering  (gert@greenie)
+
+	* mgetty.texi: update BSD section, add text about /etc/ttytab
+
+	* tio.c: move #include <sys/ioctl.h> up before "tio.h" (for AIX)
+
+Mon Dec  6 12:46:57 1993  Gert Doering  (gert@greenie)
+
+	* faxrec.c: add include of <stdlib.h>
+
+Fri Dec  3 00:14:12 1993  Gert Doering  (gert@greenie)
+
+	* sendfax.c (main): setup signal handler to remove locks and close
+	fax device on SIGINT / SIGQUIT
+	(fax_close): add "+FCLASS=0" to reset modem to known state
+
+Wed Dec  1 20:07:05 1993  Gert Doering  (gert@greenie)
+
+	* faxrec.c (faxrec): add L_AUDIT with most important informations
+	about received fax
+
+	* mgetty.c (main): change login log message to level L_AUDIT
+                           remove "fax receiver finished" message
+
+	* mgetty.h (L_AUDIT): added L_AUDIT
+
+	* mgetty.c (main): remove #ifdef VOICE around check for ( action ==
+	A_VCON ) in ring_counter loop.
+
+Mon Nov 29 22:30:43 1993  Gert Doering  (gert@greenie)
+
+        * mgetty.c: added Klaus Weidner's VOICE conditionals
+
+	* Makefile: added handling / installing of mgetty.login
+
+Fri Nov 26 22:19:41 1993  Gert Doering  (gert@greenie)
+
+	* mgetty.c (main): support for FIDO. If getlogname() returns a
+	string starting with \377, a fido mailer is called.
+
+	* logname.c (getlogname): support for FIDO handshake (TSYNC,
+	YOOHOO and "**EMSI_IMQ" are recognized, **EMSI_REQ is sent). If a
+	fido call comes in, the returned "login name" starts with \377.
+
+Thu Nov 25 19:05:55 1993  Gert Doering  (gert@greenie)
+
+	* mgetty.c (main): creeping featurism - added "-i /etc/issue"
+	switch to mgetty
+
+	* policy.h: added MAILER definition for _AIX
+
+	* Makefile: change shar1 to include Archive-Name: header
+	(Comments): don't use -DUSE_POLL on AIX
+
+	* released mgetty+sendfax 0.16 (0.15 were beta versions) 
+
+Wed Nov 24 12:38:36 1993  Gert Doering  (gert@greenie)
+
+	* do_chat.c: remove "volatile" in virtual_ring declaration
+
+Tue Nov 23 17:47:31 1993  Gert Doering  (gert@greenie)
+
+	* logname.c (ln_escape_prompt): add \L "Line" (device name)
+
+Sun Nov 21 18:03:42 1993  Gert Doering  (gert@greenie)
+
+	* mgetty.c (main): switch on carrier detection before printing
+	/etc/issue (in case a caller hangs up immediately)
+
+Sat Nov 20 10:20:00 1993  Gert Doering  (gert@greenie)
+
+	* do_chat.c (do_chat()): if read() fails, return FAIL (hm)
+
+        * mgetty.texi: updated documentation for SVR4 and SAS
+
+	* mgetty.h: add #ifndef ___386BSD___ around getopt() prototype
+
+	* faxrec.c (fax_get_pages()): set fax_hangup_code, if
+	fax_get_page_data() fails.
+
+Sat Nov 13 11:42:10 1993  Gert Doering  (gert@greenie)
+
+	* contrib/faxin.c: make "char * tty" global and call it "* Device"
+	- so faxrec() can use it for its file names.
+
+	* faxrec.c (fax_notify_mail): change notification mail, make the
+	output better understandable. Include reception time.
+	(fax_get_page_data): change algorithm for creating file names -
+	base on time() and Device id.
+
+	* faxrec.c (fax_get_page_data): change DLE ETX logic (once again)
+
+	* tio.c (set_flow_control): use "type", not "flag"... 
+
+	* do_chat.c (do_chat): DO_CHAT_SEND_DELAY - before sending "send"
+
+	* policy.h: DO_CHAT_SEND_DELAY added
+
+	* Makefile (noident): changed "if" to "case" (cl)
+
+Fri Nov 12 21:38:22 1993  Gert Doering  (gert@greenie)
+
+	* logfile.c (lprintf): use "errnr" instead of "errno"
+
+        * tio.c (tio_set_flow_control): added _AIX style for enabling
+	RTS/CTS flow control (c.l.)
+
+	* tio.c (tio_set_flow_control): added SVR4 <sys/termiox> RTS/CTS
+	flow control (m.h.), change interface.
+
+        * mgetty.c,sendfax.c,faxrec.c: change call(s) to
+	tio_set_flow_control() accordingly.
+
+	* tio.h: added all the V* and C* defines for termio(s)
+
+	* logname.c: added \N and \C escape. Remove surplus blank in
+	TTYPROMPT. Removed all the C* defines (-> tio.h)
+
+Sun Nov  7 01:15:07 1993  Gert Doering  (gert@greenie)
+
+	* tio.h (FLOW_SOFT): changed definitions of FLOW_BOTH and FLOW_NONE
+
+	* policy.h: introduced *_FLOW defines (plus longish comment)
+
+	* changed calls to tio_set_flow_control() accordingly
+
+Sat Nov  6 00:03:30 1993  Gert Doering  (gert@greenie)
+
+	* logname.c (getlogname): #ifdef ENV_TTYPROMPT, do not read input
+	line, but set buf to "" and return immediately (return NOERROR)
+
+	* logname.c (set_env_var): created function 
+
+	* mgetty.c (main): shuffled around gettermio stuff - works now
+	(main): if getlogname() returns empty string, don't pass it to
+	/bin/login 
+
+Fri Nov  5 20:23:26 1993  Gert Doering  (gert@greenie)
+
+	* tio.c: IUCLC and TAB3 are not available on BSD
+
+	* tio.c: do not initialize c_line for POSIX systems
+
+	* sendfax.c (main): new parameter, "-m", specify extra modem
+	initialization string (modem has to answer "OK")
+
+	* mgetty.h (and others): sig_t -> RETSIGTYPE (name clash on BSD)
+
+	* faxrec.c (fax_notify_program): added setpgrp() / TIOCNOTTY for BSD 
+
+Thu Nov  4 22:01:26 1993  Gert Doering  (gert@greenie)
+
+	* fax/faxq: created
+
+Wed Nov  3 19:22:40 1993  Gert Doering  (gert@greenie)
+
+	* mgetty.h (BSD): if __386BSD__ et.al., #define BSD
+
+	* utmp.h: extend #ifdef sun to #if defined(sun) || defined(BSD)
+
+Mon Nov  1 14:03:08 1993  Gert Doering  (gert@greenie)
+
+	* faxrec.c (fax_get_pages): initialize *fax_file_names
+
+	* faxrec.c (fax_notify_mail): check ( fax_file_names == NULL )?
+
+	* mgetty.c (main): stripping of "/dev/" was bogus
+
+	* mgetty.c / gettydefs.c: Chris Lewis' latest changes
+
+Fri Oct 29 10:53:25 1993  Gert Doering  (gert@greenie)
+
+	* policy.h: added comment about USE_GETTYDEFS
+
+Thu Oct 28 11:08:39 1993  Gert Doering  (gert@greenie)
+
+	* fax/faxspool: added - limited - access control
+
+	* Makefile (install): backup faxspool / faxrunq
+
+Wed Oct 27 01:28:05 1993  Gert Doering  (gert@greenie)
+
+        * Makefile: invocate doc/Makefile for "install:"
+
+        * doc: create man pages, create doc/Makefile
+
+	* mgetty.c (main): move first call to gettermio() after opening
+          the port 
+
+	* fax/faxspool: check first line of a file for PBM "magic"
+
+	* mgetty.c (main): added missing "*" in pointer cast
+
+Wed Oct 27 01:19:07 1993  Chris Lewis  (clewis@ferret.ocunix.on.ca)
+
+	* mgetty.h, mgetty.c, gettydefs.c: re-worked gettydefs support
+
+        * tio.c, tio.h: clean up "#elif" - do not work everywhere 
+
+Tue Oct 26 22:09:52 1993  Gert Doering  (gert@greenie)
+
+	* tools/g3topbm.c (main): changed write: to do_write: (collision)
+
+	* tools/g3cat.c (main): changed write: to do_write: (collision)
+
+	* various changes for MEIBE machines (mostly #include <sys/types.h>
+          in various modules, plus typedefs for uid_t and pid_t)
+
+        * policy.h: add LOCK definition for sgi irix
+
+        * io.c: added #ifdef for sgi machine
+
+Fri Oct 22 11:12:00 1993  Gert Doering  (gert@greenie)
+
+	* io.c: added #ifdef for MEIBE machine
+
+	* logfile.c: added #ifdef for MEIBE and _SEQUENT_ machines
+
+Wed Oct 20 11:39:39 1993  Gert Doering  (gert@greenie)
+
+	* mgetty.c (main): ring counter
+
+	* do_chat.c (do_chat): use external variable for "virtual
+	rings", making it possible to pick up phone after a "real" RING
+
+	* do_chat.c (do_chat): removed "locks" stuff
+
+        * logfile.c (lprintf): increase line buffer size
+
+	* faxrec.c: restrict length when logging "notify" command line
+
+Tue Oct 19 02:50:54 1993  Gert Doering  (gert@greenie)
+
+	* various: moved from direct termio manipulation to call of TIO
+	routines
+
+Mon Oct 18 21:41:00 1993  Gert Doering  (gert@greenie)
+
+	* mgetty.texi (Queuing): added syntax of faxspool and aliases
+
+	* fax/faxspool: added simple fax directory handling, if a phone
+	number is non-numeric, it's searched in GLOBAL/PRIVATE_PHONE_DIR
+
+Fri Oct 15 11:25:28 1993  Doering  (y0000075@rzab2)
+
+	* tools/g3.c: removed print_g3_tree()
+
+	* tools/g3topbm.c (main): use real page width for pbm file 
+
+        * Makefile: use "tar"+"gzip" instead of "gtar"
+
+        * tio.c: add "set" flag to various set_*mode() calls
+
+	* sendfax.c (main): split AT+FCLASS=2;+FLID=... into two commands
+
+	* policy.h: MAIL_TO "faxadmin"
+
+	* faxrec.c (fax_get_page): use six 'X's for template, not five
+
+Mon Oct 11 16:23:40 1993  Doering  (y0000075@rznb15)
+
+	* Makefile: changed invocation of sub-dir makefiles
+
+	* tools/*.c: changed to use _P prototype macros
+
+	* mgetty.texi (Linux): add note about mktemp()
+
+Thu Oct  7 02:33:59 1993  Gert Doering  (gert@greenie)
+
+	* faxrunq: quotes around $FAX_SENDER
+
+	* sendfax.c (main): make fax_device_string[] static
+
+	* mgetty.texi (ZyXEL): added note about broken 6.10 firmware
+
+Wed Oct  6 00:02:44 1993  Gert Doering  (gert@greenie)
+
+	* tools/g3cat, tools/g3topbm -> moved g3 tree stuff into g3.h /
+	g3.h, changed g3cat to work not bit-wise but codeword-wise, thus
+	eliminating the 0-bit problem
+
+	* tools/g3cat.c (main): added "-a" switch
+
+	* logname.c (getlog_timeout): void -> sig_t
+
+Tue Oct  5 15:32:13 1993  Gert Doering  (gert@greenie)
+
+	* faxlib.c (fax_command): delay(FAX_COMMAND_DELAY) before write()
+
+	* policy.h: added FAX_COMMAND_DELAY + comment
+
+	* faxrec.c (fax_notify_program): make </dev/null stdin of program 
+
+	* gettydefs.c: clean up include files
+
+	* logfile.c (lputc): #ifdef LOG_CR_NEWLINE: start new line when
+	logging a '\n'
+
+	* include Chris Lewis' K&R patches and gettydefs extensions
+
+	* change ChangeLog to GNU style
+
+	* release mgetty+sendfax 0.14
+
