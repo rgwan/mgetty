@@ -370,3 +370,6 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
      ignore error but print some informative message
 
 256) add easy way to create/remove $FAX_SPOOL_OUT/stop (fax-helper?)
+
+257) generalize calling $(MAKE) in subdirs - put all $(MAKE) arguments
+     in one common variable
