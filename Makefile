@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.60 2004/07/24 18:53:47 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.61 2004/11/11 20:50:23 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -296,8 +296,8 @@ MV=mv
 # Nothing to change below this line ---------------------------------!
 #
 MR=1.1
-SR=31
-DIFFR=1.1.30
+SR=32
+DIFFR=1.1.31
 #
 #
 OBJS=mgetty.o logfile.o do_chat.o locks.o utmp.o logname.o login.o \
@@ -440,9 +440,9 @@ version.h: $(DISTRIB)
 	rm -f version.h
 	if expr "$(MR)" : "[0-9].[13579]" >/dev/null ; then \
 	    date=`date "+%b%d"` ;\
-	    echo "char * mgetty_version = \"experimental test release $(MR).$(SR)-$$date\";" >version.h ;\
+	    echo "char * mgetty_version = \"interim release $(MR).$(SR)-$$date\";" >version.h ;\
 	else \
-	    echo "char * mgetty_version = \"official release $(MR).$(SR)\";" >version.h ;\
+	    echo "char * mgetty_version = \"stable release $(MR).$(SR)\";" >version.h ;\
 	fi
 	chmod 444 version.h
 
@@ -699,10 +699,11 @@ install-vgetty: vgetty-install
 
 ## test suite
 test: bin-all
-	for D in g3 ; do \
-	    ( cd $$D ; $(MAKE) test ); \
+	for D in g3 t ; do \
+	    ( cd $$D ; $(MAKE) CFLAGS="$(CFLAGS) -I.." test ); \
 	done
 
+check: test
 ## misc
 
 dump: logfile.o config.o conf_mg.o goodies.o getdisk.o tio.o gettydefs.o io.o
