@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 1.31 1994/08/13 19:02:20 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 1.32 1994/09/18 17:53:57 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* tio.c
  *
@@ -692,7 +692,7 @@ int tio_flush_queue _P2( (fd, queue), int fd, int queue )
 	return ERROR;
     }
 #endif
-#ifdef SYSV_TEMIO
+#ifdef SYSV_TERMIO
     switch ( queue )
     {
       case TIO_Q_IN:   r = ioctl( fd, TCFLSH, 0 ); break;
