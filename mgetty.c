@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.123 1994/08/08 14:49:45 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.124 1994/08/09 11:29:16 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -698,7 +698,11 @@ int main _P2((argc, argv), int argc, char ** argv)
 	    }
 
 	    /* enough rings? */
-	    if ( rings >= rings_wanted )
+	    if ( rings >= rings_wanted
+#ifdef DIST_RING
+		|| ( what_action >= A_RING1 && what_action <= A_RING5 )
+#endif
+		)
 	    {
 		mgetty_state = St_answer_phone; break;
 	    }
