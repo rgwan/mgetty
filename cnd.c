@@ -1,4 +1,4 @@
-#ident "@(#)cnd.c	$Id: cnd.c,v 1.3 1994/02/16 14:03:40 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "@(#)cnd.c	$Id: cnd.c,v 1.4 1994/04/19 23:13:13 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 ;
 #include <stdio.h>
 #include <string.h>
@@ -44,12 +44,28 @@ cndfind _P1((str), char *str)
     register int len;
     register char *p;
 
+    /* strip off blanks */
+    
     while (*str && isspace(*str)) str++;
     p = str + strlen(str) - 1;
     while(p >= str && isspace(*p))
 	*p-- = '\0';
 
     lprintf(L_JUNK, "CND: %s", str);
+
+    /* The ELINK 301 ISDN modem can send us the caller ID if it is
+       answered with AT\OA. The CID will simply get sent on a single
+       line consisting only of digits. So, if we get a line starting
+       with a digit, let's assume that it's the CID...
+     */
+#ifdef ELINK
+    if ( isdigit(*str) )
+    {
+	CallerId = p = strdup(str);
+	while( isdigit(*p) ) p++;
+	*p = 0;
+    }
+#endif
 
     for (cp = cndtable; cp->string; cp++)
     {
