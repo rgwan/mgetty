@@ -1,0 +1,294 @@
+1) make sendfax recognize "-h <file>" option to set page headers
+  started 20.3.93, GD
+  new idea: send "AT+FDT", then (optional) page header, then page data.
+  (does not work)
+  new idea: customized pbmtog3, without EOP.
+  "first cut" done, 21.9.93, use "g3cat"
+  Suggestion: use "-h <program>", g3cat output of that program with the
+  data page (-> headers with real send time)
+
+2) make external configuration possible
+   mostly done (1.1.95)
+
+3) #include <config file>
+   bad idea, not really useful
+
+6) faxmail - gatway program for mail -> fax
+   (started)
+
+7) when (before) receiving a fax, check if there's enough space left
+  (amount configurably) -> clewis
+  generic "get spool file name", check multiple directories
+
+8) function for creating spool file names (->dir, prefix; <- name, fd)
+  with (optional) sequence numbers
+
+14) make mgetty (and g3cat) add an digifax header to incoming faxes (optionally).
+
+16) tiffg3 -> raw g3 / digifax converter
+
+17) library functions for opening / reading g3 files
+
+18) Makefile.<system> / AutoConf?
+
+20) tio - increase abstraction layer even more, make TIO an opaque pointer, so
+        that the upper layers do not have to know *anything* about the data
+        structure used by tio.c/.h
+	(with old/new settings, to avoid surplus system calls)
+
+21) additional flag: skip modem initialization and all, go directly to
+    reading of login name (for callback)
+
+24) fax_notify_mail: include "realname" (from fax phone book) in Subject:
+
+31) VSI*FAX
+
+34) ungetty mechanism
+
+35) utmp writing / process arguments on SunOS
+
+45) make fax poll server more flexible
+
+51) faxspool.c (sgid fax) -> $LIBDIR/faxspool.sh
+51a) have it start faxrunq immediately (configurably)
+
+55) vhangup()? (->Linux)
+    (security issues)
+
+57) SIGUSR1 *after* answering -> hangup
+
+59) mgetty/faxrec(): valiate incoming fax data, request retransmission
+    partially done, if +FP(T)S:... returns valid values.
+
+60) faxspool - multiple targets in one fax
+    call: faxspool tgt file(s)
+	  faxspool -m tgt1 tgt2 tgt3 -- file(s)
+	  faxspool -M tgt-file file(s)
+
+62) session parameter mismatch (width / length / resolution) -> correct
+"on-the-fly" (integrate "smart" g3cat into sendfax.c). If the page is too
+long, cut after 2050 (letter) or 2156 (A4) lines.
+
+63) ZyXEL callback (description, "hack" in mgetty.c - ZYXEL_CALLBACK)
+    (integrate in state machine)
+
+63b) real callback
+
+66) faxcleanup
+
+73) locks.c: only "guess" that it's a binary lock if it doesn't consist
+    entirely of " 0-9\n".
+
+75) dialcode translations in faxspool
+
+79) g3cat: fix line width (that is, "repair" broken T.4 files on-the-fly)
+
+90) support ct 
+
+91) g3split
+
+96) number of RINGs changeable without /etc/inittab change
+    (done). Changeable without restart?
+
+97) BREAK -> mgetty exits (does it?)
+
+98) fax_wait_for: accept "<junk> +FHNG:..."
+
+107) create own fax file header, with sender ID (if known), resolution,
+     and *magic byte*!
+
+108) faxreq (re-queue, remove Status junk from JOB)
+
+109) faxspool -> immediately send (own!) faxes
+
+112) sendfax: return +FHNG in exit() code
+
+114) callback: other lines (if available), random delay
+
+116) use more detailed access privileges in faxspool (long distance, local)
+
+118) modem auto-detect not only for voice but for modem type (e.g.
+     MultiTech, ZyXEL, ...) in general
+
+119) dynamically generate page headers in faxrunq
+
+120) with 119, multicasting is easy
+
+121) check disk space before spooling faxes
+
+122) log caller ID upon "phone stopped ringing"
+
+123) -DNO_MODEM?
+
+124) if write/read in fax_send_page() fails, exit loop (kkeyte)
+
+125) cleanup script that will rollover logs
+
+126) if sendfax is killed, faxrunq assumes "ok" for some strange reason.
+
+127) step-by-step installation guide
+
+128) g3topbm: use same decoder as g3view (speed/space tradeoff?)
+
+129) g3topbm: speed up decoding by reading the file as a whole
+
+135) for modems where AT+FAA=1 doesn't work: use SIGUSR2 to toggle
+     fax/data (for people knowing what type of call comes in)
+
+136) keep modem in data mode, switch to fax mode (+FAA=1 or 0, depending
+     on -D/-F) if desired before sending ATA. Reason: dialout processes
+     can safely assume "+FCLASS=0" with this setup.
+136a) add signal to switch reception mode for dumb no-adaptive-answering
+     modems, see 135)
+
+137) call "new_fax" program for each page during reception (for those
+     people that have a fast machine and a slow printer and want to see
+     the results immediately. Hi Harald!)
+
+138) add configuration options for modem gotchas: class2ok, usr
+
+139) RING during initialization -> wait for it to stop, init modem again
+
+140) start/stop fax scheduler ("FAX_SPOOL_OUT/stop" file?)
+
+141) make lock/log/spool paths configurable
+
+144) if first line in logfile is written *after* setuid() in login.c,
+     no opening of LOG_PATH is possible. open log sooner? mode 666?
+
+145) include Device/Hostname in "notify mail"
+     [Device done. Do we really want the hostname?]
+
+146) improve faxspool security
+
+147) make "g3cat" fix line width!
+     (done, but doesn't seem to work for all receivers) 
+
+151) SCHED option?
+
+152) get bit order for class 2 / class 2 ok / 2.0 for receiving and polling right
+
+153) testing: add some signal that will cause a fax reception to "fail" (RTN)
+
+154) add some way to change runtime configuration
+
+155) fax receiver: ignore signals (USR1, USR2) more completely, only
+     barf about "interrupted system call" if SIGARLM
+
+156) if login name contains spaces, split into several arguments
+     (*optionally*). Use : "login username ENV1=foo ENV2=bar".
+
+157) add a "what to try if modem init fails" routine (try 19200 bps,
+     try sending <DLE><ETX> to get modem back from voice mode, ...)
+     (Julian Assange, proff@suburbia.net; ard@cstmel.hobby.nl)
+
+     09.07.96: <DLE><ETX> done, +++ATH moved to that part as well. Baud
+     rate switching still open.
+
+160) make "dialin.config" path configurable (and all other paths
+     except "login.config" as well). [not sure whether I want this]
+
+161) make path to "mgetty.config" configurable via command line switch
+
+163) SIGUSR2: harden all "byte-receive" functions against EINTR
+
+164) put all "caller id" strings in L_AUDIT messages in '' quotes
+
+168) accept error messages while sending a page
+
+169) "faxspool -t" must be smarter: "send at 2:00 tonight" isn't possible now
+
+170) make "waiting for lock file to disappear" smarter: wait for *PID* to
+     disappear *or* mtime change [->no need to read() the file every time
+     if mtime didn't change and PID still exists] (-f =remco)
+
+171) callback: password!
+
+172) "dial rules" -> +49 89 --> "", "+49" -> "0", "+" -> "00", etc.
+     (in faxspool or faxrunq, not in sendfax).
+     Add a note to the documentation to use this for in-house/outbound
+     calls, too.
+
+174) on Dr.Neuhaus: stay in +fclass=2 mode, don't go to +fclass=0
+     same for the Hayes Optima (+FAA=1 doesn't work in +fclass=0 mode)
+     
+175) man page documentation for "login.config" 
+
+177) AIX, native SCO: DTR toggle needs re-open() on device
+
+178) Linux: #ifdef PARANOID -> lock HUPCL (and CLOCAL?) flag in termios
+     and do vhangup() stuff
+
+179) make uppercase/lowercase mapping (IUCLC) in logname.c conditional
+     (there may be systems out there that need it, but not many)
+
+180) switch from policy.h-dist to policy.h with "reasonable defaults"
+
+183) change license to GPL?
+
+184) make sendfax choose fax device in a "random" fashion (avoid 
+     problems when the first modem in a "hunt group" dies (NO DIALTONE))
+
+186) make "distinguished ring" run-time-option:
+	dist-ring "RING 1" fax
+	dist-ring "RING B" fax/data
+	dist-ring "RING 3" voice
+     (dynamically growing list, appended to "action" list)
+	
+187) clean up tio handling / gettydefs stuff in mgetty.c
+
+188) init / DCD drop / I/O error: can we catch it with CLOCAL?
+
+189) sendfax: log "hint" if FAX_SEND_IGNORE_CARRIER is not defined
+     but "should be"
+
+191) watchit.pl: make "remail" smarter
+
+192) make "max. fax speed" configuration file parameter
+
+193) makelock: check for existance of lock file *directory*, complain
+     (loudly, L_FATAL!) if it doesn't exist.
+
+194) faxspool: add switch to suppress e-mail
+
+195) make "logging *only* to syslog" conditional compile
+
+196) add "post-faxinit-chat" ability - some modems (SUPRA) forget their
+     setup when receiving AT+FCLASS=<anything>. michal@math.ualberta.ca.
+
+197) +FAP (Sub-Adressing frames) support?
+
+198) rewrite RING / CND handling (completely!), get rid of #ifdef DIST_RING
+
+199) selectively reject fax reception (on sender ID)?
+     http://www.vix.com/hylafax/setup-advanced.html#QualifyTSI
+
+200) build kind of "libiberty" with auxiliary functions [split up goodies.c]
+
+201) make "open() on TCP/IP" socket possible in sendfax (for things like
+     portmasters, that have special IP ports to access their modem cards)
+
+203) fix ATD/ERROR problem with USR vs. ERROR response in fax_send_ppm
+
+204) convert hardware flow control on AIX 4.1/4.2 to use termio*x*
+
+205) vgetty on AIX: make sure VTIME is not set != 0 while waiting with
+     select() or poll() -- drivers are dumb and use VTIME for timeout, 
+     not the value passed to select()... *sigh*
+
+206) if "Dr.Neuhaus SMARTY" is detected, set some flag to prevent
+     switching back to +fclass=0 ("modem_quirks |= NEED_2"?)
+
+207) if "Telejet SaferFAX" set "cls2ok" ("modem_quirks |= PROPER_BOR");
+
+209) faxrm - fix "call with no arguments"
+
+210) fix cnd.c / mgetty.c: clearing of CallerID if call was rejected
+     (Frank Piwarski, fpiwarsk@MyMy.com)
+
+211) fix CLOCAL handling in mgetty (->Ted T'so)
+
+212) faxrm: generic "removeit" subroutine, not multiple "rmdir $jobid"
+
+213) add support for Mark Himsley (mark@mdsh.com)'s weird 2400/fax modem,
+     requiring multiple baud rate switches

@@ -1,0 +1,65 @@
+Hi,
+
+this is the mgetty+sendfax distribution. It contains programs to send
+and receive faxes in a unix environment using a class 2 faxmodem.
+
+For detailed informations how everything works and how to build and use
+it, see the file "mgetty.texi" (in doc/, see below)
+
+If you can access the WWW, you might try looking at
+http://www.leo.org/~doering/mgetty/index.html, you'll find all the
+documentation and the FAQ nicely formatted there.
+
+
+My license policy boils down to this:
+--------------------------------------------------------------------------
+The mgetty+sendfax package is Copyright (c) 1993 Gert Doering. You are
+permitted to do nearly anything you want with this program - redistribute
+it, use parts of the code in your own programs, ..., but you have to give
+me credit - do not remove my name.
+
+If you make money by selling mgetty, I want a share.
+
+For more details, see the chapter "copying conditions" in mgetty.texi
+--------------------------------------------------------------------------
+
+
+To make the programs, copy "policy.h-dist" to "policy.h", edit it according
+to your needs. Then edit "Makefile" to set CC=, CCFLAGS= and the various
+xxxDIR= (LIB/MAN/BIN/SBINDIR) to fit your system. After that, running "make" 
+should do. "Make" will also create the "mgetty.texi"-File in "doc/". 
+
+If you upgrade from a previous version, it may be a good idea to make
+a "diff" from the original policy.h-dist and the policy.h used later, and
+use that as a base for configuring policy.h of this release.
+
+Most of the options set in "policy.h" can be changed at run-time from the
+"mgetty.config" configuration file. Policy.h controls where it should be.
+
+With C-Compilers that do not understand the "#ident" directive, give the
+"make noident" command before using the "make" command for the first
+time.
+
+Run "make testdisk" to see if the disk statistics grabber works (it should
+report the correct block free count for the partitions containing "/" and
+".".  If not, consult getdisk.c, taking special note of the "v*" defines
+for hints as to which settings you use.  If your system is one of the "v*",
+try defining that "v*" macro in the Makefile CCFLAGS.  Please let us know
+what works, and what your C compiler uses to identify your computer.
+
+Finally, "make install".
+
+
+If you have any problems, suggestions or bug reports, please contact 
+gert@greenie.muc.de or gert@space.net (greenie preferred!) - but make 
+sure you have read the documentation first! I get quite annoyed when 
+I have to answer the same questions for the 99th time! Read "BUGS"!
+
+And... please do not forget that I'm doing this kind of support entirely
+in my spare time - sometimes my answers will be very short, or it may
+take a long time for me to answer - since sometimes I need my time to
+make a living...
+
+Now... have fun & fax!
+
+                                         gert
