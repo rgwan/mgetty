@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.133 1994/09/29 16:00:55 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.134 1994/10/06 14:25:47 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -300,16 +300,11 @@ int main _P2((argc, argv), int argc, char ** argv)
 	    log_set_llevel( atoi(optarg) );
 	    break;
 	  case 's':			/* port speed */
-	    cspeed = atoi(optarg);
-	    for ( i = 0; speedtab[i].cbaud != 0; i++ )
-	    {
-		if ( speedtab[i].nspeed == cspeed )
-		{
-		    portspeed = speedtab[i].cbaud;
-		    break;
-		}
-	    }
-	    if ( speedtab[i].cbaud == 0 )
+	    cspeed = tio_check_speed( atoi(optarg) );
+
+	    if ( cspeed >= 0 )		/* valid */
+		portspeed = cspeed;
+	    else
 	    {
 		lprintf( L_FATAL, "invalid port speed: %s", optarg);
 		exit_usage(2);
@@ -744,6 +739,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 		mgetty_state = St_go_to_jail;
 		break;
 	      case A_CONN:		/* CONNECT */
+		mg_get_ctty( STDIN, devname );
 		mgetty_state = St_get_login; break;
 	      case A_FAX:		/* +FCON */
 		mgetty_state = St_incoming_fax; break;
@@ -835,24 +831,19 @@ int main _P2((argc, argv), int argc, char ** argv)
 		    cspeed = atoi(Connect);
 
 		lprintf( L_MESG, "autobauding: switch to %d bps", cspeed );
+
+		cspeed = tio_check_speed( cspeed );
 		
-		for ( i = 0; speedtab[i].cbaud != 0; i++ )
+		if ( cspeed >= 0 )		/* valid speed */
 		{
-		    if ( speedtab[i].nspeed == cspeed )
-		    {
-			portspeed = speedtab[i].cbaud;
-			break;
-		    }
-		}
-		if ( speedtab[i].cbaud == 0 )
-		{
-		    lprintf( L_ERROR, "autobauding: cannot parse 'CONNECT %s'",
-			               Connect );
+		    portspeed = cspeed;
+		    tio_set_speed( &tio, portspeed );
+		    tio_set( STDIN, &tio );
 		}
 		else
 		{
-		    tio_set_speed( &tio, portspeed );
-		    tio_set( STDIN, &tio );
+		    lprintf( L_ERROR, "autobauding: cannot parse 'CONNECT %s'",
+			               Connect );
 		}
 	    }
 	    
