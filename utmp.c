@@ -1,4 +1,4 @@
-#ident "$Id: utmp.c,v 1.3 1993/09/13 21:03:09 gert Exp $ (c) Gert Doering";
+#ident "$Id: utmp.c,v 1.4 1993/09/29 20:24:30 gert Exp $ (c) Gert Doering";
 /* some parts of the code (writing of the utmp entry)
  * is based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -41,21 +41,19 @@ void make_utmp_wtmp( char * line, boolean login_process )
 {
 struct utmp *utmp;
 pid_t	pid;
-time_t	clock;
 struct stat	st;
 FILE *	fp;
 
     pid = getpid();
+    lprintf(L_JUNK, "looking for utmp entry... (my PID: %d)", pid);
+
     while ((utmp = getutent()) != (struct utmp *) NULL)
     {
 	if (utmp->ut_type == INIT_PROCESS && utmp->ut_pid == pid)
 	{
-	    lprintf(L_NOISE, "utmp + wtmp entry made");
-
 	    strcpy(utmp->ut_line, line );
 
-	    (void) time(&clock);
-	    utmp->ut_time = clock;
+	    utmp->ut_time = time( NULL );
 
 	    if ( login_process )
 	    {		/* show login process in utmp */
@@ -81,6 +79,8 @@ FILE *	fp;
 		(void) fwrite((char *)utmp,sizeof(*utmp),1,fp);
 		(void) fclose(fp);
 	    }
+
+	    lprintf(L_NOISE, "utmp + wtmp entry made");
 	}
     }
     endutent();
