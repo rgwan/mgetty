@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 4.11 1997/12/19 16:06:39 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 4.12 1997/12/20 17:14:27 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -500,7 +500,15 @@ int main _P2( (argc, argv),
     call_start = time( NULL );
 
     sprintf( buf, "%s%s", c_string(dial_prefix), fac_tel_no );
-    if ( fax_command( buf, "OK", fd ) == ERROR )
+
+#ifdef CLASS1
+    if ( modem_type == Mt_class1 )
+        i = fax1_dial_and_phase_AB( buf, fd );
+    else
+#endif
+        i = fax_command( buf, "OK", fd );
+
+    if ( i == ERROR )
     {
 	lprintf( L_AUDIT, "failed dialing, phone=\"%s\", +FHS:%02d, dev=%s, time=%ds, acct=\"%s\"",
 		 fac_tel_no, fax_hangup_code, Device,
