@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.15 1993/04/05 01:08:57 gert Exp $ (c) Gert Doering */
+/* $Id: mgetty.h,v 1.16 1993/05/02 15:22:26 gert Exp $ (c) Gert Doering */
 
 /* stuff in logfile.c */
 
@@ -115,6 +115,14 @@ extern char *	optarg;
 #define HARDWARE_HANDSHAKE 0
 #endif
 #endif
+#endif
+
+/* I've got reports telling me that dial-in / dial-out on SCO 3.2.4
+ * does only work reliably if *only* CTSFLOW is set
+ */
+#ifdef BROKEN_SCO_324
+#undef HARDWARE_HANDSHAKE
+#define HARDWARE_HANDSHAKE CTSFLOW
 #endif
 
 #endif
