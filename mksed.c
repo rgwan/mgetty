@@ -1,4 +1,4 @@
-#ident "$Id: mksed.c,v 1.12 1994/11/06 13:26:00 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mksed.c,v 1.13 1994/11/06 13:32:50 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 
@@ -18,6 +18,13 @@ int main _P0( void )
     printf( "      -e 's;@LOG_PATH@;");
         printf( LOG_PATH, "ttyxx" );
         printf( ";g'\\\n" );
+#ifdef SVR4
+    printf( "      -e 's;@LOCK@;%s/LK.iii.jjj.kkk;g'\\\n", LOCK_PATH );
+#else
+    printf( "      -e 's;@LOCK@;");
+        printf( LOCK, "ttyxx" );
+        printf( ";g'\\\n" );
+#endif
     printf( "      -e \"s;@MAILER@;%s;g\"\\\n", MAILER );
     printf( "      -e 's;@FAX_ADMIN@;%s;g'\\\n", MAIL_TO );
     printf( "      -e 's;@AWK@;%s;g'\\\n", AWK );
