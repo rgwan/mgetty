@@ -1,4 +1,4 @@
-#ident "$Id: mksed.c,v 4.7 2000/08/06 14:23:08 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mksed.c,v 4.8 2001/01/28 14:54:36 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 
@@ -27,13 +27,7 @@ int main _P0( void )
     printf( "      -e 's;@NOLOGIN@;" );
 	printf( NOLOGIN_FILE, "ttyxx" );
         printf( ";g'\\\n" );
-    printf( "      -e 's;@KVG_PID_FILE@;");
-#ifdef MGETTY_PID_FILE
-        printf( MGETTY_PID_FILE, "$TTY" );
-        printf( ";g'\\\n" );
-#else
-        printf( "/etc/mg-pid.$TTY;g'\\\n" );
-#endif
+    printf( "      -e 's;@KVG_PID_FILE@;%s/mgetty.pid.$TTY;g'\\\n", VARRUNDIR);
 #ifdef SVR4
     printf( "      -e 's;@LOCK@;%s/LK.iii.jjj.kkk;g'\\\n", LOCK_PATH );
 #else
