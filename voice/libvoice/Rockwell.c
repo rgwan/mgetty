@@ -14,7 +14,7 @@
  * Removed most stuff from this file, since the new IS-101 driver can be
  * used now. (Marc 04.01.1997)
  *
- * $Id: Rockwell.c,v 1.8 1999/12/02 09:51:30 marcs Exp $
+ * $Id: Rockwell.c,v 1.9 2000/12/16 10:58:15 marcs Exp $
  *
  */
 
@@ -50,6 +50,33 @@ static int Rockwell_init(void)
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "can't set silence period");
 
+     /* Colin.Panisset@Sun.COM
+      *    -- for Spirit Cobra modem (ATI6 == "RCV288DPi Rev 05BA")
+      * Will create warnings for non-supporting modems. Zero disables.
+      */
+
+     if (cvd.transmit_gain.d.i) {
+	if (cvd.transmit_gain.d.i == -1) {
+	   cvd.transmit_gain.d.i = 50;
+	}
+        sprintf(buffer, "AT#TL=%X", (65536 / (100 / cvd.transmit_gain.d.i)));
+
+	if (voice_command(buffer, "OK") != VMA_USER_1) {
+          lprintf(L_WARN, "can't set transmit gain");
+        }
+     }
+
+     if (cvd.receive_gain.d.i) {
+	if (cvd.receive_gain.d.i == -1) {
+	   cvd.receive_gain.d.i = 50;
+	}
+        sprintf(buffer, "AT#RG=%X", (65536 / (100 / cvd.receive_gain.d.i)));
+
+	if (voice_command(buffer, "OK") != VMA_USER_1) {
+	     lprintf(L_WARN, "can't set record gain");
+        }
+     }
+ 
      if (voice_command("AT#VSD=0", "OK") != VMA_USER_1)
           lprintf(L_WARN, "can't disable silence deletion");
 
