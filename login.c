@@ -1,4 +1,4 @@
-#ident "$Id: login.c,v 3.2 1996/03/06 20:48:13 gert Exp $ Copyright (C) 1993 Gert Doering"
+#ident "$Id: login.c,v 3.3 1996/07/01 19:44:22 gert Exp $ Copyright (C) 1993 Gert Doering"
 
 
 /* login.c
@@ -297,6 +297,13 @@ void login_dispatch _P1( (user), char * user )
        "data dev=%s, pid=%d, caller=%s, conn='%s', name='%s', cmd='%s', user='%s'",
 	Device, getpid(), CallerId, Connect, CallName,
 	cmd, user );
+
+    /* set a couple of environment variables (mainly useful for "special"
+     * logins, like Fido and AutoPPP, because /bin/login reconstructs its
+     * environment from scratch) - not general enough, though.
+     */
+    set_env_var( "CALLER_ID", CallerId );
+    set_env_var( "CONNECT", Connect );
 
     /* execute login */
     execv( cmd, argv );
