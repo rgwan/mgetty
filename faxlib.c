@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.47 2000/02/13 18:48:20 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.48 2000/07/15 12:09:08 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -614,7 +614,8 @@ int mdm_identify _P1( (fd), int fd )
 	    mis = mdm_get_idstring( "ATI1", 1, fd );
 	    break;
 	  case 1500:
-	    lprintf( L_MESG, "ZyXEL Omni56K Plus detected" );
+	  case 1501:
+	    lprintf( L_MESG, "ZyXEL Omni 56K (Plus) detected" );
 	    modem_type=Mt_class2_0;
 	    mis = mdm_get_idstring( "ATI1", 2, fd );
 	    break;
