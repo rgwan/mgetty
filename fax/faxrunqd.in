@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.28 1998/04/21 13:53:30 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.29 1998/04/23 13:52:07 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.29  1998/04/23 13:52:07  gert
+# rotate @standard_ttys after each job, to distribute jobs more evenly
+#
 # Revision 1.28  1998/04/21 13:53:30  gert
 # make log file more readable (insert '+')
 #
@@ -526,6 +529,9 @@ sub put_job_to_modem_queue
     $mq_length{$min_t} += $queue{$j}->{weight};
 
     print LOG "$j: possible ttys: " . join( ':', @ttys ) . " -> queue selected: $min_t (l: $min_l->" . $mq_length{$min_t} . ")\n"  if $opt_d;
+
+    # rotate @standard_ttys, to distribute load more evenly among modems
+    push @standard_ttys, (shift @standard_ttys);
 }
 
 ##########################################################################
