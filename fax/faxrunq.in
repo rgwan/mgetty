@@ -11,9 +11,13 @@
 # For heavy-duty usage (multiple lines, many 100 faxes per day), check
 # out faxrunqd.
 #
-# RCS: $Id: faxrunq.in,v 4.16 2004/11/24 13:30:38 gert Exp $ Copyright (C) 1994 Gert Doering
+# RCS: $Id: faxrunq.in,v 4.17 2005/01/03 16:46:28 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 # $Log: faxrunq.in,v $
+# Revision 4.17  2005/01/03 16:46:28  gert
+# workaround for needless bash3 incompatibility ("trap 0 1 2 3" doesn't work
+# anymore, need to use "trap - 0 1 2 3", which doesn't work on old /bin/sh)
+#
 # Revision 4.16  2004/11/24 13:30:38  gert
 # implement update-call-program (status update callback)
 #
@@ -151,7 +155,7 @@ do
     if [ $? -ne 0 ]
     then
 	$echo "already locked"
-	trap 0 1 2 3 15
+	trap - 0 1 2 3 15
 	continue
     fi
 #
@@ -350,7 +354,8 @@ do
     rm -f JOB.locked
 done
 
-trap 0 1 2 3 15
+trap - 1 2 3 15
+trap 0
 
 #
 # touch the time stamp, to make faxspool happy
