@@ -1,4 +1,4 @@
-#ident "$Id: tio.h,v 3.4 1996/02/25 22:23:32 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.h,v 3.5 1996/03/03 16:42:03 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 #ifndef __TIO_H__
 #define __TIO_H__
@@ -8,6 +8,12 @@
  * contains definitions / prototypes needed for tio.c
  *
  */
+
+#ifdef NEXTSGTTY
+# define BSD_SGTTY
+# undef POSIX_TERMIOS
+# undef SYSV_TERMIO
+#endif
 
 #if !defined( POSIX_TERMIOS ) && !defined( BSD_SGTTY ) && !defined( SYSV_TERMIO)
 # if defined(linux) || defined(sunos4) || defined(_AIX) || defined(BSD) || \
