@@ -4,7 +4,7 @@
  * pvftormd converts from the pvf (portable voice format) format to the
  * rmd (raw modem data) format.
  *
- * $Id: pvftormd.c,v 1.11 2000/07/28 10:28:31 marcs Exp $
+ * $Id: pvftormd.c,v 1.12 2000/09/09 08:50:11 marcs Exp $
  *
  */
 
@@ -506,7 +506,8 @@ int main (int argc, char *argv[])
      if ((strcmp(modem_type, "US Robotics") == 0) && ((compression == 1) ||
          (compression == 4)))
           {
-          header_out.bits = compression;
+          if(compression == 1) header_out.bits = 8;
+          else header_out.bits = 4;
 
           if (write_rmd_header(fd_out, &header_out) != OK)
                {
