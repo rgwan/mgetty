@@ -1,4 +1,4 @@
-#ident "$Id: ring.c,v 4.2 1998/04/18 11:16:59 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: ring.c,v 4.3 1998/04/18 11:49:19 gert Exp $ Copyright (c) Gert Doering"
 
 /* ring.c
  *
@@ -28,18 +28,70 @@
 #include "tio.h"
 #include "fax_lib.h"
 
+/* strdup variant that returns "<null>" in case of out-of-memory */
+static char * safedup( char * in )
+{
+    char * p = strdup( in );
+    return ( p == NULL ) ? "<null>" : p;
+}
+
+/* find number given in msn_list, return index */
+static int find_msn _P2((string, msn_list),
+			 char * string, char ** msn_list )
+{
+    lprintf( L_NOISE, "MSN: '%s'", string );
+    if ( msn_list == NULL ) return 0;
+
+    return 0;		/* UNIMPLEMENTED */
+}
+
+/* ELSA CallerID data comes in as "RING;<from>[;<to>]" */
 static int ring_handle_ELSA _P2((string, msn_list),
 				 char * string, char ** msn_list )
 {
+char * p;
     lprintf( L_MESG, "ELSA: '%s'", string );
-    return 0;			/* unspecified - FIXME */
+
+    string++;
+    p=string;
+    while( isdigit(*p) ) p++;
+
+    if ( *p == '\0' )		/* no MSN listed */
+    {
+	CallerId = safedup( string );
+	return 0;
+    }
+    else			/* MSN listed -> terminate string, get MSN */
+    {
+	*p = '\0';
+	CallerId = safedup( string );
+	return find_msn( p+1, msn_list );
+    }
 }
 
+/* ZyXEL CallerID data comes in as "FM:<from> [TO:<to>]" or "TO:<to>" */
 static int ring_handle_ZyXEL _P2((string, msn_list),
 				 char * string, char ** msn_list )
 {
+char * p, ch;
     lprintf( L_MESG, "ZyXEL: '%s'", string );
-    return 0;			/* unspecified - FIXME */
+
+    if ( strncmp( string, "FM:", 3 ) == 0 )		/* caller ID */
+    {
+	string+=3;
+	p=string;
+	while( isdigit(*p) ) p++;
+	ch = *p; *p = '\0';
+	CallerId = safedup(string);
+	*p = ch;
+	while( isspace(*p) ) p++;
+	string = p;
+    }
+    if ( strncmp( string, "TO:", 3 ) == 0 )		/* target msn */
+    {
+	return find_msn( string+3, msn_list );
+    }
+    return 0;			/* unspecified */
 }
 
 
@@ -170,7 +222,7 @@ boolean	got_dle;		/* for <DLE><char> events (voice mode) */
 	    { *dist_ring_number = ring_handle_ELSA( p, msn_list ); break; }
 
 	if ( strlen(p) > 1 )			/* USR type B: "RING 1234" */
-	    { CallerId = strdup(p); *dist_ring_number = 0; break; }
+	    { CallerId = safedup(p); *dist_ring_number = 0; break; }
 
 	if ( isdigit( *p ) )			/* RING 1 */
 	    { *dist_ring_number = *p-'0'; break; }
