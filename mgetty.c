@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.142 1994/11/02 10:17:31 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.143 1994/11/02 19:21:41 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -272,7 +272,7 @@ int main _P2((argc, argv), int argc, char ** argv)
     (void) signal(SIGTERM, SIG_DFL);
 
     /* some systems, notable BSD 4.3, have to be told that system
-     * calls are to be interrupted by signals.
+     * calls are not to be automatically restarted after those signals.
      */
 #ifdef HAVE_SIGINTERRUPT
     siginterrupt( SIGINT,  TRUE );
@@ -468,7 +468,9 @@ int main _P2((argc, argv), int argc, char ** argv)
 
     /* do modem initialization, normal stuff first, then fax
      */
-    if ( ! direct_line )
+    if ( direct_line )
+        Connect = "DIRECT";		/* for "\I" in issue/prompt */
+    else
     {
 	if ( mg_init_data( STDIN, init_chat_seq ) == FAIL )
 	{
