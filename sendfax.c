@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.57 1994/04/13 16:03:03 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.58 1994/05/14 16:50:27 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* sendfax.c
  *
@@ -168,11 +168,38 @@ int fd;
 void fax_close _P1( (fd),
 		    int fd )
 {
-    fax_send( "AT+FCLASS=0\r\n", fd );
+    fax_send( "AT+FCLASS=0", fd );
     delay(100);
     close( fd );
     rmlocks();
 }
+
+
+/* sendfax-specific fax initializations */
+
+/* polling: set calling station ID, receiver on, local poll on */
+
+static int faxpoll_client_init _P2( (fd, cid), int fd, char * cid )
+{
+    char buf[60];
+
+    if ( modem_type == Mt_class2_0 )
+    {
+	sprintf( buf, "AT+FPI=\"%.40s\"", cid );
+	if ( mdm_command( buf, fd ) == ERROR ) return ERROR;
+        if ( mdm_command( "AT+FSP=1", fd ) == ERROR ) return ERROR;
+    }
+    else
+    {
+	sprintf( buf, "AT+FCIG=\"%.40s\"", cid );
+	if ( mdm_command( buf, fd ) == ERROR ) return ERROR;
+	if ( mdm_command( "AT+FSPL=1", fd ) == ERROR ) return ERROR;
+    }
+    if ( mdm_command( "AT+FCR=1", fd ) == ERROR ) return ERROR;
+
+    return NOERROR;
+}
+
 
 RETSIGTYPE fax_sig_goodbye _P1( (signo), int signo )
 {
@@ -200,6 +227,7 @@ char *	poll_directory = ".";			/* override with "-d" */
 static char 	fax_device_string[] = FAX_MODEM_TTYS;	/* writable! */
 char *	fax_devices = fax_device_string;	/* override with "-l" */
 int	fax_res_fine = 1;			/* override with "-n" */
+char *  modem_class = DEFAULT_MODEMTYPE;	/* override with "-C" */
 
 boolean	use_stdin = FALSE;			/* modem on stdin */
 
@@ -209,7 +237,7 @@ int	tries;
     log_init_paths( argv[0], FAX_LOG, NULL );
     log_set_llevel( L_NOISE );
 
-    while ((opt = getopt(argc, argv, "d:vx:ph:l:nm:S")) != EOF) {
+    while ((opt = getopt(argc, argv, "d:vx:ph:l:nm:SC:")) != EOF) {
 	switch (opt) {
 	case 'd':	/* set target directory for polling */
 	    poll_directory = optarg;
@@ -244,6 +272,15 @@ int	tries;
 	    break;
         case 'S':	/* modem on stdin */
 	    use_stdin = TRUE;
+	    break;
+	case 'C':
+	    modem_class = optarg;
+	    if ( strcmp( modem_class, "cls2" ) != 0 &&
+		 strcmp( modem_class, "c2.0" ) != 0 )
+	    {
+		fprintf( stderr, "%s: warning: invalid modem class '-C %s'\n",
+			 argv[0], modem_class );
+	    }
 	    break;
 	case '?':	/* unrecognized parameter */
 	    exit_usage(argv[0]);
@@ -304,10 +341,10 @@ int	tries;
 #endif
 
     if ( fax_command( "AT", "OK", fd ) == ERROR ||
-         fax_command( "AT+FCLASS=2", "OK", fd ) == ERROR )
+	 ( modem_type = fax_get_modem_type( fd, modem_class ) ) == Mt_unknown )
     {
-	lprintf( L_ERROR, "cannot set class 2 fax mode" );
-	fprintf( stderr, "%s: cannot set class 2 fax mode\n", argv[0] );
+	lprintf( L_ERROR, "cannot set modem to fax mode" );
+	fprintf( stderr, "%s: cannot set modem to fax mode\n", argv[0] );
 	fax_close( fd );
 	exit( 3 );
     }
@@ -319,9 +356,8 @@ int	tries;
     tio_set_speed( &fax_tio, FAX_SEND_SWITCHBD );
     tio_set( fd, &fax_tio );
 #endif
-	
-    sprintf( buf, "AT+FLID=\"%s\"", FAX_STATION_ID);
-    if ( fax_command( buf, "OK", fd ) == ERROR )
+
+    if ( fax_set_l_id( fd, FAX_STATION_ID ) == ERROR )
     {
 	lprintf( L_ERROR, "cannot set fax station ID" );
 	fprintf( stderr, "%s: cannot set fax station ID\n", argv[0] );
@@ -347,29 +383,26 @@ int	tries;
 	}
     }		/* end if (extra_modem_init != NULL) */
 
-    /* FIXME: ask modem if it can do 14400 bps / fine res. at all */
+    /* set desired resolution, maximum and minimum bit rate */
 
-    sprintf( buf, "AT+FDCC=%d,5,0,2,0,0,0,0", fax_res_fine );
-    fax_command( buf, "OK", fd );
+    /* FIXME: ask modem if it can do 14400 bps / fine res. at all */
+    fax_set_fdcc( fd, fax_res_fine, 14400, 0 );
 
 #if REVERSE
-    fax_command( "AT+FBOR=0", "OK", fd );
+    fax_set_bor( fd, 0 );
 #else
-    fax_command( "AT+FBOR=1", "OK", fd );
+    fax_set_bor( fd, 1 );
 #endif
 
     /* tell the modem if we are willing to poll faxes
      */
     if ( fax_poll_wanted )
     {
-	sprintf( buf, "AT+FCIG=\"%s\"", FAX_STATION_ID);
-	if ( fax_command( buf, "OK", fd ) == ERROR ||
-	     fax_command( "AT+FSPL=1", "OK", fd ) == ERROR )
+	if ( faxpoll_client_init( fd, FAX_STATION_ID ) == ERROR )
 	{
-	    lprintf( L_WARN, "AT+FSPL=1: cannot enable polling" );
+	    lprintf( L_WARN, "cannot enable polling" );
 	    fprintf( stderr, "Warning: polling is not possible!\n" );
 	    fax_poll_wanted = FALSE;
-	    fax_hangup = 0;	/* reset error flag */
 	}
     }
 
@@ -409,6 +442,8 @@ int	tries;
     tries = 0;
     while ( argidx < argc )
     {
+	Post_page_messages ppm;
+	
 	/* send page header, if requested */
 	if ( fax_page_header )
 	{
@@ -423,37 +458,30 @@ int	tries;
 
 	/* send page */
 	if ( verbose ) printf( "sending '%s'...\n", argv[ argidx ] );
-	if ( fax_send_page( argv[ argidx ], &fax_tio, fd ) == ERROR ) break;
 
-	fax_page_tx_status = -1;
+	/* how to continue after page? */
 
-        /* transmit page punctuation
-	 * (three cases: more pages, last page but polling, last page at all)
-	 * then evaluate +FPTS: result code
-	 */
+	if ( argidx == argc -1 )	/* last page to send */
+	{
+	    if ( fax_poll_wanted && fax_to_poll )	/* polling! */
+	        ppm = pp_eom;		/* another doc. next (->phase B) */
+	    else
+	        ppm = pp_eop;		/* over & out (->hangup) */
+	}
+	else				/* not last page -> */
+	        ppm = pp_mps;		/* another page next */
+	
+	fax_page_tx_status = -1;	/* set by fax_send_page() */
 
-	if ( argidx == argc-1 )		/* was this the last page to send? */
-	  if ( fax_poll_wanted && fax_to_poll )
-	    fax_command( "AT+FET=1", "OK", fd );	/* end document */
-	  else
-	  {
-	    /* take care of some modems pulling cd low too soon */
-	    tio_carrier( &fax_tio, FALSE );
-#ifdef sun
-	    /* HW handshake has to be off while carrier is low */
-	    tio_set_flow_control(fd, &fax_tio, (FAXSEND_FLOW) & FLOW_XON_OUT);
-#endif
-	    tio_set( fd, &fax_tio );
-
-	    fax_command( "AT+FET=2", "OK", fd );	/* end session */
-	  }
-	else
-	    fax_command( "AT+FET=0", "OK", fd );	/* end page */
+	if ( fax_send_page( argv[ argidx ], &fax_tio, ppm, fd ) == ERROR )
+	{
+	    break;
+	}
 
 	/* after the page punctuation command, the modem
 	 * will send us a +FPTS:<ppm> page transmit status.
 	 * The ppm value is written to fax_page_tx_status by
-	 * fax_wait_for()
+	 * fax_send_page() / fax_send_ppm()
 	 * If the other side requests retransmission, do so.
 	 */
 
