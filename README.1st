@@ -62,6 +62,9 @@ for hints as to which settings you use.  If your system is one of the "v*",
 try defining that "v*" macro in the Makefile CCFLAGS.  Please let us know
 what works, and what your C compiler uses to identify your computer.
 
+Run "make test" to run some test scripts - this will mainly check the G3
+tools and some shell functions.  It can't test "all" of the package yet.
+
 Finally, "make install".
 
 
