@@ -6,6 +6,9 @@
 # run this once per week from crontab
 #
 # $Log: mvlog,v $
+# Revision 1.2  2004/11/13 09:16:48  gert
+# faxrunqd pid file lives in FAX_SPOOL_OUT (non-root user)
+#
 # Revision 1.1  2003/01/19 21:28:10  gert
 # mgetty log file rotator (base script)
 #
@@ -17,7 +20,7 @@ LOG=/var/log
 cd $LOG || exit 1
 
 # faxrunqd will rotate its log file itself - tell it to
-kill -USR1 `cat /var/run/faxrunqd.pid`
+kill -USR1 `cat /var/spool/fax/outgoing/faxrunqd.pid`
 
 # which ttys are in use here?
 TTYS=`ls -l mgetty.tty* | sed -e 's/.* mgetty\.//'`
