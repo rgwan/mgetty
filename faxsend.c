@@ -1,4 +1,4 @@
-#ident "$Id: faxsend.c,v 4.4 1997/12/09 11:05:01 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: faxsend.c,v 4.5 1997/12/20 17:13:00 gert Exp $ Copyright (c) 1994 Gert Doering"
 
 /* faxsend.c
  *
@@ -102,6 +102,11 @@ int fax_send_page _P5( (g3_file, bytes_sent, tio, ppm, fd),
     int w_total = 0;			/* total bytes written */
 
     int rc;				/* return code */
+
+#ifdef CLASS1
+    if ( modem_type == Mt_class1 )
+    		return fax1_send_page( g3_file, bytes_sent, tio, ppm, fd );
+#endif
 
     lprintf( L_NOISE, "fax_send_page(\"%s\") started...", g3_file );
 
