@@ -1,9 +1,9 @@
-#ident "%W% %E% Copyright (c) Gert Doering"
+#ident "$Id: ltest.c,v 1.4 1998/07/03 11:03:09 gert Exp $ Copyright (c) Gert Doering"
 
 /* ltest.c
  *
  * show status of all the RS232 lines (RTS, CTS, ...)
- * Calls routines in delay.c, tio.c
+ * Calls routines in io.c, tio.c
  */
 
 #include <stdio.h>
@@ -40,7 +40,7 @@ TIO tio, save_tio;			/* for stdin */
 	    case 'd': opt_delta = TRUE; break;
 	    case 'k': opt_keyboard = TRUE; break;
 	    default:
-		fprintf( stderr, "Valid options: -i <seconds-delay>, -m <msec-delay>" ); exit(7);
+		fprintf( stderr, "Valid options: -i <seconds-delay>, -m <msec-delay>, -d, -k\n" ); exit(7);
 	}
     }
 
