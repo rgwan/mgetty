@@ -1,4 +1,4 @@
-#ident "$Id: login.c,v 4.17 2002/03/11 17:57:42 gert Exp $ Copyright (C) 1993 Gert Doering"
+#ident "$Id: login.c,v 4.18 2002/03/12 11:12:23 gert Exp $ Copyright (C) 1993 Gert Doering"
 
 
 /* login.c
@@ -344,17 +344,17 @@ fallthrough:
     for ( i=0; i<argc; i++) { lputs( L_NOISE, argv[i] ); 
 			      lputs( L_NOISE, (i<argc-1)?" ":"'" ); }
 
-    /* audit record */
-    lprintf( L_AUDIT, 
-       "data dev=%s, pid=%d, caller='%s', conn='%s', name='%s', cmd='%s', user='%s'",
-	Device, getpid(), CallerId, Connect, CallName,
-	cmd, user );
-
     /* set a couple of environment variables (mainly useful for "special"
      * logins, like Fido and AutoPPP, because /bin/login reconstructs its
      * environment from scratch) - not general enough, though.
      */
     setup_environment();
+
+    /* audit record */
+    lprintf( L_AUDIT, 
+       "data dev=%s, pid=%d, caller='%s', conn='%s', name='%s', cmd='%s', user='%s'",
+	Device, getpid(), CallerId, Connect, CallName,
+	cmd, user );
 
     /* make sure close-on-exec bit is unset
      * (BUG in FreeBSD 4.1.1 syslog() - sets c-o-e on FD 0 !!!
