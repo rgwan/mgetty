@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 3.4 1996/02/25 22:24:33 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 3.5 1996/03/03 16:52:22 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* tio.c
  *
@@ -12,10 +12,12 @@
 
 #if defined(_AIX) || defined(NeXT)
 #include <sys/ioctl.h>
+#include <sys/file.h>
 #endif
 
 #include "mgetty.h"
 #include "tio.h"
+
 #ifdef POSIX_TERMIOS
 static char tio_compilation_type[]="@(#)tio.c compiled with POSIX_TERMIOS";
 #endif
@@ -324,8 +326,9 @@ void tio_mode_sane _P2( (t, local), TIO * t, int local )
     t->c_cc[VSWTCH] = 0;
 #endif
 
-#else
-    t->sg_flags = ECHO | EVENP | ODDP;
+#else		/* BSD_SGTTY */
+/*    t->sg_flags = ECHO | EVENP | ODDP;*/
+    t->sg_flags = ECHO;
     t->sg_erase = 0x7f;            /* erase character */
     t->sg_kill  = 0x25;            /* kill character, ^u */
 #endif
@@ -401,8 +404,15 @@ void tio_map_cr _P2( (t, perform_mapping), TIO * t, int
 	t->c_iflag &= ~ICRNL;
 	t->c_oflag &= ~ONLCR;
     }
-#else
-#include "not implemented yet"
+#else		/* BSD_SGTTY (tested only on NeXT yet, but should work) */
+    if ( perform_mapping )
+    {
+        t->sg_flags |= CRMOD ;
+    }
+    else
+    {
+        t->sg_flags &= ~CRMOD ;
+    }
 #endif
 }
 
@@ -427,8 +437,8 @@ void tio_map_uclc _P2( (t, perform_mapping), TIO * t, int
 	t->c_oflag &= ~OLCUC;
 	t->c_lflag &= ~XCASE;
     }
-# else
-# include "not implemented yet"
+# else		/* BSD_SGTTY */
+#  include "not implemented yet"
 # endif
 #endif		/* BSDI */
 }
@@ -448,8 +458,15 @@ void tio_carrier _P2( (t, carrier_sensitive), TIO *t, int carrier_sensitive )
     {
 	t->c_cflag |= CLOCAL;
     }
-#else
-#include "not implemented yet"
+#else		/* BSD_SGTTY (tested only on NeXT yet, but should work) */
+    if ( carrier_sensitive )
+    {
+        t->sg_flags &= ~LNOHANG ;
+    }
+    else
+    {
+        t->sg_flags |= LNOHANG ;
+    }
 #endif
 }
 
@@ -527,7 +544,11 @@ int tio_set_flow_control _P3( (fd, t, type), int fd, TIO * t, int type )
 	                t->c_iflag |= IXANY;
     }
 #else
-#include "not yet implemented"
+# ifdef NEXTSGTTY
+    lprintf( L_WARN, "tio_set_flow_control: not yet implemented" );
+# else
+#  include "not yet implemented"
+# endif
 #endif
     /* SVR4 came up with a new method of setting h/w flow control */
     /* unfortunately, it's broken in 4.2 and Solaris2! */
