@@ -1,4 +1,4 @@
-#ident "$Id: faxsend.c,v 4.2 1997/01/12 16:42:06 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: faxsend.c,v 4.3 1997/03/20 12:52:18 gert Exp $ Copyright (c) 1994 Gert Doering"
 
 /* faxsend.c
  *
@@ -80,7 +80,8 @@ static void fax_send_panic_exit _P1( (fd), int fd )
     /* Hope that mgetty will be able to reinitialize it */
 
     alarm( 0 );
-    exit(11);
+    rmlocks();
+    exit(15);
 }
 
 /* fax_send_page - send one complete fax-G3-file to the modem
