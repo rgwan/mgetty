@@ -1,4 +1,4 @@
-#ident "$Id: io.c,v 4.1 1997/01/12 14:53:40 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: io.c,v 4.2 1997/06/28 20:41:29 gert Exp $ Copyright (c) Gert Doering"
 
 /* io.c
  *
@@ -55,6 +55,9 @@ int poll _PROTO(( struct pollfd fds[], unsigned long nfds, int timeout ));
 void delay _P1( (waittime),
 		int waittime )		/* wait waittime milliseconds */
 {
+#ifdef USE_USLEEP
+    usleep( waittime * 1000 );
+#else
 #ifdef USE_POLL
 struct pollfd sdummy;
     poll( &sdummy, 0, waittime );
@@ -75,6 +78,7 @@ struct pollfd sdummy;
 #endif	/* use select */
 #endif	/* use nap */
 #endif	/* use poll */
+#endif	/* use usleep */
 }
 
 /* check_for_input( open file deskriptor )
