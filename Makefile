@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.5 1997/06/09 09:59:51 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.6 1997/08/17 15:36:43 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -44,7 +44,8 @@ CC=gcc
 #
 # For IBM AIX, if you want to compile with xlc, add -D_ALL_SOURCE and
 # -DUSE_POLL to the CFLAGS line.
-# Be warned: the port may not fully work. Something still breaks.
+# If you use AIX 3.x, add "-DAIX3_FLOW", otherwise tio.c won't compile.
+# [If you experience "strange" problems with AIX, report to me...!]
 #
 # Add "-D_3B1_ -DUSE_READ -D_NOSTDLIB_H -DSHORT_FILENAMES" to compile
 # on the AT&T 3b1 machine -g.t.
@@ -119,7 +120,8 @@ CFLAGS=-O2 -Wall -pipe
 #CFLAGS=-DNEXTSGTTY -DBSD -O2			# for NeXT with sgtty (better!)
 #CFLAGS=-posix -DUSE_VARARGS -DBSD -O2		# for NeXT with POSIX
 #CFLAGS=-D_HPUX_SOURCE -Aa -DBSDSTATFS		# for HP-UX 9.x
-#CFLAGS=-cckr -D__STDC__ -O 			# for IRIX 5.2
+#CFLAGS=-cckr -D__STDC__ -O -DUSE_READ 		# for IRIX 5.2
+#CFLAGS=-O -DAIX3_FLOW				# for AIX 3.2.x (*NOT* 4.x!)
 
 
 #
@@ -284,8 +286,8 @@ MV=mv
 # Nothing to change below this line ---------------------------------!
 #
 MR=1.1
-SR=7
-DIFFR=1.1.6
+SR=9
+DIFFR=1.1.8
 #
 #
 OBJS=mgetty.o logfile.o do_chat.o locks.o utmp.o logname.o login.o \
@@ -481,7 +483,7 @@ beta:	mgetty$(MR).$(SR).tar.gz diff
 
 # send to Marc and Knarf
 	head -30 ChangeLog |mail -s "mgetty$(MR).$(SR).tar.gz on greenie" knarf@camelot.de Marc@ThPhy.Uni-Duesseldorf.DE
-	-./ftp.sh $(MR).$(SR) ftp.camelot.de /pub/incoming
+#	-./ftp.sh $(MR).$(SR) ftp.camelot.de /pub/incoming
 	-./ftp.sh $(MR).$(SR) poseidon.thphy.uni-duesseldorf.de /incoming
 
 #shar1:	$(DISTRIB)
@@ -577,7 +579,7 @@ install.bin: mgetty sendfax newslock \
 	test -f $(CONFDIR)/mgetty.config || \
 		$(INSTALL) -o root -m 600 mgetty.config $(CONFDIR)/
 	test -f $(CONFDIR)/sendfax.config || \
-		$(INSTALL) -o root -m 600 sendfax.config $(CONFDIR)/
+		$(INSTALL) -o root -m 644 sendfax.config $(CONFDIR)/
 	test -f $(CONFDIR)/dialin.config || \
 		$(INSTALL) -o root -m 600 dialin.config $(CONFDIR)/
 	test -f $(CONFDIR)/faxrunq.config || \
