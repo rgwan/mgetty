@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.16 1997/12/07 14:03:39 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.17 1997/12/12 14:47:37 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -292,12 +292,14 @@ DIFFR=1.1.10
 #
 #
 OBJS=mgetty.o logfile.o do_chat.o locks.o utmp.o logname.o login.o \
-     mg_m_init.o modem.o faxrec.o faxrecp.o faxsend.o faxlib.o faxhng.o \
+     mg_m_init.o modem.o faxrec.o \
+     faxlib.o faxsend.o faxrecp.o class1lib.o faxhng.o \
      io.o gettydefs.o tio.o cnd.o getdisk.o goodies.o \
      config.o conf_mg.o do_stat.o
 
-SFAXOBJ=sendfax.o logfile.o locks.o modem.o faxlib.o faxsend.o faxrecp.o \
-     io.o tio.o faxhng.o cnd.o getdisk.o config.o conf_sf.o goodies.o
+SFAXOBJ=sendfax.o logfile.o locks.o modem.o \
+     faxlib.o faxsend.o faxrecp.o class1lib.o faxhng.o \
+     io.o tio.o cnd.o getdisk.o config.o conf_sf.o goodies.o
 
 all:	bin-all doc-all
 
@@ -374,7 +376,7 @@ DISTRIB=README.1st THANKS TODO BUGS FTP FAQ inittab.aix inst.sh version.h \
 	login.cfg.in mgetty.cfg.in sendfax.cfg.in \
 	dialin.config faxrunq.config \
         mgetty.c mgetty.h ugly.h do_chat.c logfile.c logname.c locks.c \
-	mg_m_init.c modem.c \
+	mg_m_init.c modem.c class1lib.c \
 	faxrec.c faxrecp.c faxsend.c faxlib.c fax_lib.h sendfax.c \
 	io.c tio.c tio.h gettydefs.c login.c do_stat.c faxhng.c \
 	config.h config.c conf_sf.h conf_sf.c conf_mg.h conf_mg.c \
