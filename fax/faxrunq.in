@@ -9,7 +9,7 @@
 # There are still a lot rough edges - but it works, and should give you an
 # idea how to improve it
 #
-# SCCS: $Id: faxrunq.in,v 4.1 1997/01/12 14:54:00 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxrunq.in,v 4.2 1997/01/16 16:31:33 gert Exp $ Copyright (C) 1994 Gert Doering
 
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -206,7 +206,7 @@ do
 	    ( 
 	      trap 0			# catch BASH bug
 	      $echo "To: $MAIL_TO"
-	      $echo "Subject: $subject"
+	      $echo "Subject: OK: $subject"
 	      $echo "From: root (Fax Subsystem)\n"
 	      $echo "Your fax has been sent successfully at: \c"
 	      date
@@ -271,7 +271,7 @@ do
 		( 
 		  trap 0			# catch BASH bug
 		  $echo "To: $MAIL_TO"
-		  $echo "Subject: $subject failed"
+		  $echo "Subject: FAIL: $subject failed"
 		  $echo "From: root (Fax Subsystem)\n"
 		  $echo "It was not possible to send your fax to $PHONE!\n"
 		  test -z "$RE" || \
