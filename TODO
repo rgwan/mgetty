@@ -7,6 +7,8 @@
   Suggestion: use "-h <program>", g3cat output of that program with the
   data page (-> headers with real send time)
 
+  see 119
+
 2) make external configuration possible
    mostly done (1.1.95)
 
@@ -98,8 +100,7 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
      and *magic byte*!
 
 108) faxreq (re-queue, remove Status junk from JOB)
-
-109) faxspool -> immediately send (own!) faxes
+     done with "faxq -r" - really delete "Status" lines?
 
 112) sendfax: return +FHNG in exit() code
 
@@ -109,8 +110,11 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
 
 118) modem auto-detect not only for voice but for modem type (e.g.
      MultiTech, ZyXEL, ...) in general
+     12.12.97: basic work done
 
 119) dynamically generate page headers in faxrunq
+     12.12.97: integrate with class 1 work - we have to "g3cat" the page
+               data anyway (for padding)
 
 120) with 119, multicasting is easy
 
@@ -125,6 +129,8 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
 125) cleanup script that will rollover logs
 
 126) if sendfax is killed, faxrunq assumes "ok" for some strange reason.
+     (caused by the way exec() / wait() handle return code / signals)
+     10.12.97: resolved for faxrunqd.  Still open for faxrunq???
 
 127) step-by-step installation guide
 
