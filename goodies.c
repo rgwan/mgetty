@@ -1,4 +1,4 @@
-#ident "$Id: goodies.c,v 2.1 1994/11/30 23:20:41 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: goodies.c,v 2.2 1994/12/23 13:00:20 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /*
  * goodies.c
@@ -12,8 +12,13 @@
 #include "syslibs.h"
 #include <ctype.h>
 #include <string.h>
+#include <unistd.h>
+
+#include <pwd.h>
+#include <grp.h>
 
 #include "mgetty.h"
+#include "config.h"
 
 #ifdef SVR4
 # include <sys/procfs.h>
@@ -38,6 +43,55 @@ char * p;
     return ( p == NULL ) ? s: p+1;
 }
 
+/* auxiliary function: get a uid/gid pair from two strings
+ * specifying user and group
+ */
+
+void get_ugid _P4( (user, group, uid, gid),
+		  conf_data * user, conf_data * group,
+		  uid_t * uid, gid_t * gid )
+{
+    /* default */
+    *uid = *gid = 0;
+
+    if ( user->flags != C_EMPTY )		/* user set */
+    {
+	struct passwd *pwd;
+
+	if ( isdigit( *(char*)(user->d.p) ))	/* numeric */
+	    pwd = getpwuid( atoi( (char*) (user->d.p) ));
+	else					/* string */
+	    pwd = getpwnam( (char*)(user->d.p) );
+
+	if ( pwd == NULL )
+	    lprintf( L_ERROR, "can't get user id for '%s'", user->d.p );
+	else
+	{
+	    *uid = pwd->pw_uid;
+	    *gid = pwd->pw_gid;
+	}
+	endpwent();
+    }
+
+
+    /* if group is set, override group corresponding to user */
+    if ( group->flags != C_EMPTY )
+    {
+	struct group * grp;
+
+	if ( isdigit( *(char*)(group->d.p) ))	/* numeric */
+	    grp = getgrgid( atoi( (char*)(group->d.p)) );
+	else					/* string */
+	    grp = getgrnam( (char*) (group->d.p) );
+
+	if ( grp == NULL )
+	    lprintf( L_ERROR, "can't get group '%s'", group->d.p );
+	else
+	    *gid = grp->gr_gid;
+
+	endgrent();
+    }
+}
 /* return process name + arguments for process "PID"
  *
  * use /proc filesystem on Linux and SVR4
