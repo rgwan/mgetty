@@ -1231,3 +1231,17 @@ ignore-carrier y
 switchbd 19200
 
 -----------------------------------------------------------------------
+Contributor:    Nick Holloway <Nick.Holloway@alfie.demon.co.uk>
+Modem:          ACCURA 33600, Model 5349GB, Version 6.20
+at+fmfr?        Copyright 1995, 1996 Hayes Microcomputer Products, Inc.
+at+fmdl?        ACCURA 33600
+at+frev?        Version 6.20
+tested on:      Linux 1.2.30, mgetty 1.0.0
+working:        mgetty, sendfax
+remarks:        The setting of S101 is just for distinctive ring.
+
+mgetty.config:  speed 115200
+                switchbd 0
+                init-chat "" \d\d\d+++\d\d\dATZ OK ATS101=61 OK
+                answer-chat "" AT+FCLASS=2;A CONNECT \c \r
+-----------------------------------------------------------------------
