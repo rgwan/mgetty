@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.h,v 1.50 1994/03/01 17:24:42 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 1.51 1994/03/06 17:02:16 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.h
  *
@@ -69,7 +69,7 @@ typedef	char	boolean;
 
 /* assume that all BSD systems have the siginterrupt() function
  */
-#if defined(BSD) && !defined(NO_SIGINTERRUPT)
+#if ( defined(BSD) || defined(sun) ) && !defined(NO_SIGINTERRUPT)
 #define HAVE_SIGINTERRUPT
 #endif
 
