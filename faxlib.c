@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 1.1 1993/03/14 14:47:14 gert Exp $ Gert Doering"
+#ident "$Id: faxlib.c,v 1.2 1993/03/21 10:40:24 gert Exp $ Gert Doering"
 
 /* faxlib.c
  *
@@ -118,10 +118,13 @@ int bufferp;
 	else
 	if ( strcmp( buffer, "ERROR" ) == 0 ||
 	     strcmp( buffer, "NO CARRIER" ) == 0 ||
-	     strcmp( buffer, "BUSY" ) == 0  )
+	     strcmp( buffer, "BUSY" ) == 0 ||
+	     strcmp( buffer, "NO DIALTONE" ) == 0 )
 	{
 	    lprintf( L_MESG, "ABORTING: buffer='%s'", buffer );
 	    fax_hangup = 1;
+	    fax_hangup_code = (strcmp( buffer, "BUSY" ) == 0) ? FHUP_BUSY:
+								FHUP_ERROR;
 	    alarm( 0 ); signal( SIGALRM, SIG_DFL );
 	    return ERROR;
 	}
