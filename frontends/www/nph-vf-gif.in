@@ -4,9 +4,15 @@
 # 
 # Copyright 1998 Simone Demmel simone@greenie.net
 #
-# RCS: $Id: nph-vf-gif.in,v 1.4 1998/11/20 10:06:46 gert Exp $
+# RCS: $Id: nph-vf-gif.in,v 1.5 1998/11/20 16:37:30 gert Exp $
 #
 # $Log: nph-vf-gif.in,v $
+# Revision 1.5  1998/11/20 16:37:30  gert
+# - set umask 022 (for temp files)
+# - move parsing of CGI parameters to wwwsub.pl
+# - check whether fax G3 file has read permissions
+# - restructure "genpage"
+#
 # Revision 1.4  1998/11/20 10:06:46  gert
 # move check for $fax_spool_out to wwwsub.pl
 #
@@ -70,7 +76,7 @@ if ($fax_incoming eq "")
 if (! -d $fax_incoming)
     { errormessage("\$fax_incoming : no such directory $fax_incoming");}
 if (! -r $fax_incoming)
-    { errormessage( "\$fax_incoming : no read-permission for $fax_incoming");}
+    { errormessage( "\$fax_incoming : no read-permission for $fax_incoming (running with UID $<)");}
 
 # check, if fax-outgoing is defined
 check_outgoing();
@@ -117,31 +123,9 @@ checkprogram($pnmflip, "pnmflip");
 $|=1;
 
 
-if ($ENV{'REQUEST_METHOD'} eq "GET")
-{
-  $query_string=$ENV{'QUERY_STRING'};
-}
-elsif (($ENV{'REQUEST_METHOD'} eq "POST") &&
-       ($ENV{'CONTENT_TYPE'} eq "application/x-www-form-urlencoded"))
-{
-  read(STDIN,$query_string,$ENV{'CONTENT_LENGTH'});
-}
-else
-{
-  $query_string='';
-};
-
-# parse arguments
-%args=();
-foreach (split(/\&/,$query_string))
-{
-	if ( /^(\w+)=/ && ($key=$1) && ($value=$') )
-	{
-		$value =~ s/\%([0-9a-f]{2})/pack(C,hex($1))/eig;
-		$args{"$key"}=$args{"$key"} . " " . $value if ($value!~/^\s*$/);
-		$args{"$key"} =~ s/^\s*//o;
-	}
-}
+# special version of get_cgi(), don't substitute +->" "
+if (!get_cgi(0))
+{errormessage("ERROR in CGI-Parsing: unsupported submission method");}
 
 #
 # now we have $args{file} and $args{size}
@@ -198,6 +182,9 @@ else {$turn = 0;}
 # stored in tmp/  $file.$page.$size.gif
 # $filename is the complete Filename, with pagenumber.
 #
+
+# make sure that the generated image files are not world-writable
+umask 022;
 
 # @bilder = "";
 
@@ -354,30 +341,39 @@ sub genpage {
     # print "<p>x= $x<br>y= $y<br> filename= $filename<br> webtmpabs= $webtmpabs\n";
 
 
+    # check if the File exists
+    # $turn from rotate
     if ( -f "$webtmpabs/$filename.$size.$turn.gif")
-	   # $turn from rotate
-        { # print "<br> picture still there...\n";
-	     return; }
-    else
-    {
-
-        if ($size != 100)
-	{
-	    $gifscale = "$pnmscale -xscale $x -yscale $y | $ppmquant | $ppmtogif";
-	}
-	else
-	    { $gifscale = "$ppmtogif"; }
-
-	# print "scale=$gifscale\n";
-
-	# if we got a rotate
-        if ($turn != 0)
-	    { $r=sprintf "$pnmflip -r%d|", $turn*90; }
-	else 
-	    { $r = ""; }
-
-	system "$g3topbm $fax_incoming/$filename | $r $gifscale > $webtmpabs/$filename.$size.$turn.gif";
+    { 
+	# print "<br> picture still there...\n";
+	return;
     }
+
+    # check if the file is readable
+    if ( ! (-r "$fax_incoming/$filename"))
+    {
+	print "<br> fax-file $fax_incoming/$filename unreadable (UID $<)\n";
+	return;
+    }
+
+
+    # do this only, if the file exists and is readable
+    if ($size != 100)
+    {
+	$gifscale = "$pnmscale -xscale $x -yscale $y | $ppmquant | $ppmtogif";
+    }
+    else
+    { $gifscale = "$ppmtogif"; }
+
+    # print "scale=$gifscale\n";
+
+    # if we got a rotate
+    if ($turn != 0)
+	{ $r=sprintf "$pnmflip -r%d|", $turn*90; }
+    else 
+	{ $r = ""; }
+
+    system "$g3topbm $fax_incoming/$filename | $r $gifscale > $webtmpabs/$filename.$size.$turn.gif";
 }
 
 sub rotate_html
