@@ -9,7 +9,7 @@
  * You have set port_timeout in voice.conf to a minimum of 15
  * if you use 38400 Baud
  *
- * $Id: Elsa.c,v 1.10 2000/09/09 08:48:48 marcs Exp $
+ * $Id: Elsa.c,v 1.11 2000/09/09 09:01:06 marcs Exp $
  *
  */
 
@@ -179,7 +179,7 @@ static int Elsa_set_device (int device)
                return(OK);
           case DIALUP_LINE:
                lprintf(L_JUNK, "%s: _DIALUP: (%d)", voice_modem_name, device);
-               voice_command("AT#VLS=4", "OK");   /* This is DIALUP_WITH_INT_SPEAKER ! Look at ../contrib/*set-device* */
+               voice_command("AT#VLS=4", "OK");   /* This is DIALUP_WITH_INT_SPEAKER ! Look at contrib/Steffen_Klupsch-new-set-device-modes */
                return(OK);
           case INTERNAL_MICROPHONE:
                lprintf(L_JUNK, "%s: _INT_MIC: (%d)", voice_modem_name, device);
