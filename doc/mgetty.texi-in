@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.14 1998/04/02 08:11:50 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.15 1998/04/05 13:16:00 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -1020,6 +1020,7 @@ replaced by something else:
 @item \S Port speed (e.g. 38400)
 @item \D current date in dd/mm/yy format
 @item \T current time in hh:mm:ss format
+@item \Y CallerID of the current caller
 @item \@var{digit} character with the specified octal code
 @end itemize
 
