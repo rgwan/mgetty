@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.6 1993/02/25 12:07:14 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.7 1993/02/26 18:03:13 gert Exp $ (c) Gert Doering";
 /* some parts of the code are loosely based on the 
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us
  */
@@ -437,7 +437,7 @@ int main( int argc, char ** argv)
 	 */
 	for (;;) {
 
-		/* set Nusers value
+		/* set Nusers value to number of users
 		 */
 		Nusers = 0;
 		setutent();
@@ -505,20 +505,11 @@ int main( int argc, char ** argv)
 		lprintf( L_MESG, "pid=%d, calling 'login %s'...\n", pid, buf );
 
 		/* hand off to login, (can be a shell script!) */
-#ifndef NO_FAX
-		/* if it is an incoming FAX call, do not call login,
-		   make a TMP-File instead and hand off to recfax */
 
-		if ( strcmp(buf, "ZyXEL" ) == 0 )
-		{
-			sprintf(buf, "%s/fax%04xXXXXXX", FAX_SPOOL_IN, 
-					time(NULL) & 0xffff );
-			(void) execl(FAX_RECEIVER, "recfax", 
-                                     mktemp(buf), (char*) NULL);
-			lprintf( L_FATAL, "cannot execute %s %s",
-                                 FAX_RECEIVER, buf);
-		}
-#endif
+		/* do NOT handle "login ZyXEL" as special case for
+		 * zyxel fax mode any more - since all fax stuff is
+		 * class 2 now, fax calles are handled differently
+		 */
 
 		(void) execl(login, "login", buf, (char *) NULL);
 		(void) execl("/bin/sh", "sh", "-c",
@@ -537,7 +528,6 @@ int main( int argc, char ** argv)
 sig_t
 timeout()
 {
-
 	struct termio termio;
 
 	/* say bye-bye
@@ -554,17 +544,6 @@ timeout()
 
 	exit(1);
 }
-
-
-/*
-**	tputc() - output a character for tputs()
-*/
-
-int tputc( char c )
-{
-	return fputc(c, stdout);
-}
-
 
 /*
 **	exit_usage() - exit with usage display
