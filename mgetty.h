@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.17 1993/06/01 22:51:18 gert Exp $ (c) Gert Doering */
+/* $Id: mgetty.h,v 1.18 1993/06/04 20:49:01 gert Exp $ (c) Gert Doering */
 
 /* stuff in logfile.c */
 
@@ -64,10 +64,14 @@ int clean_line( int tenths );
 
 /* locks.c */
 
-int makelock(char * name);
+int	makelock(char * name);
 boolean	checklock(char * name);
-int readlock(char * name);
+int	readlock(char * name);
 sig_t	rmlocks();
+  
+#ifdef SVR4
+char *	get_lock_name(char*, char*);
+#endif
 
 extern	char	*lock;
 
@@ -82,7 +86,7 @@ void faxrec( void );
 /********* system prototypes **************/
 char * mktemp( char * template );
 
-#ifndef linux
+#if  !defined(linux) && !defined(SVR4)
 extern int	getopt( int, char **, char * );
 #endif
 extern int	optind;
@@ -92,7 +96,7 @@ extern char *	optarg;
 #ifdef ISC
 #define fileno(p)	(p)->_file
 # ifndef O_NDELAY
-# define O_NDELAY O_NONBLOCK
+#  define O_NDELAY O_NONBLOCK
 # endif
 #endif
 

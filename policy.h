@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.8 1993/05/22 17:56:09 gert Exp $ (c) Gert Doering"
+#ident "$Id: policy.h,v 1.9 1993/06/04 20:49:02 gert Exp $ (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -24,7 +24,11 @@
 /* system console - if a severe error happens at startup, mgetty writes
  * a message to this file and aborts
  */
+#ifdef SVR4
+#define CONSOLE "/dev/console"
+#else
 #define CONSOLE "/dev/syscon"
+#endif
 
 /* System administrator - if a severe error happens later (lprintf called
  * with log_level L_FATAL - the logfile will be mailed to him
@@ -36,17 +40,26 @@
 #define SYSTEM	"greenie"
 
 /* Name of the mgetty log file
+ * e.g. "/usr/spool/log/mgetty.log.%s"
  * a "%s" will be replaced by the device name, e.g. "tty2a"
  */
-#define LOG_PATH "/tmp/log_m_%s"
+#define LOG_PATH "/tmp/log_mg.%s"
 
 /* Path for the lock files. A %s will be replaced with the device name,
  * e.g. tty2a -> /usr/spool/uucp/LCK..%s
  * Make sure that this is the same file that your uucico uses for
  * locking!
  */
-#define LOCK "/usr/spool/uucp/LCK..%s"
 
+#ifdef SVR4
+#define LOCK_PATH "/var/spool/locks"
+#define LOCK      "/var/spool/locks/LCK..%s"
+#endif
+
+#ifndef LOCK
+#define LOCK "/usr/spool/uucp/LCK..%s"
+#endif
+  
 /* Set this to "1" if your system uses binary lock files (i.e., the pid
  * as four byte integer in host byte order written to the lock file)
  * If it is "0", HDB locking will be used - the PID will be written as
@@ -101,7 +114,11 @@
 
 /* mailer that accepts destination on command line and mail text on stdin
  */
-#define MAILER		"/usr/lib/sendmail"
+#ifdef SVR4
+# define MAILER		"/usr/bin/mailx"
+#else
+# define MAILER		"/usr/lib/sendmail"
+#endif
 
 /* where to send notify mail about incoming faxes to
  */

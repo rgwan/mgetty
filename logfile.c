@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 1.6 1993/05/27 19:37:34 gert Exp $ (c) Gert Doering"
+#ident "$Id: logfile.c,v 1.7 1993/06/04 20:48:54 gert Exp $ (c) Gert Doering"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -22,8 +22,10 @@ extern int atexit( void (*)(void) );
 /* Interactive Unix is a little bit braindead - does not have atexit(),
  * and does not define externals for sys_nerr and sys_errlist,
  * nevertheless I've been told that they exist - so I declare them myself.
+ *
+ * Strange enough, SVR4 seems to be simiarily stupid.
  */
-#ifdef ISC
+#if defined(ISC) || defined(SVR4)
 #define atexit( dummy )
 extern int sys_nerr;
 extern char *sys_errlist[];

@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.29 1993/05/26 00:30:23 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.30 1993/06/04 20:48:57 gert Exp $ (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -108,14 +108,22 @@ chat_action_t	call_chat_actions[] = { { "NO CARRIER", A_FAIL },
 					{ NULL, A_FAIL } };
 
 
-
+/* private functions */
 sig_t		timeout();
-int		tputc( char c );
 void		exit_usage();
+
+/* prototypes for system functions (that are missing in some 
+ * system header files)
+ */
+
+#ifndef SVR4
+
 struct	utmp	*getutent();
 struct	utmp	*pututline(struct utmp * utmp);
 void		setutent(void);
 void		endutent(void);
+
+#endif
 
 time_t		time( long * tloc );
 
@@ -237,8 +245,15 @@ int main( int argc, char ** argv)
 
 	/* name the lock file(s)
 	 */
+
+#ifdef SVR4
+	if(!(lock=get_lock_name( strdup(buf), Device))){
+	  exit(0);
+	}
+#else	
 	(void) sprintf(buf, LOCK, Device);
 	lock = strdup(buf);
+#endif	
 
 	/* check for existing lock file(s)
 	 */
