@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.1 1997/01/12 14:53:34 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.2 1997/03/09 10:42:37 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -124,14 +124,17 @@ CFLAGS=-O2 -Wall -pipe
 
 #
 # LDFLAGS specify flags to pass to the linker. You could specify
-# additional libraries here, special link flags, ...
+# 	special link modes, binary formats, whatever...
+#
+# For the 3B1, add "-s -shlib". For other systems, nothing is needed.
+#
+# LIBS specify extra libraries to link to the programs
+#       (do not specify the libraries in the LDFLAGS statement)
 #
 # To use the "setluid()" function on SCO, link "-lprot", and to use
 # the "syslog()" function, link "-lsocket".
 #
 # For SVR4(.2) and Solaris 2, you may need "-lsocket -lnsl" for syslog().
-#
-# For the 3B1, add "-s -shlib"
 #
 # For ISC, add "-linet -lpt" (and -lcposix, if necessary)
 #
@@ -145,11 +148,13 @@ CFLAGS=-O2 -Wall -pipe
 # 	"utmp.o: unresolved symbod _login"
 #
 LDFLAGS=
-#LDFLAGS=-lprot -lsocket
-#LDFLAGS=-s -shlib
-#LDFLAGS=-lsocket
-#LDFLAGS=-lbsd					# OSF/1
+LIBS=
+#LIBS=-lprot -lsocket				# SCO Unix
+#LIBS=-lsocket
+#LIBS=-lbsd					# OSF/1
+#LIBS=-lutil					# FreeBSD
 #LDFLAGS=-posix					# NeXT with POSIX
+#LDFLAGS=-s -shlib				# 3B1
 #
 #
 # the following things are mainly used for ``make install''
@@ -165,9 +170,8 @@ LDFLAGS=
 # in "inst.sh" (taken from X11R5). Needed on IRIX5.2
 INSTALL=install -c -o bin -g bin
 #INSTALL=install -c -o root -g wheel		# NeXT/BSD
-#INSTALL=installbsd -c -o bin -g bin		# OSF/1
 #INSTALL=/usr/ucb/install -c -o bin -g bin	# AIX, Solaris 2.x
-#INSTALL=installbsd -c -o bin -g bin		# AIX 4.1, 4.2
+#INSTALL=installbsd -c -o bin -g bin		# OSF/1, AIX 4.1, 4.2
 #INSTALL=/usr/bin/X11/bsdinst -c -o bin 	# IRIX
 #
 # prefix, where most (all?) of the stuff lives, usually /usr/local or /usr
@@ -277,28 +281,27 @@ MV=mv
 #
 # Nothing to change below this line ---------------------------------!
 #
-MR=1.0
-SR=0
+MR=1.1
+SR=3
 #
 #
 OBJS=mgetty.o logfile.o do_chat.o locks.o utmp.o logname.o login.o \
-     mg_m_init.o modem.o faxrec.o faxsend.o faxlib.o faxhng.o \
+     mg_m_init.o modem.o faxrec.o faxrecp.o faxsend.o faxlib.o faxhng.o \
      io.o gettydefs.o tio.o cnd.o getdisk.o goodies.o \
      config.o conf_mg.o do_stat.o
 
-SFAXOBJ=sendfax.o logfile.o locks.o modem.o faxlib.o faxsend.o faxrec.o \
+SFAXOBJ=sendfax.o logfile.o locks.o modem.o faxlib.o faxsend.o faxrecp.o \
      io.o tio.o faxhng.o cnd.o getdisk.o config.o conf_sf.o goodies.o
 
 all:	bin-all doc-all
 
-bin-all: mgetty sendfax kvg newslock g3-tools fax-stuff call-back 
+bin-all: mgetty sendfax newslock subdirs call-back 
 
 # a few C files need extra compiler arguments
 
 mgetty.o : mgetty.c syslibs.h mgetty.h ugly.h policy.h tio.h fax_lib.h \
 	config.h mg_utmp.h Makefile
-	$(CC) $(CFLAGS) -DFAX_SPOOL_IN=\"$(FAX_SPOOL_IN)\" \
-		-DCONFDIR=\"$(CONFDIR)\" -c mgetty.c
+	$(CC) $(CFLAGS) -DFAX_SPOOL_IN=\"$(FAX_SPOOL_IN)\" -c mgetty.c
 
 conf_mg.o : conf_mg.c mgetty.h ugly.h policy.h syslibs.h \
 	config.h conf_mg.h Makefile
@@ -319,37 +322,36 @@ logname.o : logname.c syslibs.h mgetty.h policy.h tio.h mg_utmp.h Makefile
 # here are the binaries...
 
 mgetty: $(OBJS)
-	$(CC) -o mgetty $(OBJS) $(LDFLAGS)
+	$(CC) -o mgetty $(OBJS) $(LDFLAGS) $(LIBS)
 
 sendfax: $(SFAXOBJ)
-	$(CC) -o sendfax $(SFAXOBJ) $(LDFLAGS)
+	$(CC) -o sendfax $(SFAXOBJ) $(LDFLAGS) $(LIBS)
 
 # sentinelized binaries for runtime testing...
 sentinel:	mgetty.sen sendfax.sen
 
 mgetty.sen: $(OBJS)
-	sentinel -v $(CC) -o mgetty.sen $(OBJS) $(LDFLAGS)
+	sentinel -v $(CC) -o mgetty.sen $(OBJS) $(LDFLAGS) $(LIBS)
 
 sendfax.sen: $(SFAXOBJ)
-	sentinel -v $(CC) -o sendfax.sen $(SFAXOBJ) $(LDFLAGS)
+	sentinel -v $(CC) -o sendfax.sen $(SFAXOBJ) $(LDFLAGS) $(LIBS)
 
 # subdirectories...
 
-g3-tools:
-	cd tools ; $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" all
-
-fax-stuff:
-	cd fax ; $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" all
+subdirs:
+	cd g3 ;    $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" "LIBS=$(LIBS)" all
+	cd tools ; $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" "LIBS=$(LIBS)" all
+	cd fax ;   $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" "LIBS=$(LIBS)" all
 
 call-back:
 	@$(MAKE) mgetty
-	cd callback ; $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" "CONFDIR=$(CONFDIR)" all
+	cd callback ; $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" "CONFDIR=$(CONFDIR)" "LIBS=$(LIBS)" all
 
 contrib-all: 
-	cd contrib ; $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" all
+	cd contrib ; $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" "LIBS=$(LIBS)" all
 
 doc-all: 
-	cd doc ; $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" doc-all
+	cd doc ; $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" "LIBS=$(LIBS)" doc-all
 
 # things...
 
@@ -362,17 +364,18 @@ testdisk:	getdisk
 
 # README PROBLEMS
 DISTRIB=README.1st THANKS TODO BUGS FTP FAQ inittab.aix inst.sh version.h \
-	Makefile ChangeLog policy.h-dist ftp.sh \
+	Makefile ChangeLog policy.h-dist ftp.sh mkinstalldirs \
 	login.cfg.in mgetty.cfg.in sendfax.cfg.in \
 	dialin.config faxrunq.config \
         mgetty.c mgetty.h ugly.h do_chat.c logfile.c logname.c locks.c \
-	mg_m_init.c modem.c faxrec.c faxsend.c faxlib.c fax_lib.h sendfax.c \
+	mg_m_init.c modem.c \
+	faxrec.c faxrecp.c faxsend.c faxlib.c fax_lib.h sendfax.c \
 	io.c tio.c tio.h gettydefs.c login.c do_stat.c faxhng.c \
 	config.h config.c conf_sf.h conf_sf.c conf_mg.h conf_mg.c \
 	cnd.c getdisk.c mksed.c utmp.c mg_utmp.h syslibs.h goodies.c \
-	tools/Makefile tools/g3cat.c tools/g32pbm.c tools/g3.c tools/g3.h \
-	tools/pbm2g3.c tools/run_tbl.c \
-	kvg.in
+	g3/Makefile g3/g3cat.c g3/g32pbm.c g3/g3.c g3/g3.h \
+	g3/pbm2g3.c g3/run_tbl.c \
+	tools/kvg.in
 
 noident: policy.h
 	    for file in `find . -type f -name "*.[ch]" -print` ; do \
@@ -482,8 +485,9 @@ policy.h:
 
 clean:
 	rm -f *.o getdisk compat/*.o newslock
-	cd tools ; $(MAKE) clean
+	cd g3 ; $(MAKE) clean
 	cd fax ; $(MAKE) clean
+	cd tools ; $(MAKE) clean
 	cd callback ; $(MAKE) clean
 	cd contrib ; $(MAKE) clean
 	cd doc ; $(MAKE) clean
@@ -491,9 +495,10 @@ clean:
 
 fullclean:
 	rm -f *.o compat/*.o mgetty sendfax testgetty getdisk \
-			mksed sedscript newslock kvg *~
-	cd tools ; $(MAKE) fullclean
+			mksed sedscript newslock *~
+	cd g3 ; $(MAKE) fullclean
 	cd fax ; $(MAKE) fullclean
+	cd tools ; $(MAKE) fullclean
 	cd callback ; $(MAKE) fullclean
 	cd contrib ; $(MAKE) fullclean
 	cd doc ; $(MAKE) fullclean
@@ -507,9 +512,6 @@ mgetty.config: mgetty.cfg.in sedscript
 
 sendfax.config: sendfax.cfg.in sedscript
 	./sedscript <sendfax.cfg.in >sendfax.config
-
-kvg: kvg.in sedscript
-	./sedscript <kvg.in >kvg
 
 newslock: compat/newslock.c
 	$(CC) $(CFLAGS) -o newslock compat/newslock.c
@@ -593,7 +595,7 @@ install.bin: mgetty sendfax kvg newslock \
 #
 # g3 tool programs
 #
-	cd tools ; $(MAKE) install INSTALL="$(INSTALL)" \
+	cd g3 ; $(MAKE) install INSTALL="$(INSTALL)" \
 				BINDIR=$(BINDIR) \
 				LIBDIR=$(LIBDIR) CONFDIR=$(CONFDIR)
 #
@@ -629,7 +631,8 @@ install.doc:
 vgetty:
 	@$(MAKE) mgetty
 	cd voice; $(MAKE) CFLAGS="$(CFLAGS)" CC="$(CC)" LDFLAGS="$(LDFLAGS)" \
-	LN="$(LN)" MV="$(MV)" RM="$(RM)" VOICE_DIR="$(VOICE_DIR)" \
+	LN="$(LN)" MV="$(MV)" RM="$(RM)" \
+	LIBS="$(LIBS)" VOICE_DIR="$(VOICE_DIR)" \
 	FAX_SPOOL_IN="$(FAX_SPOOL_IN)" CONFDIR="$(CONFDIR)" \
 	SHELL="$(SHELL)" vgetty-all
 
@@ -639,7 +642,7 @@ vgetty-install: sedscript
 	CONFDIR="$(CONFDIR)" MAN1DIR="$(MAN1DIR)" INSTALL="$(INSTALL)" \
 	PHONE_GROUP="$(PHONE_GROUP)" PHONE_PERMS="$(PHONE_PERMS)" \
 	LN="$(LN)" MV="$(MV)" RM="$(RM)" VOICE_DIR="$(VOICE_DIR)" \
-	vgetty-install
+	LIBS="$(LIBS)" vgetty-install
 
 install-vgetty: vgetty-install
 
