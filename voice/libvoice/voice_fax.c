@@ -2,7 +2,7 @@
  * This file is only temporarily needed until the fax part and the voice
  * part are better integrated
  *
- * $Id: voice_fax.c,v 1.5 2001/09/28 21:09:51 gert Exp $
+ * $Id: voice_fax.c,v 1.6 2001/12/17 22:32:01 gert Exp $
  *
  */
 
@@ -30,7 +30,7 @@
 
 /* seems to missing nearly everywhere */
 #if !defined(__NetBSD__) && !defined(__OpenBSD__)
-time_t    time _PROTO(( long * tloc ));
+time_t    time _PROTO(( time_t * tloc ));
 #endif
 
 /* from faxrecp.c */

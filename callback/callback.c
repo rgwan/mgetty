@@ -70,7 +70,7 @@ chat_action_t	dial_chat_actions[] = { { "NO CARRIER", A_FAIL },
  * system header files)
  */
 #if !defined(__NetBSD__) && !defined(__OpenBSD__)
-time_t		time _PROTO(( long * tloc ));
+time_t		time _PROTO(( time_t * tloc ));
 #endif
 
 /* conf_cb.c */

@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 4.9 2001/09/28 21:09:38 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 4.10 2001/12/17 22:31:53 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -36,7 +36,7 @@ extern time_t call_start;		/* in faxrecp.c, set in mgetty.c */
 static time_t call_done;
 
 #if !defined(__NetBSD__) && !defined(__OpenBSD__)
-time_t	time _PROTO(( long * tloc ));
+time_t	time _PROTO(( time_t * tloc ));
 #endif
 
 /* all stuff in here was programmed according to a description of the

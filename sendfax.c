@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 4.17 2001/09/28 21:09:39 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 4.18 2001/12/17 22:31:52 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -41,7 +41,7 @@ extern time_t	call_start;			/* for accounting */
 
 /* seems to missing nearly everywhere */
 #if !defined(__NetBSD__) && !defined(__OpenBSD__)
-time_t	time _PROTO(( long * tloc ));
+time_t	time _PROTO(( time_t * tloc ));
 #endif
 
 void exit_usage _P2( (program, msg ),
