@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 3.2 1995/12/31 17:36:42 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 3.3 1996/01/17 10:36:48 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration defaults for mgetty / sendfax
  * are specified.
@@ -409,6 +409,11 @@
  * If you see a large number of [11] and [13] characters in the sendfax
  * log file, your modem is propably doing software flow control - and
  * you've definitely set FAXSEND_FLOW to FLOW_HARD...
+ *
+ * Some versions of SCO Unix have a "weird" serial driver that will only
+ * do half duplex hardware flow control. You will then run into the problem
+ * that fax sending will time out after the first page sent (no ACK received)
+ * and fail if FLOW_HARD is used. Use FLOW_SOFT instead.
  */
 #define FAXSEND_FLOW	FLOW_HARD | FLOW_SOFT
  
