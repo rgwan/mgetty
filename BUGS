@@ -37,6 +37,10 @@ So, here's what I need
      what (if anything) came out at the receiving end. This can be quite
      important for finding flow control related bugs.
 
+   - if you want to send a question about some message, don't 
+     transcribe it - copy it (cut and paste) exactly as it was
+     printed.
+
 
 If you have read the manual, and provide all those informations, your
 chances that I take enough time to closely read your mail and answer it in
