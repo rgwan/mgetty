@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 4.35 2002/12/05 11:54:03 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 4.36 2003/11/17 19:08:20 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -353,7 +353,13 @@ int main _P2((argc, argv), int argc, char ** argv)
 #endif
     lprintf( L_MESG, "mgetty: %s", mgetty_version);
     lprintf( L_NOISE, "%s compiled at %s, %s", __FILE__, __DATE__, __TIME__ );
-    lprintf( L_NOISE, "user id: %d, pid: %d, parent pid: %d", getuid(), getpid(), getppid());
+    i=getppid();
+    lprintf( L_NOISE, "user id: %d, pid: %d, parent pid: %d", getuid(), getpid(), i);
+    if ( i != 1 )
+    {
+        char *n = get_ps_args(i);
+	lprintf( L_WARN, "WARNING: parent process not init(pid=1), but pid=%d (%s)", i, n != NULL? n: "unknown" );
+    }
 	    
     /* read configuration file */
     mgetty_get_config( Device );
