@@ -1,12 +1,17 @@
-#ident "$Id: logname.c,v 1.7 1993/09/01 22:49:16 gert Exp $ (c) Gert Doering"
+#ident "$Id: logname.c,v 1.8 1993/09/21 14:49:00 gert Exp $ (c) Gert Doering"
 #include <stdio.h>
 #include <termio.h>
 #include <unistd.h>
+#include <signal.h>
 #ifndef sun
 #include <sys/ioctl.h>
 #endif
 #ifndef SYSTEM
 #include <sys/utsname.h>
+#endif
+
+#ifndef ENOENT
+#include <errno.h>
 #endif
 
 #include "mgetty.h"
@@ -20,6 +25,27 @@
 #define CINTR	0177		/* DEL, ^? */
 #endif
 
+static int timeouts = 0;
+#ifdef MAX_LOGIN_TIME
+static void getlog_timeout()
+{
+    signal( SIGALRM, getlog_timeout );
+
+    lprintf( L_WARN, "getlogname: timeout\n" );
+    timeouts++;
+    if ( timeouts == 1 )
+    {
+	printf( "\r\n\07\r\nHey! Please login now. You have one minute left\r\n" );
+	alarm(60);
+    }
+    else
+    {
+	printf( "\r\n\07\r\nYour login time (%d minutes) ran out. Goodbye.\r\n",
+		 MAX_LOGIN_TIME / 60 );
+    }
+}
+#endif
+
 int getlogname( char * prompt, struct termio * termio, char * buf, int maxsize )
 {
 int i;
@@ -30,6 +56,11 @@ char ch;
     termio->c_cc[VMIN] = 1;
     termio->c_cc[VTIME] = 0;
     ioctl(STDIN, TCSETAW, termio);
+
+#ifdef MAX_LOGIN_TIME
+    signal( SIGALRM, getlog_timeout );
+    alarm( MAX_LOGIN_TIME );
+#endif
 
 newlogin:
     printf( "\r\n" );
@@ -48,9 +79,14 @@ newlogin:
     lprintf( L_NOISE, "getlogname, read:" );
     do
     {
-	if ( read( STDIN, &ch, 1 ) != 1 ) exit(0);	/* HUP / ctrl-D */
+	if ( read( STDIN, &ch, 1 ) != 1 )
+	{
+	     if ( errno != EINTR || timeouts != 1 ) exit(0);	/* HUP / ctrl-D */
+	     ch = CKILL;		/* timeout (1) -> clear input */
+	}
+
 	ch = ch & 0x7f;					/* strip to 7 bit */
-	lputc( L_NOISE, ch );					/* logging */
+	lputc( L_NOISE, ch );				/* logging */
 
 	if ( ch == CQUIT ) exit(0);
 	if ( ch == CEOF )
@@ -82,6 +118,8 @@ newlogin:
     }
     while ( ch != '\n' && ch != '\r' );
 
+    alarm(0);
+
     buf[--i] = 0;
 
     if ( ch == '\n' )
@@ -93,7 +131,7 @@ newlogin:
 	termio->c_iflag |= ICRNL;
 	termio->c_oflag |= ONLCR;
 	putc( '\n', stdout );
-	lprintf( L_NOISE, "input finished with '\r', setting ICRNL ONLCR" );
+	lprintf( L_NOISE, "input finished with '\\r', setting ICRNL ONLCR" );
     }
 
     if ( i == 0 ) return -1;

@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.19 1993/09/01 01:14:54 gert Exp $ (c) Gert Doering"
+#ident "$Id: policy.h,v 1.20 1993/09/21 14:49:01 gert Exp $ (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -50,6 +50,12 @@
  * override with "-p <prompt>" switch
  */
 #define LOGIN_PROMPT	"%s!login:"
+
+/* Maximum time before login name has to be entered (in seconds)
+ * (after that time a warning will be issued, after that, the call is
+ * dropped). To disable that feature, do not define it.
+ */
+#define MAX_LOGIN_TIME	240
 
 /* Name of the mgetty log file
  * e.g. "/usr/spool/log/mgetty.log.%s"
