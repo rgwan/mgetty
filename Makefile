@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 1.15 1993/10/06 00:36:07 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 1.16 1993/10/19 00:58:07 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there).
@@ -30,6 +30,7 @@ CC=gcc
 # Add "-D_NOSTDLIB_H" if you don't have <stdlib.h>
 #
 # Add "-DUSE_GETTYDEFS" if you want to use /etc/gettydefs
+#      (currently under construction. Use at your own risk)
 #
 # For machines without the select() call:
 #     Add "-DUSE_POLL" if you don't have select, but do have poll
@@ -76,7 +77,7 @@ OBJS=mgetty.o logfile.o do_chat.o faxrec.o locks.o faxlib.o io.o \
 
 SFAXOBJ=sendfax.o logfile.o locks.o faxlib.o faxrec.o io.o
 
-all:	mgetty sendfax tools/g3cat tools/g3topbm
+all:	mgetty sendfax g3-tools
 
 mgetty: $(OBJS)
 	$(CC) -o mgetty $(OBJS) $(LDFLAGS)
@@ -84,11 +85,11 @@ mgetty: $(OBJS)
 sendfax: $(SFAXOBJ)
 	$(CC) -o sendfax $(SFAXOBJ) $(LDFLAGS)
 
-tools/g3cat: tools/g3cat.c
-	cd tools ; $(CC) $(CFLAGS) -I.. -o g3cat g3cat.c $(LDFLAGS)
+g3-tools:
+	cd tools ; $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" all
 
-tools/g3topbm: tools/g3topbm.c
-	cd tools ; $(CC) $(CFLAGS) -I.. -o g3topbm g3topbm.c $(LDFLAGS)
+contrib-all: 
+	cd contrib ; $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" all
 
 mgetty.info: mgetty.texi
 	makeinfo mgetty.texi
@@ -99,7 +100,7 @@ DISTRIB=README.1st mgetty.texi THANKS TODO Makefile ChangeLog policy.h-dist \
 	faxrec.c faxlib.c fax_lib.h sendfax.c io.c utmp.c flow.c gettydefs.c \
 	pbmtog3.p1 \
 	fax/faxcvt fax/printfax fax/faxspool fax/faxrunq \
-	tools/g3cat.c tools/g3topbm.c \
+	tools/Makefile tools/g3cat.c tools/g3topbm.c tools/g3.c tools/g3.h \
 	contrib/README contrib/scrts.c contrib/pbmscale.c contrib/g3toxwd.c \
 	contrib/3b1 contrib/faxin.c contrib/Makefile 
 
@@ -109,13 +110,14 @@ policy.h-dist: policy.h
 	@chmod u+w policy.h-dist
 
 tar:	$(DISTRIB)
-	gtar cvfz mgetty014.tpz $(DISTRIB)
+	tar cvf mgetty015.tar $(DISTRIB)
+	gzip -9 mgetty015.tar
 
 shar1:	$(DISTRIB)
 	shar -l 40 -o mgetty.sh $(DISTRIB)
 
 shar:	$(DISTRIB)
-	shar $(DISTRIB) >mgetty014.sh
+	shar $(DISTRIB) >mgetty015.sh
 
 policy.h:
 	@echo
@@ -125,12 +127,16 @@ policy.h:
 	@exit 1
 
 clean:
-	rm *.o
+	rm -f *.o
+	cd tools ; $(MAKE) clean
+	cd contrib ; $(MAKE) clean
 
 fullclean:
-	rm -f *.o mgetty sendfax testgetty tools/g3cat tools/g3topbm
+	rm -f *.o mgetty sendfax testgetty
+	cd tools ; $(MAKE) fullclean
+	cd contrib ; $(MAKE) fullclean
 
-install: mgetty sendfax tools/g3cat
+install: mgetty sendfax g3-tools
 	-mv -f $(BINDIR)/mgetty $(BINDIR)/mgetty.old
 	-mv -f $(BINDIR)/sendfax $(BINDIR)/sendfax.old
 	cp mgetty sendfax tools/g3cat fax/faxrunq fax/faxspool $(BINDIR)/
