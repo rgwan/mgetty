@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.6 1997/04/12 20:52:36 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.7 1997/04/24 20:52:51 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -549,8 +549,9 @@ int mdm_identify _P1( (fd), int fd )
 		modem_type=Mt_data;
 		break;
 	      case 62:	/* sure? */
+	      case 962:
 		lprintf( L_MESG, "Dr. Neuhaus Smarty detected (?)" );
-		modem_type=Mt_class2;
+		modem_type=Mt_class2;	/* now do ATI9! */
 		break;
 	      case 184:	/* sure? */
 		lprintf( L_MESG, "Telebit FastBlazer detected" );
