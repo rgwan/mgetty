@@ -9,11 +9,11 @@
 # There are still a lot rough edges - but it works, and should give you an
 # idea how to improve it
 #
-# SCCS: $Id: faxrunq.in,v 1.4 1994/02/11 14:56:57 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxrunq.in,v 1.5 1994/03/01 01:39:36 gert Exp $ Copyright (C) 1994 Gert Doering
 
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
-FAX_SENDER="@BINDIR@/sendfax -l @FAX_MODEM_TTYS@"
+FAX_SENDER="@SBINDIR@/sendfax -l @FAX_MODEM_TTYS@"
 FAX_ACCT=$FAX_SPOOL/acct.log
 
 MAILER="@MAILER@"
