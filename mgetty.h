@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 3.7 1996/01/20 16:09:04 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 3.8 1996/05/26 11:29:43 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -122,6 +122,13 @@ typedef	char	boolean;
 # ifndef SHORT_FILENAMES
 #  define SHORT_FILENAMES
 # endif
+#endif
+
+/* On systems we know mmap() works, it will be used for reading G3
+ * files in the tools (g3topbm.c, g3cat.c), because it is a lot faster
+ */
+#if defined(linux) || defined(BSD)
+# define HAVE_MMAP
 #endif
 
 #define MAXLINE 1024		/* max. # chars in a line */
