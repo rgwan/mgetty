@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.3 1993/02/16 14:01:10 gert Exp $ (c) Gert Doering */
+/* $Id: mgetty.h,v 1.4 1993/02/25 12:07:44 gert Exp $ (c) Gert Doering */
 
 /* stuff in logfile.c */
 
@@ -52,15 +52,24 @@ int do_chat( char * expect_send[],
              boolean locks );
 int clean_line( int tenths );
 
-/* mgetty.c */
+/* locks.c */
+
+#define LOCK "/usr/spool/uucp/LCK..%s"
+
 int makelock(char * name);
 boolean	checklock(char * name);
 int readlock(char * name);
+sig_t	rmlocks();
 
 extern	char	*lock;
 
-#define FAX_SPOOL_IN "/usr/spool/fax/incoming"
-#define FAX_RECEIVER "/u/softadm/zfax2/recfax"
+/* fax stuff */
+
+#define FAX_SPOOL	"/usr/spool/fax"
+#define FAX_SPOOL_IN	FAX_SPOOL"/incoming"
+#define FAX_RECEIVER	"/u/softadm/zfax2/recfax"
+#define MAILER		"/usr/lib/sendmail"
+#define MAIL_TO		"gert"
 
 
 /********* system prototypes **************/
