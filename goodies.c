@@ -1,4 +1,4 @@
-#ident "$Id: goodies.c,v 3.1 1995/08/30 12:40:42 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: goodies.c,v 3.2 1996/02/24 21:42:34 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /*
  * goodies.c
@@ -16,6 +16,7 @@
 
 #include <pwd.h>
 #include <grp.h>
+#include <sys/stat.h>
 
 /* NeXTStep/86 has some byte order problems (Christian Starkjohann) */
 #if defined(NeXT) && defined(__LITTLE_ENDIAN__)
@@ -137,6 +138,29 @@ char * get_ps_args _P1 ((pid), int pid )
 
 #ifdef linux
 
+# ifdef DIALOUT_SHOW_USERNAMES
+    char procfn[30];
+    struct stat buf;
+    struct passwd *pwe;
+    static char u_logname[30];
+
+    sprintf (procfn, "/proc/%d", pid);
+    if (stat (procfn, &buf) < 0) {
+	lprintf( L_ERROR, "cannot stat %s", procfn );
+	return NULL;
+    }
+
+    if ((pwe = getpwuid (buf.st_uid)) == 0) {
+	lprintf( L_ERROR, "cannot getpwuid %d", buf.st_uid );
+	return NULL;
+    }
+	
+    strncpy( u_logname, pwe->pw_name, sizeof(u_logname)-1);
+    u_logname[sizeof(u_logname)-1]=0;
+
+    return u_logname;
+
+# else		/* standard behaviour: show command line */
     char procfn[30];
     int procfd;
     int i,l;
@@ -171,6 +195,8 @@ char * get_ps_args _P1 ((pid), int pid )
 	if ( psinfo[i] == 0 ) psinfo[i] = ' ';
 
     return psinfo;
+
+# endif /* show user name, not process cmd line */
 #endif /* linux */
 
 #if !defined(SVR4) && !defined(linux)
