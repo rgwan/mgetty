@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 4.1 1997/01/12 14:53:43 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 4.2 1997/03/31 21:03:13 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -200,6 +200,7 @@ int		steal_lock _PROTO((char * device, int pid ));
 void	faxrec _PROTO(( char * spool_dir, unsigned int switchbd,
 		        int uid, int gid, int mode, char * mail_to ));
 char *	fax_strerror _PROTO(( int fax_hangup_code ));
+void	faxlib_init _PROTO((void));
 
 /* initialization stuff: mg_m_init.c */
 int	mg_init_data  _PROTO(( int fd, char * chat_seq[], char * force_seq[]));
