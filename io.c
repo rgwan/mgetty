@@ -1,4 +1,4 @@
-#ident "$Id: io.c,v 2.2 1995/01/31 21:34:56 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: io.c,v 2.3 1995/03/14 09:13:55 gert Exp $ Copyright (c) Gert Doering"
 
 /* io.c
  *
@@ -32,7 +32,8 @@ int poll _PROTO(( struct pollfd fds[], unsigned long nfds, int timeout ));
 # include <string.h>
 # if defined (linux) || defined (sunos4) || defined (SVR4) || \
      defined (__hpux) || defined (MEIBE) || defined(sgi) || \
-     defined (ISC) || defined (BSD) || defined(sysV68) || defined(M_XENIX)
+     defined (ISC) || defined (BSD) || defined(sysV68) || \
+     defined(m88k) || defined(M_XENIX)
 #  include <sys/types.h>
 #  include <sys/time.h>
 #  ifdef ISC
