@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.15 1997/06/19 17:55:00 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.16 1997/06/22 11:31:54 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -644,6 +644,12 @@ int mdm_identify _P1( (fd), int fd )
 	else if ( strncmp( l, "Linux ISDN", 10 ) == 0 )
 	{
 	    lprintf( L_MESG, "ISDN4Linux detected" );
+	    modem_type=Mt_data;
+	}
+	/* got this from bruce@hn.pl.net */
+	else if ( strncmp( l, "1.03", 4 ) == 4 )
+	{
+	    lprintf( L_MESG, "Ellcon 14.4+Voice detected" );
 	    modem_type=Mt_data;
 	}
     }
