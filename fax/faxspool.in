@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 4.7 1998/02/18 10:27:30 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 4.8 1998/04/17 07:35:43 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -807,7 +807,7 @@ pages=`ls $spooldir | sed '/^\./d'`
 cd $spooldir
 
 nr=0
-maxnr=`echo $pages | wc -l | tr -d " "`
+maxnr=`echo $pages | wc -w | tr -d " "`
 
 #
 # generate cover page
