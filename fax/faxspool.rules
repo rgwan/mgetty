@@ -4,7 +4,7 @@
 # file suffixes and file format conversions that are not handled by 
 # the built-in routines in "faxspool" can be added here
 #
-# $Id: faxspool.rules,v 4.1 1999/06/29 13:27:51 gert Exp $
+# $Id: faxspool.rules,v 4.2 2005/03/13 17:46:44 gert Exp $
 
 # file name suffix -> file format mapping
 # after the SUFFIX key word, name the extention, and then the file format:
@@ -44,3 +44,16 @@
 # HP Laserjet stuff is filtered via "hp2hig3"...
 #FILTER lj /usr/local/bin/hp2hig3 -r$2 <$1
 #
+#
+# some mappings that can be used to override built-in rules, depending on
+# what programs are installed in the system
+#
+# Adobe Postscript 
+#  - Variant 1, via GNU Ghostscript (from pdf2ps)
+#FILTER pdf /usr/bin/gs -sDEVICE=faxg3 -r204x198 -sOutputFile=$2%03d -dNOPAUSE -q -dSAFER -dBATCH -c save pop -f "$1"
+#
+#  - Variant 2, via Acrobat Reader
+#FILTER pdf acroread -toPostScript <$1 | /usr/bin/gs -sDEVICE=faxg3 -r204x198 -sOutputFile=$2%03d -dNOPAUSE -q -dSAFER -dBATCH -
+#
+#  - Variant 3, via xpdf (pdftops is part of that package)
+#FILTER pdf pdftops $1 - | /usr/bin/gs -sDEVICE=faxg3 -r204x198 -sOutputFile=$2%03d -dNOPAUSE -q -dSAFER -dBATCH -
