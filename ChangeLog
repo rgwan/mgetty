@@ -1,3 +1,127 @@
+Mon Nov 25 14:05:20 MET 2002  Gert Doering (gert@greenie.muc.de)
+
+	* release 1.1.29
+
+	* voice/libvoice/detect.c: insert delay before sending ATE0 to
+	  modem (timing issue - modem might not have sent the full \r\n
+	  sequence from the last "OK" yet when the new AT comes in)
+
+Sat Nov 23 12:55:39 MET 2002  Gert Doering (gert@greenie.muc.de)
+
+	* doc/*.[158]in: bring man pages up to date
+
+	* tools/ltest.c, tools/mid.c: adapt to new lprintf() prototype
+
+	* mgetty.h, logfile.c: adapt to use <stdarg.h> and "..."
+	  function declaration (unless USE_VARARGS is set, which is
+	  needed for NeXT platforms).  Karsten Keil <kkeil@suse.de>.
+
+	* Makefile: relax permissions on sendfax and faxrunq.config
+	  install - must be readable/executeable by user "fax" now
+
+	* doc/faxrunqd.8in: document "-u", minor updates
+
+	* fax/faxrunqd.in, fax/faxspool.in, fax/faxrunq.in: revert 
+	  Aug 6, 200 change - put faxqueue_done back into $FAX_SPOOL_OUT/
+	  (faxrunq/faxrunqd have no access rights to $VARRUNDIR/ anymore,
+	  and $FAX_SPOOL_OUT is no longer world writeable anyway)
+
+	* fax/faxq.in: change from .last_run to faxqueue_done
+
+	* fax/faxrunqd.in: add "-u <user>" switch (set uid to <user>)
+
+	* fax/faxq-helper.c: finalize new fax queue handling using helper
+	  process (suid fax) and a fax queue that is no longer
+	  world-readable (open issue since 1994 :) )
+
+	* faxrecp.c: implement experimental teergrubing mode (signal
+	  "page bad, please retransmit" at the end of each page - or just
+	  hang up hard on caller).  Activared with "modem-quirks 0x100"
+	  or "0x200", respectively.
+
+Tue Nov 19 12:13:46 MET 2002  Gert Doering (gert@greenie.muc.de)
+
+	* voice/libvoice/V253Modem.c: add 16 bit linear PCM support
+	  (patch coming from Peter Bruley)
+
+	* voice/pvftools/pvftormd.c, rmdtopvf.c: add 16 bit linear PCM
+
+	* rework faxq-helper concept (suid root -> suid fax)
+
+	* fax/faxq.in: adap "-r" to use faxq-helper
+
+Sun Nov 17 22:19:56 MET 2002  Gert Doering (gert@greenie.muc.de)
+
+	* fax/faxspool.in: adapt to use faxq-helper
+
+	* fax/faxrm.in: adapt to use faxq-helper
+
+	* Makefile: create FAX_SPOOL_OUT with mode 755 and owner FAX_OUT_USER
+
+	* Makefile: add FAX_OUT_USER definition, pass lots of variables
+	  to fax/Makefile (for faxq-helper)
+
+	* README.1st: add instructions about FAX_OUT_USER setup
+
+	* doc/mgetty.texi-in add instructions about FAX_OUT_USER setup
+
+Wed Nov 13 23:12:30 MET 2002  Gert Doering (gert@greenie.muc.de)
+
+	* fax/faxrunqd.in: fix symlink / file overwrite race in JOB files.
+	  Pointed out by Jablonovsky Alexander <sasha@cit-saratov.ru>
+
+	* doc/faxrunq.8in: point out insecurity in symlink handling
+
+Tue Nov 12 22:42:33 MET 2002  Nalin Dahyabhai <nalin@redhat.com>
+
+	* mgetty.h: Intel 64bit platforms (__x86_64__) needs PTR_IS_LONG
+
+Wed Nov  6 23:56:05 MET 2002   Gert Doering (gert@greenie.muc.de)
+
+	* voice/libvoice/IS_101.c: implement DLE shielding for long DTMF tones 
+	  for V.253 (initially by Lee Howard <faxguy@howardsilvan.com>)
+
+	* mgetty.c: throw out DIST_RING #define - not used anymore
+
+Tue Nov  5 22:41:29 MET 2002   Gert Doering (gert@greenie.muc.de)
+
+	* ring.c: make sure action strings (CONNECT) are only recognized
+	  at the beginning if a line, not in the middle (Paul Fox, 
+	  pgf@foxharp.boston.ma.us, CALLER NAME = CONNECTICUT).  
+
+	* cnd.c: replace non-printable characters and quotes in caller ID
+	  or caller name strings with ' ' - safeguard for passing them to 
+	  shell later on.
+
+Mon Nov  4 23:43:28 MET 2002   Gert Doering (gert@greenie.muc.de)
+
+	* doc/mgetty.texi-in: add stuff about recent multitech modems,
+	  superfine+v.34 fax, and rework chapter about common problems
+
+	* faxlib.c: fix ugliness with USR modems reporting remote fax
+	  ID as "     12345" -> skip leading '"' and all whitespace
+
+Sun Oct 20 14:32:05 MEST 2002  Gert Doering (gert@greenie.muc.de)
+
+	* cnd.c: possible buffer overrun via CallName
+	  (found by "A. Guru" <a.guru@sympatico.ca>)
+
+Mon Apr  8 22:28:11 MEST 2002  Gert Doering (gert@greenie.muc.de)
+
+	* fax/faxrunqd: fix priority vs. write combining bug
+
+Mon Mar 11 19:26:29 MET 2002   Gert Doering (gert@greenie.muc.de)
+
+	* login.c: check for close-on-exec bit on FD 0 (FreeBSD 4.1 bug)
+
+Sat Mar  2 19:23:35 MET 2002   Gert Doering (gert@greenie.muc.de)
+
+	* login.c: export Caller Name as environment variable $CALLER_NAME
+
+Wed Feb 20 18:28:40 MET 2002   Gert Doering (gert@greenie.muc.de)
+
+	* login.c: make message about bad permissions even more clear
+
 Thu Jan 10 21:11:20 MET 2002   Gert Doering (gert@greenie.muc.de)
 
 	* release 1.1.28
