@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 4.14 1998/06/26 13:00:25 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 4.15 1998/07/02 09:23:49 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -48,7 +48,10 @@ void exit_usage _P2( (program, msg ),
 		     char * program, char * msg )
 {
     if ( msg != NULL )
+    {
+	lprintf( L_ERROR, "exit_usage: %s", msg );
         fprintf( stderr, "%s: %s\n", program, msg );
+    }
     
     fprintf( stderr,
 	     "usage: %s [options] <fax-number> <page(s) in g3-format>\n", program);
