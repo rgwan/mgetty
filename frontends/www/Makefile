@@ -1,32 +1,18 @@
 # frontends/www/Makefile
 #
-# RCS: $Id: Makefile,v 1.9 1998/10/27 12:37:27 gert Exp $
+# RCS: $Id: Makefile,v 1.10 1998/11/22 10:13:35 gert Exp $
 #
 # $Log: Makefile,v $
+# Revision 1.10  1998/11/22 10:13:35  gert
+# fix sed/@CGI_HREF@ for empty definition
+#
 # Revision 1.9  1998/10/27 12:37:27  gert
 # new index page (english)
 #
 # Revision 1.8  1998/10/22 12:55:22  gert
 # add (first cut) 'make install' support
 #
-# Revision 1.7  1998/10/20 15:47:01  gert
-# remove vf-faxov.cgi
-#
-# Revision 1.6  1998/10/13 15:41:20  gert
-# vf-faxov added
-#
-# Revision 1.5  1998/10/07 13:08:01  gert
-# remove wwwgui.conf on "make clean"
-#
-# Revision 1.4  1998/10/07 13:05:31  gert
-# added wwwgui.cfg.in/wwwgui.conf
-#
-# Revision 1.3  1998/09/11 13:56:57  gert
-# renamed "givgif" to "nph-vf-gif" (name too long, nph- needed)
-#
-# Revision 1.2  1998/09/01 15:09:31  gert
-# faxhist.in : show fax history (from 'acct.log')
-#
+#...
 # Revision 1.1  1998/08/28 14:25:24  gert
 # initial release
 #
@@ -46,6 +32,7 @@ CGIBINDIR=/usr/lpp/internet/server_root/cgi-bin
 # (if the CGI binaries are in the same directory as "index.html", just
 # leave it empty: CGI_HREF="")
 CGI_HREF=/cgi-bin/
+# CGI_HREF=""
 
 all: $(CGI) $(HTML) wwwgui.conf
 
@@ -104,5 +91,5 @@ wwwgui.conf: wwwgui.cfg.in ../../sedscript
 
 .in.html:
 	../../sedscript <$< | \
-		sed -e 's!@CGI_HREF@!$(CGI_HREF)!' >$*.html
+		sed -e "s!@CGI_HREF@!$(CGI_HREF)!" >$*.html
 
