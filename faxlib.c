@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.43 1999/04/27 13:17:46 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.44 1999/06/15 20:53:53 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -659,6 +659,12 @@ int mdm_identify _P1( (fd), int fd )
 	    lprintf( L_MESG, "Zoltrix 14400 faxmodem detected (?)" );
 	    modem_type=Mt_class2;
 	    mis = mdm_get_idstring( "ATI4", 1, fd );
+	    break;
+	  case 144:     /* UMC 1440 baud modem (not sure) */
+	    lprintf( L_MESG, "UMC92144EF modem detected(?)" );
+	    modem_type=Mt_class2;
+	    mis = mdm_get_idstring( "ATI4", 1, fd );
+	    modem_quirks |= MQ_NEED2;
 	    break;
 	  case 184:	/* sure? */
 	    lprintf( L_MESG, "Telebit FastBlazer detected" );
