@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 1.18 1994/03/13 13:31:26 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 1.19 1994/03/14 23:08:46 gert Exp $ Copyright (c) 1993 Gert Doering"
 ;
 /* tio.c
  *
@@ -478,7 +478,7 @@ int tio_toggle_dtr _P2( (fd, msec_wait), int fd, int msec_wait )
      * lower and raise DTR
      */
 #if defined(SVR4) && defined(TIOCMBIS)		/* SVR4 special */
-    int mdm_ctrl = TIOCM_DTR;
+    int mctl = TIOCM_DTR;
 
     if ( ioctl( fd, TIOCMBIC, (char *) mctl ) < 0 )
     {
