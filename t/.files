@@ -1,2 +1,3 @@
 Makefile
 t_config.c
+t_echo.in
