@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.35 1994/01/04 17:54:50 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 1.36 1994/01/05 04:42:02 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -93,6 +93,16 @@ TIO tio;
 
     fax_get_pages( 0, &pagenum, spool_in );
 
+    /* send polled documents (very simple yet) */
+    if ( faxpoll_server_file != NULL && fax_poll_req )
+    {
+	lprintf( L_AUDIT, "fax poll: send %s...", faxpoll_server_file );
+	/* send page */
+	fax_send_page( faxpoll_server_file, &tio, 0 );
+	/* no more pages */
+	fax_command( "AT+FET=2", "OK", 0 );
+    }
+	
     lprintf( L_NOISE, "fax receiver: hangup & end" );
 
     /* send mail to MAIL_TO */
@@ -295,6 +305,12 @@ static const char start_rcv = DC2;
      */
     faxrec_s_time = time(NULL);
 
+    if ( fax_poll_req || fax_hangup )
+    {
+	lprintf( L_MESG, "fax_get_pages: no pages to receive" );
+	return NOERROR;
+    }
+
     /* send command for start page receive
      * read: +FCFR:, [+FTSI, +FDCS:], CONNECT
      */
@@ -305,7 +321,7 @@ static const char start_rcv = DC2;
 	return ERROR;
     }
 
-    do		/* page receive loop */
+    while ( !fax_hangup && !fax_poll_req )	/* page receive loop */
     {
 	/* send command for start receive page data */
 	lprintf( L_NOISE, "sending DC2" );
@@ -336,7 +352,6 @@ static const char start_rcv = DC2;
 
 	if ( fax_wait_for( "CONNECT", fd ) == ERROR ) return ERROR;
     }
-    while ( ! fax_hangup );
 
     return NOERROR;
 }
@@ -370,9 +385,14 @@ time_t	ti;
 #endif
 
     fprintf( pipe_fp, "A fax has arrived:\n" );
-    fprintf( pipe_fp, "Pages: %d\n", pagenum );
     fprintf( pipe_fp, "Sender ID: %s\n", fax_remote_id );
-    fprintf( pipe_fp, "Communication parameters: %s\n", fax_param );
+    fprintf( pipe_fp, "Pages received: %d\n", pagenum );
+    if ( fax_poll_req )
+    {
+	fprintf( pipe_fd, "Pages sent    : %s\n", faxpoll_server_file );
+    }
+
+    fprintf( pipe_fp, "\nCommunication parameters: %s\n", fax_param );
     fprintf( pipe_fp, "    Resolution : %s\n",
 		      fax_par_d.vr == 0? "normal" :"fine");
     fprintf( pipe_fp, "    Bit Rate   : %d\n", ( fax_par_d.br+1 ) * 2400 );
