@@ -5,7 +5,7 @@
  * follow the IS-101 interim standard for voice modems. Since the commands
  * are set in the modem structure, it should be quite generic.
  *
- * $Id: IS_101.c,v 1.15 2002/11/06 23:39:21 gert Exp $
+ * $Id: IS_101.c,v 1.16 2002/12/13 09:51:19 gert Exp $
  *
  */
 
@@ -145,7 +145,8 @@ int IS_101_dial(char *number)
 
 int IS_101_handle_dle(char data)
      {
-     static int hearing_dtmf = 0;	/* flag variable for shielded DTMF */
+     static int dtmf_shielding = 0;	/* flag variable for shielded DTMF */
+     static int dtmf_count = 0;		/* flag variable for shielded DTMF */
 
      switch (data)
           {
@@ -189,7 +190,8 @@ int IS_101_handle_dle(char data)
           case '/':
                lprintf(L_NOISE, "%s: Start of DTMF shielding received",
                        program_name);
-               hearing_dtmf = 0;
+               dtmf_shielding = 1;
+	       dtmf_count = 0;
                return(OK);
 
           /*
@@ -199,7 +201,7 @@ int IS_101_handle_dle(char data)
           case '~':
                lprintf(L_NOISE, "%s: End of DTMF shielding received",
                        program_name);
-               hearing_dtmf = 0;
+               dtmf_shielding = 0;
                return(OK);
 
           /*
@@ -226,7 +228,8 @@ int IS_101_handle_dle(char data)
                 *     <DLE><value> is repeated every 70 ms during tone
 		* -> use hearing_dtmf flag to generate only one event
 		*/
-               if (! hearing_dtmf) 
+	       dtmf_count++;
+               if ( !dtmf_shielding || dtmf_count <= 1 ) 
 	       {
                     event_type *event;
                     event_data dtmf;
@@ -236,7 +239,6 @@ int IS_101_handle_dle(char data)
                     event->data = dtmf;
                     queue_event(event);
 	       }
-               hearing_dtmf = 1;
                return(OK);
 
           /*
