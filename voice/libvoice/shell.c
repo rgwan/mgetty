@@ -4,7 +4,7 @@
  * Executes the shell script given as the argument. If the argument is
  * empty, commands are read from standard input.
  *
- * $Id: shell.c,v 1.10 2000/06/11 16:14:52 marcs Exp $
+ * $Id: shell.c,v 1.11 2000/08/14 13:56:05 gert Exp $
  *
  */
 
@@ -32,38 +32,44 @@ int voice_execute_shell_script(char *shell_script, char **shell_options)
           lprintf(L_MESG, "%s: Executing shell script %s with shell %s", program_name, shell_script,
            cvd.voice_shell.d.p);
 
-     if (cvd.voice_shell_log.d.p && ((char *) cvd.voice_shell_log.d.p)[0]) {
+     if (cvd.voice_shell_log.d.p && ((char *) cvd.voice_shell_log.d.p)[0])
+     {
         char log_file_name[MAXPATH];
 
-        if (snprintf(log_file_name,
-                     sizeof(log_file_name),
-                     cvd.voice_shell_log.d.p,
-                     DevID) == -1) {
-           lprintf(L_WARN,
-                   "%s: couldn't snprintf() shell log file",
-                   program_name);
-        }
+	if ( strlen( cvd.voice_shell_log.d.p ) + strlen( DevID ) + 5 > 
+	       sizeof( log_file_name ) )
+	{
+	    lprintf( L_WARN, "%s: path name for shell log too long - ignoring",
+			program_name );
+	}
         else {
-           int shell_stderr_fd = open(log_file_name,
+           int shell_stderr_fd;
+
+	   sprintf( log_file_name, cvd.voice_shell_log.d.p, DevID );
+
+           shell_stderr_fd = open(log_file_name,
                                       O_WRONLY | O_CREAT | O_APPEND);
+
+	   /* FIXME: this really should go after the fork() call, as
+	    * it will destroy vgetty's fd = 2, which might be needed
+	    * later on (if the call switches to data, and we hand over
+	    * to /bin/login and /bin/sh later) - gert.
+	    */
            if (shell_stderr_fd != -1) {
 	      /* This means we are going to close the old fd 2 if any */
-	      if (dup2(shell_stderr_fd, 2) == -1) {
-		 lprintf(L_WARN,
-			 "%s: couldn't dup2() shell log file",
+	      if (dup2(shell_stderr_fd, 2) == -1)
+	      {
+		 lprintf(L_ERROR, "%s: couldn't dup2() shell log file",
 			 program_name);
 	      }
 	      else {
 		 should_close_2 = 1;
 	      }
 
-	      if (close(shell_stderr_fd)) {
-		 lprintf(L_WARN,
-			 "%s: couldn't close() shell log file dup");
-	      }
+	      close(shell_stderr_fd);
            }
            else {
-              lprintf(L_WARN,
+              lprintf(L_ERROR,
                       "%s: couldn't open() shell log file %s",
                       program_name,
                       log_file_name);
