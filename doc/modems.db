@@ -1486,3 +1486,27 @@ modem-init ATZ
 modem handshake AT&K4
 dial-prefix ATDP
 -----------------------------------------------------------------------
+Date: Wed, 10 Mar 1999 15:06:43 +0800
+From: "Peter T. Caffin" <pc@it.net.au>
+Message-Id: <199903100706.PAA27593@belgarion.it.net.au>
+To: gert@greenie.muc.de (Gert Doering)
+
+Modem brand/model:      Dynalink 1428VQE  
+at+fmfr?                ROCKWELL
+at+fmdl?                AC/V34
+at+frev?                CRS-02 AST 950921
+ati3                    CRS-02 AST 950921
+ati6                    RC288DPi Rev 0
+tested on:              Linux 2.2.2
+working:                mgetty, sendfax
+mgetty.config:          speed 38400
+                        modem-type cls2
+                        switchbd 19200
+(INSTALLED FROM A .RPM OF MGETTY-SENDFAX 1.1.14)
+remarks: Looking at the Dynalink 9624AP, you'd think that using this
+         modem would be a doomed exercise. Actually, it was a pretty
+         easy modem to install and use. It's an older 28.8k model, so
+         you're more likely to encounter it second-hand.
+contributor:            Peter Caffin <pc@it.net.au>
+date:                   Wed Mar 10 14:40:35 WST 1999
+-----------------------------------------------------------------------
