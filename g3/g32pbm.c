@@ -1,4 +1,4 @@
-#ident "$Id: g32pbm.c,v 1.13 1994/03/11 01:46:39 gert Exp $ (c) Gert Doering"
+#ident "$Id: g32pbm.c,v 1.14 1994/04/28 13:18:52 gert Exp $ (c) Gert Doering"
 ;
 #include <stdio.h>
 #include <unistd.h>
@@ -51,6 +51,7 @@ int cons_eol;
 char *	bitmap;			/* MAX_ROWS by MAX_COLS/8 bytes */
 char *	bp;			/* bitmap pointer */
 int	row;
+int	max_rows;		/* max. rows allocated */
 int	col, hcol;
 
     /* initialize lookup trees */
@@ -98,15 +99,17 @@ int	col, hcol;
     rp = ( rs >= 64 && strcmp( rbuf+1, "PC Research, Inc" ) == 0 ) ? 64 : 0;
 
     /* initialize bitmap */
+
     row = col = hcol = 0;
-    bitmap = (char *) calloc( MAX_ROWS, MAX_COLS / 8 );
+    bitmap = (char *) malloc( ( max_rows = MAX_ROWS ) * MAX_COLS / 8 );
     if ( bitmap == NULL )
     {
 	fprintf( stderr, "cannot allocate %d bytes",
-		 MAX_ROWS * MAX_COLS/8 );
+		 max_rows * MAX_COLS/8 );
 	close( fd );
 	exit(9);
     }
+    memset( bitmap, 0, max_rows * MAX_COLS/8 );
     bp = &bitmap[ row * MAX_COLS/8 ]; 
 
     while ( rs > 0 && cons_eol < 4 )	/* i.e., while (!EOF) */
@@ -219,11 +222,31 @@ int	col, hcol;
 	    color=0; 
 
 	    if ( col == 0 )
-		cons_eol++;
+		cons_eol++;		/* consecutive EOLs */
 	    else
 	    {
 	        if ( col > hcol && col <= MAX_COLS ) hcol = col;
-		row++; col=0; bp = &bitmap[ row * MAX_COLS/8 ]; 
+		row++;
+
+		/* bitmap memory full? make it larger! */
+		if ( row >= max_rows )
+		{
+		    char * p = realloc( bitmap,
+				       ( max_rows += 500 ) * MAX_COLS/8 );
+		    if ( p == NULL )
+		    {
+			perror( "realloc() failed, page truncated" );
+			rs = 0;
+		    }
+		    else
+		    {
+			bitmap = p;
+			memset( &bitmap[ row * MAX_COLS/8 ], 0,
+			       ( max_rows - row ) * MAX_COLS/8 );
+		    }
+		}
+			
+		col=0; bp = &bitmap[ row * MAX_COLS/8 ]; 
 		cons_eol = 0;
 	    }
 	}
