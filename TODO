@@ -196,8 +196,6 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
 
 163) SIGUSR2: harden all "byte-receive" functions against EINTR
 
-164) put all "caller id" strings in L_AUDIT messages in '' quotes
-
 168) accept error messages while sending a page
 
 169) "faxspool -t" must be smarter: "send at 2:00 tonight" isn't possible now
