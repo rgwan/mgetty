@@ -9,7 +9,7 @@
 # There are still a lot rough edges - but it works, and should give you an
 # idea how to improve it
 #
-# SCCS: $Id: faxrunq.in,v 1.2 1994/01/17 18:35:30 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxrunq.in,v 1.3 1994/02/03 19:08:24 gert Exp $ Copyright (C) 1994 Gert Doering
 
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -34,7 +34,9 @@ do
 # get user to notify (->$MAIL_TO) and phone number (->$PHONE)
 #
     eval `awk '$1=="user" { printf "MAIL_TO=%s;", $2 }
-	       $1=="phone" { printf "PHONE=%s;", $2 }' JOB`
+	       $1=="phone" { printf "PHONE=%s;", $2 }
+	       $1=="verbose_to" { printf "VERBOSE_TO=\"%s\";",
+                                         substr($0,12) }' JOB`
 #
 # construct command line to execute
 #
@@ -55,12 +57,25 @@ do
     status=$?
     $echo "command exited with status $status"
 
+#
+# string to include in subject line
+#
+    if [ -z "$VERBOSE_TO" ]
+    then
+        subject="your fax to $PHONE"
+    else
+        subject="your fax to $VERBOSE_TO ($PHONE)"
+    fi
+
+#
+# evaluate return codes, if success, remove fax job from queue
+#
     if [ $status -eq 0 ]
     then
 	# transmission successful
 	$echo "Status "`date`" successfully sent" >>JOB
 	( $echo "To: $MAIL_TO"
-	  $echo "Subject: your fax to $PHONE"
+	  $echo "Subject: $subject"
 	  $echo "From: root (Fax Subsystem)\n"
 	  $echo "Your fax has been sent successfully at: \c"
 	  date
@@ -107,11 +122,12 @@ do
 	then
 	    $echo "Status "`date`" job suspended: too many FATAL errors" >>JOB
 	    ( $echo "To: $MAIL_TO"
-	      $echo "Subject: your fax to $PHONE failed"
+	      $echo "Subject: $subject failed"
 	      $echo "From: root (Fax Subsystem)\n"
 	      $echo "It was not possible to send your fax to $PHONE!\n"
 	      $echo "The fax job is suspended, you can requeue it with the command:"
-	      $echo "    cd "`dirname $job`"; mv JOB.suspended JOB\n"
+	      $echo "    cd $FAX_SPOOL_OUT/"`dirname $job`
+	      $echo "    mv JOB.suspended JOB\n"
 	      $echo "log file follows:"
 	      cat JOB ) |
 	    $MAILER $MAIL_TO
