@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.55 1994/04/11 11:51:56 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.56 1994/04/12 21:54:20 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* sendfax.c
  *
@@ -384,7 +384,7 @@ int	tries;
     /* process all files to send / abort, if Modem sent +FHNG result */
 
     tries = 0;
-    while ( argidx < argc && ! fax_hangup )
+    while ( argidx < argc )
     {
 	/* send page header, if requested */
 	if ( fax_page_header )
@@ -472,6 +472,9 @@ int	tries;
 	                             fax_page_tx_status );
 		    break;
 	}
+
+	if ( fax_hangup && fax_hangup_code != 0 ) break;
+	
 	argidx++;
     }				/* end main page loop */
 
