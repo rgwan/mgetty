@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.60 1993/11/06 14:33:10 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.61 1993/11/07 01:51:21 gert Exp $ Copyright (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -23,8 +23,8 @@
 #include <fcntl.h>
 
 #include "mgetty.h"
-#include "policy.h"
 #include "tio.h"
+#include "policy.h"
 
 struct	speedtab {
 	ushort	cbaud;		/* baud rate */
@@ -378,7 +378,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 	tio_mode_sane( &tio, TRUE );
 	tio_set_speed( &tio, portspeed );
 	tio_mode_raw( &tio );
-	tio_set_flow_control( &tio, FLOW_HARD );
+	tio_set_flow_control( &tio, DATA_FLOW );
 	if ( tio_set( STDIN, &tio ) == ERROR )
 	{
 	    lprintf( L_FATAL, "cannot set TIO" );
