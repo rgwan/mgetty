@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.48 1994/02/18 00:05:07 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.49 1994/03/01 02:13:08 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -416,7 +416,7 @@
  * processing of this fax.
  *
  * (e.g.: printing of the fax, sending as MIME mail, displaying in an X
- * window (I expect this to be difficult) ...)
+ * window (the latter one could be tricky) ...)
  *
  * It will be called as:
  * <program> <result code> "<sender_id>" <#pgs> <pg1> <pg2>...
@@ -424,8 +424,7 @@
  * Define the name of this program here
  * If you don't want this type of service, do not define it at all
  */
-
-#define FAX_NOTIFY_PROGRAM "/usr/spool/fax/incoming/new_fax"
+#define FAX_NOTIFY_PROGRAM "/usr/local/lib/mgetty+sendfax/new_fax"
 
 /* default minimum space required on spooling partition for receiving a FAX
  */
