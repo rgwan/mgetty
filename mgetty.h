@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 3.6 1996/01/03 20:35:21 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 3.7 1996/01/20 16:09:04 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -163,6 +163,7 @@ int		makelock _PROTO((char * device));
 int		makelock_file _PROTO(( char * lockname ));
 int		checklock _PROTO((char * device));
 RETSIGTYPE	rmlocks _PROTO (());
+int		steal_lock _PROTO((char * device, int pid ));
   
 /* fax stuff */
 void	faxrec _PROTO(( char * spool_dir, unsigned int switchbd,
