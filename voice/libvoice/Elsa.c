@@ -9,7 +9,7 @@
  * You have set port_timeout in voice.conf to a minimum of 15
  * if you use 38400 Baud
  *
- * $Id: Elsa.c,v 1.12 2001/02/24 10:59:35 marcs Exp $
+ * $Id: Elsa.c,v 1.13 2001/10/28 10:05:14 marcs Exp $
  *
  */
 
@@ -182,22 +182,22 @@ static int Elsa_set_device (int device)
 	   Result = voice_command("AT#VLS=0", "OK");
 	   break;
 	 case DIALUP_LINE:
-	   Result = voice_command("AT#VLS=0", "OK");
+	   Result = voice_command("AT#VLS=0", "OK|VCON");
 	   break;
 	 case DIALUP_WITH_INT_SPEAKER:
-	   Result = voice_command("AT#VLS=4", "OK");
+	   Result = voice_command("AT#VLS=4", "OK|VCON");
 	   break;
 	 case INTERNAL_MICROPHONE:
-	   Result = voice_command("AT#VLS=3", "OK");
+	   Result = voice_command("AT#VLS=3", "OK|VCON");
 	   break;
 	 case INTERNAL_SPEAKER:
-	   Result = voice_command("AT#VLS=2", "OK");
+	   Result = voice_command("AT#VLS=2", "OK|VCON");
 	   break;
 	 case DIALUP_WITH_INTERNAL_MIC_AND_SPEAKER:
-	   Result = voice_command("AT#VLS=5", "OK");
+	   Result = voice_command("AT#VLS=5", "OK|VCON");
 	   break;
 	 case LOCAL_HANDSET:
-	   Result = voice_command("AT#VLS=1", "OK");
+	   Result = voice_command("AT#VLS=1", "OK|VCON");
 	   break;
 	 default:
 	   lprintf(L_WARN, "%s: Unknown device (%d)", 
@@ -205,10 +205,12 @@ static int Elsa_set_device (int device)
 	   return(FAIL);
           }
 
-       if (Result != VMA_USER_1)
+       if ((Result != VMA_USER_1) && (Result != VMA_USER_2))
 	 {
-	   lprintf(L_WARN, "can't set %s (modem hardware can't do that)",
-		   voice_device_mode_name(device));
+	   lprintf(L_WARN,
+		   "can't set %s (modem hardware can't do that), error 0x%x",
+		   voice_device_mode_name(device),
+		   Result);
 	   return(VMA_DEVICE_NOT_AVAIL);       
 	 }
        return(OK);
