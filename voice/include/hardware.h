@@ -3,7 +3,7 @@
  *
  * Defines the structure with data and routines for the hardware drivers.
  *
- * $Id: hardware.h,v 1.12 1999/12/02 09:51:27 marcs Exp $
+ * $Id: hardware.h,v 1.13 2000/06/11 16:19:13 marcs Exp $
  *
  */
 
@@ -106,3 +106,4 @@ extern voice_modem_struct UMC;
 extern voice_modem_struct US_Robotics;
 extern voice_modem_struct ZyXEL_1496;
 extern voice_modem_struct ZyXEL_2864;
+extern voice_modem_struct ZyXEL_Omni56K;

@@ -4,7 +4,7 @@
  * rmdtopvf converts from the rmd (raw modem data) format to the pvf
  * (portable voice format) format.
  *
- * $Id: rmdtopvf.c,v 1.7 1999/06/15 13:04:04 marcs Exp $
+ * $Id: rmdtopvf.c,v 1.8 2000/06/11 16:19:14 marcs Exp $
  *
  */
 
@@ -41,7 +41,8 @@ static void supported_formats (void)
      fprintf(stderr, " - UMC            4 (G.721 ADPCM)\n");
      fprintf(stderr, " - US Robotics    1 and 4 (GSM and G.721 ADPCM)\n");
      fprintf(stderr, " - ZyXEL 1496     2, 3 and 4 bit ZyXEL ADPCM\n");
-     fprintf(stderr, " - ZyXEL 2864     2, 3 and 4 bit ZyXEL ADPCM\n\n");
+     fprintf(stderr, " - ZyXEL 2864     2, 3 and 4 bit ZyXEL ADPCM\n");
+     fprintf(stderr, " - ZyXEL Omni 56K 4 bit IMA ADPCM\n\n");
      exit(ERROR);
      }
 
@@ -115,7 +116,8 @@ int main (int argc, char *argv[])
           {
 
           if ((strcmp(modem_type, "ZyXEL 1496") == 0) ||
-           (strcmp(modem_type, "ZyXEL 2864") == 0))
+           (strcmp(modem_type, "ZyXEL 2864") == 0) ||
+           (strcmp(modem_type, "ZyXEL Omni 56K") == 0))
                header_out.speed = 9600;
 
           if ((strcmp(modem_type, "Rockwell") == 0) ||
@@ -147,7 +149,9 @@ int main (int argc, char *argv[])
           exit(ERROR);
           }
 
-     if ((strcmp(modem_type, "Multitech2834") == 0) && (compression == 4))
+     if ((strcmp(modem_type, "Multitech2834") == 0 ||
+          strcmp(modem_type, "ZyXEL Omni 56K") == 0) &&
+         (compression == 4))
           {
 
           if (imaadpcmtopvf(fd_in, fd_out, &header_out) == OK)

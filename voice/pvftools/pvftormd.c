@@ -4,7 +4,7 @@
  * pvftormd converts from the pvf (portable voice format) format to the
  * rmd (raw modem data) format.
  *
- * $Id: pvftormd.c,v 1.7 1999/06/15 13:04:04 marcs Exp $
+ * $Id: pvftormd.c,v 1.8 2000/06/11 16:19:14 marcs Exp $
  *
  */
 
@@ -30,16 +30,17 @@ static void supported_formats (void)
      {
      fprintf(stderr, "\n%s %s\n\n", program_name, vgetty_version);
      fprintf(stderr, "supported raw modem data formats:\n\n");
-     fprintf(stderr, " - Digi        4 (G.711U) and 5 (G.711A)\n");
-     fprintf(stderr, " - Elsa        2, 3 and 4 bit Rockwell ADPCM\n");
-     fprintf(stderr, " - ISDN4Linux  2, 3 and 4 bit ZyXEL ADPCM\n");
-     fprintf(stderr, " - MT_2834     4 bit IMA ADPCM\n");
-     fprintf(stderr, " - Rockwell    2, 3 and 4 bit Rockwell ADPCM\n");
-     fprintf(stderr, " - Rockwell    8 bit Rockwell PCM\n");
-     fprintf(stderr, " - UMC         4 bit G.721 ADPCM\n");
-     fprintf(stderr, " - US_Robotics 1 and 4 (GSM and G.721 ADPCM)\n");
-     fprintf(stderr, " - ZyXEL_1496  2, 3 and 4 bit ZyXEL ADPCM\n");
-     fprintf(stderr, " - ZyXEL_2864  2, 3 and 4 bit ZyXEL ADPCM\n");
+     fprintf(stderr, " - Digi          4 (G.711U) and 5 (G.711A)\n");
+     fprintf(stderr, " - Elsa          2, 3 and 4 bit Rockwell ADPCM\n");
+     fprintf(stderr, " - ISDN4Linux    2, 3 and 4 bit ZyXEL ADPCM\n");
+     fprintf(stderr, " - MT_2834       4 bit IMA ADPCM\n");
+     fprintf(stderr, " - Rockwell      2, 3 and 4 bit Rockwell ADPCM\n");
+     fprintf(stderr, " - Rockwell      8 bit Rockwell PCM\n");
+     fprintf(stderr, " - UMC           4 bit G.721 ADPCM\n");
+     fprintf(stderr, " - US_Robotics   1 and 4 (GSM and G.721 ADPCM)\n");
+     fprintf(stderr, " - ZyXEL_1496    2, 3 and 4 bit ZyXEL ADPCM\n");
+     fprintf(stderr, " - ZyXEL_2864    2, 3 and 4 bit ZyXEL ADPCM\n");
+     fprintf(stderr, " - ZyXEL_Omni56K 4 bit IMA ADPCM\n");
      fprintf(stderr, "\nexample:\n\t%s Rockwell 4 infile.pvf outfile.rmd\n\n",
       program_name);
      exit(ERROR);
@@ -102,6 +103,9 @@ int main (int argc, char *argv[])
      if (strcmp(modem_type, "ZyXEL_2864") == 0)
           modem_type = "ZyXEL 2864";
 
+     if (strcmp(modem_type, "ZyXEL_Omni56K") == 0)
+          modem_type = "ZyXEL Omni 56K";
+
      if (strcmp(modem_type, "Digi") == 0)
           modem_type = "Digi RAS";		/* should be ITU V.253! */
 
@@ -113,7 +117,8 @@ int main (int argc, char *argv[])
       (strcmp(modem_type, "US Robotics") == 0) ||
       (strcmp(modem_type, "UMC") == 0) ||
       (strcmp(modem_type, "ZyXEL 1496") == 0) ||
-      (strcmp(modem_type, "ZyXEL 2864") == 0))
+      (strcmp(modem_type, "ZyXEL 2864") == 0) ||
+      (strcmp(modem_type, "ZyXEL Omni 56K") == 0))
           strcpy(header_out.voice_modem_type, modem_type);
      else
           {
@@ -248,7 +253,9 @@ int main (int argc, char *argv[])
 
           };
 
-     if ((strcmp(modem_type, "Multitech2834") == 0) && (compression == 4))
+     if ((strcmp(modem_type, "Multitech2834") == 0 ||
+          strcmp(modem_type, "ZyXEL Omni 56K") == 0) &&
+         (compression == 4))
           {
           header_out.bits = compression;
 
