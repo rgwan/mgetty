@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.95 1994/03/07 18:47:49 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.96 1994/03/08 15:45:19 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -33,6 +33,8 @@
 #ifdef VOICE
 #include "voclib.h"
 #endif
+
+#include "mg_utmp.h"
 
 unsigned short portspeed = B0;	/* indicates has not yet been set */
 
@@ -477,7 +479,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 	/* on linux, "simple init" does not make a wtmp entry when you
 	 * log so we have to do it here (otherwise, "who" won't work)
 	 */
-	make_utmp_wtmp( Device, FALSE );
+	make_utmp_wtmp( Device, UT_INIT, "uugetty" );
 #endif
 
 #ifdef VOICE
@@ -508,6 +510,10 @@ waiting:
 	    close(0);
 	    close(1);
 	    close(2);
+
+	    /* write a note to utmp/wtmp about dialout
+	     */
+	    make_utmp_wtmp( Device, UT_USER, "dialout" );
 
 	    /* this is kind of tricky: sometimes uucico dial-outs do still
 	       collide with mgetty. So, when my uucico times out, I do
@@ -670,7 +676,7 @@ waiting:
 
 	/* make utmp and wtmp entry (otherwise login won't work)
 	 */
-	make_utmp_wtmp( Device, TRUE );
+	make_utmp_wtmp( Device, UT_LOGIN, "LOGIN" );
 
 	/* wait a little bit befor printing login: prompt (to give
 	 * the other side time to get ready)
