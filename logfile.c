@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 2.1 1994/11/30 23:20:43 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logfile.c,v 2.2 1994/12/01 16:17:08 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -73,13 +73,22 @@ extern char *sys_errlist[];
 void log_init_paths _P3 ( (l_program, l_path, l_infix),
 		           char * l_program, char * l_path, char * l_infix )
 {
-    if ( l_program != NULL )
+    if ( l_program != NULL )			/* set program name */
     {
 	char * p = strrchr( l_program, '/' );
 	log_program = ( p == NULL ) ? l_program : p+1;
     }
-    if ( l_path != NULL )
+
+    if ( l_path != NULL )			/* set log file name+path */
     {
+	if ( log_fp != NULL &&			/* logfile already open */
+	     strcmp( l_path, log_path ) != 0 )	/* and path changed */
+	{
+	    lprintf( L_MESG, "logging continues in file %s", l_path );
+	    fclose( log_fp );
+	    log_fp = NULL;			/* -> reopen */
+	}
+	    
 	strncpy( log_path, l_path, sizeof(log_path)-1 );
 	log_path[sizeof(log_path)-1] = 0;
 	if ( strlen(l_path) >= sizeof(log_path) )
@@ -87,7 +96,8 @@ void log_init_paths _P3 ( (l_program, l_path, l_infix),
 	    lprintf( L_FATAL, "internal error: log file path too long!" );
 	}
     }
-    if ( l_infix != NULL )
+
+    if ( l_infix != NULL )			/* usually tty id */
     {
 	sprintf( log_infix, "%.*s ", (int) sizeof(log_infix)-2, l_infix );
     }
