@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.45 1993/09/21 15:17:59 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.46 1993/09/21 15:28:26 gert Exp $ (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -545,7 +545,7 @@ int main( int argc, char ** argv)
 #ifdef linux
 #define VSWTCH VSWTC
 #endif
-#ifndef 3B1
+#ifndef _3B1_
 		termio.c_cc[VSWTCH] = 0;
 #endif
 

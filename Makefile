@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 1.7 1993/09/21 15:17:55 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 1.8 1993/09/21 15:28:22 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there).
@@ -25,7 +25,7 @@ CC=gcc
 #
 # Add "-Aa -D_HPUX_SOURCE" to use the Ansi-C-Compiler on HP-UX 8.0x and above
 #
-# Add "-D3B1" to compile on the AT&T 3b1 machine -g.t.
+# Add "-D_3B1_" to compile on the AT&T 3b1 machine -g.t.
 #
 # For Systems without the select() call, use poll(), define -DUSE_POLL
 #
@@ -35,7 +35,7 @@ CFLAGS=-Wall -g -O2 -pipe -DUSE_POLL -DBROKEN_SCO_324
 #CFLAGS=-g -O2 -Wall -pipe
 #CFLAGS=-g -O -DSVR4
 #CFLAGS=-g -O -DUSE_POLL
-#CFLAGS=-Wall -g -O2 -pipe -D3B1
+#CFLAGS=-Wall -g -O2 -pipe -D_3B1_
 
 #
 # LDFLAGS specify flags to pass to the linker. You could specify

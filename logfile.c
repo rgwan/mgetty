@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 1.12 1993/09/21 15:19:51 gert Exp $ (c) Gert Doering"
+#ident "$Id: logfile.c,v 1.13 1993/09/21 15:28:25 gert Exp $ (c) Gert Doering"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -26,9 +26,9 @@ extern int atexit( void (*)(void) );
  * Strange enough, SVR4 and SunOS seems to be simiarily stupid.
  * Weeeeellll... there was something about POSIX and strerror...
  */
-#if defined(ISC) || defined(SVR4) || defined(sun) || defined(__hpux) || defined(3B1)
+#if defined(ISC) || defined(SVR4) || defined(sun) || defined(_3B1_) || defined(__hpux)
 # define atexit( dummy )
-# ifdef 3B1
+# ifdef _3B1_
 extern int errno;
 # endif
 
