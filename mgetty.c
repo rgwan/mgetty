@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.59 1993/11/06 00:04:10 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.60 1993/11/06 14:33:10 gert Exp $ Copyright (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -144,7 +144,7 @@ boolean	direct_line = FALSE;
 boolean verbose = FALSE;
 
 boolean virtual_ring = FALSE;
-static void sig_pick_phone()		/* "simulated RING" handler */
+static RETSIGTYPE sig_pick_phone()		/* "simulated RING" handler */
 {
     signal( SIGUSR1, sig_pick_phone );
     virtual_ring = TRUE;
@@ -591,7 +591,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 		lprintf( L_MESG, "device=%s, pid=%d, calling 'login %s'...\n", Device, getpid(), buf );
 
 		/* hand off to login, (can be a shell script!) */
-		(void) execl(login, "login", buf, (char *) NULL);
+		(void) execl(login, "login", buf[0]? buf: NULL, NULL);
 		(void) execl("/bin/sh", "sh", "-c",
 				login, buf, (char *) NULL);
 		lprintf(L_FATAL, "cannot execute %s", login);
