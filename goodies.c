@@ -1,4 +1,4 @@
-#ident "$Id: goodies.c,v 4.4 2001/01/08 10:16:14 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: goodies.c,v 4.5 2003/11/17 19:08:49 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /*
  * goodies.c
@@ -190,6 +190,9 @@ char * get_ps_args _P1 ((pid), int pid )
     /* arguments separated by \0, replace with space */
     for ( i=0; i<l; i++ )
 	if ( psinfo[i] == 0 ) psinfo[i] = ' ';
+
+    /* remove trailing whitespace */
+    while( l>0 && isspace(psinfo[l-1]) ) psinfo[--l]='\0';
 
     return psinfo;
 
