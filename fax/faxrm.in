@@ -7,7 +7,7 @@
 # There are still a lot rough edges - but it works, and should give you an
 # idea how to improve it
 #
-# SCCS: $Id: faxrm.in,v 4.1 1997/01/12 14:53:59 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxrm.in,v 4.2 1997/05/07 21:39:32 gert Exp $ Copyright (C) 1994 Gert Doering
 
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -33,7 +33,7 @@ fi
 
 if [ $# -eq 0 ]
 then
-    echo "usage: faxrm [-i] file ..."
+    echo "usage: faxrm [-i] job-id ..."
     exit 1
 fi
     
