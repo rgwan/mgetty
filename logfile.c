@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 1.30 1994/04/11 11:53:22 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logfile.c,v 1.31 1994/04/12 18:43:42 gert Exp $ Copyright (c) Gert Doering"
 ;
 #include <stdio.h>
 #include <unistd.h>
@@ -54,7 +54,8 @@ void log_init_paths _P3 ( (l_program, l_path, l_infix),
 {
     if ( l_program != NULL )
     {
-	log_program = l_program;
+	char * p = strrchr( l_program, '/' );
+	log_program = ( p == NULL ) ? l_program : p+1;
     }
     if ( l_path != NULL )
     {
