@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.28 1993/11/04 19:28:32 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.29 1993/11/05 22:33:37 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -63,7 +63,9 @@
  */
 /* #define SYSTEM	"greenie" */
 
-/* Login prompt - "%s" will be replaced by SYSTEM
+/* Login prompt
+ * The "@", "\\D" and "\\T" escapes will be replaced by SYSTEM, the
+ * current date and time, respectively.
  * override with "-p <prompt>" switch
  */
 #define LOGIN_PROMPT	"%s!login:"
