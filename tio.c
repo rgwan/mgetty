@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 3.7 1996/06/01 18:56:59 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 3.8 1996/09/15 23:14:08 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* tio.c
  *
@@ -176,9 +176,9 @@ int tio_set _P2( (fd, t), int fd, TIO * t)	/*!! FIXME: flags, wait */
     if (t->c_cflag & CRTSCTS)
     {
         /* make sure RTS is asserted!!!!!! */
-        ioctl(STDIN, TIOCMGET, &modem_lines);
+        ioctl(fd, TIOCMGET, &modem_lines);
         modem_lines |= (TIOCM_RTS | TIOCM_DTR);
-        ioctl(STDIN, TIOCMSET, &modem_lines);
+        ioctl(fd, TIOCMSET, &modem_lines);
     }
 #endif /* sunos4 */
 #endif /* posix_termios */
@@ -723,9 +723,9 @@ int tio_toggle_dtr _P2( (fd, msec_wait), int fd, int msec_wait )
     /* on SunOS, if you hangup via B0, the DTR line will *stay* low.
      * So: enable it manually again.
      */
-    ioctl(STDIN, TIOCMGET, &modem_lines);
+    ioctl(fd, TIOCMGET, &modem_lines);
     modem_lines |= (TIOCM_RTS | TIOCM_DTR);
-    ioctl(STDIN, TIOCMSET, &modem_lines);
+    ioctl(fd, TIOCMSET, &modem_lines);
 #endif
     result = tio_set( fd, &save_t );
     
@@ -916,4 +916,37 @@ int tio_break _P1((fd), int fd)
 #endif
 #endif /* FAST_BREAK */
    return NOERROR;
+}
+
+/* tio_get_rs232_lines()
+ *
+ * get the status of all RS232 status lines
+ * (coded by the TIO_F_* flags. On systems that have the BSD TIOCM_*
+ * flags, we use them, on others we may have to do some other tricks)
+ *
+ * "-1" can mean "error" or "not supported on this system" (e.g. SCO).
+ */
+
+int tio_get_rs232_lines _P1( (fd), int fd)
+{
+    int flags;
+#ifdef TIO_F_SYSTEM_DEFS
+    if ( ioctl(fd, TIOCMGET, &flags ) < 0 )
+    	lprintf( L_ERROR, "tio_get_rs232_lines: TIOCMGET failed" );
+
+#else /* !TIO_F_SYSTEM_DEFS */
+    flags=-1;
+#endif
+
+    if ( flags != -1 )
+    {
+        lprintf( L_NOISE, "tio_get_rs232_lines: status:" );
+        if ( flags & TIO_F_RTS ) lputs( L_NOISE, " RTS" );
+        if ( flags & TIO_F_CTS ) lputs( L_NOISE, " CTS" );
+        if ( flags & TIO_F_DSR ) lputs( L_NOISE, " DSR" );
+        if ( flags & TIO_F_DTR ) lputs( L_NOISE, " DTR" );
+        if ( flags & TIO_F_DCD ) lputs( L_NOISE, " DCD" );
+        if ( flags & TIO_F_RI  ) lputs( L_NOISE, " RI" );
+    }
+    return flags;
 }
