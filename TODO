@@ -364,3 +364,6 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
 
 253) rewrite modem ID code (base on ATI9, fall back to ATI if ATI9 
      doesn't work)
+
+254) in vgetty, "voice_log_level" overrides "-x<n>" - cli args should have
+     precedence!  Tricky problem (voice/libutil/config.c).
