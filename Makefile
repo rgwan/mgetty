@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.2 1997/03/09 10:42:37 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.3 1997/03/09 10:57:09 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -364,7 +364,7 @@ testdisk:	getdisk
 
 # README PROBLEMS
 DISTRIB=README.1st THANKS TODO BUGS FTP FAQ inittab.aix inst.sh version.h \
-	Makefile ChangeLog policy.h-dist ftp.sh mkinstalldirs \
+	Makefile ChangeLog policy.h-dist ftp.sh mkidirs \
 	login.cfg.in mgetty.cfg.in sendfax.cfg.in \
 	dialin.config faxrunq.config \
         mgetty.c mgetty.h ugly.h do_chat.c logfile.c logname.c locks.c \
@@ -519,10 +519,8 @@ newslock: compat/newslock.c
 # internal: use this to create a "clean" mgetty+sendfax tree
 bindist: all doc-all sedscript
 	-rm -rf bindist
-	mkdir bindist
-	-mkdir bindist`dirname $(prefix)` 2>/dev/null
-	-mkdir bindist`dirname $(spool)` 2>/dev/null
-	bd=`pwd`/bindist; $(MAKE) prefix=$$bd$(prefix) \
+	mkidirs bindist$(prefix) bindist$(spool)
+	bd=`pwd`/bindist; PATH=`pwd`:"$$PATH" $(MAKE) prefix=$$bd$(prefix) \
 		BINDIR=$$bd$(BINDIR) SBINDIR=$$bd$(SBINDIR) \
 		LIBDIR=$$bd$(LIBDIR) CONFDIR=$$bd$(CONFDIR) \
 		spool=$$bd$(spool) FAX_SPOOL=$$bd$(FAX_SPOOL) \
@@ -542,12 +540,11 @@ install.bin: mgetty sendfax kvg newslock \
 #
 # binaries
 #
-	-test -d $(prefix)  || ( mkdir $(prefix)  ; chmod 755 $(prefix)  )
-	-test -d $(BINDIR)  || ( mkdir $(BINDIR)  ; chmod 755 $(BINDIR)  )
+	-test -d $(BINDIR)  || ( mkidirs $(BINDIR)  ; chmod 755 $(BINDIR)  )
 	$(INSTALL) -m 755 kvg $(BINDIR)
 	$(INSTALL) -m 755 newslock $(BINDIR)
 
-	-test -d $(SBINDIR) || ( mkdir $(SBINDIR) ; chmod 755 $(SBINDIR) )
+	-test -d $(SBINDIR) || ( mkidirs $(SBINDIR) ; chmod 755 $(SBINDIR) )
 	-mv -f $(SBINDIR)/mgetty $(SBINDIR)/mgetty.old
 	-mv -f $(SBINDIR)/sendfax $(SBINDIR)/sendfax.old
 	$(INSTALL) -s -m 700 mgetty $(SBINDIR)
@@ -556,9 +553,9 @@ install.bin: mgetty sendfax kvg newslock \
 # data files + directories
 #
 	test -d $(LIBDIR)  || \
-		( mkdir `dirname $(LIBDIR)` $(LIBDIR) ; chmod 755 $(LIBDIR) )
+		( mkidirs $(LIBDIR) ; chmod 755 $(LIBDIR) )
 	test -d $(CONFDIR) || \
-		( mkdir `dirname $(CONFDIR)` $(CONFDIR); chmod 755 $(CONFDIR))
+		( mkidirs $(CONFDIR); chmod 755 $(CONFDIR))
 	test -f $(CONFDIR)/login.config || \
 		$(INSTALL) -o root -m 600 login.config $(CONFDIR)/
 	test -f $(CONFDIR)/mgetty.config || \
