@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.134 1994/10/06 14:25:47 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.135 1994/10/13 14:09:36 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -78,6 +78,12 @@ int	answer_chat_timeout = 80;
 /* "waiting" state again */
 
 int     ring_chat_timeout = 10;
+
+/* ringback ("ring-twice"): on/off, how long may pass between calls?
+ */
+
+boolean	ringback = FALSE;
+int	ringback_time;
 
 /* the same actions are recognized while answering as are */
 /* when waiting for RING, except for "CONNECT" */
@@ -281,7 +287,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 	direct_line = TRUE;
     }
 
-    while ((c = getopt(argc, argv, "c:x:s:rp:n:i:DC:S:m:I:ba")) != EOF)
+    while ((c = getopt(argc, argv, "c:x:s:rp:n:R:i:DC:S:m:I:ba")) != EOF)
     {
 	switch (c) {
 	  case 'c':			/* check */
@@ -319,6 +325,11 @@ int main _P2((argc, argv), int argc, char ** argv)
 	  case 'n':			/* ring counter */
 	    rings_wanted = atoi( optarg );
 	    if ( rings_wanted == 0 ) rings_wanted = 1;
+	    break;
+	  case 'R':			/* ringback timer */
+	    ringback = TRUE;
+	    ringback_time = atoi( optarg );
+	    if ( ringback_time < 30 ) ringback_time = 30;
 	    break;
 	  case 'i':
 	    issue = optarg;		/* use different issue file */
@@ -694,6 +705,20 @@ int main _P2((argc, argv), int argc, char ** argv)
 		mgetty_state = St_get_login;
 		break;
 	    }
+
+	    if ( ringback )		/* don't pick up on first call */
+	    {
+		int n = 0;
+		
+		while ( do_chat( STDIN, ring_chat_seq, ring_chat_actions,
+				 &what_action, 30, TRUE ) == SUCCESS &&
+		        ! virtual_ring )
+		{ n++; }
+		
+		if ( what_action != A_TIMOUT ) goto Ring_got_action;
+
+		lprintf( L_MESG, "ringback: phone stopped after %d RINGs, waiting for re-ring", n );
+	    }
 	    
 #ifdef VOICE
 	    if ( use_voice_mode ) {
@@ -705,7 +730,9 @@ int main _P2((argc, argv), int argc, char ** argv)
 	    while ( rings < rings_wanted )
 	    {
 		if ( do_chat( STDIN, ring_chat_seq, ring_chat_actions,
-			      &what_action, ring_chat_timeout,
+			      &what_action,
+			      ( ringback && rings == 0 ) ? ringback_time
+			                                 : ring_chat_timeout,
 			      TRUE ) == FAIL 
 #ifdef DIST_RING
 		    && (what_action != DIST_RING_VOICE)
@@ -724,12 +751,14 @@ int main _P2((argc, argv), int argc, char ** argv)
 		mgetty_state = St_answer_phone; break;
 	    }
 
+Ring_got_action:
 	    /* not enough rings, timeout or action? */
 
 	    switch( what_action )
 	    {
 	      case A_TIMOUT:		/* stopped ringing */
-		if ( rings == 0 )	/* no ring *AT ALL* */
+		if ( rings == 0 &&	/* no ring *AT ALL* */
+		     ! ringback )	/* and not "missed" ringback */
 		{
 		    lprintf( L_WARN, "huh? Junk on the line?" );
 		    rmlocks();		/* line is free again */
@@ -954,7 +983,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 #endif
 	
 	/* hand off to login (dispatcher) */
-	login( buf );
+	login_dispatch( buf );
 
 	/* doesn't return, if it does, something broke */
 	exit(FAIL);
