@@ -3,7 +3,7 @@
  *
  * This file contains the Lucent specific hardware stuff.
  *
- * $Id: Lucent.c,v 1.2 2003/11/07 20:56:20 gert Exp $
+ * $Id: Lucent.c,v 1.3 2005/03/13 17:25:20 gert Exp $
  *
  */
 
@@ -102,6 +102,7 @@ static int Lucent_init (void)
 
 static int Lucent_set_compression (int *compression, int *speed, int *bits)
      {
+     char buffer[VOICE_BUF_LEN];
      reset_watchdog();
 
      if (*compression == 0)
@@ -122,7 +123,8 @@ static int Lucent_set_compression (int *compression, int *speed, int *bits)
 			  return(FAIL); 
 		 }
 
-               if (voice_command("AT+VSM=128", "OK") != VMA_USER_1)
+	       sprintf(buffer, "AT+VSM=128,%d", *speed);
+               if (voice_command(buffer, "OK") != VMA_USER_1)
                     return(FAIL);
 
                break;
@@ -136,8 +138,8 @@ static int Lucent_set_compression (int *compression, int *speed, int *bits)
 			  return(FAIL); 
 		 }
 	       
-
-               if (voice_command("AT+VSM=129", "OK") != VMA_USER_1)
+	       sprintf(buffer, "AT+VSM=129,%d", *speed);
+               if (voice_command(buffer, "OK") != VMA_USER_1)
                     return(FAIL);
 
                break;
@@ -151,8 +153,8 @@ static int Lucent_set_compression (int *compression, int *speed, int *bits)
 			  return(FAIL); 
 		 }
 
-
-               if (voice_command("AT+VSM=130,8000", "OK") != VMA_USER_1)
+	       sprintf(buffer, "AT+VSM=130,%d", *speed);
+               if (voice_command(buffer, "OK") != VMA_USER_1)
                     return(FAIL);
 
                break;
@@ -166,24 +168,27 @@ static int Lucent_set_compression (int *compression, int *speed, int *bits)
 				  voice_modem_name, *speed);
 		return(FAIL); 
 	      }
-               if (voice_command("AT+VSM=131,8000", "OK") != VMA_USER_1)
-                    return(FAIL);
-
-               break;
+	    sprintf(buffer, "AT+VSM=131,%d", *speed);
+	    if (voice_command(buffer, "OK") != VMA_USER_1)
+	      return(FAIL);
+	    
+	    break;
 
 	  case 5:
 	    *bits = 4;
 
-	    if ( *speed != 8000 )
+	    if ((*speed != 8000) && (*speed != 7200) && (*speed != 11025))
 	      {
 		lprintf(L_WARN, "%s: Illegal sample rate (%d)", 
 				  voice_modem_name, *speed);
 		return(FAIL); 
 	      }
-               if (voice_command("AT+VSM=132,8000", "OK") != VMA_USER_1)
-                    return(FAIL);
 
-               break;
+	    sprintf(buffer, "AT+VSM=132,%d", *speed);
+	    if (voice_command(buffer, "OK") != VMA_USER_1)
+	      return(FAIL);
+	    
+	    break;
 
           default:
                lprintf(L_WARN, "%s: Illegal voice compression method (%d)",
