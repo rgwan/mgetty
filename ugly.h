@@ -1,4 +1,4 @@
-#ident "$Id: ugly.h,v 4.1 1997/01/12 14:53:47 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: ugly.h,v 4.2 2003/01/14 14:03:19 gert Exp $ Copyright (c) Gert Doering"
 
 /* this module contains various macros that help you write function
  * prototypes that work both with ANSI-C and K&R C
@@ -37,6 +37,11 @@
 
 #define const
 #define volatile
+
+/* <stdarg.h> and function(fmt,...) is incompatible with K&R protoypes */
+#ifndef USE_VARARGS
+#  define USE_VARARGS
+#endif
 
 #endif
 
