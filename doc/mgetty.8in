@@ -1,4 +1,4 @@
-.TH mgetty 8 "27 Oct 93" "greenie" "mgetty+sendfax manual"
+.TH mgetty 8 "27 Oct 93 - 21 Jul 98" "greenie" "mgetty+sendfax manual"
 .IX mgetty
 .SH NAME
 mgetty \- smart modem getty
@@ -151,6 +151,19 @@ example, to stop mgetty during day time, and let it pick up at night only,
 by creating and removing @NOLOGIN@ via the 
 .I cron
 program at the appropriate time.
+
+.SH DIAGNOSTICS
+If
+.I mgetty
+doesn't work the way it should, the main source of diagnostic data is the
+.I log file.
+It can be found in "@LOG_PATH@" (for the mgetty process handling 
+"ttyxx").  If it doesn't contain enough details, enhance the log level with
+the '-x' option to mgetty, e.g. "-x 5".
+
+Many of the common problems and solutions are discussed in the mgetty
+manual and the FAQ.  Please see the WWW page at 
+http://alpha.greenie.net/mgetty/ for both.
 
 
 .SH BUGS
