@@ -3,7 +3,7 @@
  *
  * Contains the constants and function prototypes for the pvf tools
  *
- * $Id: pvf.h,v 1.4 1998/09/09 21:06:37 gert Exp $
+ * $Id: pvf.h,v 1.5 1999/01/30 18:42:24 marcs Exp $
  *
  */
 
@@ -78,6 +78,12 @@ extern int pvftorockwell (FILE *fd_in, FILE *fd_out, int nbits,
  pvf_header *header_in);
 extern int rockwelltopvf (FILE *fd_in, FILE *fd_out, int nbits,
  pvf_header *header_out);
+
+extern int pvftorockwellpcm (FILE *fd_in, FILE *fd_out, int nbits,
+ pvf_header *header_in);
+extern int rockwellpcmtopvf (FILE *fd_in, FILE *fd_out, int nbits,
+ pvf_header *header_out);
+
 
 extern int pvftozyxel (FILE *fd_in, FILE *fd_out, int nbits,
  pvf_header *header_in);

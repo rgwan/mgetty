@@ -3,7 +3,7 @@
  *
  * autodetect the modemtype we are connected to.
  *
- * $Id: detect.c,v 1.7 1999/01/30 18:08:58 marcs Exp $
+ * $Id: detect.c,v 1.8 1999/01/30 18:42:32 marcs Exp $
  *
  */
 
@@ -67,6 +67,7 @@ static const struct modem_type_struct modem_database[] =
      {ati, "961",                  NULL,   &Rockwell},
      {ati, "Digi RAS modem 56000", NULL,   &Digi_RAS},
      {ati, "Linux ISDN",           NULL,   &ISDN4Linux},
+     {ati, "MT5600ZDXV",           NULL,   &Multitech_5600ZDXv},
      {ati, "LT V.90 1.0 MT5634ZBAV Serial Data/Fax/Voice Modem Version 4.09a",
                                    NULL,   &Multitech_5634ZBAV},
      {ati6, "OK",      NULL, &Dr_Neuhaus},

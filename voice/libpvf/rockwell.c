@@ -54,7 +54,7 @@
  *
  * -----------------------------------------------------------------------
  *
- * $Id: rockwell.c,v 1.4 1998/09/09 21:07:03 gert Exp $
+ * $Id: rockwell.c,v 1.5 1999/01/30 18:42:27 marcs Exp $
  *
  */
 
@@ -721,6 +721,44 @@ int pvftorockwell (FILE *fd_in, FILE *fd_out, int nbits, pvf_header *header_in)
   }
 
  if (s.nleft > 0) write_bits_reverse(fd_out, &s, 8 - s.nleft, 0x00);
+
+  return(OK);
+}
+
+/*
+ * I borrowed this code from wav.c - it assumes the pvf is a certain size and
+ * I'm not sure this is a good assumption -- Bill Nugent <whn@topelo.lopi.com>
+ */
+
+int rockwellpcmtopvf (FILE *fd_in, FILE *fd_out, int nbits, pvf_header *header_out)
+{
+  int d;
+  /* 8 bit PCM */
+  while ((d = getc(fd_in)) != EOF)
+   {
+    d -= 0x80;
+    d <<= 16;
+    header_out->write_pvf_data(fd_out, d);
+  }
+  return(OK);
+}
+
+int pvftorockwellpcm (FILE *fd_in, FILE *fd_out, int nbits, pvf_header *header_in)
+{
+  int data;
+  /* 8 bit PCM */
+          
+   while((data = header_in->read_pvf_data(fd_in)) != EOF)
+    {
+      data >>=16;
+
+      if   (data > 0x7f)
+	data = 0x7f;
+
+      if   (data < -0x80)
+	data = -0x80;
+      putc(data+0x80,fd_out);
+  };
 
   return(OK);
 }

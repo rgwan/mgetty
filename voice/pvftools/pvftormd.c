@@ -4,7 +4,7 @@
  * pvftormd converts from the pvf (portable voice format) format to the
  * rmd (raw modem data) format.
  *
- * $Id: pvftormd.c,v 1.4 1998/09/09 21:07:53 gert Exp $
+ * $Id: pvftormd.c,v 1.5 1999/01/30 18:42:36 marcs Exp $
  *
  */
 
@@ -34,6 +34,7 @@ static void supported_formats (void)
      fprintf(stderr, " - ISDN4Linux  2, 3 and 4 bit ZyXEL ADPCM\n");
      fprintf(stderr, " - MT_2834     4 bit IMA ADPCM\n");
      fprintf(stderr, " - Rockwell    2, 3 and 4 bit Rockwell ADPCM\n");
+     fprintf(stderr, " - Rockwell    8 bit Rockwell PCM\n");
      fprintf(stderr, " - US_Robotics 1 and 4 (GSM and G.721 ADPCM)\n");
      fprintf(stderr, " - ZyXEL_1496  2, 3 and 4 bit ZyXEL ADPCM\n");
      fprintf(stderr, " - ZyXEL_2864  2, 3 and 4 bit ZyXEL ADPCM\n");
@@ -322,6 +323,40 @@ int main (int argc, char *argv[])
                };
 
           if (pvftorockwell(fd_in, fd_out, compression, &header_in) == OK)
+               exit(OK);
+
+          };
+
+     if ((strcmp(modem_type, "Rockwell") == 0) && (compression == 8))
+          {
+          header_out.bits = compression;
+
+          if (header_in.speed != 7200 && header_in.speed != 11025)
+               {
+               fprintf(stderr, "%s: Unsupported sample speed (%d)\n",
+                program_name, header_in.speed);
+               fprintf(stderr,
+                "%s: Rockwell modems only support 7200 & 11025 samples per second\n",
+                program_name);
+               fclose(fd_out);
+
+               if (fd_out != stdout)
+                    unlink(name_out);
+
+               exit(FAIL);
+               };
+
+          if (write_rmd_header(fd_out, &header_out) != OK)
+               {
+               fclose(fd_out);
+
+               if (fd_out != stdout)
+                    unlink(name_out);
+
+               exit(ERROR);
+               };
+
+          if (pvftorockwellpcm(fd_in, fd_out, compression, &header_in) == OK)
                exit(OK);
 
           };
