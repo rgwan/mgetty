@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.47 1999/05/21 13:26:41 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.48 1999/05/21 14:27:24 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.48  1999/05/21 14:27:24  gert
+# remove status value 'on hold' - leads to problems with queue flushing
+#
 # Revision 1.47  1999/05/21 13:26:41  gert
 # write combining phase II done - if multiple jobs are queued for the
 # same telephone number, send them with one 'sendfax' call
@@ -563,7 +566,6 @@ sub put_job_to_modem_queue
 	push @{$queue{$job_t}->{others}}, $j;
 
 	print LOG "$j: phone number '$phone' already reserved for $job_t, put on hold\n"  if $opt_d;
-	$queue{$j}->{status}="on hold";
 
 	return;
     }
@@ -1022,7 +1024,6 @@ my $phone = $queue{$j}->{phone};
 	foreach $jj ( @{$queue{$j}->{others}} )
 	{
 	    # FIXME: check timing constraints (?)
-	    $queue{$jj}->{status} = 'active';
 	    put_job_to_modem_queue($jj);
 	}
 	delete $queue{$j}->{others};
@@ -1152,7 +1153,6 @@ my ($r, $s, $ex, $j, $t);
 	    &handle_return_code( $ex, $j, $t );
 	    foreach $jj (@jobs)
 	    {
-		$queue{$jj}->{status} = 'active';
 		put_job_to_modem_queue($jj);
 	    }
 	}
@@ -1171,7 +1171,6 @@ my ($r, $s, $ex, $j, $t);
 		}
 		else			# found it -> requeue remainder
 		{
-		    $queue{$jj}->{status} = 'active';
 		    put_job_to_modem_queue($jj);
 		}
 	    }
