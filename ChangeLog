@@ -1,3 +1,7 @@
+Tue Nov 11 21:24:46 1997  Gert Doering  (gd@medat.de)
+
+	* fax/faxrunqd.in: smarter scheduling for many jobs on many modems
+
 Mon Nov 03 10:01:24 1997  Gert Doering  (gert@greenie.muc.de)
 
 	* voice/: switch over to remote-CVS
