@@ -1,4 +1,4 @@
-#ident "$Id: run_tbl.c,v 1.1 1994/02/17 23:29:47 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: run_tbl.c,v 1.2 1994/03/13 01:22:51 gert Exp $ Copyright (c) 1994 Gert Doering"
 ;
 
 /* run_tbl.c
@@ -22,14 +22,14 @@ char b_rtab[8][256];
 
 void make_run_tables _P0( void )
 {
-int i, j, k, l, m;	/* byte = kkkjjjmm, "j" starts at bit "i" */
+int i, j, k, m;		/* byte = kkkjjjmm, "j" starts at bit "i" */
 int mask;		/* black mask (all ones), start bit i, j bits wide */
 
     for ( i=0; i<8; i++ )		/* for (all starting bits) */
     {
 	for ( j=i+1; j>=0; j-- )	/* for (all possible run lengths) */
 	{
-	    mask = tab[j] << (i-j)+1;
+	    mask = tab[j] << ((i-j)+1);
 
 	    if ( i == 7 )		/* no fill bits to the left */
 	    {
