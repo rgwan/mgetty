@@ -4,7 +4,7 @@
 #
 # like "lpq" or "mailq", show jobs waiting in the output queue
 #
-# SCCS: $Id: faxq.in,v 4.5 1997/12/10 14:24:32 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxq.in,v 4.6 1998/01/01 20:51:37 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -63,7 +63,7 @@ jobs=`ls $jobs 2>/dev/null`
 for i in $jobs
 do
     USER=""; PHONE=""; PAGES=""; MAILTO=""; VERBTO=""; 
-    ACCT=""; INPUT=""; PRI=""; RE=""
+    ACCT=""; INPUT=""; TIME=""; PRI=""; RE=""
 
     # read jobs using 'tr', remove all quote characters, dollar, and backslash
     if [ -z "$verbose" ]
