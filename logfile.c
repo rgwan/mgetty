@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 1.41 1994/08/08 13:53:33 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logfile.c,v 1.42 1994/08/13 18:41:20 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -44,9 +44,15 @@ extern char *sys_errlist[];
 
 /* Interactive Unix is a little bit braindead - does not have atexit(),
  */
-#if defined(ISC) || defined(SVR4) || defined(sunos4) || defined(_3B1_) || \
+#if defined(ISC) || defined(SVR4) || defined(_3B1_) || \
     defined(MEIBE) || defined(_SEQUENT_) || defined(_AIX) || defined(sysV68)
 # define atexit(dummy) 
+#endif
+
+/* on SunOS, we can do it with on_exit()
+ */
+#ifdef sunos4
+# define atexit(func) on_exit(func, NULL)
 #endif
 
 void log_init_paths _P3 ( (l_program, l_path, l_infix),
