@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 1.15 1994/02/28 22:26:53 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 1.16 1994/03/13 00:45:13 gert Exp $ Copyright (c) 1993 Gert Doering"
 ;
 /* tio.c
  *
@@ -233,7 +233,8 @@ void tio_mode_sane _P2( (t, local), TIO * t, int local )
 #if !defined(POSIX_TERMIOS)
     t->c_line  = 0;
 #endif
-    
+
+    /* initialize the most important c_cc's here */
     t->c_cc[VEOF] = 0x04;
 #if defined(VEOL) && VEOL < TIONCC
     t->c_cc[VEOL] = 0;
@@ -249,6 +250,62 @@ void tio_mode_sane _P2( (t, local), TIO * t, int local )
     t->sg_kill  = 0x25;            /* kill character, ^u */
 #endif
 }
+
+/* tio_default_cc( TIO )
+ *
+ * initialize all c_cc fields (for POSIX and SYSV) to proper start
+ * values (normally, the serial driver should do this, but there are
+ * numerous systems where some of the more esoteric (VDSUSP...) flags
+ * are plain wrong (e.g. set to "m" or so)
+ *
+ * do /not/ initialize VERASE and VINTR, since some systems use
+ * ^H / DEL here, others DEL / ^C.
+ */
+void tio_default_cc _P1( (t), TIO *t )
+{
+#ifdef BSD_SGTTY
+    t->sg_erase = 0x7f;            /* erase character */
+    t->sg_kill  = 0x25;            /* kill character, ^u */
+
+#else /* posix or sysv */
+    t->c_cc[VQUIT]  = CQUIT;
+    t->c_cc[VKILL]  = CKILL;
+    t->c_cc[VEOF]   = CEOF;
+#if defined(VEOL) && VEOL < TIONCC
+    t->c_cc[VEOL] = CEOL;
+#endif
+#if defined(VSTART) && VSTART < TIONCC
+    t->c_cc[VSTART] = CSTART;
+#endif
+#if defined(VSTOP) && VSTOP < TIONCC
+    t->c_cc[VSTOP] = CSTOP;
+#endif
+#if defined(VSUSP) && VSUSP < TIONCC
+    t->c_cc[VSUSP] = CSUSP;
+#endif
+#if defined(VSWTCH) && VSWTCH < TIONCC
+    t->c_cc[VSWTCH] = CSWTCH;
+#endif
+    /* the following are for SVR4.2 (and higher) */
+#if defined(VDSUSP) && VDSUSP < TIONCC
+    t->c_cc[VDSUSP] = CDSUSP;
+#endif
+#if defined(VREPRINT) && VREPRINT < TIONCC
+    t->c_cc[VREPRINT] = CRPRNT;
+#endif
+#if defined(VDISCARD) && VDISCARD < TIONCC
+    t->c_cc[VDISCARD] = CFLUSH;
+#endif
+#if defined(VWERASE) && VWERASE < TIONCC
+    t->c_cc[VWERASE] = CWERASE;
+#endif
+#if defined(VLNEXT) && VLNEXT < TIONCC
+    t->c_cc[VLNEXT] = CLNEXT;
+#endif
+
+#endif /* bsd <-> posix + sysv */
+}
+
 
 void tio_map_cr _P2( (t, perform_mapping), TIO * t, int
 		    perform_mapping )
@@ -356,7 +413,8 @@ int tio_set_flow_control _P3( (fd, t, type), int fd, TIO * t, int type )
 #include "not yet implemented"
 #endif
     /* SVR4 came up with a new method of setting h/w flow control */
-#ifdef SVR4
+    /* unfortunately, it's broken in 4.2! */
+#if defined(SVR4) && !defined(SVR42)
     if (ioctl(fd, TCGETX, &tix) < 0)
     {
 	lprintf( L_ERROR, "ioctl TCGETX" ); return ERROR;
