@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 1.6 1993/07/25 16:52:58 gert Exp $ Gert Doering"
+#ident "$Id: faxlib.c,v 1.7 1993/08/22 23:38:34 gert Exp $ Gert Doering"
 
 /* faxlib.c
  *
@@ -96,12 +96,20 @@ int bufferp;
 
 	else if ( strncmp( buffer, "+FHNG:", 6 ) == 0 )
 	{
-	    /* hangup. Set flag to indicate hangup.
-	     * if the wait_for string is not "OK", return immediately,
+	    /* hangup. First, set flag to indicate +FHNG: was read.
+	     * The SIGHUP signal catcher will check this, and not exit.
+	     * Next, reset the action for SIGHUP, to be ignore, so we
+	     * (and child processes) are not interrupted while we cleanup.
+	     * If the wait_for string is not "OK", return immediately,
 	     * since that is all that the modem can send after +FHNG
 	     */
+	    fax_hangup = 1; /* set this as soon as possible */
+	    /* change action for SIGHUP signals to be ignore */
+	    if ( signal( SIGHUP, SIG_IGN ) == SIG_ERR )
+	    {
+		lprintf( L_WARN, "fax_wait_for: cannot reset SIGHUP handler." );
+	    }
 	    lprintf( L_MESG, "connection hangup: '%s'", buffer );
-	    fax_hangup = 1;
 	    sscanf( &buffer[6], "%d", &fax_hangup_code );
 
 	    if ( strcmp( s, "OK" ) != 0 ) break;
@@ -169,7 +177,7 @@ int fax_command( char * send, char * expect, int fd )
 /*
   Builds table to swap the low order 4 bits with the high order.
 
-  (Part of the NetFax system! gfax-3.2.1/lib/libfax/swap.c)
+  (Part of the GNU NetFax system! gfax-3.2.1/lib/libfax/swap.c)
 */
 
 static void init_swaptable(swaptable)

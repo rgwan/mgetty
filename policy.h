@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.16 1993/07/25 17:26:33 gert Exp $ (c) Gert Doering"
+#ident "$Id: policy.h,v 1.17 1993/08/22 23:38:38 gert Exp $ (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -30,8 +30,14 @@
 #define CONSOLE "/dev/syscon"
 #endif
 
-/* System administrator - if a severe error happens later (lprintf called
- * with log_level L_FATAL - the logfile will be mailed to him
+/* Default log error level threshold. Possible error levels are
+ * L_FATAL, L_ERROR, L_WARN, L_MESG, L_NOISE, L_JUNK (see mgetty.h)
+ */
+#define LOG_LEVEL L_MESG
+
+/* System administrator - if a severe error happens (lprintf called
+ * with log_level L_FATAL) and writing to CONSOLE is not possible,
+ * the logfile will be mailed to him
  */
 #define ADMIN	"root"
 
@@ -69,13 +75,17 @@
  * as four byte integer in host byte order written to the lock file)
  * If it is "0", HDB locking will be used - the PID will be written as
  * 10 byte ascii, with a trailing newline
+ * (Just check "LOCK" while uucico or pcomm or ... are running to find
+ * out what lock files are used on your system)
  */
 #define LOCKS_BINARY 0
 
 /* the default speed used by mgetty - override it with "-s <speed>"
  *
- * WARNING: ZyXELs can do faxreceive with 38400, but I've been told
- * that supra faxmodems do only work with 19200 - could somebody try this?
+ * WARNING: ZyXELs *can* do faxreceive with 38400, but a lot other modems,
+ * especially such based on the rockwell chipset can *not*. So, if
+ * your fax receive fails mysteriously, timing out waiting for "OK", try
+ * setting this to B19200
  */
 #define DEFAULT_PORTSPEED	B38400
 
@@ -98,6 +108,11 @@
  */
 #define FAX_SPOOL_IN	FAX_SPOOL"/incoming"
 
+/* incoming faxes will be chown()ed to this uid and gid
+ */
+#define FAX_IN_OWNER	0
+#define FAX_IN_GROUP	5
+
 /* if your received faxes are corrupted (missing lines), because the
  * faxmodem does not honor RTS handshake, define this.
  * mgetty will then do XON/XOFF flow control in fax receive mode
@@ -114,11 +129,11 @@
  * but some do only allow digits and blank
  * AT+FLID=? should tell you what's allowed and what not.
  */
-#define FAX_STATION_ID	" 49 89 3243328 "
+#define FAX_STATION_ID	"49 89 3243328"
 
 /* ------ sendfax-specific stuff follows here -------- */
 
-/* the baudrate used for *sending* faxes. ZyXELs should handle 38400,
+/* the baudrate used for *sending* faxes. ZyXELs can handle 38400,
  * SUPRAs (and other rockwell-based faxmodems) do not
  * I recommend 38400, since 19200 may be to slow for 14400 bps faxmodems!
  */
@@ -147,12 +162,17 @@
  */
 #define FAX_MODEM_TTYS	"tty1a:tty2a"
 
-/* mailer that accepts destination on command line and mail text on stdin
+/* define mailer that accepts destination on command line and mail text
+ * on stdin. For mailers with user friendly interfaces, (such as mail,
+ * mailx, elm), include an appropriate subject line in the command
+ * definition. If using a mail agent (such as sendmail), that reads
+ * mail headers, define NEED_MAIL_HEADERS.
  */
 #ifdef SVR4
-# define MAILER		"/usr/bin/mailx"
+# define MAILER		"/usr/bin/mailx -s 'Incoming facsimile message'"
 #else
 # define MAILER		"/usr/lib/sendmail"
+# define NEED_MAIL_HEADERS
 #endif
 
 /* where to send notify mail about incoming faxes to

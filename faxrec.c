@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.9 1993/08/10 10:41:32 gert Exp $ Gert Doering"
+#ident "$Id: faxrec.c,v 1.10 1993/08/22 23:38:36 gert Exp $ Gert Doering"
 
 /* faxrec.c - part of the ZyXEL getty
  *
@@ -77,8 +77,12 @@ struct termio termio;
 void fax_sig_hangup( )
 {
     signal( SIGHUP, fax_sig_hangup );
-    lprintf( L_ERROR, "got hangup! what's this? exiting..." );
-    exit(5);
+    /* exit if we have not read "+FHNG:xxx" yet (unexpected hangup) */
+    if ( ! fax_hangup )
+    {
+	lprintf( L_WARN, "how rude, got hangup! exiting..." );
+	exit(5);
+    }
 }
 
 static boolean fax_timeout = FALSE;
@@ -182,12 +186,19 @@ int ByteCount = 0;
     alarm(0);
 
     fclose( fax_fp );
+
     lprintf( L_MESG, "fax_get_page_data: page end, bytes received: %d", ByteCount);
 
     if ( fax_timeout )
     {
 	lprintf( L_MESG, "fax_get_page_data: aborting receive, timeout!" );
 	return ERROR;
+    }
+
+    /* change file owner and group (jcp) */
+    if ( chown( temp, FAX_IN_OWNER, FAX_IN_GROUP ) != 0 )
+    {
+	lprintf( L_MESG, "fax_get_page_data: cannot change owner, group" );
     }
 
     return NOERROR;
@@ -258,20 +269,29 @@ static const char start_rcv = DC2;
 void fax_notify_mail( int pagenum )
 {
 FILE  * pipe_fp;
-char	buf[100];
+char  * file_name, * p;
+char	buf[256];
+int	r;
 
-    sprintf( buf, "%s %s", MAILER, MAIL_TO );
+    lprintf( L_NOISE, "fax_notify_mail: sending mail to: %s", MAIL_TO );
+
+    sprintf( buf, "%s %s >/dev/null 2>&1", MAILER, MAIL_TO );
+
     pipe_fp = popen( buf, "w" );
     if ( pipe_fp == NULL )
     {
-	lprintf( L_ERROR, "cannot open pipe to %s", MAILER );
+	lprintf( L_ERROR, "fax_notify_mail: cannot open pipe to %s", MAILER );
 	return;
     }
+
+#ifdef NEED_MAIL_HEADERS
     fprintf( pipe_fp, "Subject: incoming fax\n" );
     fprintf( pipe_fp, "To: %s\n", MAIL_TO );
     fprintf( pipe_fp, "From: root (Fax Getty)\n" );
-    fprintf( pipe_fp, "\n"
-		      "A fax has arrived:\n"
+    fprintf( pipe_fp, "\n" );
+#endif
+
+    fprintf( pipe_fp, "A fax has arrived:\n"
 		      "Pages: %d\n"
 		      "Sender ID: %s\n", pagenum, fax_remote_id );
     fprintf( pipe_fp, "Communication parameters: %s\n", fax_param );
@@ -299,9 +319,27 @@ char	buf[100];
 		 	  "The Modem returned +FHNG:%3d\n", fax_hangup_code );
     }
 
-    fprintf( pipe_fp, "\n\n... spooled to %s\n", FAX_SPOOL_IN );
+    /* list the spooled fax files (jcp/gd) */
+
+    fprintf( pipe_fp, "\nSpooled G3 fax files:\n\n" );
+
+    p = file_name = fax_file_names;
+    do
+    {
+	p = strchr( file_name, ' ' );
+	if ( p != NULL ) *p = 0;
+	fprintf( pipe_fp, "  %s\n", file_name );
+	if ( p != NULL ) *p = ' ';
+	file_name = p+1;
+    }
+    while ( p != NULL );
+
     fprintf( pipe_fp, "\n\nregards, your modem subsystem.\n" );
-    pclose( pipe_fp );
+
+    if ( ( r = pclose( pipe_fp ) ) != 0 )
+    {
+	lprintf( L_WARN, "fax_notify_mail: mailer exit status: %d\n", r );
+    }
 }
 
 #ifdef FAX_NOTIFY_PROGRAM
