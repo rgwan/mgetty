@@ -1,4 +1,4 @@
-#ident "$Id: goodies.c,v 3.3 1996/03/03 16:22:36 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: goodies.c,v 3.4 1996/03/06 12:21:59 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /*
  * goodies.c
@@ -217,13 +217,16 @@ char * get_ps_args _P1 ((pid), int pid )
 # include <sgtty.h>
 void    NeXT_repair_line(int fd)
 {
-    struct sgttyb   sg;
     int             bitset = LPASS8 | LPASS8OUT;
     int             bitclr = LNOHANG;
     
+#ifndef NEXTSGTTY		/* needed only for broken POSIX subsystem */
+    struct sgttyb   sg;
+
     ioctl(fd, TIOCGETP, &sg);
     sg.sg_flags |= EVENP | ODDP;
     ioctl(fd, TIOCSETP, &sg);
+#endif
     ioctl(fd, TIOCLBIS, &bitset);
     ioctl(fd, TIOCLBIC, &bitclr);
 }
