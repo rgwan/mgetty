@@ -1,4 +1,4 @@
-#ident "@(#)cnd.c	$Id: cnd.c,v 1.7 1994/08/08 12:34:21 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "@(#)cnd.c	$Id: cnd.c,v 1.8 1994/10/24 19:00:29 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 
 #include <stdio.h>
 #include <string.h>
@@ -14,6 +14,12 @@ char *Connect = "";
 char *CallerId = "none";
 char *CallTime = "";
 char *CallName = "";
+/* the next few are for Rockwell */
+char *CallDate = "";
+char *CallMsg1 = "";
+char *CallMsg2 = "";
+
+/* those are for Rockwell "CONNECT" messages */
 static char * cnd_carrier = "";
 static char * cnd_protocol= "";
 
@@ -32,10 +38,20 @@ struct cndtable cndtable[] =
     {"TIME: ",			&CallTime},
     {"REASON FOR NO CALLER NUMBER: ",	&CallerId},
     {"REASON FOR NO CALLER NAME: ",	&CallName},
+
     /* those are for rockwell-based modems insisting on a multi-line
        message "CARRIER ... / PROTOCOL ... / CONNECT */
     {"CARRIER ",		&cnd_carrier},
     {"PROTOCOL: ",		&cnd_protocol},
+
+    /* those are for Rockwell Caller ID */
+    {"DATE = ",                 &CallDate},
+    {"TIME = ",			&CallTime},
+    {"NMBR = ",			&CallerId},
+    {"NAME = ",			&CallName},
+    {"MESG = ",			&CallMsg1},
+    {"MESG = ",			&CallMsg2},
+
     {NULL}
 };
     
@@ -57,7 +73,7 @@ cndfind _P1((str), char *str)
     lprintf(L_JUNK, "CND: %s", str);
 
     /* The ELINK 301 ISDN modem can send us the caller ID if it is
-       answered with AT\OA. The CID will simply get sent on a single
+       asked for it with AT\O. The CID will simply get sent on a single
        line consisting only of digits. So, if we get a line starting
        with a digit, let's assume that it's the CID...
      */
@@ -77,6 +93,9 @@ cndfind _P1((str), char *str)
 	{
 	    if (!cp->variable)
 		return;
+
+	    if ((*(cp->variable))[0] != 0)
+		continue;
 
 	    /* special case for CONNECT on Rockwell-Based modems */
 	    if ( ( cnd_carrier[0] != 0 || cnd_protocol[0] != 0 ) &&
@@ -99,8 +118,57 @@ cndfind _P1((str), char *str)
     }
 }
 
-int
-cndlookup _P0 (void)
+/* process Rockwell-style caller ID. Weird */
+
+void process_rockwell_mesg _P0 (void)
+{
+    int length = 0;
+    int loop;
+    char *p;
+
+  /* In Canada, Bell Canada has come up with a fairly
+     odd method of encoding the caller_id into MESG fields.
+     With Supra caller ID (Rockwell), these come out as follows:
+
+     MESG = 030735353531323132
+
+     The first two bytes seem to mean nothing. The second
+     two bytes are a hex number representing the phone number
+     length. The phone number begins with the digit 3, then
+     each digit of the phone number. Each digit of the phone
+     number is preceeded by the character '3'.
+
+     NB: I'm not sure whether this is Bell's or Rockwell's folly. I'd
+     prefer to blaim Rockwell. gert
+   */
+
+    if ( CallMsg1[0] == 0) return;
+
+    if ( (CallMsg1[0] != '0') || (CallMsg1[1] != '3')) return;
+
+    /* Get the length of the number */
+    CallMsg1[4] = '\0';
+    sscanf( &CallMsg1[2], "%x", &length);
+
+    lprintf(L_JUNK, "CND: number length: %d",length);
+      
+    /* Allocate space for the new number */
+    p = CallerId = malloc(length + 1);
+    
+    /* Get the phone number only and put it into CallerId */
+    for (loop = 5; loop <= (3 + length*2); loop += 2)
+    {
+	*p = CallMsg1[loop];
+	p++;
+    }  
+    *p = 0;
+      
+    lprintf(L_JUNK, "CND: caller ID: %s", CallerId);
+}
+
+/* lookup Caller ID in CNDFILE, decide upon answering or not */
+
+int cndlookup _P0 (void)
 {
     int match = 1;
 #ifdef CNDFILE
@@ -108,6 +176,9 @@ cndlookup _P0 (void)
     char buf[BUFSIZ];
     if (!(cndfile = fopen(CNDFILE, "r")))
 	return(1);
+
+    process_rockwell_mesg();
+
     while (fgets(buf, sizeof(buf), cndfile)) {
 	register char *p = buf, *p2;
 	while(isspace(*p)) p++;
