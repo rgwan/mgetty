@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.58 2003/06/12 07:52:51 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.59 2003/12/16 11:39:46 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -100,11 +100,6 @@ CC=gcc
 #	    SVR4	  - SVR4 statvfs()
 #	    SVR3	  - SVR3/88k/Apollo/SCO 4-parameter statfs()
 #	    USTAT	  - ustat(), no statfs etc.
-#
-# If you want to support incoming FidoNet calls, add -DFIDO. 
-# If you want to auto-detect incoming PPP calls (with PAP authorization),
-# add -DAUTO_PPP. Not needed if PPP callers want to get a real "login:"
-# prompt first. Don't forget to activate the /AutoPPP/ line in login.config!
 #
 #CFLAGS=-Wall -O2 -pipe -DSECUREWARE -DUSE_POLL
 CFLAGS=-O2 -Wall -pipe
