@@ -1,4 +1,4 @@
-#ident "$Id: mg_utmp.h,v 3.1 1995/08/30 12:40:49 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_utmp.h,v 3.2 1995/11/24 21:39:32 gert Exp $ Copyright (c) Gert Doering"
 
 /* definitions for utmp reading / writing routines,
  * highly SysV / BSD dependent
@@ -18,6 +18,11 @@
 # define ut_time	ut_xtime
 #else				/* !SVR4 */
 # include <utmp.h>
+#endif
+
+#ifdef _AIX
+struct utmp * getutent();		/* AIX 3.2.5 doesn't declare these */
+void setutent();
 #endif
 
 #define UT_INIT		INIT_PROCESS
