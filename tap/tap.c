@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Gert Doering
  */
-#ident "$Id: tap.c,v 1.2 1997/10/31 10:58:32 gert Exp $"
+#ident "$Id: tap.c,v 1.3 1997/12/03 17:37:49 gert Exp $"
 
 #include <stdio.h>
 #include <fcntl.h>
@@ -14,8 +14,9 @@
 #include "policy.h"
 #include "mgetty.h"
 #include "tio.h"
+#include "config.h"
 
-char * Device = "/dev/tty4c";
+char * Device = "/dev/cuaa1";
 
 #define STX 0x02
 #define ETX 0x03
@@ -35,7 +36,7 @@ struct prov_t { char * name;
 	prov[] = {
     { "E+", "0177", Ptap, "01771167", "ATZ", 160 },
     { "D1", "0171", Ptap, "01712092522", "ATZ", 160 }, /*!!! untested */
-    { "D2", "0172", Pucp1, "01722278020", "AT+FCLASS=0;&N14", 160 },	/*!!! UCP52 */
+    { "D2", "0172", Pucp1, "01722278020", "AT+FCLASS=0;&N0S7=60", 160 },	/*!!! UCP52 */
     { "Quix", "quix-t", Pucp1, "016593", "ATZ", 80 }, /*!!! untested */
     { NULL, NULL, Ptap, NULL, NULL }};
 
@@ -44,22 +45,9 @@ struct prov_t { char * name;
 struct messi { int prov;		/* provider */
 	       char * number;
 	       char * msg; } messi[100] = {
-/*
-    { 0, "2160221", "TapSent - Umlaut öäüßÖÄÜ" },
-    { 0, "3213331", "Hallo Neko! ... lass Dich ablenken... :)" },
-    { 0, "2157475", "Heute mal wieder auf E-Plus!!" },
-    { 0, "2688145", "Hi Patrick! Die Liste der SMS' wächst und wächst (gert)" },
-    { 2, "8523695", "Hallo Peter! Noch ein Test, wie jedes Wochenende (gert)" },
-    { 2, "8217139", "Hallo BJ! Es WochenendWatcht... (gert)" }};
-int nummsg = 6;
-*/
-/*
-    { 3, "2905028", "Hallo Thomas, vielen Dank für die Doku, UCP funktioniert jetzt (g.doering)" }};
-*/
-    { 0, "2157475", "Hallo PeterB, bitte schau' doch morgen frueh bitte mal nach COLIN, der scheint ziemlich tot zu sein" }};
+/*    { 0, "2160221", "TapSent - Umlaut öäüßÖÄÜ" }, */
+    { 2, "8213646", "Hallo Maex! Mal gucken, ob der Watchdog funzt..." }};
 int nummsg = 1;
-    
-
 
 int tap_send_text( int fd, char * field1, char * field2 )
 {
@@ -374,7 +362,7 @@ int i;
     }
 
     /* dial up provider... */
-    sprintf( dialstring, "ATDT%s", prov[pt].dialup_num );
+    sprintf( dialstring, "ATX3DT0W%s", prov[pt].dialup_num );
     mdm_send( dialstring, fd );
 
     /* wait for connect */  /*!!!! TIMEOUT */
@@ -441,6 +429,55 @@ int i;
     return SUCCESS; 
 }
 
+/*
+ * read file with all messages "in queue"...
+ */
+int read_messages( char * name )
+{
+    char * line, * key;
+    FILE * fp = fopen( name, "r" );
+
+    if ( fp == NULL )
+    {
+	lprintf( L_ERROR, "can't open %s", name );
+	perror( "error opening message file" );
+	return SUCCESS;
+    }
+
+    nummsg = 0;
+
+    while ( nummsg < MAXMSG && 
+	    ( line = fgetline( fp )) != NULL )
+    {
+	char * p = line;
+	int i;
+
+	norm_line( &p, &key );
+	for ( i=0; prov[i].name != NULL; i++ )	/* search prov. in list */
+	{
+	    if ( strcmp( prov[i].name, key ) == 0 )	/* found */
+	    {
+		norm_line( &p, &key );		/* get phone number */
+		messi[nummsg].prov = i;
+		messi[nummsg].number = strdup( key );
+		messi[nummsg].msg    = strdup( p );
+		break;
+	    }
+	}
+
+	if ( prov[i].name == NULL )
+	{
+	    fprintf( stderr, "ERROR: can't find provider '%s' (%s %s)\n",
+			key, key, p ); 
+	    continue;
+	}
+
+	nummsg++;
+    }
+    fclose( fp );
+    return NOERROR;
+}
+
 
 int main( int argc, char ** argv )
 {
@@ -448,6 +485,17 @@ int i, pt;
 
     log_init_paths( argv[0], "/tmp/tap.log", NULL );
     log_set_llevel(5);
+
+    if ( argc != 2 )
+    {
+	fprintf( stderr, "Usage: tap <filename>\n" ); exit(1);
+    }
+
+    /* read messages from file in argv[1] */
+    if ( read_messages( argv[1] ) != SUCCESS )
+    {
+	fprintf( stderr, "can't process %s, exiting.\n", argv[1] ); exit(2);
+    }
 
     if ( makelock( Device ) != SUCCESS )
     {
