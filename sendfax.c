@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 3.13 1996/10/17 20:45:44 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 3.14 1996/11/21 23:09:03 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -353,13 +353,26 @@ int main _P2( (argc, argv),
     siginterrupt( SIGHUP,  TRUE );
 #endif
 
+    /* now set speed for this port (do this *after* sendfax_get_config())!
+     */
+    if ( tio_set_speed( &fax_tio, c_int(speed) ) == ERROR ||
+         tio_set( fd, &fax_tio ) == ERROR )
+    {
+	fprintf( stderr, "%s: cannot set serial port speed %d on \"%s\"\n",
+			argv[0], c_int(speed), Device );
+	close(fd);
+	rmlocks();
+	exit(2);
+    }
+
+
     if ( fax_command( "ATV1Q0", "OK", fd ) == ERROR )
     {
 	lprintf( L_ERROR, "modem doesn't talk to me" );
 	fprintf( stderr, "The modem doesn't respond!\n" );
-	close( fd );
+	close(fd);
 	rmlocks();
-	exit( 3 );
+	exit(3);
     }
 
     /* extra initialization: -m / modem-init */
