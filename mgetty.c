@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.86 1994/01/17 13:02:56 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.87 1994/01/20 18:22:30 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -543,6 +543,7 @@ waiting:
 	    if ( rings < rings_wanted && what_action == A_TIMOUT )
 	    {
 		lprintf( L_MESG, "phone stopped ringing" );
+		rmlocks();		/* free line again */
 		goto waiting;
 	    }
 
