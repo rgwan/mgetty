@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.4 1997/03/31 20:56:23 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.5 1997/04/12 20:02:04 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -7,6 +7,7 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <ctype.h>
 #include <string.h>
@@ -428,13 +429,39 @@ int fax_set_bor _P2( (fd, bor), int fd, int bor )
 
 Modem_type fax_get_modem_type _P2( (fd, mclass), int fd, char * mclass )
 {
+int rc;
+
     /* data modem? unknown mclass? handle as "auto" (for sendfax) */
     if ( strcmp( mclass, "cls2" ) != 0 &&
 	 strcmp( mclass, "c2.0" ) != 0 )
     {
 	mclass = "auto";
     }
-    
+
+    /* auto-identify */
+    if ( strcmp( mclass, "auto" ) == 0 &&
+	 mdm_identify( fd ) == NOERROR &&
+	 modem_type != Mt_unknown )
+    {
+	/* set up modem accordingly */
+	switch( modem_type )
+	{
+	    case Mt_class2_0: 
+		rc=mdm_command( "AT+FCLASS=2.0", fd ); 
+		break;
+	    case Mt_class2:
+		rc=mdm_command( "AT+FCLASS=2", fd ); 
+		break;
+	    default:
+		rc=NOERROR;
+		break;
+	}
+	if ( rc == NOERROR ) return modem_type;
+    }
+
+    /* not auto-identify, or initialization failed -> try "old way" 
+     */
+
     /* first of all, check for 2.0 */
     if ( strcmp( mclass, "auto" ) == 0 ||
 	 strcmp( mclass, "c2.0" ) == 0 )
@@ -457,3 +484,113 @@ Modem_type fax_get_modem_type _P2( (fd, mclass), int fd, char * mclass )
 
     return Mt_data;
 }			/* end fax_get_modem_type() */
+
+
+/* identify unknown modem via ATI code
+ *
+ * *very* preliminary - I'm experimenting...
+ */
+
+int mdm_identify _P1( (fd), int fd )
+{
+    char * l, *p;
+    int mid;
+
+    modem_type=Mt_unknown;
+    
+    signal( SIGALRM, fwf_sig_alarm ); alarm(20); fwf_timeout = FALSE;
+
+    if ( mdm_send( "ATI", fd ) == ERROR ) return ERROR;
+
+    while(1)
+    {
+	l = mdm_get_line( fd );
+	if ( l == NULL ) break;
+
+	lprintf( L_NOISE, "mdm_identify: string '%s'", l );
+	if ( strcmp( l, "OK" ) == 0 || strcmp( l, "ERROR" ) == 0 ) break;
+	if ( strcmp( l, "ATI" ) == 0 ) continue;
+
+	/* all-numerical? */
+	p = l;
+	while( isdigit(*p) || isspace(*p) ) p++;
+
+	if ( *p == '\0' )		/* all-numeric */
+	{
+	    mid = atoi(l);
+
+	    switch(mid)
+	    {
+	      case 1496:
+		lprintf( L_MESG, "ZyXEL 1496 detected" ); 
+		modem_type=Mt_class2_0;
+		break;
+	      case 2864:
+		lprintf( L_MESG, "ZyXEL 2864(D) detected" );
+		modem_type=Mt_class2_0;
+		break;
+	      case 28641:
+	      case 28642:
+		lprintf( L_MESG, "ZyXEL 2864I(D) detected" );
+		modem_type=Mt_class2_0;
+		break;
+	      case 6401:
+		lprintf( L_MESG, "USR I-Modem detected" );
+		modem_type=Mt_class2_0;
+		break;
+	      case 3366:
+		lprintf( L_MESG, "USR Courier V.34 detected" );
+		modem_type=Mt_class2_0;
+		break;
+	      case 1445:
+		lprintf( L_MESG, "USR Courier DS/V.32bis detected" );
+		modem_type=Mt_data;
+		break;
+	      case 62:	/* sure? */
+		lprintf( L_MESG, "Dr. Neuhaus Smarty detected (?)" );
+		modem_type=Mt_class2;
+		break;
+	      case 184:	/* sure? */
+		lprintf( L_MESG, "Telebit FastBlazer detected" );
+		modem_type=Mt_data;
+		break;
+	      case 14400: /* further distinction necessary! */
+	      case 28800:
+	      case 33600:
+		lprintf( L_MESG, "Generic Rockwell modem (%d)", mid );
+		modem_type=Mt_class2;
+		break;
+	      default:
+		lprintf( L_MESG, "unknown numerical modem id %d", mid );
+		break;
+	    }
+	}
+	else		/* non-numeric modem id string */
+	{
+	    lprintf( L_MESG, "non-numeric ID string: '%s'", l );
+
+	    /* "Elink 310 Version 1.25" */
+	    if ( strncmp( l, "Elink", 5 ) == 0 )
+	    {
+		lprintf( L_MESG, "Elink detected" );
+		modem_type=Mt_data;
+	    }
+	    else if ( strncmp( l, "Linux ISDN", 10 ) == 0 )
+	    {
+		lprintf( L_MESG, "ISDN4Linux detected" );
+		modem_type=Mt_data;
+	    }
+	}
+    }
+
+    alarm(0); signal( SIGALRM, SIG_DFL );
+    
+    if ( l == NULL || strcmp( l, "ERROR" ) == 0 )
+    {
+	lputs( L_MESG, " -> ERROR" );
+	return ERROR;
+    }
+    lputs( L_MESG, " -> OK" );
+	
+    return NOERROR;
+}
