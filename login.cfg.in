@@ -55,6 +55,8 @@
 #
 #  NOTE3: "man pppd" is your friend!
 #
+#  NOTE4: max. 9 arguments allowed.
+#
 #/AutoPPP/ -	a_ppp	/usr/sbin/pppd auth -chap +pap login debug
 
 #
