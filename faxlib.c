@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.36 1998/06/20 15:58:13 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.37 1998/09/19 11:08:18 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -752,6 +752,13 @@ int mdm_identify _P1( (fd), int fd )
 	{
 	    lprintf( L_MESG, "Cirrus Logic Communicator 56 detected" );
 	    modem_type=Mt_unknown;
+	    mis = mdm_get_idstring( "ATI3", 1, fd );
+	}
+	/* got this from Andreas Muck, <andi@koala.rhein-neckar.de> */
+	else if ( strncmp( l, "5607A", 5 ) == 0 )
+	{
+	    lprintf( L_MESG, "USR Courier/Sportster V90 (German?) detected" );
+	    modem_type=Mt_class2_0;
 	    mis = mdm_get_idstring( "ATI3", 1, fd );
 	}
     }
