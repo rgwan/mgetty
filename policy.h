@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.65 1994/10/24 18:27:27 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.66 1994/10/31 11:35:50 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -529,6 +529,7 @@
 #define FAX_NOTIFY_PROGRAM "/usr/local/lib/mgetty+sendfax/new_fax"
 
 /* default minimum space required on spooling partition for receiving a FAX
+ * (in bytes)
  */
 #define	MINFREESPACE (1024 * 1024)
 
