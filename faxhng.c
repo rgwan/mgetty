@@ -1,4 +1,4 @@
-#ident "$Id: faxhng.c,v 4.1 1997/01/12 14:53:38 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: faxhng.c,v 4.2 1997/12/17 21:52:00 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* faxhng.c - mainly table, translate +FHNG:xxx codes to english text
  */
@@ -40,7 +40,7 @@ struct t_fhng_table { int i ; char * string; } fhng_table[] = {
 	{      44, "Unrecognized Transparent data command" },
 	{      45, "Image error, line length wrong" },
 	{      46, "Image error, page length wrong" },
-	{      57, "Image error, wrong compression code" },
+	{      47, "Image error, wrong compression code" },
 /*	{   50-69, "TRANSMIT PHASE D HANGUP CODES" },	*/
 	{      50, "Unspecified Transmit Phase D error" },
 	{      51, "RSPREC error" },
