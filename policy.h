@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.51 1994/04/05 21:37:28 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.52 1994/04/19 00:02:58 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -23,8 +23,11 @@
  * WARNING: make sure that this file isn't world-accessable (SECURITY!)
  *
  * If you want to call /bin/login in any case, do not define this
+ *
+ * WARNING2: THE FORMAT OF THIS FILE HAS BEEN CHANGED BETWEEN MGETTY
+ *           VERSIONS 0.19 AND 0.20! CHECK YOUR CONFIGURATION!
  */
-#define LOGIN_CFG_FILE "/usr/local/lib/mgetty+sendfax/mgetty.login"
+#define LOGIN_CFG_FILE "/usr/local/lib/mgetty+sendfax/login.config"
 
 /* default login program
  *
