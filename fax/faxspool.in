@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 3.8 1996/07/13 12:33:48 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 3.9 1996/09/29 17:16:07 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -557,21 +557,35 @@ if [ ! -w $FAX_SPOOL_OUT ] ; then
 
 #
 # get unique directory name (well, at least: try to)
-# FIXME: one should worry about concurrent processes here! This is a clear
-#        race condition!
+# FIXME: be smarter about already-existing directory names!
 #
 if [ ! -f $FAX_SEQ ] ; then $echo 000000 > $FAX_SEQ ; chmod 666 $FAX_SEQ ; fi
 
 if [ -f $FAX_SEQ -a ! -w $FAX_SEQ ] ; then
     $echo "cannot write to $FAX_SEQ!" >&2 ; exit 6 ; fi
 
-new_seq=`$AWK '{ printf "%06d", $1 + 1 >"'$FAX_SEQ'";
-		printf "%06d", $1 + 1 }' $FAX_SEQ `
+if newslock $FAX_SEQ $FAX_SPOOL_OUT/.Seq.lock ; then :
+else
+    $echo "$0: sequence file locked, waiting 5 seconds..."
+    sleep 5
+    if newslock $FAX_SEQ $FAX_SPOOL_OUT/.Seq.lock ; then :
+    else
+	$echo "$0: can't lock sequence number file. (Try again later)."
+	exit 6
+    fi
+fi
 
-if [ -z "$new_seq" ] ; then $echo 000800 >$FAX_SEQ ; chmod 666 $FAX_SEQ ; fi
+trap "rm -f $FAX_SPOOL_OUT/.Seq.lock" 0 1 2 3 15
+
+new_seq=`$AWK '{ printf "%06d", $1 + 1 }' $FAX_SEQ`
+test -z "$new_seq" ] && new_seq="000800"
+echo $new_seq >$FAX_SEQ
+
+rm -f $FAX_SPOOL_OUT/.Seq.lock
+trap 0 1 2 3 15
 
 
-spooldir=$FAX_SPOOL_OUT/F$new_seq.$$
+spooldir=$FAX_SPOOL_OUT/F$new_seq
 
 if [ -d $spooldir ] ; then
     $echo "Ummm, strange - $spooldir exists (FIX THE SOURCE!)" >&2 ; exit 6
@@ -586,10 +600,6 @@ else $echo "Cannot make $spooldir" >&2 ; exit 6 ; fi
 #
 $echo "spooling to $spooldir..."
 
-#
-# remember input files (to be put in JOB file)
-#
-input_data="$*"
 
 #
 # process all input files
