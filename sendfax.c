@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.16 1993/06/05 11:08:22 gert Exp $ (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.17 1993/06/05 15:54:58 gert Exp $ (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <termio.h>
 #include <sys/ioctl.h>
+#include <signal.h>
 
 #include "mgetty.h"
 #include "fax_lib.h"
@@ -32,8 +33,6 @@ void exit_usage( char * program )
 	     program );
     exit(1);
 }
-
-/* FIXME: handle multiple faxmodems here! */
 
 struct termio fax_termio;
 
@@ -150,6 +149,11 @@ void fax_close( int fd )
     rmlocks();
 }
 
+sig_t fax_send_timeout()
+{
+    lprintf( L_ERROR, "timeout!" );
+}
+
 char fax_end_of_page[] = { DLE, ETX };
 
 /* fax_send_page - send one complete fax-G3-file to the modem
@@ -185,22 +189,26 @@ char wbuf[ sizeof(buf) * 2 ];
     }
 
     /* when modem is ready to receive data, it will send us an XON
-     * FIXME: one should have a timeout here!
+     * (20 seconds timeout)
      */
 
     lprintf( L_NOISE, "waiting for XON, got:" );
 
+    signal( SIGALRM, fax_send_timeout );
+    alarm( 20 );
     do
     {
 	if ( read( fd, &ch, 1 ) != 1 )
 	{
 	    lprintf( L_ERROR, "waiting for XON" );
+	    fprintf( stderr, "error waiting for XON!\n" );
 	    fax_close( fd );
 	    exit(11);
 	}
 	lputc( L_NOISE, ch );
     }
     while ( ch != XON );
+    alarm(0);
 
     /* Since some faxmodems (ZyXELs!) do need XON/XOFF flow control
      * we have to enable it here
@@ -251,7 +259,7 @@ char wbuf[ sizeof(buf) * 2 ];
 		if ( wbuf[ w++ ] == DLE ) wbuf[ w++ ] = DLE;
 	    }
 
-	    lprintf(L_JUNK,"read %d, write %d", r, w );
+	    lprintf( L_JUNK, "read %d, write %d", r, w );
 
 	    if ( write( fd, wbuf, w ) != w )
 	    {
