@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.40 1994/01/19 10:26:51 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 1.41 1994/02/04 21:52:59 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -20,6 +20,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <signal.h>
+#include <sys/types.h>
 #include <sys/times.h>
 #include <malloc.h>
 
@@ -37,7 +38,9 @@ static time_t call_done;
 
 time_t	time _PROTO(( long * tloc ));
 
-int	chmod _PROTO(( char *, mode_t ));
+#if !defined(sun) && !defined(MEIBE)
+int	chmod _PROTO(( char * path, mode_t mode ));
+#endif
 
 /* all stuff in here was programmed according to a description of the
  * class 2 standard as implemented in the SupraFAX Faxmodem
