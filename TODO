@@ -391,3 +391,8 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
 
 263) faxspool.rules: add sample mappings for PDF (via acroread, xpdf,
      recent ghostscript versions)
+
+264) faxrunqd: timeout on "hanging" sendfax processes
+     (timeout > 15 min + 5 minutes * number of pages, or something like that)
+
+265) faxrunqd: write tty to acct.log (format change / WEB gui)
