@@ -1,6 +1,10 @@
 # doc/Makefile
 #
-# SCCS: $Id: Makefile,v 1.7 1994/10/29 20:14:56 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: Makefile,v 1.8 1994/11/04 14:35:03 gert Exp $ Copyright (C) 1994 Gert Doering
+#
+
+NROFF=nroff
+#
 #
 MAN1PAGES=g3topbm.1 g3cat.1 pbmtog3.1 fax.1 \
 	  faxspool.1 faxrunq.1 faxq.1 faxrm.1 coverpg.1
@@ -17,7 +21,7 @@ INFODIR=/usr/local/info
 #
 # formatted man pages
 #
-MAN_FMT_PRG=nroff -man
+MAN_FMT_PRG=$(NROFF) -man
 
 
 all:
@@ -30,7 +34,7 @@ fmt-manpages:
 	$(MAKE) `for i in $(MANSRC) ; do echo \`expr $$i : "\([^.]*\)"\`.man ; done `
 
 mgetty.asc: mgetty.ms
-	-nroff -ms mgetty.ms >mgetty.asc
+	-$(NROFF) -ms mgetty.ms >mgetty.asc
 
 mgetty.ms: mgetty.texi
 	-texi2roff -ms <mgetty.texi >mgetty.ms
