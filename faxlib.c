@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.35 1998/04/04 14:22:25 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.36 1998/06/20 15:58:13 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -717,6 +717,9 @@ int mdm_identify _P1( (fd), int fd )
 	    modem_type=Mt_class2_0;
 	    modem_quirks |= MQ_NO_LQC;		/* +FPS: broken */
 	    mis = mdm_get_idstring( "ATI3", 1, fd );
+	    break;
+	  case 336:				/* one report only */
+	    lprintf( L_MESG, "could be a CompuTime RalleyCom 336" );
 	    break;
 	  default:
 	    lprintf( L_MESG, "unknown numerical modem id %d", mid );
