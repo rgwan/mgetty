@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.20 1997/12/16 13:44:14 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.21 1998/01/27 12:01:25 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -287,8 +287,8 @@ MV=mv
 # Nothing to change below this line ---------------------------------!
 #
 MR=1.1
-SR=11
-DIFFR=1.1.9
+SR=12
+DIFFR=1.1.11
 #
 #
 OBJS=mgetty.o logfile.o do_chat.o locks.o utmp.o logname.o login.o \
