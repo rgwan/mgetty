@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.c,v 4.14 2001/01/05 18:03:58 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_mg.c,v 4.15 2001/01/27 16:22:37 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_mg.c
  *
@@ -299,7 +299,7 @@ void mgetty_get_config _P1( (port), char * port )
     log_set_llevel( c_int(debug) );
 
     /* tell getdisk.c about desired disk space (in kbytes) */
-    minfreespace = c_int(diskspace) * 1024;
+    minfreespace = c_int(diskspace);
 
     /* sanity checks */
     if ( tio_check_speed( c_int(speed) ) < 0 )
