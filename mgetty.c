@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.24 1993/04/05 00:54:36 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.25 1993/04/05 01:08:13 gert Exp $ (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -113,7 +113,7 @@ sig_t		timeout();
 int		tputc( char c );
 void		exit_usage();
 struct	utmp	*getutent();
-void		pututline(struct utmp * utmp);
+struct	utmp	*pututline(struct utmp * utmp);
 void		setutent(void);
 void		endutent(void);
 
