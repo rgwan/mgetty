@@ -1,4 +1,4 @@
-#ident "$Id: ring.c,v 4.16 2002/11/05 21:59:09 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: ring.c,v 4.17 2002/12/04 20:11:13 gert Exp $ Copyright (c) Gert Doering"
 
 /* ring.c
  *
@@ -164,6 +164,42 @@ char * p, ch;
     return 0;			/* unspecified */
 }
 
+/* handle V.253 DRON/DROF result codes 
+ * (signalling "Ring ON" / "Ring OFf" time)
+ *
+ * basically we build a binary word from the RINGs, and use that as 
+ * distinctive RING number.  "Long" = 1, "Short" = 0
+ *
+ * the very first code (always DROF) is always "long".
+ *
+ * example cadence (standard verizon "one long RING" call):
+ *  DROF=0
+ *  DRON=11
+ *  RING
+ *  DROF=40
+ *  DRON=20
+ *  RING
+ */
+static int drox_bitstring;
+static int drox_count;
+static void ring_handle_DROx( char * p )
+{
+    int len, bit;
+
+    /* skip whitespace and '=' (covers "DRON=nnn" and "DRON = nnn")
+     */
+    while( isspace(*p) || *p == '=' ) { p++; }
+
+    len = atoi( p );
+
+    bit = ( drox_count == 0 || len > 9 ) ? 1 : 0;
+
+    lputs( L_NOISE, bit? "<long>": "<short>" );
+
+    drox_bitstring = (drox_bitstring << 1 ) | bit;
+    drox_count++;
+}
+
 
 static boolean chat_has_timeout;
 static RETSIGTYPE chat_timeout(SIG_HDLR_ARGS)
@@ -286,6 +322,11 @@ boolean	got_dle;		/* for <DLE><char> events (voice mode) */
 	 */
 	if ( strncmp( buf, "NMBR", 4 ) == 0 ) { break; }
 
+	/* V.253 ring cadences */
+	if ( strncmp( buf, "DRON", 4 ) == 0 ||
+	     strncmp( buf, "DROF", 4 ) == 0 )
+		{ ring_handle_DROx( buf+4 ); continue; }
+
 	/* now check the different RING types 
 	 * if not "RING<whatever>", clear buffer and get next line
 	 */
@@ -315,6 +356,14 @@ boolean	got_dle;		/* for <DLE><char> events (voice mode) */
     }
 
     alarm(0);
+
+    if ( drox_count > 0 )
+    {
+	lprintf( L_NOISE, "wfr: DRON/DROF cadence: %x", drox_bitstring );
+	*dist_ring_number = drox_bitstring;
+	drox_count=0; drox_bitstring=0;
+    }
+
     lprintf( L_NOISE, "wfr: rc=%d, drn=%d", rc, *dist_ring_number );
     return rc;
 }
