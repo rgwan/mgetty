@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.25 1998/04/02 21:21:52 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.26 1998/04/14 20:12:25 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -287,12 +287,12 @@ MV=mv
 # Nothing to change below this line ---------------------------------!
 #
 MR=1.1
-SR=14
-DIFFR=1.1.13
+SR=15
+DIFFR=1.1.14
 #
 #
 OBJS=mgetty.o logfile.o do_chat.o locks.o utmp.o logname.o login.o \
-     mg_m_init.o modem.o faxrec.o \
+     mg_m_init.o modem.o faxrec.o ring.o \
      faxlib.o faxsend.o faxrecp.o class1.o class1lib.o faxhng.o \
      io.o gettydefs.o tio.o cnd.o getdisk.o goodies.o \
      config.o conf_mg.o do_stat.o
@@ -377,7 +377,7 @@ DISTRIB=README.1st THANKS TODO BUGS FTP FAQ Recommend \
 	login.cfg.in mgetty.cfg.in sendfax.cfg.in \
 	dialin.config faxrunq.config \
         mgetty.c mgetty.h ugly.h do_chat.c logfile.c logname.c locks.c \
-	mg_m_init.c modem.c class1.h class1.c class1lib.c \
+	mg_m_init.c modem.c ring.c class1.h class1.c class1lib.c \
 	faxrec.c faxrecp.c faxsend.c faxlib.c fax_lib.h sendfax.c \
 	io.c tio.c tio.h gettydefs.c login.c do_stat.c faxhng.c \
 	config.h config.c conf_sf.h conf_sf.c conf_mg.h conf_mg.c \
@@ -683,6 +683,7 @@ conf_mg.o : conf_mg.c mgetty.h ugly.h policy.h syslibs.h tio.h config.h conf_mg.
 conf_sf.o : conf_sf.c mgetty.h ugly.h policy.h syslibs.h config.h conf_sf.h 
 config.o : config.c syslibs.h mgetty.h ugly.h config.h 
 do_chat.o : do_chat.c syslibs.h mgetty.h ugly.h policy.h tio.h 
+ring.o: ring.c syslibs.h mgetty.h ugly.h policy.h tio.h
 do_stat.o : do_stat.c syslibs.h mgetty.h ugly.h policy.h tio.h 
 dump.o : dump.c syslibs.h mgetty.h ugly.h policy.h tio.h fax_lib.h mg_utmp.h \
   config.h conf_mg.h 
