@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.84 1994/01/12 22:30:03 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.85 1994/01/16 23:53:47 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -130,6 +130,9 @@ int	toggle_dtr_waittime = 500;	/* milliseconds while DTR is low */
 int	prompt_waittime = 500;		/* milliseconds between CONNECT and */
 					/* login: -prompt */
 
+extern time_t	call_start;		/* time when we sent ATA */
+					/* defined in faxrec.c */
+
 TIO *gettermio _PROTO((char * tag, boolean first, char **prompt));
 
 boolean	direct_line = FALSE;
@@ -141,9 +144,9 @@ static RETSIGTYPE sig_pick_phone()		/* "simulated RING" handler */
     signal( SIGUSR1, sig_pick_phone );
     virtual_ring = TRUE;
 }
-static RETSIGTYPE sig_goodbye( int signo )
+static RETSIGTYPE sig_goodbye _P1 ( (signo), int signo )
 {
-    lprintf( L_AUDIT, "got signal %d, exiting", signo );
+    lprintf( L_AUDIT, "failed, pid=%d, got signal %d, exiting", getpid(), signo );
     rmlocks();
     exit(10);
 }
@@ -196,7 +199,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 	/* process the command line
 	 */
 
-	while ((c = getopt(argc, argv, "c:x:s:rp:n:i:S:")) != EOF) {
+	while ((c = getopt(argc, argv, "c:x:s:rp:n:i:S:m:")) != EOF) {
 		switch (c) {
 		case 'c':			/* check */
 #ifdef USE_GETTYDEFS
@@ -207,6 +210,9 @@ int main _P2((argc, argv), int argc, char ** argv)
 			lprintf( L_FATAL, "gettydefs not supported\n");
 			exit_usage(2);
 #endif
+		case 'm':
+			minfreespace = atol(optarg);
+			break;
 		case 'x':			/* log level */
 			log_level = atoi(optarg);
 			break;
@@ -540,13 +546,28 @@ waiting:
 		goto waiting;
 	    }
 
+	    /* If we got caller ID information, we check it and abort
+	       if this caller isn't allowed in */
+
+	    if (!cndlookup())
+	    {
+		lprintf( L_AUDIT, "denied caller dev=%s, pid=%d, caller=%s",
+		    Device, getpid(), CallerId);
+		clean_line( STDIN, 80 ); /* wait for ringing to stop */
+
+		rmlocks();
+		exit(1);	/* -> state "waiting" */
+	    }
+
+	    /* remember time of phone pickup */
+	    call_start = time( NULL );
+
 	    /* answer phone only, if we got all "RING"s (otherwise, the */
 	    /* modem may have auto-answered (urk), the user may have */
 	    /* pressed a "data/voice" button, ..., and we fall right */
 	    /* through) */
 
-	    log_level++; /*FIXME!!: remove this - for debugging only */
-	    
+	    log_level++;	/*FIXME!!: remove this - for debugging only */
 	    if ( what_action != A_CONN &&
 		 what_action != A_VCON &&	/* vgetty extensions */
 		 ( rings < rings_wanted ||
@@ -560,8 +581,11 @@ waiting:
 		    exit(1);
 		}
 
-		lprintf( L_MESG, "chat failed (%s), exiting...",
-			 what_action == A_TIMOUT? "timeout" : "A_FAIL" );
+		lprintf( L_AUDIT, 
+		   "failed %s dev=%s, pid=%d, caller=%s, conn='%s', name='%s'",
+		    what_action == A_TIMOUT? "timeout": "A_FAIL", 
+		    Device, getpid(), CallerId, Connect, CallName );
+  
 		rmlocks();
 		exit(1);
 	    }
