@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 4.6 1997/12/05 23:49:40 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 4.7 1998/04/19 09:26:55 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -182,6 +182,11 @@ int	do_chat _PROTO(( int filedesc, char * expect_send[],
 		 int chat_timeout_time, boolean timeout_first ));
 int	do_chat_send _PROTO(( int filedesc, char * send_str_with_esc ));
 int	clean_line _PROTO(( int filedesc, int tenths ));
+
+/* ring.c */
+int	wait_for_ring _PROTO(( int filedesc, char ** msn_list, int timeout, 
+			       chat_action_t actions[], action_t * action,
+			       int * dist_ring_number ));
 
 /* do_stat.c */
 void	get_statistics _PROTO(( int filedesc, char ** chat, char * file ));
