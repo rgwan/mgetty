@@ -6,6 +6,62 @@ Tue Mar 16 11:02:26 1999  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 	many problems encountered by people upgrading to 1.1.20
 	plus the 10021999 global patch.
 
+Wed Feb 10 07:17:57 1999  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* Many changes which are documented below:
+	     voice/Readme
+		Changes about maintenance. 
+	     doc/Readme.pvftools
+		Contributed by Daniel Doering
+	     doc/Readme.voice_shell
+		Augmented with new commands (DTMF)
+	     Almost all modem-specific include files and implementation files
+		Added support for play DTMF from voice script
+	     libpvf/rockwell.c	  
+		Additions by Bill Nugent <whn@topelo.lopi.com> for the
+		PCM format.
+	     libvoice/README.lucent
+		Some information about that chipset
+	     libvoice/detect.c
+		Added PNP detection by Rob Ryan <rr2b@pacbell.net>
+	     libvoice/event.c
+		Fixed so that a NUL in the debug stream doesn't corrupt the
+ 	        logs.
+	     libvoice/shell.c
+		Added new command DTMF
+	     pvftools/extract_gsm
+		Perl script to extract GSM data for US Robotics Sportster Vi
+	     pvftools/pvftormd.c
+		See libpvf/rockwell.c
+	     pvftools/usrgsm.c
+	     pvftools/usrgsm.mk
+		Presumably the same as pvftools/extract_gsm
+	     pvftools/wavtopvf.c
+		Added information in usage that it doesn't support stereo.
+	     scripts/convert_wav_to_rmd.sh
+		Because of wavtopvf not supporting stereo, I contributed a
+		script using SOX to convert stereo WAV to a modem RMD format.
+	     vgetty/answer.c
+		Moved the switching to the voice line AFTER answering, else
+		would sometimes hang X.75 on a ZyXEL 2864I (anyway it's
+		better that way).
+	     vm/main.c
+		Support for DTMF
+	     voice/voice.conf-dist
+		Added comment that setting rec_max_len to zero skips recording.
+	     voice/xvoicetool/
+		Added
+
+	  New modem beta-supported
+	     Multitech_5634ZBAV
+	     Multitech_5600ZDXv
+	     Supra
+		(see details at
+		    http://home.earthlink.net/~eboreg/Supra.html
+		 or information in voice/libvoice/README.Supra)
+		This include ``PNP-detection'' changes.
+		By Rob Ryan <rr2b@pacbell.net>.
+	
 Wed Feb 10 07:17:57 CST 1999  Rick Richardson  (rick@dgii.com)
 
      * Fixed a bunch of places where feof() was being misused in
