@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.26 1993/04/19 21:44:14 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.27 1993/04/19 22:03:15 gert Exp $ (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -165,7 +165,7 @@ int main( int argc, char ** argv)
 
 
 	struct passwd *pwd;
-	uid_t	uucpuid = 0;
+	uid_t	uucpuid = UUCPID;
 	gid_t	uucpgid = 0;
 
 	int pid;
@@ -266,7 +266,7 @@ int main( int argc, char ** argv)
 
 	/* allow uucp to access the device
 	 */
-	(void) chmod(devname, 0666);
+	(void) chmod(devname, FILE_MODE);
 	if ((pwd = getpwuid(UUCPID)) != (struct passwd *) NULL) {
 		uucpuid = pwd->pw_uid;
 		uucpgid = pwd->pw_gid;
