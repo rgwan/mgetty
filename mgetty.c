@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 4.9 1997/11/28 10:30:56 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 4.10 1997/12/02 16:21:35 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -477,6 +477,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 	{
 	    lprintf( L_AUDIT, "failed in mg_init_data, dev=%s, pid=%d",
 	                      Device, getpid() );
+	    tio_flush_queue( STDIN, TIO_Q_BOTH );	/* unblock flow ctrl */
 	    rmlocks();
 	    exit(1);
 	}
