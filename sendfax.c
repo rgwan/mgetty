@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.64 1994/07/12 22:50:47 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.65 1994/07/12 22:51:59 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* sendfax.c
  *
@@ -57,7 +57,7 @@ int fax_open_device _P2( (fax_tty, use_stdin),
     else
     {
 	/* ignore leading "/dev/" prefix */
-	if ( strncp( fax_tty, "/dev/", 5 ) == 0 ) fax_tty += 5;
+	if ( strncmp( fax_tty, "/dev/", 5 ) == 0 ) fax_tty += 5;
 	
 	if ( verbose ) printf( "Trying fax device '/dev/%s'... ", fax_tty );
 
