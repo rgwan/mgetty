@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 1.20 1994/05/14 16:08:44 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 1.21 1994/05/30 17:17:09 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* faxlib.c
  *
@@ -247,7 +247,7 @@ int  ix;
  * MODEM_CMD_SUFFIX character / string from policy.h
  */
 
-int fax_send _P2( (s, fd),
+int fax_send _P2( (send, fd),
 		  char * send, int fd )
 {
 #ifdef FAX_COMMAND_DELAY

@@ -1,4 +1,4 @@
-#ident "$Id: gettydefs.c,v 1.7 1994/05/14 16:55:59 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "$Id: gettydefs.c,v 1.8 1994/05/30 17:17:11 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 ;
 /* gettydefs.c
  *
@@ -31,7 +31,7 @@ char * mydup _P1 ((s), register char *s)
 }
 #ifdef USE_GETTYDEFS
 
-static char gettydefs_ID[] = "@(#)gettydefs.c compiled with USE_GETTYDEFS"
+static char gettydefs_ID[] = "@(#)gettydefs.c compiled with USE_GETTYDEFS";
 
 #include "tio.h"
 

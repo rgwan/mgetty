@@ -1,4 +1,4 @@
-#ident "$Id: mg_m_init.c,v 1.2 1994/05/14 16:39:04 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_m_init.c,v 1.3 1994/05/30 17:17:10 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mg_m_init.c - part of mgetty+sendfax
  *
@@ -241,7 +241,7 @@ int mg_open_device _P2 ( (devname, blocking),
 
 /* init device: toggle DTR (if requested), set TIO values */
 
-int mg_init_device _P4( (fd, toggle_dtr, toggle_dtr_waittime, speed ),
+int mg_init_device _P4( (fd, toggle_dtr, toggle_dtr_waittime, portspeed ),
 		       int fd,
 		       boolean toggle_dtr, int toggle_dtr_waittime,
 		       unsigned short portspeed )
