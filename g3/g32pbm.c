@@ -1,4 +1,4 @@
-#ident "$Id: g32pbm.c,v 1.17 1994/09/11 12:53:37 gert Exp $ (c) Gert Doering"
+#ident "$Id: g32pbm.c,v 1.18 1994/10/31 11:13:35 gert Exp $ (c) Gert Doering"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -59,8 +59,6 @@ char *scalebm _P5( (res, cols, rows, map, bperrow),
     register char *orp, *nrp;
     char *newmap;
     MVTYPE *mulvec;
-
-    int k;
 
     if ( res == BASERES ) 		/* don't do anything of not scaled */
     {
@@ -327,7 +325,7 @@ int	resolution = BASERES;
 	if ( p == NULL )	/* invalid code */
 	{ 
 	    fprintf( stderr, "invalid code, row=%d, col=%d, file offset=%lx, skip to eol\n",
-		     row, col, lseek( fd, 0, 1 ) - rs + rp );
+		     row, col, (unsigned long) lseek( fd, 0, 1 ) - rs + rp );
 	    while ( ( data & 0x03f ) != 0 )
 	    {
 		data >>= 1; hibit--;
