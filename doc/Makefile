@@ -1,10 +1,11 @@
 # doc/Makefile
 #
-# SCCS: $Id: Makefile,v 1.1 1994/03/01 02:05:55 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: Makefile,v 1.2 1994/03/02 14:09:38 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 MAN1PAGES=g3topbm.1 g3cat.1 pbmtog3.1 \
 	  faxspool.1 faxrunq.1 faxq.1 faxrm.1
 MAN4PAGES=mgettydefs.4
+MAN5PAGES=faxqueue.5
 MAN8PAGES=sendfax.8
 MAN1DIR=/usr/local/man/man1
 MAN4DIR=/usr/local/man/man4
@@ -21,15 +22,9 @@ all:
 doc-all: mgetty.1 mgetty.info mgetty.dvi mgetty.ps fmt-manpages
 
 fmt-manpages:
-	for i in $(MAN1PAGES) ; do \
+	for i in $(MAN1PAGES) $(MAN4PAGES) $(MAN5PAGES) $(MAN8PAGES); do \
 		echo $$i ; \
-		$(MAN_FMT_PRG) $$i >`basename $$i .1`.man ; \
-	done
-	for i in $(MAN4PAGES) ; do \
-		$(MAN_FMT_PRG) $$i >`basename $$i .4`.man ; \
-	done
-	for i in $(MAN8PAGES) ; do \
-		$(MAN_FMT_PRG) $$i >`basename $$i .8`.man ; \
+		$(MAN_FMT_PRG) $$i >`expr $$i : "\([^.]*\)"`.man ; \
 	done
 
 mgetty.1: mgetty.texi
@@ -59,6 +54,9 @@ install: $(MAN1PAGES) $(MAN4PAGES) mgetty.info
 	done
 	for i in $(MAN4PAGES) ; do \
 		$(INSTALL) -m 644 $$i $(MAN4DIR) ; \
+	done
+	for i in $(MAN5PAGES) ; do \
+		$(INSTALL) -m 644 $$i $(MAN5DIR) ; \
 	done
 	for i in $(MAN8PAGES) ; do \
 		$(INSTALL) -m 644 $$i $(MAN8DIR) ; \
