@@ -1,0 +1,136 @@
+#!@PERL@
+#
+# faxq-v.pl -- show fax queue with details
+# 
+# Copyright 1998 Simone Demmel simone@greenie.net
+#
+# CVS: $Id: faxq-v.in,v 1.1 1998/08/28 14:23:23 gert Exp $
+#
+# $Log: faxq-v.in,v $
+# Revision 1.1  1998/08/28 14:23:23  gert
+# initial release
+#
+
+print "Content-type: text/html\n\n";
+
+#
+# Variablen 
+#
+$outgoing = "@FAX_SPOOL_OUT@";
+$target = "";
+
+#
+# starting
+#
+
+
+### GET oder POST?
+if ($ENV{'REQUEST_METHOD'} eq "GET")
+{
+  $query_string=$ENV{'QUERY_STRING'};
+}
+elsif (($ENV{'REQUEST_METHOD'} eq "POST") &&
+       ($ENV{'CONTENT_TYPE'} eq "application/x-www-form-urlencoded"))
+{
+  read(STDIN,$query_string,$ENV{'CONTENT_LENGTH'});
+}
+else
+{
+#  &html_out(0,"<B>Submission method not supported!</B>\n");
+};
+
+### Auswerten der Argumentzeilen
+%args=();
+foreach (split(/\&/,$query_string))
+{
+  if ( /^(\w+)=/ && ($key=$1) && ($value=$') )
+  {
+    $value =~ s/\+/ /go;
+    $value =~ s/\%([0-9a-f]{2})/pack(C,hex($1))/eig;
+
+   $args{"$key"}=$args{"$key"} . " " . $value if ($value!~/^\s*$/);
+   $args{"$key"} =~ s/^\s*//o;
+  }
+}
+
+$name = $args{name};
+
+#
+# $name hat unsere Datei - sanity check first!!
+#
+
+if ( $name !~ /^F\d+$/ || ! chdir "$outgoing/$name" )
+{
+    print "<body><html><B>can't chdir to '$name': $!</B></body></html>";
+    exit 0;
+}
+
+unless ( opendir DIRECTORY, "." )
+{
+    print "<body><html><B>can't read '$name': $!</B></body></html>";
+    exit 0;
+}
+
+$target='JOB';
+foreach $DATEI (readdir DIRECTORY)
+{
+  # search for our JOB(.*)
+  if ($DATEI =~ /^JOB/) {$target = $DATEI;}
+}
+closedir DIRECTORY;
+
+# now open $target and parse it
+$phone='unknown'; $user='unknown'; $mail=''; $input=''; $pages='';
+@stati=();
+
+open (IN, "$target") || print "cannot open $target\n";
+while (<IN>)
+{
+  chomp $_;
+  @tmp = split / /, $_;
+  if (/phone /) {$phone = $tmp[1];}
+  if (/user /) {$user = $tmp[1];}
+  if (/mail /) {$mail = $tmp[1];}
+  if (/input (.*)$/) { $input = $1; }
+  if (/pages (.*)$/) { $pages = $1; }
+  if (/Status (.*)$/) { push @stati, $1; }
+}
+close (IN);
+
+print <<EOF;
+<html><head><title>Details zu $name</title></head>
+<body bgcolor="white">
+
+<h2>Fax-Nummer: $phone</h2>
+
+<table>
+<tr><td>User</td><td>$user</td></tr>
+<tr><td>EMail</td><td>$mail</td></tr>
+<tr><td>Eingabe</td><td>$input</td></tr>
+<tr><td>Seiten</td><td>$pages</td></tr>
+</table>
+
+<p>
+
+Fehlversuche:
+<p>
+EOF
+
+for ($i=0; $i<=$#stati; $i++)
+{
+  print "$stati[$i]<br>\n";
+}
+
+print <<EOF;
+<p>
+<hr>
+<a href="faxq.pl">Übersicht Faxe</a><br>
+<a href="/~sd/index.html">^Hauptmenue</a>
+</body>
+</html>
+EOF
+exit 0
+
+# ***********************************************************************
+# Das war's
+# ***********************************************************************

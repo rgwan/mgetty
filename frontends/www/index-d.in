@@ -1,0 +1,12 @@
+<!-- RCS: $Id: index-d.in,v 1.1 1998/08/28 14:23:24 gert Exp $ -->
+<html><head>
+<title>faxmanager - deutsch</title>
+</head></html>
+<body bgcolor="white">
+
+<h1 align="center">Faxmanager</h1>
+<hr size="5">
+
+<a href="@CGI_HREF@faxq.pl">Status zu sendender Faxe</a>
+<hr>
+</body>

@@ -1,0 +1,187 @@
+#!@PERL@
+#
+# faxq.pl -- show fax queue
+# 
+# Copyright 1998 Simone Demmel simone@greenie.net
+#
+# CVS: $Id: faxq.in,v 1.1 1998/08/28 14:23:24 gert Exp $
+#
+# $Log: faxq.in,v $
+# Revision 1.1  1998/08/28 14:23:24  gert
+# initial release
+#
+
+#
+# Script zur Generierung eines Statusueberblicks ueber Faxq
+#
+
+#
+# Aufgabe:
+# - 1. zusammenfassender Grobueberblick ueber die Stati -> fax.html
+#
+
+#
+# damit wirs nicht vergessen....
+#
+print "Content-type: text/html\n\n";
+
+#
+# Variablen 
+#
+
+# Outgoing-Verzeichnis
+$outgoing = "@FAX_SPOOL_OUT@";
+
+
+#
+# Ende der Variablen
+#
+
+#
+# jetzt gehts los
+#
+
+
+chdir $outgoing;
+
+#
+# HTML-Drumherum oberer Teil
+#
+
+print <<EOF;
+<html><head>
+<title></title>
+</head></html>
+<body bgcolor="#ffffff">
+
+<h1 align="center">Faxmanager - Stati zu sendender Faxe</h1>
+<hr size="5">
+
+<div align="center">
+<table border="1" cellpadding="4">
+<tr>
+	<th>ID</th>
+	<th>Status</th>
+	<th>Datum</th>
+	<th>User</th>
+	<th>Email</th>
+	<th>Fax-Nr.</th>
+	<th>Fehler</th>
+	<th>Details</th>
+</tr>
+EOF
+
+
+# generieren:
+# <tr>
+# 	<td>9:00</td>
+# 	<td><a href="tmp.html" target="_new">408978645678</a></td>
+# 	<td>waiting</td>
+# 	<td>3</td>
+# </tr>
+
+@datein = ();
+opendir DIRECTORY, "." || print "cannot open $outgoing\n";
+foreach $DATEI ( readdir DIRECTORY )
+{
+  if ($DATEI =~ /^F/) { push @datein, $DATEI; }
+}
+closedir DIRECTORY;
+
+foreach $DATEI (sort(@datein))
+{
+
+# div Variablen
+$status = "unknown";
+$von = "unknown";
+$an = "unknown";
+$zeit = "unknown";
+$fehlversuche = "&nbsp;";
+$mail = "&nbsp;";
+
+  if ($DATEI eq "") {next;}
+# DEBUGGING
+# print "bearbeite: $DATEI\n";
+  $fehlversuche = "0";
+
+  if ($DATEI eq "."|| $DATEI eq ".."|| $DATEI eq "locks")
+  {
+    next;
+  }
+
+  elsif (-e $outgoing."/".$DATEI."/JOB" &&
+    !(-e $outgoing."/".$DATEI."/JOB.locked"))
+  {
+    $status = "wartend";
+    $target = $DATEI."/JOB";
+  }
+  elsif (-e $outgoing."/".$DATEI."/JOB" && 
+	 -e $outgoing."/".$DATEI."/JOB.locked")
+  {
+    $status = "<font color=\"#009900\">on modem</font>";
+    $target = $DATEI."/JOB";
+  }
+  elsif (-e $outgoing."/".$DATEI."/JOB.suspended")
+  {
+    $status = "<font color=\"#aa0000\">suspended</font>";
+    $target = $DATEI."/JOB.suspended";
+  }
+  else
+  {
+    $status = "<font color=\"#0000ff\">unbekannt</font>"; 
+    $target = "";
+  }
+  # $zeit = -M $outgoing."/".$DATEI."/JOB";
+  @tmp = stat $outgoing."/".$DATEI;
+  @tmp = localtime($tmp[8]);
+  $tmp[4] = (Jan,Feb,Mar,Apr,Mai,Jun,Jul,Aug,Sep,Okt,Nov,Dez) [$tmp[4]];
+  $zeit = $tmp[3].".".$tmp[4]." ".$tmp[5]." ".$tmp[2].":".$tmp[1].":".$tmp[0];
+
+  if (open (DAT, "$target"))
+  {
+    while(<DAT>) {
+      chomp $_;
+      if (/^phone (.*)/) { $an = $1;}
+      if (/^user (.*)/) { $von = $1;}
+      if (/^mail (.*)/) { $mail = $1;}
+      if (/^Status /) { $fehlversuche++;}
+    }
+    close (DAT);
+
+
+print <<EOF;
+
+<tr>
+	<td>$DATEI</td>
+	<td>$status</td>
+	<td>$zeit</td>
+	<td>$von</td>
+	<td>$mail</td>
+	<td>$an</td>
+  	<td>$fehlversuche</td>
+  	<td><a href="faxq-v.pl?name=$DATEI">Details</a></td>
+</tr>
+EOF
+  }
+  else 
+  {
+    print "<tr><td>$DATEI</td><td colspan=\"7\" bgcolor=\"#ff0000\">kann JOB-Datei nicht lesen: $!</td></tr>\n";
+  }
+}
+
+
+print <<EOF;
+</table>
+</div>
+
+<p>
+<hr size="5">
+<a href="/~sd/index.html">^Hauptmenue</a>
+</body>
+EOF
+
+exit 0
+
+# ***********************************************************************
+# Das war's
+# ***********************************************************************
