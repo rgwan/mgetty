@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-# RCS: $Id: faxrunqd.in,v 1.11 1997/11/14 11:08:43 gert Exp $
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.12 1997/11/14 12:03:37 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.12  1997/11/14 12:03:37  gert
+# write (RCS) version number to startup message
+#
 # Revision 1.11  1997/11/14 11:08:43  gert
 # introduce signal USR2 to make faxrunqd "exit ASAP" (but gracefully)
 #
@@ -232,7 +235,7 @@ opendir FSO, "." ||
 open( LOG, ">>$faxrd_log" ) ||
 	    die "can't write log file '$faxrd_log'";
 LOG->autoflush(1);
-print LOG "\n" . localtime() .": faxrunqd starting, pid=$$\n";
+print LOG "\n" . localtime() .": faxrunqd starting, pid=$$\n$rcs_id\n";
 
 #
 # internal queue
