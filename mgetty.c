@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 4.12 1998/04/02 17:02:41 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 4.13 1998/04/15 20:03:06 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -34,12 +34,6 @@
 # ifndef DIST_RING
 #  define DIST_RING
 # endif
-#endif
-
-#ifdef DIST_RING
-char *	ring_chat_seq[] = { "RING\r", NULL };
-#else
-char *	ring_chat_seq[] = { "RING", NULL };
 #endif
 
 /* how much time may pass between two RINGs until mgetty goes into */
@@ -296,6 +290,7 @@ int main _P2((argc, argv), int argc, char ** argv)
     action_t	what_action;
     int		rings_wanted;
     int		rings = 0;
+    int		dist_ring = 0;		/* type of RING detected */
 
 #if defined(_3B1_) || defined(MEIBE) || defined(sysV68)
     extern struct passwd *getpwuid(), *getpwnam();
@@ -652,8 +647,8 @@ int main _P2((argc, argv), int argc, char ** argv)
 
 	    /* while phone is ringing... */
 	    
-	    while ( do_chat( STDIN, ring_chat_seq, ring_chat_actions,
-			      &what_action, 10, TRUE ) == SUCCESS )
+	    while( wait_for_ring( STDIN, NULL, 10, ring_chat_actions, 
+				  &what_action, &dist_ring ) == SUCCESS )
 	    {
 		rings++;
 		if ( access( buf, F_OK ) != 0 ||	/* removed? */
@@ -710,8 +705,8 @@ int main _P2((argc, argv), int argc, char ** argv)
 	    {
 		int n = 0;
 		
-		while ( do_chat( STDIN, ring_chat_seq, ring_chat_actions,
-				 &what_action, 17, TRUE ) == SUCCESS &&
+		while( wait_for_ring( STDIN, NULL, 17, ring_chat_actions, 
+				      &what_action, &dist_ring ) == SUCCESS &&
 		        ! virtual_ring )
 		{ n++; }
 		
@@ -731,15 +726,14 @@ int main _P2((argc, argv), int argc, char ** argv)
 
 	    while ( rings < rings_wanted )
 	    {
-		if ( do_chat( STDIN, ring_chat_seq, ring_chat_actions,
-			      &what_action,
-			      ( c_bool(ringback) && rings == 0 )
-				    ? c_int(ringback_time) : ring_chat_timeout,
-			      TRUE ) == FAIL
-#ifdef DIST_RING
-		    && ( what_action < A_RING1 || what_action > A_RING5 )
-#endif
-		   ) break;
+		if ( wait_for_ring( STDIN, NULL, 
+			  ( c_bool(ringback) && rings == 0 )
+				? c_int(ringback_time) : ring_chat_timeout,
+			  ring_chat_actions, &what_action, 
+			  &dist_ring ) == FAIL)
+		{
+		    break;		/* ringing stopped, or "action" */
+		}
 		rings++;
 	    }
 
