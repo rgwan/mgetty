@@ -57,7 +57,7 @@ speed @SPEED@
 #  debug 8
 #  init-chat "" \d\d\d+++\d\d\dAT&FS2=255 OK ATN3S0=0S13.2=1 OK 
 #  statistics-chat "" AT OK ATI2 OK
-#  statistics-file /tmp/statistics.2864
+#  statistics-file /var/log/statistics.ttyS2
 #  modem-type cls2
 
 # direct connection of a VT100 terminal which doesn't like DTR drops
