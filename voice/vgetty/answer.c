@@ -1,7 +1,7 @@
 /*
  * answer.c
  *
- * $Id: answer.c,v 1.14 2000/06/11 16:23:08 marcs Exp $
+ * $Id: answer.c,v 1.15 2000/09/10 08:09:43 marcs Exp $
  *
  */
 
@@ -207,7 +207,7 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
      char greeting_message[VOICE_BUF_LEN];
      char receive_dir[VOICE_BUF_LEN];
      char message[VOICE_BUF_LEN];
-     char message_name[VOICE_BUF_LEN] = "vXXXXXX";
+     char message_name[VOICE_BUF_LEN];
      char *ring_type = "ring";
      int i, j;
      int result;
@@ -292,7 +292,23 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
           }
 
      make_path(receive_dir, cvd.voice_dir.d.p, cvd.receive_dir.d.p);
-     mktemp(message_name);
+
+     /* The file name is made from "v", then the pid, then the
+      * time_t, then the possible CallerId, plus separators.
+      * The caller-ID is truncated at 16 characters.
+      * NOTES
+      *    - On system not supporting standard file names (e.g. 14-characters
+      *      sysvfs), only the pid will be used.
+      */
+
+#ifdef SHORT_FILENAMES
+     sprintf(message_name, "v%d",
+             pid);
+#else /* !SHORT_FILENAMES */
+     sprintf(message_name, "v-%d-%d",
+             pid,
+             time(NULL));
+#endif /* !SHORT_FILENAMES */
 
 #ifndef SHORT_FILENAMES
      /* Include caller ID string in the file name */
