@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.32 1993/11/12 15:18:04 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.33 1993/11/13 10:52:13 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -167,10 +167,16 @@
 
 /* some modems are a little bit slow - after sending a response (OK)
  * to the host, it will take some time before they can accept the next
- * command - specify the amount needed in fax mode here (in
+ * command - specify the amount needed in data mode here (in
  * milliseconds). Normally, 50 ms should be sufficient. (On a slow
  * machine it may even work without any delay at all)
+ *
+ * Be warned: if your machine isn't able to sleep for less than one
+ * second, this may cause problems.
  */
+#define DO_CHAT_SEND_DELAY 50
+ /* and this is the delay before sending each command while in fax mode
+  */
 #define FAX_COMMAND_DELAY 50
 
 /* incoming faxes will be chown()ed to this uid and gid
