@@ -1,4 +1,4 @@
-#ident "$Id: locks.c,v 1.6 1993/03/15 20:28:24 gert Exp $ Gert Doering / Paul Sutcliffe Jr."
+#ident "$Id: locks.c,v 1.7 1993/03/16 09:54:59 gert Exp $ Gert Doering / Paul Sutcliffe Jr."
 
 /* large parts of the code in this module are taken from the
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us,
@@ -30,7 +30,14 @@ makelock(char *name)
 {
 	int fd, pid;
 	char *temp, buf[MAXLINE+1];
+#if LOCKS_BINARY
+	int  bpid;
+# if sizeof( bpid ) != 4
+# error please choose an integer type of size 4 for bpid
+# endif
+#else
 	char apid[16];
+#endif
 
 	lprintf(L_NOISE, "makelock(%s) called", name);
 
@@ -47,8 +54,13 @@ makelock(char *name)
 
 	/* put my pid in it */
 
+#if LOCKS_BINARY
+	bpid = getpid();
+	(void) write(fd, bpid, sizeof( bpid ) );
+#else
 	(void) sprintf(apid, "%10d\n", getpid());
 	(void) write(fd, apid, strlen(apid));
+#endif
 	(void) close(fd);
 
 	/* link it to the lock file */
@@ -116,7 +128,7 @@ checklock(char * name)
 		(void) unlink(name);
 		return(FALSE);
 	}
-	lprintf(L_NOISE, "no lockfile found" );
+	lprintf(L_NOISE, "lockfile found" );
 
 	return(TRUE);
 }
@@ -130,14 +142,23 @@ checklock(char * name)
 int readlock( char * name )
 {
 	int fd, pid;
+#if LOCKS_BINARY
+# if sizeof( pid ) != 4
+# error please choose an integer type of size 4 for pid
+# endif
+#else
 	char apid[16];
+#endif
 
 	if ((fd = open(name, O_RDONLY)) == FAIL)
 		return(FAIL);
 
+#if LOCKS_BINARY
+	(void) read(fd, &pid, sizeof(pid));
+#else
 	(void) read(fd, apid, sizeof(apid));
 	(void) sscanf(apid, "%d", &pid);
-
+#endif
 	(void) close(fd);
 	return(pid);
 }
