@@ -1,4 +1,4 @@
-#ident "$Id: g32pbm.c,v 4.2 1998/04/02 16:39:00 gert Exp $ (c) Gert Doering, Chris Lewis et.al."
+#ident "$Id: g32pbm.c,v 4.3 1998/06/01 12:00:09 gert Exp $ (c) Gert Doering, Chris Lewis et.al."
 
 /* G32pbm.c
  *
@@ -92,7 +92,7 @@ char *scalebm _P5( (res, cols, rows, map, bperrow),
     memset( newmap, 0, nr * newbperrow );
 
     {
-	int max = *cols > *rows ? *cols: *rows;
+	int max = ( *cols > *rows ) ? *cols: *rows;
 	MVTYPE *mv;
 
 	mulvec = (MVTYPE *) malloc(max * sizeof(MVTYPE));
