@@ -1,4 +1,4 @@
-#ident "$Id: conf_sf.c,v 4.11 1998/07/05 20:31:43 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_sf.c,v 4.12 1999/02/24 16:05:41 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_sf.c
  *
@@ -37,6 +37,8 @@ struct conf_data_sendfax c = {
 #endif
 	{ "modem-type", {(p_int) DEFAULT_MODEMTYPE}, CT_STRING, C_PRESET },
 	{ "modem-quirks", {0}, CT_INT, C_EMPTY },
+	{ "fax-send-flow", {FAXSEND_FLOW}, CT_FLOWL, C_PRESET },
+	{ "fax-rec-flow", {FAXREC_FLOW}, CT_FLOWL, C_PRESET },
 	{ "max-tries", {FAX_SEND_MAX_TRIES}, CT_INT, C_PRESET },
 	{ "max-tries-continue", {TRUE}, CT_BOOL, C_PRESET },
 	{ "speed", {FAX_SEND_BAUD}, CT_INT, C_PRESET },
