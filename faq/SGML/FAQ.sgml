@@ -7,7 +7,7 @@
               which are now maintained by Marc Schaefer
 <author>			 Klaus Lichtenwalder, now maintained by
                                  Marc Schaefer
-<date>$Date: 2000/07/23 10:01:20 $
+<date>$Date: 2000/09/16 16:35:53 $
 
 <abstract>
 This document attempts to answer the most frequently asked questions
@@ -1298,6 +1298,14 @@ CALLER ID on some specific modems, you might want to add the following
 in post-init-chat: 
 <p>
 post-init-chat "" AT#CID=1 OK
+
+<sect1>Garbage instead of RINGs with vgetty<label id="speed mismatch">
+<p>
+From: Marc SCHAEFER
+<p>
+Garbage instead of RINGs with vgetty usually mean that the mgetty and
+vgetty speed do not match. Set both to 115200.
+<p>
 
 <sect1>Can you dialout and play a voice message on phone pickup with vm? <label id="vm dialout">
 <p>
