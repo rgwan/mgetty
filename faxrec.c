@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 3.2 1995/11/20 19:36:03 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 3.3 1995/12/18 22:33:29 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -457,6 +457,7 @@ char  * file_name, * p;
 char	buf[256];
 int	r;
 time_t	ti;
+extern  char * Device;
 
     lprintf( L_NOISE, "fax_notify_mail: sending mail to: %s", mail_to );
 
@@ -490,6 +491,7 @@ time_t	ti;
 	fprintf( pipe_fp, "Pages sent    : %s\n", faxpoll_server_file );
     }
 
+    fprintf( pipe_fp, "\nModem device: %s\n", Device );
     fprintf( pipe_fp, "\nCommunication parameters: %s\n", fax_param );
     fprintf( pipe_fp, "    Resolution : %s\n",
 		      fax_par_d.vr == 0? "normal" :"fine");
@@ -621,7 +623,7 @@ void faxpoll_send_pages _P3( (fd, tio, pollfile),
 	lprintf( L_MESG, "fax poll: %s is (likely) G3 file", pollfile );
 
 	/* send page, no more pages to follow */
-	fax_send_page( faxpoll_server_file, tio, pp_eop, fd );
+	fax_send_page( faxpoll_server_file, NULL, tio, pp_eop, fd );
 
 	return;
     }
@@ -653,9 +655,9 @@ void faxpoll_send_pages _P3( (fd, tio, pollfile),
 	do
 	{
 	    if ( file == NULL )		/* last page */
-	        fax_send_page( buf, tio, pp_eop, fd );
+	        fax_send_page( buf, NULL, tio, pp_eop, fd );
 	    else			/* not the very last */
-	        fax_send_page( buf, tio, pp_mps, fd );
+	        fax_send_page( buf, NULL, tio, pp_mps, fd );
 	    tries++;
 
 	    if ( fax_page_tx_status != 1 )
