@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 2.1 1994/11/30 23:20:45 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 2.2 1994/12/23 12:58:30 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -13,7 +13,6 @@
 #include "syslibs.h"
 #include <string.h>
 #include <unistd.h>
-#include <pwd.h>
 #include <sys/types.h>
 #include <sys/times.h>
 
@@ -27,28 +26,13 @@
 #ifdef VOICE
 #include "voclib.h"
 #endif
+#include "mg_utmp.h"
 
 #include "config.h"
-#include "mg_utmp.h"
+#include "conf_mg.h"
 
 #include "version.h"		/* for logging the mgetty release number */
 
-
-#ifndef MODEM_CHECK_TIME
-# define MODEM_CHECK_TIME -1		/* no check */
-#endif
-
-#ifndef FAX_RECV_SWITCHBD
-#define FAX_RECV_SWITCHBD 0		/* no switching */
-#endif
-
-#ifdef FAX_USRobotics
-#define FAX_RECV_SWITCHBD 19200
-#endif
-
-unsigned int portspeed = 0;		/* indicates has not yet been set */
-
-int	rings_wanted = 1;		/* default: one "RING" */
 
 #ifdef DIST_RING
 char *	ring_chat_seq[] = { "RING\r", NULL };
@@ -56,6 +40,11 @@ char *	ring_chat_seq[] = { "RING\r", NULL };
 char *	ring_chat_seq[] = { "RING", NULL };
 #endif
 
+/* how much time may pass between two RINGs until mgetty goes into */
+/* "waiting" state again */
+int     ring_chat_timeout = 10;
+
+/* what kind of "surprising" things are recognized */
 chat_action_t	ring_chat_actions[] = { { "CONNECT",	A_CONN },
 					{ "NO CARRIER", A_FAIL },
 					{ "BUSY",	A_FAIL },
@@ -75,33 +64,11 @@ chat_action_t	ring_chat_actions[] = { { "CONNECT",	A_CONN },
 #endif
 					{ NULL,		A_FAIL } };
 
-#ifdef ELINK
-char *	answer_chat_seq[] = { "", "AT\\\\OA", "CONNECT", "\\c", "\n", NULL };
-#else
-char *	answer_chat_seq[] = { "", "ATA", "CONNECT", "\\c", "\n", NULL };
-#endif /* !ELINK */
-
-int	answer_chat_timeout = 80;
-
-/* how much time may pass between two RINGs until mgetty goes into */
-/* "waiting" state again */
-
-int     ring_chat_timeout = 10;
-
-/* ringback ("ring-twice"): on/off, how long may pass between calls?
- */
-
-boolean	ringback = FALSE;
-int	ringback_time;
-
 /* the same actions are recognized while answering as are */
 /* when waiting for RING, except for "CONNECT" */
 
 chat_action_t	* answer_chat_actions = &ring_chat_actions[1];
 
-
-/* private functions */
-void		exit_usage();
 
 /* prototypes for system functions (that are missing in some 
  * system header files)
@@ -112,25 +79,16 @@ time_t		time _PROTO(( long * tloc ));
 int getlogname _PROTO(( char * prompt, TIO * termio,
 		char * buf, int maxsize, boolean do_timeout ));
 
+/* conf_mg.c */
+void exit_usage _PROTO((int num));
+
 char	* Device;			/* device to use */
 char	* DevID;			/* device name withouth '/'s */
-char	* GettyID = "<none>";		/* Tag for gettydefs in cmd line */
-
-boolean	toggle_dtr = TRUE;		/* lower DTR */
-
-int	toggle_dtr_waittime = 500;	/* milliseconds while DTR is low */
-
-int	prompt_waittime = 500;		/* milliseconds between CONNECT and */
-					/* login: -prompt */
 
 extern time_t	call_start;		/* time when we sent ATA */
 					/* defined in faxrec.c */
 
-void gettermio _PROTO((char * tag, boolean first,
-		       char **prompt, TIO * tio));
-
-boolean	direct_line = FALSE;
-boolean verbose = FALSE;
+void gettermio _PROTO((char * tag, boolean first, TIO * tio));
 
 boolean virtual_ring = FALSE;
 static RETSIGTYPE sig_pick_phone()		/* "simulated RING" handler */
@@ -221,11 +179,11 @@ void st_dialout _P0( void )
     exit(0);
 }					/* end st_dialout() */
 
+void get_ugid _PROTO(( conf_data * user, conf_data * group,
+			uid_t * uid, gid_t * gid ));
        
 int main _P2((argc, argv), int argc, char ** argv)
 {
-    register int c;
-    
     char devname[MAXLINE+1];		/* full device name (with /dev/) */
     char buf[MAXLINE+1];
     TIO	tio;
@@ -234,37 +192,16 @@ int main _P2((argc, argv), int argc, char ** argv)
     
     action_t	what_action;
     int		rings = 0;
-#ifdef NO_FAX
-    boolean	data_only = TRUE;
-#else
-    boolean	data_only = FALSE;
-#endif
-    char	* modem_class = DEFAULT_MODEMTYPE;	/* policy.h */
-    boolean	autobauding = FALSE;
-    extern char * def_init_chat_seq[];			/* mg_m_init.c */
-    char	** init_chat_seq = def_init_chat_seq;	/* modem init */
-    
-#if defined(_3B1_) || defined(MEIBE)
-    typedef ushort uid_t;
-    typedef ushort gid_t;
-#endif
+
 #if defined(_3B1_) || defined(MEIBE) || defined(sysV68)
     extern struct passwd *getpwuid(), *getpwnam();
 #endif
 
-    struct passwd *pwd;
-    uid_t	uucpuid = 5;			/* typical uid for UUCP */
-    gid_t	uucpgid = 0;
+    uid_t	uid;			/* typical uid for UUCP */
+    gid_t	gid;
 
-    char *issue = "/etc/issue";		/* default issue file */
-    
-    char * login_prompt = NULL;		/* login prompt */
+    /*#error here we are*/
 
-    char * fax_server_file = NULL;		/* -S <file> */
-    char * fax_station_id = FAX_STATION_ID;	/* -I <id> */
-
-    boolean	blocking_open = FALSE;	/* open device in blocking mode */
-    
 #ifdef VOICE
     boolean	use_voice_mode = TRUE;
     
@@ -292,78 +229,9 @@ int main _P2((argc, argv), int argc, char ** argv)
 
     /* process the command line
      */
+    mgetty_parse_args( argc, argv );
 
-    /* some magic done by the command's name */
-    if ( strcmp( get_basename( argv[0] ), "getty" ) == 0 )
-    {
-	blocking_open = TRUE;
-	direct_line = TRUE;
-    }
-
-    while ((c = getopt(argc, argv, "c:x:s:rp:n:R:i:DC:S:k:m:I:ba")) != EOF)
-    {
-	switch (c) {
-	  case 'c':			/* check */
-#ifdef USE_GETTYDEFS
-	    verbose = TRUE;
-	    dumpgettydefs(optarg);
-	    exit(0);
-#else
-	    lprintf( L_FATAL, "gettydefs not supported\n");
-	    exit_usage(2);
-#endif
-	  case 'k':			/* kbytes free on disk */
-	    minfreespace = atol(optarg) * 1024;
-	    break;
-	  case 'x':			/* log level */
-	    log_set_llevel( atoi(optarg) );
-	    break;
-	  case 's':			/* port speed */
-	    portspeed = atoi(optarg);
-
-	    if ( tio_check_speed( portspeed ) < 0 )
-	    {
-		lprintf( L_FATAL, "invalid port speed: %s", optarg);
-		exit_usage(2);
-	    }
-	    break;
-	  case 'r':
-	    direct_line = TRUE; break;
-	  case 'p':
-	    login_prompt = optarg; break;
-	  case 'n':			/* ring counter */
-	    rings_wanted = atoi( optarg );
-	    if ( rings_wanted == 0 ) rings_wanted = 1;
-	    break;
-	  case 'R':			/* ringback timer */
-	    ringback = TRUE;
-	    ringback_time = atoi( optarg );
-	    if ( ringback_time < 30 ) ringback_time = 30;
-	    break;
-	  case 'i':
-	    issue = optarg;		/* use different issue file */
-	    break;
-	  case 'D':			/* switch off fax */
-	    data_only = TRUE; break;
-	  case 'C':			/* set modem mode (fax/data) */
-	    modem_class = optarg; break;
-	  case 'S':
-	    fax_server_file = optarg; break;
-	  case 'I':
-	    fax_station_id = optarg; break;
-	  case 'b':			/* open port in blocking mode */
-	    blocking_open = TRUE; break;
-	  case 'a':			/* autobauding */
-	    autobauding = TRUE; break;
-	  case 'm':			/* modem init sequence */
-	    init_chat_seq = (char**) conf_get_chat( optarg ); break;
-	  case '?':
-	    exit_usage(2);
-	    break;
-	}
-    }
-
-    /* normal System V argument handling
+    /* normal System V getty argument handling
      */
     
     if (optind < argc)
@@ -389,13 +257,14 @@ int main _P2((argc, argv), int argc, char ** argv)
     log_init_paths( argv[0], buf, &Device[strlen(Device)-3] );
     lprintf( L_NOISE, "mgetty: %s", mgetty_version );
 	    
+    /* read configuration file */
+    mgetty_get_config( Device );
+
 #ifdef USE_GETTYDEFS
     if (optind < argc)
-        GettyID = argv[optind++];
-    else {
-	lprintf(L_WARN, "no gettydef tag given");
-	GettyID = GETTYDEFS_DEFAULT_TAG;
-    }
+        conf_set_string( &c.gettydefs_tag, argv[optind++] );
+    else
+	lprintf( L_MESG, "no gettydef tag given");
 #endif
 
 #ifdef MGETTY_PID_FILE
@@ -429,15 +298,12 @@ int main _P2((argc, argv), int argc, char ** argv)
 
     /* the line is mine now ...  */
 
-    /* allow uucp to access the device
+    /* set proper port ownership and permissions
      */
-    if ((pwd = getpwnam(UUCPID)) != (struct passwd *) NULL)
-    {
-	uucpuid = pwd->pw_uid;
-	uucpgid = pwd->pw_gid;
-    }
-    (void) chown(devname, uucpuid, uucpgid);
-    (void) chmod(devname, FILE_MODE);
+    get_ugid( &c.port_owner, &c.port_group, &uid, &gid );
+    chown( devname, uid, gid );
+    if ( c_isset(port_mode) ) 
+	chmod( devname, c_int(port_mode) );
 
     /* if necessary, kill any dangling processes (Marc Boucher) */
 #if defined( EXEC_FUSER ) && ! ( defined(M_UNIX) || defined(sunos4) || \
@@ -452,14 +318,14 @@ int main _P2((argc, argv), int argc, char ** argv)
     /* Currently, the tio set here is ignored.
        The invocation is only for the sideeffects of:
        - loading the gettydefs file if enabled.
-       - setting portspeed appropriately, if not set with "-s".
+       - setting port speed appropriately, if not set yet.
        */
-    gettermio(GettyID, TRUE, &login_prompt, &tio);
+    gettermio(c_string(gettydefs_tag), TRUE, &tio);
 
     /* open + initialize device (mg_m_init.c) */
-    if ( mg_get_device( devname, blocking_open,
-		        toggle_dtr, toggle_dtr_waittime,
-		        portspeed ) ==	ERROR )
+    if ( mg_get_device( devname, c_bool(blocking),
+		        c_bool(toggle_dtr), c_int(toggle_dtr_waittime),
+		        c_int(speed) ) == ERROR )
     {
 	lprintf( L_FATAL, "cannot get terminal line, exiting" );
 	exit( 30 );
@@ -473,25 +339,26 @@ int main _P2((argc, argv), int argc, char ** argv)
 
     /* do modem initialization, normal stuff first, then fax
      */
-    if ( direct_line )
+    if ( c_bool(direct_line) )
         Connect = "DIRECT";		/* for "\I" in issue/prompt */
     else
     {
-	if ( mg_init_data( STDIN, init_chat_seq ) == FAIL )
+	if ( mg_init_data( STDIN, c_chat(init_chat) ) == FAIL )
 	{
 	    rmlocks();
 	    exit(1);
 	}
 
 	/* initialize ``normal'' fax functions */
-	if ( ( ! data_only ) &&
-	     strcmp( modem_class, "data" ) != 0 && 
-	     mg_init_fax( STDIN, modem_class, fax_station_id ) == SUCCESS )
+	if ( ( ! c_bool(data_only) ) &&
+	     strcmp( c_string(modem_type), "data" ) != 0 && 
+	     mg_init_fax( STDIN, c_string(modem_type),
+			  c_string(station_id) ) == SUCCESS )
 	{
 	    /* initialize fax polling server (only if faxmodem) */
-	    if ( fax_server_file )
+	    if ( c_isset(fax_server_file) )
 	    {
-		faxpoll_server_init( STDIN, fax_server_file );
+		faxpoll_server_init( STDIN, c_string(fax_server_file) );
 	    }
 	}
 #ifdef VOICE
@@ -577,10 +444,10 @@ int main _P2((argc, argv), int argc, char ** argv)
 	     * If called with "-b" or as "getty", the blocking has
 	     * already happened in the open() call.
 	     */
-	    if ( ! blocking_open )
+	    if ( ! c_bool(blocking) )
 	    {
-		if ( ! wait_for_input( STDIN, MODEM_CHECK_TIME*1000 ) &&
-		     ! direct_line && ! virtual_ring )
+		if ( ! wait_for_input( STDIN, c_int(modem_check_time)*1000 ) &&
+		     ! c_bool(direct_line) && ! virtual_ring )
 		{
 		    /* no activity - is the modem alive or dead? */
 		    mgetty_state = St_check_modem;
@@ -704,14 +571,14 @@ int main _P2((argc, argv), int argc, char ** argv)
 	       seen. In case the modem auto-answers (yuck!) or someone
 	       hits DATA/VOICE, we'll accept CONNECT, +FCON, ... also. */
 	       
-	    if ( direct_line )		/* no RING needed */
+	    if ( c_bool(direct_line) )			/* no RING needed */
 	    {
 		mg_get_ctty( STDIN, devname );		/* get controll.tty */
 		mgetty_state = St_get_login;
 		break;
 	    }
 
-	    if ( ringback )		/* don't pick up on first call */
+	    if ( c_bool(ringback) )	/* don't pick up on first call */
 	    {
 		int n = 0;
 		
@@ -728,16 +595,16 @@ int main _P2((argc, argv), int argc, char ** argv)
 #ifdef VOICE
 	    if ( use_voice_mode ) {
 		/* check how many RINGs we're supposed to wait for */
-		voice_rings(&rings_wanted);
+		voice_rings(&(c.rings_wanted.d.i));
 	    }
 #endif /* VOICE */
 
-	    while ( rings < rings_wanted )
+	    while ( rings < c_int(rings_wanted) )
 	    {
 		if ( do_chat( STDIN, ring_chat_seq, ring_chat_actions,
 			      &what_action,
-			      ( ringback && rings == 0 ) ? ringback_time
-			                                 : ring_chat_timeout,
+			      ( c_bool(ringback) && rings == 0 )
+				    ? c_int(ringback_time) : ring_chat_timeout,
 			      TRUE ) == FAIL 
 #ifdef DIST_RING
 		    && (what_action != DIST_RING_VOICE)
@@ -747,7 +614,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 	    }
 
 	    /* enough rings? */
-	    if ( rings >= rings_wanted
+	    if ( rings >= c_int(rings_wanted)
 #ifdef DIST_RING
 		|| ( what_action >= A_RING1 && what_action <= A_RING5 )
 #endif
@@ -763,7 +630,7 @@ Ring_got_action:
 	    {
 	      case A_TIMOUT:		/* stopped ringing */
 		if ( rings == 0 &&	/* no ring *AT ALL* */
-		     ! ringback )	/* and not "missed" ringback */
+		     ! c_bool(ringback))/* and not "missed" ringback */
 		{
 		    lprintf( L_WARN, "huh? Junk on the line?" );
 		    rmlocks();		/* line is free again */
@@ -831,12 +698,13 @@ Ring_got_action:
 		   called. If the function returns, the modem is ready
 		   to be connected in DATA mode with ATA. */
 		
-		voice_answer(rings, rings_wanted, what_action );
+		voice_answer(rings, c_int(rings_wanted), what_action );
 	    }
 #endif /* VOICE */
 
-	    if ( do_chat( STDIN, answer_chat_seq, answer_chat_actions,
-			 &what_action, answer_chat_timeout, TRUE) == FAIL )
+	    if ( do_chat( STDIN, c_chat(answer_chat), answer_chat_actions,
+			 &what_action, c_int(answer_chat_timeout), TRUE)
+			 == FAIL )
 	    {	
 		if ( what_action == A_FAX )
 		{
@@ -857,7 +725,7 @@ Ring_got_action:
 	     * to the speed returned in the CONNECT string, usually
 	     * CONNECT 2400 / 1200 / "" (meaning 300)
 	     */
-	    if ( autobauding )
+	    if ( c_bool(autobauding) )
 	    {
 		int cspeed;
 		
@@ -870,9 +738,9 @@ Ring_got_action:
 
 		if ( tio_check_speed( cspeed ) >= 0 )
 		{				/* valid speed */
-		    portspeed = cspeed;
+		    conf_set_int( &c.speed, cspeed );
 		    tio_get( STDIN, &tio );
-		    tio_set_speed( &tio, portspeed );
+		    tio_set_speed( &tio, cspeed );
 		    tio_set( STDIN, &tio );
 		}
 		else
@@ -889,7 +757,9 @@ Ring_got_action:
 	    /* incoming fax, receive it (->faxrec.c) */
 
 	    lprintf( L_MESG, "start fax receiver..." );
-	    faxrec( FAX_SPOOL_IN, FAX_RECV_SWITCHBD );
+	    get_ugid( &c.fax_owner, &c.fax_group, &uid, &gid );
+	    faxrec( FAX_SPOOL_IN, c_int(switchbd),
+		    uid, gid, c_int(fax_mode) );
 	    rmlocks();
 	    exit( 0 );
 	    break;
@@ -926,14 +796,14 @@ Ring_got_action:
     /* wait a little bit befor printing login: prompt (to give
      * the other side time to get ready)
      */
-    delay( prompt_waittime );
+    delay( c_int(prompt_waittime) );
 
     /* loop until a successful login is made
      */
     for (;;)
     {
 	/* set ttystate for /etc/issue ("before" setting) */
-	gettermio(GettyID, TRUE, &login_prompt, &tio);
+	gettermio(c_string(gettydefs_tag), TRUE, &tio);
 #ifdef sun
 	/* we have carrier, assert data flow control */
 	tio_set_flow_control( STDIN, &tio, DATA_FLOW );
@@ -944,13 +814,13 @@ Ring_got_action:
 
 	/* display ISSUE, if present
 	 */
-	if (*issue != '/')
+	if (c_string(issue_file)[0] != '/')
 	{
-	    printf( "%s\r\n", ln_escape_prompt( issue ) );
+	    printf( "%s\r\n", ln_escape_prompt( c_string(issue_file) ) );
 	}
-	else if ((fp = fopen(issue, "r")) != (FILE *) NULL)
+	else if ( (fp = fopen(c_string(issue_file), "r")) != (FILE *) NULL)
 	{
-	    while (fgets(buf, sizeof(buf), fp) != (char *) NULL)
+	    while ( fgets(buf, sizeof(buf), fp) != (char *) NULL )
 	    {
 		char * p = ln_escape_prompt( buf );
 		if ( p != NULL ) fputs( p, stdout );
@@ -966,12 +836,12 @@ Ring_got_action:
 	 *  cr-nl mapping flags are set by getlogname()!
 	 */
 #ifdef USE_GETTYDEFS
-	gettermio(GettyID, FALSE, &login_prompt, &tio);
+	gettermio(c_string(gettydefs_tag), FALSE, &tio);
 	tio_set( STDIN, &tio );
 
 	lprintf(L_NOISE, "i: %06o, o: %06o, c: %06o, l: %06o, p: %s",
 		tio.c_iflag, tio.c_oflag, tio.c_cflag, tio.c_lflag,
-		login_prompt);
+		c_string(login_prompt));
 #endif
 	/* read a login name from tty
 	   (if just <cr> is pressed, re-print issue file)
@@ -980,8 +850,8 @@ Ring_got_action:
 	   cr+nl -> IGNCR, cr -> ICRNL, NL -> 0/ and: cr -> ONLCR, nl -> 0
 	   for c_oflag */
 
-	if ( getlogname( login_prompt, &tio,
-			 buf, sizeof(buf), !blocking_open ) == -1 ) continue;
+	if ( getlogname( c_string(login_prompt), &tio, buf, sizeof(buf), 
+			 !c_bool(blocking) ) == -1 ) continue;
 
 	/* remove PID file (mgetty is due to exec() login) */
 #ifdef MGETTY_PID_FILE
@@ -996,24 +866,8 @@ Ring_got_action:
     }
 }
 
-/*
- *	exit_usage() - exit with usage display
- */
-
-void exit_usage _P1((code), int code )
-{
-#ifdef USE_GETTYDEFS
-    lprintf( L_FATAL, "Usage: mgetty [-x debug] [-s speed] [-r] line [gettydefentry]" );
-#else
-    lprintf( L_FATAL, "Usage: mgetty [-x debug] [-s speed] [-r] line" );
-#endif
-    exit(code);
-}
-
 void
-gettermio _P4 ((id, first, prompt, tio),
-	       char *id, boolean first,
-	       char **prompt, TIO *tio )
+gettermio _P3 ((id, first, tio), char *id, boolean first, TIO *tio )
 {
     char *rp;
 
@@ -1024,7 +878,7 @@ gettermio _P4 ((id, first, prompt, tio),
 
     /* default setting */
     tio_mode_sane( tio, FALSE );
-    rp = LOGIN_PROMPT;
+    rp = NULL;
 
 #ifdef USE_GETTYDEFS
     /* if gettydefs used, override "tio_mode_sane" settings */
@@ -1040,19 +894,28 @@ gettermio _P4 ((id, first, prompt, tio),
     {
 	lprintf(L_NOISE, "Using %s gettydefs entry, \"%s\"", gdp->tag,
 		first? "before" : "after" );
-	if (first) {
-	    if ( portspeed == 0 )	/* no "-s" arg, use gettydefs */
-	        portspeed = tio_get_speed( &(gdp->before) );
-	} else {
+	if (first)	/* "before" -> set port speed */
+	{
+	    if ( c.speed.flags == C_EMPTY ||	/* still default value */
+		 c.speed.flags == C_PRESET )	/* -> use gettydefs */
+	        conf_set_int( &c.speed, tio_get_speed( &(gdp->before)) );
+	} else		/* "after" -> set termio flags *BUT NOT* speed */
+	{
 	    *tio = gdp->after;
-	    tio_set_speed( tio, portspeed );
+	    tio_set_speed( tio, c_int(speed) );
 	}
 	rp = gdp->prompt;
     }
 
 #endif
-    if (portspeed == 0)
-	portspeed = DEFAULT_PORTSPEED;
 
-    if (prompt && !*prompt) *prompt = rp;
+    if ( rp )		/* set login prompt only if still default */
+    {
+	if ( c.login_prompt.flags == C_EMPTY || 
+	     c.login_prompt.flags == C_PRESET )
+	{
+	    c.login_prompt.d.p = (void *) rp;
+	    c.login_prompt.flags = C_CONF;
+	}
+    }
 }
