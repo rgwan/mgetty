@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 3.4 1996/03/19 20:34:44 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 3.5 1996/03/19 20:46:39 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration defaults for mgetty / sendfax
  * are specified.
@@ -509,6 +509,8 @@
 /* the device(s) used for faxing
  * multiple devices can be separated by ":", e.g. "tty1a:tty2a"
  * (with or without leading /dev/)
+ * If you don't adapt this for your needs, sendfax won't run (you can
+ * set it from the sendfax.config file, though)!
  */
 #define FAX_MODEM_TTYS	"tty4c:tty4d"
 
