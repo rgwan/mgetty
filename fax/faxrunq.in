@@ -9,7 +9,7 @@
 # There are still a lot rough edges - but it works, and should give you an
 # idea how to improve it
 #
-# SCCS: $Id: faxrunq.in,v 3.4 1996/07/10 17:27:18 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxrunq.in,v 3.5 1996/07/10 17:43:39 gert Exp $ Copyright (C) 1994 Gert Doering
 
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -27,6 +27,11 @@ echo="@ECHO@"
 # awk program that is not stone-old-brain-dead (that is, not oawk...)
 #
 AWK=@AWK@
+
+#
+# make sure we'll find "newslock" and other good stuff when run from "cron"...
+#
+PATH=@BINDIR@:$PATH
 
 #
 # command line arguments
