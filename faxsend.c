@@ -1,4 +1,4 @@
-#ident "$Id: faxsend.c,v 1.6 1994/07/11 19:15:56 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: faxsend.c,v 1.7 1994/07/21 19:20:35 gert Exp $ Copyright (c) 1994 Gert Doering"
 ;
 /* faxsend.c
  *
@@ -323,6 +323,13 @@ int fax_send_ppm _P3( (fd, tio, ppm),
 	  case pp_eom:		/* last page, another document next */
 	    ppm_char = 0x3b; break;
 	  case pp_eop:		/* no more pages or documents */
+	    /* stop being sensitive to DCD drops */
+#ifdef sun
+	    /* HW handshake has to be off while carrier is low */
+	    tio_set_flow_control(fd, tio, (FAXSEND_FLOW) & FLOW_XON_OUT);
+#endif
+	    tio_carrier( tio, FALSE );
+	    tio_set( fd, tio );
 	    ppm_char = 0x2e; break;
 	  default:
 	    lprintf( L_WARN, "ppm type %d not implemented", ppm );
