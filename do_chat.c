@@ -1,4 +1,4 @@
-#ident "$Id: do_chat.c,v 2.2 1995/01/28 00:35:38 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: do_chat.c,v 2.3 1995/04/19 14:49:04 gert Exp $ Copyright (c) Gert Doering"
 
 /* do_chat.c
  *
@@ -30,6 +30,55 @@ static RETSIGTYPE chat_timeout()
 
 extern boolean virtual_ring;
 
+/* send one string to "fd", honouring \c, \d and \\ */
+
+int do_chat_send _P2( (fd, string), int fd, char * p )
+{
+    boolean nocr = FALSE;		/* do not set CR/LF (\c) */
+
+    /* before sending, maybe we have to pause a little */
+#ifdef DO_CHAT_SEND_DELAY
+    delay(DO_CHAT_SEND_DELAY);
+#endif
+	
+    lprintf( L_MESG, "send: " );
+
+    while ( *p != 0 ) 
+    {
+	if ( *p == '\\' )		/* special stuff */
+	{
+	    switch ( *(++p) )
+	    {
+	      case 'd': lputs( L_MESG, "\\d"); delay(500); break;
+	      case 'c': nocr = TRUE; break;
+	      default:
+		write( fd, p, 1 );
+		lputc( L_MESG, *p );
+	    }
+	}
+	else
+	{
+	    if ( write( fd, p, 1 ) != 1 )
+	    {
+		lprintf( L_ERROR, "do_chat: can't write to modem!" );
+		return ERROR;
+	    }
+	    lputc( L_MESG, *p );
+	}
+	p++;
+    }
+
+    if ( ! nocr )
+    {
+	write( fd, MODEM_CMD_SUFFIX, sizeof(MODEM_CMD_SUFFIX)-1 );
+	p = MODEM_CMD_SUFFIX;
+	while ( *p ) lputc( L_MESG, *(p++) );
+    }
+
+    return NOERROR;
+}
+
+
 int do_chat _P6((fd, expect_send, actions, action, chat_timeout_time,
 		timeout_first ),
 		int fd, char * expect_send[],
@@ -41,9 +90,7 @@ char	buffer[BUFFERSIZE];
 int	i,cnt;
 int	retcode = SUCCESS;
 int	str;
-char	*p;
 int	h;
-boolean	nocr;
 TIO	tio, save_tio;
 #define	LSIZE	100
 static	char	lbuf[LSIZE];
@@ -177,47 +224,10 @@ static	char	*lptr = lbuf;
 
 	if ( expect_send[str] == NULL ) break;
 
-	/* before sending, maybe we have to pause a little */
-#ifdef DO_CHAT_SEND_DELAY
-	delay(DO_CHAT_SEND_DELAY);
-#endif
+	/* send a string, translate (a few) esc-sequences */
+	do_chat_send(fd,  expect_send[str++] );
 	
-	/* send a string, translate esc-sequences */
-        lprintf( L_MESG, "send: " );
-
-	p = expect_send[str];
-	nocr = FALSE;
-        h = 0;
-	while ( *p != 0 ) 
-	{
-	    if ( *p == '\\' )
-	    {
-		switch ( *(++p) )
-		{
-		    case 'd': lputs( L_MESG, "\\d"); delay(500); break;
-		    case 'c': nocr = TRUE; break;
-		    default:
-		        write( fd, p, 1 );
-                        lputc( L_MESG, *p );
-		}
-	    }
-	    else
-	    {
-		write( fd, p, 1 );
-		lputc( L_MESG, *p );
-	    }
-	    p++;
-	}
-	if ( ! nocr )
-	{
-	    write( fd, MODEM_CMD_SUFFIX, sizeof(MODEM_CMD_SUFFIX)-1 );
-	    p = MODEM_CMD_SUFFIX;
-	    while ( *p ) lputc( L_MESG, *(p++) );
-	}
-
-	str++;
-
-    }			/* end while ( expect_send[str] != NULL ) */
+    }				/* end while ( expect_send[str] != NULL ) */
 
     /* reset terminal settings */
     tio_set( fd, &save_tio );
