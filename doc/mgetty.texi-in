@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.56 2002/11/04 22:25:41 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.57 2002/11/04 22:38:32 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -2320,9 +2320,9 @@ transmission is synchronous (no start and stop bit!), you need at least
 @item
 For some modems, incoming faxes are detected properly, but mgetty times out
 about two minutes later in @code{fax_wait_for(OK)}. Most likely, the
-@code{FAX_RECEIVE_SWITCHBD} (@file{policy.h}) resp. @code{switchbd}
-(@file{mgetty.config}) speed is set wrongly. Nearly all cheapo modems
-(e.g. Rockwell-Chip based ones) step to 19200 bps upon fax reception, and
+@code{switchbd} (@file{mgetty.config}) speed is set wrongly.  A number of 
+cheap modems (e.g. Rockwell-Chip based ones) step to 19200 bps upon fax 
+reception, and
 setting this option to @samp{19200} will tell mgetty about it. Better
 modems have no need for that, so if you have defined it and your modem
 does *not* change bit rates, it won't work either.
@@ -2374,10 +2374,16 @@ Well, what should I say, this is a feature :-) -- I think that mgetty
 should detect and complain if a modem is not working, and if you switch it
 off, it is most definitely not working.
 
-Others argue about power consumption, noise, lights, and everything -- but
-I refuse to make mgetty less noisy in case of a powered-off modem. But, as
-usual, there is a way around this (which is what came out of a discussion
-with Rolf Ade recently). You just create a file, @file{/etc/nomodem.ttyS1},
+For most modems, there is an easy way out.  @code{mgetty} can query the
+modem's DSR line at startup, and wait until that line comes active.  For
+that to work, you need to set DSR to ``always on'' with @code{AT&S0&W}
+(entered from a terminal program), and then switch on @code{need-dsr yes}
+in @file{mgetty.config}.  Check the log file (with @code{debug 6}) to see
+whether it's working.  It won't work for old unix systems where you can't
+query the state of the serial port control lines (DSR, DCD, etc.).
+
+For modems or unix systems that have problems with DSR, there's another
+approach: You just create a file, @file{/etc/nomodem.ttyS1},
 or however you want to name it, when you intend to switch off your modem.
 Instead of running @code{mgetty} from @file{/etc/inittab}, you run a 
 ``wrapper'' script that will wait until the nomodem file disappears, 
@@ -2396,13 +2402,20 @@ do
 exec /usr/local/sbin/mgetty ttyS1
 @end example
 
-A more advanced wrapper program could, for example, check the status of
-the DSR line to determine whether the modem is active, but as so many
-systems have flakey DSR detection (Solaris, AIX), I didn't bother to
-invest much time into this only to find that it isn't working reliably
-anyway. It's not difficult, though.
+@item
+I have been asked about ``superfine'' fax mode recently (using 392/408 dpi
+instead the usual 198/204 dpi).  It is not yet implemented.  It would not
+be not overly hard, but you need a modem that supports it - no class 2 
+modems that I know of support it, and only very few 2.0/2.1 modems 
+(MultiTech).  So it hasn't been done yet.
+
+@item
+Similar to the last bullet, V34 fax (using transfer speeds up to 28.800
+bps) isn't fully implemented yet.  My modems do not support it, and nobody 
+has asked for it yet.  It should be really easy, though.
 
 @end itemize
+
 
 @node Zyxel, TelelinkIMS08, Common, Modems
 @subsection ZyXEL
@@ -2826,7 +2839,7 @@ external, or MT5634ZPX-PCI-V92 / ISI5634PCI internal), based on the
 Lucent/Agere Venus chipset, seem to be really good for fax, data and 
 voice support.  Older firmware releases had bugs in the voice area, but 
 if you use the most recent firmware version, they should be fine.  For 
-vgetty, you might need to set "forceV253 true" and "rec\_compression 6" 
+vgetty, you might need to set "forceV253 true" and "rec_compression 6" 
 in @file{voice.conf}  (Contributed by Lee Howard, <faxguy@@howardsilvan.com>
 -- thanks).
 
