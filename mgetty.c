@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.89 1994/02/08 21:21:50 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.90 1994/02/10 23:28:10 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -517,7 +517,20 @@ waiting:
 	{
 	    lprintf( L_MESG, "%s exists - do not accept call!", buf );
 	    clean_line( STDIN, 80 );		/* wait for ringing to stop */
-	    exit(1);
+
+	    /* and return to state waiting. If it was a data or fax
+	     * call, you can now press DATA/VOICE and have the modem
+	     * manually pickup the phone
+	     *
+	     * WARNING: if you press the button too soon, or if the
+	     * modem auto-answers, this will fail. FIXME. Use do_chat()
+	     * here (and count the RINGs for logging...)
+	     */
+	    lprintf( L_AUDIT, "rejected" );
+	    rmlocks();
+	    goto waiting;
+	       
+	    /* exit(1); */
 	}
 #endif
     
