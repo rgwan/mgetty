@@ -1,4 +1,4 @@
-#ident "@(#)cnd.c	$Id: cnd.c,v 4.21 2001/10/21 14:41:38 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "@(#)cnd.c	$Id: cnd.c,v 4.22 2001/10/21 15:02:28 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 
 #include <stdio.h>
 #include <string.h>
@@ -90,6 +90,9 @@ struct cndtable cndtable[] =
 
     /* Russian USR Courier V.everything hackware, Alexey Promokhov */
     {"CallerID: ",		&CallerId},
+
+    /* Swedish Telia/ZyXEL Omni 52k - Torulf Lundgren, torulf@upsys.se */
+    {"Diverting number:",       &CallerId},
 
     {NULL}
 };
