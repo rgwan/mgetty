@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 4.14 1999/02/16 19:57:33 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 4.15 1999/02/24 15:56:17 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -319,5 +319,16 @@ extern char *	optarg;
 
  char * strdup _PROTO(( char *src ));
 #endif
+
+/* hardware handshake flags for tio.c/tio.h
+ * we have to define them here, because otherwise config.c would break
+ */
+#define FLOW_NONE	0x00
+#define FLOW_HARD	0x01		/* rts/cts */
+#define FLOW_XON_IN	0x02		/* incoming data, send xon/xoff */
+#define FLOW_XON_OUT	0x04		/* send data, honor xon/xoff */
+#define FLOW_SOFT	(FLOW_XON_IN | FLOW_XON_OUT)
+#define FLOW_BOTH	(FLOW_HARD | FLOW_SOFT )
+#define FLOW_XON_IXANY	0x08		/* set IXANY flag together with IXON */
 
 #endif			/* ___MGETTY_H */
