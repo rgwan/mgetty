@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 2.11 1995/04/16 23:11:05 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 2.12 1995/04/28 00:29:35 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -192,6 +192,7 @@ int main _P2((argc, argv), int argc, char ** argv)
     int i;
     
     action_t	what_action;
+    int		rings_wanted;
     int		rings = 0;
 
 #if defined(_3B1_) || defined(MEIBE) || defined(sysV68)
@@ -601,15 +602,17 @@ int main _P2((argc, argv), int argc, char ** argv)
 
 		lprintf( L_MESG, "ringback: phone stopped after %d RINGs, waiting for re-ring", n );
 	    }
-	    
+
+	    /* how many rings to wait for (normally) */
+	    rings_wanted = c_int(rings_wanted);
 #ifdef VOICE
 	    if ( use_voice_mode ) {
-		/* check how many RINGs we're supposed to wait for */
-		voice_rings(&(c.rings_wanted.d.i));
+		/* modify, if toll saver, or in vgetty answer-file */
+		voice_rings(&rings_wanted);
 	    }
 #endif /* VOICE */
 
-	    while ( rings < c_int(rings_wanted) )
+	    while ( rings < rings_wanted )
 	    {
 		if ( do_chat( STDIN, ring_chat_seq, ring_chat_actions,
 			      &what_action,
@@ -624,7 +627,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 	    }
 
 	    /* enough rings? */
-	    if ( rings >= c_int(rings_wanted)
+	    if ( rings >= rings_wanted
 #ifdef DIST_RING
 		|| ( what_action >= A_RING1 && what_action <= A_RING5 )
 #endif
@@ -714,7 +717,7 @@ Ring_got_action:
 		   called. If the function returns, the modem is ready
 		   to be connected in DATA mode with ATA. */
 		
-		voice_answer(rings, c_int(rings_wanted), what_action );
+		voice_answer(rings, rings_wanted, what_action );
 	    }
 #endif /* VOICE */
 
