@@ -1,11 +1,11 @@
-#ident "$Id: logname.c,v 1.2 1993/02/16 14:01:07 gert Exp $ (c) Gert Doering"
+#ident "$Id: logname.c,v 1.3 1993/03/06 19:31:00 gert Exp $ (c) Gert Doering"
 #include <stdio.h>
 #include <termio.h>
 
 #include "mgetty.h"
 
 /* Linux apparently does not define these constants */
-#ifdef LINUX
+#ifdef linux
 #define CQUIT	034		/* FS,  ^\ */
 #define CEOF	004		/* EOT, ^D */
 #define CKILL	025		/* NAK, ^U */
