@@ -1,4 +1,4 @@
-#ident "$Id: utmp.c,v 4.1 1997/01/12 14:53:47 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: utmp.c,v 4.2 1997/01/31 19:51:26 gert Exp $ Copyright (c) Gert Doering"
 
 /* some parts of the code (writing of the utmp entry)
  * is based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
@@ -138,7 +138,7 @@ FILE *	fp;
 	    }
 #endif		/* SVR4 */
 
-#ifdef M_UNIX
+#if defined(M_UNIX) || defined(__GLIBC__)
 	    if ( pututline(utmp) == NULL )
 	    {
 		lprintf( L_ERROR, "cannot create utmp entry" );
