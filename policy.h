@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.35 1993/11/26 19:19:45 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.36 1993/12/15 11:00:42 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -9,6 +9,22 @@
  * NOT USED YET.
  */
 #define CONFIG_FILE "/usr/local/lib/mgetty-config"
+
+/* login dispatcher config file
+ *
+ * In this file, you can configure which "login" program (default /bin/login)
+ * to call for what user name.
+ *
+ * You could use it to call "uucico" for all users starting with "U*"
+ * (works only with Taylor UUCP 1.04 with my patch), or to call a fido
+ * mailer for fido calls (only if -DFIDO defined)...
+ * See the samples in the example mgetty.login file.
+ *
+ * WARNING: make sure that this file isn't world-accessable (SECURITY!)
+ *
+ * If you want to call /bin/login all the time, do not define this
+ */
+#define LOGIN_CFG_FILE "/usr/local/lib/mgetty+sendfax/mgetty.login"
 
 /* If you want to use /etc/gettydefs to set tty flags, define this
  */
