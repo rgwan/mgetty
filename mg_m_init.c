@@ -1,4 +1,4 @@
-#ident "$Id: mg_m_init.c,v 1.5 1994/07/21 21:32:41 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_m_init.c,v 1.6 1994/07/27 15:50:33 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mg_m_init.c - part of mgetty+sendfax
  *
@@ -298,8 +298,11 @@ int mg_get_ctty _P2( (fd, devname), int fd, char * devname )
 {
     /* BSD systems, Linux */
 #if defined( TIOCSCTTY )
-    if ( setsid() == -1 ||
-	 ioctl( fd, TIOCSCTTY, NULL ) != 0 )
+    if ( setsid() == -1 )
+    {
+	lprintf( L_ERROR, "cannot make myself session leader (setsid)" );
+    }
+    if ( ioctl( fd, TIOCSCTTY, NULL ) != 0 )
     {
 	lprintf( L_ERROR, "cannot set controlling tty (ioctl)" );
 	return ERROR;
