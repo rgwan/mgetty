@@ -1,4 +1,4 @@
-#ident "$Id: ring.c,v 4.3 1998/04/18 11:49:19 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: ring.c,v 4.4 1998/04/18 21:33:23 gert Exp $ Copyright (c) Gert Doering"
 
 /* ring.c
  *
@@ -39,10 +39,21 @@ static char * safedup( char * in )
 static int find_msn _P2((string, msn_list),
 			 char * string, char ** msn_list )
 {
+int i, len, len2;
+
     lprintf( L_NOISE, "MSN: '%s'", string );
     if ( msn_list == NULL ) return 0;
 
-    return 0;		/* UNIMPLEMENTED */
+    len=strlen(string);
+    for( i=0; msn_list[i] != NULL; i++ )
+    {
+	lprintf( L_JUNK, "match: '%s'", msn_list[i] );
+	len2=strlen( msn_list[i] );
+	if ( len2 <= len && 
+	     strcmp( msn_list[i], &string[len-len2] ) == 0 )
+		{ return i+1; }
+    }
+    return 0;				/* not found -> unspecified */
 }
 
 /* ELSA CallerID data comes in as "RING;<from>[;<to>]" */

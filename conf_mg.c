@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.c,v 4.5 1997/12/05 23:44:54 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_mg.c,v 4.6 1998/04/18 21:33:21 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_mg.c
  *
@@ -81,6 +81,7 @@ struct conf_data_mgetty c = {
 
 	{ "modem-check-time", {MODEM_CHECK_TIME}, CT_INT, C_PRESET },
 	{ "rings", {1}, CT_INT, C_PRESET },
+	{ "msn-list", {(p_int) NULL}, CT_CHAT, C_EMPTY },
 	{ "get-cnd-chat", {0}, CT_CHAT, C_EMPTY },
 	{ "answer-chat", {0}, CT_CHAT, C_EMPTY },
 	{ "answer-chat-timeout", {80}, CT_INT, C_PRESET },

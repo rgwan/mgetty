@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 4.13 1998/04/15 20:03:06 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 4.14 1998/04/18 21:33:25 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -726,7 +726,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 
 	    while ( rings < rings_wanted )
 	    {
-		if ( wait_for_ring( STDIN, NULL, 
+		if ( wait_for_ring( STDIN, c_chat(msn_list), 
 			  ( c_bool(ringback) && rings == 0 )
 				? c_int(ringback_time) : ring_chat_timeout,
 			  ring_chat_actions, &what_action, 
