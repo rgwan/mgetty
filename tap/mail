@@ -401,3 +401,189 @@ With her body, woman is more sincere than man; but with her mind she lies.
 And when she lies, she does not believe herself.
                --Tolstoy
 
+From gert Sun Nov 29 00:45:40 1998
+Return-Path: <gert>
+Received: by greenie.muc.de
+	via sendmail with stdio
+	id <m0zju3X-000D0nC@greenie.muc.de>
+	for gert; Sun, 29 Nov 1998 00:45:39 +0100 (MET)
+	(Smail-3.2 1996-Jul-4 #4 built -Feb-21)
+Message-Id: <m0zju3X-000D0nC@greenie.muc.de>
+Date: Sun, 29 Nov 1998 00:45:39 +0100 (MET)
+From: gert (Gert Doering)
+To: gert
+Subject: SMS Client 2.0.7k Released
+Status: RO
+Content-Length: 4367
+Lines: 93
+
+
+>Xref: greenie2 comp.os.linux.announce:11602
+>Path: greenie2!news.muc.de!newscore.ipf.de!fu-berlin.de!uni-erlangen.de!newsfeed1.telenordia.se!newsfeed1.funet.fi!news.helsinki.fi!not-for-mail
+>From: angelo@styx.demon.co.uk (Angelo)
+>Newsgroups: comp.os.linux.announce
+>Subject: SMS Client 2.0.7k Released
+>Followup-To: comp.os.linux.misc
+>Date: Mon, 23 Nov 1998 21:20:13 GMT
+>Organization: none
+>Lines: 67
+>Approved: linux-announce@news.ornl.gov (Mikko Rauhala)
+>Message-ID: <pycola.911856013.20617@revelation.bak.helsinki.fi>
+>NNTP-Posting-Host: vision-isdn.bak.helsinki.fi
+>Old-Date: Tue, 17 Nov 1998 13:18:25 +0000 (GMT)
+>X-No-Archive: yes
+>X-Auth: PGPMoose V1.1 PGP comp.os.linux.announce
+>	iQCVAgUBNlnRjlrUI/eHXJZ5AQHTfAQArrbWbU8gEc6iTkBlhyiae5Km4FXOon8s
+>	0sQAWerZrMwjVUkC8tdUO63oWMwpQZL5QQMBsQfCXaDjDhHly8aj/go+QQnODGJI
+>	a17r+yTPys4rfOvZSsKa5Ivx1uI4g1SGo8XDWUQFPd7MgXvGfwEVwxRhbEtROVEt
+>	MNaBdUX3reA=
+>	=b1vf
+
+-----BEGIN PGP SIGNED MESSAGE-----
+
+
+        Linux SMS Client 2.0.7k by (c) 1997,1998 Angelo Masci
+        =====================================================
+
+		http://www.styx.demon.co.uk/
+		http://smsclient.home.ml.org/
+        
+
+SMS Client is a simple UNIX client Allowing you to send SMS messages to 
+mobile phones and pagers. The software currently supports a number of 
+providers and protocols:
+
+  +----------------------------------------------------------------------+
+  | Service         Protocol      Notes                                  |
+  +----------------------------------------------------------------------+
+  | CELLNET         TAP           Supports multiple sends (see NOTE)     |
+  | DETEMOBIL       TAP           Supports multiple sends (see NOTE)     |
+  | AZCOM           TAP           Supports multiple sends (see NOTE)     |
+  | TELSTRA         TAP           Supports multiple sends (see NOTE)     |
+  | VODAFONE        proprietary                                          |
+  | ORANGE          proprietary   Supports multiple sends (see NOTE)     |
+  |                               Includes Hutchinson Pagers             |
+  | PAGEONE         proprietary   Supports multiple sends (see NOTE)     |
+  | MINICALL        PAGEONE       Supports multiple sends (see NOTE)     |
+  | ONE2ONE         proprietary   Supports multiple sends (see NOTE)     |
+  | VODAPAGE        proprietary   Block Mode supported                   |
+  | VODACOM         proprietary                                          |
+  | PTT/KPN Telcom  proprietary   Supports multiple sends (see NOTE)     |
+  | ANSWER          proprietary                                          |
+  | MTN             proprietary                                          |
+  | LIBERTEL        proprietary   Supports multiple sends (see NOTE)     |
+  | TIM             proprietary   Supports multiple sends (see NOTE)     |
+  | PROXIMUS        proprietary                                          |
+  | AMPI            TAP                                                  |
+  | EUROPOLITAN     CIMD          Currently in ALPHA and testing         |
+  +----------------------------------------------------------------------+
+  |                 SNPP*         Currently in ALPHA and testing         |
+  |                 GENERIC*      Currently in ALPHA and testing         |
+  +----------------------------------------------------------------------+
+
+Using an unlisted provider that allow TAP access should be quite straight 
+forward. 
+
+Visit the WWW Site to download the latest development version, get
+further information and join the SMS Client mailing list.
+
+
+
+- -- 
+This article has been digitally signed by the moderator, using PGP.
+http://www.iki.fi/mjr/cola-public-key.asc has PGP key for validating signature.
+Send submissions for comp.os.linux.announce to: linux-announce@news.ornl.gov
+PLEASE remember a short description of the software and the LOCATION.
+This group is archived at http://www.iki.fi/mjr/linux/cola.html
+
+-----BEGIN PGP SIGNATURE-----
+Version: 2.6.3ia
+Charset: latin1
+
+iQCVAgUBNlnRjVrUI/eHXJZ5AQHLpwP/WB3s/rzn71vPqMV305RkHV/oAKUDYhrF
+j41Iysm0AUhkxPlEH58M6wamxVvGB8zk3Ylw+U4+uOUfexCzYrjo2K2iD+E9DZL6
+FoF9XBDj/6fqeM525vf8MSHItWQqhRAqUlVbrSqrzkLBPAq2ep+1cRLkOF6SXLYE
+PKkSC9cRYME=
+=Fa1l
+-----END PGP SIGNATURE-----
+-- 
+gert@greenie.muc.de   fax: +49-89-35655025   http://alpha.greenie.net/mgetty/
+
+Electrical Engineers do it with less resistance.
+
+From gert Sat Dec  5 01:37:07 1998
+Return-Path: <gert>
+Received: by greenie.muc.de
+	via sendmail with stdio
+	id <m0zm5id-000DIbC@greenie.muc.de>
+	for mgetty-list; Sat, 5 Dec 1998 01:37:07 +0100 (MET)
+	(Smail-3.2 1996-Jul-4 #4 built -Feb-21)
+Sender: gert (Gert Doering)
+Received: from slarti.muc.de(really [193.174.4.10]) by greenie.muc.de
+	via smtpd with smtp
+	id <m0zm5ib-000DLjC@greenie.muc.de>
+	for <mgetty-local@greenie.muc.de>; Sat, 5 Dec 1998 01:37:05 +0100 (MET)
+	(Smail-3.2 1996-Jul-4 #19 built -Nov-19)
+Received: (qmail 14464 invoked by uid 1013); 5 Dec 1998 00:34:36 -0000
+Delivered-To: mgetty@muc.de
+Received: (qmail 14458 invoked from network); 5 Dec 1998 00:34:35 -0000
+Received: from greenie.muc.de (root@193.174.156.65)
+  by slarti.muc.de with SMTP; 5 Dec 1998 00:34:35 -0000
+Received: by greenie.muc.de
+	via sendmail with stdio
+	id <m0zm5Zt-000DM9C@greenie.muc.de>
+	for mgetty@muc.de; Sat, 5 Dec 1998 01:28:05 +0100 (MET)
+	(Smail-3.2 1996-Jul-4 #4 built -Feb-21)
+Received: from GATEWAY by greenie.muc.de with netnews
+	for mgetty@muc.de (mgetty@muc.de)
+To: mgetty@muc.de
+Date: Fri, 4 Dec 1998 16:56:34 +0100
+From: rfrank@golem.muc.de (Robert Frank)
+Message-ID: <slrn76g1hi.iv.rfrank@golem.muc.de>
+Organization: Golem, Inc.
+Sender: owner-mgetty@greenie.muc.de
+Subject: yaps - yet another pager software
+Status: RO
+Content-Length: 1475
+Lines: 39
+
+Hello,
+
+may be it is well a known program to some of you and I´d like to apologize 
+if this is the case.
+
+I just stumbled about yaps ("yet another pager software"). yaps is able 
+to notify a pager with the following services: 
+D1, D2, E+, Telmi, Telmi-Fun, Telmi-Family, Telmi-Top, Telmi-Pro, Skyper, Quix
+As it is a simple command line oriented program
+(yaps <phone-number> "Text here") it should be trivial to write a script that
+notifies the user that a voice/fax arrived on your unix box. (Of course
+there is a much broader usage, e.g. to notify the sysop of warnings and errors).
+
+Here is the lsm-File:
+
+Title:          yaps
+Version:        0.96
+Entered-date:   14JUN97
+Description:    This is a standalone program to send messages to paging
+                devices over a modem gateway using well defined protocols.
+Keywords:       pager sms tap ucp
+Author:         ud@nitmar.tnet.de (Ulrich Dessauer)
+Maintained-by:  ud@nitmar.tnet.de (Ulrich Dessauer)
+Primary-site:   ftp.sta.com /pub/fk/yaps
+                91k yaps-0.96.tar.gz
+		725 yaps.lsm
+Alternate-site: sunsite.unc.edu /pub/Linux/apps/serialcomm/machines/
+                91k yaps-0.96.tar.gz
+		725 yaps.lsm
+Platforms:      Linux, Solaris, SunOS and modem (or modem like device,
+                e.g. ISDN) optional SLang V99.38, Lua-2.5
+Copying-policy: GPL
+
+Greetings,
+Robert
+-- 
+Dr. Robert Frank
+email: rfrank@muc.de  http://www.golem.muc.de
+PGP fingerprint: 1F A3 41 2A 90 57 A5 57  90 FE A1 6F 4A 77 91 31
+
