@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.73 1993/12/17 08:17:22 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.74 1993/12/18 18:43:26 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -155,11 +155,7 @@ int getlogname _PROTO(( char * prompt, TIO * termio,
 char	* Device;			/* device to use */
 char	* GettyID = "<none>";		/* Tag for gettydefs in cmd line */
 
-#ifndef sun
 boolean	toggle_dtr = TRUE;		/* lower DTR */
-#else
-boolean toggle_dtr = FALSE;             /* doesn't work on SunOS! */
-#endif
 
 int	toggle_dtr_waittime = 500;	/* milliseconds while DTR is low */
 
@@ -406,7 +402,12 @@ int main _P2((argc, argv), int argc, char ** argv)
 	tio_mode_sane( &tio, TRUE );
 	tio_set_speed( &tio, portspeed );
 	tio_mode_raw( &tio );
+#ifdef sun
+	/* sunos does not rx with RTSCTS unless carrier present */
+	tio_set_flow_control( STDIN, &tio, (DATA_FLOW) & (FLOW_SOFT) );
+#else
 	tio_set_flow_control( STDIN, &tio, DATA_FLOW );
+#endif
 	if ( tio_set( STDIN, &tio ) == ERROR )
 	{
 	    lprintf( L_FATAL, "cannot set TIO" );
@@ -600,6 +601,10 @@ int main _P2((argc, argv), int argc, char ** argv)
 	{
 		/* set ttystate for /etc/issue ("before" setting) */
 		tio = *gettermio(GettyID, TRUE, &login_prompt);
+#ifdef sun
+		/* we have carrier, assert data flow control */
+		tio_set_flow_control( STDIN, &tio, DATA_FLOW );
+#endif
 		tio_set( STDIN, &tio );
 		
 		fputc('\r', stdout);	/* just in case */
