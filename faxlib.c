@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.10 1997/05/09 11:35:09 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.11 1997/05/19 22:32:42 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -547,10 +547,10 @@ int mdm_identify _P1( (fd), int fd )
 	    modem_type=Mt_data;				/* has no fax mode */
 	    mis = mdm_get_idstring( "ATI1", 1, fd );
 	    break;
-	  case 6401:
-	    lprintf( L_MESG, "USR I-Modem detected" );
-	    modem_type=Mt_class2_0;
-	    mis = mdm_get_idstring( "ATI3", 1, fd );
+	  case 1444:
+	  case 1445:
+	    lprintf( L_MESG, "USR Courier/Sportster v32bis detected (assuming non-fax capable)" );
+	    modem_type=Mt_data;
 	    break;
 	  case 2886:
 	  case 3366:
@@ -558,10 +558,15 @@ int mdm_identify _P1( (fd), int fd )
 	    modem_type=Mt_class2_0;
 	    mis = mdm_get_idstring( "ATI3", 1, fd );
 	    break;
-	  case 1444:
-	  case 1445:
-	    lprintf( L_MESG, "USR Courier/Sportster v32bis detected" );
-	    modem_type=Mt_data;
+	  case 5601:
+	    lprintf( L_MESG, "USR Courier/Sportster 56k detected" );
+	    modem_type=Mt_class2_0;
+	    mis = mdm_get_idstring( "ATI3", 1, fd );
+	    break;
+	  case 6401:
+	    lprintf( L_MESG, "USR I-Modem detected" );
+	    modem_type=Mt_class2_0;
+	    mis = mdm_get_idstring( "ATI3", 1, fd );
 	    break;
 	  case 62:	/* sure? */
 	  case 962:
