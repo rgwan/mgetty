@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 3.10 1996/10/16 14:14:06 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 3.11 1996/11/24 12:11:25 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* tio.c
  *
@@ -10,7 +10,7 @@
 #include <sys/types.h>
 #include <errno.h>
 
-#if defined(_AIX) || defined(NeXT)
+#if defined(_AIX) || defined(NeXT) || defined(linux)
 #include <sys/ioctl.h>
 #include <sys/file.h>
 #endif
