@@ -11,11 +11,13 @@ Last-modified: 1999/04/18
 URL: http://www.webforum.de/mgetty-faq.txt
 Maintainer: Klaus Lichtenwalder <Lichtenwalder@ACM.org>
 
+WARNING: this is my local edited copy, not in sync with Klaus's.
+
 			  ``mgetty+sendfax''
 		Answers to Frequently-Asked Questions
        regarding Gert Doering's Fax-enabled getty replacement,
        with Klaus Weidner and Marc Eberhard's voice extensions,
-              which are now maintained by Marc Schaeffer
+              which are now maintained by Marc Schaefer
 
 			 Klaus Lichtenwalder
 		        Lichtenwalder@ACM.org
@@ -426,6 +428,10 @@ ISDN4Linux voice formats. Other formats are coming. People reported
 success in translating GSM encoded voice formats, so support for that
 will also be added in the future. This means that vgetty currently
 supports the three above and support for more modems is planned.
+
+Note that for some USR modems, the format has been changed to be
+``pure'' with no trailer nor header. More details can be found in
+voice/contrib/Philip_Hands.
 
 ------------------------------
 
@@ -916,7 +922,9 @@ A: If you see this message, it basically means that mgetty can't get
    is bad or because you are using mgetty on solaris. Solaris doesn't
    give you the status of dsr. If you are running mgetty on a different
    platform, you might consider checking your cable or the modem
-   setting.
+   setting. Note that the Multitech modems (especially 2834) don't
+   seem to be able to force DSR to be on, giving this
+   annoying message but no other problem.
 
 Q: How many slashes do I need to put into mgetty.config to have mgetty
    send a \N3 to the modem?
@@ -1283,7 +1291,7 @@ also.
 
 
 Forrest
-(Sorry, I don't know the full name of Forrest nor his e-mail address. This quote was forwarded by Marc Schaeffer for inclusion)
+(Sorry, I don't know the full name of Forrest nor his e-mail address. This quote was forwarded by Marc Schaefer for inclusion)
 
 ------------------------------
 
@@ -1322,6 +1330,8 @@ about everything else...
 
 Also, Thomas Hellstroem (thomas@vtd.volvo.se) had some C programs to
 extract GSM data and to "pack" GSM data into rmd files off of his page.
-Unforutnately, I didn't save the URL.
+Unfortunately, I didn't save the URL.
 
- -Scott Hutton, UCS Messaging Team, Indiana Univeristy
+(alternatively, look at: http://www2.sienanet.it/users/guido/gsm_6_10.htm
+ for a utility converting WAV to GSM and back).
+
