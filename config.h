@@ -1,14 +1,20 @@
 #ifndef ___CONFIG_H
 #define ___CONFIG_H
 
-#ident "$Id: config.h,v 3.2 1995/12/02 00:03:46 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: config.h,v 3.3 1996/06/04 19:49:29 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* type definitions, prototypes, defines needed for configuration stuff
  */
 
+#ifdef PTR_IS_LONG
+ typedef long p_int;	/* a "long" is the same size as an "char *" */
+#else
+ typedef int p_int;	/* an "int" is the same size as an "char *" */
+#endif
+
 typedef struct conf_data {
 		   char * key;
-		   union { int i; void * p; } d;
+		   union { p_int i; void * p; } d;
 		   enum { CT_INT, CT_STRING, CT_CHAT, CT_BOOL,
 			  CT_FLOWL, CT_ACTION, CT_KEYWORD } type;
 		   enum { C_EMPTY, C_PRESET, C_OVERRIDE, C_CONF,
