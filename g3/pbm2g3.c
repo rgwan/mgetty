@@ -1,4 +1,4 @@
-#ident "$Id: pbm2g3.c,v 1.5 1994/10/04 10:06:56 gert Exp $ Copyright (C) 1994 Gert Doering"
+#ident "$Id: pbm2g3.c,v 1.6 1995/01/15 21:41:00 gert Exp $ Copyright (C) 1994 Gert Doering"
 
 /* pbmtog3
  *
@@ -230,7 +230,7 @@ void convert_pbm_raw _P2( (fd, g3_page_width), int fd, int
 
     /* malloc memory for line buffer */
     ll = pbm_xsize / 8;
-    linebuf = (char *) malloc( ll );
+    linebuf = (unsigned char *) malloc( ll );
 
     if ( linebuf == NULL )
     {
