@@ -4,7 +4,7 @@
 #
 # like "lpq" or "mailq", show jobs waiting in the output queue
 #
-# SCCS: $Id: faxq.in,v 4.6 1998/01/01 20:51:37 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxq.in,v 4.7 2002/11/19 11:02:36 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -18,6 +18,10 @@ echo="@ECHO@"
 # an awk that is not stone-old-brain-dead (that is, not oawk...)
 #
 AWK=@AWK@
+
+#
+# helper program for privileged queue access
+FAXQ_HELPER=/usr/local/lib/mgetty+sendfax/faxq-helper
 
 if cd $FAX_SPOOL_OUT 
 then :
@@ -126,6 +130,7 @@ do
     fi
 
 # if "changepri", change priority of job
+# TODO - this is currently broken, needs changing over to $FAXQ_HELPER
     if [ -n "$changepri" ] && expr "$i" : ".*JOB$" >/dev/null
     then
 	d=`dirname $i`
@@ -142,13 +147,7 @@ do
     if [ -n "$requeue" ] && expr "$i" : ".*JOB.s" >/dev/null
     then
 	d=`dirname $i`
-	if [ ! -w $d ] ; then
-	    $echo "$i: not owner, can't restart"
-	else
-	    $echo "Status "`date`" - reactivated by $LOGNAME" >>$i
-	    mv $i $d/JOB
-	    touch .queue-changed 2>/dev/null
-	fi
+	$FAXQ_HELPER requeue $d
     fi
 done
 
