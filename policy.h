@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.17 1993/08/22 23:38:38 gert Exp $ (c) Gert Doering"
+#ident "$Id: policy.h,v 1.18 1993/08/31 19:49:21 gert Exp $ (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -92,9 +92,14 @@
 /* the modem initialization string
  *
  * this sample string is for ZyXELs, for other modems you'll have to
- * replace &H3 (rts/cts flow control), &K4 (enable v42bis) and &N0 (answer
- * with all known protocols).
- * For some modems, an initial "\d" is needed
+ *     replace &H3 (rts/cts flow control), &K4 (enable v42bis) and &N0
+ *     (answer with all known protocols).
+ * For some modems, an initial "\d" is needed.
+ * If you need a "\" in the modem command, give it as "\\\\".
+ * Maybe the best "initialization" would be to setup everything 
+ *     properly in the nvram profile, and just send the modem an
+ *     "ATZ". I just like to make sure the most important things are
+ *     always set...
  * The modem must answer with "OK" (!!!) - otherwise, change mgetty.c
  */
 #define MODEM_INIT_STRING	"ATS0=0Q0&D3&H3&N0&K4"
@@ -119,6 +124,19 @@
  * (I do *not* think that it's necessary)
  */
 /* #define FAX_RECEIVE_USE_IXOFF */
+
+/* if your faxmodem switches to 19200 bps just after sending the "+FCON"
+ * message to the host, define this. (Not important if you have the
+ * portspeed set to 19200 anyway).
+ * Some Tornado and Supra modems are know to do this.
+ * ZyXELs do *not* do this, except if explicitely told to do so.
+ *
+ * You can see if this happens if mgetty gets the "+FCON" response,
+ * starts the fax receiver, and times out waiting for OK, receiving
+ * nothing or just junk.
+ */
+
+/* #define FAX_RECEIVE_USE_B19200 */
 
 /* name of the logfile for outgoing faxes
  */
