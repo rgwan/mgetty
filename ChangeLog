@@ -1,5 +1,7 @@
 Thu Jan  4 18:32:24 CET 2001   Gert Doering (gert@mobile.greenie.muc.de)
 
+	* faxrecp.c: change fax page writing to open( O_EXCL|O_CREAT )
+
 	* locks.c: use mkstemp() to create tmp file, if available, 
 	  open( O_EXCL|O_CREAT ) otherwise.
 
