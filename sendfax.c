@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.28 1993/07/25 17:03:44 gert Exp $ (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.29 1993/08/04 11:42:50 gert Exp $ (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -480,18 +480,24 @@ int	tries;
 	if ( verbose ) printf( "sending '%s'...\n", argv[ argidx ] );
 	if ( fax_send_page( argv[ argidx ], fd ) == ERROR ) break;
 
+	fax_page_tx_status = -1;
+
         /* transmit page punctuation
 	 * (three cases: more pages, last page but polling, last page at all)
 	 * then evaluate +FPTS: result code
 	 */
 
-	fax_page_tx_status = -1;
-
 	if ( argidx == argc-1 )		/* was this the last page to send? */
 	  if ( fax_poll_req && fax_to_poll )
 	    fax_command( "AT+FET=1", "OK", fd );	/* end document */
 	  else
+	  {
+	    /* take care of some modems pulling cd low too soon */
+	    fax_termio.c_cflag |= CLOCAL;
+	    ioctl( fd, TCSETA, &fax_termio );
+
 	    fax_command( "AT+FET=2", "OK", fd );	/* end session */
+	  }
 	else
 	    fax_command( "AT+FET=0", "OK", fd );	/* end page */
 
@@ -531,7 +537,7 @@ int	tries;
 		    break;
 	}
 	argidx++;
-    }
+    }				/* end main page loop */
 
     if ( argidx < argc || fax_hangup_code != 0 )
     {
