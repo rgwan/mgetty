@@ -1,8 +1,11 @@
 # frontends/www/Makefile
 #
-# RCS: $Id: Makefile,v 1.7 1998/10/20 15:47:01 gert Exp $
+# RCS: $Id: Makefile,v 1.8 1998/10/22 12:55:22 gert Exp $
 #
 # $Log: Makefile,v $
+# Revision 1.8  1998/10/22 12:55:22  gert
+# add (first cut) 'make install' support
+#
 # Revision 1.7  1998/10/20 15:47:01  gert
 # remove vf-faxov.cgi
 #
@@ -28,6 +31,17 @@
 CGI=faxq.cgi faxq-v.cgi faxhist.cgi viewfax.cgi nph-vf-gif.cgi 
 HTML=index-d.html
 
+# the directory for the HTML file(s)
+# leave empty if you do not want to install the HTML files
+HTMLDIR=/home/sd/.html-data
+
+# this is the directory the CGI binaries will be installed in
+# check with your local webmaster or the WWW server documentation!
+CGIBINDIR=/usr/lpp/internet/server_root/cgi-bin
+
+# this is the logical path from the WWW root to the CGI binaries
+# (if the CGI binaries are in the same directory as "index.html", just
+# leave it empty: CGI_HREF="")
 CGI_HREF=/cgi-bin/
 
 all: $(CGI) $(HTML) wwwgui.conf
@@ -39,8 +53,26 @@ clean:
 
 fullclean: clean
 
+# install from here is ugly, 'cause we have to go "up" to get LIBDIR etc.
 install: all
-	@echo "No automatic installation possible yet"
+	@echo "automatic installation largely untested - expect problems"
+	sleep 5
+	cd ../.. ; $(MAKE) install.www
+
+install.www:
+	-for i in $(CGI); do \
+		mv -f $(CGIBINDIR)/$$i $(CGIBINDIR)/$$i.old 2>/dev/null ; \
+		$(INSTALL) -m 755 $$i $(CGIBINDIR) ; \
+	done
+	test -z "$(HTMLDIR)" || \
+	    for i in $(HTML); do \
+		test -f $(HTMLDIR)/$$i || \
+		    $(INSTALL) -m 644 $$i $(HTMLDIR) ; \
+	    done
+	test -f $(CONFDIR)/wwwgui.conf || \
+		$(INSTALL) -o root -m 644 wwwgui.conf $(CONFDIR)/
+	$(INSTALL) -m 755 simplequant.pl $(LIBDIR)/
+	$(INSTALL) -m 755 wwwsub.pl $(LIBDIR)/
 
 # explicit dependencies
 
