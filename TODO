@@ -118,8 +118,6 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
 
 121) check disk space before spooling faxes
 
-122) log caller ID upon "phone stopped ringing"
-
 123) -DNO_MODEM?
 
 124) if write/read in fax_send_page() fails, exit loop (kkeyte)
