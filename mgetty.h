@@ -1,33 +1,12 @@
-/* $Id: mgetty.h,v 1.45 1994/01/14 20:07:25 gert Exp $ Copyright (c) Gert Doering */
+#ident "$Id: mgetty.h,v 1.46 1994/02/12 14:10:37 gert Exp $ Copyright (c) Gert Doering"
+;
+/* mgetty.h
+ *
+ * contains most of the constants and prototypes necessary for
+ * mgetty+sendfax (except some fax constants, they are in fax_lib.h)
+ */
 
-/* ANSI vs. non-ANSI support */
-#ifdef __STDC__
-#define	_PROTO(x)	x
-#define _P0(x)		(x)
-#define _P1(x,a1)	(a1)
-#define _P2(x,a1,a2)	(a1,a2)
-#define _P3(x,a1,a2,a3)	(a1,a2,a3)
-#define _P4(x,a1,a2,a3,a4)	(a1,a2,a3,a4)
-#define _P5(x,a1,a2,a3,a4,a5)	(a1,a2,a3,a4,a5)
-#define _P6(x,a1,a2,a3,a4,a5,a6)	(a1,a2,a3,a4,a5,a6)
-#define _P7(x,a1,a2,a3,a4,a5,a6,a7)	(a1,a2,a3,a4,a5,a6,a7)
-#define _P8(x,a1,a2,a3,a4,a5,a6,a7,a8)	(a1,a2,a3,a4,a5,a6,a7,a8)
-#define _P9(x,a1,a2,a3,a4,a5,a6,a7,a8,a9)	(a1,a2,a3,a4,a5,a6,a7,a8,a9)
-#else
-#define _PROTO(x)	()
-#define _P0(x)		()
-#define _P1(x,a1)	x a1;
-#define _P2(x,a1,a2)	x a1;a2;
-#define _P3(x,a1,a2,a3)	x a1;a2;a3;
-#define _P4(x,a1,a2,a3,a4)	x a1;a2;a3;a4;
-#define _P5(x,a1,a2,a3,a4,a5)	x a1;a2;a3;a4;a5;
-#define _P6(x,a1,a2,a3,a4,a5,a6)	x a1;a2;a3;a4;a5;a6;
-#define _P7(x,a1,a2,a3,a4,a5,a6,a7)	x a1;a2;a3;a4;a5;a6;a7;
-#define _P8(x,a1,a2,a3,a4,a5,a6,a7,a8)	x a1;a2;a3;a4;a5;a6;a7;a8;
-#define _P9(x,a1,a2,a3,a4,a5,a6,a7,a8,a9)	x a1;a2;a3;a4;a5;a6;a7;a8;a9;
-#define const
-#define volatile
-#endif
+#include "ugly.h"
 
 /* some generic, useful defines */
 
