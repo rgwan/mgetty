@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 1.8 1993/09/21 14:49:00 gert Exp $ (c) Gert Doering"
+#ident "$Id: logname.c,v 1.9 1993/10/05 11:58:03 gert Exp $ (c) Gert Doering"
 #include <stdio.h>
 #include <termio.h>
 #include <unistd.h>
@@ -70,7 +70,7 @@ newlogin:
     {
     struct utsname un;
 	uname( &un );
-	printf( prompt, un.sysname );
+	printf( prompt, un.nodename );
     }
 #endif
     printf( " " );
