@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.43 1993/11/12 22:14:45 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: sendfax.c,v 1.44 1993/11/13 22:51:26 gert Exp $ Copyright (c) Gert Doering";
 
 /* sendfax.c
  *
@@ -42,6 +42,7 @@ void exit_usage _P1( (program),
 }
 
 TIO fax_tio;
+char * Device;
 
 int fax_open_device _P1( (fax_tty),
 			 char * fax_tty )
@@ -67,6 +68,9 @@ int	fd;
 	rmlocks();
 	return fd;
     }
+
+    /* make device name externally visible (faxrec()) */
+    Device = fax_tty;
 
     /* unset O_NDELAY (otherwise waiting for characters */
     /* would be "busy waiting", eating up all cpu) */
