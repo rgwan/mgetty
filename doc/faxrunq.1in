@@ -17,9 +17,59 @@ If the send succeeds, the job is removed from the queue, and a "success"
 mail is sent to the originator of the spooled job.
 
 If the send fails, it's logged, and faxrunq proceeds to the next job. If
-the job fails three times "fatally", that is, not with a locked or engaged
+the job fails five times "fatally", that is, not with a locked or engaged
 line, but with "NO CARRIER" (no fax machine, or line noise), the job is
 suspended, and the requestor gets a mail, telling him so.
+
+.SH CONFIGURATION FILE
+
+Some aspects of the behaviour of 
+.I faxrunq
+can be controlled by a configuration file, @CONFDIR@/faxrunq.config.  In
+this file, you can use the following options:
+.TP
+.B success-send-mail [y/n]
+A boolean parameter that controls whether a mail will be sent after
+successful completition of the fax job.
+
+.TP
+.B failure-send-mail [y/n]
+A boolean parameter that controls whether a mail will be sent after
+the fax job has failed more than the maximum number of times.
+
+.TP
+.B success-call-program <name>
+Here, you can specify a program that will be run when the fax has been
+successfully sent. It will be passed one command line parameter, and
+that's the full path to the fax JOB file (see faxq(5)).
+
+.TP
+.B failure-call-program <name>
+Similar to the "success-call-program", this program will be run when the
+fax has been failed too often and 
+.I faxrunq
+gives up. This script could, for example, print out the fax on a printer
+so that it can be sent manually on a paper fax machine.
+
+.TP
+.B maxfail-costly <n>
+This specifies the number of times that a fax may fail "fatally", that
+is, causing telephone costs (explained above). The default value is 5.
+
+.TP
+.B maxfail-total <m>
+This is the absolute maximum number of times that 
+.I faxrunq
+will try to send any given fax. The default value is 10. (Right now, 
+it's not yet implemented).
+
+.TP
+.B delete-sent-jobs [y/n]
+Determines whether
+.I faxrunq
+should delete jobs after sending, or leave them in the fax queue (while
+moving the "JOB" file to "JOB.done") so that they can be seen at by
+"faxq -o". The default value is "do not delete sent faxes".
 
 .IX fax
 .SH BUGS
