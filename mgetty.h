@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 4.4 1997/06/28 20:40:02 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 4.5 1997/11/18 10:57:36 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -131,9 +131,13 @@ typedef	char	boolean;
 #endif
 
 /* assume that all BSD systems have the siginterrupt() function
+ * for GNU libc 2.x, we need it as well (default behaviour is now "restart")
  */
-#if ( defined(BSD) || defined(sunos4) ) && !defined(NO_SIGINTERRUPT)
-#define HAVE_SIGINTERRUPT
+#if defined(BSD) || defined(sunos4) ||\
+    ( defined(__GLIBC__) && __GLIBC__ >= 2 ) 
+# ifndef NO_SIGINTERRUPT
+#  define HAVE_SIGINTERRUPT
+# endif
 #endif
 
 /* assume that some systems do not have long filenames...
