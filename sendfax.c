@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.49 1993/12/18 19:35:21 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.50 1994/01/05 04:42:44 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* sendfax.c
  *
@@ -163,194 +163,6 @@ RETSIGTYPE fax_sig_goodbye( int signo )
     exit(15);				/* will close the fax device */
 }
 
-RETSIGTYPE fax_send_timeout()
-{
-    lprintf( L_ERROR, "timeout!" );
-}
-
-/* fax_send_page - send one complete fax-G3-file to the modem
- *
- * modem has to be in sync, waiting for at+fdt
- * NO page punctuation is transmitted -> caller can concatenate
- * multiple parts onto one page
- */
-int fax_send_page _P2( (g3_file, fd),
-		       char * g3_file, int fd )
-{
-int g3fd;
-char ch;
-char buf[256];
-char wbuf[ sizeof(buf) * 2 ];
-
-static	char	fax_end_of_page[] = { DLE, ETX };
-
-    lprintf( L_NOISE, "fax_send_page(\"%s\") started...", g3_file );
-
-    /* disable software output flow control! It would eat the XON otherwise! */
-    tio_set_flow_control( fd, &fax_tio, (FAXSEND_FLOW) & FLOW_HARD );
-    tio_set( fd, &fax_tio );
-
-    /* tell modem that we're ready to send - modem will answer
-     * with a couple of "+F..." messages and finally CONNECT and XON
-     */
-
-    if ( fax_command( "AT+FDT", "CONNECT", fd ) == ERROR ||
-	 fax_hangup_code != 0 )
-    {
-	lprintf( L_WARN, "AT+FDT -> some error, abort fax send!" );
-	return ERROR;
-    }
-
-    /* when modem is ready to receive data, it will send us an XON
-     * (20 seconds timeout)
-     */
-
-    lprintf( L_NOISE, "waiting for XON, got:" );
-
-    signal( SIGALRM, fax_send_timeout );
-    alarm( 20 );
-    do
-    {
-	if ( fax_read_byte( fd, &ch ) != 1 )
-	{
-	    lprintf( L_ERROR, "waiting for XON" );
-	    fprintf( stderr, "error waiting for XON!\n" );
-	    fax_close( fd );
-	    exit(11);
-	}
-	lputc( L_NOISE, ch );
-    }
-    while ( ch != XON );
-    alarm(0);
-
-    /* Since some faxmodems (ZyXELs!) do need XON/XOFF flow control
-     * we have to enable it here
-     */
-    tio_set_flow_control( fd, &fax_tio,
-			 (FAXSEND_FLOW) & (FLOW_HARD|FLOW_XON_OUT));
-    tio_set( fd, &fax_tio );
-
-    /* send one page */
-    lprintf( L_MESG, "sending %s...", g3_file );
-
-    g3fd = open( g3_file, O_RDONLY );
-    if ( g3fd == -1 )
-    {
-	lprintf( L_ERROR, "cannot open %s", g3_file );
-	lprintf( L_WARN, "have to send empty page instead" );
-    }
-    else
-    {
-	int r, i, w;
-	boolean first = TRUE;
-
-	while ( ( r = read( g3fd, buf, 64 ) ) > 0 )
-	{
-	    i = 0;
-	    /* skip over GhostScript / digifaxhigh header */
-
-	    if ( first )
-	    {
-		first = FALSE;
-		if ( r >= 64 && strcmp( buf+1,
-					"PC Research, Inc" ) == 0 )
-		{
-		    lprintf( L_MESG, "skipping over GhostScript header" );
-		    i = 64;
-		    /* for dfax files, we can check if the resolutions match
-		     */
-		    if ( ( fax_par_d.vr != 0 ) != ( buf[29] != 0 ) )
-		    {
-			fprintf( stderr, "WARNING: sending in %s mode, fax data is %s mode\n",
-				 fax_par_d.vr? "fine" : "normal",
-				 buf[29]     ? "fine" : "normal" );
-			lprintf( L_WARN, "resolution mismatch" );
-		    }
-		}
-                else
-		/* it's incredible how stupid users are - check for */
-		/* "tiffg3" files and issue a warning if the file is */
-		/* suspect */
-                if ( r >= 2 && ( ( buf[0] == 0x49 && buf[1] == 0x49 ) ||
-                                 ( buf[0] == 0x4d && buf[1] == 0x4d ) ) )
-		{
-		    lprintf( L_WARN, "may be TIFF file" );
-		    fprintf( stderr, "WARNING: file may be 'tiffg3' - TIFF file format is *not* supported!\n" );
-		    fprintf( stderr, "         Thus, fax transmission will most propably fail\n" );
-		}   
-                else
-                if ( r < 10 || buf[0] != 0 )
-		{
-		    lprintf( L_WARN, "file looks 'suspicious', buf=%02x %02x %02x %02x...", buf[0] &0xff, buf[1] &0xff, buf[2] &0xff, buf[3] &0xff );
-                    fprintf( stderr, "WARNING: are you sure that this is a G3 fax file? Doesn't seem to be...\n" );
-		}
-	    }
-
-	    for ( w = 0; i < r; i++ )
-	    {
-#if REVERSE
-		wbuf[ w ] = swap_bits( buf[ i ] );
-#else
-		wbuf[ w ] = buf[ i ];
-#endif
-		if ( wbuf[ w++ ] == DLE ) wbuf[ w++ ] = DLE;
-	    }
-
-	    lprintf( L_JUNK, "read %d, write %d", r, w );
-
-	    if ( write( fd, wbuf, w ) != w )
-	    {
-		lprintf( L_ERROR, "could not write all %d bytes", w );
-	    }
-
-	    /* drain output */
-	    /* well, since the handshake stuff seems to work now,
-	     * this shouldn't be necessary anymore (but if you have
-	     * problems with missing scan lines, you could try this)
-	     */
-#if 0
-	    ioctl( fd, TCSETAW, &fax_tio );
-#endif
-
-	    /* look if there's something to read
-	     *
-	     * normally there shouldn't be anything, but I have
-	     * seen very old ZyXEL releases sending junk and then
-	     * failing completely... so this may help when debugging
-	     *
-	     * Also, if you don't have defined FAX_SEND_USE_IXON,
-	     * and your modem insists on xon/xoff flow control, you'll
-	     * see these characters [0x11/0x13] here.
-	     */
-
-	    if ( check_for_input( fd ) )
-	    {
-		lprintf( L_NOISE, "input: got " );
-		do
-		{
-		    /* intentionally don't use fax_read_byte here */
-		    if ( read( fd, &ch, 1 ) != 1 )
-		    {
-			lprintf( L_ERROR, "read failed" );
-			break;
-		    }
-		    else
-			lputc( L_NOISE, ch );
-		}
-		while ( check_for_input( fd ) );
-	    }
-	}		/* end while (more g3 data to read) */
-    }			/* end if (open file succeeded) */
-
-    /* transmit end of page */
-    lprintf( L_NOISE, "sending DLE ETX..." );
-    write( fd, fax_end_of_page, sizeof( fax_end_of_page ));
-
-    if ( fax_wait_for( "OK", fd ) == ERROR ) return ERROR;
-
-    return NOERROR;
-}
-
 int main _P2( (argc, argv),
 	      int argc, char ** argv )
 {
@@ -362,7 +174,7 @@ int i;
 
 /* variables settable by command line options */
 char *	extra_modem_init = NULL;
-boolean fax_poll_req = FALSE;
+boolean fax_poll_wanted = FALSE;
 char * 	fax_page_header = NULL;
 char *	poll_directory = ".";			/* override with "-d" */
 
@@ -388,7 +200,7 @@ int	tries;
 	    log_level = atoi(optarg);
 	    break;
 	case 'p':	/* enable polling */
-	    fax_poll_req = TRUE;
+	    fax_poll_wanted = TRUE;
 	    break;
 	case 'h':	/* set page header */
 	    fax_page_header = optarg;
@@ -425,7 +237,7 @@ int	tries;
 
     lprintf( L_MESG, "sending fax to %s", fac_tel_no );
 
-    if ( ! fax_poll_req && argidx == argc )
+    if ( ! fax_poll_wanted && argidx == argc )
     {
 	exit_usage(argv[0]);
     }
@@ -500,7 +312,7 @@ int	tries;
 
     /* tell the modem if we are willing to poll faxes
      */
-    if ( fax_poll_req )
+    if ( fax_poll_wanted )
     {
 	sprintf( buf, "AT+FCIG=\"%s\"", FAX_STATION_ID);
 	if ( fax_command( buf, "OK", fd ) == ERROR ||
@@ -508,7 +320,7 @@ int	tries;
 	{
 	    lprintf( L_WARN, "AT+FSPL=1: cannot enable polling" );
 	    fprintf( stderr, "Warning: polling is not possible!\n" );
-	    fax_poll_req = FALSE;
+	    fax_poll_wanted = FALSE;
 	    fax_hangup = 0;	/* reset error flag */
 	}
     }
@@ -525,8 +337,10 @@ int	tries;
 		 fax_hangup_code == FHUP_BUSY? "BUSY" : "ERROR / NO CARRIER");
 
 	/* end program - return codes signals kind of dial failure */
-	if ( fax_hangup_code == FHUP_BUSY ) { fax_close( fd ); exit(4); }
-	{ fax_close( fd ); exit(10); }
+	fax_close( fd );
+
+	if ( fax_hangup_code == FHUP_BUSY ) exit(4);
+	                               else exit(10); 
     }
     if ( verbose ) printf( "OK.\n" );
 
@@ -557,7 +371,7 @@ int	tries;
 
 	/* send page */
 	if ( verbose ) printf( "sending '%s'...\n", argv[ argidx ] );
-	if ( fax_send_page( argv[ argidx ], fd ) == ERROR ) break;
+	if ( fax_send_page( argv[ argidx ], &fax_tio, fd ) == ERROR ) break;
 
 	fax_page_tx_status = -1;
 
@@ -567,7 +381,7 @@ int	tries;
 	 */
 
 	if ( argidx == argc-1 )		/* was this the last page to send? */
-	  if ( fax_poll_req && fax_to_poll )
+	  if ( fax_poll_wanted && fax_to_poll )
 	    fax_command( "AT+FET=1", "OK", fd );	/* end document */
 	  else
 	  {
@@ -602,6 +416,7 @@ int	tries;
 			fprintf( stderr, "ERROR: too many retries - aborting send\n" );
 			fax_hangup_code = -1;
 			fax_hangup = 1;
+			argidx--;
 		    }
 		    else
 		    {
@@ -628,9 +443,9 @@ int	tries;
     if ( argidx < argc || fax_hangup_code != 0 )
     {
 	lprintf( L_WARN, "Failure transmitting %s: +FHNG:%2d",
-		 argv[argidx-1], fax_hangup_code );
+		 argv[argidx], fax_hangup_code );
 	fprintf( stderr, "\n%s: FAILED to transmit '%s'.\n",
-		         argv[0], argv[argidx-1] );
+		         argv[0], argv[argidx] );
 
 	if ( fax_hangup_code == -1 )
 	    fprintf( stderr, "(number of tries exhausted)\n" );
@@ -647,7 +462,7 @@ int	tries;
      * faxmodem sent us a "+FPOLL" response
      */
 
-    if ( fax_poll_req )
+    if ( fax_poll_wanted )
     {
     int pagenum = 0;
 
