@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.30 1993/09/01 22:49:21 gert Exp $ (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.31 1993/09/19 17:20:33 gert Exp $ (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -534,8 +534,11 @@ int	tries;
 	    case 4:
 	    case 5: fprintf( stderr, "WARNING: procedure interrupt requested - don't know how to handle it\n" );
 		    break;
+	    case -1:			/* something broke */
+		    lprintf( L_WARN, "fpts:-1" );
+		    break;
 	    default:fprintf( stderr, "WARNING: invalid code: +FPTS:%d\n",
-	            fax_page_tx_status );
+	                             fax_page_tx_status );
 		    break;
 	}
 	argidx++;
