@@ -1,1 +1,1 @@
-char * mgetty_version = "experimental test release 1.1.17-Aug07";
+char * mgetty_version = "experimental test release 1.1.18-Sep11";
