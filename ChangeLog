@@ -1,3 +1,19 @@
+Mon Apr 16 10:56:21 MEST 2001  Gert Doering (gert@greenie.muc.de)
+
+	* release 1.1.26
+
+	* frontends/windows/lprfax.txt: add description of "fax port monitor"
+
+Tue Mar 13 21:32:47 MET 2001  Gert Doering (gert@greenie.muc.de)
+
+	* login.c: export current tty as $DEVICE to shell
+
+Sat Feb 24 11:48:11 MET 2001  Gert Doering (gert@greenie.muc.de)
+	
+	* updates to frontends/www/ (minor bug fixes)
+
+	* updates to voice/ (see voice/ChangeLog)
+
 Sat Feb 24 12:47:19 2001  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 
 	* dialin.config: added V253 codes for OUT_OF_AREA and PRIVATE.
