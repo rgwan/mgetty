@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 1.48 1994/11/05 18:17:27 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logfile.c,v 1.49 1994/11/19 01:20:58 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -60,7 +60,7 @@ extern char *sys_errlist[];
  */
 #if defined(ISC) || defined(SVR4) || defined(_3B1_) || \
     defined(MEIBE) || defined(_SEQUENT_) || defined(_AIX) || \
-    defined(sysV68) || defined(M_XENIX)
+    defined(sysV68) || ( defined(M_XENIX) && !defined(M_UNIX) )
 # define atexit(dummy) 
 #endif
 
