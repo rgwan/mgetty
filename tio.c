@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 1.32 1994/09/18 17:53:57 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 1.33 1994/09/19 22:23:52 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* tio.c
  *
@@ -704,7 +704,18 @@ int tio_flush_queue _P2( (fd, queue), int fd, int queue )
     }
 #endif
 #ifdef BSD_SGTTY
-#include "not yet implemented"
+    int arg;
+    
+    switch ( queue )
+    {
+      case TIO_Q_IN:   arg = FREAD; break;
+      case TIO_Q_OUT:  arg = FWRITE; break;
+      case TIO_Q_BOTH: arg = FREAD | FWRITE; break;
+      default:
+	lprintf( L_WARN, "tio_flush_queue: invalid ``queue'' argument" );
+	return ERROR;
+    }
+    r = ioctl( fd, TIOCFLUSH, (char *) &arg );
 #endif
     if ( r != 0 ) lprintf( L_ERROR, "tio: cannot flush queue" );
 
