@@ -9,10 +9,14 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.33 1998/05/28 14:37:26 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.34 1998/06/22 10:27:22 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.34  1998/06/22 10:27:22  gert
+# in case of startup with a stale 'faxrunqd.pid' file, assume unclean
+# shutdown / kill -9 and remove all F.../JOB.locked files.
+#
 # Revision 1.33  1998/05/28 14:37:26  gert
 # write "Status" line for successful send attempts as well
 #
@@ -124,8 +128,7 @@ if ( -f $faxrd_pid && open( FP, $faxrd_pid ) )
 	}
 	else			# no process found
 	{
-	    print STDERR "faxrunqd: stale PID file (PID=$p), removing\n";
-	    unlink $faxrd_pid;
+	    &remove_stale_locks;
 	}
     }
 }
@@ -1292,4 +1295,34 @@ my $t;
 	}
     }
     print LOG "--------------------------------------------------\n";
+}
+
+
+
+##########################################################################
+#
+# remove_stale_locks
+#
+# called at startup, if stale "faxrunqd.pid" file is found
+# go through all F..../ directories, remove JOB.locked files.
+#
+##########################################################################
+sub remove_stale_locks
+{
+    print STDERR "faxrunqd: stale PID file (PID=$p), removing\n";
+    unlink $faxrd_pid;
+
+    chdir( $fax_spool_out ) || return;
+
+    opendir D, "." || return;
+    foreach $f ( readdir( D ) )
+    {
+	if ( -d $f && -f "$f/JOB.locked" )
+	{
+	    print STDERR "faxrunqd: remove stale lock \"$f/JOB.locked\"\n";
+	    unlink( "$f/JOB.locked" );
+	}
+    }
+    close D;
+    return;
 }
