@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 3.5 1996/03/19 20:46:39 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 3.6 1996/07/09 13:21:02 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration defaults for mgetty / sendfax
  * are specified.
@@ -227,6 +227,9 @@
 # endif
 # ifdef NeXT
 #  define LOCK "/usr/spool/uucp/LCK/LCK..%s"
+# endif
+# ifdef linux
+#  define LOCK	"/var/lock/LCK..%s"
 # endif
 #endif
 
