@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 3.6 1996/07/10 17:32:56 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 3.7 1996/07/13 12:46:52 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -412,7 +412,7 @@ policy.h-dist: policy.h
 version.h: $(DISTRIB)
 	rm -f version.h
 	if expr $(VS) : ".[13579]" >/dev/null ; then \
-	    date=`date "+%B%d"` ;\
+	    date=`date "+%b%d"` ;\
 	    echo "char * mgetty_version = \"experimental test release 0.$(VS)-$$date\";" >version.h ;\
 	else \
 	    echo "char * mgetty_version = \"official release 0.$(VS)\";" >version.h ;\
