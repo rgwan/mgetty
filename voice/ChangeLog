@@ -1,4 +1,21 @@
+Sun Mar 11 13:08:29 2001  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* All of below is 0.9.27
+
+	* Fix to vgetty/answer.c (incomplete arguments), submitted
+	by Diomidis Spinellis <dds@aueb.gr>.
+
+	* man pages for pvftools, contributed by
+	Mikkel L. Ellertson <mikkel@infinity-ltd.com>.
+
+	* Voice shell interface changes by Juergen.Kosel@gmx.de, to
+	provide the new error DEVICE_NOT_AVAILABLE. Adapted the
+	documentation. Now using a single constant string for
+	error and for ready in libvoice/shell.c.
+
 Sat Feb 24 16:15:03 2001  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* All of below is 0.9.26.
 
 	* Added support in the PVF tools of the 81 RMD type for the
 	  ZyXEL 2864, aka Mu-law PCM.
