@@ -1,4 +1,4 @@
-#ident "$Id: do_chat.c,v 1.12 1993/09/19 01:21:04 gert Exp $ (c) Gert Doering";
+#ident "$Id: do_chat.c,v 1.13 1993/10/01 00:06:02 gert Exp $ (c) Gert Doering";
 /* do_chat.c
  *
  * This module handles all the non-fax talk with the modem
@@ -48,7 +48,7 @@ struct termio	termio, save_termio;
 
     signal( SIGALRM, chat_timeout );
 
-    *action = 0;		/* thus a timeout will give A_FAIL */
+    if ( actions != NULL && action != NULL ) *action = 0;
 
     str=0;
     while ( expect_send[str] != NULL )
@@ -143,7 +143,8 @@ check_further:
 		}
 
 		/* look for one of the "abort"-strings */
-		for ( h=0; actions[h].expect != NULL; h ++ )
+                if ( actions != NULL )
+		  for ( h=0; actions[h].expect != NULL; h ++ )
 		{
 		    cnt = strlen( actions[h].expect );
 		    if ( i>=cnt && 
