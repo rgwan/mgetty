@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.50 1999/06/11 11:54:23 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.51 1999/06/29 14:23:07 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.51  1999/06/29 14:23:07  gert
+# use faxrunqd.config for maximum number of pages in combined jobs
+#
 # Revision 1.50  1999/06/11 11:54:23  gert
 # clean up history, make logging message more clear
 #
@@ -109,6 +112,7 @@ $program_failure='';
 $max_tries_costly=3;
 $max_tries_total=10;
 $delete_jobs=0;
+$max_combined_pages=10;
 
 #
 # verbose strings for error messages
@@ -231,6 +235,8 @@ if ( open( CF, $faxrunq_cf ) )
 		{ $fax_acct = "$1"; }
 	elsif ( /^\s*policy-config\s+(\S+)/ )
 		{ $policy_config = "$1"; }
+	elsif ( /^\s*faxrunqd-max-pages\s+(\d+)/ )
+		{ $max_combined_pages = $1; }
 	else
 		{ die "syntax error in $faxrunq_cf, line $.!\n"; }
     }
@@ -902,7 +908,7 @@ sub send_job_from_queue
 	print LOG " +  -> criteria : $crit\n" if $opt_d;
 
 	while ( ( $#{$queue{$job}->{'others'}} >= 0 ) &&
-	        ( $#pages < 10 ) )
+	        ( $#pages < $max_combined_pages-1 ) )
 	{
 	    $c_job = ${$queue{$job}->{'others'}}[0];
 
