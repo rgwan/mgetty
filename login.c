@@ -1,4 +1,4 @@
-#ident "$Id: login.c,v 4.1 1997/01/12 14:53:41 gert Exp $ Copyright (C) 1993 Gert Doering"
+#ident "$Id: login.c,v 4.2 1997/12/16 11:39:33 gert Exp $ Copyright (C) 1993 Gert Doering"
 
 
 /* login.c
@@ -294,7 +294,7 @@ void login_dispatch _P1( (user), char * user )
 
     /* audit record */
     lprintf( L_AUDIT, 
-       "data dev=%s, pid=%d, caller=%s, conn='%s', name='%s', cmd='%s', user='%s'",
+       "data dev=%s, pid=%d, caller='%s', conn='%s', name='%s', cmd='%s', user='%s'",
 	Device, getpid(), CallerId, Connect, CallName,
 	cmd, user );
 

@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 4.4 1997/03/31 20:27:03 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 4.5 1997/12/16 11:39:24 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -147,7 +147,7 @@ extern  char * Device;
     call_done = call_done - call_start;
     /* write audit information and return (caller will exit() then) */
     lprintf( L_AUDIT,
-"fax dev=%s, pid=%d, caller=%s, name='%s', id='%s', +FHNG=%03d, pages=%d, time=%02d:%02d:%02d\n",
+"fax dev=%s, pid=%d, caller='%s', name='%s', id='%s', +FHNG=%03d, pages=%d, time=%02d:%02d:%02d\n",
 	Device, getpid(), CallerId, CallName, fax_remote_id, fax_hangup_code, pagenum,
 	call_done / 3600, (call_done / 60) % 60, call_done % 60);
 }

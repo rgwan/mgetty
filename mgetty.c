@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 4.10 1997/12/02 16:21:35 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 4.11 1997/12/16 11:39:38 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -780,7 +780,7 @@ Ring_got_action:
 		break;
 #endif
 	      case A_FAIL:
-		lprintf( L_AUDIT, "failed A_FAIL dev=%s, pid=%d, caller=%s",
+		lprintf( L_AUDIT, "failed A_FAIL dev=%s, pid=%d, caller='%s'",
 			          Device, getpid(), CallerId );
 		exit(20);
 	      default:
@@ -804,7 +804,7 @@ Ring_got_action:
 		
 	    if ( !cndlookup() )
 	    {
-		lprintf( L_AUDIT, "denied caller dev=%s, pid=%d, caller=%s",
+		lprintf( L_AUDIT, "denied caller dev=%s, pid=%d, caller='%s'",
 			 Device, getpid(), CallerId);
 		clean_line( STDIN, 80 ); /* wait for ringing to stop */
 
@@ -854,7 +854,7 @@ Ring_got_action:
 		}
 
 		lprintf( L_AUDIT, 
-		   "failed %s dev=%s, pid=%d, caller=%s, conn='%s', name='%s'",
+		  "failed %s dev=%s, pid=%d, caller='%s', conn='%s', name='%s'",
 		    what_action == A_TIMOUT? "timeout": "A_FAIL", 
 		    Device, getpid(), CallerId, Connect, CallName );
   
