@@ -1,4 +1,4 @@
-#ident "$Id: do_chat.c,v 1.19 1993/10/20 14:17:53 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: do_chat.c,v 1.20 1993/11/06 14:26:03 gert Exp $ Copyright (c) Gert Doering";
 /* do_chat.c
  *
  * This module handles all the non-fax talk with the modem
@@ -22,7 +22,7 @@
 #include "tio.h"
 
 boolean chat_has_timeout;
-void chat_timeout()
+static RETSIGTYPE chat_timeout()
 {
     chat_has_timeout = TRUE;
 }
