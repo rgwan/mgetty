@@ -1,3 +1,8 @@
+Sun Jul  4 09:13:10 MEST 1999  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* Fixed libutil/access.c to set EGID before EUID so that it is
+	possible.
+	
 Sun Jun 27 12:16:20 MEST 1999  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 
 	* The owner, groups and mode were only set after the file

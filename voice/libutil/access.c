@@ -5,7 +5,7 @@
  * exactly one unnested call to voice_desimpersonify() for each
  * voice_impersonify() because of the static umask below.
  *
- * $Id: access.c,v 1.1 1999/06/27 14:34:45 marcs Exp $
+ * $Id: access.c,v 1.2 1999/07/04 07:15:52 marcs Exp $
  *
  */
 
@@ -23,6 +23,7 @@ int voice_impersonify(void) {
     * However, this now needs UID or GID write access to the spool
     * (ie directory +w). Note that the file mode should be assured by
     * umask or by permissions on the directory.
+    * NB: needs to switch the GUID first.
     */
 
    get_ugid((char *) &cvd.phone_owner,
@@ -30,15 +31,15 @@ int voice_impersonify(void) {
 	    &uid,
 	    &gid);
 
-   if (seteuid(uid)) {
-      lprintf(L_WARN, "%s: cannot set effective UID to %d",
-	      program_name, uid);
-      return 0;
-   }
-
    if (setegid(gid)) {
       lprintf(L_WARN, "%s: cannot set effective GID to %d",
 	      program_name, gid);
+      return 0;
+   }
+
+   if (seteuid(uid)) {
+      lprintf(L_WARN, "%s: cannot set effective UID to %d",
+	      program_name, uid);
       return 0;
    }
 
