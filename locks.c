@@ -1,4 +1,4 @@
-#ident "$Id: locks.c,v 2.2 1995/04/23 11:24:52 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
+#ident "$Id: locks.c,v 2.3 1995/06/12 22:32:40 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
 
 /* large parts of the code in this module are taken from the
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us,
@@ -338,11 +338,20 @@ static char * get_lock_name _P2( (lock_name, device),
 	lprintf( L_FATAL, "get_lock_name: device name too long" );
 	exit(5);
     }
+    
+#ifdef LOCKS_ALL_LOWERCASE
+    /* convert the full name */
     while ( i >= 0 )
     {
 	p[i] = tolower( device[i] ); i--;
     }
-
+#else
+    /* convert only the last character */
+    strcpy( p, device );
+    i--;
+    p[i] = tolower( p[i] );
+#endif
+    
     device = p;
 #endif	/* LOCKS_LOWERCASE */
 
