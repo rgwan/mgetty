@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 1.23 1993/12/18 19:03:57 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 1.24 1993/12/27 22:17:16 gert Exp $ Copyright (c) Gert Doering"
 ;
 #include <stdio.h>
 #ifndef _NOSTDLIB_H
@@ -264,6 +264,10 @@ newlogin:
 	}
 
 	if ( ch == CKILL ) goto newlogin;
+
+	/* ignore XON/XOFF characters */
+	
+	if ( ch == CSTART || ch == CSTOP ) continue;
 
 	/* since some OSes use backspace and others DEL -> accept both */
 
