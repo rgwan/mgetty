@@ -1,4 +1,4 @@
-#ident "$Id: gettydefs.c,v 1.6 1994/03/13 00:45:37 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "$Id: gettydefs.c,v 1.7 1994/05/14 16:55:59 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 ;
 /* gettydefs.c
  *
@@ -12,10 +12,7 @@
 #include <ctype.h>
 #include <fcntl.h>
 #include <unistd.h>
-#ifndef _NOSTDLIB_H
-# include <stdlib.h>
-#endif
-#include <malloc.h>
+#include "syslibs.h"
 
 #include "mgetty.h"
 #include "policy.h"
