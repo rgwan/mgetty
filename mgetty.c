@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.7 1993/02/26 18:03:13 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.8 1993/03/06 16:24:17 gert Exp $ (c) Gert Doering";
 /* some parts of the code are loosely based on the 
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us
  */
@@ -59,7 +59,7 @@ char *	init_chat_seq[] = { "", "\r\\d\\d\\d+++\\d\\d\\d\r\\dATQ0H0", "OK",
 			    /*"\\dAT&V", "OK\n", !!!weg*/
 			    "ATS0=0E1&K4&D3&N0", "OK",
 #ifndef NO_FAX
-                            "AT+FAA=1;+FBOR=0;+FCR=1;+FLID=\" +49-89-3243328 Doering\"", "OK",
+                            "AT+FAA=1;+FBOR=0;+FCR=1;+FLID=\""FAX_STATION_ID"\"", "OK",
 			    "AT+FDCC=1,5,0,2,0,0,0", "OK",
 #endif
                             NULL };
