@@ -1,4 +1,4 @@
-#ident "$Id: do_chat.c,v 1.34 1994/05/07 20:07:59 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: do_chat.c,v 1.35 1994/05/14 16:57:00 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* do_chat.c
  *
@@ -6,9 +6,7 @@
  */
 
 #include <stdio.h>
-#ifndef _NOSTDLIB_H
-#include <stdlib.h>
-#endif
+#include "syslibs.h"
 #include <unistd.h>
 #include <signal.h>
 #include <string.h>
