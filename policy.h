@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.63 1994/09/18 12:25:32 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.64 1994/09/26 10:31:57 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -18,7 +18,7 @@
  * You could use it to call "uucico" for all users starting with "U*"
  * (works only with Taylor UUCP 1.04 with my patch), or to call a fido
  * mailer for fido calls (only if -DFIDO defined)...
- * See the samples in the example mgetty.login file.
+ * See the samples in the example login.config file (built from login.cfg.in).
  *
  * WARNING: make sure that this file isn't world-accessable (SECURITY!)
  *
