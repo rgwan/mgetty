@@ -10,6 +10,7 @@ faxspool.1in
 g3cat.1in
 g32pbm.1in
 pbm2g3.1in
+sff2g3.1in
 mgettydefs.4in
 faxqueue.5in
 mgetty.8in
