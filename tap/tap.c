@@ -4,12 +4,13 @@
  *
  * Copyright (c) 1997 Gert Doering
  */
-#ident "$Id: tap.c,v 1.4 1997/12/19 11:58:45 gert Exp $"
+#ident "$Id: tap.c,v 1.5 1998/07/24 21:39:01 gert Exp $"
 
 #include <stdio.h>
 #include <fcntl.h>
 #include <string.h>
 #include <unistd.h>
+#include <signal.h>
 
 #include "policy.h"
 #include "mgetty.h"
