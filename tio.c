@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 1.28 1994/08/10 12:56:56 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 1.29 1994/08/11 17:41:15 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* tio.c
  *
@@ -66,10 +66,19 @@ struct speedtab speedtab[] = {
 	{ B200,	  200,	 "200"	 },
 	{ B300,	  300,	 "300"	 },
 	{ B600,	  600,	 "600"	 },
+#ifdef	B900
+	{ B900,	  900,	 "900"	},
+#endif
 	{ B1200,  1200,	 "1200"	 },
 	{ B1800,  1800,	 "1800"	 },
 	{ B2400,  2400,	 "2400"	 },
+#ifdef	B3600
+	{ B3600,  3600,	 "3600"	},
+#endif
 	{ B4800,  4800,	 "4800"	 },
+#ifdef	B7200
+	{ B7200,  7200,  "7200"	},
+#endif
 	{ B9600,  9600,	 "9600"	 },
 #ifdef	B19200
 	{ B19200, 19200, "19200" },
@@ -82,6 +91,18 @@ struct speedtab speedtab[] = {
 #endif
 #ifdef	EXTB
 	{ EXTB,	  38400, "EXTB"	 },
+#endif
+#ifdef	B57600
+	{ B57600, 57600, "57600" },
+#endif
+#ifdef	B115200
+	{ B115200,115200,"115200"},
+#endif
+#ifdef B230400
+	{ B230400,230400,"230400"},
+#endif
+#ifdef B460800
+	{ B460800,460800,"460800"},
 #endif
 	{ 0,	  0,	 ""	 }
 };
