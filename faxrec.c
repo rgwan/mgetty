@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.54 1994/08/13 18:32:02 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 1.55 1994/08/14 17:55:54 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -35,10 +35,6 @@
 static time_t call_done;
 
 time_t	time _PROTO(( long * tloc ));
-
-#if !defined(sunos4) && !defined(MEIBE) && !defined(sysV68) && !defined(SVR4)
-int	chmod _PROTO(( char * path, mode_t mode ));
-#endif
 
 /* all stuff in here was programmed according to a description of the
  * class 2 standard as implemented in the SupraFAX Faxmodem
