@@ -1,4 +1,4 @@
-#ident "$Id: goodies.c,v 4.2 2000/12/19 17:17:46 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: goodies.c,v 4.3 2001/01/04 16:23:05 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /*
  * goodies.c
@@ -138,7 +138,7 @@ char * get_ps_args _P1 ((pid), int pid )
 #endif /* SVR4 */
 
 #if defined(linux) || \
-	( defined(__FreeBSD__ ) && __FreeBSD_version >= 400000 )
+	( defined(__FreeBSD__ ) && __FreeBSD_version >= 330000 )
 
 # ifdef DIALOUT_SHOW_USERNAMES
     char procfn[30];
