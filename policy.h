@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.24 1993/10/06 00:35:56 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.25 1993/10/18 20:21:51 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -18,7 +18,7 @@
  * this setting (from GETTYDEFS) as default (only if compiled with
  * USE_GETTYDEFS set)
  */
-#define GETTYDEF_DEFAULT_TAG "n"
+#define GETTYDEFS_DEFAULT_TAG "n"
 
 
 /* user id of the "uucp" user. The tty device will be owned by this user,
@@ -34,12 +34,9 @@
 
 /* system console - if a severe error happens at startup, mgetty writes
  * a message to this file and aborts
+ * On SCO, this may be /dev/syscon!
  */
-#ifdef SVR4
 #define CONSOLE "/dev/console"
-#else
-#define CONSOLE "/dev/syscon"
-#endif
 
 /* Default log error level threshold. Possible error levels are
  * L_FATAL, L_ERROR, L_WARN, L_MESG, L_NOISE, L_JUNK (see mgetty.h)
@@ -235,8 +232,9 @@
 #endif
 
 /* where to send notify mail about incoming faxes to
+ * (remember to create an mail alias if no such user exists!)
  */
-#define MAIL_TO		ADMIN
+#define MAIL_TO		"faxadmin"
 
 /* after a fax has arrived, mgetty can call a program for further
  * processing of this fax.
