@@ -4,9 +4,13 @@
 # 
 # Copyright 1998 Simone Demmel simone@greenie.net
 #
-# RCS: $Id: nph-vf-gif.in,v 1.6 1998/12/04 15:29:53 gert Exp $
+# RCS: $Id: nph-vf-gif.in,v 1.7 1999/05/27 15:12:16 gert Exp $
 #
 # $Log: nph-vf-gif.in,v $
+# Revision 1.7  1999/05/27 15:12:16  gert
+# add support for viewing 'outgoing' fax queue
+# (means restructuring about everything because of different directory layout)
+#
 # Revision 1.6  1998/12/04 15:29:53  gert
 # include image refs for turn buttons
 #
@@ -47,6 +51,8 @@
 # - feststellen, ob das benoetigte Bild schon im tmp-Verzeichnis liegt
 # - falls dem nicht so ist, neues Bild generieren und speichern
 # - gewuenschtes Bild schicken
+# - unterschiedliche Bildquelle source="incoming"|"outgoing"
+#   beruecksichtigen
 #
 
 #
@@ -72,27 +78,13 @@ print "Connection: close\n";
 print "Content-Type: text/html\n\n";
 
 # check, if fax-incoming is defined
-if ($fax_incoming eq "") 
-{
-    errormessage( "\$fax_incoming : not configured - please look at the configuration-Files and configure the Directory where you store your incoming faxes (\$fax_incoming)");
-}
-if (! -d $fax_incoming)
-    { errormessage("\$fax_incoming : no such directory $fax_incoming");}
-if (! -r $fax_incoming)
-    { errormessage( "\$fax_incoming : no read-permission for $fax_incoming (running with UID $<)");}
+check_incoming();
 
 # check, if fax-outgoing is defined
 check_outgoing();
 
 # check, if the destination-Directory for pictures is readdy
-if ($webtmpabs eq "") 
-{
-    errormessage( "\$webtmpabs : not configured - please look at the configuration-Files and configure a temporary directory, where the webserver can store his images (\$webtmpabs)");
-}
-if (! -d $webtmpabs)
-    { errormessage("\$webtmpabs : no such directory $webtmpabs");}
-if (! -r $webtmpabs)
-    { errormessage("\$webtmpabs : no read-permission for $webtmpabs");}
+check_directory($webtmpabs, "webtmpabs");
 if (! -w $webtmpabs)
     { errormessage("\$webtmpabs : no write-permission for $webtmpabs");}
 if (! -x $webtmpabs)
@@ -133,9 +125,17 @@ if (!get_cgi(0))
 #
 # now we have $args{file} and $args{size}
 # and perhaps a $args{page} for one special page
+# $args{source} says if to look into incoming or outgoing
 # 
-# $page tells, which page, if it is empty, send all...
+# $page tells, which page, if it is empty, send all pages...
 #
+
+# NEW! We need to know if incoming or outgoing, because of
+# different naming-convention
+if (defined $args{source})
+	{ $source = $args{source}; }
+else {errormessage("undefined source - missing \"incoming\" or \"outgoing\"");}
+
 if (defined $args{file}) 
 	{ $file = $args{file};
 	  # $file =~ s/\%2B/\+/g;
@@ -165,7 +165,10 @@ if (defined $args{r})
 else {$turn = 0;}
 
 #
+# $source eq "incoming"
 # $file contains the complete Filename, without page-number
+# $source eq "outgoing"
+# $file contains the Directoryname, without filenames fir every page
 # $size is a number between 0 and 100 (Percent-value)
 #
 
@@ -179,11 +182,14 @@ else {$turn = 0;}
 
 #
 # $fax_incoming - incoming-Directory
-# $file - completer Filename without .$page
-# $page - pagenumber in 2-digits format
+# $fax_outgoing - outgoing Directory
+# $file - complete Filename without .$page| directory-name
+# $page - pagenumber in 2-digits format - must be changed back, if
+# $source eq "outgoing"
 #
 # stored in tmp/  $file.$page.$size.gif
-# $filename is the complete Filename, with pagenumber.
+# $filename is the complete Filename (or Directoryname), with
+# pagenumber (or without).
 #
 
 # make sure that the generated image files are not world-writable
@@ -191,19 +197,39 @@ umask 022;
 
 # @bilder = "";
 
+if ($source eq "outgoing" && 
+    		$page<10 && 
+    		$page ne "all" && 
+    		$page ne "overview")
+	{ $page = sprintf "%01d", $args{page}; }
+
 if ($page =~ /^\d+$/ )
 { # generate this image
     www_head_gif();
     # DEBUGGING
     # print "pruefe Existenz von $fax_incoming/$file.$page<br>\n";
-    if ( ! -f "$fax_incoming/$file.$page" )
+    if ( $source eq "incoming" && ! -f "$fax_incoming/$file.$page" )
     {
 	print "Eine Seite $page oder ein Faxname $file existiert leider nicht.<p>\n";
     }
+    elsif ($source eq "outgoing" && ! -f "$fax_outgoing/$file/f$page.g3")
+    {
+	print "Eine Seite f$page.g3 oder ein Directory $file existiert leider nicht.<p>\n";
+    }
     else
     {
-        genpage("$file.$page");
-        print "<a href=\"nph-vf-gif.cgi\?size=$nsize&file=$file&page=$page&r=$turn\"><img src=\"$webtmprel/$file.$page.$size.$turn.gif\" alt=\"page $page\" border=\"0\"></a>\n";
+	if ($source eq "incoming")
+	{
+        	genpage("$file.$page");
+	}
+	if ($source eq "outgoing")
+	{
+		# DEBUGGING
+		# print "call genpage(\"$file/f$page.g3\");";
+        	genpage("$file/f$page.g3");
+	}
+
+        print "<a href=\"nph-vf-gif.cgi\?source=$source&size=$nsize&file=$file&page=$page&r=$turn\"><img src=\"$webtmprel/$file.$page.$size.$turn.gif\" alt=\"page $page\" border=\"0\"></a>\n";
         rotate_html($size, $file, $page);
 
     print " | ";
@@ -211,20 +237,33 @@ if ($page =~ /^\d+$/ )
 
     # does this page have a previous and a next page?
 
-    $nextpage= sprintf "%02d", $page+1;
-    $prevpage= sprintf "%02d", $page-1;
+    if ($source eq "outgoing" && $page < 9) {$format="%d";}
+		          else {$format="%02d";}
+
+    $nextpage= sprintf $format, $page+1;
+    $prevpage= sprintf $format, $page-1;
+    # DEBUGGING
+    # print "prevpage: $prevpage, nextpage: $nextpage ";
 
     # DEBUGGING
     # print "pruefe auf existenz von: $fax_incoming/$file.$nextpage und $prevpage\n<p>";
-    if (-f "$fax_incoming/$file.$prevpage")
+    if ($source eq "incoming" && -f "$fax_incoming/$file.$prevpage")
     {
-        print "<a href=\"nph-vf-gif.cgi\?size=$size&file=$file&page=$prevpage&r=$turn\">prev Page</a>\n";
+        print "<a href=\"nph-vf-gif.cgi\?source=$source&size=$size&file=$file&page=$prevpage&r=$turn\">prev Page</a>\n";
+    }
+    elsif ($source eq "outgoing" && -f "$fax_outgoing/$file/f$prevpage.g3")
+    {
+        print "<a href=\"nph-vf-gif.cgi\?source=$source&size=$size&file=$file&page=$prevpage&r=$turn\">prev Page</a>\n";
     }
     else { print "no prev page\n"; } # es is uns wurscht
 
-    if (-f "$fax_incoming/$file.$nextpage")
+    if ($source eq "incoming" && -f "$fax_incoming/$file.$nextpage")
     {
-        print "<a href=\"nph-vf-gif.cgi\?size=$size&file=$file&page=$nextpage&r=$turn\">next Page</a>\n";
+        print "<a href=\"nph-vf-gif.cgi\?source=$source&size=$size&file=$file&page=$nextpage&r=$turn\">next Page</a>\n";
+    }
+    elsif ($source eq "outgoing" && -f "$fax_outgoing/$file/f$nextpage.g3")
+    {
+        print "<a href=\"nph-vf-gif.cgi\?source=$source&size=$size&file=$file&page=$nextpage&r=$turn\">next Page</a>\n";
     }
     else { print "no next page\n"; } # es is uns wurscht
 
@@ -248,61 +287,129 @@ elsif ($page eq "overview")
   
     # read incoming-Directory
     # print "<p>bin im else...<br>";
-    opendir DIR, $fax_incoming || print "cannot open incomingdir $incoming\n";
 
-    #
-    # FIXME!!! Das wird ausgegeben, wies eingelesen wird - kann
-    # durcheinander sein!
-    #
+    if ($source eq "incoming")
+    {
+    	opendir DIR, $fax_incoming || print "cannot open incomingdir $fax_incoming\n";
 
     # print "habe $fax_incoming geoeffnet...<br>\n";
-    foreach $DATEI ( readdir DIR )
-    {
-        # print "<br>\n   read $DATEI ... compare with $match";
-        if ($DATEI =~ /^$match\.(\d+)$/)
-        {
-            my $pagenumber=$1;
-	    print "<br><a href=\"nph-vf-gif.cgi?size=$size&file=$file&page=$pagenumber&r=$turn\">Seite $pagenumber</a>\n";
+	@dateien = ();
+    	foreach $DATEI ( readdir DIR )
+    	{
+	    # print "<br>\n   lese $DATEI ... vergleiche mit $match";
+	    if ($DATEI =~ /^$match\.(\d+)$/) { push @dateien, $DATEI;}
+	}
+    	closedir (DIR);
+
+
+	foreach $DATEI (sort(@dateien))
+	{
+	    	$DATEI =~ /^$match\.(\d+)$/;
+            	my $pagenumber=$1;
+	    	print "<br><a href=\"nph-vf-gif.cgi?source=$source&size=$size&file=$file&page=$pagenumber&r=$turn\">Seite $pagenumber</a>\n";
         }
-        # print "<br>\n nach IF";
+        	# print "<br>\n nach IF";
+    	# print "<br>\n nach DIR<br>\n";
     }
-    closedir (DIR);
-    # print "<br>\n nach DIR<br>\n";
+
+    elsif ($source eq "outgoing")
+    {
+    	opendir DIR, "$fax_outgoing/$match" || print "cannot open outgoingdir $fax_outgoing\n";
+
+    # print "habe $fax_outgoing geoeffnet...<br>\n";
+	@dateien = ();
+    	foreach $DATEI ( readdir DIR )
+    	{
+	    # print "<br>\n   lese $DATEI ... vergleiche mit $match";
+	    if ($DATEI =~ /^f(\d+).g3$/) { push @dateien, $DATEI;}
+	}
+    	closedir (DIR);
+
+
+	foreach $DATEI (sort by_number (@dateien))
+	{
+	    	$DATEI =~ /^f(\d+).g3$/;
+            	my $pagenumber = sprintf "%02d", $1;
+	    	print "<br><a href=\"nph-vf-gif.cgi?source=$source&size=$size&file=$file&page=$pagenumber&r=$turn\">Seite $pagenumber</a>\n";
+        }
+        	# print "<br>\n nach IF";
+    	# print "<br>\n nach DIR<br>\n";
+    }
 
 
 }
 
 
-else { 
+else { # $page eq "all"
     www_head_gif();
     my $match = $file;
     $match =~ s/([+*.?])/\\\1/g;
 
     # read incoming-Directory
     # print "<p>bin im else...<br>";
-    opendir DIR, $fax_incoming || print "cannot open incomingdir $incoming\n";
 
-    #
-    # FIXME!!! Das wird ausgegeben, wies eingelesen wird - kann
-    # durcheinander sein!
-    #
-
-    # print "habe $fax_incoming geoeffnet...<br>\n";
-    foreach $DATEI ( readdir DIR )
+    if ($source eq "incoming")
     {
-	# print "<br>\n   lese $DATEI ... vergleiche mit $match";
-	if ($DATEI =~ /^$match\.(\d+)$/)
-	{
-	    my $pagenumber=$1;
-	    # print "<br>generiere: $DATEI\n";
-            genpage($DATEI);
-            print "Seite $pagenumber: <a href=\"nph-vf-gif.cgi\?size=$nsize&file=$file&page=$pagenumber&r=$turn\"><img src=\"$webtmprel/$DATEI.$size.$turn.gif\" alt=\"page $DATEI\" border=\"0\"></a>\n";
-	    rotate_html($size,$file,$pagenumber);
+    	opendir DIR, $fax_incoming || print "cannot open incomingdir $fax_incoming\n";
+	
+    	# print "habe $fax_incoming geoeffnet...<br>\n";
+	@dateien=();
+    	foreach $DATEI ( readdir DIR )
+    	{
+	    # print "<br>\n   lese $DATEI ... vergleiche mit $match";
+	    if ($DATEI =~ /^$match\.(\d+)$/) { push @dateien, $DATEI;}
 	}
-	# print "<br>\n nach IF";
+    	closedir (DIR);
+
+
+	foreach $DATEI (sort(@dateien))
+	{
+	    	$DATEI =~ /^$match\.(\d+)$/;
+	    	my $pagenumber=$1;
+	    	# print "<br>generiere: $DATEI\n";
+            	genpage($DATEI);
+            	print "Seite $pagenumber: <a href=\"nph-vf-gif.cgi\?source=$source&size=$nsize&file=$file&page=$pagenumber&r=$turn\"><img src=\"$webtmprel/$DATEI.$size.$turn.gif\" alt=\"page $DATEI\" border=\"0\"></a>\n";
+	    	rotate_html($size,$file,$pagenumber);
+	}
+
+		# print "<br>\n nach IF";
+    	# print "<br>\n nach DIR<br>\n";
     }
-    closedir (DIR);
-    # print "<br>\n nach DIR<br>\n";
+
+    elsif ($source eq "outgoing")
+    {
+    	opendir DIR, "$fax_outgoing/$match" || print "cannot open outgoingdir $fax_outgoing\n";
+	
+    	# print "habe $fax_outgoing geoeffnet...<br>\n";
+	@dateien = ();
+    	foreach $DATEI ( readdir DIR )
+    	{
+	    # print "<br>\n   lese $DATEI ... vergleiche mit $match";
+	     if ($DATEI =~ /^f(\d+).g3$/) { push @dateien, $DATEI;}
+	}
+    	closedir (DIR);
+
+
+	foreach $DATEI (sort by_number(@dateien))
+	{
+	     	$DATEI =~ /^f(\d+).g3$/;
+	    	my $page=sprintf "%02d", $1;
+	    	my $pagenumber= $1;
+
+		# DEBUGGING
+	    	# print "<br>generiere: $file/$DATEI, page: $page, pagenumber: $pagenumber \$1: $1\n";
+            	genpage("$file/$DATEI");
+            	print "Seite $page: <a href=\"nph-vf-gif.cgi\?source=$source&size=$nsize&file=$file&page=$page&r=$turn\"><img src=\"$webtmprel/$file.$pagenumber.$size.$turn.gif\" alt=\"page $file - $DATEI \" border=\"0\"></a>\n";
+
+	    	rotate_html($size,$file,$page);
+	}
+
+	# print "<br>\n nach IF";
+    	# print "<br>\n nach DIR<br>\n";
+    }
+
+    else { print "cant happen..."; }
+
 }
 
 sub www_head_gif {
@@ -337,25 +444,35 @@ EOF
 }
 
 sub genpage {
-    my $filename = shift;
+    my $sfilename = shift;
+    my $tfilename = $sfilename;
+    if ($source eq "outgoing")
+    {
+	$tfilename =~ s/\/f/\./g;
+    }
+
     my $x=$size/100;
     my $y=$size/100;
 
-    # print "<p>x= $x<br>y= $y<br> filename= $filename<br> webtmpabs= $webtmpabs\n";
+    # DEBUGGING
+    # print "<p>x= $x<br>y= $y<br> sfilename= $sfilename<br> tfilename=$tfilename<br> webtmpabs= $webtmpabs\n";
 
 
     # check if the File exists
     # $turn from rotate
-    if ( -f "$webtmpabs/$filename.$size.$turn.gif")
+    if ( -f "$webtmpabs/$tfilename.$size.$turn.gif")
     { 
 	# print "<br> picture still there...\n";
 	return;
     }
 
     # check if the file is readable
-    if ( ! (-r "$fax_incoming/$filename"))
+    if ($source eq "outgoing") { $fax_directory = $fax_outgoing; }
+                          else { $fax_directory = $fax_incoming; }
+
+    if (! (-r "$fax_directory/$sfilename"))
     {
-	print "<br> fax-file $fax_incoming/$filename unreadable (UID $<)\n";
+	print "<br> fax-file $fax_directory/$filename unreadable (UID $<)\n";
 	return;
     }
 
@@ -376,8 +493,13 @@ sub genpage {
     else 
 	{ $r = ""; }
 
-    system "$g3topbm $fax_incoming/$filename | $r $gifscale > $webtmpabs/$filename.$size.$turn.gif";
+    # DEBUGGING
+     # print " system \"$g3topbm $fax_directory/$sfilename | $r $gifscale > $webtmpabs/$tfilename.$size.$turn.gif\";";
+    system "$g3topbm $fax_directory/$sfilename | $r $gifscale > $webtmpabs/$tfilename.$size.$turn.gif";
 }
+
+
+
 
 sub rotate_html
 {
@@ -386,7 +508,7 @@ sub rotate_html
     my $page = shift;
 
     # use(einbeziehen) $turn , can be 0, 1,2,3.
-    my $format="<a href=\"nph-vf-gif.cgi\?size=$size\&file=$file\&page=$page\&r=%d\">%s</a>\n";
+    my $format="<a href=\"nph-vf-gif.cgi\?source=$source&size=$size\&file=$file\&page=$page\&r=%d\">%s</a>\n";
     printf $format, $turn+1, "$turn_left";
     printf $format, $turn+2, "$turn_updown";
     printf $format, $turn+3, "$turn_right";
@@ -412,14 +534,39 @@ sub checkprogram
 }
 
 
+if ($source eq "outgoing")
+{
+	$back = "<a href=\"faxq.cgi\">zu sendende Faxe</a>\n"
+}
+else
+{
+	$back = "<a href=\"viewfax.cgi\">Eingegangene Faxe</a>\n"
+}
+
 print <<EOF;
 
 <hr size="5">
 <a href="$indexpage">^Hauptmenue</a>
-<a href="viewfax.cgi">Eingegangene Faxe</a>
+$back
 
 </body>
 </html>
 EOF
 
 exit 0;
+
+# sort helper - sort filenames f<n>.g3 in correct numerical order
+sub by_number
+{
+    $a =~ /(\d+)/;
+    my $num_a = $1;
+
+    $b =~ /(\d+)/;
+    my $num_b = $1;
+
+    # DEBUGGING
+    # print "$a, $b - $num_a, $num_b<br>\n";
+
+    return $num_a <=> $num_b;
+}
+
