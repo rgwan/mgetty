@@ -5,7 +5,7 @@
  * follow the IS-101 interim standard for voice modems. Since the commands
  * are set in the modem structure, it should be quite generic.
  *
- * $Id: IS_101.c,v 1.12 2000/09/01 19:25:58 gert Exp $
+ * $Id: IS_101.c,v 1.13 2001/02/24 10:26:12 marcs Exp $
  *
  */
 
@@ -693,6 +693,7 @@ int IS_101_record_file(FILE *fd, int bps)
                                voice_modem_name, count);
                               lprintf(L_JUNK, "%s: <DLE> <ETX>",
                                voice_modem_name);
+                              voice_modem->handle_dle(input_byte);
                               break;
                          case SUB:
                               fputc(DLE, fd);

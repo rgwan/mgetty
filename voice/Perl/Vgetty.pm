@@ -1,5 +1,5 @@
 # 
-# $Id: Vgetty.pm,v 1.2 1999/08/21 12:10:06 marcs Exp $
+# $Id: Vgetty.pm,v 1.3 2001/02/24 10:26:12 marcs Exp $
 #
 # Copyright (c) 1998 Jan "Yenya" Kasprzak <kas@fi.muni.cz>. All rights
 # reserved. This package is free software; you can redistribute it and/or
@@ -23,6 +23,7 @@ $log_file = '/var/log/voicelog';
 my @event_names = qw(BONG_TONE BUSY_TONE CALL_WAITING DIAL_TONE
 	DATA_CALLING_TONE DATA_OR_FAX_DETECTED FAX_CALLING_TONE
 	HANDSET_ON_HOOK LOOP_BREAK LOOP_POLARITY_CHANGE NO_ANSWER
+        NO_CARRIER
 	NO_DIAL_TONE NO_VOICE_ENERGY RING_DETECTED RINGBACK_DETECTED
 	RECEIVED_DTMF SILENCE_DETECTED SIT_TONE TDD_DETECTED
 	VOICE_DETECTED UNKNOWN_EVENT);
@@ -111,7 +112,7 @@ sub expect {
 sub waitfor {
 	my $self = shift;
 	my $string = shift;
-	while ($self->expect($string) ne $string) { }
+        while (($self->expect($string) || "") ne $string) { }
 }
 
 sub chat {
@@ -723,6 +724,11 @@ Defined in IS-101.
 
 After dialing the modem didn't detect answer for the time
 give in dial_timeout in voice.conf.
+
+=item NO_CARRIER
+
+The caller has hung up. This event is detected only by the ISDN4Linux
+driver.
 
 =item NO_DIAL_TONE
 

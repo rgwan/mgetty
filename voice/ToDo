@@ -83,4 +83,6 @@
      is right -> ignore that line). If none, ok. Else complain loudly.
      Make it an option for echo:  ON, OFF, ON-TOLERANT-ACCEPTS-NO.
 
-$Id: ToDo,v 1.9 2000/06/11 16:25:11 marcs Exp $
+ 52) Proper detection of hangup, see ISDN4Linux NO_CARRIER.
+
+$Id: ToDo,v 1.10 2001/02/24 10:26:11 marcs Exp $

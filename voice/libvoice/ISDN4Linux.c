@@ -37,7 +37,7 @@
  *   ATS18=1 OK
  * there your isdn-tty won't pick up data calls.
  *
- * $Id: ISDN4Linux.c,v 1.8 2000/09/11 11:37:13 marcs Exp $
+ * $Id: ISDN4Linux.c,v 1.9 2001/02/24 10:26:12 marcs Exp $
  * 
  */
 
@@ -52,29 +52,48 @@ static int got_DLE_DC4 = FALSE;
 
 int ISDN4Linux_handle_dle(char data)
      {
+     switch (data)
+        {
+        case DC4:
+             lprintf(L_WARN, "%s: <DLE> <DC4> received", program_name);
+             voice_stop_current_action();
+             
+             switch (voice_command("", "OK|VCON|NO CARRIER"))
+                  {
+                  case VMA_USER_3:
+                       queue_event(create_event(NO_CARRIER));
+                       break;
+                  case VMA_USER_1:
+                  case VMA_USER_2:
+                       break;
+                  default:
+                       return FAIL;
+                  }
+             
+             got_DLE_DC4 = TRUE;
+             return (OK);
 
-     if (data == DC4)
-          {
-          lprintf(L_WARN, "%s: <DLE> <DC4> received", program_name);
-          voice_stop_current_action();
-
-          switch (voice_command("", "OK|VCON|NO CARRIER"))
-               {
-               case VMA_USER_3:
-                    queue_event(create_event(NO_CARRIER));
-                    break;
-               case VMA_USER_1:
-               case VMA_USER_2:
-                    break;
-               default:
-                    return FAIL;
-               }
-
-          got_DLE_DC4 = TRUE;
-          return (OK);
-          }
-
-     return(IS_101_handle_dle(data));
+        case ETX:
+             lprintf(L_WARN, "%s: <DLE> <ETX> received", program_name);
+             voice_stop_current_action();
+             
+             switch (voice_command("", "OK|VCON|NO CARRIER"))
+                  {
+                  case VMA_USER_3:
+                       queue_event(create_event(NO_CARRIER));
+                       break;
+                  case VMA_USER_1:
+                  case VMA_USER_2:
+                       break;
+                  default:
+                       return FAIL;
+                  }
+             
+             return (OK);
+             
+        default:
+             return(IS_101_handle_dle(data));
+        }
      }
 
 static int ISDN4Linux_answer_phone(void)
@@ -322,7 +341,7 @@ static char ISDN4Linux_intr_play_answr[] = "OK|VCON";
 static char ISDN4Linux_stop_play_answr[] = "OK|VCON";
 static char ISDN4Linux_start_rec_answr[] = "CONNECT|NO ANSWER";
 static char ISDN4Linux_stop_rec_cmnd[] = {DLE, DC4, 0x00};
-static char ISDN4Linux_stop_rec_answr[] = "OK|VCON|NO CARRIER";
+static char ISDN4Linux_stop_rec_answr[] = "";
 
 voice_modem_struct ISDN4Linux =
      {
