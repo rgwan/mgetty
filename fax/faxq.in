@@ -1,0 +1,59 @@
+#!/bin/sh
+#
+# faxq program 
+#
+# like "lpq" or "mailq", show jobs waiting in the output queue
+#
+# SCCS: $Id: faxq.in,v 1.1 1994/01/13 23:03:59 gert Exp $ Copyright (C) 1994 Gert Doering
+#
+FAX_SPOOL=@FAX_SPOOL@
+FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
+
+#
+# echo program that will accept escapes (bash: "echo -e", sun: /usr/5bin/echo)
+#
+echo="echo"
+
+if cd $FAX_SPOOL_OUT 
+then :
+else
+    $echo "cannot chdir to $FAX_SPOOL_OUT..." >&2
+    exit 1
+fi
+
+jobs=*/JOB
+
+for flag
+do
+    case $flag in
+	-v) verbose="true" ;;
+	-o) jobs="*/JOB*" ;;
+    esac
+done
+
+jobs=`ls $jobs 2>/dev/null`
+[ -z "$jobs" ] && $echo "no jobs."
+for i in $jobs
+do
+    if [ -z "$verbose" ]
+    then
+	eval `awk '$1=="user" { printf "USER=%s;", $2 }
+		   $1=="phone" { printf "PHONE=%s;", $2 }
+		   $1=="pages" { printf "PAGES=%d;", NF-1 }' $i`
+	$echo "$i: queued by $USER. $PAGES page(s) to $PHONE"
+    else
+	eval `awk '$1=="user" { printf "USER=%s;", $2 }
+		   $1=="phone" { printf "PHONE=%s;", $2 }
+		   $1=="pages" { printf "PAGES=\"";
+				 for (i=2; i<=NF; i++) printf "%s ", $i;
+				 printf "\";" }' $i `
+	$echo "$i:"
+	$echo "\tQueued by: $USER"
+	$echo "\t       to: $PHONE"
+	$echo "\t    Pages: $PAGES"
+	sed -e '/Status/!d' -e 's/Status/           Status:/' $i
+	expr $i : ".*done$" >/dev/null ||
+	$echo "\t   Status: not sent yet"
+    fi
+done
+

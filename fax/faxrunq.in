@@ -1,0 +1,125 @@
+#!/bin/sh
+#
+# faxrunq
+#
+# look for outgoing fax jobs, send them via sendfax, if succesful, remove
+# them from the outgoing queue (and send a mail to the originator of the
+# job)
+#
+# There are still a lot rough edges - but it works, and should give you an
+# idea how to improve it
+#
+# SCCS: $Id: faxrunq.in,v 1.1 1994/01/13 23:08:54 gert Exp $ Copyright (C) 1994 Gert Doering
+
+FAX_SPOOL=@FAX_SPOOL@
+FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
+FAX_SENDER="@BINDIR@/sendfax"
+FAX_ACCT=$FAX_SPOOL/acct.log
+
+MAILER="@MAILER@"
+
+#
+# echo program that will accept escapes (bash: "echo -e", sun: /usr/5bin/echo)
+#
+echo="echo"
+
+cd $FAX_SPOOL_OUT || exit 1
+
+jobs=`ls */JOB 2>/dev/null`
+for job in $jobs
+do
+    cd $FAX_SPOOL_OUT/`dirname $job`
+    $echo "processing $job..."
+#
+# get user to notify (->$MAIL_TO) and phone number (->$PHONE)
+#
+    eval `awk '$1=="user" { printf "MAIL_TO=%s;", $2 }
+	       $1=="phone" { printf "PHONE=%s;", $2 }' JOB`
+#
+# construct command line to execute
+#
+    command=`awk 'BEGIN { phone="-"; header=""; pages="" }
+		  $1=="phone" { phone=$2 }
+		  $1=="header" { header="-h "$2 }
+		  $1=="pages" { for( i=2; i<=NF; i++) pages=pages$i" " }
+		  END { printf "'"$FAX_SENDER"' -v %s %s %s",
+			       header, phone, pages }' JOB`
+#
+# execute faxsend command
+#
+    $echo "$command"
+    eval $command
+#
+# handle return values
+#
+    status=$?
+    $echo "command exited with status $status"
+
+    if [ $status -eq 0 ]
+    then
+	# transmission successful
+	$echo "Status "`date`" successfully sent" >>JOB
+	( $echo "To: $MAIL_TO"
+	  $echo "Subject: your fax to $PHONE"
+	  $echo "From: root (Fax Subsystem)\n"
+	  $echo "Your fax has been sent successfully at: \c"
+	  date
+	  $echo "\n\nJob / Log file:"
+	  cat JOB ) |
+	$MAILER $MAIL_TO
+
+	# update accounting log
+	$echo "$MAIL_TO $PHONE "`date`" success" >>$FAX_ACCT
+
+	# job is done -> remove it from the queue
+	mv JOB JOB.done
+
+	# if you want to delete the job directory that has just been
+	# processed, uncomment the following two lines.
+	#
+	# cd $FAX_SPOOL_OUT
+	# rm -rf `dirname $job`
+
+    elif [ $status -lt 10 ]	
+    then
+	# error before starting to transmit (try again)
+	why="unknown" ; case $status in
+	    1) why="errors in command line" ;;
+	    2) why="cannot open fax device (locked?)" ;;
+	    3) why="modem initialization error" ;;
+	    4) why="dial failed - BUSY" ;;
+	esac
+	$echo "Status "`date`" failed, exit($status): $why" >>JOB
+    else
+	# error while transmitting, considered fatal
+	why="unknown" ; case $status in
+	    10) why="dial failed - NO CARRIER" ;;
+	    11) why="protocol failure, waiting for XON" ;;
+	    12) why="protocol failure sending page" ;;
+	esac
+	$echo "Status "`date`" FATAL FAILURE, exit($status): $why" >>JOB
+
+	# update accounting log
+	$echo "$MAIL_TO $PHONE "`date`" fail: $why" >>$FAX_ACCT
+
+	# if failed five times, supend job
+	if [ `grep "FATAL FAILURE" JOB | wc -l` -gt 4 ]
+	then
+	    $echo "Status "`date`" job suspended: too many FATAL errors" >>JOB
+	    ( $echo "To: $MAIL_TO"
+	      $echo "Subject: your fax to $PHONE failed"
+	      $echo "From: root (Fax Subsystem)\n"
+	      $echo "It was not possible to send your fax to $PHONE!\n"
+	      $echo "The fax job is suspended, you can requeue it with the command:"
+	      $echo "    cd "`dirname $job`"; mv JOB.suspended JOB\n"
+	      $echo "log file follows:"
+	      cat JOB ) |
+	    $MAILER $MAIL_TO
+	    #
+	    # suspend job (but do not delete it)
+	    #
+	    mv JOB JOB.suspended
+	fi
+    fi
+done
+
