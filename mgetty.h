@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.h,v 1.66 1994/10/13 14:04:31 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 1.67 1994/10/22 15:40:39 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -140,7 +140,10 @@ void	faxpoll_server_init _PROTO(( int fd, char * fax_server_file ));
 int	mg_open_device _PROTO(( char * devname, boolean blocking ));
 int	mg_init_device _PROTO(( int fd, boolean toggle_dtr,
 			        int toggle_dtr_waittime,
-			        unsigned short portspeed ));
+			        unsigned int portspeed ));
+int	mg_get_device _PROTO(( char * devname, boolean blocking,
+			       boolean toggle_dtr, int toggle_dtr_waittime,
+			       unsigned int portspeed ));
 int	mg_get_ctty _PROTO(( int fd, char * devname ));
 int	mg_drop_ctty _PROTO(( int fd ));
 
