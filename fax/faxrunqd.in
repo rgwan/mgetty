@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.16 1997/12/10 16:45:53 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.17 1997/12/12 12:00:37 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.17  1997/12/12 12:00:37  gert
+# change time bonus to 1 page / 2 minutes
+#
 # Revision 1.16  1997/12/10 16:45:53  gert
 # new scheduler: use age, number of pages, and number of tries for "composite metric"
 #
@@ -137,16 +140,16 @@ sub jobsort
 
     # same priority? send out jobs with fewer pages first
     # (but do also use AGE of fax job and number of tries for calculation: 
-    #  every 3 minutes = "1 page less", every try = "2 pages more" )
+    #  every 2 minutes = "1 page less", every try = "2 pages more" )
     #
     if ( $p == 0 ) 
 	{ $p = 
 	     ( $#{$queue{$a}{pages}} 
-		 - ( $now - $queue{$a}{'ctime'} ) / 180
+		 - ( $now - $queue{$a}{'ctime'} ) / 120
 		 + ( $queue{$a}{tries} * 2 ) )
 	  <=>
 	     ( $#{$queue{$b}{pages}} 
-		 - ( $now - $queue{$b}{'ctime'} ) / 180
+		 - ( $now - $queue{$b}{'ctime'} ) / 120
 		 + ( $queue{$b}{tries} * 2 ) ); }
 
     return $p;
