@@ -145,8 +145,6 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
      people that have a fast machine and a slow printer and want to see
      the results immediately. Hi Harald!)
 
-138) add configuration options for modem gotchas: class2ok, usr
-
 139) RING during initialization -> wait for it to stop, init modem again
 
 140) start/stop fax scheduler ("FAX_SPOOL_OUT/stop" file?)
