@@ -1,7 +1,7 @@
 /*
  * answer.c
  *
- * $Id: answer.c,v 1.9 1999/01/31 09:18:49 marcs Exp $
+ * $Id: answer.c,v 1.10 1999/05/13 13:37:03 gert Exp $
  *
  */
 
@@ -35,7 +35,12 @@ static int enter_data_fax_mode(int answer_mode)
      if (modem_type == Mt_class2)
           {
           bit_order = 0;
-          fax_mode = "2";
+	  /* following the specs, we should go to +FCLASS=2;+FAA=1, but
+	   * there is a fair number of Rockwell modems that can't do
+	   * data calls if in that mode - must go to +FCLASS=0;+FAA=1 -
+	   * but yet other modems NEED class 2, so use modem_quirks...
+	   */
+          fax_mode = ( modem_quirks & MQ_NEED2 ) ? "2": "0";
           };
 
      if (modem_type == Mt_class2_0)
