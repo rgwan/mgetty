@@ -1445,4 +1445,44 @@ Defines in policy.h
 #define FAX_USRobotics //respectively modem-quirks 0x20 (Error +FHS:25...)
 
 -----------------------------------------------------------------------
+From: "Razvan Sandu" <rsandu@go.ro>
+Subject: mgetty works fine with DAVICOM modems
+Date: Sun, 15 Nov 1998 02:08:20 +0200
 
+[..]
+mgetty and sendfax works fine on my Pentium MMX 233 system, equipped
+with an internal DAVICOM PnP voice/fax/data modem (an ISA board). So, I
+hereby send you my configuration parameters, in order to be included in
+modems database, if useful.
+
+Modem information
+
+ATI V3.00
+ATI2 TEST OK
+ATI3 DAVICOM DATA/FAX MODEM, DATE 97/09/22
+ATI4 DAVICOM V.34+/FAX/VOICE/SPEAKERPHONE MODEM/Ver 1.09
+ATI5 OK
+ATI6 OK
+ATI7 OK
+AT+FCLASS=? 0,2,8
+
+[..]
+/etc/mgetty+sendfax/mgetty.config
+debug 9
+modem-type cls2
+switchbd 19200
+speed 115200
+init-chat "" ATZ OK ATS0=3D0Q0E1V1&d2&K4 OK
+
+
+/etc/mgetty+sendfax/sendfax.config
+verbose y
+debug 9
+speed 38400
+switchbd 19200
+fax-devices ttyS3
+modem-type cls2
+modem-init ATZ
+modem handshake AT&K4
+dial-prefix ATDP
+-----------------------------------------------------------------------
