@@ -4,10 +4,9 @@
  * details.  THERE IS ABSOLUTELY NO WARRANTY FOR THIS SOFTWARE.
  */
 
-/* $Id: code.c,v 1.4 1998/09/09 21:06:43 gert Exp $ */
+/* $Id: code.c,v 1.5 2003/09/29 21:32:43 gert Exp $ */
 
 #include  "config.h"
-
 
 #ifdef    HAS_STDLIB_H
 #include  <stdlib.h>
@@ -15,6 +14,8 @@
 #    include "proto.h"
      extern char    * memcpy P((char *, char *, int));
 #endif
+
+#include <string.h>
 
 #include  "private.h"
 #include  "gsm.h"

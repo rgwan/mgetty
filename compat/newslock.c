@@ -6,6 +6,7 @@
  * TAKEN UNMODIFIED FROM C-NEWS BY Geoffrey Collyer AND Henry Spencer
  */
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 
 int

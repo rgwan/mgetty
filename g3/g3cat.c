@@ -1,4 +1,4 @@
-#ident "$Id: g3cat.c,v 4.3 1999/04/08 15:05:42 gert Exp $ (c) Gert Doering"
+#ident "$Id: g3cat.c,v 4.4 2003/09/29 21:29:51 gert Exp $ (c) Gert Doering"
 
 /* g3cat.c - concatenate multiple G3-Documents
  *
@@ -21,6 +21,7 @@
 #endif
 #include <unistd.h>
 #include <fcntl.h>
+#include <string.h>
 
 extern int	optind;
 extern char *	optarg;
