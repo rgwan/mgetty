@@ -1,4 +1,4 @@
-#ident "$Id: config.c,v 1.3 1994/12/23 12:25:41 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: config.c,v 1.4 1995/02/24 15:09:35 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /*
  * config.c
@@ -301,9 +301,9 @@ int ignore = 0;		/* ignore keywords in non-matching section */
 				errflag ++;
 			break;
 		      case CT_BOOL:
-			cp->d.i = ( tolower(line[0]) == 'y' ||
+			cp->d.i = ( line[0] == 0 || line[0] == 1 ||
+				    tolower(line[0]) == 'y' ||
 				    tolower(line[0]) == 't' ||
-					    line[0]  == '1' ||
 				    strncmp( line, "on", 2 ) == 0 );
 			break;
 		      default:
