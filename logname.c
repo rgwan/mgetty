@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 4.4 1998/04/05 13:15:11 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 4.5 1998/05/09 14:38:03 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include "syslibs.h"
@@ -246,7 +246,8 @@ int getlogname _P6( (prompt, tio, buf, maxsize, max_login_time, do_fido),
     char *  final_prompt;
 
 #ifdef AUTO_PPP
-    static int ppp_level = 0;
+    static int ppp_level = 0, ppp_escaped = 0;
+    char   ppp_ch;
 #endif
     
     /* read character by character! */
@@ -355,21 +356,28 @@ int getlogname _P6( (prompt, tio, buf, maxsize, max_login_time, do_fido),
            See RFC1662 for more information.
 
 	   Contributed by Erik 'PPP' Olson, <eriko@wrq.com>.
+
+	   Fix by okir@caldera.de: Recognize any escape sequence
+	   (some pppd's also escape the 'all stations' byte (0xFF)).
          */
 
-        if (ch == (char) PPP_FRAME) {
+        ppp_ch = ch;
+        if (ppp_escaped) {
+                ppp_ch = PPP_UNESCAPE(ch);
+                ppp_escaped = 0;
+        }
+        if (ppp_ch == (char) PPP_ESCAPE) {
+            ppp_escaped = 1;
+        } else if (ppp_ch == (char) PPP_FRAME) {
             ppp_level = 1;
-        } else if (ch == (char) PPP_STATION && ppp_level == 1) {
+        } else if (ppp_ch == (char) PPP_STATION && ppp_level == 1) {
             ppp_level = 2;
-        } else if (ch == (char) PPP_ESCAPE && ppp_level == 2) {
+        } else if (ppp_ch == (char) PPP_CONTROL && ppp_level == 2) {
             ppp_level = 3;
-        } else if ((ch == (char) PPP_CONTROL && ppp_level == 2)
-                   || (ch == (char) PPP_CONTROL_ESCAPED && ppp_level == 3)) {
-	    ppp_level = 4;
-	} else if (ch == (char) PPP_LCP_HI && ppp_level == 4) {
-	    ppp_level = 5;
-	} else if (ch == (char) PPP_LCP_LOW && ppp_level == 5)
-	{
+        } else if (ppp_ch == (char) PPP_LCP_HI && ppp_level == 3) {
+            ppp_level = 4;
+        } else if (ppp_ch == (char) PPP_LCP_LOW && ppp_level == 4)
+        {
             strcpy (buf, "/AutoPPP/");
             i=9;
             ch = '\r';
@@ -382,6 +390,7 @@ int getlogname _P6( (prompt, tio, buf, maxsize, max_login_time, do_fido),
 	    tio_mode_raw( &tio_save );
         } else {
             ppp_level = 0;
+	    ppp_escaped = 0;
         }
 #endif
         
