@@ -4,9 +4,14 @@
 # 
 # Copyright 1998 Simone Demmel simone@greenie.net
 #
-# RCS: $Id: nph-vf-gif.in,v 1.8 2001/02/23 09:18:33 gert Exp $
+# RCS: $Id: nph-vf-gif.in,v 1.9 2001/07/16 09:23:30 neko Exp $
 #
 # $Log: nph-vf-gif.in,v $
+# Revision 1.9  2001/07/16 09:23:30  neko
+# support for "f1.g3.done" (sent jobs with sendfax -r)
+# fix bug with "outgoing" files (HTML ref and real file name)
+# if conversion fails (0-byte file), remove this, and complain
+#
 # Revision 1.8  2001/02/23 09:18:33  gert
 # regex umgestellt, 2 warnings weniger
 #
@@ -215,7 +220,9 @@ if ($page =~ /^\d+$/ )
     {
 	print "Eine Seite $page oder ein Faxname $file existiert leider nicht.<p>\n";
     }
-    elsif ($source eq "outgoing" && ! -f "$fax_outgoing/$file/f$page.g3")
+    elsif ($source eq "outgoing" 
+	       && ! -f "$fax_outgoing/$file/f$page.g3"
+		   && ! -f "$fax_outgoing/$file/f$page.g3.done")
     {
 	print "Eine Seite f$page.g3 oder ein Directory $file existiert leider nicht.<p>\n";
     }
@@ -324,14 +331,14 @@ elsif ($page eq "overview")
     	foreach $DATEI ( readdir DIR )
     	{
 	    # print "<br>\n   lese $DATEI ... vergleiche mit $match";
-	    if ($DATEI =~ /^f(\d+).g3$/) { push @dateien, $DATEI;}
+	    if ($DATEI =~ /^f(\d+).g3(\.done)*$/) { push @dateien, $DATEI;}
 	}
     	closedir (DIR);
 
 
 	foreach $DATEI (sort by_number (@dateien))
 	{
-	    	$DATEI =~ /^f(\d+).g3$/;
+	    	$DATEI =~ /^f(\d+).g3(\.done)*$/;
             	my $pagenumber = sprintf "%02d", $1;
 	    	print "<br><a href=\"nph-vf-gif.cgi?source=$source&size=$size&file=$file&page=$pagenumber&r=$turn\">Seite $pagenumber</a>\n";
         }
@@ -452,6 +459,8 @@ sub genpage {
     if ($source eq "outgoing")
     {
 	$tfilename =~ s/\/f/\./g;
+	$tfilename =~ s/\.g3//g;   # now we don't need it here any longer
+	$tfilename =~ s/\.done//g; # sometimes it is named ..g3.done
     }
 
     my $x=$size/100;
@@ -461,8 +470,14 @@ sub genpage {
     # print "<p>x= $x<br>y= $y<br> sfilename= $sfilename<br> tfilename=$tfilename<br> webtmpabs= $webtmpabs\n";
 
 
-    # check if the File exists
+    # check if the File exists and has no 0 byte-length.
     # $turn from rotate
+	if ( -z "$webtmpabs/$tfilename.$size.$turn.gif")
+	{
+	    print "<br>$webtmpabs/$tfilename.$size.$turn.gif has 0 byte length!  possible problems with $ppmquant - deleting file and generating new one<br>\n";
+		unlink ("$webtmpabs/$tfilename.$size.$turn.gif") || print "<br>ERROR: could not unlink $webtmpabs/$tfilename.$size.$turn.gif: $!\n"; 
+	}
+
     if ( -f "$webtmpabs/$tfilename.$size.$turn.gif")
     { 
 	# print "<br> picture still there...\n";
@@ -473,10 +488,21 @@ sub genpage {
     if ($source eq "outgoing") { $fax_directory = $fax_outgoing; }
                           else { $fax_directory = $fax_incoming; }
 
-    if (! (-r "$fax_directory/$sfilename"))
+	# DEBUGGING
+	# print "<br> test for fax-file $fax_directory/$filename set\n";
+    if (! (-r "$fax_directory/$sfilename")
+	       && ! -r "$fax_directory/$sfilename.done")
     {
 	print "<br> fax-file $fax_directory/$filename unreadable (UID $<)\n";
 	return;
+    }
+	elsif (! (-r "$fax_directory/$sfilename")
+	       && -r "$fax_directory/$sfilename.done")
+    {
+	    $sfilename = "$sfilename.done";
+		# DEBUGGING 
+		# print "<br> fax-file $fax_directory/$filename set\n";
+
     }
 
 
@@ -510,6 +536,8 @@ sub rotate_html
     my $file = shift;
     my $page = shift;
 
+	# DEBUGGING
+	# print "page: $page";
     # use(einbeziehen) $turn , can be 0, 1,2,3.
     my $format="<a href=\"nph-vf-gif.cgi\?source=$source&size=$size\&file=$file\&page=$page\&r=%d\">%s</a>\n";
     printf $format, $turn+1, "$turn_left";
