@@ -1,3 +1,156 @@
+Sat Jul 24 16:54:52 MEST 2004  Gert Doering <gert@greenie.muc.de>
+
+	* release 1.1.31
+
+	* doc/mgetty.texi-in: add section on isdn4linux and CAPI
+
+Sat Jul 17 17:21:38 MEST 2004  Gert Doering <gert@greenie.muc.de>
+
+	* doc/sff2g3.1in: add man page for sff2g3
+
+Sat Jul 17 12:18:28 MEST 2004  Andreas Barth <aba@not.so.argh.org>
+
+	* cnd.c: add "+CLIP:" string for caller ID
+
+	* voice/libvoice/detect.c: ATI codes for Zoom and Multitech modems
+
+	* voice/libvoice/V253modem.c: more flexible sample/s. handling
+	   (old stuff was fixed at 7200 hz)
+
+	* voice/pvftools/pvftormd.c: accept 7200, 8000, 11025 Hz for "Lucent"
+
+	* fax/faxspool.in: use per-user .faxheader/.make.coverpg files
+	  instead of global defaults (if per-user files exists)
+
+Fri Jul 16 19:03:48 MEST 2004  Gert Doering <gert@greenie.muc.de>
+
+	* g3/Makefile: add "make test" test suite (for G3 tools)
+
+	* g3/sff2g3.c: NEW: converter from CAPI SFF fax format to raw G3
+
+	* Makefile: pack g3/sff2g3.c
+
+Thu Feb  5 18:40:29 MET 2004  Gert Doering <gert@greenie.muc.de>
+
+	* fax/faxspool: rework umask saving/restoring (use subshell trick)
+
+Sat Jan 10 00:01:25 MET 2004  Gert Doering <gert@greenie.muc.de>
+
+	* faxlib.c: add 1503 ID code (ZyXEL U-90E)
+
+Tue Dec 16 12:46:52 MET 2003  Andreas Barth <aba+nospam@not.so.argh.org>
+
+	* Makefile: remove -DAUTO_PPP
+
+	* policy.h: include FIDO and AUTO_PPP here
+
+Fri Dec  5 22:46:47 MET 2003  Ken Findlay <kjf@taylorbritt.com>
+
+	* login.c: empty lines should never match, not even empty user names
+
+Mon Nov 17 20:08:59 MET 2003  Gert Doering
+
+	* mgetty.c: log warning if parent PID is not "1" (init)
+
+	* mgetty.cfg.in: add clarification about "direct yes" to sample cfg
+
+Fri Nov  7 21:47:27 MET 2003  Andreas Barth <aba+nospam@not.so.argh.org>
+
+	* fax/faxspool.in: add per-user faxheader and coverpg files
+
+	* doc/faxspool.1in, mgetty.texi: document new feature
+
+Thu Oct  9 12:44:47 MEST 2003  Gert Doering
+
+	* fax/faxspool.in: reject empty (0 bytes) input files
+
+Sun Oct  5 13:59:51 MEST 2003  Gert Doering
+
+	* do_chat.c: make clean_line() logging show the timeout value
+
+Mon Sep 29 23:36:34 MEST 2003  Andreas Barth
+
+	* contrib/g3tolj.c, g3toxwd.c: clean up protoypes and return types
+
+	* various .c files: integrate Debian cleanup fixes (usually 
+	  adding <string.h> and/or <stdlib.h> where missing)
+
+Wed Aug 20 12:39:53 MEST 2003  Gert Doering (gert@greenie.muc.de)
+
+	* fax/faxrunqd.in: change signal handling - use HUP for graceful
+	    exit, and dump statistics to logfile upon receipt of USR2
+
+Sat Jun 28 22:14:35 MEST 2003  Gert Doering (gert@greenie.muc.de)
+
+	* fax/faxq-helper.c: honour user umask when spooling G3 files
+	  (user decides whether group/other can read faxes)
+
+	* fax/faxspoool.in: reset umask after creating tmpdir (with umask 077)
+
+	* fax/faxq-helper.c: file name validation was overly strict - 
+	  accept anything that's printable, not a space, '/' or '\'
+
+Thu Jun 12 16:56:44 MEST 2003  Gert Doering (gert@greenie.muc.de)
+
+	* faxlib.c: Multitech and USR return class 2.0/2.1 +FPS:<x>,<lc>
+	  values in decimal, not hex -> change +FPS: parser to do decimal
+	  for those modems (via modem_quirks |= MQ_FPS_NOT_HEX)
+
+	* fax_lib.h: add MQ_FPS_NOT_HEX modem quirk bit
+
+	* faxrec.c, faxrecp.c: understand VR=8 for "normal mode" (200x100 dpi)
+
+Mon Apr 28 19:41:14 MEST 2003  Gert Doering (gert@greenie.muc.de)
+
+	* logname: make "buffer overrun" error message more precise
+
+Wed Apr 23 10:49:25 MEST 2003  John R. Jackson <jrj@purdue.edu>
+
+	* voice/libutil/access.c: more verbose error reporting
+
+Wed Apr  9 23:05:23 MEST 2003  Gert Doering (gert@greenie.muc.de)
+
+	* fax/faxspool.in: fix spooling without header line (-h -)
+
+Sun Apr  6 16:09:14 MEST 2003  Andreas Barth <aba@not.so.argh.org>
+
+	* mgetty.8in, mgetty.texi-in: document escape sequences for
+	  /etc/issue and login prompt.
+
+Wed Mar  5 21:37:38 MET 2003  Gert Doering (gert@greenie.muc.de)
+
+	* Makefile: abort "make install" before installing faxspool
+	  if fax user does not exist
+
+	* Makefile: unconditionally chown $FAX_SPOOL_OUT to fax user
+
+Tue Feb  4 17:46:45 MET 2003  Gert Doering (gert@greenie.muc.de)
+
+	* fax/faxq-helper.c: uid=0 overrides access permission checks
+
+	* fax/faxrm.in: bugfix: get faxq-helper path from sedscript
+
+Tue Jan 21 14:27:39 MET 2003  Gert Doering (gert@greenie.muc.de)
+
+	* fax/faxspool.in: abort with a proper error message on input file
+	  names containing white space or quote characters
+
+Tue Jan 14 14:30:42 MET 2003  Gert Doering (gert@greenie.muc.de)
+
+	* fax/faxrunqd.in: include "success" counter in per_phone_statistics
+
+	* ugly.h: #define USE_VARARGS for non-Ansi C compilers
+
+	* logfile.c: change #include<> sequence to catch USE_VARARGS def.
+
+Wed Jan  8 23:03:26 MET 2003  Gert Doering (gert@greenie.muc.de)
+
+	* fax/faxrunqd.in: if a fax job fails, reschedule on different
+	  modem (if possible)
+
+	* voice/libvoice/V253modem.c: fix ELSA_RMD_NAME (used for
+	  V.253 modem <-> other modem RMD equivalency checks)
+
 Mon Dec 16 14:08:06 MET 2002  Gert Doering (gert@greenie.muc.de)
 
 	* release 1.1.30
