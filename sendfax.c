@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 3.10 1996/07/10 22:28:28 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 3.11 1996/08/25 10:07:47 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -275,6 +275,7 @@ int main _P2( (argc, argv),
     sendfax_get_config( NULL );
 
     lprintf( L_MESG, "sendfax: %s", mgetty_version );
+    lprintf( L_NOISE, "%s compiled at %s, %s", __FILE__, __DATE__, __TIME__ );
 
     /* for simplicity, put a few config things into global variables */
     verbose = c_bool( verbose );
