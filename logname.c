@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 3.2 1995/10/22 16:05:19 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 3.3 1995/10/22 17:44:28 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include "syslibs.h"
@@ -335,7 +335,7 @@ int getlogname _P5( (prompt, tio, buf, maxsize, do_timeout),
             ppp_level = 3;
         } else if ((ch == (char) PPP_CONTROL && ppp_level == 2)
                    || (ch == (char) PPP_CONTROL_ESCAPED && ppp_level == 3)) {
-            strcpy (buf, "/AUTOPPP/");
+            strcpy (buf, "/AutoPPP/");
             i=9;
             ch = '\r';
         } else {
