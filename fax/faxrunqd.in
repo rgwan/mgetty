@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.24 1998/02/12 17:36:47 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.25 1998/02/20 12:38:15 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.25  1998/02/20 12:38:15  gert
+# add logging 'by remote telephone number' (for error analysis)
+#
 # Revision 1.24  1998/02/12 17:36:47  gert
 # implement 'fax-devices' keyword for 'faxrunqd.config'
 #
@@ -261,7 +264,7 @@ $childs = 0; %pid2job = (); %phones = (); %pid2tty = ();
 #
 # statistics about tty usage / success / error rates
 #
-%tty_statistics = ();
+%tty_statistics = (); %per_phone_statistics = ();
 
 # ###
 # ### MAIN LOOP -- rescan spool directory in certain intervals, send stuff
@@ -874,6 +877,18 @@ my ($r, $s, $ex, $j, $t);
     $tty_statistics{$t}{total}++;
     $tty_statistics{$t}{$ex}++;
 
+    # and, in case of errors, for per-remote-phone statistics
+    if ( $ex > 0 )
+    {
+        my $ph = $queue{$j}->{'phone'};
+	if ( ! defined( $per_phone_statistics{$ph} ) || 
+	     ! defined( $per_phone_statistics{$ph}{$ex} ) )
+		{ $per_phone_statistics{$ph}{$ex} = 0; }
+	$per_phone_statistics{$ph}{$ex}++;
+    }
+
+
+    # now handle return codes
     if ( $ex == 0 )		# job successfully sent
     {
 	print LOG "$j: Job successfully sent\n" if $opt_v;
@@ -1169,6 +1184,7 @@ my $sig = shift;
 ##########################################################################
 sub dump_statistics
 {
+my $t; 
     print LOG "--------------------------------------------------\n";
     foreach $t (keys %tty_statistics)
     {
@@ -1181,6 +1197,17 @@ sub dump_statistics
             printf LOG "    error code %-2d   : %d (%1.1f%%) [%s]\n",
 		$_, $tty_statistics{$t}{$_}, 
 		100*$tty_statistics{$t}{$_}/$tty_statistics{$t}{total},
+		$exitcodes[$_];
+	}
+    }
+    print LOG "--------------------------------------------------\n";
+    foreach $t (keys %per_phone_statistics)
+    {
+	print LOG "error statistics for remote number '$t'\n";
+	foreach (sort(keys %{$per_phone_statistics{$t}}))
+	{
+            printf LOG "    error code %-2d   : %d [%s]\n",
+		$_, $per_phone_statistics{$t}{$_}, 
 		$exitcodes[$_];
 	}
     }
