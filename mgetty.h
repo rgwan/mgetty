@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.35 1993/11/05 23:08:13 gert Exp $ Copyright (c) Gert Doering */
+/* $Id: mgetty.h,v 1.36 1993/11/12 15:20:10 gert Exp $ Copyright (c) Gert Doering */
 
 /* ANSI vs. non-ANSI support */
 #ifdef __STDC__
@@ -31,8 +31,11 @@
 #define NOERROR	0
 #endif
 
+#ifndef TRUE
 #define TRUE (1==1)
 #define FALSE (1==0)
+#endif
+
 #define FAIL	-1
 #define SUCCESS	0
 
