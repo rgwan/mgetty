@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 1.3 1993/10/05 12:41:50 gert Exp $ (c) 1993 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 1.4 1993/10/05 13:14:34 gert Exp $ (c) 1993 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -795,6 +795,14 @@ The following are ZyXEL specific:
 @code{&K4}: enable v42bis/mnp5 compression.
 
 @item
+Some modems do not like the @samp{+FDCC=1,5,...} command.
+
+Most likely, these modems support only up to 9600 bps fax mode. Just
+change the second digit (@samp{5}) to the maximum rate your modem
+supports, that's @samp{3} for 9600 bps and @samp{1} for 4800. You can
+find out what values your modem supports with the @code{AT+FDCC=?} command.
+
+@item
 Sometimes mgetty cannot initialize the modem, it times out waiting for
 the first @samp{OK}.
 
@@ -804,7 +812,7 @@ I know that some modems need quite a lot time after a reset, so this
 should go away if you add more delays before sending the first string
 to the modem:
 
-In @file{mgetty.c} (line 76 or so) change
+In @file{mgetty.c} (line 74 or so) change
 
 @example
 char *init_chat_seq[] =
@@ -861,7 +869,7 @@ initizalization string in @file{mgetty.h} to reset the modem into a
 known state is a good idea, too.
 
 (Thanks to Christof Junge, chris@@cj.in-berlin.de, for trying out several
-weeks until everything worked!}
+weeks until everything worked!)
 
 Fax polling does not work because the Rockwell chipset does not support it.
 
