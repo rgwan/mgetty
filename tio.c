@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 1.25 1994/07/11 19:16:05 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 1.26 1994/07/12 22:15:13 gert Exp $ Copyright (c) 1993 Gert Doering"
 ;
 /* tio.c
  *
@@ -6,6 +6,7 @@
  *
  */
 
+#include <unistd.h>
 #include <sys/types.h>
 
 #ifdef _AIX
