@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.48 2001/12/23 14:23:55 marcs Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.49 2002/01/14 09:58:09 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -144,7 +144,7 @@ CFLAGS=-O2 -Wall -pipe
 #
 # On SCO Xenix, add -ldir -lx
 #
-# For FreeBSD, add "-lutil" if the linker complains about
+# For FreeBSD and NetBSD, add "-lutil" if the linker complains about
 # 	"utmp.o: unresolved symbod _login"
 # For Linux, add "-lutil" if the linker complains about "updwtmp".
 #
@@ -292,8 +292,8 @@ MV=mv
 # Nothing to change below this line ---------------------------------!
 #
 MR=1.1
-SR=27
-DIFFR=1.1.26
+SR=28
+DIFFR=1.1.27
 #
 #
 OBJS=mgetty.o logfile.o do_chat.o locks.o utmp.o logname.o login.o \
