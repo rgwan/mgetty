@@ -1,6 +1,6 @@
 # doc/Makefile
 #
-# SCCS: $Id: Makefile,v 3.5 1996/07/29 18:44:36 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: Makefile,v 3.6 1996/10/03 10:54:11 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 
 NROFF=nroff
@@ -46,10 +46,10 @@ mgetty.info: mgetty.texi
 	-makeinfo mgetty.texi
 
 mgetty.ps: mgetty.dvi
-	dvips -o mgetty.ps mgetty.dvi
+	-dvips -o mgetty.ps mgetty.dvi
 
 mgetty.dvi: mgetty.texi
-	texi2dvi mgetty.texi
+	-texi2dvi mgetty.texi
 
 mgetty.texi: mgetty.texi-in ../sedscript
 	../sedscript <mgetty.texi-in >mgetty.texi
