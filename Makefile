@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.54 2002/11/23 18:47:18 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.55 2002/11/23 20:31:27 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -201,10 +201,8 @@ CONFDIR=$(prefix)/etc/mgetty+sendfax
 #CONFDIR=/etc/default/
 #
 #
-# where PID and status files (mgetty.pid, faxrunqd.pid, 
-#	   faxqueue_last_run, mgetty.pid) go to
-# Warning: this directory should not be world-writeable, as it will
-#          lead to unsafe file creation from faxrunq/faxrunqd!
+# where mgetty PID files (mgetty.pid) go to
+# (the faxrunqd PID file lives in FAX_SPOOL_OUT/ due to permission reasons)
 #
 VARRUNDIR=/var/run
 #
@@ -631,7 +629,9 @@ install.bin: mgetty sendfax newslock \
 	test -d $(spool) || \
 		( mkdir $(spool) ; chmod 755 $(spool) )
 	test -d $(FAX_SPOOL) || \
-		( mkdir $(FAX_SPOOL) ; chmod 755 $(FAX_SPOOL) )
+		( mkdir $(FAX_SPOOL) ; \
+		  chown $(FAX_OUT_USER) $(FAX_SPOOL) ; \
+		  chmod 755 $(FAX_SPOOL) )
 	test -d $(FAX_SPOOL_IN) || \
 		( mkdir $(FAX_SPOOL_IN) ; chmod 755 $(FAX_SPOOL_IN) )
 	test -d $(FAX_SPOOL_OUT) || \
