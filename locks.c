@@ -1,4 +1,4 @@
-#ident "$Id: locks.c,v 4.1 1997/01/12 14:53:40 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
+#ident "$Id: locks.c,v 4.2 1997/02/05 20:46:46 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
 
 /* large parts of the code in this module are taken from the
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us,
@@ -109,7 +109,7 @@ int do_makelock _P0( void )
 			continue;
 		    }
 		    
-		    lprintf(L_MESG, "lock not made: lock file exists");
+		    lprintf(L_MESG, "lock not made: lock file exists (pid=%d)", pid);
 		}				/* if (errno == EEXIST) */
 		
 		(void) unlink(temp);
