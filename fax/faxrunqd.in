@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.26 1998/02/27 09:41:54 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.27 1998/02/27 15:15:31 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.27  1998/02/27 15:15:31  gert
+# added handling of 'time' flag (start time/start+end time range)
+#
 # Revision 1.26  1998/02/27 09:41:54  gert
 # sort phone numbers for "per-number" statistics
 #
@@ -589,9 +592,9 @@ sub read_job_to_queue
 		}
 	    elsif ( /^\s*verbose_to (.*)/ )
 		{ $queue{$job}->{'verbose_to'} = $1; }
-	    elsif ( /^\s*time (....)$/ )
+	    elsif ( /^\s*time (\d\d\d\d)$/ )
 		{ $queue{$job}->{'time_1'} = $1; }
-	    elsif ( /^\s*time (....)-(....)/ )
+	    elsif ( /^\s*time (\d\d\d\d)-(\d\d\d\d)$/ )
 		{ $queue{$job}->{'time_1'} = $1; $queue{$job}->{'time_2'}=$2; }
 	    elsif ( /^\s*priority (\d*)/ )
 		{ $queue{$job}->{'priority'} = $1; }
@@ -664,7 +667,12 @@ sub read_job_to_queue
 
 	# all done, mark job as 'ready to be sent'
 	$queue{$job}->{'status'} = 'active'; 
-	&put_job_to_modem_queue($job);
+
+	# if timing constraints permit, put into modem queue
+	if ( &check_timing_constraints($job) )
+	{
+	    &put_job_to_modem_queue($job);
+	}
 	return;
     }
 
@@ -712,7 +720,61 @@ sub read_job_to_queue
 
 ##########################################################################
 #
-# send_job_from_queue $DIR
+# check_timing_constraints $JOB
+#
+# get $job from $modem_queue{$1}, lock $job/JOB, fork child process,
+# set $tty_in_use{$tty}, etc.
+#
+##########################################################################
+sub check_timing_constraints
+{
+    my $j=shift;
+
+    # no constraints at all
+    if ( !defined( $queue{$j}{'time_1'} ) )  { return 1; }
+
+    my ($h,$m) = (localtime)[2,1];
+    my $now = sprintf "%02d%02d", $h, $m;
+
+    my $start_t = $queue{$j}{'time_1'};
+
+    if ( !defined( $queue{$j}{'time_2'} ) )	# only start time given
+    {
+	if ( $now > $start_t ) { return 1; }
+	print LOG "    -T- now=$now, time=$start_t";
+    }
+    else					# start + end time given
+    {
+	my $end_t = $queue{$j}{'time_2'};
+
+	if ( $start_t < $end_t )			# e.g. "02:00 - 03:00"
+	{
+	    if ( $now >= $start_t && $now <= $end_t ) { return 1; }
+	}
+	else					# e.g. "23:00 - 02:00"
+	{
+	    if ( $now >= $start_t || $now <= $end_t ) { return 1; }
+	}
+	print LOG "    -T- now=$now, time=$start_t-$end_t";
+    }
+
+    # constraints missed, calculate delay
+    my ($start_h,$start_m) = ($start_t =~ /(..)(..)/);
+    $delay = ( $start_h - $h ) * 60 + ( $start_m - $m );
+
+    if ( $delay < 0 ) { $delay += 24*60; }
+
+    print LOG "-> delay $delay min.\n";
+
+    $queue{$j}->{status}='delayed';
+    $queue{$j}->{'delayed_until'}=time() + $delay*60;
+
+    return 0;
+}
+
+##########################################################################
+#
+# send_job_from_queue $tty
 #
 # get $job from $modem_queue{$1}, lock $job/JOB, fork child process,
 # set $tty_in_use{$tty}, etc.
