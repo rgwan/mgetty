@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 3.17 1996/09/15 23:16:25 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 3.18 1996/09/15 23:55:13 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -446,14 +446,13 @@ int main _P2((argc, argv), int argc, char ** argv)
 		        c_bool(toggle_dtr), c_int(toggle_dtr_waittime),
 		        c_int(speed) ) == ERROR )
     {
-	lprintf( L_FATAL, "cannot get terminal line, exiting" );
-	exit( 30 );
+	lprintf( L_FATAL, "cannot get terminal line dev=%s, exiting", Device);
+	exit(30);
     }
     
     /* drain input - make sure there are no leftover "NO CARRIER"s
      * or "ERROR"s lying around from some previous dial-out
      */
-
     clean_line( STDIN, 1);
 
     /* do modem initialization, normal stuff first, then fax
@@ -466,6 +465,8 @@ int main _P2((argc, argv), int argc, char ** argv)
 	if ( mg_init_data( STDIN, c_chat(init_chat),
 	                          c_chat(force_init_chat) ) == FAIL )
 	{
+	    lprintf( L_AUDIT, "failed in mg_init_data, dev=%s, pid=%d",
+	                      Device, getpid() );
 	    rmlocks();
 	    exit(1);
 	}
@@ -618,10 +619,10 @@ int main _P2((argc, argv), int argc, char ** argv)
 		mgetty_state = St_go_to_jail; break;
 	    }
 
-	    lprintf( L_FATAL, "modem on %s doesn't react!", devname );
+	    lprintf( L_FATAL, "modem on dev=%s doesn't react!", Device );
 
 	    /* give up */
-	    exit( 30 );
+	    exit(30);
 
 	    break;
 		
