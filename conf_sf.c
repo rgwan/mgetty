@@ -1,4 +1,4 @@
-#ident "$Id: conf_sf.c,v 1.4 1995/03/24 13:18:12 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_sf.c,v 1.5 1995/03/26 18:51:54 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_sf.c
  *
@@ -26,6 +26,7 @@
 
 struct conf_data_sendfax c = {
 	{ "fax-devices", 0, CT_STRING, C_EMPTY },
+	{ "fax-devices", 0, CT_STRING, C_IGNORE },
 	{ "modem-init", 0, CT_STRING, C_EMPTY },
 #ifdef FAX_MODEM_HANDSHAKE
 	{ "modem-handshake", (int) FAX_MODEM_HANDSHAKE, CT_STRING, C_PRESET },
@@ -59,7 +60,7 @@ char * p;
      */
 conf_data c_a[2];
     if ( ( (char *)&c_a[1] - (char *)&c_a[0] )  != 
-	 ( (char *)&c.modem_init - (char *)&c.ttys ) )
+	 ( (char *)&c.ttys_0 - (char *)&c.ttys ) )
     {
 	fprintf( stderr, "ERROR: config table size mixup. contact author\n" );
 	exit(99);
