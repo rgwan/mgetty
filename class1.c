@@ -1,4 +1,4 @@
-#ident "$Id: class1.c,v 4.2 1998/01/01 20:50:19 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1.c,v 4.3 1998/01/22 07:28:47 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1.c
  *
@@ -7,6 +7,8 @@
  *
  * Usese library functions in class1lib.c, faxlib.c and modem.c
  */
+
+#ifdef CLASS1
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -331,3 +333,4 @@ tryanyway:
     return ERROR;
 }
 
+#endif /* CLASS 1 */

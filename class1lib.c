@@ -1,10 +1,12 @@
-#ident "$Id: class1lib.c,v 4.3 1998/01/01 20:50:18 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1lib.c,v 4.4 1998/01/22 07:28:49 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1lib.c
  *
  * Low-level functions to handle class 1 fax -- 
  * send a frame, receive a frame, dump frame to log file, ...
  */
+
+#ifdef CLASS1
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -612,3 +614,5 @@ uch framebuf[FRAMESIZE];
 		  0x00;			/* bit 24: extend bit - final */
     return fax1_send_frame( fd, 3, framebuf, 6 );
 }
+
+#endif /* CLASS1 */ 
