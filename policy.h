@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.76 1995/05/09 16:28:02 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.77 1995/06/12 22:30:09 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration defaults for mgetty / sendfax
  * are specified.
@@ -228,13 +228,16 @@
  */
 #define LOCKS_BINARY 0
 
-/* Lower case locks - change all device names to lowercase for locking
- * purposes.
+/* Lower case locks - change the last character of the device name
+ *                    to lowercase for locking purposes.
  *
  * If you're using a SCO Unix system with those "tty1a/tty1A" device
  * pairs, you'll have to define this.
  */
 /* #define LOCKS_LOWERCASE */
+
+/* Change _all_ characters to lowercase (currently no system uses this) */
+/* #define LOCKS_ALL_LOWERCASE */
 
 
 /* the default speed used by mgetty - override it with "-s <speed>"
