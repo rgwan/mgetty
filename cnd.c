@@ -1,4 +1,4 @@
-#ident "@(#)cnd.c	$Id: cnd.c,v 4.5 1997/07/27 16:01:13 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "@(#)cnd.c	$Id: cnd.c,v 4.6 1998/03/14 18:14:54 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 
 #include <stdio.h>
 #include <string.h>
@@ -44,6 +44,9 @@ struct cndtable cndtable[] =
 
     /* for the ZyXEL 2864(D)I: "FM:xxx TO:yyy" */
     {"FM:",			&CallerId},
+
+    /* for the ELSA MicroLink/TLV.34: "RING;08912345;08765, ATS153=6 */
+    {"RING;",			&CallerId},
 
     /* those are for rockwell-based modems insisting on a multi-line
        message "CARRIER ... / PROTOCOL ... / CONNECT" */
