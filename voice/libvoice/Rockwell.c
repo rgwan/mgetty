@@ -14,7 +14,7 @@
  * Removed most stuff from this file, since the new IS-101 driver can be
  * used now. (Marc 04.01.1997)
  *
- * $Id: Rockwell.c,v 1.5 1999/01/30 14:31:10 marcs Exp $
+ * $Id: Rockwell.c,v 1.6 1999/06/15 12:38:31 marcs Exp $
  *
  */
 
@@ -241,7 +241,8 @@ voice_modem_struct Rockwell =
      &IS_101_voice_mode_off,
      &IS_101_voice_mode_on,
      &IS_101_wait,
-     &IS_101_play_dtmf
+     &IS_101_play_dtmf,
+     0
      };
 
 

@@ -3,7 +3,7 @@
  *
  * This file contains the ZyXEL 1496 specific hardware stuff.
  *
- * $Id: ZyXEL_1496.c,v 1.5 1999/01/30 14:31:14 marcs Exp $
+ * $Id: ZyXEL_1496.c,v 1.6 1999/06/15 12:38:35 marcs Exp $
  *
  */
 
@@ -256,5 +256,6 @@ voice_modem_struct ZyXEL_1496 =
      &IS_101_voice_mode_off,
      &IS_101_voice_mode_on,
      &IS_101_wait,
-     &IS_101_play_dtmf
+     &IS_101_play_dtmf,
+     0
      };

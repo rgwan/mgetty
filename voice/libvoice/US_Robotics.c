@@ -24,7 +24,7 @@
  * A very good US Robotics technical reference manual is available
  * at: http://www.alliancedatacom.com/us-robotics-manuals.htm (not a typo).
  *
- * $Id: US_Robotics.c,v 1.6 1999/05/15 19:51:12 marcs Exp $
+ * $Id: US_Robotics.c,v 1.7 1999/06/15 12:38:34 marcs Exp $
  *
  */
 
@@ -389,7 +389,8 @@ voice_modem_struct US_Robotics =
      &IS_101_voice_mode_off,
      &IS_101_voice_mode_on,
      &IS_101_wait,
-     &IS_101_play_dtmf     
+     &IS_101_play_dtmf,
+     0
      };
 
 

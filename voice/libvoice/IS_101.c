@@ -5,7 +5,7 @@
  * follow the IS-101 interim standard for voice modems. Since the commands
  * are set in the modem structure, it should be quite generic.
  *
- * $Id: IS_101.c,v 1.7 1999/01/30 14:31:09 marcs Exp $
+ * $Id: IS_101.c,v 1.8 1999/06/15 12:38:29 marcs Exp $
  *
  */
 
@@ -1011,5 +1011,6 @@ voice_modem_struct IS_101 =
      &IS_101_voice_mode_off,
      &IS_101_voice_mode_on,
      &IS_101_wait,
-     &IS_101_play_dtmf
+     &IS_101_play_dtmf,
+     0
      };

@@ -7,7 +7,7 @@
  * The Sierra driver is written and maintained by
  * Luke Bowker <puke@suburbia.net>.
  *
- * $Id: Sierra.c,v 1.5 1999/01/30 14:31:11 marcs Exp $
+ * $Id: Sierra.c,v 1.6 1999/06/15 12:38:32 marcs Exp $
  *
  */
 
@@ -209,7 +209,8 @@ voice_modem_struct Sierra =
      &Sierra_voice_mode_off,
      &Sierra_voice_mode_on,
      &IS_101_wait,
-     &IS_101_play_dtmf
+     &IS_101_play_dtmf,
+     0
      };
 
 

@@ -10,7 +10,7 @@
  *
  * Marc
  *
- * $Id: Dolphin.c,v 1.5 1999/01/30 14:31:06 marcs Exp $
+ * $Id: Dolphin.c,v 1.6 1999/06/15 12:38:26 marcs Exp $
  *
  */
 
@@ -162,5 +162,6 @@ voice_modem_struct Dolphin =
      &IS_101_voice_mode_off,
      &IS_101_voice_mode_on,
      &IS_101_wait,
-     &IS_101_play_dtmf
+     &IS_101_play_dtmf,
+     0
      };

@@ -9,7 +9,7 @@
  * This version is a complete rewrite to use the IS 101 mode of the
  * Elite 2864.
  *
- * $Id: ZyXEL_2864.c,v 1.5 1999/01/30 14:31:14 marcs Exp $
+ * $Id: ZyXEL_2864.c,v 1.6 1999/06/15 12:38:36 marcs Exp $
  *
  */
 
@@ -287,5 +287,6 @@ voice_modem_struct ZyXEL_2864 =
      &IS_101_voice_mode_off,
      &IS_101_voice_mode_on,
      &IS_101_wait,
-     &IS_101_play_dtmf
+     &IS_101_play_dtmf,
+     0
      };

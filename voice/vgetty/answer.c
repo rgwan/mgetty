@@ -1,7 +1,7 @@
 /*
  * answer.c
  *
- * $Id: answer.c,v 1.10 1999/05/13 13:37:03 gert Exp $
+ * $Id: answer.c,v 1.11 1999/06/15 12:38:37 marcs Exp $
  *
  */
 
@@ -357,6 +357,14 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
           exit(99);
           }
 
+     if (voice_modem_quirks() & VMQ_NEEDS_SET_DEVICE_BEFORE_ANSWER) {
+       if (voice_set_device(DIALUP_LINE) == FAIL) {
+	 lprintf(L_WARN, "%s: Could not switch to dialup line",
+		 program_name);
+	 exit(99);
+       }
+     }
+
      if ((result = voice_answer_phone()) == VMA_CONNECT)
           {
           voice_restore_signal_handler();
@@ -364,12 +372,13 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
           return(VMA_CONNECT);
           }
 
-     if (voice_set_device(DIALUP_LINE) == FAIL)
-          {
-          lprintf(L_WARN, "%s: Could not switch to dialup line",
-           program_name);
-          exit(99);
-          }
+     if (!(voice_modem_quirks() & VMQ_NEEDS_SET_DEVICE_BEFORE_ANSWER)) {
+       if (voice_set_device(DIALUP_LINE) == FAIL) {
+	   lprintf(L_WARN, "%s: Could not switch to dialup line",
+		   program_name);
+	   exit(99);
+	 }
+     }
 
      if (result == VMA_ERROR)
           {

@@ -27,7 +27,7 @@
  * as per the spec. The silence threshold and time was wrongly set. Fixed now.
  * - Mitch DSouza <Mitch.DSouza@Uk.Sun.COM>
  *
- * $Id: Cirrus_Logic.c,v 1.5 1999/01/30 14:31:05 marcs Exp $
+ * $Id: Cirrus_Logic.c,v 1.6 1999/06/15 12:38:24 marcs Exp $
  *
  */
 
@@ -346,5 +346,6 @@ voice_modem_struct Cirrus_Logic =
      &IS_101_voice_mode_off,
      &IS_101_voice_mode_on,
      &IS_101_wait,
-     &IS_101_play_dtmf
+     &IS_101_play_dtmf,
+     0
      };

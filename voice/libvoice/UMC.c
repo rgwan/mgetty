@@ -11,7 +11,7 @@
  *
  * New updated driver by Jens Adner <Jens.Adner@Wirtschaft.TU-Ilmenau.DE>.
  *
- * $Id: UMC.c,v 1.5 1999/01/30 14:31:12 marcs Exp $
+ * $Id: UMC.c,v 1.6 1999/06/15 12:38:33 marcs Exp $
  *
  */
 
@@ -129,6 +129,14 @@ static int UMC_set_device(int device)
           voice_command("ATH0","VCON|OK");
 
      current_device=device;
+
+     /* Sending a ATH0 results in leaving voice mode.
+      * The UMC modem reports ERROR if an AT#VLS command is issued while not
+      * beeing in voice mode.
+      * Thus this force into voice mode.
+      * -- steffen@informatik.tu-darmstadt.de
+      */
+     voice_command("AT#CLS=8", "OK");
 
      switch (device)
           {
@@ -288,7 +296,8 @@ voice_modem_struct UMC =
      &IS_101_voice_mode_off,
      &IS_101_voice_mode_on,
      &IS_101_wait,
-     &IS_101_play_dtmf
+     &IS_101_play_dtmf,
+     VMQ_NEEDS_SET_DEVICE_BEFORE_ANSWER /* steffen@informatik.tu-darmstadt.de */
      };
 
 

@@ -4,7 +4,7 @@
  * Hacked by <Harlan.Stenn@pfcs.com>. Maybe will be merged
  * with the other Multitech driver.
  *
- * $Id: Multitech_5634.c,v 1.3 1999/05/15 19:38:47 marcs Exp $
+ * $Id: Multitech_5634.c,v 1.4 1999/06/15 12:38:31 marcs Exp $
  *
  */
 
@@ -367,7 +367,8 @@ voice_modem_struct Multitech_5634ZBAV =
      &Multitech_5634_voice_mode_off,
      &Multitech_5634_voice_mode_on,
      &IS_101_wait,
-     &IS_101_play_dtmf
+     &IS_101_play_dtmf,
+     0
      };
 
 

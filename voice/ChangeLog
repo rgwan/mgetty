@@ -1,3 +1,21 @@
+Tue Jun 15 14:28:20 MEST DST   Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* Added a modem quirk field in the include/hardware.h modem structure.
+	Defined VMQ_NEEDS_SET_DEVICE_BEFORE_ANSWER to reverse, if set, the
+ 	order of answering/setting line for the modems which are broken in
+ 	that aspect. This field is set to zero for all modems, except
+	UMC. Reported by steffen@informatik.tu-darmstadt.de.
+
+	* Fixed bug with Compaq_VS.c which had the recently added
+	play_dtmf missing (should have seen that in compilation, hey ?).
+
+	* Added an unconditionnal ``go to voice mode'' in libvoice/UMC.c,
+	this fixes the ``modem doesn't know in which state he is'' bug
+	reported & fixed by steffen@informatik.tu-darmstadt.de.
+
+	* Modified vgetty/answer.c to support the above modem quirk bit.
+
+	
 Sat May 15 21:53:52 MEST 1999  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 
 	* Added information/patch for old 5.x 1496 ZyXEL. As those
