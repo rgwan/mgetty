@@ -1,4 +1,4 @@
-#ident "$Id: config.c,v 1.4 1995/02/24 15:09:35 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: config.c,v 1.5 1995/03/26 18:51:39 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /*
  * config.c
@@ -201,6 +201,9 @@ char ** p;
 		cp->key, cp->type, cp->flags );
 	if ( cp->flags == C_EMPTY )
 		lputs( L_NOISE, "(empty)" );
+	else
+	if ( cp->flags == C_IGNORE )
+		lputs( L_NOISE, "(ignored)" );
 	else
 	  switch ( cp->type )
 	{
