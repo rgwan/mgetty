@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.119 1994/08/02 13:28:46 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.120 1994/08/04 17:21:02 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -24,6 +24,7 @@
 #include "mgetty.h"
 #include "policy.h"
 #include "tio.h"
+#include "fax_lib.h"
 #ifdef VOICE
 #include "voclib.h"
 #endif
@@ -31,6 +32,11 @@
 #include "mg_utmp.h"
 
 #include "version.h"		/* for logging the mgetty release number */
+
+
+#ifndef MODEM_CHECK_TIME
+# define MODEM_CHECK_TIME -1	/* no check */
+#endif
 
 unsigned short portspeed = B0;	/* indicates has not yet been set */
 
@@ -150,6 +156,7 @@ static void make_pid_file _P0( void )
 enum { St_unknown,
        St_go_to_jail,			/* reset after unwanted call */
        St_waiting,			/* wait for activity on tty */
+       St_check_modem,			/* check if modem is alive */
        St_wait_for_RINGs,		/* wait for <n> RINGs before ATA */
        St_answer_phone,			/* ATA, wait for CONNECT/+FCO(N) */
        St_nologin,			/* no login allowed, wait for
@@ -495,7 +502,6 @@ int main _P2((argc, argv), int argc, char ** argv)
 	     * /etc/nologin file), do some cleanups, and go back to
 	     * field one: St_waiting
 	     */
-	    mg_drop_ctty( STDIN );
 	    rmlocks();
 	    mgetty_state = St_waiting;
 	    break;
@@ -516,7 +522,15 @@ int main _P2((argc, argv), int argc, char ** argv)
 	     * already happened in the open() call.
 	     */
 	    if ( ! blocking_open )
-		wait_for_input( STDIN );
+	    {
+		if ( ! wait_for_input( STDIN, MODEM_CHECK_TIME*1000 ) &&
+		     ! direct_line )
+		{
+		    /* no activity - is the modem alive or dead? */
+		    mgetty_state = St_check_modem;
+		    break;
+		}
+	    }
 	
 	    /* check for LOCK files, if there are none, grab line and lock it
 	     */
@@ -530,10 +544,6 @@ int main _P2((argc, argv), int argc, char ** argv)
 		break;
 	    }
 
-	    /* get line as ctty: hangup will come through
-	     */
-	    mg_get_ctty( STDIN, devname );
-		
 	    /* now: honour SIGHUP
 	     */
 	    signal(SIGHUP, sig_goodbye );
@@ -555,7 +565,32 @@ int main _P2((argc, argv), int argc, char ** argv)
 	    mgetty_state = St_wait_for_RINGs;
 	    break;
 
-	    
+
+	  case St_check_modem:
+	    /* some modems have the nasty habit of just dying after some
+	       time... so, mgetty regularily checks with AT...OK whether
+	       the modem is still alive */
+	    lprintf( L_MESG, "checking if modem is still alive" );
+
+	    if ( makelock( Device ) == FAIL )
+	    {
+		mgetty_state = St_dialout; break;
+	    }
+
+	    /* try twice */
+	    if ( mdm_command( "AT", STDIN ) == SUCCESS ||
+		 mdm_command( "AT", STDIN ) == SUCCESS )
+	    {
+		mgetty_state = St_go_to_jail; break;
+	    }
+
+	    lprintf( L_FATAL, "modem on %s doesn't react!", devname );
+
+	    /* give up */
+	    exit( 30 );
+
+	    break;
+		
 	  case St_nologin:
 #ifdef NOLOGIN_FILE
 	    /* if a "/etc/nologin.<device>" file exists, wait for RINGing
@@ -720,6 +755,14 @@ int main _P2((argc, argv), int argc, char ** argv)
 		break;
 	    }
 
+	    /* from here, there's no way back. Either the call will succeed
+	       and mgetty will exec() something else, or it will fail and
+	       mgetty will exit(). */
+	    
+	    /* get line as ctty: hangup will come through
+	     */
+	    mg_get_ctty( STDIN, devname );
+		
 	    /* remember time of phone pickup */
 	    call_start = time( NULL );
 
