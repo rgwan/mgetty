@@ -1,4 +1,4 @@
-#ident "$Id: mid.c,v 1.3 1998/07/07 15:20:50 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mid.c,v 1.4 1998/07/07 15:30:40 gert Exp $ Copyright (c) Gert Doering"
 
 /* mid.c
  *
@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <signal.h>
@@ -139,17 +140,12 @@ void exit_usage( char * program, char * msg )
 
 int main( int argc, char ** argv )
 {
-int opt, fd, f, last_f;
-time_t ti;
-struct tm * tm;
+int opt;
 char device[MAXPATH];
 
-char * filename = NULL;				/* save to file */
 char * mailaddr = "gert@greenie.muc.de";	/* send to this e-mail addr */
 boolean send_mail = FALSE;			/* send mail? */
 int speed = 38400;				/* port speed */
-
-TIO tio, save_tio;			/* for stdin */
 
 FILE * out_fp = stdout;
 
