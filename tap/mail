@@ -1,0 +1,403 @@
+From prozac.eeap.cwru.edu!wes Tue Jan  6 20:35:21 1998
+Return-Path: <wes@prozac.eeap.cwru.edu>
+Received: by greenie.muc.de (/\==/\ Smail3.1.24.1 #24.2)
+	id <m0xpemN-000A6hC@greenie.muc.de>; Tue, 6 Jan 98 20:35 MET
+Received: (from wes@localhost) by prozac.eeap.cwru.edu (8.8.5/8.6.12) id OAA09383 for gert@greenie.muc.de; Tue, 6 Jan 1998 14:35:00 -0500
+From: Wes Brown <wes@prozac.eeap.cwru.edu>
+Message-Id: <199801061935.OAA09383@prozac.eeap.cwru.edu>
+Subject: Some pager information for you
+To: gert@greenie.muc.de
+Date: Tue, 6 Jan 1998 14:34:59 -0500 (EST)
+X-URL: http://prozac.student.cwru.edu/wes/About.me.html
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Status: ROr
+
+I found a very informative page on protocols used to send alpha pages.  The
+man that writes the pages works for a member of the paging industry.
+
+His page can be found at
+http://village.ios.com/~braddye/index.html
+
+Wes
+--- 
+Wes Brown
+ewb4@po.cwru.edu		wes@prozac.cwru.edu
+http://prozac.cwru.edu/wes/About.me.html
+KB8TGR
+
+From unixpc.germany.tandem.com!jojo Mon Jan 19 09:22:38 1998
+Return-Path: <jojo@unixpc.germany.tandem.com>
+Received: by greenie.muc.de (/\==/\ Smail3.1.24.1 #24.2)
+	id <m0xuCQK-0001VMC@greenie.muc.de>; Mon, 19 Jan 98 09:19 MET
+Received: from unixpc.germany.tandem.com (jojo@unixpc.germany.tandem.com [168.87.29.119])
+	by Tandem.com (8.8.8/2.0.1) with ESMTP id AAA01036;
+	Mon, 19 Jan 1998 00:19:02 -0800 (PST)
+Received: (from jojo@localhost)
+	by unixpc.germany.tandem.com (8.8.7/8.8.7) id IAA12986;
+	Mon, 19 Jan 1998 08:19:56 +0100
+From: Joachim Schmitz <jojo@unixpc.germany.tandem.com>
+Message-Id: <199801190719.IAA12986@unixpc.germany.tandem.com>
+Subject: Re: SMS?
+To: pfeiffer@pds.de (Thomas Pfeiffer)
+Date: Mon, 19 Jan 1998 08:19:55 +0100 (CET)
+Cc: gert@greenie.muc.de, isdn4linux@hub-wue.franken.de
+In-Reply-To: <199801190757.IAA07366@pdsinter.pds.de> from "Thomas Pfeiffer" at Jan 19, 98 08:57:19 am
+Organization: Tandem Computers GmbH
+Content-Type: text
+Status: RO
+
+Hi Thomas
+
+> > Sollte aber jemand ISDN-Zugaenge & das verwendete Protokoll kennen, waere
+> > ich fuer diese Info sehr verbunden [bastele gerade an einem "SMS-Sende-
+> > Tool" fuer allgemeine Unix-Varianten, also via Modem, ISDN, whatever].
+> D1 ist ueber X.75/T.70 (mit 2 byte header :) zu erreichen 09116633936
+> D2 ueber V.110 (die trottel haben terminaladapter 8-) 01722278000
+D2 geht auch ueber 01722278010 mit X.75 und ohne patches.
+
+-- 
+Tschoe,	Jojo
+
+email:
+work SCHMITZ_JOACHIM@Tandem.COM, Joachim.Schmitz@Compaq.COM
+home Joachim_Schmitz@D.maus.de (no mails >64k please)
+
+From ruhr-uni-bochum.de!Martin.H.Ludwig Mon Jan 19 09:45:19 1998
+Return-Path: <Martin.H.Ludwig@ruhr-uni-bochum.de>
+Received: by greenie.muc.de (/\==/\ Smail3.1.24.1 #24.2)
+	id <m0xuCpa-0001VMC@greenie.muc.de>; Mon, 19 Jan 98 09:45 MET
+Received: (qmail 7634 invoked from network); 19 Jan 1998 08:45:16 -0000
+Received: from dialppp-1-156.rz.ruhr-uni-bochum.de (HELO biggy.ma.net) (root@134.147.1.156)
+  by mailhost.rz.ruhr-uni-bochum.de with SMTP; 19 Jan 1998 08:45:16 -0000
+Received: from winnie.ma.net (win.ma.net [10.1.2.6]) by biggy.ma.net (8.7/8.6.12) with SMTP id IAA27344 for <gert@greenie.muc.de>; Mon, 19 Jan 1998 08:56:13 +0100
+Message-Id: <199801190756.IAA27344@biggy.ma.net>
+Comments: Authenticated sender is <malu@biggy.ma.net>
+From: Martin.H.Ludwig@ruhr-uni-bochum.de
+To: gert@greenie.muc.de (Gert Doering)
+Date: Mon, 19 Jan 1998 08:52:20 +0000
+MIME-Version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: Quoted-printable
+Subject: Re: SMS?
+Priority: normal
+In-reply-to: <En02DE.LMB@greenie.muc.de>
+X-mailer: Pegasus Mail for Win32 (v2.53DE/R1)
+Status: ROr
+
+Hallo Gert!
+
+Bevor Du da viel Zeit investierst, schau die mal yaps an (ein Hinweis
+darauf mit Quellenangabe war vor kurzem auf der isdn4linux-Liste).
+Es ist gaube ich genau das, was Du entwickeln willst. ISDN-Zug=E4nge
+klappen zumindest mit D1 und D2 (Zugangsnummern:
+D1: 01712521001 Protokoll TAP
+D2: 01722278000 Protokoll UCP
+
+Martin
+
+
+Martin H. Ludwig
+E-Mail:
+  MaNet: malu@biggy.ma.net
+  Internet: IngBueroLudwig@gmx.de
+Snail-Mail
+  Zur Post 5
+  44879 Bochum
+Tel: 0234 / 9 49 02 04
+Fax: 0234 / 9 40 02 05
+
+From akademie.de!kirsch Mon Jan 19 14:45:43 1998
+Return-Path: <kirsch@akademie.de>
+Received: by greenie.muc.de (/\==/\ Smail3.1.24.1 #24.2)
+	id <m0xuHWI-0003r2C@greenie.muc.de>; Mon, 19 Jan 98 14:45 MET
+Received: from clooney(really [195.37.36.143]) by mail.akademie1.de
+	via sendmail with smtp
+	id <m0xuH1J-000mIiC@mail.akademie1.de>
+	for <gert@greenie.muc.de>; Mon, 19 Jan 1998 14:13:41 +0100 (MET)
+	(Smail-3.2.0.92 1997-Feb-9 #9 built DST-Jun-16)
+Message-ID: <34C3524A.AC0@akademie.de>
+Date: Mon, 19 Jan 1998 14:16:58 +0100
+From: Christian Kirsch <kirsch@akademie.de>
+Reply-To: kirsch@akademie.de
+Organization: HRP GmbH
+X-Mailer: Mozilla 3.01 [de] (WinNT; I)
+MIME-Version: 1.0
+To: Gert Doering <gert@greenie.muc.de>
+Subject: Re: SMS?
+References: <34BA2E02.6337@akademie.de> <En02DE.LMB@greenie.muc.de>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Status: RO
+
+Gert Doering wrote:
+> 
+> Christian Kirsch <kirsch@akademie.de> writes:
+> 
+> >Weiß jemand, ob und ggfs. wie man per isdn4linux eine SMS-Nachricht
+> >verschicken kann? Naiverweise denke ich, daß man einfach die
+> >entsprechende Nummer des Netzes wählt und dann die Meldung "irgendwie"
+> >dranhängt.
+> >Das "irgendwie" ist natürlich das spannende. Oder ist das wg.
+> >PiepFurzKnack genauso unmöglich wie G3-Faxen?
+> 
+> Mir sind bisher nur analoge Zugaenge zu den jeweiligen SMS-Centers bekannt
+> (D1, D2, E+, Quix, Cityruf).
+
+Hallo Gert,
+
+D1 hat seit Ende Dezember ISDN (01712521001, wenn ich mich recht
+erinnere).
+D2 hat jemand anders schon gepostet (Danke!)
+E+ will das zur CeBit anbieten. 
+
+Grüße
+
+From hq.seicom.net!udesign!lukas Tue Jan 20 00:33:07 1998
+Return-Path: <udesign!lukas@hq.seicom.net>
+Received: by greenie.muc.de (/\==/\ Smail3.1.24.1 #24.2)
+	id <m0xuQgf-00015iC@greenie.muc.de>; Tue, 20 Jan 98 00:33 MET
+Received: from udesign.UUCP by hq.seicom.net (8.8.5/8.8.3) with UUCP id AAA26304 for greenie.muc.de!gert; Tue, 20 Jan 1998 00:24:22 +0100 (CET)
+Received: by reactor.design.de
+	id m0xuQiQ-000BijC
+	(Debian Smail-3.2 1996-Jul-4 #2); Tue, 20 Jan 1998 00:34:50 +0100 (MET)
+Message-ID: <19980120003450.24501@reactor>
+Date: Tue, 20 Jan 1998 00:34:50 +0100
+From: Lukas Wunner <lukas@design.de>
+To: gert@greenie.muc.de
+Subject: SMS...
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+X-Mailer: Mutt 0.88
+Content-Transfer-Encoding: quoted-printable
+X-MIME-Autoconverted: from 8bit to quoted-printable by hq.seicom.net id AAA26304
+Status: ROr
+
+Hi Gert,
+
+Habe von Winni eine Nachricht von Dir auf der isdn4linux ML geforwardet
+bekommen. Du sagst Du hackst an einem Programm das =FCber Modem/ISDN/what=
+ever
+SMSe rausheizen kann. Hast Du da schon was f=FCr das Siemens M1-Modul?
+Wenn nicht, kannst Du da was brauchen? Habe ein rudiment=E4res Perl Scrip=
+t
+gehackt mit dem geht es. Kennst Du Dich mit diesem PDU-Zeug aus? Bin
+mir nicht sicher ob das irgendwie im GSM-Standard verankert ist oder was
+propriet=E4res von Siemens. Jedenfalls sieht es so aus da=DF man SMSe ver=
+schickt
+indem man dem M1-Modul eine PDU gibt (langer Hex-String). Ist bischen
+friemelig. Was vor allem d=E4mlich ist: die Nachricht wird defaultm=E4=DF=
+ig
+in einem 7-Bit Alphabet kodiert, und zwar stuffed er die 7 Bits der
+Zeichen zusammen so da=DF man 160 statt nur 140 Zeichen Nachrichten in
+eine PDU quetschen kann. Total idiotische Codierung, die Telefonnummer
+will er in BCD. Haben sich irgendwelche Cobol-Hacker ausgedacht oder
+ich wei=DF es nicht.  Man kann aber auch ein 8-Bit Alphabet
+selektieren (via Option im PDU-Header). Aber ich wei=DF nicht wie das
+Alphabet aussieht. In der Doku steht nur "you can relate to the
+INTEL ASCII-HEX table". Toll. Wo finde ich den? Habe das jetzt einfach
+so gemacht da=DF er die Nummer jedes Ascii-Zeichens nimmt, nach Hex
+kodiert und fertig. Auf Winnis Handy (ich denke ein Siemens) zeigt er das
+dann richtig an, bei einem Kollegen auf dem Handy (Sony) kommt nur
+Datenm=FCll an. Sehr omin=F6s. Irgendne Idee? Vielleicht irgendwelchen
+Code der solches PDU-Zeug handlet? Ach ja falls Du das M1-Modul nicht
+kennst, das ist praktisch ein Handy mit Modem, aber ohne Mikro+Lautsprech=
+er.
+Das kann man z.B. im Auto verwenden um Telemetrie-Daten rauszuheizen etc.
+Oder wie bei uns im station=E4ren Einsatz um Nachrichten rauszuheizen auc=
+h
+wenn die Telekom s=E4mtliche Anschl=FCsse geschlachtet hat (sehr n=FCtzli=
+ch!).
+Ach ja: darf ich Dir in den n=E4chsten Tagen mal eine Testnachricht auf
+Dein Handy schicken, ich habe n=E4mlich noch nicht getestet ob das Script
+auch mit Nachrichten an e-plus Teilnehmer funzt (kenne sonst niemand der
+bei e-plus ist)?
+
+Sorry f=FCr den =DCberfall. :-)
+
+Ciao,
+	Lukas.
+
+PS: schon mal versucht ein USR Courier zum faxen oder SMS verschicken zu
+bewegen? *=C4tzend!!* In die Tonne mit dem Mistzeug!
+
+PPS: noch was wegen Analog-Leitungen: aufm CCC hab ich mit Achim Astel
+(noris network =3D=3D Xlink POP Nbg) gesprochen. Die betreiben auch Analo=
+g-
+Leitungen mit xDSL und zwar in OZ2! Das magische Wort bei der Bestellung
+hei=DFt "analoge Leitungsf=FChrung" (telekom-deutsch f=FCr "galvanisch ve=
+rbunden").
+
+--=20
+lukas wunner         unix, internetworking and security engineer
+lukas@wunner.de      LW26-RIPE      http://www.wunner.de/~lukas/
+Funkmodems mit 2.4GHz FAQ      http://www.wunner.de/~lukas/funk/
+
+From pds.de!pfeiffer Mon Jan 19 08:57:42 1998
+Return-Path: <pfeiffer@pds.de>
+Received: by greenie.muc.de (/\==/\ Smail3.1.24.1 #24.2)
+	id <m0xuC5E-0001VMC@greenie.muc.de>; Mon, 19 Jan 98 08:57 MET
+Received: from pdsinter.pds.de (root@ns.pds.de [194.163.247.10])
+   by mail.maz.net (971021.1) with ESMTP id <IAA09418>
+   (for multiple receipients); Mon, 19 Jan 1998 08:57:19 +0100 (MET)
+Received: from thomas (thomas [192.68.2.18])
+	by pdsinter.pds.de (8.8.5/8.8.5) with SMTP id IAA07366;
+	Mon, 19 Jan 1998 08:57:19 +0100
+Message-Id: <199801190757.IAA07366@pdsinter.pds.de>
+Comments: Authenticated sender is <pfeiffer@[192.68.2.130]>
+From: "Thomas Pfeiffer" <pfeiffer@pds.de>
+Organization: PDS GmbH
+To: isdn4linux@hub-wue.franken.de
+Date: Mon, 19 Jan 1998 08:57:19 +0100
+MIME-Version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: Quoted-printable
+Subject: Re: SMS?
+CC: gert@greenie.muc.de (Gert Doering)
+Priority: normal
+In-reply-to: <En02DE.LMB@greenie.muc.de>
+X-mailer: Pegasus Mail for Win32 (v2.52)
+Status: RO
+
+> >Wei=AF jemand, ob und ggfs. wie man per isdn4linux eine SMS-Nachricht
+> >verschicken kann? Naiverweise denke ich, da=AF man einfach die
+> >entsprechende Nummer des Netzes w=F5hlt und dann die Meldung "irgendwie=
+"
+> >dranh=F5ngt. 
+> >Das "irgendwie" ist nat=B3rlich das spannende. Oder ist das wg.
+> >PiepFurzKnack genauso unm=F7glich wie G3-Faxen?
+> 
+> Mir sind bisher nur analoge Zugaenge zu den jeweiligen SMS-Centers bekan=
+nt
+> (D1, D2, E+, Quix, Cityruf).
+> 
+> Sollte aber jemand ISDN-Zugaenge & das verwendete Protokoll kennen, waer=
+e
+> ich fuer diese Info sehr verbunden [bastele gerade an einem "SMS-Sende-
+> Tool" fuer allgemeine Unix-Varianten, also via Modem, ISDN, whatever].
+D1 ist ueber X.75/T.70 (mit 2 byte header :) zu erreichen 09116633936
+D2 ueber V.110 (die trottel haben terminaladapter 8-) 01722278000
+
+anmerkung:
+fuer beides solltest du meine patches (http://pds.de/i4l) verwenden.
+das T.70 fuer T-online funktioniert nicht, V.110 ist noch im beta-stadium.
+sms ueber D1 haben wir hier schon ueber hylafax am laufen, mit D2 kommt's =
+noch
+----------------------------------------------------------------------
+Thomas Pfeiffer (pfeiffer@pds.de), PDS - Programm + Datenservice GmbH
+http://www.pds.de/qfs.html, Tel: 49 4261 855 614, Fax: 49 4261 855 675
+----------------------------------------------------------------------
+
+From gert Tue Dec 16 18:07:57 1997
+Return-Path: <gert>
+Received: by greenie.muc.de (/\==/\ Smail3.1.24.1 #24.2)
+	id <m0xi0TN-0004NRC@greenie.muc.de>; Tue, 16 Dec 97 18:07 MET
+Message-Id: <m0xi0TN-0004NRC@greenie.muc.de>
+Date: Tue, 16 Dec 97 18:07 MET
+From: gert (Gert Doering)
+To: gert
+Subject: SMS_Client 2.0.3
+Status: RO
+
+
+>Path: greenie!news.muc.de!news.space.net!newsfeed.ecrc.net!195.74.75.15.MISMATCH!fci-se!fci!newsfeed.sunet.se!news99.sunet.se!news01.sunet.se!128.214.248.135.MISMATCH!newsfeed1.funet.fi!news2.funet.fi!news.funet.fi!news.helsinki.fi!not-for-mail
+>From: Angelo Masci <angelo@styx.demon.co.uk>
+>Newsgroups: comp.os.linux.announce
+>Subject: SMS_Client 2.0.3
+>Followup-To: comp.os.linux.misc
+>Date: Tue, 16 Dec 1997 12:52:55 GMT
+>Organization: none
+>Lines: 72
+>Approved: linux-announce@news.ornl.gov (Mikko Rauhala)
+>Message-ID: <pycola.882276775.1711@laulujoutsen.pc.helsinki.fi>
+>NNTP-Posting-Host: laulujoutsen.pc.helsinki.fi
+>Old-Date: Sun, 14 Dec 1997 05:25:43 +0000 (GMT)
+>X-No-Archive: yes
+>X-Auth: PGPMoose V1.1 PGP comp.os.linux.announce
+>	iQCVAgUBNJZ5p1rUI/eHXJZ5AQGIigP9E4NNkDQyR8UU4+KRQRZnB3YULkhJspmP
+>	tnvm2wTTTH9Lt/BWmcgthPAv870+jBz+XwAPGxS87LZRzEKNvrWx0n0hnB1I2Q9c
+>	BlSwWu0tztWZn5uH8FGbmjxHNT835F8K7BRYmK9ZzY8isDTsWLlDMJIyTpm7wPhW
+>	1wlwbJ0JkbY=
+>	=fl3D
+
+-----BEGIN PGP SIGNED MESSAGE-----
+
+
+SMS Client - 
+A simple client implementation for the GSM Short
+Message Service using TAP and non TAP protocols. 
+Allowing you to send short messages to mobile phones 
+and pagers.
+
+Version 2.0.0 Release new features:
+
+        Additional support for following services using non
+        TAP protocols:
+
+                Vodafone
+                Orange
+                PageOne currently in ALPHA
+
+        Better loggin facilities at different levels<BR>
+        New sms resource file format<BR>
+        New Drivers modularization allowing for plugin driver support
+
+The software has just be uploaded into sunsite. If you can't find
+it there, be patient or look in /incoming
+
+An LSM Entry follows.
+
+
+Begin3
+Title:          sms_client - send messages to mobiles and pagers
+Version:        2.0.3
+Entered-date:   13 Dec 1997
+Description:    A simple client implementation for the GSM Short
+                Message Service using TAP. Allowing you to send
+                short messages to mobile phones and pagers.
+		Tested with a number of providers in the UK. These
+		include: Cellnet, Orange and Vodafone.
+Keywords:       TAP modem comms serial network mobile pager paging
+Author:         angelo@styx.demon.co.uk (Angelo Masci)
+Maintained-by:  angelo@styx.demon.co.uk (Angelo Masci)
+Primary-site:   sunsite.unc.edu /pub/Linux/apps/serialcomm/machines
+		22k sms_client-2.0.3.tgz
+		861 sms_client-2.0.3.lsm
+
+Alternate-site: http://lines0.uwic.ac.uk/~ac0412/sms_client
+                This site will be shutdown for maintenance on
+		13-15 December
+
+Original-site:  
+Platforms:      Linux, libmodem-1.0.0 package and modem
+Copying-policy: GPL
+End
+
+
+
+- -- 
+This article has been digitally signed by the moderator, using PGP.
+http://www.iki.fi/mjr/cola-public-key.asc has PGP key for validating signature.
+Send submissions for comp.os.linux.announce to: linux-announce@news.ornl.gov
+PLEASE remember a short description of the software and the LOCATION.
+This group is archived at http://www.iki.fi/liw/linux/cola.html
+
+-----BEGIN PGP SIGNATURE-----
+Version: 2.6.3ia
+Charset: latin1
+
+iQCVAgUBNJZ5p1rUI/eHXJZ5AQG1hwQAqh10WGywC7cgopMK7ikElbuGgTK8Q9l6
+dXf1IjsgqI+S7c5UF1W2LfM1TdxqS3vmERC0/54ybfRSX/5TcCQalzztiwVoCALD
+rGol5PTSzQXx9zaFmAqaq4i6+e+q/3MuAwwJmzhZKJY9hWetQ9EH7uPJD7HYrZL7
+YO+okoiSfwk=
+=6n9H
+-----END PGP SIGNATURE-----
+-- 
+email: gert@greenie.muc.de   fax: +49-89-3244814   http://www.leo.org/~doering
+
+With her body, woman is more sincere than man; but with her mind she lies.
+And when she lies, she does not believe herself.
+               --Tolstoy
+
