@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.2 1993/03/23 16:44:50 gert Exp $ Gert Doering"
+#ident "$Id: faxrec.c,v 1.3 1993/04/19 20:45:45 gert Exp $ Gert Doering"
 
 /* faxrec.c - part of the ZyXEL getty
  *
@@ -153,6 +153,8 @@ int ByteCount = 0;
 
 int fax_get_pages( int fd, int * pagenum, char * directory )
 {
+static const char start_rcv = DC2;
+
     *pagenum = 0;
 
     /* send command for start page receive
@@ -168,15 +170,20 @@ int fax_get_pages( int fd, int * pagenum, char * directory )
     do		/* page receive loop */
     {
 	/* send command for start receive page data */
-	fputc( DC2, stdout );
+	lprintf( L_NOISE, "sending DC2" );
+	write( fd, &start_rcv, 1);
 
 	/* read page data (into temp file), change <DLE><DLE> to <DLE>,
 	   wait for <DLE><ETX> for end of data */
 
-	fax_get_page_data( fd, ++(*pagenum), directory );
+	if ( fax_get_page_data( fd, ++(*pagenum), directory ) == ERROR )
+	{
+	    return ERROR;
+	}
 
 	/* read +FPTS:1 +FET 0 / 2 */
-	fax_wait_for( "OK", fd );
+
+	if ( fax_wait_for( "OK", fd ) == ERROR ) return ERROR;
 
 	/* send command to receive next page
 	 * and to release post page response (+FPTS) to remote fax
@@ -188,7 +195,7 @@ int fax_get_pages( int fd, int * pagenum, char * directory )
 	 * fax_hangup will be set to TRUE
 	 */
 
-	fax_wait_for( "CONNECT", fd );
+	if ( fax_wait_for( "CONNECT", fd ) == ERROR ) return ERROR;
     }
     while ( ! fax_hangup );
 
