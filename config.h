@@ -1,7 +1,7 @@
 #ifndef ___CONFIG_H
 #define ___CONFIG_H
 
-#ident "$Id: config.h,v 1.4 1995/04/16 22:56:19 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: config.h,v 1.5 1995/05/17 10:27:28 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* type definitions, prototypes, defines needed for configuration stuff
  */
@@ -19,14 +19,6 @@ int get_config _PROTO(( char * conf_file, conf_data * cd,
 		        char * section_key, char * key_value ));
 
 void display_cd _PROTO(( conf_data * cd ));
-
-/* some versions of BSD have their own variant of fgetline that
- * behaves differently. Just change the name for now...
- * FIXME.
- */
-#ifdef BSD
-# define fgetline mgetty_fgetline
-#endif
 
 char * fgetline _PROTO(( FILE * fp ));
 void   norm_line _PROTO(( char ** line, char ** key ));

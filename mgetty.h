@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 2.7 1995/04/19 14:23:16 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 2.8 1995/05/17 10:27:29 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -52,8 +52,18 @@ int lprintf _PROTO(());
 /* bsd stuff */
 #if defined(__BSD_NET2__) || defined(__386BSD__) || \
     defined(__NetBSD__)   || defined(__FreeBSD__)
-/* # define BSD */	/* we better should know the exact version */
-#include <sys/param.h>	/* defines BSD, BSD4_3 and BSD4_4 */
+# include <sys/param.h>	/* defines BSD, BSD4_3 and BSD4_4 */
+# ifndef BSD
+#  define BSD		/* just in case... */
+# endif
+#endif
+
+/* some versions of BSD have their own variant of fgetline that
+ * behaves differently. Just change the name for now...
+ * FIXME.
+ */
+#ifdef BSD
+# define fgetline mgetty_fgetline
 #endif
 
 /* define here what function to use for polling for characters
