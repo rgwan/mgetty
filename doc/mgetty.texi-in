@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.27 1998/07/05 21:02:13 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.28 1998/07/16 09:26:26 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -4154,9 +4154,12 @@ SpaceNet GmbH, Munich, for sponsoring IP connectivity for alpha.greenie.net.
 Should you ever need an Internet Service Provider in Germany, look at
 http://www.space.net/...
 
+@item
+Wiebke Baars, for being a really good friend, and for a number of
+wonderful days spent together.
 
 @item
-@dots{} and to all others who tested release after release.
+@dots{} and to all others who contributed in some way.
 
 @end itemize
 
