@@ -1,4 +1,4 @@
-#ident "$Id: do_chat.c,v 1.18 1993/10/19 22:27:12 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: do_chat.c,v 1.19 1993/10/20 14:17:53 gert Exp $ Copyright (c) Gert Doering";
 /* do_chat.c
  *
  * This module handles all the non-fax talk with the modem
@@ -14,6 +14,10 @@
 #include <sys/ioctl.h>
 #endif
 
+#ifndef EINTR
+#include <errno.h>
+#endif
+
 #include "mgetty.h"
 #include "tio.h"
 
@@ -23,13 +27,13 @@ void chat_timeout()
     chat_has_timeout = TRUE;
 }
 
-extern char * Device;
+extern volatile boolean virtual_ring;
 
-int do_chat _P8((fd, expect_send, actions, action, chat_timeout_time,
-		timeout_first, locks, virtual_rings), int fd, char * expect_send[],
+int do_chat _P6((fd, expect_send, actions, action, chat_timeout_time,
+		timeout_first ),
+		int fd, char * expect_send[],
 	        chat_action_t actions[], action_t * action,
-                int chat_timeout_time, boolean timeout_first,
-                boolean locks, boolean virtual_rings )
+                int chat_timeout_time, boolean timeout_first )
 {
 #define BUFFERSIZE 500
 char	buffer[BUFFERSIZE];
@@ -56,15 +60,7 @@ TIO	tio, save_tio;
 	/* expect a string (expect_send[str] or abort[]) */
 	i = 0;
 
-	/* if mgetty is forced to manual answer (by signal SIGUSR1),
-	 * and the expect string is "RING", behave as if we got it
-	 */
-	if ( strcmp( expect_send[str], "RING" ) == 0 && virtual_rings )
-	{
-	    lprintf( L_MESG, "waiting for RING, ``got it''" );
-	}
-	else
-	  if ( strlen( expect_send[str] ) != 0 )
+	if ( strlen( expect_send[str] ) != 0 )
 	{
 	    lprintf( L_MESG, "waiting for ``%s''", expect_send[str] );
 
@@ -82,7 +78,20 @@ TIO	tio, save_tio;
 
 	    do
 	    {
+		if ( virtual_ring && strcmp( expect_send[str], "RING" ) == 0 )
+		{
+		    lputs( L_MESG, " ``found''" );
+		    break;
+		}
+		
 		cnt = read( fd, &buffer[i], 1 );
+
+		if ( cnt < 0 )
+		{
+		    if ( errno == EINTR ) cnt = 0;
+		    else
+		        lprintf( L_ERROR, "do_chat: error in read()" );
+		}
 
 		if ( chat_has_timeout )		/* timeout */
 		{
@@ -90,42 +99,9 @@ TIO	tio, save_tio;
 		    retcode = FAIL;
 		    break;
 		}
-		if ( cnt > 0 )
-		{
-		    lputc( L_NOISE, buffer[i] );
-		
-		    /* this is a UUgetty - so look for lock files on the
-		       first character we read - the data could be for
-		       someone else. If there's no lockfile, the data is
-		       probably a "RING", so we lock the line */
 
-		    if ( locks )
-		    {
-			lprintf( L_NOISE, "checking lockfiles, locking the line" );
-			if ( makelock(Device) == FAIL) {
-			    lprintf( L_NOISE, "lock file exists!" );
-			    /* close stdin -> other processes can read port */
-			    close(0);
-			    close(1);
-			    close(2);
-check_further:
-			    while (checklock(Device) == TRUE) sleep(10);
-			    sleep(5);
-			    if ( checklock(Device) == TRUE )
-				goto check_further;
+		if ( cnt > 0 ) lputc( L_NOISE, buffer[i] );
 
-			    exit(0);
-			}
-			locks = FALSE;
-
-			/* now: set alarm timer (my ZyXEL sometimes sends
-                           spurious "cr"s to the host, so we will not
-			   leave the line locked forever waiting for the
-                           next character (not) to come) */
-		        alarm( chat_timeout_time );
-		    }		/* end if (locks) */
-
-		}		/* end if (character read) */
 		i += cnt;
 		if ( i>BUFFERSIZE-5 )
 		{
@@ -134,6 +110,7 @@ check_further:
 		}
 
 		/* look for the "expect"-string */
+
 		cnt = strlen( expect_send[str] );
 		if ( i >= cnt &&
 		     memcmp( &buffer[i-cnt], expect_send[str], cnt ) == 0 )
