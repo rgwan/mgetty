@@ -1,4 +1,4 @@
-#ident "$Id: do_chat.c,v 3.1 1995/08/30 12:40:30 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: do_chat.c,v 3.2 1995/11/24 21:27:40 gert Exp $ Copyright (c) Gert Doering"
 
 /* do_chat.c
  *
@@ -32,7 +32,7 @@ extern boolean virtual_ring;
 
 /* send one string to "fd", honouring \c, \d and \\ */
 
-int do_chat_send _P2( (fd, string), int fd, char * p )
+int do_chat_send _P2( (fd, p), int fd, char * p )
 {
     boolean nocr = FALSE;		/* do not set CR/LF (\c) */
 
