@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 3.26 1996/11/24 12:21:41 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 3.27 1996/11/26 22:21:35 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -822,7 +822,14 @@ Ring_got_action:
 		   called. If the function returns, the modem is ready
 		   to be connected in DATA mode with ATA. */
 		
-		vgetty_answer(rings, rings_wanted, what_action );
+		if ( vgetty_answer(rings, rings_wanted, what_action) ==
+		 VMA_CONNECT )
+		{
+		/* unexpected "CONNECT" -> jump to reading of login name
+		 */
+		    mg_get_ctty( STDIN, devname );
+		    mgetty_state = St_get_login; break;
+		};
 	    }
 #endif /* VOICE */
 
