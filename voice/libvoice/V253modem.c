@@ -1,21 +1,21 @@
 /*
- * V250modem.c
+ * V253modem.c
  *
- * This file contains the commands for V250 complaient modems
+ * This file contains the commands for V253 complaient modems
  *
  */
 
 #include "../include/voice.h"
 
-static int V250modem_set_device (int device);
+static int V253modem_set_device (int device);
 
-static int V250modem_init (void)
+static int V253modem_init (void)
      {
      char buffer[VOICE_BUF_LEN];
 
      reset_watchdog();
      voice_modem_state = INITIALIZING;
-     lprintf(L_MESG, "initializing V250 voice modem");
+     lprintf(L_MESG, "initializing V253 voice modem");
 
      sprintf(buffer, "AT+FCLASS=8");
      if (voice_command(buffer, "OK") != VMA_USER_1)
@@ -51,7 +51,16 @@ static int V250modem_init (void)
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "can't set record volume");
 
-     voice_modem->set_device(DIALUP_LINE);
+     /* Delay after ringback or before any ringback
+      * before modem assumes phone has been answered.
+      */
+     sprintf(buffer,
+             "AT+VRA=%d+VRN=%d",
+             cvd.ringback_goes_away.d.i,
+             cvd.ringback_never_came.d.i);
+
+     if (voice_command(buffer, "OK") != VMA_USER_1)
+          lprintf(L_WARN, "setting ringback delay didn't work");
 
      if ((cvd.do_hard_flow.d.i) && (voice_command("AT+IFC=2,2", "OK") ==
       VMA_USER_1) )
@@ -68,7 +77,7 @@ static int V250modem_init (void)
      return(OK);
      }
 
-static int V250modem_set_compression (int *compression, int *speed, int *bits)
+static int V253modem_set_compression (int *compression, int *speed, int *bits)
      {
      char buffer[VOICE_BUF_LEN];
      reset_watchdog();
@@ -87,7 +96,7 @@ static int V250modem_set_compression (int *compression, int *speed, int *bits)
 
      }
 
-static int V250modem_set_device (int device)
+static int V253modem_set_device (int device)
      {
      reset_watchdog();
 
@@ -99,7 +108,7 @@ static int V250modem_set_device (int device)
                return(OK);
           case DIALUP_LINE:
                lprintf(L_JUNK, "%s: _DIALUP: (%d)", voice_modem_name, device);
-               voice_command("AT+VLS=2", "OK");
+               voice_command("AT+VLS=1", "OK");
                return(OK);
           case EXTERNAL_MICROPHONE:
                voice_command("AT+VLS=11", "OK");
@@ -117,32 +126,33 @@ static int V250modem_set_device (int device)
      return(FAIL);
      }
 
-static char V250modem_pick_phone_cmnd[] = "AT+FCLASS=8; AT+VLS=2";
-static char V250modem_pick_phone_answr[] = "VCON|OK";
+static char V253modem_pick_phone_cmnd[] = "AT+FCLASS=8; AT+VLS=2";
+static char V253modem_pick_phone_answr[] = "VCON|OK";
 
 
-static char V250modem_hardflow_cmnd[] = "AT+IFC=2,2";
-static char V250modem_softflow_cmnd[] = "AT+IFC=1,1";
+static char V253modem_hardflow_cmnd[] = "AT+IFC=2,2";
+static char V253modem_softflow_cmnd[] = "AT+IFC=1,1";
 
-/*static char V250modem_intr_play_answr[] = "OK|VCON";
-static char V250modem_stop_play_answr[] = "OK|VCON";
+static char V253modem_beep_cmnd[] = "AT+VTS=[%d,,%d]";
+/*static char V253modem_intr_play_answr[] = "OK|VCON";
+static char V253modem_stop_play_answr[] = "OK|VCON";
 
-static char V250modem_stop_rec_cmnd[] = "!";
-static char V250modem_stop_rec_answr[] = "OK|VCON"; */
+static char V253modem_stop_rec_cmnd[] = "!";
+static char V253modem_stop_rec_answr[] = "OK|VCON"; */
 
 
-voice_modem_struct V250modem =
+voice_modem_struct V253modem =
     {
-    "V250 modem",
-    "V250modem",
-     (char *) V250modem_pick_phone_cmnd,
-     (char *) V250modem_pick_phone_answr,
-     (char *) IS_101_beep_cmnd,
+    "V253 modem",
+    "V253modem",
+     (char *) V253modem_pick_phone_cmnd,
+     (char *) V253modem_pick_phone_answr,
+     (char *) V253modem_beep_cmnd,
      (char *) IS_101_beep_answr,
               IS_101_beep_timeunit,
-     (char *) V250modem_hardflow_cmnd,
+     (char *) V253modem_hardflow_cmnd,
      (char *) IS_101_hardflow_answr,
-     (char *) V250modem_softflow_cmnd,
+     (char *) V253modem_softflow_cmnd,
      (char *) IS_101_softflow_answr,
      (char *) IS_101_start_play_cmnd,
      (char *) IS_101_start_play_answer,
@@ -167,7 +177,7 @@ voice_modem_struct V250modem =
     &IS_101_beep,
     &IS_101_dial,
     &IS_101_handle_dle,
-    &V250modem_init,
+    &V253modem_init,
     &IS_101_message_light_off,
     &IS_101_message_light_on,
     &IS_101_start_play_file,
@@ -175,8 +185,8 @@ voice_modem_struct V250modem =
     &IS_101_stop_play_file,
     &IS_101_play_file,
     &IS_101_record_file,
-    &V250modem_set_compression,
-    &V250modem_set_device,
+    &V253modem_set_compression,
+    &V253modem_set_device,
     &IS_101_stop_dialing,
     &IS_101_stop_playing,
     &IS_101_stop_recording,
@@ -186,5 +196,6 @@ voice_modem_struct V250modem =
     &IS_101_voice_mode_on,
     &IS_101_wait,
     &IS_101_play_dtmf,
+    &IS_101_check_rmd_adequation,
     0
     };

@@ -3,7 +3,7 @@
  *
  * Defines the structure with data and routines for the hardware drivers.
  *
- * $Id: hardware.h,v 1.14 2000/07/22 10:19:50 marcs Exp $
+ * $Id: hardware.h,v 1.15 2000/07/28 10:28:29 marcs Exp $
  *
  */
 
@@ -94,7 +94,7 @@ extern voice_modem_struct Dolphin;
 extern voice_modem_struct Digi_RAS;
 extern voice_modem_struct Dr_Neuhaus;
 extern voice_modem_struct Elsa;
-extern voice_modem_struct V250modem;
+extern voice_modem_struct V253modem;
 extern voice_modem_struct IS_101;
 extern voice_modem_struct ISDN4Linux;
 extern voice_modem_struct Supra;

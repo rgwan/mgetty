@@ -3,7 +3,7 @@
  *
  * autodetect the modemtype we are connected to.
  *
- * $Id: detect.c,v 1.16 2000/07/22 10:19:51 marcs Exp $
+ * $Id: detect.c,v 1.17 2000/07/28 10:28:30 marcs Exp $
  *
  */
 
@@ -27,6 +27,19 @@ struct pnp_modem_type_struct
 static const struct pnp_modem_type_struct pnp_modem_database[] =
      {
      {"SUP", NULL, &Supra},
+     {"ELS", "0687", &Elsa}, /* ML 56k DE */
+     {"ELS", "0566", &Elsa}, /* ML 56k CH */
+     {"ELS", "0707", &Elsa}, /* ML 56k AT */
+     {"ELS", "8318", &Elsa}, /* ML 56k pro */
+     {"ELS", "0853", &Elsa}, /* 1&1 Speedmaster pro */
+     {"ELS", "8548", &Elsa}, /* ML Office */
+     {"ELS", "0754", &Elsa}, /* ML 56k basic */
+     {"ELS", "0350", &Elsa}, /* ML 56k internet */
+     {"ELS", "0503", &Elsa}, /* ML 56k internet */
+     {"ELS", "0667", &Elsa}, /* ML 56k internet */
+     {"ELS", "0152", &Elsa}, /* ML 56k internet c */
+     {"ELS", "0363", &V253modem}, /* ML 56k fun */
+     {"ELS", "8550", &V253modem}, /* coming soon ... */
      {NULL, NULL, NULL}
      };
  
@@ -177,22 +190,31 @@ int voice_detect_modemtype(void)
                     exit(FAIL);
 	  }
 	  s = strchr(buffer, '(');
-	  if (s && s[1] > 0 && s[2] == '$')
+	  if (s && s[1] > 0 )
 	  	{
 	  	s+=3;
+                lprintf(L_NOISE, "%s", s);
 	  	i = 0;
 	  	while (voice_modem == &no_modem &&
-	  	     pnp_modem_database[i].pnpid &&
-	  	     strncmp(pnp_modem_database[i].pnpid, s, 3) == 0)
+                       pnp_modem_database[i].pnpip)
 	  		{
-	  		if (pnp_modem_database[i].modelid == NULL ||
-	  		   strncmp(pnp_modem_database[i].modelid,
-			   s+3, 4) == 0)
+                        if (pnp_modem_database[i].pnpip) {
+			   lprintf(L_JUNK, "checking pnpipd %s",
+					   pnp_modem_database[i].pnpid);
+                        }
+                        if (strncmp(pnp_modem_database[i].pnpid, s, 3) == 0) {
+                           lprintf(L_JUNK, "checking modelid %s",
+                                           pnp_modem_database[i].modelid);
+                           if (pnp_modem_database[i].modelid == NULL ||
+  	  		       strncmp(pnp_modem_database[i].modelid,
+			               s+3,
+                                       4) == 0)
 				{
 				voice_modem =
 					pnp_modem_database[i].modem_type;
 				break;
 				}
+                           }
 			i++;
 	      		}
 	     	 /* eat the OK... */
@@ -238,10 +260,6 @@ int voice_detect_modemtype(void)
                 ((*s == ' ') || (*s == '\t'))); s++)
                     ;
 
-               /* Supports the modem V250 commands? */
-               if (voice_command("AT+IFC=?", "ERROR") != OK) voice_modem=&V250modem;
-		/* if the modem not answers with error then it supports V250 commands */
-
                for (i = 0; ((modem_database[i].at_cmnd != NULL) &&
                 (voice_modem == &no_modem)); i++)
                     {
@@ -285,6 +303,18 @@ int voice_detect_modemtype(void)
           voice_modem = &no_modem;
           exit(FAIL);
           };
+
+     if (voice_modem == &no_modem) {
+        /* Supports the modem V253 commands? */
+        voice_command("AT+FCLASS=8", "OK");
+        if (voice_command("AT+VSM=1,8000", "OK")== VMA_USER) {
+           voice_modem=&V253modem;
+           /* if the modem answers with ok then it supports ITU V253 commands
+            * and compression mode 8 bit PCM = nocompression.
+            */
+        }
+        voice_command("AT+FCLASS=0", "OK"); /* back to normal */
+     }
 
      if (voice_modem != &no_modem)
           {
