@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 2.6 1995/03/31 15:58:15 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 2.7 1995/04/04 00:49:51 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -347,10 +347,18 @@ int main _P2((argc, argv), int argc, char ** argv)
         Connect = "DIRECT";		/* for "\I" in issue/prompt */
     else
     {
+	/* initialize data part */
 	if ( mg_init_data( STDIN, c_chat(init_chat) ) == FAIL )
 	{
 	    rmlocks();
 	    exit(1);
+	}
+
+	/* if desired, get some "last call statistics" info */
+	if ( c_isset(statistics_chat) )
+	{
+	    get_statistics( STDIN, c_chat(statistics_chat),
+		 c_isset(statistics_file)? c_string(statistics_file): NULL );
 	}
 
 	/* initialize ``normal'' fax functions */
