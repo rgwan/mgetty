@@ -3,7 +3,7 @@
  *
  * autodetect the modemtype we are connected to.
  *
- * $Id: detect.c,v 1.9 1999/03/16 10:06:18 marcs Exp $
+ * $Id: detect.c,v 1.10 1999/05/15 19:20:03 marcs Exp $
  *
  */
 
@@ -60,7 +60,14 @@ static const struct modem_type_struct modem_database[] =
      {ati, "3361",                 NULL,   &US_Robotics},
      {ati, "3362",                 NULL,   &US_Robotics},
      {ati, "3366",                 NULL,   &US_Robotics},
+#if 0
      {ati, "33600",                NULL,   &Rockwell},
+#else
+     /* This could break Rockwell modems, but is needed for some
+      * Neuhaus variants (Smarty). We keep it visible for some time in case.
+      */
+     {ati, "33600",                "ATI6", NULL},
+#endif
      {ati, "3X WYSIWYF 628DBX",    NULL,   &Rockwell},
      {ati, "56000",                NULL,   &Rockwell},
      {ati, "5601",                 NULL,   &US_Robotics},
