@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.36 1993/11/12 15:20:10 gert Exp $ Copyright (c) Gert Doering */
+/* $Id: mgetty.h,v 1.37 1993/11/19 23:57:40 gert Exp $ Copyright (c) Gert Doering */
 
 /* ANSI vs. non-ANSI support */
 #ifdef __STDC__
@@ -116,7 +116,8 @@ int	get_current_users _PROTO(( void ));
 /********* system prototypes **************/
 extern char * mktemp _PROTO(( char * template ));
 
-#if  !defined(linux) && !defined(SVR4) && !defined(__hpux)
+#if  !defined(linux) && !defined(SVR4) && !defined(__hpux) && \
+     !defined(__386BSD__)
 extern int	getopt _PROTO(( int, char **, char * ));
 #endif
 extern int	optind;
