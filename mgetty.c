@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.40 1993/07/27 19:09:44 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.41 1993/08/04 11:37:45 gert Exp $ (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -81,7 +81,8 @@ char *	init_chat_seq[] = { "", "\\d\\d\\d+++\\d\\d\\d\r\\dATQ0H0", "OK",
  */
 			    MODEM_INIT_STRING, "OK",
 #ifndef NO_FAX
-                            "AT+FAA=1;+FBOR=0;+FCR=1;+FLID=\""FAX_STATION_ID"\"", "OK",
+                            "AT+FAA=1;+FBOR=0;+FCR=1", "OK",
+			    "AT+FLID=\""FAX_STATION_ID"\"", "OK",
 			    "AT+FDCC=1,5,0,2,0,0,0", "OK",
 #endif
                             NULL };
