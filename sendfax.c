@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 3.4 1995/09/23 16:21:34 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 3.5 1995/10/25 18:59:21 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -462,6 +462,12 @@ int main _P2( (argc, argv),
 	    if ( verbose )
 	        printf( "dial failed (BUSY/NO ANSWER)\n" );
 	    exit(4);
+	}
+	else if ( fax_hangup_code == FHUP_NODIAL )
+	{
+	    if ( verbose )
+	        printf( "dial failed (NO DIALTONE)\n" );
+	    exit(5);
 	}
 	else
 	{
