@@ -19,7 +19,7 @@ sendfax \- send group 3 fax files (G3 files) with a class 2 faxmodem
 ...
 .SH DESCRIPTION
 Send the named g3 fax files to the fax machine at "phone number". The g3
-files can be created with pbmtog3(1) or GNU's GhostScript with the
+files can be created with pbm2g3(1) or GNU's GhostScript with the
 "digifax" driver.
 .IX "Group 3 fax"
 .IX fax
@@ -114,7 +114,7 @@ should be able to put a header on the page.
 should be able to read TIFF g3 input files.
 
 .SH "SEE ALSO"
-g3cat(1), pbmtog3(1), mgetty(1), faxspool(1)
+g3cat(1), pbm2g3(1), mgetty(1), faxspool(1)
 .SH AUTHOR
 .I sendfax
 is Copyright (C) 1993 by Gert Doering, <gert@greenie.muc.de>.

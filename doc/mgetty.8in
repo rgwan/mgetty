@@ -151,7 +151,7 @@ configuration is horrible. Dozens of switches, and compile-time stuff. It
 *really* should be fully run-time configurable.
 
 .SH "SEE ALSO"
-g3topbm(1), sendfax(8), getty(8), mgettydefs(4)
+g32pbm(1), sendfax(8), getty(8), mgettydefs(4)
 .SH AUTHOR
 .I mgetty
 is Copyright (C) 1993 by Gert Doering, <gert@greenie.muc.de>.

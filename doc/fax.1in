@@ -28,11 +28,11 @@ fax \- fax sending and receiving with mgetty+sendfax
 .RB [options]
 .RI tty
 
-.B pbmtog3
+.B pbm2g3
 .RB [options]
 .RI [pbm-file]
 
-.B g3topbm
+.B g32pbm
 .RB [options]
 .RI [pbm-file]
 
@@ -83,12 +83,12 @@ details.
 can not be called directly, it must be called by /etc/init.
 
 .sp
-.I pbmtog3 
+.I pbm2g3 
 is used to convert portable bitmaps to G3 fax data (for sendfax). Do not
-use the program with the same name from the pbmplus or netpbm toolkit, it
-is broken.
+use the pbmtog3 program from the pbmplus or netpbm toolkit, it will create
+broken G3 data.
 
-.I g3topbm
+.I g32pbm
 is used to convert received faxes (which are stored in G3 format) to
 portable bitmap format. PBM can be converted to other formats with the
 named pbmplus toolkit.
@@ -154,7 +154,7 @@ Look into the responding man pages.
 
 .SH "SEE ALSO"
 faxspool(1), faxq(1), faxrunq(1), sendfax(8), faxrm(1), mgetty(8),
-pbmtog3(1), g3topbm(1), g3cat(1), faxqueue(5), mgettydefs(4), coverpg(1)
+pbm2g3(1), g32pbm(1), g3cat(1), faxqueue(5), mgettydefs(4), coverpg(1)
 
 mgetty.info
 .SH AUTHOR

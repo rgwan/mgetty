@@ -1,9 +1,9 @@
-.TH pbmtog3 1 "27 Oct 93" "greenie" "mgetty+sendfax manual"
-.IX pbmtog3
+.TH pbm2g3 1 "27 Oct 93" "greenie" "mgetty+sendfax manual"
+.IX pbm2g3
 .SH NAME
-pbmtog3 \- convert portable bitmaps (PBM) into G3 fax files
+pbm2g3 \- convert portable bitmaps (PBM) into G3 fax files
 .SH SYNOPSIS
-.B pbmtog3
+.B pbm2g3
 .RB [ -r ]
 .RB [ -w <page width> ]
 .RB [ -h <blank lines> ]
@@ -15,7 +15,7 @@ Reads a portable bitmap as input, converting it into a G3 fax file on
 stdout. That file is suitable for faxing it with sendfax(8) or queueing it
 for faxing with faxspool(1) (provided that it gets a ``.g3'' suffix).
 
-faxspool(1) uses pbmtog3(1) internally to convert various bitmap formats
+faxspool(1) uses pbm2g3(1) internally to convert various bitmap formats
 into fax g3 format.
 .IX "Group 3 fax"
 .IX fax
@@ -34,17 +34,17 @@ If you set it to 0, the width of the pbm file will be used.
 .TP
 .B -h <blank lines>
 specifies the number of blank lines
-.I pbmtog3
+.I pbm2g3
 should prepend to each page. Default is 0.
 
-To produce identical output as pbmplus' pbmtog3 program (with my patch!)
+To produce identical output as pbmplus' pbm2g3 program (with my patch!)
 does, use ``-h 4''.
 .TP
 .B -r
 reverse the bit order in the bytes.
 .TP
 .B -d
-will one day make pbmtog3 prepend a digifax header to the page.
+will one day make pbm2g3 prepend a digifax header to the page.
 
 .SH REFERENCES
 The standard for Group 3 fax is defined in CCITT Recommendation T.4.
@@ -55,9 +55,9 @@ If a raw pbm file is converted, and the width of the g3 file is smaller
 than the width of the pbm file, the former is rounded up to the next
 multiple of 8.
 .SH "SEE ALSO"
-g3topbm(1), pbm(5), sendfax(8)
+g32pbm(1), pbm(5), sendfax(8)
 .SH AUTHOR
-.I pbmtog3
+.I pbm2g3
 is Copyright (C) 1993 by Gert Doering, <gert@greenie.muc.de>. It is
 similar to the
 .I pbmtog3

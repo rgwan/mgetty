@@ -11,7 +11,7 @@ make.coverpg [options] <pages> <sender-ID> <sender-NAME> <receiver-ID> <receiver
 .IX fax
 .I "make.coverpg "
 is called from faxspool(1) to generate a cover page for the just-processed
-fax. It has to create a proper G3 file (e.g. via pbmtog3(1) or
+fax. It has to create a proper G3 file (e.g. via pbm2g3(1) or
 hp2hig3(1) or ghostscript(1)) and output that on stdout. If the program doesn't
 exist, or can't be executed, the fax simply won't get a coverpage (so, if
 you don't want a fax coverpage, do not install it...)
@@ -41,7 +41,7 @@ program is installed by default, since everyones needs differ too wildly.
 
 Some sample coverpage programs are provided in the mgetty source tree, in
 the samples/ subdirectory (coverpg.pbm shows how to do it with 
-"pbmtext|pbmtog3", coverpg.ps shows how I do it with ghostscript).
+"pbmtext|pbm2g3", coverpg.ps shows how I do it with ghostscript).
 
 In this directory, you can also find two shell scripts (fax and faxmemo)
 that will take advantage of one more esoteric feature of my coverpage
@@ -69,7 +69,7 @@ the program itself
 .fi
 
 .SH "SEE ALSO"
-faxspool(1), pbmtog3(1), ghostscript(1)
+faxspool(1), pbm2g3(1), ghostscript(1)
 
 .SH AUTHORS
 The idea behind

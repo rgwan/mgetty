@@ -1,9 +1,9 @@
-.TH g3topbm 1 "27 Oct 93" "greenie" "mgetty+sendfax manual"
-.IX g3topbm
+.TH g32pbm 1 "27 Oct 93" "greenie" "mgetty+sendfax manual"
+.IX g32pbm
 .SH NAME
-g3topbm \- convert a Group 3 fax file into a portable bitmap
+g32pbm \- convert a Group 3 fax file into a portable bitmap
 .SH SYNOPSIS
-.B g3topbm
+.B g32pbm
 .RB [ -reversebits ]
 .RB [ -stretch ]
 .RI [ g3file ]
@@ -17,7 +17,7 @@ Produces a portable bitmap as output.
 .TP
 .B -r
 Tells
-.I g3topbm
+.I g32pbm
 to interpret bits least-significant
 first, instead of the default most-significant first ("-reversebits").
 Some fax modems do it one way and others do it the other way. If you get
@@ -50,7 +50,7 @@ Print a short command syntax.
 .SH REFERENCES
 The standard for Group 3 fax is defined in CCITT Recommendation T.4.
 .SH BUGS
-.I g3topbm
+.I g32pbm
 could be smarter about the image width, at the moment, the maximum width
 is 1728 pixels, and the maximum height is 4300 lines. Everything bigger is
 just cut off.
@@ -61,9 +61,9 @@ Scaling is too slow.
 
 Turning is too slow (and not yet fully implemented either).
 .SH "SEE ALSO"
-pbmtog3(1), pbm(5), g3cat(1), sendfax(8), mgetty(1)
+pbm2g3(1), pbm(5), g3cat(1), sendfax(8), mgetty(1)
 .SH AUTHOR
-.I g3topbm
+.I g32pbm
 is Copyright (C) 1993 by Gert Doering, <gert@greenie.muc.de>. It is
 similar to the
 .I g3topbm
