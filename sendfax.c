@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.51 1994/01/14 19:58:48 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.52 1994/01/29 23:02:54 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* sendfax.c
  *
@@ -345,13 +345,17 @@ int	tries;
     }
     if ( verbose ) printf( "OK.\n" );
 
+#ifndef FAX_SEND_IGNORE_CARRIER
     /* by now, the modem should have raised DCD, so remove CLOCAL flag */
     tio_carrier( &fax_tio, TRUE );
+
 #ifdef sun
     /* now we can request hardware flow control since we have carrier */
     tio_set_flow_control( fd, &fax_tio, (FAXSEND_FLOW) & (FLOW_HARD|FLOW_XON_OUT) );
-#endif /* sun */
+#endif	/* sun */
     tio_set( fd, &fax_tio );
+
+#endif	/* !FAX_SEND_IGNORE_CARRIER */
 
     /* process all files to send / abort, if Modem sent +FHNG result */
 
@@ -410,22 +414,28 @@ int	tries;
 	{
 	    case 1: tries = 0; break;		/* page good */
 						/* page bad - r. req. */
-	    case 2: fprintf( stderr, "ERROR: page bad - retrain requested\n" );
-		    tries ++;
-		    if ( tries >= FAX_SEND_MAX_TRIES )
-		    {
-			fprintf( stderr, "ERROR: too many retries - aborting send\n" );
-			fax_hangup_code = -1;
-			fax_hangup = 1;
-			argidx--;
-		    }
-		    else
-		    {
-			if ( verbose )
-			    printf( "sending page again (retry %d)\n", tries );
-			continue;	/* don't go to next page */
-		    }
-		    break;
+	    case 2:
+#if FAX_SEND_MAX_TRIES <= 0
+	      fprintf( stderr, "WARNING: page bad (+FTPS:2), ignoring\n" );
+	      lprintf( L_WARN, "WARNING: +FPTS:2 ignored\n" );
+#else	      
+	      fprintf( stderr, "ERROR: page bad - retrain requested\n" );
+	      tries ++;	
+	      if ( tries >= FAX_SEND_MAX_TRIES )
+	      {
+		  fprintf( stderr, "ERROR: too many retries - aborting send\n" );
+		  fax_hangup_code = -1;
+		  fax_hangup = 1;
+		  argidx--;
+	      }
+	      else
+	      {
+		  if ( verbose )
+		  printf( "sending page again (retry %d)\n", tries );
+		  continue;	/* don't go to next page */
+	      }
+#endif	/* FAX_SEND_MAX_TRIES > 0 */
+	      break;
 	    case 3: fprintf( stderr, "WARNING: page good, but retrain requested\n" );
 		    break;
 	    case 4:
