@@ -1,3 +1,8 @@
+Sun Dec  2 14:23:34 CET 2001   Gert Doering (gert@greenie.muc.de)
+
+	* login.c: MAX_LOGIN_ARGS handling reworked (claimed N, but allowed 
+	  only N-1), plus warning message improved.  <Juergen.Kosel@gmx.de>
+
 Sun Oct 21 16:40:51 MEST 2001  Gert Doering (gert@greenie.muc.de)
 
 	* release 1.1.27
