@@ -1,4 +1,4 @@
-#ident "$Id: mg_m_init.c,v 3.7 1996/07/09 16:54:29 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_m_init.c,v 3.8 1996/09/15 23:16:08 gert Exp $ Copyright (c) Gert Doering"
 
 /* mg_m_init.c - part of mgetty+sendfax
  *
@@ -331,6 +331,7 @@ int mg_get_device _P5( (devname, blocking_open,
 		        unsigned int portspeed)
 {
     boolean first_try = TRUE;
+    int rs_lines;
 
     /* most likely, HUPCL was set and so DTR is low right now. Give
      * modem some time to settle down.
@@ -344,6 +345,13 @@ try_again:
 	lprintf( L_FATAL, "open device %s failed", devname );
 	return ERROR;
     }
+
+    /* catch "standard question #17" (DCD drop -> fd invalid -> I/O error) */
+    rs_lines = tio_get_rs232_lines(STDIN);
+#ifdef linux
+    if ( rs_lines != -1 && ( rs_lines & TIO_F_DCD ) )
+	lprintf( L_MESG, "WARNING: DCD line still active, check modem settings" );
+#endif
 
     /* initialize device (hangup, raw, speed). May fail! */
     if ( mg_init_device( STDIN, toggle_dtr, toggle_dtr_waittime,
