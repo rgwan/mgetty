@@ -1,4 +1,4 @@
-#ident "$Id: pbm2g3.c,v 1.4 1994/08/08 12:38:18 gert Exp $ Copyright (C) 1994 Gert Doering"
+#ident "$Id: pbm2g3.c,v 1.5 1994/10/04 10:06:56 gert Exp $ Copyright (C) 1994 Gert Doering"
 
 /* pbmtog3
  *
@@ -407,7 +407,7 @@ int main _P2( (argc, argv), int argc, char ** argv )
 	  case 'w': g3_page_width = atoi( optarg ); break;
 	  case 'd': digifax_header = TRUE; break;
 	  case 'a': byte_align = TRUE; break;
-	  case 'r': init_byte_tab( TRUE, out_byte_tab );
+	  case 'r': init_byte_tab( TRUE, out_byte_tab ); break;
 	    
 	  default: exit_usage( argv[0] );
 	}
