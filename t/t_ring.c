@@ -1,4 +1,4 @@
-/* $Id: t_ring.c,v 1.1 2005/03/15 13:22:08 gert Exp $
+/* $Id: t_ring.c,v 1.2 2005/03/16 11:06:44 gert Exp $
  *
  * test program for mgetty "ring.c"
  *
@@ -8,6 +8,11 @@
  *   <input string> <# rings> <dist-ring#> <caller id>
  *
  * $Log: t_ring.c,v $
+ * Revision 1.2  2005/03/16 11:06:44  gert
+ * add "msnlist" for testing destination number -> distinctive RING mapping
+ * add more special cases for CallerID delivery
+ * modify ELSA;from;to test case for destination MSN matching
+ *
  * Revision 1.1  2005/03/15 13:22:08  gert
  * regression test for "ring.c" module (feed fake character strings, see whether
  * ring count, dist.ring number/MSN, caller ID, etc. match)
@@ -22,6 +27,8 @@
 # include <stdarg.h>
 #endif
 
+char *msnlist[] = {"9999", "35655023", "35655024", "35655025", "4023", NULL};
+
 struct t_ring_tests { char * input;
 		      int ring_count;
 		      int dist_ring;
@@ -33,13 +40,29 @@ struct t_ring_tests { char * input;
  {"RING\nNMBR = 0555\nRING\n", 3, -1, "0555" },	/* Rockwell */
  {"RING/0666\n", 1, 0, "" },			/* i4l - RING/to */
  {"RING;707070\n",      1, 0, "707070" },	/* ELSA - RING;from */
- {"RING;717171;7979\n", 1, 0, "717171" },	/* ELSA - RING;from;to */
+ {"RING;717171;999999\n", 1, 1, "717171" },	/* ELSA - RING;from;to */
  {"RING: 3 DN9 8888\n", 1, 9, "8888" },		/* Zoom */
  {"RING 090909\n", 1, 0, "090909" },		/* USR Type B */
  {"DROF=0\nDRON=11\nRING\nDROF=40\nDRON=20\nRING\n", 2, 3, "" },
 						/* V.253 dist ring */
  {"\020R\n\020R\n", 2, 0, "" },			/* voice mode RING */
+
+	/* test MSN matching (right-to-left), ZyXEL format */
+ {"RING\nFM:1234 TO:35655023\n",       2, 2, "1234" },	/* exact match */
+ {"RING\n FM:4321  TO: 08935655025\n", 2, 4, "4321" },  /* dest# longer */
+ {"RING\nFM:5678 TO:356550\n",         2, 0, "5678" },	/* incomplete (l.) */
+ {"RING\nFM:8765 TO:023\n",            2, 0, "8765" },	/* incomplete (r.) */
+
+	/* various ways to report caller ID */
+ {"RING/01234023\nCALLER NUMBER: 556677\nRING\n", 2, 5, "556677" }, /* i4l */
+
+	/* special things: i4l fmt 2 - not matched vs. msnlist yet (TODO?) */
+ {"RING\nCALLED NUMBER: 35655024\n",   1, -1, "" },	/* i4l fmt 2 */
+
+	/* end */
  {NULL, 0, 0, NULL }};
+
+/* TODO: add more tests for other caller ID formats (->cnd.c) */
 
 static char * read_p;
 
@@ -83,7 +106,7 @@ int main( int argc, char ** argv )
 	rings = 0;
 	dist_ring = -1;
 	CallerId = "";
-	while( wait_for_ring( STDIN, NULL, 10, NULL /* actions */,
+	while( wait_for_ring( STDIN, msnlist, 10, NULL /* actions */,
 			       &what_action, &dist_ring ) == SUCCESS )
 	{
 	    rings ++;
