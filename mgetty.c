@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 3.11 1996/03/06 12:23:29 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 3.12 1996/04/05 19:11:58 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -893,11 +893,17 @@ Ring_got_action:
     
     clean_line( STDIN, 3);
 
-    /* honor carrier now: terminate if modem hangs up prematurely
-     */
     tio_get( STDIN, &tio );
-    tio_carrier( &tio, TRUE );
-    tio_set( STDIN, &tio );
+    /* honor carrier now: terminate if modem hangs up prematurely
+     * (can be bypassed if modem / serial port broken)
+     */
+    if ( !c_bool( ignore_carrier ) )
+    {
+	tio_carrier( &tio, TRUE );
+	tio_set( STDIN, &tio );
+    }
+    else
+        lprintf( L_MESG, "warning: carrier signal is ignored" );
     
     /* make utmp and wtmp entry (otherwise login won't work)
      */

@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.c,v 3.2 1995/11/27 19:00:10 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_mg.c,v 3.3 1996/04/05 19:11:56 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_mg.c
  *
@@ -85,6 +85,7 @@ struct conf_data_mgetty c = {
 	{ "ringback", FALSE, CT_BOOL, C_PRESET },
 	{ "ringback-time", 30, CT_INT, C_PRESET },
 
+	{ "ignore-carrier", FALSE, CT_BOOL, C_PRESET },
 	{ "issue-file", (int)"/etc/issue", CT_STRING, C_PRESET },
 	{ "prompt-waittime", 500, CT_INT, C_PRESET },
 	{ "login-prompt", (int) LOGIN_PROMPT, CT_STRING, C_PRESET },
@@ -93,6 +94,7 @@ struct conf_data_mgetty c = {
 #else
 	{ "login-time", 0, CT_INT, C_EMPTY },
 #endif
+
 	{ "fax-id", (int)FAX_STATION_ID, CT_STRING, C_PRESET },
 	{ "fax-server-file", 0, CT_STRING, C_EMPTY },
 	{ "diskspace", MINFREESPACE, CT_INT, C_PRESET },

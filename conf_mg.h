@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.h,v 3.1 1995/08/30 12:40:25 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: conf_mg.h,v 3.2 1996/04/05 19:11:57 gert Exp $ Copyright (c) 1994 Gert Doering"
 
 /* all (dynamic) mgetty configuration is contained in this structure.
  * It is initialized and loaded in conf_mg.c and accessed from mgetty.c
@@ -32,6 +32,7 @@ extern struct conf_data_mgetty {
 	ringback,				/* ringback enabled */
 	ringback_time,				/* ringback time */
 
+	ignore_carrier,				/* do not clear CLOCAL */
 	issue_file,				/* /etc/issue file */
 	prompt_waittime,			/* ms wait before prompting */
 	login_prompt,
