@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.4 1997/11/01 13:42:50 gert Exp $ (c) 1993-1997 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.5 1997/11/28 21:25:40 gert Exp $ (c) 1993-1997 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -2974,6 +2974,14 @@ option to set it according to your needs.
 
 If you're experiencing problems with hanging @code{/bin/login} processes,
 @xref{login-hang}.
+
+Recently, I have received a number of bug reports concerning operation in
+systems using one or more @strong{Cyclades serial boards}.  There is some
+incompatibility between the standard Cyclades driver and the GNU CC
+2.7.2, which can result in system lockups.  Upgrade to the very latest
+Linux driver, which can be found on ftp.cyclades.com.  I have received
+reports that the driver version 2.1 works fine (85 modems on one system,
+connected to 3 Cyclom Ye boards!).
 
 @node ISC, SVR4, Linux, Systems
 @subsection ISC
