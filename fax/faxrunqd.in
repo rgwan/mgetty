@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-# RCS: $Id: faxrunqd.in,v 1.3 1997/10/09 10:12:12 gd Exp $
+# RCS: $Id: faxrunqd.in,v 1.4 1997/10/09 10:53:15 gd Exp $
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.4  1997/10/09 10:53:15  gd
+# use '-r' flag to sendfax
+#
 # Revision 1.3  1997/10/09 10:12:12  gd
 # check with kill(0=>$pid) whether process holding faxrunqd.pid is alive
 #
@@ -242,7 +245,7 @@ while( 1 )
 	    next unless -d $f;
 	    print LOG "--> new job!\7\n" if $opt_d;
 
-	    $queue{$f} = { 'status' => 'unknown', 'flags' => [],
+	    $queue{$f} = { 'status' => 'unknown', 'flags' => ['-r'],
 			   'tries_c' => 0, 'tries' => 0, 'priority' => 5 };
 
 	    if ( $opt_v > 1 )
