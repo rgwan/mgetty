@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 1.12 1993/10/05 02:44:45 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 1.13 1993/10/05 12:41:10 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there).
@@ -79,6 +79,9 @@ tools/g3cat: tools/g3cat.c
 
 tools/g3topbm: tools/g3topbm.c
 	cd tools ; $(CC) $(CFLAGS) -o g3topbm g3topbm.c $(LDFLAGS)
+
+mgetty.info: mgetty.texi
+	makeinfo mgetty.texi
 
 # README PROBLEMS
 DISTRIB=README.1st mgetty.texi THANKS TODO Makefile ChangeLog policy.h-dist \
