@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 4.5 1997/03/28 13:56:34 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 4.6 1997/03/31 20:27:04 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -900,6 +900,14 @@ Ring_got_action:
 	    faxrec( FAX_SPOOL_IN, c_int(switchbd),
 		    uid, gid, c_int(fax_mode),
 		    c_isset(notify_mail)? c_string(notify_mail): NULL );
+
+    /* some modems require a manual hangup, with a pause before it. Notably
+       this is the creatix fax/voice modem, which is quite widespread,
+       unfortunately... */
+
+	    delay(1500);
+	    mdm_command( "ATH0", STDIN );
+
 	    rmlocks();
 	    exit( 0 );
 	    break;

@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 4.3 1997/02/24 22:28:27 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 4.4 1997/03/31 20:27:03 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -150,13 +150,6 @@ extern  char * Device;
 "fax dev=%s, pid=%d, caller=%s, name='%s', id='%s', +FHNG=%03d, pages=%d, time=%02d:%02d:%02d\n",
 	Device, getpid(), CallerId, CallName, fax_remote_id, fax_hangup_code, pagenum,
 	call_done / 3600, (call_done / 60) % 60, call_done % 60);
-
-    /* some modems require a manual hangup, with a pause before it. Notably
-       this is the creatix fax/voice modem, which is quite widespread,
-       unfortunately... */
-
-    delay(1500);
-    mdm_command( "ATH0", STDIN );
 }
 
 extern	char *	fax_file_names;
