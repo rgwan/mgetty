@@ -1329,3 +1329,70 @@ remarks:		Great work with fax transmission, not tested
 
 
 -----------------------------------------------------------------------
+Date: Tue, 25 Aug 1998 21:22:57 +0300 (EEST)
+From: Olli Arnberg <oar@leka.hut.fi>
+To: gert@greenie.muc.de 
+Subject: Thanks for 'modem-quirks' in mgetty-1.1.14 & XLink settings
+
+Modem brand/model:	XLink V.34 + V.FC (black enclosure)
+at+fmfr?
+CIS
+
+OK
+at+fmdl?
+MC-2814E
+VERSION 0.20.6
+05-04-03
+
+OK
+VERSION 0.20.6
+05-04-03
+
+OK
+ati0
+288
+
+OK
+ati3
+MC-2814E
+VERSION 0.20.6
+05-04-03
+
+OK
+ati4
+OK
+at+fdcc=?
+(0,1),(0-5),(0-3),(0-2),(0),(0),(0),(0-7)
+
+OK
+at&v
+ACTIVE PROFILE:
+B0 E1 L2 M1 N1 Q0 T V1 X4 Y0 &C1 &D2 &G0 &L0 &M0 &P0 &R0 &S0 &T4 &X0 &Y0
+%A000 %B28800 %C1 %D0 %E2 %N0 \A3 \C0 \G0 \J0 \K5 \M0 \N3 \Q3 \T000 \V2 \X0
+S00:000 S02:043 S03:013 S04:010 S05:008 S06:002 S07:045 S08:002 S09:006 S10:014
+S11:095 S12:050 S13:000 S18:000 S25:005 S26:001 S29:000 S30:000 S91:012
+
+tested on:		Debian/GNU/Linux 2.0.0 (hamm), kernel 2.0.27
+mgetty version:		1.1.14 (Debian 1.1.14-2)
+working:		mgetty, sendfax
+remarks:		sendfax and mgetty (only fax tested) work
+contributor:            oar@cc.hut.fi (Olli Arnberg)
+
+/etc/mgetty/mgetty.config:
+# ----- port specific section -----
+# Our XLink Rockwell modem, needs "switchbd 19200" to receive faxes
+# properly (otherwise it will fail with "timeout").
+port ttyXX
+  speed 38400
+  switchbd 19200
+
+/etc/mgetty/sendfax.config:
+# ----- port specific section -----
+# Our XLink:
+port ttyXX
+  modem-type cls2
+  ignore-carrier
+## NO_XON before sending next fax page although Class 2 modem:
+  modem-quirks 8
+-----------------------------------------------------------------------
+
