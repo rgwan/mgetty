@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.59 2003/12/16 11:39:46 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.60 2004/07/24 18:53:47 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -393,7 +393,7 @@ DISTRIB=README.1st THANKS TODO BUGS FTP Recommend \
 	config.h config.c conf_sf.h conf_sf.c conf_mg.h conf_mg.c \
 	cnd.c getdisk.c mksed.c utmp.c mg_utmp.h syslibs.h goodies.c \
 	g3/Makefile g3/g3cat.c g3/g32pbm.c g3/g3.c g3/g3.h \
-	g3/pbm2g3.c g3/run_tbl.c
+	g3/pbm2g3.c g3/run_tbl.c g3/sff2g3.c g3/test-ref.g3
 
 noident: policy.h
 	    for file in `find . -type f -name "*.[ch]" -print` ; do \
@@ -696,6 +696,12 @@ vgetty-install: sedscript
 	LIBS="$(LIBS)" vgetty-install
 
 install-vgetty: vgetty-install
+
+## test suite
+test: bin-all
+	for D in g3 ; do \
+	    ( cd $$D ; $(MAKE) test ); \
+	done
 
 ## misc
 
