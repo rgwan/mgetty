@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 2.8 1995/05/17 10:27:29 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 2.9 1995/06/05 11:44:07 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -161,7 +161,8 @@ char *	fax_strerror _PROTO(( int fax_hangup_code ));
 
 /* initialization stuff: mg_m_init.c */
 int	mg_init_data  _PROTO(( int fd, char * chat_seq[] ));
-int	mg_init_fax   _PROTO(( int fd, char * mclass, char * fax_id ));
+int	mg_init_fax   _PROTO(( int fd, char * mclass,
+			       char * fax_id, boolean fax_only ));
 int 	mg_init_voice _PROTO(( int fd ));
 void	faxpoll_server_init _PROTO(( int fd, char * fax_server_file ));
 int	mg_open_device _PROTO(( char * devname, boolean blocking ));
