@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.23 1998/06/17 13:39:17 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.24 1998/06/19 20:29:54 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -683,11 +683,12 @@ decide this.  The program name is configured with the @code{cnd-program}
 statement in @file{mgetty.config}.  Its command line arguments are:
 
 @example
-  <program> <tty> <CallerID> <dist-ring-nr.> <Called Nr.>
+  <program> <tty> <CallerID> <Name> <dist-ring-nr.> <Called Nr.>
 @end example
 
 @code{CallerID} is the number of the caller, if known, or @samp{none}, if
-not.  @code{dist-ring-nr.} is the RING type, if you have ``distinctive
+not.  @code{Name} is the name of the caller, or empty ('') if unknown. 
+@code{dist-ring-nr.} is the RING type, if you have ``distinctive
 RING'' on your telephone line and your modem supports this, or ``0'' 
 for an unidentified call.  @code{Called Nr.} is the number that was called
 (this is only meaningful if you have ISDN, and your modem signals the
@@ -697,7 +698,7 @@ For example, a call from 12345 to 56789, using ISDN, coming in on ttyS3,
 could lead to a program called like this:
 
 @example
-  check.cnd ttyS3 12345 0 56789
+  check.cnd ttyS3 12345 '' 0 56789
 @end example
 
 The program return value decides whether the call should be accepted.
