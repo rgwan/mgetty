@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.23 1993/11/05 23:09:01 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 1.24 1993/11/07 01:50:27 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -25,9 +25,9 @@
 #endif
 
 #include "mgetty.h"
+#include "tio.h"
 #include "policy.h"
 #include "fax_lib.h"
-#include "tio.h"
 
 /* all stuff in here was programmed according to a description of the
  * class 2 standard as implemented in the SupraFAX Faxmodem
@@ -59,11 +59,7 @@ TIO tio;
 
     tio_mode_raw( &tio );		/* no input or output post-*/
 					/* processing, no signals */
-#ifdef FAX_RECEIVE_USE_IXOFF
-    tio_set_flow_control( &tio, FLOW_HARD | FLOW_XON_IN );
-#else
-    tio_set_flow_control( &tio, FLOW_HARD );
-#endif
+    tio_set_flow_control( &tio, (FAXREC_FLOW) & (FLOW_HARD|FLOW_XON_IN) );
     tio_set( STDIN, &tio );
 
     /* read: +FTSI:, +FDCS, OK */
