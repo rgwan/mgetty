@@ -14,14 +14,18 @@ all the documentation and the FAQ nicely formatted there.
 
 My license policy boils down to this:
 --------------------------------------------------------------------------
-The mgetty+sendfax package is Copyright (c) 1993 Gert Doering. You are
-permitted to do nearly anything you want with this program - redistribute
-it, use parts of the code in your own programs, ..., but you have to give
-me credit - do not remove my name.
+Mgetty+Sendfax was written by Gert Doering, with many contributions
+from the Internet.
 
-If you make money by selling mgetty, I want a share.
+Vgetty was written by Klaus Weidner, Marc Eberhard, Marc Schaefer and
+also many contributions from the Internet community.
 
-For more details, see the chapter "copying conditions" in mgetty.texi
+The whole package, starting with version 1.1.22, is distributed under 
+the GNU GPL license, found in the accompanying file 'COPYING'.
+
+If you want to redistribute mgetty under a different license (like in
+"selling it to your customers"), contact me, and we will work something
+out.
 --------------------------------------------------------------------------
 
 
