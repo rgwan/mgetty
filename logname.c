@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 1.36 1994/04/20 15:32:15 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 1.37 1994/04/24 11:36:39 gert Exp $ Copyright (c) Gert Doering"
 ;
 #include <stdio.h>
 #ifndef _NOSTDLIB_H
@@ -353,6 +353,11 @@ int getlogname _P4( (prompt, tio, buf, maxsize),
 		exit(0);
 	    }
 	    if ( i < maxsize) buf[i++] = ch;
+	    if ( i >= 15 &&
+		 strncmp( buf, "\377**EMSI_INQC816", 15 ) == 0 )
+	    {
+		 ch = buf[i++] = '\r';
+	    }
 	}
 	
 	/* log EMSI packets that are not EMSI_INQ (e.g. EMSI_DAT) */
