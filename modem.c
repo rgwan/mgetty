@@ -1,4 +1,4 @@
-#ident "$Id: modem.c,v 4.2 1997/01/15 19:51:22 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: modem.c,v 4.3 1997/05/04 13:09:17 gert Exp $ Copyright (c) Gert Doering"
 
 /* modem.c
  *
@@ -105,7 +105,7 @@ int mdm_command _P2( (send, fd), char * send, int fd )
     /* wait for OK or ERROR, *without* side effects (as fax_wait_for
      * would have)
      */
-    signal( SIGALRM, fwf_sig_alarm ); alarm(20); fwf_timeout = FALSE;
+    signal( SIGALRM, fwf_sig_alarm ); alarm(10); fwf_timeout = FALSE;
 
     do
     {
@@ -155,3 +155,48 @@ static int  frb_len = 0;
     return 1;
 }
 
+/* for modem identify (and maybe other nice purposes, who knows)
+ * this function is handy:
+ * - send some AT command, wait for OK/ERROR or 10 seconds timeout
+ * - return a pointer to a static buffer holding the "nth" non-empty
+ *   answer line from the modem (for multi-line responses), or the 
+ *   last line if n==-1
+ */
+char * mdm_get_idstring _P3( (send, n, fd), char * send, int n, int fd )
+{
+    char * l; int i;
+    static char rbuf[80];
+
+    if ( mdm_send( send, fd ) == ERROR ) return NULL;
+
+    /* wait for OK or ERROR, *without* side effects (as fax_wait_for
+     * would have)
+     */
+    signal( SIGALRM, fwf_sig_alarm ); alarm(10); fwf_timeout = FALSE;
+
+    i=0;
+    rbuf[0] = '\0';
+
+    while(1)
+    {
+	l = mdm_get_line( fd );
+
+	if ( l == NULL ) break;				/* error */
+	if ( strcmp( l, send ) == 0 ) continue;		/* command echo */
+
+        if ( strcmp( l, "OK" ) == 0 ||			/* final string */
+	     strcmp( l, "ERROR" ) == 0 ) break;
+
+        i++;
+	lprintf( L_NOISE, "mdm_gis: string %d: '%s'", i, l );
+
+	if ( i==-1 || i==n )		/* copy string */
+	    { strncpy( rbuf, l, sizeof(rbuf)-1); rbuf[sizeof(rbuf)-1]='\0'; }
+    }
+
+    alarm(0); signal( SIGALRM, SIG_DFL );
+    
+    if ( l == NULL ) return NULL;	/* error */
+
+    return rbuf;
+}

@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.8 1997/05/03 19:56:29 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.9 1997/05/04 13:09:18 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -494,130 +494,138 @@ int rc;
 int mdm_identify _P1( (fd), int fd )
 {
     char * l, *p;
-    int mid;
+    char * mis = NULL;		/* more verbose modem ID string */
 
     modem_type=Mt_unknown;
+
+    /* try ATI first, ATI<n> later to sub-divide results
+     */
+    l = mdm_get_idstring( "ATI", 1, fd );
     
-    signal( SIGALRM, fwf_sig_alarm ); alarm(20); fwf_timeout = FALSE;
-
-    if ( mdm_send( "ATI", fd ) == ERROR ) return ERROR;
-
-    while(1)
+    if ( l == NULL ) 
     {
-	l = mdm_get_line( fd );
-	if ( l == NULL ) break;
-
-	lprintf( L_NOISE, "mdm_identify: string '%s'", l );
-	if ( strcmp( l, "OK" ) == 0 || strcmp( l, "ERROR" ) == 0 ) break;
-	if ( strcmp( l, "ATI" ) == 0 ) continue;
-
-	/* all-numerical? */
-	p = l;
-	while( isdigit(*p) || isspace(*p) ) p++;
-
-	if ( *p == '\0' )		/* all-numeric */
-	{
-	    mid = atoi(l);
-
-	    switch(mid)
-	    {
-	      case 1496:
-		lprintf( L_MESG, "ZyXEL 1496 detected" ); 
-		modem_type=Mt_class2_0;
-		break;
-	      case 2864:
-		lprintf( L_MESG, "ZyXEL 2864(D) detected" );
-		modem_type=Mt_class2_0;
-		break;
-	      case 28641:
-	      case 28642:
-		lprintf( L_MESG, "ZyXEL 2864I(D) detected" );
-		modem_type=Mt_class2_0;
-		break;
-	      case 1281:
-	      case 1291:
-	      case 1292:
-	      case 1293:
-		lprintf( L_MESG, "ZyXEL Omni.NET detected" );
-		modem_type=Mt_data;		/* has no fax mode */
-		break;
-	      case 6401:
-		lprintf( L_MESG, "USR I-Modem detected" );
-		modem_type=Mt_class2_0;
-		break;
-	      case 2886:
-	      case 3366:
-		lprintf( L_MESG, "USR Courier V.34(+) detected" );
-		modem_type=Mt_class2_0;
-		break;
-	      case 1444:
-	      case 1445:
-		lprintf( L_MESG, "USR Courier/Sportster v32bis detected" );
-		modem_type=Mt_data;
-		break;
-	      case 62:	/* sure? */
-	      case 962:
-		lprintf( L_MESG, "Dr. Neuhaus Smarty detected (?)" );
-		modem_type=Mt_class2;	/* now do ATI9! */
-		break;
-	      case 184:	/* sure? */
-		lprintf( L_MESG, "Telebit FastBlazer detected" );
-		modem_type=Mt_data;
-		break;
-	      case 149: /* sure? */
-		lprintf( L_MESG, "Intel 14.4E/400e detected (??)" );
-		modem_type=Mt_unknown;
-		break;
-	      case 247: /* sure? - use ATI2 for further distinction */
-		lprintf( L_MESG, "Multitech MT1432BA/MT1932ZDX/MT2834ZDX detected" );
-		modem_type=Mt_class2_0;
-		break;
-	      case 251: /* sure? */
-		lprintf( L_MESG, "Discovery 2400 AM detected" );
-		modem_type=Mt_data;
-		break;
-	      case 641: /* sure? */
-		lprintf( L_MESG, "ELSA MicroLink ISDN/TLpro detected" );
-		modem_type=Mt_data;
-		break;
-	      case 249:
-	      case 14400: /* further distinction necessary (ATI4)! */
-	      case 28800:
-	      case 33600:
-		lprintf( L_MESG, "Generic Rockwell modem (%d)", mid );
-		modem_type=Mt_class2;
-		break;
-	      default:
-		lprintf( L_MESG, "unknown numerical modem id %d", mid );
-		break;
-	    }
-	}
-	else		/* non-numeric modem id string */
-	{
-	    lprintf( L_MESG, "non-numeric ID string: '%s'", l );
-
-	    /* "Elink 310 Version 1.25" */
-	    if ( strncmp( l, "Elink", 5 ) == 0 )
-	    {
-		lprintf( L_MESG, "Elink detected" );
-		modem_type=Mt_data;
-	    }
-	    else if ( strncmp( l, "Linux ISDN", 10 ) == 0 )
-	    {
-		lprintf( L_MESG, "ISDN4Linux detected" );
-		modem_type=Mt_data;
-	    }
-	}
-    }
-
-    alarm(0); signal( SIGALRM, SIG_DFL );
-    
-    if ( l == NULL || strcmp( l, "ERROR" ) == 0 )
-    {
-	lputs( L_MESG, " -> ERROR" );
+	lprintf( L_WARN, "mdm_identify: can't get modem ID" );
 	return ERROR;
     }
-    lputs( L_MESG, " -> OK" );
-	
+
+    lprintf( L_NOISE, "mdm_identify: string '%s'", l );
+
+    /* all-numerical? */
+    p = l;
+    while( isdigit(*p) || isspace(*p) ) p++;
+
+    if ( *p == '\0' )		/* all-numeric */
+    {
+	int mid = atoi(l);	/* numerical modem ID... */
+
+	switch(mid)
+	{
+	  case 1496:
+	    lprintf( L_MESG, "ZyXEL 1496 detected" ); 
+	    modem_type=Mt_class2_0;
+	    mis = mdm_get_idstring( "ATI1", 2, fd );
+	    break;
+	  case 2864:
+	    lprintf( L_MESG, "ZyXEL 2864(D) detected" );
+	    modem_type=Mt_class2_0;
+	    mis = mdm_get_idstring( "ATI1", 2, fd );
+	    break;
+	  case 28641:
+	  case 28642:
+	    lprintf( L_MESG, "ZyXEL 2864I(D) detected" );
+	    modem_type=Mt_class2_0;
+	    mis = mdm_get_idstring( "ATI1", 2, fd );
+	    break;
+	  case 1281:
+	  case 1291:
+	  case 1292:
+	  case 1293:
+	    lprintf( L_MESG, "ZyXEL Omni.NET detected" );
+	    modem_type=Mt_data;				/* has no fax mode */
+	    mis = mdm_get_idstring( "ATI1", 1, fd );
+	    break;
+	  case 6401:
+	    lprintf( L_MESG, "USR I-Modem detected" );
+	    modem_type=Mt_class2_0;
+	    mis = mdm_get_idstring( "ATI3", 1, fd );
+	    break;
+	  case 2886:
+	  case 3366:
+	    lprintf( L_MESG, "USR Courier V.34(+) detected" );
+	    modem_type=Mt_class2_0;
+	    mis = mdm_get_idstring( "ATI3", 1, fd );
+	    break;
+	  case 1444:
+	  case 1445:
+	    lprintf( L_MESG, "USR Courier/Sportster v32bis detected" );
+	    modem_type=Mt_data;
+	    break;
+	  case 62:	/* sure? */
+	  case 962:
+	    lprintf( L_MESG, "Dr. Neuhaus Smarty detected (?)" );
+	    modem_type=Mt_class2;	/* now do ATI9! */
+	    mis = mdm_get_idstring( "ATI9", 1, fd );
+	    break;
+	  case 184:	/* sure? */
+	    lprintf( L_MESG, "Telebit FastBlazer detected" );
+	    modem_type=Mt_data;
+	    break;
+	  case 149: /* sure? */
+	    lprintf( L_MESG, "Intel 14.4E/400e detected (??)" );
+	    modem_type=Mt_unknown;
+	    break;
+	  case 247: /* use ATI2 for further distinction */
+	    lprintf( L_MESG, "Multitech MT1432BA/MT1932ZDX/MT2834ZDX detected" );
+	    modem_type=Mt_class2_0;
+	    mis = mdm_get_idstring( "ATI2", 1, fd );
+	    break;
+	  case 251: /* sure? */
+	    lprintf( L_MESG, "Discovery 2400 AM detected" );
+	    modem_type=Mt_data;
+	    break;
+	  case 641: /* sure? */
+	    lprintf( L_MESG, "ELSA MicroLink ISDN/TLpro detected" );
+	    modem_type=Mt_data;
+	    mis = mdm_get_idstring( "ATI3", 1, fd );
+	    break;
+	  case 282:	/* ATI6/ATI3 for model/firmware info */
+	    lprintf( L_MESG, "ELSA MicroLink 28.8 TQV detected" );
+	    modem_type=Mt_class2_0;
+	    mis = mdm_get_idstring( "ATI3", 1, fd );
+	    break;
+	  case 249:
+	  case 14400: /* further distinction necessary (ATI4)! */
+	  case 28800:
+	  case 33600:
+	    lprintf( L_MESG, "Generic Rockwell modem (%d)", mid );
+	    modem_type=Mt_class2;
+	    mis = mdm_get_idstring( "ATI3", 1, fd );
+	    mis = mdm_get_idstring( "ATI4", 1, fd );
+	    break;
+	  default:
+	    lprintf( L_MESG, "unknown numerical modem id %d", mid );
+	    break;
+	}
+    }
+    else		/* non-numeric modem id string */
+    {
+	lprintf( L_MESG, "non-numeric ID string: '%s'", l );
+
+	/* "Elink 310 Version 1.25" */
+	if ( strncmp( l, "Elink", 5 ) == 0 )
+	{
+	    lprintf( L_MESG, "Elink detected" );
+	    modem_type=Mt_data;
+	}
+	else if ( strncmp( l, "Linux ISDN", 10 ) == 0 )
+	{
+	    lprintf( L_MESG, "ISDN4Linux detected" );
+	    modem_type=Mt_data;
+	}
+    }
+
+    if ( mis != NULL ) 
+	lprintf( L_MESG, "additional info: '%s'", mis );
+
     return NOERROR;
 }
