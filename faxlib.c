@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.28 1997/12/05 23:48:50 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.29 1997/12/09 12:31:14 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -655,6 +655,7 @@ int mdm_identify _P1( (fd), int fd )
 	  case 14400: /* further distinction necessary (ATI3,4,6)! */
 	  case 28800:
 	  case 33600:
+	  case 56000:
 	    lprintf( L_MESG, "Generic Rockwell modem (%d)", mid );
 	    modem_type=Mt_class2;
 	    modem_quirks |= MQ_NO_LQC;
