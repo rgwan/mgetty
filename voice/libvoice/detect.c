@@ -3,7 +3,7 @@
  *
  * autodetect the modemtype we are connected to.
  *
- * $Id: detect.c,v 1.38 2002/11/19 15:37:23 gert Exp $
+ * $Id: detect.c,v 1.39 2002/11/25 13:05:06 gert Exp $
  *
  */
 
@@ -167,6 +167,8 @@ int voice_detect_modemtype(void)
            * First of all, let's see if a modem is connected and answering
            * and also initialize the modem echo command correctly.
            */
+	  if (cvd.command_delay.d.i != 0)
+		 delay(cvd.command_delay.d.i);
 
           if (cvd.enable_command_echo.d.i)
                {
