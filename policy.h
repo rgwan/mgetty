@@ -1,7 +1,14 @@
-#ident "$Id: policy.h,v 1.1 1993/03/06 19:38:31 gert Exp $ (c) Gert Doering"
+#ident "$Id: policy.h,v 1.2 1993/03/16 09:46:38 gert Exp $ (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
+
+/* main configuration file
+ * definitions in this file can override the defaults compiled into the
+ * program
+ * NOT USED YET.
+ */
+#define CONFIG_FILE "/u/gert/mgetty/config"
 
 /* user id of the "uucp" user. The tty device will be owned by this user,
  * so parallel dial-out of uucico will be possible
@@ -33,6 +40,14 @@
  */
 #define LOCK "/usr/spool/uucp/LCK..%s"
 
+/* Set this to "1" if your system uses binary lock files (i.e., the pid
+ * as four byte integer in host byte order written to the lock file)
+ * If it is "0", HDB locking will be used - the PID will be written as
+ * 10 byte ascii, with a trailing newline
+ */
+
+#define LOCKS_BINARY 0
+
 /* the main fax spool directory
  */
 #define FAX_SPOOL	"/usr/spool/fax"
@@ -51,7 +66,7 @@
  * but some do only allow digits and blank
  * AT+FLID=? should tell you what's allowed and what not.
  */
-#define FAX_STATION_ID	" +49-89-3243228 Gert"
+#define FAX_STATION_ID	" 49 89 3243228 "
 
 /* the baudrate used for *sending* faxes. ZyXELs should handle 38400,
  * SUPRAs (and other rockwell-based faxmodems) do not
