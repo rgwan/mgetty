@@ -1,4 +1,4 @@
-.TH faxqueue 5 "18 Oct 94" "greenie" "mgetty+sendfax manual"
+.TH faxqueue 5 "23 Nov 02" "greenie" "mgetty+sendfax manual"
 .IX faxqueue
 .SH NAME
 faxqueue \- sendfax fax spool queue control files
@@ -87,28 +87,46 @@ will return it in the sucess/failure mail. If you use
 faxspool -s <subj>,
 it will put this string on the cover page and in the JOB file.
 
+.SH PERMISSIONS
+Starting with mgetty 1.1.29, the fax spool directory @FAX_SPOOL_OUT@
+is no longer world-writeable.  It should be owned by the 
+user '@FAX_OUT_USER@' and be mode 755.  The faxrunq(1) and faxrunqd(1) 
+programs should also be run under that user ID if possible.
+
+If the fax spool directory is world- or group-writeable, there are a
+number of denial of service or file overwrite / file access attacks 
+possible that it's very hard to guard against. So don't do this!
+
+If the fax spool directory has the proper permissions, there are currently
+no known attacks against faxrunq/faxrunqd, even if they run as "root", but
+it's always more safe to run as untrusted user.
+
 
 .SH PROCESSING
 
 While a given JOB file is processed by faxrunq(1), it's locked against
 sending it multiple times by temporarily renaming it to
 .I JOB.locked,
-thus it may happen that a faxq(1) command doesn't show this job.
+thus it may happen that a faxq(1) command doesn't show this job. (
+.I faxrunqd(8)
+is a bit smarter and does the locking by creating a hard link).
 
 When a job is successfully sent, it's not deleted but the JOB file is
 renamed to
 .I JOB.done.
 Because of this, you can still see old jobs with "faxq -o". You should
 regularly clean up the outgoing fax directory, removing old faxes. If you
-don't want this behaviour, look into the faxrunq shell script, and remove
-the comment signs before the code to delete the job files.
+don't want this behaviour, edit the faxrunq(1) config file and enable
+the option
+.I delete-sent-jobs yes
 
 When a job cannot be sent after several tries (excluding normal
 difficulties like the called number being busy or the modem being in
 use), the JOB file is renamed to
 .I JOB.suspended.
-To re-queue this job, rename the JOB file back and remove all the
-"Status" lines in it.
+To re-queue this job, call
+.I faxq -r
+-- this renames the JOB file back.
 
 .SH "SEE ALSO"
-faxrunq(1), faxspool(1), faxrm(1), faxq(1)
+faxrunq(1), faxspool(1), faxrm(1), faxq(1), faxrunqd(8)
