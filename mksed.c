@@ -1,9 +1,13 @@
-#ident "$Id: mksed.c,v 3.3 1996/04/11 21:33:07 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mksed.c,v 3.4 1996/11/08 00:09:51 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 
 #include "mgetty.h"
 #include "policy.h"
+
+#ifndef MAIL_TO
+# define MAIL_TO "root"
+#endif
 
 int main _P0( void )
 {
