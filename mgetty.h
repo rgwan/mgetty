@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.h,v 1.62 1994/08/08 12:34:33 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 1.63 1994/08/10 12:53:05 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -114,6 +114,7 @@ int	clean_line _PROTO(( int filedesc, int tenths ));
 /* goodies.c */
 char * get_basename _PROTO(( char * ));
 char * mydup _PROTO(( char *s ));
+char * get_ps_args _PROTO(( int pid ));
 
 /* io.c */
 boolean	check_for_input _PROTO (( int fd ));
@@ -121,8 +122,9 @@ boolean wait_for_input  _PROTO (( int fd, int seconds ));
 void	delay _PROTO(( int waittime ));
 
 /* locks.c */
+#define	NO_LOCK	0	/* returned by checklock() if no lock found */
 int		makelock _PROTO((char * device));
-boolean		checklock _PROTO((char * device));
+int		checklock _PROTO((char * device));
 RETSIGTYPE	rmlocks _PROTO (());
   
 /* fax stuff */
