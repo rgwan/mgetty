@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.51 1993/10/18 20:19:46 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.52 1993/10/19 22:24:33 gert Exp $ Copyright (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -10,7 +10,6 @@
 #endif
 #include <string.h>
 #include <unistd.h>
-#include <termio.h>
 #include <pwd.h>
 #include <sys/types.h>
 #include <sys/times.h>
@@ -25,19 +24,7 @@
 
 #include "mgetty.h"
 #include "policy.h"
-
-#ifdef USE_SELECT
-# if defined (linux) || defined (sun) || defined (__hpux)
-#  include <sys/time.h>
-# else
-#  include <sys/select.h>
-# endif
-#else
-# if USE_POLL
-#  include <stropts.h>
-#  include <poll.h>
-# endif
-#endif	/* USE_SELECT */
+#include "tio.h"
 
 struct	speedtab {
 	ushort	cbaud;		/* baud rate */
@@ -128,7 +115,7 @@ void		exit_usage();
 time_t		time _PROTO(( long * tloc ));
 
 /* logname.c */
-int getlogname _PROTO(( char * prompt, struct termio * termio,
+int getlogname _PROTO(( char * prompt, TIO * termio,
 		char * buf, int maxsize ));
 
 char	* Device;			/* device to use */
@@ -145,7 +132,7 @@ int	toggle_dtr_waittime = 500;	/* milliseconds while DTR is low */
 int	prompt_waittime = 500;		/* milliseconds between CONNECT and */
 					/* login: -prompt */
 
-struct termio *gettermio _PROTO((char * tag, boolean first, char **prompt));
+TIO *gettermio _PROTO((char * tag, boolean first, char **prompt));
 
 boolean	direct_line = FALSE;
 
@@ -161,22 +148,13 @@ int main _P2((argc, argv), int argc, char ** argv)
 	register int c, fd;
 	char devname[MAXLINE+1];
 	char buf[MAXLINE+1];
-	struct termio termio;
+	TIO	tio;
 	FILE *fp;
 	int Nusers;
 	int i;
 	int cspeed;
 
 	action_t	what_action;
-
-#ifdef USE_SELECT
-	fd_set	readfds;
-#else
-# ifdef USE_POLL
-	struct	pollfd fds;
-# endif
-#endif
-	int	slct;
 
 #ifdef _3B1_
 	typedef ushort uid_t;
@@ -358,28 +336,25 @@ int main _P2((argc, argv), int argc, char ** argv)
 	if (toggle_dtr)
 	{
 		lprintf( L_MESG, "lowering DTR to reset Modem" );
-		(void) ioctl(STDIN, TCGETA, &termio);
-		termio.c_cflag &= ~CBAUD;	/* keep all but CBAUD bits */
-		termio.c_cflag |= B0;		/* set speed == 0 */
-		(void) ioctl(STDIN, TCSETAF, &termio);
-		delay(toggle_dtr_waittime);
+		tio_toggle_dtr( STDIN, toggle_dtr_waittime );
 	}
 
-	termio.c_iflag = ICRNL | IXANY;	/*!!!!!! ICRNL??? */
-	termio.c_oflag = OPOST | ONLCR;
-
-        /* we want to set hardware (RTS+CTS) flow control here.
-	 * see the mass of #ifdefs in mgetty.h what is defined
-	 * (and change it according to your OS)
-	 */
-	termio.c_cflag = portspeed | CS8 | CREAD | HUPCL | CLOCAL |
-			 HARDWARE_HANDSHAKE;
-
-	termio.c_lflag = 0;		/* echo off, signals off! */
-	termio.c_line = 0;
-	termio.c_cc[VMIN] = 1;
-	termio.c_cc[VTIME]= 0;
-	ioctl (STDIN, TCSETAF, &termio);
+	/* initialize port */
+	
+	if ( tio_get( STDIN, &tio ) == ERROR )
+	{
+	    lprintf( L_FATAL, "cannot get TIO" );
+	    exit(20);
+	}
+	tio_mode_sane( &tio, TRUE );
+	tio_set_speed( &tio, portspeed );
+	tio_mode_raw( &tio );
+	tio_set_flow_control( &tio, FLOW_HARD );
+	if ( tio_set( STDIN, &tio ) == ERROR )
+	{
+	    lprintf( L_FATAL, "cannot set TIO" );
+	    exit(20);
+	}
 
 	/* drain input - make sure there are no leftover "NO CARRIER"s
 	 * or "ERROR"s lying around from some previous dial-out
@@ -423,46 +398,22 @@ int main _P2((argc, argv), int argc, char ** argv)
 	make_utmp_wtmp( Device, FALSE );
 #endif
 
-	/* wait for incoming characters.
-	   I use select() instead of a blocking read(), since select()
-	   does *not* eat up characters and thus prevents collisions
-	   with dial-outs
-	   On Systems without select(S), poll(S) can be used. */
-
+	/* wait for incoming characters (using select() or poll() to
+	 * prevent eating away from processes dialing out)
+	 */
 	lprintf( L_MESG, "waiting..." );
 
-#ifdef USE_SELECT
-
-	FD_ZERO( &readfds );
-	FD_SET( STDIN, &readfds );
-	slct = select( 1, &readfds, NULL, NULL, NULL );
-	lprintf( L_NOISE, "select returned %d", slct );
-
-#else	/* use poll */
-# ifdef USE_POLL
-
-	fds.fd = 1;
-	fds.events = POLLIN;
-	fds.revents= 0;
-	slct = poll( &fds, 1, -1 );
-	lprintf( L_NOISE, "poll returned %d", slct );
-# else
-	{ char t;
-	    read(1, &t, 1);
-	    lprintf(L_NOISE, "read returned: "); lputc(L_NOISE, c );
-	}
-# endif
-#endif
-
+	wait_for_input( STDIN );
+	
 	/* check for LOCK files, if there are none, grab line and lock it
 	*/
-
+    
 	lprintf( L_NOISE, "checking lockfiles, locking the line" );
 
 	if ( makelock(Device) == FAIL) {
 	    lprintf( L_NOISE, "lock file exists!" );
 
-	    /* close stdin -> other processes can read port */
+	    /* close all file descriptors -> other processes can read port */
 	    close(0);
 	    close(1);
 	    close(2);
@@ -547,16 +498,15 @@ int main _P2((argc, argv), int argc, char ** argv)
 		/* lprintf(L_NOISE, "Nusers=%d", Nusers); */
 
 		/* set ttystate for login prompt (no mapping CR->NL)*/
-		(void) ioctl(STDIN, TCGETA, &termio);
 
-		termio = *gettermio(GettyID, TRUE, &login_prompt);
+		tio = *gettermio(GettyID, TRUE, &login_prompt);
 
 		lprintf(L_NOISE, "i: %06o, o: %06o, c: %06o, l: %06o, p: %s",
-		    termio.c_iflag, termio.c_oflag, termio.c_cflag, termio.c_lflag,
+		    tio.c_iflag, tio.c_oflag, tio.c_cflag, tio.c_lflag,
 		    login_prompt);
 
-		(void) ioctl(STDIN, TCSETAW, &termio);
-
+		tio_set( STDIN, &tio );
+		
 		fputc('\r', stdout);	/* just in case */
 
 		/* display ISSUE, if present
@@ -582,26 +532,8 @@ int main _P2((argc, argv), int argc, char ** argv)
 		/* end of line: cr+nl -> IGNCR, cr -> ICRNL, NL -> 0 */
 		/* and: cr -> ONLCR, nl -> 0 for c_oflag */
 
-                if ( getlogname( login_prompt, &termio,
+                if ( getlogname( login_prompt, &tio,
 				 buf, sizeof(buf) ) == -1 ) continue;
-
-		/* set sane state for login */
-		termio.c_lflag = ECHOK | ECHOE | ECHO | ISIG | ICANON;
-
-		termio.c_cc[VEOF] = 0x04;	/* ^D */
-#ifndef linux
-		termio.c_cc[VEOL] = 0;		/* ^J */
-#endif
-
-#if !defined(VSWTCH) && defined(VSWTC)
-#define VSWTCH VSWTC
-#endif
-
-#ifdef VSWTCH
-		termio.c_cc[VSWTCH] = 0;
-#endif
-
-		(void) ioctl(STDIN, TCSETAW, &termio);
 
 		lprintf( L_MESG, "device=%s, pid=%d, calling 'login %s'...\n", Device, getpid(), buf );
 
@@ -629,10 +561,10 @@ void exit_usage _P1((code), int code )
     exit(code);
 }
 
-struct termio *
+TIO *
 gettermio _P3 ((id, first, prompt), char *id, boolean first, char **prompt) {
 
-    static struct termio termio;
+    static TIO termio;
     char *rp;
 
 #ifdef USE_GETTYDEFS
@@ -641,12 +573,8 @@ gettermio _P3 ((id, first, prompt), char *id, boolean first, char **prompt) {
 #endif
 
     /* default setting */
-    termio.c_iflag = BRKINT | IGNPAR | IXON | IXANY;
-    termio.c_oflag = OPOST | TAB3;
-    termio.c_cflag = CS8 | portspeed | CREAD | HUPCL |
-		     HARDWARE_HANDSHAKE;
-    termio.c_lflag = ECHOK | ECHOE | ECHO | ISIG | ICANON;
-    termio.c_line = 0;
+    tio_get( STDIN, &termio );		/* init flow ctrl, C_CC flags */
+    tio_mode_sane( &termio, FALSE );
     rp = LOGIN_PROMPT;
 
 #ifdef USE_GETTYDEFS
