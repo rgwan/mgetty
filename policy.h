@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.54 1994/07/11 19:16:02 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.55 1994/07/21 19:42:32 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -149,6 +149,13 @@
 
 
 /* misc */
+
+/* how to find mgetty..
+ *
+ * If you define this, mgetty will create a file with the given name and
+ * put its process ID in it. A "%s" will be replaced by the device id.
+ */
+#define MGETTY_PID_FILE	"/etc/mg-pid.%d"
 
 /* Path for the lock files. A %s will be replaced with the device name,
  * e.g. tty2a -> /usr/spool/uucp/LCK..tty2a
@@ -353,6 +360,14 @@
  */
 /* #define FAX_RECEIVE_USE_B19200 */
 
+/* some genius at US Robotics obviously decided that the above method
+ * of switching baud rates is broken, and came up with something new
+ * --- broken as well (why bother switching rates at all???) --- this
+ * and other USR Courier Fax follies will be handled by enabling the
+ * following define (if you have an USR faxmodem that does *not* need
+ * this, please send me a mail!)
+ */
+/* #define FAX_USRobotics */
 
 /* name of the logfile for outgoing faxes
  */
