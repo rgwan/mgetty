@@ -1,4 +1,4 @@
-#ident "$Id: faxsend.c,v 3.5 1996/12/15 16:45:43 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: faxsend.c,v 3.6 1997/01/06 23:24:29 gert Exp $ Copyright (c) 1994 Gert Doering"
 
 /* faxsend.c
  *
@@ -173,7 +173,7 @@ int fax_send_page _P5( (g3_file, bytes_sent, tio, ppm, fd),
 	int w_refresh = 0;
 	boolean first = TRUE;
 
-	alarm( 30 );		/* timeout if we get stuck in flow control */
+	alarm( 40 );		/* timeout if we get stuck in flow control */
 
 	while ( ( r = read( g3fd, buf, 64 ) ) > 0 )
 	{
