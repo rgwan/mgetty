@@ -1,4 +1,4 @@
-#ident "$Id: g3cat.c,v 1.5 1993/11/29 11:49:02 gert Exp $ (c) Gert Doering"
+#ident "$Id: g3cat.c,v 1.6 1994/02/12 13:59:01 gert Exp $ (c) Gert Doering"
 ;
 /* g3cat.c - concatenate multiple G3-Documents
  *
@@ -20,7 +20,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-#include "mgetty.h"
+#include "ugly.h"
 #include "g3.h"
 
 int byte_align = 0;

@@ -1,4 +1,4 @@
-#ident "$Id: g32pbm.c,v 1.10 1993/11/29 11:48:50 gert Exp $ (c) Gert Doering"
+#ident "$Id: g32pbm.c,v 1.11 1994/02/12 13:59:11 gert Exp $ (c) Gert Doering"
 ;
 #include <stdio.h>
 #include <unistd.h>
@@ -6,7 +6,7 @@
 #include <string.h>
 #include <fcntl.h>
 
-#include "mgetty.h"
+#include "ugly.h"
 
 #include "g3.h"
 
