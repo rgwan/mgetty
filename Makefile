@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.50 2002/11/17 18:50:18 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.51 2002/11/17 18:58:18 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -634,9 +634,9 @@ install.bin: mgetty sendfax newslock \
 	test -d $(FAX_SPOOL_IN) || \
 		( mkdir $(FAX_SPOOL_IN) ; chmod 755 $(FAX_SPOOL_IN) )
 	test -d $(FAX_SPOOL_OUT) || \
-		( mkdir $(FAX_SPOOL_OUT) ; chmod 1777 $(FAX_SPOOL_OUT) )
-	test -d $(FAX_SPOOL_OUT)/locks || \
-		( mkdir $(FAX_SPOOL_OUT)/locks ; chmod 777 $(FAX_SPOOL_OUT)/locks )
+		( mkdir $(FAX_SPOOL_OUT) ; \
+		  chown $(FAX_OUT_USER) $(FAX_SPOOL_OUT) ; \
+		  chmod 755 $(FAX_SPOOL_OUT) )
 #
 # g3 tool programs
 #
