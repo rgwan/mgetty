@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.107 1994/05/19 00:00:15 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.108 1994/05/19 09:00:56 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -168,7 +168,8 @@ int main _P2((argc, argv), int argc, char ** argv)
     
     char * login_prompt = NULL;		/* login prompt */
 
-    char * fax_server_file = NULL;		
+    char * fax_server_file = NULL;		/* -S <file> */
+    char * fax_station_id = FAX_STATION_ID;	/* -I <id> */
 
 #ifdef VOICE
     boolean	use_voice_mode = TRUE;
@@ -198,7 +199,7 @@ int main _P2((argc, argv), int argc, char ** argv)
     /* process the command line
      */
 
-    while ((c = getopt(argc, argv, "c:x:s:rp:n:i:DC:S:m:")) != EOF)
+    while ((c = getopt(argc, argv, "c:x:s:rp:n:i:DC:S:m:I:")) != EOF)
     {
 	switch (c) {
 	  case 'c':			/* check */
@@ -255,6 +256,8 @@ int main _P2((argc, argv), int argc, char ** argv)
 	  case 'S':
 	    fax_server_file = optarg;
 	    break;
+	  case 'I':
+	    fax_station_id = optarg; break;
 	  case '?':
 	    exit_usage(2);
 	    break;
@@ -368,7 +371,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 	}
 	/* initialize ``normal'' fax functions */
 	if ( ( ! data_only ) &&
-	     mg_init_fax( STDIN, modem_class, FAX_STATION_ID ) == SUCCESS )
+	     mg_init_fax( STDIN, modem_class, fax_station_id ) == SUCCESS )
 	{
 	    /* initialize fax polling server (only if faxmodem) */
 	    if ( fax_server_file )
