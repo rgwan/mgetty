@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.25 1993/11/12 15:46:39 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: faxrec.c,v 1.26 1993/11/13 19:10:29 gert Exp $ Copyright (c) Gert Doering";
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -100,8 +100,9 @@ RETSIGTYPE fax_sig_alarm( )
     fax_timeout = TRUE;
 }
 
-char *	fax_file_names = NULL;
-int	fax_fn_size = 0;
+static	char *	fax_file_names = NULL;
+static	int	fax_fn_size = 0;
+static	time_t	faxrec_s_time = 0;
 
 int fax_get_page_data _P3((fd, pagenum, directory), int fd,
 			  int pagenum, char * directory )
@@ -192,23 +193,21 @@ int i,j;
 	}
 	ByteCount++;
 
-	if ( c == DLE )
+	if ( !WasDLE )
 	{
-	    if ( WasDLE )
-	    {
-		fputc( c, fax_fp );	/* DLE DLE -> DLE */
-		WasDLE = 0;
-	    }
-	    else
-		WasDLE = 1;
+	    if ( c == DLE ) WasDLE = 1;
+	               else fputc( c, fax_fp );
 	}
-	else
+	else	/* WasDLE */
 	{
-	    fputc( c, fax_fp );
-	    if ( c != ETX ) WasDLE = 0;
+	    if ( c == DLE ) fputc( c, fax_fp );		/* DLE DLE -> DLE */
+	    else
+	    if ( c == ETX ) break;			/* DLE ETX -> end */
+	    
+	    WasDLE = 0;
 	}
     }
-    while ( ( c != ETX || ! WasDLE ) && !fax_timeout );
+    while ( !fax_timeout );
 
     alarm(0);
 
@@ -247,6 +246,10 @@ static const char start_rcv = DC2;
 
     fax_file_names = malloc( fax_fn_size = MAXPATH * 4 );
     if ( fax_file_names != NULL ) fax_file_names[0] = 0;
+
+    /* remember start time (for fax_notify_mail)
+     */
+    faxrec_s_time = time(NULL);
 
     /* send command for start page receive
      * read: +FCFR:, [+FTSI, +FDCS:], CONNECT
@@ -300,6 +303,7 @@ FILE  * pipe_fp;
 char  * file_name, * p;
 char	buf[256];
 int	r;
+time_t	ti;
 
     lprintf( L_NOISE, "fax_notify_mail: sending mail to: %s", MAIL_TO );
 
@@ -313,7 +317,8 @@ int	r;
     }
 
 #ifdef NEED_MAIL_HEADERS
-    fprintf( pipe_fp, "Subject: incoming fax\n" );
+    fprintf( pipe_fp, "Subject: fax from %s\n", fax_remote_id[0] ?
+	               fax_remote_id: "(anonymous sender)" );
     fprintf( pipe_fp, "To: %s\n", MAIL_TO );
     fprintf( pipe_fp, "From: root (Fax Getty)\n" );
     fprintf( pipe_fp, "\n" );
@@ -326,14 +331,19 @@ int	r;
     fprintf( pipe_fp, "    Resolution : %s\n",
 		      fax_par_d.vr == 0? "normal" :"fine");
     fprintf( pipe_fp, "    Bit Rate   : %d\n", ( fax_par_d.br+1 ) * 2400 );
-    fprintf( pipe_fp, "    Page Width : %d\n", fax_par_d.wd );
+    fprintf( pipe_fp, "    Page Width : %d pixels\n", fax_par_d.wd == 0? 1728:
+	              ( fax_par_d.wd == 1 ? 2048: 2432 ) );
     fprintf( pipe_fp, "    Page Length: %s\n",
 		      fax_par_d.ln == 2? "unlimited":
 			   fax_par_d.ln == 1? "B4 (364 mm)" : "A4 (297 mm)" );
-    fprintf( pipe_fp, "    Compression: %d\n", fax_par_d.df );
-    fprintf( pipe_fp, "    Error Corr : %d (none)\n", fax_par_d.ec );
-    fprintf( pipe_fp, "    BFT        : %d (disabled)\n", fax_par_d.bf );
+    fprintf( pipe_fp, "    Compression: %d (%s)\n", fax_par_d.df, 
+	              fax_par_d.df == 0 ? "1d mod Huffman":
+	              (fax_par_d.df == 1 ? "2d mod READ": "2d uncompressed") );
+    fprintf( pipe_fp, "    Error Corr.: %s\n", fax_par_d.ec? "ECM":"none" );
     fprintf( pipe_fp, "    Scan Time  : %d\n\n", fax_par_d.st );
+
+    ti = time(NULL) - faxrec_s_time;
+    fprintf( pipe_fp, "Reception Time : %d:%d\n\n", (int) ti/60, (int) ti%60 );
 
     if ( fax_hangup_code != 0 )
     {
