@@ -1,4 +1,4 @@
-#ident "$Id: faxhng.c,v 3.2 1995/10/25 18:46:52 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: faxhng.c,v 3.3 1996/05/26 11:30:05 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* faxhng.c - mainly table, translate +FHNG:xxx codes to english text
  */
@@ -6,6 +6,7 @@
 #include "mgetty.h"
 
 struct t_fhng_table { int i ; char * string; } fhng_table[] = {
+	{      -6, "TIMEOUT waiting for modem response (int.)" },
         {      -5, "Unexpected hangup / read() error / write() error (int.)" },
 	{      -4, "Unexpected 'ERROR' or 'NO CARRIER' response (int.)" },
 	{      -3, "Modem responded 'NO DIALTONE' (int.)" },

@@ -1,4 +1,4 @@
-#ident "$Id: fax_lib.h,v 3.4 1996/01/03 21:33:02 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: fax_lib.h,v 3.5 1996/05/26 11:30:05 gert Exp $ Copyright (c) Gert Doering"
 
 
 /* fax_lib.h
@@ -69,6 +69,7 @@ extern	int	fhs_lc, fhs_blc, fhs_cblc, fhs_lbc;	/* details */
 #define FHUP_NODIAL	-3
 #define FHUP_ERROR	-4
 #define FHUP_UNKNOWN	-5
+#define FHUP_TIMEOUT    -6
 
 #define ETX	003
 #define DLE	020
