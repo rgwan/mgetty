@@ -1,4 +1,4 @@
-#ident "$Id: gettydefs.c,v 1.3 1993/11/29 11:51:08 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "$Id: gettydefs.c,v 1.4 1994/01/02 20:02:14 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 ;
 /* gettydefs.c
  *
@@ -21,8 +21,7 @@
 
 extern boolean verbose;
 
-static char *
-mydup _P1 ((s), register char *s)
+char * mydup _P1 ((s), register char *s)
 {
     register char *p = (char *) malloc(strlen(s) + 1);
     if (!p) {
