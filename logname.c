@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 2.3 1995/03/14 00:29:30 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 2.4 1995/07/05 15:05:01 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include "syslibs.h"
@@ -225,7 +225,7 @@ int getlogname _P5( (prompt, tio, buf, maxsize, do_timeout),
 		    char * prompt, TIO * tio, char * buf,
 		    int maxsize, boolean do_timeout )
 {
-    int	 i;
+    int	 i, r;
     char ch;
     TIO  tio_save;
     char *  final_prompt;
@@ -269,26 +269,32 @@ int getlogname _P5( (prompt, tio, buf, maxsize, do_timeout),
     lprintf( L_NOISE, "getlogname, read:" );
     do
     {
-	if ( read( STDIN, &ch, 1 ) != 1 )
+	if ( ( r = read( STDIN, &ch, 1 ) ) != 1 )
 	{
-	     if ( errno != EINTR ) exit(0);		/* HUP/^D/timeout */
+	    if ( r == 0 )				/* EOF/HUP/^D */
+	    {
+		lprintf( L_MESG, "getlogname: got EOF, exiting" );
+		exit(0);
+	    }
+	    
+	    if ( errno != EINTR ) exit(0);		/* HUP/^D/timeout */
 
 #ifdef MAX_LOGIN_TIME
-	     if ( timeouts <= 1 )			/* first timeout */
-	     {
-		 printf( "\r\n\07\r\nHey! Please login now. You have one minute left\r\n" );
-		 alarm(60);
-	     }
-	     else					/* second */
-	     {
-		 printf( "\r\n\07\r\nYour login time (%d minutes) ran out. Goodbye.\r\n",
-			MAX_LOGIN_TIME / 60 );
-	     
-		 sleep(3);		/* give message time to xmit */
-		 exit(0);		/* bye bye... */
-	     }
+	    if ( timeouts <= 1 )			/* first timeout */
+	    {
+		printf( "\r\n\07\r\nHey! Please login now. You have one minute left\r\n" );
+		alarm(60);
+	    }
+	    else					/* second */
+	    {
+		printf( "\r\n\07\r\nYour login time (%d minutes) ran out. Goodbye.\r\n",
+		       MAX_LOGIN_TIME / 60 );
+		
+		sleep(3);		/* give message time to xmit */
+		exit(0);		/* bye bye... */
+	    }
 #endif
-	     ch = CKILL;		/* timeout #1 -> clear input */
+	    ch = CKILL;			/* timeout #1 -> clear input */
 	}
 
 	lputc( L_NOISE, ch );				/* logging */
