@@ -68,12 +68,17 @@
      many mails.
 
  48) Ensure that libvoice/signal.c has no problems with no-reentrant
-     functions (see BUGS there).
+     functions (see BUGS there). Also see Mails/VGETTY about a way
+     to fix the Solaris problem (but try first the current version).
 
- 49) Investigate the speed conversion problems.
+ 49) Investigate the pvfspeed conversion problems.
 
  50) Omni 56k ZyXEL problems with AT+VDD=6,6. Investigate with IS-101 standard.
      (DTMF preferences).
- 
 
-$Id: ToDo,v 1.7 1999/09/16 10:00:33 marcs Exp $
+ 51) Make vgetty less dependant on the modem echo: if the echo comes
+     in and it corresponds to the command (ie starts with AT, and
+     is right -> ignore that line). If none, ok. Else complain loudly.
+     Make it an option for echo:  ON, OFF, ON-TOLERANT-ACCEPTS-NO.
+
+$Id: ToDo,v 1.8 1999/11/13 11:12:35 marcs Exp $

@@ -1,3 +1,34 @@
+Sat Nov 13 10:31:37 MET 1999   Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* Released mgetty-1.1.21-to-current-13111999
+	
+	Those two changes absolutely need wide testing:
+	
+	* Removed the enter_fax_mode() function from libvoice/mode.c,
+	and moved the enter_data_fax_mode() from vgetty/answer.c to
+	libvoice/mode.c. This ensures that there is only one way to
+	answer and go data or fax from voice mode. Before, we had two,
+	each one with its own set of bugs. This changes the way answering
+	is done, also the going to fax/data when a voice shell fails,
+	but also GET_FAX and SEND_FAX voice shell commands.
+
+	* Patched the resulting libvoice/mode.c with the recently posted
+	patch (from Dmitri Pogosyan), which should fix the Rockwell
+	problem when going from voice to fax/data. The idea being that
+	you use auto-detection ONLY if answer_mode is ANSWER_DATA|ANSWER_FAX.
+	Else, if it's only one of the two, you switch off modem
+	autodetection (+FAA=0) so that +FCLASS state is used.
+
+	Those changes are presumably minor:
+
+	* Patched libvoice/detect.c to support the Italian version of the
+	Rockwell modem (Rockwell compatible modem 33600), submitted
+	by <Free Ekanayaka> ekafree@freemail.it.
+
+	* Added setup information for PowerBit modems to
+	contrib/PowerBit_Olsson, submitted by Håkan Olsson,
+ 	<suntron@algonet.se>
+	
 Sat Oct  9 15:01:32 MEST 1999  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 
 	* Added contrib/Raoul_Boenisch about some Dr. Neuhaus speed-related
