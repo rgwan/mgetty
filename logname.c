@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 3.8 1996/02/24 22:01:45 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 3.9 1996/03/03 16:27:16 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include "syslibs.h"
@@ -62,11 +62,18 @@ char * ln_escape_prompt _P1( (ep), char * ep )
 	    if ( sizeof( SYSTEM ) + i > MAX_PROMPT_LENGTH ) break;
 	    i += strappnd( &p[i], SYSTEM );
 #else
+# ifdef NEXTSGTTY
+	    char nodename[256];
+	    gethostname( nodename, sizeof(nodename) );
+	    if ( strlen( nodename ) +1 + i > MAX_PROMPT_LENGTH ) break;
+	    i += strappnd( &p[i], nodename );
+# else
 	    struct utsname un;
 	    uname( &un );
 	    if ( strlen( un.nodename ) +1 +i > MAX_PROMPT_LENGTH ) break;
 	    i += strappnd( &p[i], un.nodename );
-#endif
+# endif
+#endif		/* !SYSTEM */
 	}
 	else if ( *ep != '\\' ) p[i++] = *ep;
 	else		/* *ep == '\\' */
