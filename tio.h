@@ -1,4 +1,4 @@
-#ident "$Id: tio.h,v 4.2 1997/08/17 15:33:31 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.h,v 4.3 1998/01/20 10:40:49 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 #ifndef __TIO_H__
 #define __TIO_H__
@@ -221,6 +221,7 @@ int  tio_break       _PROTO(( int fd ));
 int  tio_drain_output _PROTO(( int fd ));
 
 int  tio_get_rs232_lines _PROTO(( int fd ));		/* get line status */
+int  tio_set_rs232_lines _PROTO(( int fd, int do_dtr, int do_rts ));
 
 #ifdef USE_GETTYDEFS
 typedef struct {

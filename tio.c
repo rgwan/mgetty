@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 4.2 1997/08/17 15:33:32 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 4.3 1998/01/20 10:40:46 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* tio.c
  *
@@ -961,4 +961,43 @@ int tio_get_rs232_lines _P1( (fd), int fd)
         if ( flags & TIO_F_RI  ) lputs( L_NOISE, " RI" );
     }
     return flags;
+}
+
+/* tio_set_rs232_lines()
+ *
+ * set the status of the DTR and RTS RS232 status lines
+ * (coded by the TIO_F_* flags. On systems that have the BSD TIOCM_*
+ * flags, we use them, on others we may have to do some other tricks)
+ *
+ * "-1" can mean "error" or "not supported on this system" (e.g. SCO).
+ */
+
+int tio_set_rs232_lines _P3( (fd, do_dtr, do_rts), 
+				int fd, int do_dtr, int do_rts )
+{
+    int mctl, rc=0;
+
+#ifdef TIO_F_SYSTEM_DEFS
+    mctl = TIOCM_DTR;
+    if ( do_dtr != -1 &&
+         ioctl( fd, do_dtr? TIOCMBIS: TIOCMBIC, &mctl ) < 0 )
+    {
+	lprintf( L_ERROR, "tio_set_rs232_lines: %s DTR failed",
+			do_dtr? "set": "clear" );
+	rc=-1;
+    }
+
+    mctl = TIOCM_RTS;
+    if ( do_rts != -1 &&
+         ioctl( fd, do_rts? TIOCMBIS: TIOCMBIC, &mctl ) < 0 )
+    {
+	lprintf( L_ERROR, "tio_set_rs232_lines: %s RTS failed",
+			do_rts? "set": "clear" );
+	rc=-1;
+    }
+
+#else
+    lprintf( L_WARN, "setting of RS232 lines not supported" );
+#endif
+    return rc;
 }
