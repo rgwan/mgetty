@@ -5,7 +5,7 @@
  * exactly one unnested call to voice_desimpersonify() for each
  * voice_impersonify() because of the static umask below.
  *
- * $Id: access.c,v 1.2 1999/07/04 07:15:52 marcs Exp $
+ * $Id: access.c,v 1.3 2003/04/23 08:49:16 gert Exp $
  *
  */
 
@@ -32,14 +32,14 @@ int voice_impersonify(void) {
 	    &gid);
 
    if (setegid(gid)) {
-      lprintf(L_WARN, "%s: cannot set effective GID to %d",
-	      program_name, gid);
+      lprintf(L_WARN, "%s: cannot set effective GID to %d: %s",
+	      program_name, gid, strerror(errno));
       return 0;
    }
 
    if (seteuid(uid)) {
-      lprintf(L_WARN, "%s: cannot set effective UID to %d",
-	      program_name, uid);
+      lprintf(L_WARN, "%s: cannot set effective UID to %d: %s",
+	      program_name, uid, strerror(errno));
       return 0;
    }
 
@@ -52,14 +52,14 @@ int voice_impersonify(void) {
 
 int voice_desimpersonify(void) {
    if (seteuid(getuid())) {
-      lprintf(L_WARN, "%s: cannot switch back to effective UID %d",
-	      program_name, getuid());
+      lprintf(L_WARN, "%s: cannot switch back to effective UID %d: %s",
+	      program_name, getuid(), strerror(errno));
       return 0;
    }
 
    if (setegid(getgid())) {
-      lprintf(L_WARN, "%s: cannot switch back to effective GID %d",
-	      program_name, getgid());
+      lprintf(L_WARN, "%s: cannot switch back to effective GID %d: %s",
+	      program_name, getgid(), strerror(errno));
       return 0;
    }
 
