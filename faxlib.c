@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 1.18 1994/02/10 22:29:40 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 1.19 1994/05/07 20:05:46 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* faxlib.c
  *
@@ -11,6 +11,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <signal.h>
+#include <errno.h>
 
 #include "mgetty.h"
 #include "policy.h"
@@ -261,7 +262,6 @@ int fax_read_byte _P2( (fd, c),
 static char frb_buf[512];
 static int  frb_rp = 0;
 static int  frb_len = 0;
-extern int  errno;			/* don't want to include errno.h */
 
     if ( frb_rp >= frb_len )
     {
@@ -272,7 +272,6 @@ extern int  errno;			/* don't want to include errno.h */
 	    lprintf( L_ERROR, "fax_read_byte: read returned %d", frb_len );
 	    return frb_len;
 	}
-/*!!	lprintf( L_JUNK, "fax_read_byte: read %d bytes", frb_len );*/
 	frb_rp = 0;
     }
 
