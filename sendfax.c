@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.46 1993/12/03 00:20:15 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.47 1993/12/03 00:31:07 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* sendfax.c
  *
@@ -145,6 +145,8 @@ int fd;
 void fax_close _P1( (fd),
 		    int fd )
 {
+    fax_send( "AT+FCLASS=0\r\n", fd );
+    delay(100);
     close( fd );
     rmlocks();
 }
