@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.23 1993/07/25 13:12:16 gert Exp $ (c) Gert Doering */
+/* $Id: mgetty.h,v 1.24 1993/08/24 23:18:49 gert Exp $ (c) Gert Doering */
 
 /* stuff in logfile.c */
 
@@ -24,10 +24,6 @@ int lprintf();
  * If your System has the "nap(S)" call, you can use this instead of
  * select(S) or poll(S) for sleeping less than one second.
  */
-
-#ifndef linux
-#define USE_POLL
-#endif
 
 #ifndef USE_POLL
 #define USE_SELECT
