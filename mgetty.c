@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.99 1994/04/09 14:24:00 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.100 1994/04/11 11:52:16 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -244,7 +244,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 			minfreespace = atol(optarg);
 			break;
 		case 'x':			/* log level */
-			log_level = atoi(optarg);
+			log_set_llevel( atoi(optarg) );
 			break;
 		case 's':			/* port speed */
 			cspeed = atoi(optarg);
@@ -301,7 +301,8 @@ int main _P2((argc, argv), int argc, char ** argv)
 	sprintf(devname, "/dev/%s", Device);
 
 	/* name of the logfile is device-dependant */
-	sprintf( log_path, LOG_PATH, strrchr( devname, '/' ) + 1 );
+	sprintf( buf, LOG_PATH, strrchr( devname, '/' ) + 1 );
+	log_init_paths( argv[0], buf, &devname[strlen(devname)-2] );
 
 #ifdef USE_GETTYDEFS
 	if (optind < argc)
