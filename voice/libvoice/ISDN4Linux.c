@@ -37,7 +37,7 @@
  *   ATS18=1 OK
  * there your isdn-tty won't pick up data calls.
  *
- * $Id: ISDN4Linux.c,v 1.7 1999/12/02 09:51:29 marcs Exp $
+ * $Id: ISDN4Linux.c,v 1.8 2000/09/11 11:37:13 marcs Exp $
  * 
  */
 
@@ -94,7 +94,7 @@ static int ISDN4Linux_answer_phone(void)
      if (is_voicecall)
           return(IS_101_answer_phone());
 
-     return(OK);
+     return(VMA_CONNECT);
      }
 
 static int ISDN4Linux_init(void)
