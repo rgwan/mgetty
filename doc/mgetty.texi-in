@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.44 2000/07/23 18:58:00 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.45 2000/08/14 14:09:21 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -10,23 +10,23 @@
 This is the online documentation for the mgetty + sendfax
 package.
 
-Copyright @copyright{} 1993-1998 Gert Doering
+Copyright @copyright{} 1993-2000 Gert Doering
 @end ifinfo
 
 @titlepage
 @sp 6
 @center @titlefont{mgetty+sendfax}
 @sp 4
-@center Version 1.1.x
+@center Version 1.1.22
 @sp 1
-@center April 1998
+@center August 2000
 @sp 5
 @center Gert Doering
 @center gert@@greenie.muc.de
 @center gert@@space.net
 
 @vskip 0pt plus 1filll
-@c Copyright @copyright{} 1993-1998 Gert Doering
+@c Copyright @copyright{} 1993-2000 Gert Doering
 @end titlepage
 
 @ifinfo
