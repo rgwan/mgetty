@@ -1,4 +1,4 @@
-#ident "$Id: mg_m_init.c,v 1.18 1994/11/05 18:18:36 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_m_init.c,v 1.19 1994/11/19 01:18:44 gert Exp $ Copyright (c) Gert Doering"
 
 /* mg_m_init.c - part of mgetty+sendfax
  *
@@ -22,7 +22,7 @@
 #include "policy.h"
 #include "fax_lib.h"
 
-#if defined(M_XENIX)
+#if (defined(M_XENIX) && !defined(M_UNIX))
 #define O_NOCTTY 0
 #endif
 
