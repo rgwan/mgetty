@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 4.22 1998/09/01 10:31:31 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 4.23 1998/09/01 11:14:45 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -567,10 +567,16 @@ int main _P2((argc, argv), int argc, char ** argv)
 		     ! c_bool(direct_line) && ! virtual_ring )
 		{
 		    /* no activity - is the modem alive or dead? */
+		    log_close();
 		    mgetty_state = St_check_modem;
 		    break;
 		}
 	    }
+
+	    /* close (and reopen) log file, to make sure it hasn't been
+	     * moved away while sleeping and waiting for 'activity'
+	     */
+	    log_close();
 	
 	    /* check for LOCK files, if there are none, grab line and lock it
 	     */
