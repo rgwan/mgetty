@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 4.19 2002/12/05 11:52:42 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 4.20 2003/12/16 11:40:43 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration defaults for mgetty / sendfax
  * are specified.
@@ -27,13 +27,15 @@
  * to call for what user name.
  *
  * You could use it to call "uucico" for all users starting with "U*"
- * (works only with Taylor UUCP 1.04 with my patch), or to call a fido
- * mailer for fido calls (only if -DFIDO defined)...
+ * (works only with Taylor UUCP 1.04 with my patch), for AutoPPP calls 
+ * being properly dispatched to pppd, or to call a fido mailer for fido 
+ * calls (only if AutoPPP and/or FIDO support are compiled in, see below)...
+ *
+ * If you want to call /bin/login for all data calls, do not define this
+ *
  * See the samples in the example login.config file (built from login.cfg.in).
  *
  * WARNING: make sure that this file isn't world-accessable (SECURITY!)
- *
- * If you want to call /bin/login in any case, do not define this
  *
  * If this doesn't start with "/", it's relative to CONFDIR.
  */
@@ -48,6 +50,22 @@
  */
 #define DEFAULT_LOGIN_PROGRAM "/bin/login"
 
+/* FidoNet mailer support
+ * 
+ * If you want to support incoming FidoNet calls, define FIDO.
+ *
+ * (If you don't know what this is, you don't want it)
+ */
+/* #define FIDO */
+
+/* AutoPPP-Support
+ *
+ * If you want to auto-detect incoming PPP calls (with authorization done
+ * by the pppd, i.e. via CHAP or PAP), define AUTO_PPP.
+ * Not needed if PPP callers want to get a real "login:"
+ * prompt first. Don't forget to activate the /AutoPPP/ line in login.config!
+ */
+/* #define AUTO_PPP */
 
 /* callback config file
  *
@@ -189,6 +207,10 @@
  * if the user gets a double login prompt or none at all).
  *
  * This feature automatically disables FIDO and AutoPPP support!
+ *
+ * This feature can also be used to directly start "other" applications,
+ * like a BBS software or similar things, after the modem has connected
+ * (login.config would then be used to specify what program to run).
  *
  * To use this feature, define ENV_TTYPROMPT.
  */
