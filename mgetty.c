@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.138 1994/10/22 16:27:28 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.139 1994/10/22 16:56:59 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -117,7 +117,8 @@ int	prompt_waittime = 500;		/* milliseconds between CONNECT and */
 extern time_t	call_start;		/* time when we sent ATA */
 					/* defined in faxrec.c */
 
-TIO *gettermio _PROTO((char * tag, boolean first, char **prompt));
+void gettermio _PROTO((char * tag, boolean first,
+		       char **prompt, TIO * tio));
 
 boolean	direct_line = FALSE;
 boolean verbose = FALSE;
@@ -442,12 +443,12 @@ int main _P2((argc, argv), int argc, char ** argv)
 
     /* setup terminal */
 
-    /* Currently, the tio returned here is ignored.
+    /* Currently, the tio set here is ignored.
        The invocation is only for the sideeffects of:
        - loading the gettydefs file if enabled.
-       - setting portspeed appropriately, if not defaulted.
+       - setting portspeed appropriately, if not set with "-s".
        */
-    tio = *gettermio(GettyID, TRUE, &login_prompt);
+    gettermio(GettyID, TRUE, &login_prompt, &tio);
 
     /* open + initialize device (mg_m_init.c) */
     if ( mg_get_device( devname, blocking_open,
@@ -860,6 +861,7 @@ Ring_got_action:
 		if ( cspeed >= 0 )		/* valid speed */
 		{
 		    portspeed = cspeed;
+		    tio_get( STDIN, &tio );
 		    tio_set_speed( &tio, portspeed );
 		    tio_set( STDIN, &tio );
 		}
@@ -921,7 +923,7 @@ Ring_got_action:
     for (;;)
     {
 	/* set ttystate for /etc/issue ("before" setting) */
-	tio = *gettermio(GettyID, TRUE, &login_prompt);
+	gettermio(GettyID, TRUE, &login_prompt, &tio);
 #ifdef sun
 	/* we have carrier, assert data flow control */
 	tio_set_flow_control( STDIN, &tio, DATA_FLOW );
@@ -954,7 +956,7 @@ Ring_got_action:
 	 *  cr-nl mapping flags are set by getlogname()!
 	 */
 #ifdef USE_GETTYDEFS
-	tio = *gettermio(GettyID, FALSE, &login_prompt);
+	gettermio(GettyID, FALSE, &login_prompt, &tio);
 	tio_set( STDIN, &tio );
 
 	lprintf(L_NOISE, "i: %06o, o: %06o, c: %06o, l: %06o, p: %s",
@@ -976,7 +978,7 @@ Ring_got_action:
 	(void) unlink( pid_file_name );
 #endif
 	
-	/* hand off to login (dispatcher) */
+	/* hand off to login dispatcher (which will call /bin/login) */
 	login_dispatch( buf );
 
 	/* doesn't return, if it does, something broke */
@@ -998,10 +1000,11 @@ void exit_usage _P1((code), int code )
     exit(code);
 }
 
-TIO *
-gettermio _P3 ((id, first, prompt), char *id, boolean first, char **prompt) {
-
-    static TIO termio;
+void
+gettermio _P4 ((id, first, prompt, tio),
+	       char *id, boolean first,
+	       char **prompt, TIO *tio )
+{
     char *rp;
 
 #ifdef USE_GETTYDEFS
@@ -1010,13 +1013,14 @@ gettermio _P3 ((id, first, prompt), char *id, boolean first, char **prompt) {
 #endif
 
     /* default setting */
-    tio_get( STDIN, &termio );		/* init flow ctrl, C_CC flags */
-    tio_mode_sane( &termio, FALSE );
+    tio_mode_sane( tio, FALSE );
     rp = LOGIN_PROMPT;
 
 #ifdef USE_GETTYDEFS
+    /* if gettydefs used, override "tio_mode_sane" settings */
 
-    if (!loaded) {
+    if (!loaded)
+    {
 	if (!loadgettydefs(GETTYDEFS)) {
 	    lprintf(L_WARN, "Couldn't load gettydefs - using defaults");
 	}
@@ -1030,7 +1034,7 @@ gettermio _P3 ((id, first, prompt), char *id, boolean first, char **prompt) {
 	    if ( portspeed == B0 )	/* no "-s" arg, use gettydefs */
 	        portspeed = ( gdp->before.c_cflag ) & CBAUD;
 	} else {
-	    termio = gdp->after;
+	    *tio = gdp->after;
 	}
 	rp = gdp->prompt;
     }
@@ -1039,9 +1043,7 @@ gettermio _P3 ((id, first, prompt), char *id, boolean first, char **prompt) {
     if (portspeed == B0)
 	portspeed = DEFAULT_PORTSPEED;
 
-    tio_set_speed( &termio, portspeed );
+    tio_set_speed( tio, portspeed );
 
     if (prompt && !*prompt) *prompt = rp;
-
-    return( &termio );
 }
