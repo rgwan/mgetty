@@ -1,4 +1,4 @@
-#ident "$Id: do_chat.c,v 3.2 1995/11/24 21:27:40 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: do_chat.c,v 3.3 1996/03/03 16:20:52 gert Exp $ Copyright (c) Gert Doering"
 
 /* do_chat.c
  *
@@ -247,7 +247,7 @@ int clean_line _P2 ((fd, waittime), int fd, int waittime )
     char buffer[2];
     int	 bytes = 0;				/* bytes read */
 
-#if defined(MEIBE) || defined(BROKEN_VTIME)
+#if defined(MEIBE) || defined(NEXTSGTTY) || defined(BROKEN_VTIME)
     /* on some systems, the VMIN/VTIME mechanism is obviously totally
      * broken. So, use a select()/flush queue loop instead.
      */
