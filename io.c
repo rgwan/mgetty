@@ -1,4 +1,4 @@
-#ident "$Id: io.c,v 1.1 1993/06/05 10:09:17 gert Exp $ (c) Gert Doering";
+#ident "$Id: io.c,v 1.2 1993/06/21 15:26:25 gert Exp $ (c) Gert Doering";
 /* io.c
  *
  * This module contains a few low-level I/O functions
@@ -70,7 +70,7 @@ boolean	check_for_input( int filedes )
     FD_ZERO( &readfds );
     FD_SET( filedes, &readfds );
     timeout.tv_sec = timeout.tv_usec = 0;
-    ret = select( FD_SETSIZE , &readfds, NULL, NULL, NULL );
+    ret = select( FD_SETSIZE , &readfds, NULL, NULL, &timeout );
 
 #else	/* use poll */
 
