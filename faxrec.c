@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.5 1993/07/03 15:11:08 gert Exp $ Gert Doering"
+#ident "$Id: faxrec.c,v 1.6 1993/07/03 15:15:30 gert Exp $ Gert Doering"
 
 /* faxrec.c - part of the ZyXEL getty
  *
@@ -300,11 +300,17 @@ char *	line;
 	return;
     }
 
-    sprintf( line, "%s %d \"%s\" %d %s", FAX_NOTIFY_PROGRAM,
+    /* build command line
+     * note: stdout / stderr redirected to console, we don't
+     *       want the program talking to the modem
+     */
+    sprintf( line, "%s %d \"%s\" %d %s >%s 2>&1",
+					 FAX_NOTIFY_PROGRAM,
 					 fax_hangup_code,
 					 fax_remote_id,
 					 pagenum,
-					 fax_file_names);
+					 fax_file_names,
+					 CONSOLE);
 
     lprintf( L_NOISE, "notify: '%s'", line );
 
