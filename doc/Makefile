@@ -1,6 +1,6 @@
 # doc/Makefile
 #
-# SCCS: $Id: Makefile,v 1.3 1994/08/04 17:21:34 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: Makefile,v 1.4 1994/09/14 11:06:20 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 MAN1PAGES=g3topbm.1 g3cat.1 pbmtog3.1 \
 	  faxspool.1 faxrunq.1 faxq.1 faxrm.1
@@ -58,7 +58,7 @@ install: $(MAN1PAGES) $(MAN4PAGES) mgetty.info
 	for i in $(MAN5PAGES) ; do \
 		$(INSTALL) -m 644 $$i $(MAN5DIR) ; \
 	done
-	for i in $(MAN8PAGES) ; do \
+	-for i in $(MAN8PAGES) ; do \
 		$(INSTALL) -m 644 $$i $(MAN8DIR) ; \
 	done
 	for i in mgetty.info* ; do \
