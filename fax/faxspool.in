@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 2.1 1994/09/21 22:24:28 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 2.2 1994/09/21 22:25:23 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -669,3 +669,5 @@ $echo "pages " $finalpg >>$job.q
     $echo "poll" >>$job.q
 
 mv $job.q $job
+
+$echo "\nFax queued successfully. It will be sent the next time ``faxrunq'' runs.\n"
