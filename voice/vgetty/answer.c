@@ -1,7 +1,7 @@
 /*
  * answer.c
  *
- * $Id: answer.c,v 1.7 1999/01/23 19:59:49 marcs Exp $
+ * $Id: answer.c,v 1.8 1999/01/23 20:05:03 marcs Exp $
  *
  */
 
@@ -634,7 +634,7 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
 
      time(&call_start);
 
-     if (cvd.rec_min_len.d.i == 0) {
+     if (cvd.rec_max_len.d.i == 0) {
        lprintf(L_NOISE,
 	       "%s: skipping message recording",
 	       program_name);
