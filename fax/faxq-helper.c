@@ -1,4 +1,4 @@
-#ident "$Id: faxq-helper.c,v 4.4 2002/11/15 23:06:58 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxq-helper.c,v 4.5 2002/11/16 22:07:45 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxq-helper.c
  *
@@ -48,6 +48,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <time.h>
+#include <dirent.h>
 
 #include <stdarg.h>
 
@@ -62,6 +63,10 @@ int    fax_out_uid = 5;		/* TODO!!! */
 #define FAX_SEQ_LOCK	"LCK..seq"
 
 #define MAXJIDLEN	20	/* maximum length of acceptable job ID */
+
+#ifndef MAXPATHLEN
+# define MAXPATHLEN 2048
+#endif
 
 void error_and_exit( char * string )
 {
@@ -84,20 +89,20 @@ void eout(const char *fmt, ...)
  */
 int validate_job_id( char * JobID )
 {
-    int ok = 1;
+    int rc = 0;
     char * p = JobID;
 
-    if ( *p++ != 'F' ) ok = 0;
-    while( *p != '\0' && ok )
+    if ( *p++ != 'F' ) rc = -1;
+    while( *p != '\0' && rc == 0 )
     {
-	if ( ! isdigit( *p ) ) ok = 0;
+	if ( ! isdigit( *p ) ) rc = -1;
 	p++;
     }
-    if ( strlen( JobID ) > MAXJIDLEN ) ok = 0;
+    if ( strlen( JobID ) > MAXJIDLEN ) rc = -1;
 
-    if ( ! ok ) eout( "invalid JobID: '%s'\n", JobID );
+    if ( rc<0 ) eout( "invalid JobID: '%s'\n", JobID );
 
-    return ok;
+    return rc;
 }
 
 /* create next sequence number
@@ -227,30 +232,169 @@ char dirbuf[100];
     return 0;
 }
 
-/* change directory + JOB file permissions back to original user
- * (this is used if "activate" fails due to weird files, or for the
- * "remove" command).
- * The actual "rm -rf" is done by the caller script with user permissions
+/* do a "chown -R <uid> <dir>" plus "chmod -R ..."
+ * sub directories get different permissions from plain files
+ * symlinks and other special files are not touched
  *
- * TODO: geht nicht, caller hat kein Schreibrecht!
+ * the directory itself is chown'ed first - that way, later stat()
+ * calls and relative paths can be safely used without being afraid
+ * of race conditions.
  */
-void rollback_dir( char * directory )
+
+int recursive_chown( char * dir, int uid, int d_perm, int f_perm )
 {
-char jobbuf[MAXJIDLEN+30];
+char pathbuf[MAXPATHLEN];
+DIR * dirp;
+struct dirent * de;
+struct stat stb;
 
-    sprintf( jobbuf, "%s/JOB", directory );
-
-    if ( chown( jobbuf, real_user_id, 0 ) < 0 && errno != ENOENT )
+    if ( chown( dir, uid, 0 ) < 0 )
     {
-	eout( "can't change '%s' back to uid %d: %s\n",
-	       jobbuf, real_user_id, strerror(errno) );
+	eout( "can't r_chown '%s' to uid %d: %s\n", dir, uid, strerror(errno));
+	return -1;
+    }
+    if ( chmod( dir, d_perm ) < 0 )
+    {
+	eout( "can't r_chmod '%s' to 0%d: %s\n", dir, d_perm, strerror(errno));
+	return -1;
     }
 
-    if ( chown( directory, real_user_id, 0 ) < 0 )
+    if ( ( dirp = opendir( dir ) ) == NULL )
     {
-	eout( "can't change '%s' back to uid %d: %s\n",
-	       directory, real_user_id, strerror(errno) );
+	eout( "can't read directory '%s': %s\n", dir, strerror(errno));
+	return -1;
     }
+
+    while( ( de = readdir( dirp ) ) != NULL )
+    {
+	if ( strcmp( de->d_name, "." ) == 0 || 
+	     strcmp( de->d_name, ".." ) == 0 )
+	{
+	    continue;
+	}
+	if ( strlen( dir ) + strlen( de->d_name ) > sizeof(pathbuf) -5 )
+	{
+	    eout( "file path too long: %s/%s\n", dir, de->d_name );
+	    continue;
+	}
+	sprintf( pathbuf, "%s/%s", dir, de->d_name );
+
+	fprintf( stderr, "debug: '%s'\n", pathbuf );
+
+	if ( lstat( pathbuf, &stb ) < 0 )
+	{
+	    eout( "can't stat '%s': %s\n", pathbuf, strerror(errno));
+	    continue;
+	}
+
+	if ( S_ISDIR( stb.st_mode ) )
+	{
+	    if ( recursive_chown( pathbuf, uid, d_perm, f_perm ) < 0 )
+	    {
+		eout( "can't r_chown '%s'\n", pathbuf );
+		break;
+	    }
+	}
+	else
+	  if ( S_ISREG( stb.st_mode ))
+	{
+	    if ( chown( pathbuf, uid, 0 ) < 0 )
+	    {
+		eout( "can't r_chown '%s' to uid %d: %s\n", 
+		      pathbuf, uid, strerror( errno ));
+		break;
+	    }
+	    if ( chmod( pathbuf, f_perm ) < 0 )
+	    {
+		eout( "can't r_chmod '%s' to 0%d: %s\n",
+		      pathbuf, d_perm, strerror( errno ));
+		break;
+	    }
+	}
+	else
+	    eout( "skipping '%s' - not a regular file\n", pathbuf );
+    }
+    closedir( dirp );
+
+    if ( de != NULL )	/* loop left with break */
+	return -1;
+
+    return 0;
+}
+
+/* do a "rm -rf <dir>"
+ * explicitely ignore symlinks, and (if needed) drop permissions
+ */
+int recursive_rm( char * dir )
+{
+char pathbuf[MAXPATHLEN];
+DIR * dirp;
+struct dirent * de;
+struct stat stb;
+int rc = 0;
+
+    if ( getuid() != fax_out_uid )
+    {
+	if ( setuid(fax_out_uid) < 0 )
+	{
+	    eout( "can't setuid(%d): %s\n", fax_out_uid, strerror(errno));
+	    return -1;
+	}
+    }
+
+    if ( ( dirp = opendir( dir ) ) == NULL )
+    {
+	eout( "can't read directory '%s': %s\n", dir, strerror(errno));
+	return -1;
+    }
+
+    while( ( de = readdir( dirp ) ) != NULL )
+    {
+	if ( strcmp( de->d_name, "." ) == 0 || 
+	     strcmp( de->d_name, ".." ) == 0 )
+	{
+	    continue;
+	}
+	if ( strlen( dir ) + strlen( de->d_name ) > sizeof(pathbuf) -5 )
+	{
+	    eout( "file path too long: %s/%s\n", dir, de->d_name );
+	    rc--;
+	    continue;
+	}
+	sprintf( pathbuf, "%s/%s", dir, de->d_name );
+
+	fprintf( stderr, "debug2: '%s'\n", pathbuf );
+
+	if ( lstat( pathbuf, &stb ) < 0 )
+	{
+	    eout( "can't stat '%s': %s\n", pathbuf, strerror(errno));
+	    rc--;
+	    continue;
+	}
+
+	/* directories are followed, everything else is removed */
+	if ( S_ISDIR( stb.st_mode ) )
+	{
+	    rc += recursive_rm( pathbuf );
+	}
+	else
+	{
+	    if ( unlink( pathbuf ) < 0 )
+	    {
+		eout( "can't unlink '%s': %s\n", pathbuf, strerror( errno ));
+		rc--;
+	    }
+	}
+    }
+    closedir( dirp );
+
+    if ( rmdir( dir ) < 0 )
+    {
+	eout( "can't rmdir '%s': %s\n", dir, strerror(errno));
+	rc--;
+    }
+
+    return rc;
 }
 
 /* make sure that all path names in the following list (separated by
@@ -326,8 +470,7 @@ int fd;
 	return -1;
     }
 
-    if ( chown( dir1, fax_out_uid, 0 ) < 0 ||
-         chmod( dir1, 0755 ) < 0 )
+    if ( recursive_chown( dir1, fax_out_uid, 0755, 0600 ) < 0 )
     {
 	eout( "chown/chmod '%s' failed: %s\n", dir1, strerror(errno) );
 	return -1;
@@ -339,7 +482,7 @@ int fd;
     if ( ( fd = open( buf, O_WRONLY | O_CREAT | O_EXCL, 0644 ) ) < 0 )
     {
 	eout( "can't create JOB file '%s': %s\n", buf, strerror(errno) );
-	rollback_dir(dir1);
+	recursive_rm(dir1);
 	return -1;
     }
 
@@ -349,7 +492,7 @@ int fd;
 	eout( "can't chown '%s' to uid %d: %s\n", 
 	      buf, fax_out_uid, strerror(errno) );
 	close(fd);
-	rollback_dir(dir1);
+	recursive_rm(dir1);
 	return -1;
     }
 
@@ -390,14 +533,14 @@ int fd;
     close(fd);
     if ( p != NULL )	/* loop aborted */
     {
-	rollback_dir(dir1); return -1;
+	recursive_rm(dir1); return -1;
     }
 
     /* now move directory in final place */
     if ( rename( dir1, JID ) < 0 )
     {
 	eout( "can't rename '%s' to '%s': %s\n", dir1, JID, strerror(errno));
-	rollback_dir(dir1); return -1;
+	recursive_rm(dir1); return -1;
     }
 
     return 0;
@@ -500,13 +643,21 @@ int rc;
     if ( rc == -2 )				/* not found */
 	rc = check_user_perms( JID, "JOB.suspended" );
 
-    if ( rc == -2 )				/* still not found */
+    if ( rc < 0 )				/* check failed */
     {
-	eout( "no JOB file in %s/ - can't verify permissions\n", JID );
+	if ( rc == -2 )				/* still not found */
+	    eout( "no JOB file in %s/ - can't verify permissions\n", JID );
 	return -1;
     }
 
-    error_and_exit( "not implemented" );
+    rc = recursive_rm( JID );
+
+    if ( rc < 0 )
+    {
+	eout( "could not remove %d files or subdirectories\n", -rc );
+	return -1;
+    }
+    return 0;
 }
 
 int do_requeue( char * JID )
@@ -618,7 +769,7 @@ int main( int argc, char ** argv )
     {
 	/* second parameter is common for all commands: job ID */
 	char * job_id = argv[2];
-	if ( ! validate_job_id( job_id ) ) exit(1);
+	if ( validate_job_id( job_id ) <0 ) exit(1);
 
     	if( strcmp( argv[1], "activate" ) == 0 )
 	{
