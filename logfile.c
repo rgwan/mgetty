@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 1.32 1994/04/14 13:36:58 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logfile.c,v 1.33 1994/05/01 01:26:07 gert Exp $ Copyright (c) Gert Doering"
 ;
 #include <stdio.h>
 #include <unistd.h>
@@ -34,12 +34,13 @@ static char * log_program = "mgetty";
 
 extern int atexit _PROTO(( void (*)(void) ));
 
-/* Most systems have these variables but do not declare them. On thos
- * systems that _do_ declare them, it won't hurt
- */
+/* Most systems have these variables but do not declare them. On many
+   of those systems that _do_ declare them, it won't hurt */
 
 extern int sys_nerr;
+#ifndef __NetBSD__
 extern char *sys_errlist[];
+#endif
 extern int errno;
 
 /* Interactive Unix is a little bit braindead - does not have atexit(),
