@@ -1,4 +1,4 @@
-#ident "$Id: locks.c,v 2.3 1995/06/12 22:32:40 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
+#ident "$Id: locks.c,v 2.4 1995/06/27 21:53:38 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
 
 /* large parts of the code in this module are taken from the
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us,
@@ -271,7 +271,8 @@ RETSIGTYPE rmlocks()
     if ( lock[0] != 0 )
     {
 	lprintf( L_NOISE, "removing lock file" );
-	(void) unlink(lock);
+	if ( unlink(lock) == -1 )
+	    lprintf( L_ERROR, "error removing lock file (huh?!)" );
     }
     /* mark lock file as 'not set' */
     lock[0] = 0;
