@@ -9,10 +9,15 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.65 2003/01/14 14:16:09 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.66 2003/08/20 10:38:50 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.66  2003/08/20 10:38:50  gert
+# reorganize signal handling:
+#   - HUP is now "graceful restart" (wait for all child processes, then quit)
+#   - USR2 is now "dump statistics to log file"
+#
 # Revision 1.65  2003/01/14 14:16:09  gert
 # include "total success" counter in the per_phone_statistics
 #
@@ -263,16 +268,18 @@ close FP;
 # set up handlers to handle "INT" (ctrl-c), "HUP" (hangup), "TERM" (kill)...
 #    (handler function does cleanup, remove lock/pid files, etc., and exits)
 #
-$SIG{INT}  = \&signal_handler;
-$SIG{HUP}  = \&signal_handler;
-$SIG{TERM} = \&signal_handler;
+$SIG{INT}  = \&signal_handler;			# cleanup & exit
+$SIG{TERM} = \&signal_handler;			# cleanup & exit
 
 $SIG{USR1} = \&signal_handler_USR1;		# roll log file
 $roll_log_file_requested = 0;
 $roll_level=3;					# keep 3 old files around
 
-$SIG{USR2} = \&signal_handler_USR2;		# graceful exit
+$SIG{HUP}  = \&signal_handler_HUP;		# graceful exit
 $graceful_exit_requested = 0;
+
+$SIG{USR2} = \&signal_handler_USR2;		# write statistics to log
+$statistics_requested = 0;
 
 #
 # read config file
@@ -494,6 +501,9 @@ while( 1 )
 	# leave loop if user signalled for 'graceful exit'
 	if ( $graceful_exit_requested ) { last; }
 
+	# dump modem statistics if requested (SIGUSR2)
+	if ( $statistics_requested ) { last; }
+
 	# leave loop if something has changed in the on-disk queue
 	# or a stop of queue handling is requested
 	if ( -f '.queue-changed' || -f 'stop' ) { last; }
@@ -543,6 +553,10 @@ while( 1 )
 	}
     }
 
+    # if signalled from the user (signal USR2), dump statistics to log file
+    if ( $statistics_requested ) 
+	{ &dump_statistics; $statistics_requested=0; }
+
     # if signalled from the user (signal USR1), roll the log file, 
     # flush all queues, etc.
     if ( $roll_log_file_requested )
@@ -572,7 +586,7 @@ while( 1 )
 	print LOG "Graceful Exit: wait for $childs child processes\n";
 	while ( $childs > 0 )
 	    { $tty=&wait_for_child; print LOG "* tty '$tty' done\n" if $opt_v; }
-	&signal_handler(USR2);
+	&signal_handler(HUP);
     }
 
     # now, make sure all delayed jobs are rescheduled
@@ -1693,18 +1707,33 @@ my $sig = shift;
 }
 ##########################################################################
 #
-# signal_handler_USR2
+# signal_handler_HUP
 #
-# called when user sends a USR2 signal --> set flag to do graceful exit
+# called when user sends a HUP signal --> set flag to do graceful exit
 #
 ##########################################################################
-sub signal_handler_USR2
+sub signal_handler_HUP
 {
 my $sig = shift;
 
     print LOG "\nfaxrunqd: signal handler: got signal $sig, will exit as soon as possible...\n";
 
     $graceful_exit_requested = 1;
+}
+##########################################################################
+#
+# signal_handler_USR2
+#
+# called when user sends a USR2 signal --> set flag to dump statistics
+#
+##########################################################################
+sub signal_handler_USR2
+{
+my $sig = shift;
+
+    print LOG "\nfaxrunqd: signal handler: got signal $sig, dump statistics...\n";
+
+    $statistics_requested = 1;
 }
 ##########################################################################
 #
