@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 3.7 1996/05/18 13:26:20 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 3.8 1996/07/13 12:33:48 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -61,7 +61,7 @@ PBMFONT_BODY_N=@LIBDIR@/cour25n.pbm
 MAKE_COVER_PG=@LIBDIR@/make.coverpg
 
 #
-# local fax number
+# local fax number (will be overriden by "sendfax.config" if set there!)
 #
 FAX_STATION_ID="@FAX_STATION_ID@"
 
@@ -308,6 +308,12 @@ fi
 test -z "$USER" && USER=$LOGNAME
 test -z "$USER" && USER=$user
 
+# fax ID (from sendfax.config)
+##########
+eval ` $AWK '$1=="fax-id" { printf "FAX_STATION_ID=\"%s", $2; \
+			    for(i=3;i<=NF;i++) printf " %s", $i; print "\""; }
+             $1=="port"   { exit }' @CONFDIR@/sendfax.config `
+
 # everything else is initialized empty
 ##########
 poll_req=""
@@ -329,6 +335,7 @@ Options:
 \t-h <file>\ttext file for page header
 \t-f <email>\tset address for status mail
 \t-t <hh:mm>\tset earliest possible send time
+\t-t <hh:mm-hh:mm> set time range for sending fax
 \t-q\t\tshut up"
 
 while :
@@ -417,7 +424,7 @@ do
        -A) case "$2" in
            '') $echo "$usage" >&2 ; exit 2 ;;
 	   esac
-           ACCT_HANDLE=$2 ; shift ; shift
+           ACCT_HANDLE="$2" ; shift ; shift
 	   ;;
 # shut up
        -q) exec >/dev/null ; shift
@@ -548,19 +555,21 @@ fi
 if [ ! -w $FAX_SPOOL_OUT ] ; then
     $echo "cannot write to $FAX_SPOOL_OUT!" >&2 ; exit 6 ; fi
 
-if [ ! -f $FAX_SEQ ] ; then $echo 000000 > $FAX_SEQ ; chmod 666 $FAX_SEQ ; fi
-
-if [ -f $FAX_SEQ -a ! -w $FAX_SEQ ] ; then
-    $echo "cannot write to $FAX_SEQ!" >&2 ; exit 6 ; fi
-
 #
 # get unique directory name (well, at least: try to)
 # FIXME: one should worry about concurrent processes here! This is a clear
 #        race condition!
 #
+if [ ! -f $FAX_SEQ ] ; then $echo 000000 > $FAX_SEQ ; chmod 666 $FAX_SEQ ; fi
+
+if [ -f $FAX_SEQ -a ! -w $FAX_SEQ ] ; then
+    $echo "cannot write to $FAX_SEQ!" >&2 ; exit 6 ; fi
 
 new_seq=`$AWK '{ printf "%06d", $1 + 1 >"'$FAX_SEQ'";
 		printf "%06d", $1 + 1 }' $FAX_SEQ `
+
+if [ -z "$new_seq" ] ; then $echo 000800 >$FAX_SEQ ; chmod 666 $FAX_SEQ ; fi
+
 
 spooldir=$FAX_SPOOL_OUT/F$new_seq.$$
 
