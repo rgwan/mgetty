@@ -9,10 +9,14 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.54 2001/12/16 14:26:25 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.55 2001/12/16 14:49:03 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.55  2001/12/16 14:49:03  gert
+# move 'stop' processing to after sleep($sleep_time) - otherwise 'stop'
+# isn't honoured if created while sleeping and new jobs are also created.
+#
 # Revision 1.54  2001/12/16 14:26:25  gert
 # stop queue handling if a file named 'stop' exists
 #
@@ -335,6 +339,18 @@ while( 1 )
     print LOG localtime() . ": scanning queue directory...\n" if $opt_v;
     $queue_last_read = time();
 
+    # if a file "stop" exists in the spool dir, halt all queue processing 
+    # (wait for outstanding children, but do not start new jobs)
+    if ( -f 'stop' )
+    {
+	print LOG "queue handling stopped ($childs outstanding jobs)\n";
+	while ( $childs > 0 && -f 'stop' )
+	    { $tty=&wait_for_child; print LOG "* tty '$tty' done\n" if $opt_v; }
+	while( -f 'stop' )
+	    { sleep(10); }
+	print LOG localtime() . ": queue handling restarted.\n" if $opt_v;
+    }
+
     rewinddir( FSO );
 
     foreach $f ( readdir( FSO ) )
@@ -430,18 +446,6 @@ while( 1 )
     {
 	print LR scalar(localtime) . " $0\n";
 	close LR;
-    }
-
-    # if a file "stop" exists in the spool dir, halt all queue processing 
-    # (wait for outstanding children, but do not start new jobs)
-    if ( -f 'stop' )
-    {
-	print LOG "queue handling stopped ($childs outstanding jobs)\n";
-	while ( $childs > 0 && -f 'stop' )
-	    { $tty=&wait_for_child; print LOG "* tty '$tty' done\n" if $opt_v; }
-	while( -f 'stop' )
-	    { sleep(10); }
-	print LOG localtime() . ": queue handling restarted.\n" if $opt_v;
     }
 
     # once per hour, completely flush internal queue, make sure nothing
