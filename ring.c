@@ -1,4 +1,4 @@
-#ident "$Id: ring.c,v 4.15 2001/01/19 19:52:11 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: ring.c,v 4.16 2002/11/05 21:59:09 gert Exp $ Copyright (c) Gert Doering"
 
 /* ring.c
  *
@@ -243,6 +243,9 @@ boolean	got_dle;		/* for <DLE><char> events (voice mode) */
 	/* line termination character? no -> add to buffer and go on */
 	if ( ch != '\r' && ch != '\n' )
 	{
+	    /* skip whitespace at start of buffer */
+	    if ( w == 0 && isspace(ch) ) continue;
+
 	    /* add character to buffer */
 	    if( w < BUFSIZ-2 )
 		buf[w++] = ch;
@@ -252,8 +255,8 @@ boolean	got_dle;		/* for <DLE><char> events (voice mode) */
 	      for( i=0; actions[i].expect != NULL; i++ )
 	    {
 		int len = strlen( actions[i].expect );
-		if ( w >= len &&
-		     memcmp( &buf[w-len], actions[i].expect, len ) == 0 )
+		if ( w == len &&
+		     memcmp( buf, actions[i].expect, len ) == 0 )
 		{
 		    lprintf( L_MESG, "wfr: found action string: ``%s''",
 				     actions[i].expect );
