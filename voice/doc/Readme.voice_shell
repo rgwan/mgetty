@@ -478,6 +478,10 @@
  Description:  After dialing the modem didn't detect answer for the time
                give in dial_timeout in voice.conf.
 
+ Event:        NO_CARRIER
+ Description:  The caller has hung up. For now, this event is detected only
+               by the ISDN4Linux driver.
+
  Event:        NO_DIAL_TONE
  Description:  The modem didn't detect dial tone (make sure your modem is
                connected properly to your telephone company's line, or check
