@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 4.25 1999/02/16 20:04:16 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 4.26 1999/02/28 19:14:08 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -453,7 +453,7 @@ int main _P2((argc, argv), int argc, char ** argv)
     else
     {
 	/* initialize data part */
-	if ( mg_init_data( STDIN, c_chat(init_chat),
+	if ( mg_init_data( STDIN, c_chat(init_chat), c_bool(need_dsr),
 	                          c_chat(force_init_chat) ) == FAIL )
 	{
 	    lprintf( L_AUDIT, "failed in mg_init_data, dev=%s, pid=%d",
