@@ -524,7 +524,8 @@ Fax input format:
    better, use my own utility. (The patch is *NOT* needed for my pbm2g3
    program!).
    Use of a unpatched pbmtog3 will most likely cause +FHNG:50 or +FHNG:54
-   error codes.
+   error codes. But see also ``Troubleshooting and answers'' for other
+   causes for these errors.
 <p>
    Do not use "tiff-G3" data as input. Though the data itself is G3 encoded,
    it's wrapped into a complex layer of TIFF headers that would
@@ -685,6 +686,12 @@ A: This error means that something went wrong between the two machines,
    version of pbmtog3 (called pbm2g3 or a patched version of pbmplus', 
    then I'm out of wits - something's broken in the modem. Maybe you 
    should upgrade your ROM version.
+<p>
+   Bjoern Jacke (bjoern.jacke@gmx.de) reports that there was a bug in
+   gs 5.50 such that if the input file specified a paper size explicitly,
+   the line length was not properly adjusted to 1728 pixels.
+   This bug was fixed in beta version 5.71. This can also cause the
+   same errors.
 <p>
 
 Q: When receiving faxes, I get the +FCON message logged, then mgetty says
