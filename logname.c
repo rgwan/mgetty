@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 2.2 1994/12/17 22:50:20 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 2.3 1995/03/14 00:29:30 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include "syslibs.h"
@@ -221,7 +221,7 @@ static RETSIGTYPE getlog_timeout()
  * If ENV_TTYPROMPT is set, do not read anything
  */
 
-int getlogname _P5( (prompt, tio, buf, maxsize, timeout),
+int getlogname _P5( (prompt, tio, buf, maxsize, do_timeout),
 		    char * prompt, TIO * tio, char * buf,
 		    int maxsize, boolean do_timeout )
 {
