@@ -1,4 +1,4 @@
-#ident "$Id: g3cat.c,v 1.6 1994/02/12 13:59:01 gert Exp $ (c) Gert Doering"
+#ident "$Id: g3cat.c,v 1.7 1994/03/07 19:19:50 gert Exp $ (c) Gert Doering"
 ;
 /* g3cat.c - concatenate multiple G3-Documents
  *
@@ -86,6 +86,7 @@ struct g3_tree * p;
 int nr_pels;
 int first_file = 1;		/* "-a" flag has to appear before */
 				/* starting the first g3 file */
+int empty_lines = 0;		/* blank lines at top of page */
 
     /* initialize lookup trees */
     build_tree( &white, t_white );
@@ -112,7 +113,22 @@ int first_file = 1;		/* "-a" flag has to appear before */
 	        byte_align = 1;
 	    continue;
 	}
-
+	else
+	if ( strcmp( argv[i], "-h" ) == 0 )
+	{
+	    if ( ! first_file )
+	        fprintf( stderr, "%s: -h may not appear after g3 file!\n", argv[0] );
+	    else
+	    if ( ++i >= argc )
+		fprintf( stderr, "%s: -h must have an argument!\n", argv[0] );
+	    else
+	    {
+		empty_lines = atoi( argv[i] );
+		if ( empty_lines < 0 ) empty_lines = 0;
+	    }
+	    continue;
+	}
+		
 	/* process file(s), one by one */
 	if ( strcmp( argv[i], "-" ) == 0 )
 		fd = 0;
@@ -125,6 +141,12 @@ int first_file = 1;		/* "-a" flag has to appear before */
 	{
 	    puteol();
 	    first_file = 0;
+	    while ( empty_lines-- > 0 )			/* leave space at */
+							/* top of page */
+	    {
+		putcode( 0x1b2, 9 ); putcode( 0x0ac, 8 );
+		puteol();
+	    }
 	}
 	
 	hibit = 0;
