@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-# RCS: $Id: faxrunqd.in,v 1.7 1997/10/31 10:36:31 gert Exp $
+# RCS: $Id: faxrunqd.in,v 1.8 1997/10/31 12:24:34 gert Exp $
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.8  1997/10/31 12:24:34  gert
+# call external programs with "</dev/null". Some are dumb.
+#
 # Revision 1.7  1997/10/31 10:36:31  gert
 # require perl 5.004
 #
@@ -693,7 +696,7 @@ my ($r, $s, $ex, $j);
 	if ($program_success ne '')
 	{
 	    print LOG "    calling program $program_success for job $j...\n" if $opt_v;
-	    system( "$program_success $fax_spool_out/$j/JOB" );
+	    system( "$program_success $fax_spool_out/$j/JOB </dev/null" );
 	}
 
 	# remove JOB file
@@ -758,7 +761,7 @@ my ($r, $s, $ex, $j);
 	    if ($program_failure ne '')
 	    {
 		print LOG "    calling f-program $program_failure for job $j...\n" if $opt_v;
-		system( "$program_failure $fax_spool_out/$j/JOB" );
+		system( "$program_failure $fax_spool_out/$j/JOB </dev/null" );
 	    }
 
 	    # remove from queue directory (suspend, but do not delete it)
