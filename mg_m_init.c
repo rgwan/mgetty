@@ -1,4 +1,4 @@
-#ident "$Id: mg_m_init.c,v 4.2 1997/06/08 15:44:50 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_m_init.c,v 4.3 1998/01/18 17:08:27 gert Exp $ Copyright (c) Gert Doering"
 
 /* mg_m_init.c - part of mgetty+sendfax
  *
@@ -15,6 +15,10 @@
 
 #ifndef sunos4
 #include <sys/ioctl.h>
+#endif
+
+#ifdef linux
+# include <linux/serial.h>
 #endif
 
 #include "mgetty.h"
@@ -320,6 +324,23 @@ int mg_init_device _P4( (fd, toggle_dtr, toggle_dtr_waittime, portspeed ),
 	lprintf( L_FATAL, "cannot set TIO" );
 	return ERROR;
     }
+
+#ifdef linux
+    /* if port speed is set to 38400, kernel flag might turn it into
+     * 57600 or 115200. Make sure the user knows about it!
+     */
+    if ( portspeed == 38400 )
+    {
+	struct serial_struct serinfo;
+
+	if ( ioctl( STDIN, TIOCGSERIAL, &serinfo ) == 0 &&
+	     ( serinfo.flags & ASYNC_SPD_MASK ) != 0 )
+	{
+	    lprintf( L_WARN, "WARNING: obsolete setserial spd_hi/spd_vhi used, 38400 is not real port speed" );
+	}
+    }
+#endif
+
     return NOERROR;
 }
 
