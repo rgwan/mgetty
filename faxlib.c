@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.37 1998/09/19 11:08:18 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.38 1998/10/13 15:24:14 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -51,8 +51,7 @@ int w = 0;
 
     while ( *id && w < sizeof(fax_remote_id)-1 )
     {
-        if ( *id == '"' || *id == '\'' ) fax_remote_id[w++] = '_';
-                                    else fax_remote_id[w++] = *id;
+        if ( *id != '"' && *id != '\'' ) fax_remote_id[w++] = *id;
         id++;
     }
     fax_remote_id[w]=0;
