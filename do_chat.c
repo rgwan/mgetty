@@ -1,4 +1,4 @@
-#ident "$Id: do_chat.c,v 1.4 1993/03/15 09:13:14 gert Exp $ (c) Gert Doering";
+#ident "$Id: do_chat.c,v 1.5 1993/03/21 23:36:18 gert Exp $ (c) Gert Doering";
 /* do_chat.c
  *
  * This module handles all the talk with the modem
@@ -16,7 +16,16 @@
 #ifdef USE_POLL
 #include <poll.h>
 int poll( struct pollfd fds[], unsigned long nfds, int timeout );
+#else
+#ifdef USE_SELECT
+# ifndef linux
+# include <sys/select.h>
+# else
+# include <sys/types.h>
+# endif
 #endif
+#endif
+
 
 void delay( int waittime )		/* wait waittime milliseconds */
 {
@@ -26,11 +35,20 @@ struct pollfd sdummy;
 #else
 #ifdef USE_NAP
     nap( (long) waittime );
-#else				/* neither poll nor nap available */
+#else
+#ifdef USE_SELECT
+    struct timeval s;
+
+    s.tv_sec = waittime / 1000;
+    s.tv_usec = (waittime % 1000) * 1000;
+    select( 0, (fd_set *) NULL, (fd_set *) NULL, (fd_set *) NULL, &s );
+
+#else				/* neither poll nor nap nor select available */
     if ( waittime < 1000 ) waittime = 1000;	/* round up */
     sleep( waittime / 1000);
-#endif
-#endif
+#endif	/* use select */
+#endif	/* use nap */
+#endif	/* use poll */
 }
     
 boolean chat_has_timeout;
