@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 3.5 1996/03/03 16:52:22 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 3.6 1996/03/10 12:42:32 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* tio.c
  *
@@ -327,8 +327,8 @@ void tio_mode_sane _P2( (t, local), TIO * t, int local )
 #endif
 
 #else		/* BSD_SGTTY */
-/*    t->sg_flags = ECHO | EVENP | ODDP;*/
-    t->sg_flags = ECHO;
+    t->sg_flags = ECHO | EVENP | ODDP;
+/*    t->sg_flags = ECHO; */
     t->sg_erase = 0x7f;            /* erase character */
     t->sg_kill  = 0x25;            /* kill character, ^u */
 #endif
