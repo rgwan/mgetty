@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.c,v 1.3 1995/04/04 00:31:01 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_mg.c,v 1.4 1995/04/21 14:02:48 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_mg.c
  *
@@ -88,7 +88,7 @@ struct conf_data_mgetty c = {
 #ifdef MAX_LOGIN_TIME			/*!!! hmmm? */
 	{ "login-time", MAX_LOGIN_TIME, CT_INT, C_PRESET },
 #else
-	{ "login-time", 0, CT_INT, C_EMTPY },
+	{ "login-time", 0, CT_INT, C_EMPTY },
 #endif
 	{ "fax-id", (int)FAX_STATION_ID, CT_STRING, C_PRESET },
 	{ "fax-server-file", 0, CT_STRING, C_EMPTY },
