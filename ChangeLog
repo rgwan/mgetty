@@ -1,3 +1,32 @@
+Tue Nov 24 21:09:05 1998  Gert Doering  (gert@greenie.muc.de)
+
+	* release 1.1.19
+
+	* frontends/www/faxhists.cgi: new search function (for acct.log)
+
+Sun Nov 22 11:05:58 1998  Gert Doering  (gert@greenie.muc.de)
+
+	* faxlib.c: add Zoom/NX autodetection
+
+	* frontends/www: fine tuning, better error messages, modularity
+
+Thu Nov 19 22:30:43 1998  Gert Doering  (gert@greenie.muc.de)
+
+	* ring.c: merge ISDN MSN/CallerID for Zoom/NX (Thomas Schuett)
+
+Thu Nov 12 16:26:59 1998  Gert Doering  (gert@greenie.muc.de)
+
+	* merge Debian documentation/faxrunq.config updates
+
+	* frontends/www: 'make install' works now
+
+Tue Oct 13 17:24:20 1998  Gert Doering  (gert@greenie.muc.de)
+
+	* frontends/www: more work on the WWW GUI
+
+	* faxlib.c: ignore quote characters in the remote fax id
+	completely (USR modems always send them)
+
 Fri Sep 11 11:29:17 1998  Gert Doering  (gert@greenie.muc.de)
 
 	* release 1.1.18
