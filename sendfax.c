@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.21 1993/07/03 17:44:14 gert Exp $ (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.22 1993/07/20 23:20:32 gert Exp $ (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -29,7 +29,7 @@ boolean	verbose = FALSE;
 void exit_usage( char * program )
 {
     fprintf( stderr,
-	     "Usage: %s [-p] [-h header] [-v] <fax-number> <page(s) in g3-format>\n",
+	     "%s [-p] [-h header] [-v] [-l <device(s)>] <fax-number> <page(s) in g3-format>\n",
 	     program );
     exit(1);
 }
@@ -75,11 +75,11 @@ int	fd;
     /* initialize baud rate, hardware handshake, ... */
     ioctl( fd, TCGETA, &fax_termio );
 
-    /* welll... some modems do need XOFF/XON flow control,
-     * but setting it here would interfere with waiting for an XON
-     * later -> we do not set it here
+    /* even if we use a modem that requires Xon/Xoff flow control,
+     * do *not* enable it here - it would interefere with the Xon
+     * received at the top of a page.
      */
-    fax_termio.c_iflag = IXANY;
+    fax_termio.c_iflag = 0;
     fax_termio.c_oflag = 0;
 
     fax_termio.c_cflag = FAX_SEND_BAUD | CS8 | CREAD | HUPCL | 
@@ -110,14 +110,13 @@ int	fd;
     return fd;
 }
 
-/* fax_open: loop through all FAX_MODEM_TTYS until fax_open_device()
+/* fax_open: loop through all devices in fax_ttys until fax_open_device()
  * succeeds on one of them; then return file descriptor
- * return "-1" of no open succeeded
+ * return "-1" of no open succeeded (all locked, permission denied, ...)
  */
 
-int fax_open( void )
+int fax_open( char * fax_ttys )
 {
-char fax_ttys[] = FAX_MODEM_TTYS;
 char * p, * fax_tty;
 int fd;
 
@@ -133,6 +132,8 @@ int fd;
     while ( p != NULL && fd == -1 );
     return fd;
 }
+
+/* finish off - close modem device, rm lockfile */
 
 void fax_close( int fd )
 {
@@ -206,7 +207,7 @@ char wbuf[ sizeof(buf) * 2 ];
      */
 
 #ifdef FAX_SEND_USE_IXON
-    fax_termio.c_iflag |= IXON;
+    fax_termio.c_iflag |= (IXON|IXANY);
     ioctl( fd, TCSETAW, &fax_termio );
 #endif
 
@@ -274,13 +275,17 @@ char wbuf[ sizeof(buf) * 2 ];
 	     * see these characters [0x11/0x13] here.
 	     */
 
-	    while ( check_for_input( fd ) )
+	    if ( check_for_input( fd ) )
 	    {
-		lprintf( L_NOISE, "input: got" );
-		if ( read( fd, &ch, 1 ) != 1 )
-		    lprintf( L_ERROR, "read failed" );
-		else
-		    lputc( L_NOISE, ch );
+		lprintf( L_NOISE, "input: got " );
+		do
+		{
+		    if ( read( fd, &ch, 1 ) != 1 )
+			lprintf( L_ERROR, "read failed" );
+		    else
+			lputc( L_NOISE, ch );
+		}
+		while ( check_for_input( fd ) );
 	    }
 	}		/* end while (more g3 data to read) */
     }			/* end if (open file succeeded) */
@@ -305,13 +310,16 @@ boolean fax_poll_req = FALSE;
 char * 	fax_page_header = NULL;
 char	poll_directory[MAXPATH] = ".";		/* FIXME: parameter */
 
+char	fax_device_string[] = FAX_MODEM_TTYS;	/* writable! */
+char *	fax_devices = fax_device_string;	/* override with "-l" */
+
 int	tries;
 
     /* initialize logging */
     strcpy( log_path, FAX_LOG );
     log_level = L_NOISE;
 
-    while ((ch = getopt(argc, argv, "vx:ph:")) != EOF) {
+    while ((ch = getopt(argc, argv, "vx:ph:l:")) != EOF) {
 	switch (ch) {
 	case 'v':
 	    verbose = TRUE;
@@ -325,6 +333,15 @@ int	tries;
 	case 'h':
 	    fax_page_header = optarg;
 	    lprintf( L_MESG, "page header: %s", fax_page_header );
+	    break;
+	case 'l':
+	    fax_devices = optarg;
+	    if ( strchr( optarg, '/' ) != NULL )
+	    {
+		fprintf( stderr, "%s: -l: use device name without path\n",
+		                 argv[0]);
+		exit(1);
+	    }
 	    break;
 	case '?':
 	    exit_usage(argv[0]);
@@ -361,7 +378,7 @@ int	tries;
 	}
     }
 
-    fd = fax_open();
+    fd = fax_open( fax_devices );
 
     if ( fd == -1 )
     {
