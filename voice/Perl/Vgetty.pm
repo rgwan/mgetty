@@ -1,5 +1,5 @@
 # 
-# $Id: Vgetty.pm,v 1.3 2001/02/24 10:26:12 marcs Exp $
+# $Id: Vgetty.pm,v 1.4 2002/02/20 17:34:35 gert Exp $
 #
 # Copyright (c) 1998 Jan "Yenya" Kasprzak <kas@fi.muni.cz>. All rights
 # reserved. This package is free software; you can redistribute it and/or
@@ -135,8 +135,8 @@ sub chat {
 # Initial chat
 sub init {
 	my $self = shift;
-#	$self->chat ('HELLO SHELL', 'HELLO VOICE PROGRAM', 'READY');
-	$self->chat ('HELLO SHELL', 'HELLO VOICE PROGRAM');
+	$self->chat ('HELLO SHELL', 'HELLO VOICE PROGRAM', 'READY');
+#	$self->chat ('HELLO SHELL', 'HELLO VOICE PROGRAM');
 
         return $self;
 }
