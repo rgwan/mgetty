@@ -1,4 +1,4 @@
-#ident "$Id: g32pbm.c,v 4.1 1997/01/12 14:54:21 gert Exp $ (c) Gert Doering, Chris Lewis et.al."
+#ident "$Id: g32pbm.c,v 4.2 1998/04/02 16:39:00 gert Exp $ (c) Gert Doering, Chris Lewis et.al."
 
 /* G32pbm.c
  *
@@ -564,7 +564,7 @@ void emitlj _P4((resolution, numx, numy, image),
     int bperline;
     int resmult = 300/resolution;
     register char *ip, *lineanch, *nip;
-    register currow, bcount;
+    register int currow, bcount;
     bperline = ((numx + 7) / 8);
 
     /* some spoolers use a "cut" to do printer-type selection
