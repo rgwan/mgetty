@@ -4,7 +4,7 @@
  * Executes the shell script given as the argument. If the argument is
  * empty, commands are read from standard input.
  *
- * $Id: shell.c,v 1.8 1999/07/20 07:41:08 marcs Exp $
+ * $Id: shell.c,v 1.9 1999/11/13 11:09:38 marcs Exp $
  *
  */
 
@@ -407,7 +407,15 @@ int voice_shell_handle_event(int event, event_data data)
                     if (voice_write_shell("RECEIVING") != OK)
                          return(FAIL);
 
-                    enter_fax_mode();
+		    if (enter_data_fax_mode(ANSWER_FAX)
+			== FAIL) {
+		       lprintf(L_WARN, "%s: Could not switch to fax mode",
+		               program_name);
+                       /* otherwise result ignored, which is already much
+                        * better than before.
+                        */
+		    }
+
                     voice_write("ATA"); /* faxrec will eat the rest */
                     voice_faxrec(path, 0);
                     voice_init();
@@ -431,7 +439,14 @@ int voice_shell_handle_event(int event, event_data data)
 
                     if (av[0] != NULL)
                          {
-                         enter_fax_mode();
+			 if (enter_data_fax_mode(ANSWER_FAX)
+			     == FAIL) {
+			    lprintf(L_WARN, "%s: Could not switch to fax mode",
+				    program_name);
+			    /* otherwise result ignored, which is already much
+			     * better than before.
+			     */
+			 }
                          voice_faxsnd(av, 0, 3);
                          voice_init();
                          voice_mode_on();

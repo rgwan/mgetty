@@ -1,7 +1,7 @@
 /*
  * answer.c
  *
- * $Id: answer.c,v 1.12 1999/06/27 14:29:03 marcs Exp $
+ * $Id: answer.c,v 1.13 1999/11/13 11:09:39 marcs Exp $
  *
  */
 
@@ -14,96 +14,16 @@ int first_dtmf;
 int hangup_requested;
 int switch_to_data_fax_mode;
 
-static int enter_data_fax_mode(int answer_mode)
-     {
-     int bit_order = 0;
-     char *fax_mode = NULL;
+/* This wrapper is used for answering functions at the vgetty
+ * call initialization.
+ */
+static int enter_data_fax_mode_wrapper(int answer_mode) {
+   if (cvd.force_autodetect.d.i) {
+      answer_mode = ANSWER_DATA | ANSWER_FAX;
+   }
 
-     answer_mode &= (ANSWER_DATA | ANSWER_FAX);
-
-     if (answer_mode == 0)
-          {
-          lprintf(L_NOISE,
-           "%s: answer mode is set to not accept data or fax connections",
-           program_name);
-          exit(99);
-          };
-
-     if (cvd.force_autodetect.d.i)
-          answer_mode = ANSWER_DATA | ANSWER_FAX;
-
-     if (modem_type == Mt_class2)
-          {
-          bit_order = 0;
-	  /* following the specs, we should go to +FCLASS=2;+FAA=1, but
-	   * there is a fair number of Rockwell modems that can't do
-	   * data calls if in that mode - must go to +FCLASS=0;+FAA=1 -
-	   * but yet other modems NEED class 2, so use modem_quirks...
-	   */
-          fax_mode = ( modem_quirks & MQ_NEED2 ) ? "2": "0";
-          };
-
-     if (modem_type == Mt_class2_0)
-          {
-          bit_order = 1;
-          fax_mode = "2.0";
-          };
-
-     if ((modem_type == Mt_data) || (fax_mode == NULL))
-          answer_mode &= ANSWER_DATA;
-
-     if (answer_mode == 0)
-          {
-          lprintf(L_NOISE, "%s: modem does not support wanted answer mode",
-           program_name);
-          return(FAIL);
-          };
-
-     switch (answer_mode)
-          {
-          case ANSWER_DATA | ANSWER_FAX:
-               lprintf(L_JUNK, "%s: trying data and fax connection",
-                program_name);
-
-               if (voice_switch_to_data_fax(fax_mode) == FAIL)
-                    return(FAIL);
-
-               if (voice_command("AT+FAA=1", "OK") != VMA_USER_1)
-                    return(FAIL);
-
-               tio_set(voice_fd, &tio_save);
-               voice_restore_signal_handler();
-               fax_set_bor(voice_fd, bit_order);
-               break;
-          case ANSWER_DATA:
-               lprintf(L_JUNK, "%s: trying data connection", program_name);
-
-               if (voice_switch_to_data_fax("0") == FAIL)
-                    return(FAIL);
-
-               if (voice_command("AT+FAA=0", "OK") != VMA_USER_1)
-                    return(FAIL);
-
-               tio_set(voice_fd, &tio_save);
-               voice_restore_signal_handler();
-               break;
-          case ANSWER_FAX:
-               lprintf(L_JUNK, "%s: trying fax connection", program_name);
-
-               if (voice_switch_to_data_fax(fax_mode) == FAIL)
-                    return(FAIL);
-
-               if (voice_command("AT+FAA=0", "OK") != VMA_USER_1)
-                    return(FAIL);
-
-               tio_set(voice_fd, &tio_save);
-               voice_restore_signal_handler();
-               fax_set_bor(voice_fd, bit_order);
-               break;
-          };
-
-     return(OK);
-     }
+   return enter_data_fax_mode(answer_mode);
+}
 
 static int get_answer_mode(char* ring_type)
      {
@@ -329,7 +249,8 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
      if ((answer_mode & ANSWER_VOICE) == 0)
           {
 
-          if (enter_data_fax_mode(answer_mode) == FAIL)
+          if (enter_data_fax_mode_wrapper(answer_mode)
+              == FAIL)
                {
                lprintf(L_WARN, "%s: Could not switch to data or fax mode",
                 program_name);
@@ -408,8 +329,9 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
                     {
                     case 1:
 
-                         if (enter_data_fax_mode(answer_mode & ANSWER_DATA) ==
-                          FAIL)
+                         if (enter_data_fax_mode_wrapper
+                                (answer_mode & ANSWER_DATA)
+                             == FAIL)
                               {
                               lprintf(L_WARN,
                                "%s: Could not switch to data mode",
@@ -420,7 +342,7 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
                          return(VMA_OK);
                     case 2:
 
-                         if (enter_data_fax_mode(answer_mode & ANSWER_FAX) ==
+                         if (enter_data_fax_mode_wrapper(answer_mode & ANSWER_FAX) ==
                           FAIL)
                               {
                               lprintf(L_WARN,
@@ -432,7 +354,7 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
                          return(VMA_OK);
                     case 3:
 
-                         if (enter_data_fax_mode(answer_mode & (ANSWER_DATA |
+                         if (enter_data_fax_mode_wrapper(answer_mode & (ANSWER_DATA |
                           ANSWER_FAX)) == FAIL)
                               {
                               lprintf(L_WARN,
@@ -550,7 +472,7 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
      if (switch_to_data_fax_mode)
           {
 
-          if (enter_data_fax_mode(answer_mode) == FAIL)
+          if (enter_data_fax_mode_wrapper(answer_mode) == FAIL)
                {
                lprintf(L_WARN, "%s: Could not switch to data/fax mode",
                 program_name);
@@ -636,7 +558,7 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
      if (switch_to_data_fax_mode)
           {
 
-          if (enter_data_fax_mode(answer_mode) == FAIL)
+          if (enter_data_fax_mode_wrapper(answer_mode) == FAIL)
                {
                lprintf(L_WARN, "%s: Could not switch to data/fax mode",
                 program_name);
@@ -712,7 +634,7 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
           {
           remove_message(message);
 
-          if (enter_data_fax_mode(answer_mode) == FAIL)
+          if (enter_data_fax_mode_wrapper(answer_mode) == FAIL)
                {
                lprintf(L_WARN, "%s: Could not switch to data/fax mode",
                 program_name);
