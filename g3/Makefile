@@ -1,7 +1,7 @@
 # Makefile for the "g3 tools" subtree
 # of mgetty+sendfax
 #
-# SCCS: $Id: Makefile,v 4.4 2004/07/16 19:45:05 gert Exp $ Copyright (c) Gert Doering
+# SCCS: $Id: Makefile,v 4.5 2004/07/20 12:44:25 gert Exp $ Copyright (c) Gert Doering
 #
 
 CC=gcc
@@ -98,6 +98,18 @@ test:
 	     ./g3cat - test-ref.g3 >test-1.g3
 	./g3cat -h 10 test-ref.g3 >test-2.g3
 	cmp test-1.g3 test-2.g3
+
+# g3cat with -a (align EOL), -p (minimum byte padding for each line), -R
+	@echo 'testing g3cat -a / -R / -p <padding>...'
+	( echo "P1 1 10" ; echo "0 0 0 0 0 0 0 0 0 0" ) | ./pbm2g3 >test.g3
+	test `cat test.g3 | wc -c` = 47
+	test `./g3cat test.g3 | wc -c` = 47
+	test `./g3cat -a test.g3 | wc -c` = 54
+	test `./g3cat -a -R test.g3 | wc -c` = 42
+	test `./g3cat -p 5 -a -R test.g3 | wc -c` = 52
+	test `./g3cat -p 10 -a -R test.g3 | wc -c` = 102
+	test `./g3cat -p 100 -a -R test.g3 | wc -c` = 1002
+	test `./g3cat -p 100 -a test.g3 | ./g3cat - | wc -c` = 47
 
 	@echo "all tests passed!"
 	@rm test.g3 test-1.g3 test-2.g3
