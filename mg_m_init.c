@@ -1,4 +1,4 @@
-#ident "$Id: mg_m_init.c,v 2.2 1994/12/23 12:59:21 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_m_init.c,v 2.3 1995/06/10 15:26:09 gert Exp $ Copyright (c) Gert Doering"
 
 /* mg_m_init.c - part of mgetty+sendfax
  *
@@ -54,8 +54,8 @@ int mg_init_data _P2( (fd, chat_seq), int fd, char * chat_seq[] )
 
 /* initialize fax section */
 
-int mg_init_fax _P3( (fd, mclass, fax_id),
-		      int fd, char * mclass, char * fax_id )
+int mg_init_fax _P4( (fd, mclass, fax_id),
+		      int fd, char * mclass, char * fax_id, boolean fax_only )
 {
     /* find out whether this beast is a fax modem... */
 
@@ -71,9 +71,10 @@ int mg_init_fax _P3( (fd, mclass, fax_id),
     {
 	/* set adaptive answering, bit order, receiver on */
 	
-	if ( mdm_command( "AT+FAA=1;+FCR=1", fd ) == FAIL )
+	if ( mdm_command( fax_only? "AT+FAA=0;+FCR=1":
+			            "AT+FAA=1;+FCR=1", fd ) == FAIL )
 	{
-	    lprintf( L_MESG, "cannot set reception flags" );
+	    lprintf( L_MESG, "cannot set answer/reception flags" );
 	}
 	if ( fax_set_bor( fd, 1 ) == FAIL )
 	{
@@ -91,7 +92,8 @@ int mg_init_fax _P3( (fd, mclass, fax_id),
 	 * +FCLASS=0: there are some weird modems out there that won't
 	 * properly auto-detect fax/data when in +FCLASS=2 mode...
 	 */
-	if ( mdm_command( "AT+FCLASS=0", fd ) == FAIL )
+	if ( !fax_only )
+	  if ( mdm_command( "AT+FCLASS=0", fd ) == FAIL )
 	{
 	    lprintf( L_MESG, "weird: cannot set class 0" );
 	}
@@ -102,9 +104,10 @@ int mg_init_fax _P3( (fd, mclass, fax_id),
     
 	/* set adaptive answering, bit order, receiver on */
 
-	if ( mdm_command( "AT+FAA=1;+FCR=1", fd ) == FAIL )
+	if ( mdm_command( fax_only? "AT+FAA=0;+FCR=1":
+			            "AT+FAA=1;+FCR=1", fd ) == FAIL )
 	{
-	    lprintf( L_MESG, "cannot set reception flags" );
+	    lprintf( L_MESG, "cannot set answer/reception flags" );
 	}
 	if ( fax_set_bor( fd, 0 ) == FAIL )
 	{
