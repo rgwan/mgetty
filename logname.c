@@ -1,8 +1,11 @@
-#ident "$Id: logname.c,v 1.5 1993/07/23 21:38:23 gert Exp $ (c) Gert Doering"
+#ident "$Id: logname.c,v 1.6 1993/09/01 01:13:29 gert Exp $ (c) Gert Doering"
 #include <stdio.h>
 #include <termio.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
+#ifndef SYSTEM
+#include <sys/utsname.h>
+#endif
 
 #include "mgetty.h"
 
@@ -28,7 +31,15 @@ char ch;
 
 newlogin:
     printf( "\r\n" );
+#ifdef SYSTEM
     printf( prompt, SYSTEM );
+#else
+    {
+    struct utsname un;
+	uname( &un );
+	printf( prompt, un.sysname );
+    }
+#endif
     printf( " " );
 
     i = 0;
