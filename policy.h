@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.60 1994/08/28 15:43:58 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.61 1994/09/10 22:13:41 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -428,8 +428,17 @@
 /* this is the command to set the modem to use the desired flow control.
  * For hardware handshake, this could be &H3 for the ZyXEL, &K3 for
  * Rockwell-Based modems or \\Q3&S0 for Exar-Based Modems (i.e. some GVC's)
+ * If you don't want extra initalization, do not define it.
  */
 #define FAX_MODEM_HANDSHAKE "&H3"
+
+/* This is the modem command used for dialing. The phone number will
+ * get appended right after the string. Normally, "ATD" or "ATDP" should
+ * suffice, but in some situations (company telephone systems) you might
+ * need something like "ATx0DT0wP" (switch of dial-tone recognition, tone-
+ * dial a "0", wait for dial-tone, pulse dial the rest)
+ */
+#define FAX_DIAL_PREFIX "ATD"
 
 /* When sending a fax, if the other side says "page bad, retrain
  * requested", sendfax will retry the page. Specifiy here the maximum
