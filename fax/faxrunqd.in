@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.59 2002/04/02 14:42:15 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.60 2002/04/02 15:13:09 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.60  2002/04/02 15:13:09  gert
+# when removing a job from the modem queue, correct queue length!
+#
 # Revision 1.59  2002/04/02 14:42:15  gert
 # fix 'write combining prio clash' problem (a high prio job gets attached
 # to a previously-queued lower-prio job, and is then sent later with the
@@ -697,6 +700,7 @@ sub delete_job_from_queue
 	    if ( $modem_queue{$tty}[$i] eq $j )
 	    {
 		splice @{$modem_queue{$tty}}, $i, 1;
+		$mq_length{$tty} -= $queue{$j}->{weight};
 		print LOG " DFQ found --> ". join(" ", @{$modem_queue{$tty}}) ."\n" if $opt_d;
 		return;
 	    }
