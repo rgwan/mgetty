@@ -1,4 +1,4 @@
-#ident "$Id: login.c,v 1.2 1994/01/14 19:55:31 gert Exp $ Copyright (C) 1993 Gert Doering"
+#ident "$Id: login.c,v 1.3 1994/03/07 21:17:56 gert Exp $ Copyright (C) 1993 Gert Doering"
 ;
 
 /* login.c
@@ -33,10 +33,11 @@ boolean match _P2( (user,key), char * user, char * key )
 
     if ( lk == 0 )
     {
-	return ( strlen( user) != 0 );
+	return ( strlen( user) == 0 );
     }
 
 #ifdef FIDO
+    /* special handling for fido logins */
     if ( user[0] == '\377' && strcmp( key, "/FIDO/" ) == 0 )
     {
 	return TRUE;
@@ -196,7 +197,7 @@ void login _P1( (user), char * user )
     /* verbose login message */
     lprintf( L_NOISE, "calling login: cmd='%s', argv[]='", cmd );
     for ( i=0; i<argc; i++) { lputs( L_NOISE, argv[i] ); 
-			      lputs( L_NOISE, (i<argc-1)?",":"'" ); }
+			      lputs( L_NOISE, (i<argc-1)?" ":"'" ); }
 
     /* audit record */
     lprintf( L_AUDIT, 
