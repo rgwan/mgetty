@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 1.34 1994/09/19 22:26:41 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 1.35 1994/09/28 19:40:31 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* tio.c
  *
@@ -51,7 +51,11 @@ static char tio_compilation_type[]="@(#)tio.c compiled with BSD_SGTTY";
 # define IUCLC 0
 # endif
 # ifndef TAB3
-# define TAB3 OXTABS
+#  ifdef NeXT
+#   define TAB3 XTABS
+#  else
+#   define TAB3 OXTABS
+#  endif	/* !NeXT */
 # endif
 #endif
 
