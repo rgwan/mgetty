@@ -26,6 +26,10 @@
   4.2) Example script
   4.3) Another script
  5.) Commands / answers to/from the voice library and explanation of them
+
+     All command interpretation is done in voice/libvoice/shell.c. The C
+     code might be a little bit more up-to-date than this documentation ;-)
+
  6.) Possible events, detected tones
  7.) Converting voice files to/from your modem's format
  8.) Logging
@@ -339,27 +343,34 @@
  Answers:       "READY": Voice lib got your request.
 
  Command:       "DEVICE argument"
- Possible Args: NO_DEVICE, DIALUP_LINE, EXTERNAL_MICROPHONE, INTERNAL_SPEAKER,
-                LOCAL_HANDSET, EXTERNAL_SPEAKER
+ Possible Args: NO_DEVICE, DIALUP_LINE, INTERNAL_MICROPHONE, 
+                EXTERNAL_MICROPHONE, INTERNAL_SPEAKER,
+                LOCAL_HANDSET, EXTERNAL_SPEAKER,
+                DIALUP_WITH_INT_SPEAKER, DIALUP_WITH_EXT_SPEAKER, 
+                DIALUP_WITH_INTERNAL_MIC_AND_SPEAKER, 
+                DIALUP_WITH_EXTERNAL_MIC_AND_SPEAKER, 
+                DIALUP_WITH_LOCAL_HANDSET
  Explanation:   This command sets the device that vgetty will use.
- Answers:       "READY": Voice lib got your request.
-                (also see below).
+ Answers:       "READY": Device is set
+                "DEVICE_NOT_AVAILABLE": Device Setting not supported
+                "ERROR": Error
 
  Command:       "BEEP [frequency [length]]"
  Explanation:   Sends a beep through the chosen device (if frequency or
                 length are not given, the defaults from voice.conf are used)
  Answers:       "BEEPING": Beeping is executed right now.
+                "ERROR": Beeping failed.
                 "READY": Beeping ended.
 
  Command:       "DIAL number"
  Explanation:   Dials the given number.
  Answers:       "DIALING": Current action is dialing.
+                "ERROR": Error, dialing aborted.
                 "READY": Dialing ended.
 
  Command:       "GET TTY"
  Explanation:   Returns the modem device currently in use.
- Answers:       DevID: Device id.
-                "READY": Voicelib ready for next command.
+ Answers:       "READY" after <Device id>
 
  Command:       "GET MODEM"
  Explanation:   Returns the voice modem driver name, for example
@@ -380,11 +391,12 @@
  Explanation:   Stops conversation with the voice lib.
  Answers:       "GOODBYE SHELL": Voice lib stops conversation.
 
- Command:       "PLAY filename"
+ Command:       "PLAY filename" or "PLAY filename number"
  Explanation:   Plays filename through the chosen device (the file must be in
                 your modem's format!!! See section 7)
  Answers:       "PLAYING": 'filename' is being played.
                 "READY": Playing of 'filename' has ended.
+                "ERROR": An Error occured
  Notes: if you specify an optional non zero third numerical argument, this
         changes the DTMF semantic: it will make the multi-DTMF detection more
         reliable when used with ``AUTOSTOP''. For details, please look
@@ -393,15 +405,18 @@
  Command:       "RECORD filename"
  Explanation:   Records filename from the chosen device (recorded file will be
                 in your modem's format! See section 7)
- Answers:       "RECORDING": 'filename' is being recorded.
-                "READY": Recording of 'filename has ended.
+ Answers:       "READY" after "RECORDING": 'filename' was recorded.
+                "READY" after "ERROR" after "RECORDING":
+                       Recording of 'filename' has failed.
 
  Command:       "WAIT seconds"
  Explanation:   Waits for 'seconds' seconds. During waiting, events will be
                 detected and reported!
- Answers:       "WAITING": Waiting has started.
-                "READY": Waiting is over. (Note, that after this READY
-                         events will NOT be reported to the shell!)
+ Answers:       "READY" after "WAITING": Waiting is over.
+                "READY" after "ERROR" after "WAITING": Waiting failed. 
+                (Note, that after READY events will NOT be 
+                 reported to the shell!)
+
 
  Command:       "STOP"
  Explanation:   Stops current action (DIALING, PLAYING, RECORDING or WAITING)
@@ -411,12 +426,13 @@
  Answers:       "READY": Current action successfully stopped.
 
 
- Command:       "DTMF"
+ Command:       "DTMF number"
  Explanation:   Contributed by <cadams@ro.com>, this adds support for sending
                 DTMFs over the voice modem from the voice shell.
                 The argument is the DTMFs to dial. This can be used for
                 example to use vgetty as a voice-mailbox poller.
- Answers        "DTMFING", then "READY".
+ Answers        "READY" after "DTMFING": DTMF signals send
+               "READY" after "ERROR" after "DTMFING": Operation failed
 
  Command:       "QUOTE"
  Explanation:   Contributed by <gonz@ratloop.com>, this adds support for
@@ -424,16 +440,23 @@
                 from the voice shell. The argument is the command to issue.
                 Please do not use this lightly since it makes your voice
                 shell script modem dependant.
- Answers        "READY".
+ Answers        "ERROR": Modem reported an error.
+               "READY": Command executed.
+
+ Command:       "GETFAX"
+ Explanation:   For receiving a FAX.
+ Answers        "RECEIVING", then "READY".
+
+ Command:       "SENDFAX parameter(s)r"
+ Explanation:   For sending a FAX.
+ Answers        "READY": Sending finished.
+                "ERROR": Error
 
  If something fails, you get "ERROR" as answer. That can mean two things,
  either you tried to issue multiple commands, e.g. a second PLAY command
  before stopping the first (vgetty will complain about this, saying
  "Nested command in shell script"), or something's really broken (hardware,
  software).
-
- You will receive:  ``DEVICE_NOT_AVAILABLE'' when the requested DEVICE
- doesn't exist.
 
 
  6.) Possible events, detected tones
