@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.61 1993/11/07 01:51:21 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.62 1993/11/12 15:19:16 gert Exp $ Copyright (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -100,6 +100,7 @@ chat_action_t	ring_chat_actions[] = { { "CONNECT",	A_CONN },
 					{ "ERROR",	A_FAIL },
 #ifndef NO_FAX
 					{ "+FCON",	A_FAX  },
+					{ "FAX",	A_FAX  },
 #endif
 					{ NULL,		A_FAIL } };
 
@@ -157,7 +158,6 @@ int main _P2((argc, argv), int argc, char ** argv)
 	char buf[MAXLINE+1];
 	TIO	tio;
 	FILE *fp;
-	int Nusers;
 	int i;
 	int cspeed;
 
@@ -378,7 +378,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 	tio_mode_sane( &tio, TRUE );
 	tio_set_speed( &tio, portspeed );
 	tio_mode_raw( &tio );
-	tio_set_flow_control( &tio, DATA_FLOW );
+	tio_set_flow_control( STDIN, &tio, DATA_FLOW );
 	if ( tio_set( STDIN, &tio ) == ERROR )
 	{
 	    lprintf( L_FATAL, "cannot set TIO" );
@@ -538,13 +538,8 @@ int main _P2((argc, argv), int argc, char ** argv)
         delay( prompt_waittime );
 	/* loop until a successful login is made
 	 */
-	for (;;) {
-
-		/* set Nusers value to number of users currently logged in
-		 */
-		Nusers = get_current_users();
-		/* lprintf(L_NOISE, "Nusers=%d", Nusers); */
-
+	for (;;)
+	{
 		/* set ttystate for /etc/issue ("before" setting) */
 		tio = *gettermio(GettyID, TRUE, &login_prompt);
 		tio_set( STDIN, &tio );
