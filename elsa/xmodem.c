@@ -1,4 +1,4 @@
-#ident "$Id: xmodem.c,v 1.1 1999/03/31 21:03:22 gert Exp $"
+#ident "$Id: xmodem.c,v 1.2 1999/04/05 20:43:15 gert Exp $"
 
 /* xmodem.c
  *
@@ -8,6 +8,11 @@
  * warning: these functions use alarm() and mess up SIGALRM handlers
  *
  * $Log: xmodem.c,v $
+ * Revision 1.2  1999/04/05 20:43:15  gert
+ * - add ELSA-EOT (NAKing EOT doesn't work, recognize 0d/0a/OK/0d/0a
+ * - add "all-in-one" download function
+ * - fix timeout bug
+ *
  * Revision 1.1  1999/03/31 21:03:22  gert
  * XModem primitives - first cut, downloading works
  *
@@ -75,8 +80,9 @@ int xmodem_rcv_init _P3((fd, msg_func, buf),
 int xmodem_rcv_block _P1((buf), unsigned char *buf)
 {
 unsigned char ch;
-int got_can=0;
+int got_can=0, ok_seq_cnt=0;
 int len, i, chks;
+static char ok_seq[] = { 0x0d, 0x0a, 'O', 'K', 0x0d, 0x0a };
 
 again:
     alarm(10); 
@@ -88,9 +94,19 @@ again:
 	if ( read( x_fd, &ch, 1 ) < 1 ) { goto send_nak; }
 	lputc( L_NOISE, ch );
 
-	if ( ch == CAN ) { if ( ++got_can > 1 ) { x_errcnt=10; return -1;}}
-		    else { got_can=0; }
+	/* if we get two CANs in sequence, give up
+	 */
+	if ( ch == CAN ) 
+	    { lprintf( L_NOISE, "<CAN>" );
+	      if ( ++got_can > 1 ) { x_errcnt=10; return -1;}}
+	else 
+	    { got_can=0; }
 
+	/* the XModem protocol description suggests that the first EOT
+	 * should be NAKed, and the second one should be accepted - 
+	 * problem with that is, the ELSA doesn't send a second EOT,
+	 * so we accept \r\nOK\r\n as "second EOT"
+	 */
 	if ( ch == EOT ) 
 	{ 
 	    x_eotcnt++;
@@ -98,6 +114,15 @@ again:
 	    	goto send_nak;
 	    return 0;			/* EOF */
 	}
+
+	if ( ch == ok_seq[ok_seq_cnt] )
+	{
+	    ok_seq_cnt++;
+	    lputs( L_JUNK, "<s>" );
+	    if ( ok_seq_cnt >= 6 )
+	    	{ lprintf( L_NOISE, "ELSA-EOT" ); return 0; }
+	}
+	else ok_seq_cnt= ( ch == ok_seq[0] );
     }
     while( ch != SOH && ch != STX );
 
@@ -111,12 +136,12 @@ again:
 	{ fprintf( stderr, "!Block # %d doesn't match %d\n", ch, xmodem_blk); 
 	  goto send_nak; }
     
-    lprintf( L_NOISE, "block number %d ok, got:", xmodem_blk );
+    lprintf( L_NOISE, "expected seq.# %d ok, got:", xmodem_blk );
     chks=0;
 
     for( i=0; i<len; i++ )
     {
-	if ( read( x_fd, &buf[i], 1 ) < 1 ) { return -1; }
+	if ( read( x_fd, &buf[i], 1 ) < 1 ) { goto send_nak; }
 	chks += buf[i];
     }
 
@@ -137,6 +162,7 @@ send_nak:
     if ( x_errcnt<10 ) goto again;
 
     alarm(0);
+    lprintf( L_MESG, "too many NAKs, giving up" );
     return -1;
 }
 
@@ -161,3 +187,47 @@ static int x_nak(void)
     return write( x_fd, &c_nak, 1 );
 }
 
+int xmodem_rcv_file _P3(( modem_fd, out_fd, msg_func),
+			 int modem_fd, int out_fd, msg_func_t msg_func )
+{
+int s;
+char buf[1030];
+
+    s = xmodem_rcv_init( modem_fd, msg_func, buf );
+
+    if ( s <= 0 ) 
+    {
+        lprintf( L_ERROR, "XModem startup failed" );
+        fprintf( stderr, "XModem startup failed\n" );
+	close(out_fd);
+	return -1;
+    }
+
+    do
+    {
+    	if ( write( out_fd, buf, s ) != s ) 
+	{
+	    lprintf( L_ERROR, "can't write %d bytes to file: %s",
+	    		s, strerror(errno) );
+	    fprintf( stderr, "can't write %d bytes to file: %s\n",
+	    		s, strerror(errno) );
+	    close(out_fd);
+	    return -1;
+	}
+	printf( "block #%d\r", xmodem_blk ); fflush( stdout );
+
+        s = xmodem_rcv_block( buf );
+    }
+    while( s > 0 );
+
+    if ( s < 0 )
+    {
+    	lprintf( L_ERROR, "can't receive expected block" );
+    	fprintf( stderr, "can't receive expected block\n" );
+	return -1;
+    }
+
+    close(out_fd);
+
+    return 0;
+}
