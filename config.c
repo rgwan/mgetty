@@ -1,4 +1,4 @@
-#ident "$Id: config.c,v 1.1 1994/12/05 20:52:58 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: config.c,v 1.2 1994/12/18 22:31:53 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /*
  * config.c
@@ -176,6 +176,9 @@ char *  s;
 
 	line++;
     }
+
+    /* terminate last string and ptr list */
+    *s = 0;
     cnt++; p[cnt] = NULL;
 
 /*     for ( i=0; p[i]; i++ )
