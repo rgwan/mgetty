@@ -1,4 +1,4 @@
-#ident "@(#)getdisk.c $Id: getdisk.c,v 1.2 1994/01/16 23:53:10 gert Exp $ Copyright (c) 1994 Elegant Communications Inc."
+#ident "@(#)getdisk.c $Id: getdisk.c,v 1.3 1994/01/21 11:37:04 gert Exp $ Copyright (c) 1994 Elegant Communications Inc."
 /*
 
 	This software is graciously provided by Elegant Communications Inc.,
@@ -40,9 +40,10 @@
 		returns: 0 on success.
  */
 
+#include <stdio.h>
+
 #include "policy.h"
 #include "mgetty.h"
-#include <stdio.h>
 
 /* for the most part, these defines are simply used to show which
    systems need which type of statfs/ustat().  They can all be
