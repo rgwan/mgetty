@@ -3,7 +3,7 @@
  *
  * Write data to the voice modem device.
  *
- * $Id: write.c,v 1.5 1998/11/17 11:48:42 marc Exp $
+ * $Id: write.c,v 1.6 2000/06/11 16:24:41 marcs Exp $
  *
  */
 
@@ -83,13 +83,12 @@ int voice_write_char(char charout)
 int voice_write_raw(char *buffer, int count)
      {
      time_t timeout;
+     int result;
 
      timeout = time(NULL) + cvd.port_timeout.d.i;
 
      while ((timeout >= time(NULL)) && (count > 0))
           {
-          int result;
-
           result = write(voice_fd, buffer, count);
 
           if ((result < 0) && (errno != 0) && (errno != EINTR) && (errno !=
@@ -106,7 +105,7 @@ int voice_write_raw(char *buffer, int count)
                count -= result;
                };
 
-          if (result == 0)
+          if (result == 0 || (result < 0 && errno == EAGAIN))
                delay(cvd.poll_interval.d.i);
 
           voice_check_events();
