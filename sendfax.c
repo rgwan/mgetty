@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.48 1993/12/18 18:46:33 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.49 1993/12/18 19:35:21 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* sendfax.c
  *
@@ -635,8 +635,9 @@ int	tries;
 	if ( fax_hangup_code == -1 )
 	    fprintf( stderr, "(number of tries exhausted)\n" );
 	else
-	    fprintf( stderr, "Transmission error: +FHNG:%2d\n",
-			     fax_hangup_code );
+	    fprintf( stderr, "Transmission error: +FHNG:%2d (%s)\n",
+			     fax_hangup_code,
+			     fax_strerror( fax_hangup_code ) );
 	fax_close( fd );
 	exit(12);
     }
@@ -666,6 +667,8 @@ int	tries;
 	    {
 		fprintf( stderr, "warning: polling failed\n" );
 		lprintf( L_WARN, "warning: polling failed!" );
+		fax_close( fd );
+		exit(12);
 	    }
 	}
 	if ( verbose ) printf( "%d pages successfully polled!\n", pagenum );
