@@ -9,7 +9,7 @@
 # There are still a lot rough edges - but it works, and should give you an
 # idea how to improve it
 #
-# SCCS: $Id: faxrunq.in,v 1.3 1994/02/03 19:08:24 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxrunq.in,v 1.4 1994/02/11 14:56:57 gert Exp $ Copyright (C) 1994 Gert Doering
 
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -23,6 +23,11 @@ MAILER="@MAILER@"
 #
 echo="echo"
 
+#
+# awk program that is not stone-old-brain-dead (that is, not oawk...)
+#
+AWK=@AWK@
+
 cd $FAX_SPOOL_OUT || exit 1
 
 jobs=`ls */JOB 2>/dev/null`
@@ -33,14 +38,14 @@ do
 #
 # get user to notify (->$MAIL_TO) and phone number (->$PHONE)
 #
-    eval `awk '$1=="user" { printf "MAIL_TO=%s;", $2 }
+    eval `$AWK '$1=="user" { printf "MAIL_TO=%s;", $2 }
 	       $1=="phone" { printf "PHONE=%s;", $2 }
 	       $1=="verbose_to" { printf "VERBOSE_TO=\"%s\";",
                                          substr($0,12) }' JOB`
 #
 # construct command line to execute
 #
-    command=`awk 'BEGIN { phone="-"; header=""; pages="" }
+    command=`$AWK 'BEGIN { phone="-"; header=""; pages="" }
 		  $1=="phone" { phone=$2 }
 		  $1=="header" { header="-h "$2 }
 		  $1=="pages" { for( i=2; i<=NF; i++) pages=pages$i" " }
