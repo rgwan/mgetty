@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.131 1994/09/16 15:32:56 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.132 1994/09/18 12:25:19 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -166,6 +166,44 @@ enum { St_unknown,
        St_get_login,			/* prompt "login:", call login() */
        St_incoming_fax			/* +FCON detected */
    } mgetty_state = St_unknown;
+
+void st_dialout _P0( void )
+{
+    int pid;
+    
+    /* the line is locked, a parallel dialout is in process */
+
+    /* close all file descriptors -> other processes can read port */
+    close(0);
+    close(1);
+    close(2);
+
+    /* write a note to utmp/wtmp about dialout, including process args
+     * (don't do this on two-user-license systems!)
+     */
+#ifndef USER_LIMIT
+    pid = checklock( Device );		/* !! FIXME, ugly */
+    make_utmp_wtmp( Device, UT_USER, "dialout", get_ps_args(pid) );
+#endif
+
+    /* this is kind of tricky: sometimes uucico dial-outs do still
+       collide with mgetty. So, when my uucico times out, I do
+       *immediately* restart it. The double check makes sure that
+       mgetty gives me at least 5 seconds to restart uucico */
+    
+    do {
+	/* wait for lock to disappear */
+	while ( checklock(Device) != NO_LOCK ) sleep(10);
+	
+	/* wait a moment, then check for reappearing locks */
+	sleep(5);
+    }
+    while ( checklock(Device) != NO_LOCK );	
+
+    /* OK, leave & get restarted by init */
+    exit(0);
+}					/* end st_dialout() */
+
        
 int main _P2((argc, argv), int argc, char ** argv)
 {
@@ -365,8 +403,7 @@ int main _P2((argc, argv), int argc, char ** argv)
      */
     if (checklock(Device) != NO_LOCK)
     {
-	while (checklock(Device) != NO_LOCK) sleep(10);
-	exit(0);
+	st_dialout();
     }
 
     /* try to lock the line
@@ -375,8 +412,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 
     if ( makelock(Device) == FAIL )
     {
-	while( checklock(Device) != NO_LOCK ) sleep(10);
-	exit(0);
+	st_dialout();
     }
 
     /* the line is mine now ...  */
@@ -391,6 +427,14 @@ int main _P2((argc, argv), int argc, char ** argv)
     (void) chown(devname, uucpuid, uucpgid);
     (void) chmod(devname, FILE_MODE);
 
+    /* if necessary, kill any dangling processes (Marc Boucher) */
+#if defined( EXEC_FUSER ) && ! ( defined(M_UNIX) || defined(sunos4) || \
+				 defined(linux) )
+    sprintf( buf, EXEC_FUSER, devname );
+    if ( ( i = system( buf ) ) != 0 )
+        lprintf( L_WARN, "%s: return code %d", buf, i );
+#endif
+    
     /* open the device; don't wait around for carrier-detect */
     if ( mg_open_device( devname, blocking_open ) == ERROR ) /* mg_m_init.c */
     {
@@ -642,39 +686,8 @@ int main _P2((argc, argv), int argc, char ** argv)
 
 
 	  case St_dialout:
-	    /* the line is locked, a parallel dialout is in process */
-
-	    /* close all file descriptors -> other processes can read port */
-	    close(0);
-	    close(1);
-	    close(2);
-
-	    /* write a note to utmp/wtmp about dialout
-	     * (don't do this on two-user-license systems!)
-	     */
-#ifndef USER_LIMIT
-	    i = checklock( Device );		/* !! FIXME, ugly */
-	    make_utmp_wtmp( Device, UT_USER, "dialout", get_ps_args(i) );
-#endif
-
-	    /* this is kind of tricky: sometimes uucico dial-outs do still
-	       collide with mgetty. So, when my uucico times out, I do
-	       *immediately* restart it. The double check makes sure that
-	       mgetty gives me at least 5 seconds to restart uucico */
-
-	    do {
-		/* wait for lock to disappear */
-		while ( checklock(Device) != NO_LOCK ) sleep(10);
-
-		/* wait a moment, then check for reappearing locks */
-		sleep(5);
-	    }
- 	    while ( checklock(Device) != NO_LOCK );	
-
-	    /* OK, leave & get restarted by init */
-	    exit(0);
+	    st_dialout();	/* does /NOT/ return */
 	    break;
-
 
 	  case St_wait_for_RINGs:
 	    /* Wait until the proper number of RING strings have been
