@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 1.2 1993/10/19 23:26:59 gert Exp $ Copyright (c) 1993 Gert Doering";
+#ident "$Id: tio.c,v 1.3 1993/10/27 01:42:42 gert Exp $ Copyright (c) 1993 Gert Doering";
 
 /* tio.c
  *
@@ -10,9 +10,11 @@
 #include "tio.h"
 #ifdef POSIX_TERMIOS
 static char tio_compilation_type[]="@(#) compiled with POSIX_TERMIOS";
-#elif defined SYSV_TERMIO
+#endif
+#ifdef SYSV_TERMIO
 static char tio_compilation_type[]="@(#) compiled with SYSV_TERMIO";
-#else
+#endif
+#ifdef BSD_SGTTY
 static char tio_compilation_type[]="@(#) compiled with BSD_SGTTY";
 #endif
 
@@ -23,12 +25,14 @@ int tio_get _P2((fd, t), int fd, TIO *t )
     {
 	lprintf( L_ERROR, "TCGETA failed" ); return ERROR;
     }
-#elif defined(POSIX_TERMIOS)
+#endif
+#ifdef POSIX_TERMIOS
     if ( tcgetattr( fd, t ) < 0 )
     {
 	lprintf( L_ERROR, "tcgetattr failed" ); return ERROR;
     }
-#else
+#endif
+#ifdef BSD_SGTTY
     if ( gtty( fd, t ) < 0 )
     {
 	lprintf( L_ERROR, "gtty failed" ); return ERROR;
@@ -44,12 +48,14 @@ int tio_set _P2( (fd, t), int fd, TIO * t)	/*!! FIXME: flags, wait */
     {
 	lprintf( L_ERROR, "ioctl TCSETA failed" ); return ERROR;
     }
-#elif defined(POSIX_TERMIOS)
+#endif
+#ifdef POSIX_TERMIOS
     if ( tcsetattr( fd, TCSANOW, t ) < 0 )
     {
 	lprintf( L_ERROR, "tcsetattr failed" ); return ERROR;
     }
-#else
+#endif
+#ifdef BSD_SGTTY
     if ( stty( fd, t ) < 0 )
     {
 	lprintf( L_ERROR, "stty failed" ); return ERROR;
@@ -63,10 +69,12 @@ int tio_set_speed _P2( (t, speed ), TIO *t, int speed )
 {
 #ifdef SYSV_TERMIO
     t->c_cflag = ( t->c_cflag & ~CBAUD) | speed;
-#elif defined( POSIX_TERMIOS )
+#endif
+#ifdef POSIX_TERMIOS
     cfsetospeed( t, speed );
     cfsetispeed( t, speed );
-#else
+#endif
+#ifdef BSD_SGTTY
     t->sg_ispeed = t->sg_ospeed = B0;
 #endif
     return NOERROR;
@@ -125,7 +133,10 @@ void tio_mode_sane _P2( (t, local), TIO * t, int local )
     t->c_cflag|= CS8 | CREAD | HUPCL | ( local? CLOCAL:0 );
     t->c_lflag = ECHOK | ECHOE | ECHO | ISIG | ICANON;
 
+#ifndef __hpux
     t->c_line  = 0;
+#endif
+    
     t->c_cc[VEOF] = 0x04;
 #if defined(POSIX_TERMIOS) || !defined(linux)
     t->c_cc[VEOL] = 0;
@@ -160,7 +171,7 @@ void tio_map_cr _P2( (t, perform_mapping), TIO * t, int
 	t->c_oflag &= ~ONLCR;
     }
 #else
-#error not implemented yet
+#include "not implemented yet"
 #endif
 }
 
@@ -180,7 +191,7 @@ void tio_carrier _P2( (t, carrier_sensitive), TIO *t, int carrier_sensitive )
 	t->c_cflag |= CLOCAL;
     }
 #else
-#error not implemented yet
+#include "not implemented yet"
 #endif
 }
 
@@ -228,7 +239,7 @@ int tio_set_flow_control _P2( (t, type), TIO * t, int type )
     if ( type & FLOW_XON_OUT )
 			t->c_iflag |= IXON | IXANY;
 #else
-#error not yet implemented
+#include "not yet implemented"
 #endif
     return NOERROR;
 }
@@ -255,12 +266,14 @@ int tio_toggle_dtr _P2( (fd, msec_wait), int fd, int msec_wait )
 
     save_t = t;
     
-#if defined( SYSV_TERMIO )
+#ifdef SYSV_TERMIO 
     t.c_cflag = ( t.c_cflag & ~CBAUD ) | B0;		/* speed = 0 */
-#elif defined( POSIX_TERMIOS )
+#endif
+#ifdef POSIX_TERMIOS
     cfsetospeed( &t, B0 );
     cfsetispeed( &t, B0 );
-#else
+#endif
+#ifdef BSD_SGTTY
     t.sg_ispeed = t.sg_ospeed = B0
 #endif
 
