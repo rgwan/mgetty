@@ -1,3 +1,19 @@
+Sat Dec  4 10:25:32 MET 1999   Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* Fixed spelling error in scripts/message.sh
+
+Thu Dec  2 10:25:32 MET 1999   Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* Added ability for voice modem drivers to specify what they support
+	as RMD format (added new function check_rmd_adequation(),
+	defined like the old behaviour in libvoice/IS_101.c, and inherited
+	by every voice modem driver except ZyXEL_2864, which inherit
+	ZyXEL_1496 behaviour which is to accept either ZyXEL 2864
+	or ZyXEL 1496. Compression level/speed adequation is then
+	still checked as usual in libvoice/play.c. This was requested
+	by Gert and obsoletes the need for the not-so-nice dd header
+	conversion script.
+	
 Sat Nov 13 10:31:37 MET 1999   Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 
 	* Released mgetty-1.1.21-to-current-13111999
