@@ -4,9 +4,12 @@
 # 
 # Copyright 1998 Simone Demmel simone@greenie.net
 #
-# CVS: $Id: faxq.in,v 1.13 2001/06/13 21:10:37 neko Exp $
+# CVS: $Id: faxq.in,v 1.14 2001/07/16 09:21:49 neko Exp $
 #
 # $Log: faxq.in,v $
+# Revision 1.14  2001/07/16 09:21:49  neko
+# correctly display sent jobs (JOB.done).
+#
 # Revision 1.13  2001/06/13 21:10:37  neko
 # Some changes in HTML-Output. </body> at the end of the page, fixed the
 # link in index-Pages to send faxes.
@@ -191,6 +194,11 @@ $mail = "&nbsp;";		# mail
   {
     $status = "<font color=\"#aa0000\">suspended</font>";
     $target = $DATEI."/JOB.suspended";
+  }
+  elsif (-e $fax_outgoing."/".$DATEI."/JOB.done")
+  {
+    $status = "<font color=\"#009900\">done</font>";
+    $target = $DATEI."/JOB.done";
   }
   else
   {
