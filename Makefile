@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 1.3 1993/09/01 23:00:27 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 1.4 1993/09/13 21:04:30 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there).
@@ -22,6 +22,8 @@ CC=gcc
 # if my preliminary port works.
 #
 # Add "-DISC" to compile on Interactive Unix
+#
+# Add "-Aa -D_HPUX_SOURCE" to use the Ansi-C-Compiler on HP-UX 8.0x and above
 #
 # For Systems without the select() call, use poll(), define -DUSE_POLL
 #
@@ -51,7 +53,7 @@ sendfax: $(SFAXOBJ)
 	$(CC) -o sendfax $(SFAXOBJ)
 
 # README PROBLEMS
-DISTRIB=mgetty.texi THANKS Makefile ChangeLog policy.h-dist \
+DISTRIB=README.1st mgetty.texi THANKS TODO Makefile ChangeLog policy.h-dist \
         mgetty.c mgetty.h do_chat.c logfile.c logname.c locks.c \
 	faxrec.c faxlib.c fax_lib.h sendfax.c io.c utmp.c \
 	pbmtog3.p1 \
