@@ -1,4 +1,4 @@
-#ident "$Id: locks.c,v 1.5 1993/03/10 23:38:13 gert Exp $ Gert Doering / Paul Sutcliffe Jr."
+#ident "$Id: locks.c,v 1.6 1993/03/15 20:28:24 gert Exp $ Gert Doering / Paul Sutcliffe Jr."
 
 /* large parts of the code in this module are taken from the
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us,
@@ -59,6 +59,7 @@ makelock(char *name)
 		if (errno == EEXIST) {		/* lock file already there */
 			if ((pid = readlock(name)) == FAIL)
 			{
+			    lprintf( L_NOISE, "cannot read lockfile" );
 			    if ( errno == ENOENT )	/* disappeared */
 				continue;
 			    else
@@ -74,6 +75,7 @@ makelock(char *name)
 
 			if ((kill(pid, 0) == FAIL) && errno == ESRCH) {
 				/* pid that created lockfile is gone */
+				lprintf( L_NOISE, "stale lockfile, created by process %d, ignoring", pid );
 				(void) unlink(name);
 				continue;
 			}
