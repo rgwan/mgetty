@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 3.3 1995/11/25 15:12:14 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 3.4 1995/12/31 01:23:55 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -20,8 +20,11 @@
 #include <signal.h>
 
 #ifdef VOICE
-#include "voice.h"
+ extern char * mgetty_version;		/* voice_config.c */
+#else
+# include "version.h"
 #endif
+
 #include "mgetty.h"
 #include "policy.h"
 #include "tio.h"
@@ -31,8 +34,8 @@
 #include "config.h"
 #include "conf_mg.h"
 
-#ifndef VOICE
-#include "version.h"		/* for logging the mgetty release number */
+#ifdef VOICE
+#include "voice/voice.h"
 #endif
 
 #ifdef DIST_RING
@@ -223,8 +226,6 @@ int main _P2((argc, argv), int argc, char ** argv)
 
 #ifdef VOICE
     boolean	use_voice_mode = TRUE;
-    
-    voice_config( argc, argv );
 #endif
 	
     /* startup
@@ -276,12 +277,18 @@ int main _P2((argc, argv), int argc, char ** argv)
     sprintf( buf, LOG_PATH, DevID );
     log_init_paths( argv[0], buf, &Device[strlen(Device)-3] );
 
-#ifndef VOICE
-    lprintf( L_NOISE, "mgetty: %s", mgetty_version );
+#ifdef VOICE
+    lprintf( L_MESG, "vgetty: %s", vgetty_version);
 #endif
+    lprintf( L_MESG, "mgetty: %s", mgetty_version);
 	    
     /* read configuration file */
     mgetty_get_config( Device );
+
+#ifdef VOICE
+    voice_config("vgetty", DevID);
+    voice_register_event_handler(vgetty_handle_event);
+#endif
 
 #ifdef USE_GETTYDEFS
     if (optind < argc)
@@ -392,20 +399,21 @@ int main _P2((argc, argv), int argc, char ** argv)
 		faxpoll_server_init( STDIN, c_string(fax_server_file) );
 	    }
 	}
-#ifdef VOICE
-	if ( mg_init_voice( STDIN ) == FAIL )
-	{
-	    use_voice_mode = FALSE;
-	} else {
-	    use_voice_mode = TRUE;
 
-	    /* With external modems, the auto-answer LED can be used
-	     * to show a status flag. vgetty uses this to indicate
-	     * that new messages have arrived.
-	     */
-	    voice_message_light();
-	}
-#endif
+#ifdef VOICE
+    voice_fd = STDIN;
+    voice_init();
+
+    if ( use_voice_mode ) {
+	/* With external modems, the auto-answer LED can be used
+	 * to show a status flag. vgetty uses this to indicate
+	 * that new messages have arrived.
+	 */
+     voice_mode_on(FALSE);
+	vgetty_message_light();
+    }
+#endif /* VOICE */
+
     }
 
     /* wait .3s for line to clear (some modems send a \n after "OK",
@@ -630,7 +638,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 #ifdef VOICE
 	    if ( use_voice_mode ) {
 		/* modify, if toll saver, or in vgetty answer-file */
-		voice_rings(&rings_wanted);
+		vgetty_rings(&rings_wanted);
 	    }
 #endif /* VOICE */
 
@@ -681,7 +689,7 @@ Ring_got_action:
 		mgetty_state = St_incoming_fax; break;
 #ifdef VOICE
 	      case A_VCON:
-		voice_button(rings);
+		vgetty_button(rings);
 		use_voice_mode = FALSE;
 		mgetty_state = St_answer_phone;
 		break;
@@ -739,7 +747,7 @@ Ring_got_action:
 		   called. If the function returns, the modem is ready
 		   to be connected in DATA mode with ATA. */
 		
-		voice_answer(rings, rings_wanted, what_action );
+		vgetty_answer(rings, rings_wanted, what_action );
 	    }
 #endif /* VOICE */
 
