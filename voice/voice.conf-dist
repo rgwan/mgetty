@@ -2,7 +2,7 @@
 # Sample voice configuration file
 # -------------------------------
 #
-# $Id: voice.conf-dist,v 1.9 2001/02/24 10:59:34 marcs Exp $
+# $Id: voice.conf-dist,v 1.10 2002/02/26 14:29:05 gert Exp $
 #
 # This file is read twice: First the program configuration is read and
 # second the port configuration. This means that generic values at the
@@ -38,7 +38,7 @@ voice_log_level 4
 # Where stderr of the voice shell script should go.
 # %s will be replaced by the tty name (like for the vgetty/mgetty log).
 # If not defined, stderr goes to the modem.
-voice_shell_log "/var/log/vgetty_voice_shell.%s"
+voice_shell_log /var/log/vgetty_voice_shell.%s
 
 #
 # Primary voice directory for vgetty.
