@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 2.9 1995/03/24 17:17:04 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 2.10 1995/03/25 00:57:07 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -531,7 +531,7 @@ int main _P2( (argc, argv),
 		tries ++;	
 		if ( tries >= c_int(max_tries) )	/* max tries reached */
 		{
-		    if ( c_bool(fax_tries_cnt) )	/* go on */
+		    if ( c_bool(max_tries_ctd) )	/* go on */
 		    {
 			fprintf( stderr, "WARNING: maximum number of retries reached, going on\n" );
 			lprintf( L_WARN, "max. tries (%d) reached, going on", tries );
