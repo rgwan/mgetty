@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.56 1994/10/14 00:13:03 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 1.57 1994/11/21 16:44:52 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -47,7 +47,7 @@ void fax_notify_program _PROTO(( int number_of_pages ));
 
 char * faxpoll_server_file = NULL;
 
-void faxrec _P1((spool_in), char * spool_in )
+void faxrec _P2((spool_in, switchbd), char * spool_in, unsigned int switchbd )
 {
 int pagenum = 0;
 TIO tio;
@@ -68,9 +68,8 @@ extern  char * Device;
 
     tio_get( STDIN, &tio );
 
-#if defined(FAX_RECEIVE_USE_B19200) || defined(FAX_USRobotics)
-    tio_set_speed( &tio, B19200 );
-#endif
+    /* switch bit rates, if necessary */
+    if ( switchbd != 0 ) tio_set_speed( &tio, switchbd );
 
     tio_mode_raw( &tio );		/* no input or output post-*/
 					/* processing, no signals */
@@ -88,6 +87,8 @@ extern  char * Device;
     tio_set_flow_control( STDIN, &tio,
 			 (FAXREC_FLOW) & (FLOW_HARD|FLOW_XON_IN) );
     tio_set( STDIN, &tio );
+
+    /* tell modem about the flow control used (+FLO=...) */
     fax_set_flowcontrol( STDIN, (FAXREC_FLOW) & FLOW_HARD );
 
     fax_get_pages( 0, &pagenum, spool_in );
