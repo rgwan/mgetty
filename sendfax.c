@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.23 1993/07/20 23:24:16 gert Exp $ (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.24 1993/07/21 12:05:47 gert Exp $ (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -29,7 +29,8 @@ boolean	verbose = FALSE;
 void exit_usage( char * program )
 {
     fprintf( stderr,
-	     "%s [-p] [-h header] [-v] [-l <device(s)>] <fax-number> <page(s) in g3-format>\n",
+	     "usage: %s [options] <fax-number> <page(s) in g3-format>\n"
+	     "\tvalid options: -p, -h <header>, -v, -l <device(s)>, -x <debug>, -n\n",
 	     program );
     exit(1);
 }
@@ -312,6 +313,7 @@ char	poll_directory[MAXPATH] = ".";		/* FIXME: parameter */
 
 char	fax_device_string[] = FAX_MODEM_TTYS;	/* writable! */
 char *	fax_devices = fax_device_string;	/* override with "-l" */
+int	fax_res_fine = 1;			/* override with "-n" */
 
 int	tries;
 
@@ -319,22 +321,22 @@ int	tries;
     strcpy( log_path, FAX_LOG );
     log_level = L_NOISE;
 
-    while ((ch = getopt(argc, argv, "vx:ph:l:")) != EOF) {
+    while ((ch = getopt(argc, argv, "vx:ph:l:n")) != EOF) {
 	switch (ch) {
-	case 'v':
+	case 'v':	/* switch on verbose mode */
 	    verbose = TRUE;
 	    break;
-	case 'x':
+	case 'x':	/* set debug level */
 	    log_level = atoi(optarg);
 	    break;
-	case 'p':
+	case 'p':	/* enable polling */
 	    fax_poll_req = TRUE;
 	    break;
-	case 'h':
+	case 'h':	/* set page header */
 	    fax_page_header = optarg;
 	    lprintf( L_MESG, "page header: %s", fax_page_header );
 	    break;
-	case 'l':
+	case 'l':	/* set device(s) to use */
 	    fax_devices = optarg;
 	    if ( strchr( optarg, '/' ) != NULL )
 	    {
@@ -343,7 +345,10 @@ int	tries;
 		exit(1);
 	    }
 	    break;
-	case '?':
+	case 'n':	/* set normal resolution */
+	    fax_res_fine = 0;
+	    break;
+	case '?':	/* unrecognized parameter */
 	    exit_usage(argv[0]);
 	    break;
 	}
@@ -396,10 +401,15 @@ int	tries;
 	exit(3);
     }
 
+    /* FIXME: ask modem if it can do 14400 bps / fine res. at all */
+
+    sprintf( buf, "AT+FDCC=%d,5,0,2,0,0,0,0", fax_res_fine );
+    fax_command( buf, "OK", fd );
+
 #if REVERSE
-    fax_command( "AT+FDCC=1,5,0,2,0,0,0,0;+FBOR=0", "OK", fd );
+    fax_command( "AT+FBOR=0", "OK", fd );
 #else
-    fax_command( "AT+FDCC=1,5,0,2,0,0,0,0;+FBOR=1", "OK", fd );
+    fax_command( "AT+FBOR=1", "OK", fd );
 #endif
 
     /* tell the modem if we are willing to poll faxes
