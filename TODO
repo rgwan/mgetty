@@ -316,3 +316,5 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
 229) weird idea: use NSFs to communicate version number
 
 230) add "frontends" section to the documentation (mgetty.texi)
+
+231) pass dist_ring and called_id as env variables to login/new_fax
