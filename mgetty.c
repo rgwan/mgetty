@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.63 1993/11/13 19:28:54 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.64 1993/11/24 14:03:39 gert Exp $ Copyright (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -536,6 +536,12 @@ int main _P2((argc, argv), int argc, char ** argv)
 	make_utmp_wtmp( Device, TRUE );
 
         delay( prompt_waittime );
+
+	/* honor carrier now: terminate if modem hangs up prematurely
+	 */
+	tio_carrier( &tio, TRUE );
+	tio_set( STDIN, &tio );
+	
 	/* loop until a successful login is made
 	 */
 	for (;;)
