@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.c,v 4.2 1997/01/12 16:19:13 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_mg.c,v 4.3 1997/07/05 17:16:15 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_mg.c
  *
@@ -243,6 +243,9 @@ conf_data c_a[2];
 	  case 'V':			/* show version number */
 	    printf("\nmgetty+sendfax by Gert Doering\n%s\n\n",
 		    mgetty_version);
+	    printf("log file written to '");
+	    printf(LOG_PATH, "<ttyX>");
+	    printf("'\n\n");
 	    exit(0);
 	  case '?':
 	    exit_usage(2);

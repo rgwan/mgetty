@@ -1,4 +1,4 @@
-#ident "$Id: conf_sf.c,v 4.3 1997/03/24 21:06:52 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_sf.c,v 4.4 1997/07/05 17:16:16 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_sf.c
  *
@@ -140,6 +140,7 @@ conf_data c_a[2];
 	  case 'V':
 	    printf("\nmgetty+sendfax by Gert Doering\n%s\n\n",
 		    mgetty_version);
+	    printf("log file written to '%s'\n\n", FAX_LOG );
 	    exit(0);
 	  case '?':	/* unrecognized parameter */
 	    return ERROR;
