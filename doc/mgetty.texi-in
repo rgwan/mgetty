@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 1.5 1993/10/06 00:31:53 gert Exp $ (c) 1993 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 1.6 1993/10/07 02:33:53 gert Exp $ (c) 1993 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -856,6 +856,11 @@ up, it seems to work correctly.
 Fax polling seems to be buggy---I can poll one page and no more. I'm
 busy working this out with ZyXEL tech support. (Well, actually, they keep
 telling me that it works, and I keep telling them that it doesn't)
+
+Further, the brand-new ROM release 6.10 seems to have severe bugs when
+sending faxes (though receiving works OK) - I tried three hours and
+was not able to get even one fax through. Switching back to 6.01,
+sending the same files worked. Flawlessly.
 
 @node Rockwell, GVC, Zyxel, Modems
 @subsection Rockwell-based modems, e.g. Supra
