@@ -7,7 +7,7 @@
               which are now maintained by Marc Schaefer
 <author>			 Klaus Lichtenwalder, now maintained by
                                  Marc Schaefer
-<date>$Date: 2000/09/16 16:35:53 $
+<date>$Date: 2001/10/21 10:52:44 $
 
 <abstract>
 This document attempts to answer the most frequently asked questions
@@ -834,7 +834,7 @@ A: When you see something like this in your log:
 <p>
   you should define ''ignore-carrier yes'' in your sendfax.config file.
 <p>
-Q: The message "WARING: DSR off - modem turned off or bad cable?" keeps
+Q: The message "WARNING: DSR is off - modem turned off or bad cable?" keeps
    showing up in the mgetty logfile.
 <p>
 A: If you see this message, it basically means that mgetty can't get
