@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.15 1993/03/18 16:19:26 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.16 1993/03/20 17:47:14 gert Exp $ (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -300,6 +300,12 @@ int main( int argc, char ** argv)
 
 	termio.c_iflag = ICRNL | IXANY;	/*!!!!!! ICRNL??? */
 	termio.c_oflag = OPOST | ONLCR;
+
+        /* we want to set hardware (RTS+CTS) flow control here.
+	 * Apparently, every OS does it differently. These two below work
+	 * on SCO unix and on Linux, but for other OSes, you may have to
+	 * fiddle yourself. (If you use FAS, it's not necessary at all!)
+	 */
 #ifdef linux
 	termio.c_cflag = portspeed | CS8 | CREAD | HUPCL | CLOCAL |
                          CRTSCTS;
