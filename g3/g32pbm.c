@@ -1,7 +1,9 @@
-#ident "$Id: g32pbm.c,v 1.1 1993/09/29 15:44:33 gert Exp $ (c) Gert Doering";
+#ident "$Id: g32pbm.c,v 1.2 1993/09/29 16:08:56 gert Exp $ (c) Gert Doering";
 
 #include <stdio.h>
 #include <malloc.h>
+#include <string.h>
+#include <fcntl.h>
 
 #ifndef NULL
 #define NULL 0L
@@ -374,27 +376,44 @@ int color;
 int i;
 int cons_eol;
 
-int wpel;
-
 char *	bitmap;			/* MAX_ROWS by MAX_COLS/8 bytes */
 char *	bp;			/* bitmap pointer */
 int	row;
 int	col;
 
+    /* initialize lookup trees */
     build_tree( &white, t_white );
     build_tree( &white, m_white );
     build_tree( &black, t_black );
     build_tree( &black, m_black );
+
     init_byte_tab( 0 );
 
-    fd = 0;
+    i = 1;
+    while ( argv[i][0] == '-' )		/* option processing */
+    {
+	if ( argv[i][1] == 'r' )	/* -reversebits */
+	{
+		init_byte_tab( 1 );
+	}
+	i++;
+    }
+
+    if ( i < argc ) 			/* read from file */
+    {
+	fd = open( argv[i], O_RDONLY );
+	if ( fd == -1 )
+	{    perror( argv[i] ); exit( 1 ); }
+    }
+    else
+	fd = 0;
+
     hibit = 0;
     data = 0;
 
     cons_eol = 0;	/* consecutive EOLs read - zero yet */
 
     color = 0;		/* start with white */
-    wpel = 0;
 
     rs = read( fd, rbuf, sizeof(rbuf) );
     if ( rs < 0 ) { perror( "read" ); close( rs ); exit(8); }
