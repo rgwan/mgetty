@@ -14,7 +14,7 @@
  * Removed most stuff from this file, since the new IS-101 driver can be
  * used now. (Marc 04.01.1997)
  *
- * $Id: Rockwell.c,v 1.6 1999/06/15 12:38:31 marcs Exp $
+ * $Id: Rockwell.c,v 1.7 1999/09/16 09:27:19 marcs Exp $
  *
  */
 
@@ -142,8 +142,14 @@ static int Rockwell_set_device (int device)
      static int current_device = -1;
      reset_watchdog();
 
-     if ((current_device != device) && (current_device >= 0))
+     if ((current_device != device) && (current_device >= 0)) {
           voice_command("ATH0","VCON|OK");
+	  /* Sending a ATH0 results in leaving voice mode, at least with the
+	   * RC32ACL chipset. -- zukerman@math-hat.com
+           * OPEN ISSUE: why do we send ATH0 in the first place ?
+	   */
+	  voice_command("AT#CLS=8", "OK");
+     }
 
      current_device=device;
 
