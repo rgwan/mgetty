@@ -1,4 +1,4 @@
-#ident "$Id: g3cat.c,v 1.1 1993/10/06 15:16:01 gert Exp $ (c) Gert Doering";
+#ident "$Id: g3cat.c,v 1.2 1993/10/06 15:36:05 gert Exp $ (c) Gert Doering";
 
 /* g3cat.c - concatenate multiple G3-Documents
  *
@@ -298,7 +298,7 @@ write:			/* write eol, separating lines, next file */
     for ( i=0; i<6; i++ ) puteol();
 
     /* flush buffer */
-    buf[buflen] = out_data;
+    buf[buflen] = out_byte_tab[out_data & 0xff];
     write( 1, buf, buflen+1 );
 
     return 0;
