@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.61 2004/07/17 09:32:57 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.62 2004/07/24 14:54:40 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -2146,6 +2146,7 @@ enough feedback from config file users yet.
 * USR::             US Robotics Courier/Sportster Data/Faxmodems
 * Elink-ISDN::      Elink ISDN Terminal Adaptors (``ISDN Modems'')
 * i4l::             ISDN 4 Linux support
+* i4l-capi::        ISDN 4 Linux with CAPI (capi4linux)
 * Class 1::         Class 1 Faxmodems
 @end menu
 
@@ -3027,7 +3028,7 @@ analog modem built in, which should work nicely with the fax part of
 (Thanks to Ulrich Tieman, lord@@olis.north.de, for this section. Don't ask
 me, ask him if you use an ELINK)
 
-@node i4l, Class 1, Elink-ISDN, Modems
+@node i4l, i4l-capi, Elink-ISDN, Modems
 @subsection ISDN 4 Linux support
 
 @code{mgetty} and @code{sendfax} work with isdn4linux (i4l), but there
@@ -3094,7 +3095,51 @@ Voice support with @code{vgetty} should work (use your ttyI device
 as an answering machine, etc.).  I have not tried it yet - talk to the
 mgetty or i4l mailing lists if it doesn't work.
 
-@node Class 1,  , i4l, Modems
+@node i4l-capi, Class 1, i4l, Modems
+@subsection ISDN 4 Linux with CAPI
+
+Some of the ISDN card manufacturers have pushed to adapt the windows 
+Common ISDN API (CAPI) to Linux.  This in itself is not bad, but it has a
+nasty side effect: less energy is invested to provide a useful Fax Class 2
+support for the active ISDN cards that can do fax.  Some cards don't have
+Fax Class 2 at all, and for some cards the Class 2 support is quite
+broken.
+
+So you might end up with a nice fax-capable card and no ttyI / Fax Class 2 
+support for it...
+
+@code{mgetty+sendfax} will, as of 1.1.31, @strong{NOT} work with a CAPI
+interface.  
+
+One of the problems with CAPI is that it is the wrong sort of 
+abstraction for the purpose of sending a fax.  The call setup part
+(dialing up) needs far too much attention for ISDN protocol details, and
+the actual fax transmission part is far too automated - the CAPI doesn't
+provide proper feedback about what's going on in the fax layer, like ``the
+client requested a retransmission of page 2, and the connection was lost
+in the middle of page 4'' - all you get is ``success/failure'' and the
+number of pages transmitted (including retransmissions -- which makes this
+figure less than useful).
+
+If you need to use fax with CAPI, take a look at the ``capifax'' software 
+available on @file{ftp://ftp.isdn4linux.de/pub/capi4linux} (not written
+by me, but it works).  The stuff works with a CAPI-specific file format 
+called ``SFF''.  
+
+Conversion to SFF can be done with recent ghostscripts (cfax driver), 
+and conversion from SFF to G3 can be done with the @code{sff2g3} program 
+which comes with mgetty.  (I needed something like this for a customer 
+project, and the existing SFF-to-something converters were all much to 
+heavyweight - requiring tons of additional libraries, C++ converters, 
+and whatnot.  My sff2g3 is 330 lines of code, needs no external libraries 
+and only an ANSI C compiler.  Beat that :-) ).
+
+Chances are good that I will eventually hack @code{capifax} into something 
+that's call-compatible to @code{mgetty} (for fax reception) and
+@code{sendfax} (for fax sending).  But this depends somewhat on customer
+demand, read: paid-for time.
+
+@node Class 1,  , i4l-capi, Modems
 @subsection Class 1 Faxmodems
 
 These do not work. They are not going to be supported (class 1 faxing is
