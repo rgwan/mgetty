@@ -4,7 +4,7 @@
  * This is the main header file for vgetty, vm and the pvf tools.
  * It includes other header files and defines some global variables.
  *
- * $Id: voice.h,v 1.3 1998/03/25 23:04:58 marc Exp $
+ * $Id: voice.h,v 1.4 1998/07/02 12:02:14 gert Exp $
  *
  */
 
@@ -180,7 +180,7 @@ extern void voice_check_events(void);
  * The vgetty functions
  */
 
-extern int vgetty_answer(int rings, int rings_wanted, action_t what_action);
+extern int vgetty_answer(int rings, int rings_wanted, int dist_ring);
 extern void vgetty_button(int rings);
 extern void vgetty_create_message_flag_file(void);
 extern int vgetty_handle_event(int event, event_data data);
