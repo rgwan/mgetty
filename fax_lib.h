@@ -1,4 +1,4 @@
-#ident "$Id: fax_lib.h,v 1.9 1993/11/26 19:19:22 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: fax_lib.h,v 1.10 1994/01/03 02:50:16 gert Exp $ Copyright (c) Gert Doering"
 ;
 
 /* fax_lib.h
@@ -27,7 +27,10 @@ extern	char	fax_hangup;
 extern	int	fax_hangup_code;
 extern	int	fax_page_tx_status;
 extern	fax_param_t	fax_par_d;
-extern	boolean	fax_to_poll;			/* there's something to poll */
+extern	boolean	fax_to_poll;			/* there's something */
+						/* to poll */
+extern	boolean	fax_poll_req;			/* caller wants to poll */
+
 
 /* fax_hangup_code gives the reason for failure, normally it's a positive
  * number returned by the faxmodem in the "+FHNG:iii" response. If the
