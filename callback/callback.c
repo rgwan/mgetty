@@ -493,7 +493,8 @@ int main _P2((argc, argv), int argc, char ** argv)
     /* this is the last time we try anything [unix time] */
     end_time = time(NULL) + c_int(max_retry_time);
 
-    detach_tty();
+    if ( !c_bool(nodetach) )
+	detach_tty();
 
     /* give init time to restart mgetty (otherwise, "find_device"
      * will complain). This *IS* a race condition :-(
