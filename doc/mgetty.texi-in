@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.3 1997/10/31 12:54:28 gert Exp $ (c) 1993-1997 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.4 1997/11/01 13:42:50 gert Exp $ (c) 1993-1997 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -818,8 +818,8 @@ desirable, or it may fail on old modem equipment).
 @item c2.0
 
 Modem is a @var{class 2.0} fax mode. Works better than class 2, if both are
-available, because its better standardized. Known to work with USR and
-ZyXEL.
+available, because its better standardized. Known to work with USR, ZyXEL
+1496 and 2864 series, and ELSA modems.
 
 @item cls2
 
@@ -2318,6 +2318,10 @@ EPROMS won't work properly. There are two solutions to this problem:
     /PGM, Vpp and Vcc) and place them into the original sockets before
     inserting the EPROMs.
 
+@strong{NEWS:} ZyXEL has a new modem line out in the market, the
+@emph{ZyXEL COMET 336} modem.  This is a fairly standard Rockwell-based
+junk modem.  It can't do class 2 or class 2.0 fax.  Don't buy it.
+
 @node TelelinkIMS08, Rockwell, Zyxel, Modems
 @subsection Telelink IMS 08 Faxline+ Modems
 
@@ -2380,6 +2384,15 @@ help to store the @code{AT&K3} into NVRAM, but maybe you have to patch
 
 Fax polling does not work because the Rockwell chipset does not support it.
 
+@strong{NEWS:} Most recent Rockwell 33.600 modems do not support any
+decent fax operation anymore -- they added ``simultaneous Voice over Data''
+(SVD) to their modem firmware, and because the Eproms are not large
+enough, they threw out their class 2 firmware.  Don't buy such a modem, 
+it won't work properly with @code{mgetty+sendfax}.
+
+If you buy a Rockwell-based modem (they are usually quite cheap), make
+sure that you get one that can do class 2 or (better) class 2.0.  Even if
+it's written on the box, some recent models just can't do it!
 
 @node Zoom-vfast, Best14496EC, Rockwell, Modems
 @subsection Zoom VFP/VFX 24K FaxModem (V.FAST modem, 24,000 bps)
