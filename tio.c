@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 1.35 1994/09/28 19:40:31 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 1.36 1994/10/06 14:25:27 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* tio.c
  *
@@ -61,7 +61,7 @@ static char tio_compilation_type[]="@(#)tio.c compiled with BSD_SGTTY";
 
 /* baud rate table */
 
-struct speedtab speedtab[] = {
+static struct speedtab speedtab[] = {
 	{ B50,	  50,	 "50"	 },
 	{ B75,	  75,	 "75"	 },
 	{ B110,	  110,	 "110"	 },
@@ -180,6 +180,21 @@ int tio_set _P2( (fd, t), int fd, TIO * t)	/*!! FIXME: flags, wait */
     }
 #endif
     return NOERROR;
+}
+
+/* check whether a given speed (integer) is valid for the given system */
+int tio_check_speed _P1( (speed), int speed )
+{
+    int i;
+    for ( i=0; speedtab[i].cbaud != 0; i++ )
+    {
+	if ( speedtab[i].nspeed == speed )
+	{
+	    return speedtab[i].cbaud;
+	}
+    }
+    lprintf( L_NOISE, "speed %d not found in table", speed );
+    return -1;
 }
 
 /* set speed, do not touch the other flags */
