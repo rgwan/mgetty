@@ -1,4 +1,4 @@
-#ident "@(#)cnd.c	$Id: cnd.c,v 3.1 1995/08/30 12:40:22 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "@(#)cnd.c	$Id: cnd.c,v 3.2 1996/01/15 18:21:30 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 
 #include <stdio.h>
 #include <string.h>
@@ -33,12 +33,17 @@ struct cndtable cndtable[] =
 {
     {"RING"},			/* speedups */
     {"OK"},			/* speedups */
+    {"CONNECT ",		&Connect},
+
+    /* ZyXEL 1496 */
     {"CALLER NAME: ",		&CallName},
     {"CALLER NUMBER: ",		&CallerId},
-    {"CONNECT ",		&Connect},
     {"TIME: ",			&CallTime},
     {"REASON FOR NO CALLER NUMBER: ",	&CallerId},
     {"REASON FOR NO CALLER NAME: ",	&CallName},
+
+    /* for the ZyXEL 2864(D)I: "FM:xxx TO:yyy" */
+    {"FM:",			&CallerId},
 
     /* those are for rockwell-based modems insisting on a multi-line
        message "CARRIER ... / PROTOCOL ... / CONNECT" */
