@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 1.11 1993/10/06 00:35:46 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 1.12 1993/10/08 01:30:49 gert Exp $ Copyright (c) Gert Doering"
 #include <stdio.h>
 #include <termio.h>
 #include <unistd.h>
@@ -44,6 +44,7 @@ static sig_t getlog_timeout()
     {
 	printf( "\r\n\07\r\nYour login time (%d minutes) ran out. Goodbye.\r\n",
 		 MAX_LOGIN_TIME / 60 );
+	sleep(3);
     }
 }
 #endif
