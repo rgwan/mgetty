@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.114 1994/07/12 22:36:21 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.115 1994/07/12 23:05:08 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -335,13 +335,13 @@ int main _P2((argc, argv), int argc, char ** argv)
 
     /* allow uucp to access the device
      */
-    (void) chmod(devname, FILE_MODE);
     if ((pwd = getpwnam(UUCPID)) != (struct passwd *) NULL)
     {
 	uucpuid = pwd->pw_uid;
 	uucpgid = pwd->pw_gid;
     }
     (void) chown(devname, uucpuid, uucpgid);
+    (void) chmod(devname, FILE_MODE);
 
     /* open the device; don't wait around for carrier-detect */
     if ( mg_open_device( devname, blocking_open ) == ERROR ) /* mg_m_init.c */
