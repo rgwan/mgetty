@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.41 1993/12/18 19:07:53 gert Exp $ Copyright (c) Gert Doering */
+/* $Id: mgetty.h,v 1.42 1993/12/20 10:11:39 gert Exp $ Copyright (c) Gert Doering */
 
 /* ANSI vs. non-ANSI support */
 #ifdef __STDC__
@@ -109,7 +109,7 @@ RETSIGTYPE	rmlocks _PROTO (());
   
 /* fax stuff */
 void	faxrec _PROTO(( char * spool_dir ));
-char *	ferror _PROTO(( int fax_hangup_code ));
+char *	fax_strerror _PROTO(( int fax_hangup_code ));
 
 /* login stuff */
 void login _PROTO(( char * user ));
@@ -127,7 +127,7 @@ int	get_current_users _PROTO(( void ));
 extern char * mktemp _PROTO(( char * template ));
 
 #if  !defined(linux) && !defined(SVR4) && !defined(__hpux) && \
-     !defined(__386BSD__)
+     !defined(__386BSD__) && !defined(M_UNIX)
 extern int	getopt _PROTO(( int, char **, char * ));
 #endif
 extern int	optind;
