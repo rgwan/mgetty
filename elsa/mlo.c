@@ -1,4 +1,4 @@
-#ident "$Id: mlo.c,v 1.1 1999/03/31 21:03:52 gert Exp $"
+#ident "$Id: mlo.c,v 1.2 1999/04/05 20:42:17 gert Exp $"
 
 /* mlo.c
  *
@@ -20,6 +20,12 @@
 #include "mgetty.h"
 #include "tio.h"
 #include "policy.h"
+
+/* for RMD stuff */
+#include "voice/include/header.h"
+#include <netinet/in.h>
+
+rmd_header elsa_rmd = { "RMD1", "Elsa", 0, 0, 0, { 0,0,0,0,0,0,0 }};
 
 int verbose=1;
 
@@ -175,15 +181,18 @@ char * l;
     return -1;
 }
 
-int elsa_download _P3((fd, nam1, nam2), int fd, char * nam1, char * nam2)
+
+int elsa_download_raw _P5((fd, nam1, nam2, buf, len), 
+			int fd, char * nam1, char * nam2, 
+			char * header_buf, int header_len)
 {
 char buf[1050];
 int outfd;
 int s;				/* xmodem block size */
-int blk = 2;			/* block number */
+int total=0;
 
     /* open output file for saving */
-    outfd = open( nam2, O_WRONLY|O_CREAT, 0644 );
+    outfd = open( nam2, O_WRONLY|O_CREAT |O_TRUNC, 0644 );
     if ( outfd < 0 )
     {
 	lprintf( L_ERROR, "can't write to %s", nam2);
@@ -212,6 +221,19 @@ int blk = 2;			/* block number */
 	return -1;
     }
 
+    if ( header_buf != NULL && header_len>0 )
+    {
+	lprintf( L_NOISE, "writing %d byte header", header_len );
+    	if ( write( outfd, header_buf, header_len ) != header_len )
+	{
+	    lprintf( L_ERROR, "can't write header to %s: %s", nam2, strerror(errno));
+	    fprintf( stderr, "can't write header to %s: %s", nam2, strerror(errno));
+	    close(outfd);
+	    unlink(nam2);
+	    return -1;
+	}
+    }
+
     do
     {
     	if ( write( outfd, buf, s ) != s ) 
@@ -223,23 +245,104 @@ int blk = 2;			/* block number */
 	    close(outfd);
 	    return -1;
 	}
-	printf( "block #%d\r", xmodem_blk ); fflush( stdout );
+	total += s;
+	printf( "block #%d, bytes %d\r", xmodem_blk, total ); fflush( stdout );
 
         s = xmodem_rcv_block( buf );
+
+	lprintf( L_JUNK, "ed: s=%d", s );
     }
     while( s > 0 );
+    close(outfd);
 
-    if ( blk < 0 )
+    if ( s < 0 )
     {
     	lprintf( L_ERROR, "can't receive expected block" );
     	fprintf( stderr, "can't receive expected block\n" );
+	return -1;
+    }
+
+    printf( "%s received successfully\n", nam2);
+    return 0;
+}
+
+/* donwload voice file - basically "download raw, prepend RMD header"
+ */
+int elsa_download_voice _P5((fd, nam1, nam2, bits, speed),
+			int fd, char * nam1, char * nam2, 
+			int bits, int speed )
+{
+/* compression 2/3/4 = ADPCM-2/3/4, bits = compression fuer ADPCM */
+    elsa_rmd.compression = htons(bits);
+    elsa_rmd.speed = htons(speed);
+    elsa_rmd.bits = bits;
+
+    return elsa_download_raw(fd, nam1, nam2, 
+    			     (char *)&elsa_rmd, sizeof(elsa_rmd));
+}
+
+/* download fax file - remove DLE stuffing, interpret +F sequences
+ */
+int elsa_download_fax _P3((fd, nam1, nam2),
+			int fd, char * nam1, char * nam2 )
+{
+char buf[1050], obuf[1050], line[200], ch;
+int outfd;
+int s,i,olen,			/* xmodem block size */
+    in_g3 = 0,			/* G3 mode (vs. "line mode") */
+    was_dle = 0;		/* last character seen was DLE */
+int total=0;
+
+    sprintf( buf, "AT$JDNL=\"%s\"", nam1 );
+    if ( mdm_send( buf, fd ) == ERROR )
+    {
+        lprintf( L_ERROR, "can't send download command (%s)", buf );
+	fprintf( stderr, "can't send download command (%s)\n", buf );
 	close(outfd);
 	return -1;
     }
 
-    close(outfd);
-    printf( "%s received successfully\n", nam2);
+    s = xmodem_rcv_init( fd, NULL, buf );
 
+    if ( s <= 0 ) 
+    {
+        lprintf( L_ERROR, "XModem startup failed" );
+        fprintf( stderr, "XModem startup failed\n" );
+	close(outfd);
+	unlink(nam2);
+	return -1;
+    }
+
+    /* nothing in output buffer yet */
+    olen = 0;
+
+    do
+    {
+    	/* handle block */
+	for ( i=0; i<s; i++ )
+	{
+	    ch = buf[i];
+	    lputc( L_JUNK, ch );
+	}
+
+	total += s;
+	printf( "block #%d, bytes %d\r", xmodem_blk, total ); fflush( stdout );
+
+	/* get next block (or final EOT) */
+        s = xmodem_rcv_block( buf );
+    }
+    while( s > 0 );
+
+    close(outfd);
+
+    if ( s < 0 )
+    {
+    	lprintf( L_ERROR, "can't receive expected block" );
+    	fprintf( stderr, "can't receive expected block\n" );
+	return -1;
+    }
+
+    printf( "%s received successfully\n", nam2);
     return 0;
 }
 
@@ -258,6 +361,8 @@ int main _P2( (argc, argv),
 {
     int	fd;
     int opt;
+    boolean opt_T = FALSE;			/* test mode */
+    int opt_s = 38400;				/* DTE/DCE speed */
     char * Device;
 
     /* initialize logging */
@@ -273,12 +378,16 @@ int main _P2( (argc, argv),
     siginterrupt( SIGHUP,  TRUE );
 #endif
 
-    while ((opt = getopt(argc, argv, "x:")) != EOF)
+    while ((opt = getopt(argc, argv, "x:Ts:")) != EOF)
     {
 	switch (opt)
 	{
 	  case 'x':	/* debug level */
 	  	log_set_llevel( atoi(optarg) ); break;
+	  case 'T':	/* Testing */
+	  	opt_T = TRUE; break;
+	  case 's':	/* download speed */
+	  	opt_s = atoi(optarg); break;
 	  case '?':
 	    exit_usage(NULL);
 	    break;
@@ -290,7 +399,7 @@ int main _P2( (argc, argv),
 
     Device = argv[optind++];
 
-    fd = open_device( Device, &modem_tio, 38400 );
+    fd = open_device( Device, &modem_tio, opt_s );
 
     if ( fd < 0 ) { exit(2); }
 
@@ -313,9 +422,22 @@ int main _P2( (argc, argv),
 	lprintf( L_WARN, "retry succeded, dev=%s", Device );
     }
 
-    elsa_query( fd );
+    /* make sure there IS an Elsa modem */
+    if ( elsa_query( fd ) < 0 ) 
+    	{ modem_close(fd); exit(7); }
+
     elsa_list_dir( fd );
-    elsa_download( fd, "GREET_000.GRT", "/tmp/grt" );
+
+    /* now present user with command line, unless "testing only" */
+    if ( opt_T )
+    {
+/*	elsa_download_voice( fd, "19990330211355.VOI", "/tmp/v1.rmd", 4, 7200);
+	elsa_download_voice( fd, "19990405121736.VOI", "/tmp/v2.rmd", 4, 7200);
+*/
+/*	elsa_download( fd, "GREET_000.GRT", "/tmp/grt" );*/
+	elsa_download_fax( fd, "19990405132347.FAX", "/tmp/f2.fax");
+	exit(0);
+    }
 
     modem_close(fd);
 
