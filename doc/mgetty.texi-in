@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.60 2003/11/07 20:46:17 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.61 2004/07/17 09:32:57 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -822,6 +822,8 @@ Tells mgetty to open the device in @samp{blocking} mode, that is, the
 is set if @code{mgetty} is called as @code{getty}. I'm not sure whether
 it's very useful, but I include it for completeness. Default is @var{no}.
 
+@strong{Do not activate this unless you understand all implications!}
+
 @item @code{port-owner} @var{username/userid}
 
 If set, mgetty will @code{chown} the tty line to the given username (you
@@ -1094,7 +1096,10 @@ result in hanging modems, etc.
 
 This is the file printed before the login prompt. Default is
 @samp{/etc/issue}.  Some special characters are substituted by connect
-speed, date, etc. - see below (login-prompt) for a list.
+speed, date, etc. - see below (login-prompt) for a list.  
+
+Note: maximum line length after substitution is 300 characters, so be 
+careful with ASCII art banners with lots of color settings and such.
 
 @item @code{prompt-waittime} @var{msecs}
 
@@ -1132,7 +1137,7 @@ replaced by something else:
 @item \@var{digit} character with the specified octal code
 @end itemize
 
-The maximum lenght of the login prompt is limited to 140 characters (after
+The maximum lenght of the login prompt is limited to 300 characters (after
 expansion).
 
 @item @code{login-time} @var{secs}
@@ -3046,11 +3051,22 @@ then pass it on as $CALLED_ID to fax scripts and so on.  This is
 implemented since Linux 2.4.10, or in earlier Versions with Jan
 Oberlaender's patch
 (http://www.stud.uni-karlsruhe.de/~uslk/i4l-callednumber.tar.gz).
+(@strong{NOTE}: This doesn't seem to work for at least Linux 2.4.20
+as shipped by RedHat 8.0 - anyone with some details??!)
 
 Alternatively, you can set @code{ATS23.0=1}. This will make i4l signal
-the dialed MSN number as @code{RING/12345}.  Unfortunately, it will be
-recognized by mgetty as caller ID, not destination MSN, so you might need
-to do some fiddling with 'ring.c' to get this fixed.
+the dialed MSN number as @code{RING/12345}.  This was problematic in the
+past, as lots of other modems have a similar format to report the Caller ID
+(like @code{RING;4321} in ELSA modems) but recent mgetty versions handle 
+this properly.  With this, you can run a single mgetty instance for all
+your telephone numbers: just set @code{AT&L*} in your init string - this
+tells isnd4linux that @strong{all} incoming calls are to be signalled
+to mgetty, not only specific MSN.
+
+@c init-chat "" ATZ OK AT&L* OK ATS23.0=1S23.2=1S0=0 OK
+@c fax-only yes
+@c rings 2
+@c modem-quirks 1
 
 For the full list of available AT commands, consult the i4l docs
 (for example in @file{/usr/src/linux/Documentation/isdn/README}.
@@ -3070,8 +3086,9 @@ June 2001.  Accessing ISDN fax via CAPI is NOT supported.
 
 There's a small catch: modem autodetection will make mgetty think that
 your ttyI device doesn't support fax (because most cards can't do it).  So 
-you need to set @code{modem-type c2.0} in @file{mgetty.config} and/or
-@file{sendfax.config} to force class 2.0 mode.
+you need to set @code{modem-type cls} in @file{mgetty.config} and/or
+@file{sendfax.config} to force class 2 mode.  Class 2.0 mode is not
+supported.
 
 Voice support with @code{vgetty} should work (use your ttyI device 
 as an answering machine, etc.).  I have not tried it yet - talk to the
