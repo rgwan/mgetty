@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.28 1993/10/02 15:57:28 gert Exp $ (c) Gert Doering */
+/* $Id: mgetty.h,v 1.29 1993/10/05 13:47:41 gert Exp $ Copyright (c) Gert Doering */
 
 /* stuff in logfile.c */
 
