@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.46 1999/11/30 09:09:42 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.47 2000/02/13 18:48:20 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -746,6 +746,11 @@ int mdm_identify _P1( (fd), int fd )
 	    break;
 	  case 336:				/* one report only */
 	    lprintf( L_MESG, "could be a CompuTime RalleyCom 336" );
+	    break;
+	  case 242:				/* one report only */
+	    lprintf( L_MESG, "could be a Tornado III FM-144VBIS" );
+	    modem_type=Mt_class2;
+	    modem_quirks |= MQ_NO_XON;
 	    break;
 	  default:
 	    lprintf( L_MESG, "unknown numerical modem id %d", mid );
