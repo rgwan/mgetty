@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 1.21 1994/11/13 13:55:53 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 1.22 1994/11/30 23:20:35 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there).
@@ -162,9 +162,14 @@ SBINDIR=$(prefix)/sbin
 #
 BINDIR=$(prefix)/bin
 #
-# where the config files go to (check vs. policy.h!)
+# where the font+header+coverpage files go to (check vs. policy.h!)
 #
 LIBDIR=$(prefix)/lib/mgetty+sendfax
+#
+# where the configuration files (*.config) go to
+#
+CONFDIR=$(prefix)/etc/mgetty+sendfax
+#
 #
 # the fax spool directory
 #
@@ -243,7 +248,7 @@ LN=ln -s
 #
 # Nothing to change below this line
 #
-VS=22
+VS=23
 #
 #
 OBJS=mgetty.o logfile.o do_chat.o locks.o utmp.o logname.o login.o \
@@ -285,14 +290,15 @@ DISTRIB=README.1st THANKS TODO BUGS FTP FAQ inittab.aix inst.sh version.h \
 	Makefile ChangeLog policy.h-dist login.cfg.in dialin.config \
         mgetty.c mgetty.h ugly.h do_chat.c logfile.c logname.c locks.c \
 	mg_m_init.c faxrec.c faxsend.c faxlib.c fax_lib.h sendfax.c \
-	io.c tio.c tio.h gettydefs.c config.c config.h login.c faxhng.c \
+	io.c tio.c tio.h gettydefs.c login.c faxhng.c \
+	config.h config.c conf_sf.h conf_sf.c \
 	cnd.c getdisk.c mksed.c utmp.c mg_utmp.h syslibs.h goodies.c \
 	patches/README patches/pbmtog3.p1 patches/taylor104.p1 \
 	patches/ecu320.p1 patches/pnmtops.p1 patches/dip337.p1 \
 	patches/gslp.ps-iso.p \
 	fax/faxspool.in fax/faxrunq.in fax/faxq.in fax/faxrm.in \
 	fax/faxcvt fax/printfax fax/cour25.pbm fax/cour25n.pbm \
-	fax/Makefile fax/etc-magic fax/faxheader \
+	fax/Makefile fax/etc-magic fax/faxheader.in \
 	tools/Makefile tools/g3cat.c tools/g3topbm.c tools/g3.c tools/g3.h \
 	tools/pbmtog3.c tools/run_tbl.c \
 	compat/mg.echo.c \
@@ -352,6 +358,7 @@ sedscript: mksed
 mksed: mksed.c policy.h Makefile
 	$(CC) $(CFLAGS) -DBINDIR=\"$(BINDIR)\" -DSBINDIR=\"$(SBINDIR)\" \
 		-DLIBDIR=\"$(LIBDIR)\" \
+		-DCONFDIR=\"$(CONFDIR)\" \
 		-DFAX_SPOOL=\"$(FAX_SPOOL)\" \
 		-DFAX_SPOOL_IN=\"$(FAX_SPOOL_IN)\" \
 		-DFAX_SPOOL_OUT=\"$(FAX_SPOOL_OUT)\" \
@@ -461,13 +468,14 @@ install-bin: mgetty sendfax login.config
 	$(INSTALL) -s -m 700 mgetty $(SBINDIR)
 	$(INSTALL) -s -m 700 sendfax $(SBINDIR)
 #
-# data files
+# data files + directories
 #
-	test -d $(LIBDIR) || ( mkdir $(LIBDIR) ; chmod 755 $(LIBDIR) )
-	test -f $(LIBDIR)/login.config || \
-		$(INSTALL) -o root -m 600 login.config $(LIBDIR)/
-	test -f $(LIBDIR)/dialin.config || \
-		$(INSTALL) -o root -m 600 dialin.config $(LIBDIR)/
+	test -d $(LIBDIR)  || ( mkdir $(LIBDIR) ; chmod 755 $(LIBDIR) )
+	test -d $(CONFDIR) || ( mkdir $(CONFDIR); chmod 755 $(CONFDIR))
+	test -f $(CONFDIR)/login.config || \
+		$(INSTALL) -o root -m 600 login.config $(CONFDIR)/
+	test -f $(CONFDIR)/dialin.config || \
+		$(INSTALL) -o root -m 600 dialin.config $(CONFDIR)/
 #
 # test for outdated stuff
 #
@@ -475,7 +483,7 @@ install-bin: mgetty sendfax login.config
 	then \
 	    echo "WARNING: the format of $(LIBDIR)/mgetty.login has " ;\
 	    echo "been changed. Because of this, to avoid confusions, it's called " ;\
-	    echo "$(LIBDIR)/login.config now." ;\
+	    echo "$(CONFDIR)/login.config now." ;\
 	    echo "" ;\
 	fi
 #
@@ -491,12 +499,14 @@ install-bin: mgetty sendfax login.config
 # g3 tool programs
 #
 	cd tools ; $(MAKE) install INSTALL="$(INSTALL)" \
-				BINDIR=$(BINDIR) LIBDIR=$(LIBDIR)
+				BINDIR=$(BINDIR) \
+				LIBDIR=$(LIBDIR) CONFDIR=$(CONFDIR)
 #
 # fax programs / scripts / font file
 #
 	cd fax ; $(MAKE) install INSTALL="$(INSTALL)" \
-				 BINDIR=$(BINDIR) LIBDIR=$(LIBDIR)
+				BINDIR=$(BINDIR) \
+				LIBDIR=$(LIBDIR) CONFDIR=$(CONFDIR)
 #
 # compatibility
 #
@@ -525,12 +535,13 @@ vgetty:
 	@$(MAKE) mgetty
 	cd voice; $(MAKE) CFLAGS="$(CFLAGS)" CC="$(CC)" LDFLAGS="$(LDFLAGS)" \
 	LN="$(LN)" ZYXEL_ROM=$(ZYXEL_ROM) VOICE_DIR="$(VOICE_DIR)" \
+	FAX_SPOOL_IN="$(FAX_SPOOL_IN)" CONFDIR="$(CONFDIR)" \
 	vgetty-all
 
 vgetty-install: sedscript
 	cd voice; $(MAKE) CFLAGS="$(CFLAGS)" CC="$(CC)" LDFLAGS="$(LDFLAGS)" \
 	BINDIR="$(BINDIR)" SBINDIR="$(SBINDIR)" LIBDIR="$(LIBDIR)" \
-	MAN1DIR="$(MAN1DIR)" INSTALL="$(INSTALL)" \
+	CONFDIR="$(CONFDIR)" MAN1DIR="$(MAN1DIR)" INSTALL="$(INSTALL)" \
 	PHONE_GROUP="$(PHONE_GROUP)" PHONE_PERMS="$(PHONE_PERMS)" \
 	LN="$(LN)" ZYXEL_ROM=$(ZYXEL_ROM) VOICE_DIR="$(VOICE_DIR)" \
 	vgetty-install
@@ -560,3 +571,7 @@ mksed.o : mksed.c mgetty.h ugly.h policy.h
 sendfax.o : sendfax.c syslibs.h mgetty.h ugly.h tio.h policy.h fax_lib.h 
 tio.o : tio.c mgetty.h ugly.h tio.h 
 utmp.o : utmp.c mgetty.h ugly.h mg_utmp.h 
+conf_sf.o : conf_sf.c mgetty.h ugly.h policy.h config.h conf_sf.h 
+
+t: conf_sf.o logfile.o config.o
+	$(CC) -o t conf_sf.o logfile.o config.o -lsocket

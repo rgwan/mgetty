@@ -1,16 +1,26 @@
-#ident "$Id: policy.h,v 1.70 1994/11/21 16:45:12 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.71 1994/11/30 23:20:48 gert Exp $ Copyright (c) Gert Doering"
 
-/* this is the file where all configuration for mgetty / sendfax is done
+/* this is the file where all configuration defaults for mgetty / sendfax
+ * are specified.
+ *
+ * defaults are used if no values are given in the config file(s).
+ * config file values can be overridden by command line options.
  */
 
-/* main configuration file
- * definitions in this file can override the defaults compiled into the
- * program
+/* main mgetty configuration file
  * NOT USED YET.
  */
 #define CONFIG_FILE "/usr/local/lib/mgetty-config"
 
-/* login dispatcher config file
+/* sendfax configuration file
+ *
+ * if path doesn't start with "/", it's relative to CONF_DIR (Makefile)
+ * if not defined, no configuration file is read (saves a few kbytes)
+ */
+#define SENDFAX_CONFIG "sendfax.config"
+
+
+/* login dispatcher config file (for mgetty)
  *
  * In this file, you can configure which "login" program (default /bin/login)
  * to call for what user name.

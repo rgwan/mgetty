@@ -1,4 +1,4 @@
-#ident "$Id: ugly.h,v 1.3 1994/08/08 12:34:38 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: ugly.h,v 2.1 1994/11/30 23:20:52 gert Exp $ Copyright (c) Gert Doering"
 
 /* this module contains various macros that help you write function
  * prototypes that work both with ANSI-C and K&R C

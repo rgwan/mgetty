@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.57 1994/11/21 16:44:52 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 2.1 1994/11/30 23:20:39 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *

@@ -1,4 +1,4 @@
-#ident "$Id: faxhng.c,v 1.5 1994/08/08 12:34:23 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: faxhng.c,v 2.1 1994/11/30 23:20:38 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* faxhng.c - mainly table, translate +FHNG:xxx codes to english text
  */

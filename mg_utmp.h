@@ -1,4 +1,4 @@
-#ident "$Id: mg_utmp.h,v 1.7 1994/10/22 17:21:43 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_utmp.h,v 2.1 1994/11/30 23:20:45 gert Exp $ Copyright (c) Gert Doering"
 
 /* definitions for utmp reading / writing routines,
  * highly SysV / BSD dependent
