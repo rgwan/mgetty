@@ -4,9 +4,13 @@
 #
 # send fax to a GIVEN phone number (on the command line). Everybody may send.
 #
-# $Id: mail2fax.space,v 1.2 2001/10/17 11:02:44 gert Exp $
+# $Id: mail2fax.space,v 1.3 2001/10/17 12:18:26 gert Exp $
 #
 # $Log: mail2fax.space,v $
+# Revision 1.3  2001/10/17 12:18:26  gert
+# add "-f <mail to>" switch
+# change error detection logic (error code, not "anything on stderr?")
+#
 # Revision 1.2  2001/10/17 11:02:44  gert
 # -A <acct>
 # DATE: ausgeben
@@ -19,11 +23,21 @@
 CATPGM="cat"
 acct=""
 
+# Make sure mgetty components can be found.
+PATH=$PATH:/usr/local/bin
+
+#
+# this user will get all the status mails...
+#
+admin="gert@space.net"
+
 while expr "X$1" : "X-" >/dev/null; do
     case X$1 in
 	X-p) CATPGM="head -"`echo $2 | awk '{ print ($1 * 66) - 12}'`; 
 	     shift; shift ;;
 	X-A) acct="-A $2"
+	     shift; shift ;;
+	X-f) admin="$2"
 	     shift; shift ;;
 	*) echo "unknown option: $1" >&2 ; exit 99 ;;
     esac
@@ -39,12 +53,6 @@ fi
 faxphone="$1"
 
 #
-# this user will get all the status mails...
-#
-#admin="root"
-admin="gert@space.net"
-
-#
 # copy mail (on stdin) to separate files for header and body,
 # extracting "From:" and "Reply-To:" headers on the way
 #
@@ -52,7 +60,6 @@ head=/tmp/mf$$.head
 body=/tmp/mf$$.body
 fax=/tmp/mf$$.fax
 tmp=/tmp/mf$$.tmp
-etmp=/tmp/mf$$.etmp
 LOG=/tmp/mf.log
 
 #
@@ -100,7 +107,9 @@ whoami=`hostname 2>/dev/null` || whoami=`uname -n`
 #
 # ok. Authentication granted. Queue fax.
 #
-echo "faxspool $acct -f $mailto $faxphone $body" >>$LOG
+# Status mails are sent to administrator, not to sender of mail
+#
+echo "faxspool $acct -f $admin $faxphone $body" >>$LOG
 
 cat <<EOF >$fax
 
@@ -122,10 +131,10 @@ $CATPGM $body >>$fax
 
 faxspool $acct -C - -f "$admin" \
 	-h /usr/local/etc/mgetty+sendfax/faxhead.mail \
-	$faxphone $fax >$tmp 2>$etmp
+	$faxphone $fax >$tmp 2>&1
 
-if [ -s "$etmp" ] ; then
-    echo "FAX SPOOLING FAILED" ; cat $etmp
+if [ $? != 0 ] ; then
+    echo "FAX SPOOLING FAILED" ; cat $tmp
     exit 9
 fi
 
@@ -157,7 +166,7 @@ fi
 #fi
 
 # clean up
-rm -f $head $body $fax $tmp $etmp
+rm -f $head $body $fax $tmp
 
 echo "`date`: fax queued successfully" >>$LOG
 
