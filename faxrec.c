@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.26 1993/11/13 19:10:29 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: faxrec.c,v 1.27 1993/11/13 22:59:41 gert Exp $ Copyright (c) Gert Doering";
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -114,18 +114,30 @@ char	WasDLE;
 int	ErrorCount = 0;
 int	ByteCount = 0;
 int i,j;
+extern  char * Device;
 
-    /* temp file is named: f-{n,f}iiiijjjjjj,
-     * n/f means normal / fine, iiii is the current time, jjjjjj is
-     * made by mktemp()
+    /* generate spool file name
+     *
+     * the format depends on the length of filenames allowed. If only
+     * short filenames are allowed, it is f[nf]iiiiiii.jj, iii being
+     * kind of a sequence number and jj the page number.
+     * if long filenames are allowed, the filename will include the
+     * fax id of the sending fax
+     * the "iiiiii" part will start repeating after approx. 8 years
      */
 
 #ifdef SHORT_FILENAMES
-    sprintf(temp, "%s/fax%c-%02d.XXXXXX", directory,
-		 fax_par_d.vr == 0? 'n': 'f', pagenum );
+    sprintf(temp, "%s/f%c%07x%s.%02d", directory,
+		 fax_par_d.vr == 0? 'n': 'f',
+	         (int) faxrec_s_time & 0xfffffff,
+	         &Device[strlen(Device)-2], pagenum );
 #else
     /* include sender's fax id - if present - into filename */
-    i = sprintf(temp, "%s/fax%c-", directory, fax_par_d.vr == 0? 'n': 'f' );
+    i = sprintf(temp, "%s/f%c%07x%s-", directory,
+		fax_par_d.vr == 0? 'n': 'f',
+		(int) faxrec_s_time & 0xfffffff,
+		&Device[strlen(Device)]-2 );
+		
     for ( j=0; fax_remote_id[j] != 0; j++ )
     {
          if ( fax_remote_id[j] == ' ' )
@@ -134,20 +146,21 @@ int i,j;
 	 }
          else if ( fax_remote_id[j] != '"' ) temp[i++] = fax_remote_id[j];
     }
-    sprintf( &temp[i], "%02d.XXXXXX", pagenum );
+    sprintf( &temp[i], ".%02d", pagenum );
 #endif
 
-    fax_fp = fopen( mktemp(temp), "w" );
+    fax_fp = fopen( temp, "w" );
 
     if ( fax_fp == NULL )
     {
-	lprintf( L_ERROR, "opening %s failed!", temp );
-	sprintf( temp, "/tmp/FAX%c-%02d", 
-		       fax_par_d.vr == 0? 'n': 'f', pagenum );
+	lprintf( L_ERROR, "opening %s failed", temp );
+	sprintf( temp, "/tmp/FAX%c%04x.%02d",
+		       fax_par_d.vr == 0? 'n': 'f',
+		       (int) faxrec_s_time & 0xffff, pagenum );
 	fax_fp = fopen( temp, "w" );
 	if ( fax_fp == NULL )
 	{
-	    lprintf( L_ERROR, "opening of %s *also* failed!", temp );
+	    lprintf( L_ERROR, "opening of %s *also* failed", temp );
 	    return ERROR;
 	}
     }
