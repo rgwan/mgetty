@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.4 1993/04/19 21:43:45 gert Exp $ (c) Gert Doering"
+#ident "$Id: policy.h,v 1.5 1993/04/19 22:02:54 gert Exp $ (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -14,6 +14,12 @@
  * so parallel dial-out of uucico will be possible
  */
 #define UUCPID	5
+
+/* access mode for the line while getty has it - it should be accessible
+ * by uucp / uucp, but not by others (imagine someone dialing into your
+ * system and using another modem to dial to another country...)
+ */
+#define FILE_MODE 0660
 
 /* system console - if a severe error happens at startup, mgetty writes
  * a message to this file and aborts
