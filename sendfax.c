@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.9 1993/05/22 16:40:02 gert Exp $ (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.10 1993/05/22 17:56:45 gert Exp $ (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -158,8 +158,15 @@ char buf[256];
 char wbuf[ sizeof(buf) * 2 ];
 
     lprintf( L_NOISE, "fax_send_page(\"%s\") started...", g3_file );
+
+#ifdef FAX_SEND_USE_IXON
+    /* disable output flow control! It would eat the XON otherwise! */
+    fax_termio.c_iflag &= ~IXON;
+    ioctl( fd, TCSETAW, &fax_termio );
+#endif
+
     /* tell modem that we're ready to send - modem will answer
-     * with a couple of "+F..." messages and finally CONNECT
+     * with a couple of "+F..." messages and finally CONNECT and XON
      */
 
     if ( fax_command( "AT+FDT", "CONNECT", fd ) == ERROR ||
@@ -188,7 +195,7 @@ char wbuf[ sizeof(buf) * 2 ];
     while ( ch != XON );
 
     /* Since some faxmodems (ZyXELs!) do need XON/XOFF flow control
-     * we enable it here
+     * we have to enable it here
      */
 
 #ifdef FAX_SEND_USE_IXON
@@ -248,7 +255,7 @@ char wbuf[ sizeof(buf) * 2 ];
 	    }
 
 	    /* drain output */
-	    /* strange enough, some ISC versions do not like this ??? */
+	    /* strange enough, some ISC versions do not like this (???) */
 #ifndef ISC
 	    ioctl( fd, TCSETAW, &fax_termio );
 #endif
