@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.53 1994/02/14 01:23:56 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.54 1994/03/01 23:35:09 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* sendfax.c
  *
@@ -271,13 +271,35 @@ int	tries;
     signal( SIGQUIT, fax_sig_goodbye );
     signal( SIGTERM, fax_sig_goodbye );
 
-    sprintf( buf, "AT+FLID=\"%s\"", FAX_STATION_ID);
+#ifdef HAVE_SIGINTERRUPT
+    /* interruptible system calls */
+    siginterrupt( SIGINT,  TRUE );
+    siginterrupt( SIGALRM, TRUE );
+    siginterrupt( SIGHUP,  TRUE );
+#endif
+
     if ( fax_command( "AT", "OK", fd ) == ERROR ||
-         fax_command( "AT+FCLASS=2", "OK", fd ) == ERROR ||
-         fax_command( buf, "OK", fd ) == ERROR )
+         fax_command( "AT+FCLASS=2", "OK", fd ) == ERROR )
     {
-	lprintf( L_ERROR, "cannot initialize faxmodem" );
-	fprintf( stderr, "%s: cannot initialize faxmodem\n", argv[0] );
+	lprintf( L_ERROR, "cannot set class 2 fax mode" );
+	fprintf( stderr, "%s: cannot set class 2 fax mode\n", argv[0] );
+	fax_close( fd );
+	exit( 3 );
+    }
+
+#ifdef FAX_SEND_SWITCHBD
+    /* some modems need a baud rate switch after +FCLASS=2,
+     * see policy.h for details
+     */
+    tio_set_speed( &fax_tio, FAX_SEND_SWITCHBD );
+    tio_set( fd, &fax_tio );
+#endif
+	
+    sprintf( buf, "AT+FLID=\"%s\"", FAX_STATION_ID);
+    if ( fax_command( buf, "OK", fd ) == ERROR )
+    {
+	lprintf( L_ERROR, "cannot set fax station ID" );
+	fprintf( stderr, "%s: cannot set fax station ID\n", argv[0] );
 	fax_close( fd );
 	exit(3);
     }
@@ -326,7 +348,7 @@ int	tries;
 	}
     }
 
-    /* set modem to use hardware handshake, dial out
+    /* set modem to use desired flow control type, dial out
      */
     if ( verbose ) { printf( "Dialing %s... ", fac_tel_no ); fflush(stdout); }
 
