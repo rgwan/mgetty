@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.h,v 1.59 1994/07/21 21:33:04 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 1.60 1994/07/22 10:52:37 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.h
  *
@@ -113,6 +113,7 @@ int	clean_line _PROTO(( int filedesc, int tenths ));
 
 /* goodies.c */
 char * get_basename _PROTO(( char * ));
+char * mydup _PROTO(( char *s ));
 
 /* io.c */
 boolean	check_for_input _PROTO (( int fd ));
