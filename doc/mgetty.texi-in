@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.51 2001/10/21 14:51:11 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.52 2001/12/18 14:33:15 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -187,7 +187,8 @@ so you might want to add 'mgetty' to your query to restrict it.
 @section Supported systems and modems
 
 Mgetty has been successfully installed and run on the following
-systems:
+systems (though older systems might need work to get current mgetty
+versions to compile):
 
 @display
     SCO Unix 3.2.1 (ODT 1.0)                   (well tested)
@@ -197,12 +198,13 @@ systems:
     ISC Unix 3.0                                (tested)
     SVR4 Unix                                   (well tested)
     SVR4.2 Unix                                 (needs more testing)
-    AT&T 3B1 3.51m                              (well tested)
+    AT&T 3B1 3.51m                              (tested)
     HP-UX 8.x and 9.x                           (well tested)
-    AIX 3.2.5, 4.1 and 4.2                      (very well tested)
+    AIX 3.2.5, 4.1, 4.2 and 4.3                  (very well tested)
     SunOS 4                                     (well tested)
     Solaris 2.x                                 (well tested)  
     NetBSD / FreeBSD (all versions)            (very well tested)
+    Apple Darwin (Kernel 5.1)                  (tested)
 @end display
 
 It should be possible to run mgetty on any other Unix with @file{termio.h}
@@ -3045,6 +3047,7 @@ package to various operating systems.
 * 3b1::             AT&T 3b1
 * HP-UX::           The HP-UX operating system
 * NEXTSTEP::        The NEXTSTEP operating system
+* Darwin::          Apple's MacOS X / Darwin operating system
 @end menu
 
 If your system is not in the list, that doesn't mean it won't work. It
@@ -3403,7 +3406,8 @@ have to complete the unfinished support for @file{sgtty.h} in @file{tio.c}
 and @file{tio.h}.
 
 Generally, BSD Unices do not have a @file{/etc/inittab} as system V has.
-Instead, they have @file{/etc/ttytab}. Thus, you have to enter a line like
+Instead, they have @file{/etc/ttys} (or sometimes @file{/etc/ttytab} on
+really old BSD systems). Thus, you have to enter a line like
 @example
 cua0    "@SBINDIR@/mgetty -x 3 cua0"       vt100
 @end example
@@ -3574,7 +3578,7 @@ don't know anything about HPs, except that they are somewhat strange).
 Currently, documentation for HP-UX is a bit lacking - if you know
 something about @code{mgetty} on HP-UX, please contribute.
 
-@node NEXTSTEP, , HP-UX, Systems
+@node NEXTSTEP, Darwin, HP-UX, Systems
 @subsection The NEXTSTEP operating system
 
 NEXTSTEP is lacking quite a few commands used by mgetty and its
@@ -3672,6 +3676,37 @@ How to patch and use @code{mgetty} to spool received faxes in the NEXTSTEP
 fax system.
 @end itemize
 
+@node Darwin, , NEXTSTEP, Systems
+If I understand this correctly, "Darwin" is the underlying operating
+system that Apple MacOS X is based upon.
+
+Edwin C Wirth <ecwirth@@mac.com> gave me an account to his "Darwin Kernel
+Version 5.1" machine (running MacOS 10.1.1 on top of it) so I could port 
+@code{mgetty+sendfax} to that OS.  Thanks to that, Darwin is supported 
+from 1.1.28 on.
+
+Compilation is pretty straightforward: use the default CFLAGS and LIBS
+settings in the Makefile, set @code{CC=cc}, and then run @code{make}.  It
+will spit out a ton of warnings about @samp{undefined or invalid #
+directive} - but those are harmless, it's just cpp not understanding
+@code{#ident}.
+
+At run time, as far as I could see, the internal Mac modem is available on
+@file{/dev/tty.modem}.  The macintosh I had for testing also had "KeyUSA"
+USB-to-Serial ports that appeared as @file{/dev/tty.KeyUSA28X913.1} and
+@file{.2} - so other serial ports should also appear as @file{/dev/tty.*}
+devices.
+
+Mgetty should be run from @file{/etc/ttys} as in other BSDs, see 
+@code{man ttys} (there is no @file{/etc/inittab}).
+
+Open issues:
+@itemize
+@c @item how to access external serial ports?
+@item how is tty locking done?  Couldn't find UUCP lock files
+@item any tricky things about logging in remotely?  utmp/wtmp?
+@item where should the log files go to?  /var/log doesn't seem to exist.
+@end itemize
 
 @node General, logfiles, Systems, Problems
 @section General problems
@@ -4266,9 +4301,9 @@ Brent Mosbrook from ZyXEL USA, brentm@@zyxel.com, who has been
 questions.
 
 @item
-ELSA Computer GmbH, Germany, for giving me an ELSA 28.8 TQV voice/fax modem
-for testing (I had to pay for it, to keep it, but the price was far below
-list price).
+ELSA Computer GmbH, Germany, for giving me a number of test modems and
+being pretty suportive overall concering questions of modem firmware,
+protocol handling, and so on.  A big thanks!
 
 @item
 Sam Leffler, sam@@sgi.com, for many interesting discussions and insights.
