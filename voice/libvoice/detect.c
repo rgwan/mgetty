@@ -3,7 +3,7 @@
  *
  * autodetect the modemtype we are connected to.
  *
- * $Id: detect.c,v 1.18 2000/07/28 10:40:01 marcs Exp $
+ * $Id: detect.c,v 1.19 2000/08/09 07:07:22 marcs Exp $
  *
  */
 
@@ -97,7 +97,7 @@ static const struct modem_type_struct modem_database[] =
      {ati4, "33600bps Voice Modem For Italy",
                                    NULL, &Rockwell},
      {ati6, "RCV336DPFSP Rev 44BC",
-                                  "ATI4", NULL},
+                                   NULL, &Rockwell},
      {ati, "ERROR", ati0, NULL}, /* it also shows up as North America,
                                   *  then OK in ATI9. Please also read
                                   * libvoice/README.lucent.
@@ -197,26 +197,27 @@ int voice_detect_modemtype(void)
 	  	i = 0;
 	  	while (voice_modem == &no_modem &&
                        pnp_modem_database[i].pnpid)
-	  		{
+	           {
                         if (pnp_modem_database[i].pnpid) {
 			   lprintf(L_JUNK, "checking pnpipd %s",
 					   pnp_modem_database[i].pnpid);
+			   if (strncmp(pnp_modem_database[i].pnpid, s, 3)
+                               == 0) {
+			      lprintf(L_JUNK, "checking modelid %s",
+					      pnp_modem_database[i].modelid);
+			      if (pnp_modem_database[i].modelid == NULL ||
+				  strncmp(pnp_modem_database[i].modelid,
+					  s+3,
+					  4) == 0)
+				   {
+				   voice_modem =
+					   pnp_modem_database[i].modem_type;
+				   break;
+				   }
+			   }
                         }
-                        if (strncmp(pnp_modem_database[i].pnpid, s, 3) == 0) {
-                           lprintf(L_JUNK, "checking modelid %s",
-                                           pnp_modem_database[i].modelid);
-                           if (pnp_modem_database[i].modelid == NULL ||
-  	  		       strncmp(pnp_modem_database[i].modelid,
-			               s+3,
-                                       4) == 0)
-				{
-				voice_modem =
-					pnp_modem_database[i].modem_type;
-				break;
-				}
-                           }
 			i++;
-	      		}
+	      	   }
 	     	 /* eat the OK... */
 	         voice_read(buffer);
 	  	}
