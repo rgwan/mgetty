@@ -1,15 +1,18 @@
 # Makefile for the "fax" subtree
 # of mgetty+sendfax
 #
-# SCCS: $Id: Makefile,v 4.3 1999/06/29 13:27:50 gert Exp $ Copyright (c) Gert Doering
+# SCCS: $Id: Makefile,v 4.4 2002/11/16 22:21:35 gert Exp $ Copyright (c) Gert Doering
 #
 
 CC=gcc
-CFLAGS=-O2 -I..
+CFLAGS=-O2 -I.. -Wall
 
 FAX_SCRIPTS=faxspool faxrunq faxq faxrm 
 
-all: $(FAX_SCRIPTS) faxrunqd faxheader
+zigzag: 
+	cd .. ; $(MAKE) subdirs
+
+all: $(FAX_SCRIPTS) faxrunqd faxheader faxq-helper
 
 faxspool: faxspool.in ../sedscript
 	../sedscript <faxspool.in >faxspool
@@ -31,6 +34,15 @@ faxheader: faxheader.in ../sedscript
 
 ../sedscript: ../policy.h ../Makefile ../mksed.c
 	@cd .. ; $(MAKE) sedscript
+
+faxq-helper: faxq-helper.o 
+	rm -f faxq-helper
+	$(CC) $(CFLAGS) -o faxq-helper faxq-helper.o
+	SU chown root faxq-helper
+	SU chmod 4711 faxq-helper
+
+faxq-helper.o: faxq-helper.c
+	$(CC) $(CFLAGS) -DFAX_SPOOL_OUT=\"$(FAX_SPOOL_OUT)\" -c faxq-helper.c
 
 clean:
 	-rm -f $(FAX_SCRIPTS) faxrunqd faxheader
