@@ -1,4 +1,4 @@
-#ident "$Id: login.c,v 1.5 1994/04/20 15:53:27 gert Exp $ Copyright (C) 1993 Gert Doering"
+#ident "$Id: login.c,v 1.6 1994/05/07 20:03:45 gert Exp $ Copyright (C) 1993 Gert Doering"
 ;
 
 /* login.c
@@ -22,8 +22,6 @@
 #include "config.h"
 #include "policy.h"
 #include "mg_utmp.h"
-
-extern int errno;
 
 #ifdef SECUREWARE
 extern int setluid();
