@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.50 1994/07/12 22:43:13 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 1.51 1994/07/21 19:41:54 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -64,9 +64,14 @@ extern  char * Device;
      * For some modems, it's necessary to switch to 19200 bps.
      */
 
+#ifdef FAX_USRobotics
+    /* the ultra smart USR modems do it in yet another way... */
+    fax_wait_for( "OK", 0 );
+#endif
+
     tio_get( STDIN, &tio );
 
-#ifdef FAX_RECEIVE_USE_B19200
+#if defined(FAX_RECEIVE_USE_B19200) || defined(FAX_USRobotics)
     tio_set_speed( &tio, B19200 );
 #endif
 
@@ -76,7 +81,9 @@ extern  char * Device;
 
     /* read: +FTSI:, +FDCS, OK */
 
+#ifndef FAX_USRobotics
     fax_wait_for( "OK", 0 );
+#endif
 
     /* *now* set flow control (we could have set it earlier, but on SunOS,
      * enabling CRTSCTS while DCD is low will make the port hang)
@@ -84,6 +91,7 @@ extern  char * Device;
     tio_set_flow_control( STDIN, &tio,
 			 (FAXREC_FLOW) & (FLOW_HARD|FLOW_XON_IN) );
     tio_set( STDIN, &tio );
+    fax_set_flowcontrol( STDIN, (FAXREC_FLOW) & FLOW_HARD );
 
     fax_get_pages( 0, &pagenum, spool_in );
 
