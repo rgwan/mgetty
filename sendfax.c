@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.65 1994/07/12 22:51:59 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.66 1994/07/12 23:04:08 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* sendfax.c
  *
@@ -260,7 +260,7 @@ int	tries;
 	case 'l':	/* set device(s) to use */
 	    fax_devices = optarg;
 	    if ( optarg[0] == '/' &&
-		 strncmp( optarg, "/dev/", 5 ) == 0 )
+		 strncmp( optarg, "/dev/", 5 ) != 0 )
 	    {
 		fprintf( stderr, "%s: -l: device must be located in /dev!\n",
 		                 argv[0]);
