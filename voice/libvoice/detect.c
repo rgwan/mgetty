@@ -3,7 +3,7 @@
  *
  * autodetect the modemtype we are connected to.
  *
- * $Id: detect.c,v 1.25 2000/08/15 08:51:59 gert Exp $
+ * $Id: detect.c,v 1.26 2000/09/13 19:37:12 marcs Exp $
  *
  */
 
@@ -44,9 +44,23 @@ static const struct pnp_modem_type_struct pnp_modem_database[] =
      {"ELS", "8550", &V253modem, "ELSA (coming soon...)" },
      {NULL, NULL, NULL}
      };
+     
+struct modem_id_struct
+     {
+     const char *idline1;
+     const char *idline2;
+     voice_modem_struct *modem_type;
+     };
+     
+static const struct modem_id_struct modem_id_database[] =
+     {
+     {NULL, "SupraExpress 56e PRO", &Supra56ePRO},
+     {NULL, NULL, NULL}
+     }; 
  
 
 const char ati[] = "ATI";
+const char ati3[] = "ATI3";
 const char ati6[] = "ATI6";
 const char ati4[] = "ATI4";
 const char ati9[] = "ATI9";
@@ -243,13 +257,59 @@ int voice_detect_modemtype(void)
          	 return(OK);
          	}
 
-          cmnd = (char *) ati;
+          /* Detection using identification strings. Seems that it
+           * is required for some very specific modem types.
+           * -- (Rojhalat Ibrahim, roschi@ribrahim.de)
+           */
+	  
+	  cmnd = (char *) ati3;
+	  if (voice_command(cmnd, "") != OK) {
+             lprintf(L_WARN, "modem detection failed");
+             exit(FAIL);
+          }
 
-          if (voice_command(cmnd, "") != OK)
-               {
-               lprintf(L_WARN, "modem detection failed");
-               exit(FAIL);
-               }
+          if (voice_read(buffer) != OK) {
+             lprintf(L_WARN, "modem detection failed");
+             exit(FAIL);
+          }
+
+          i = 0;
+          while (voice_modem == &no_modem
+                 && (modem_id_database[i].idline1
+                     || modem_id_database[i].idline2)) {
+             if (modem_id_database[i].idline1 == NULL) {
+		if (voice_read(buffer) != OK) {
+		   break;
+		}
+		else if (strstr(buffer, modem_id_database[i].idline2)) {
+		   voice_modem = modem_id_database[i].modem_type;
+		}
+             }
+             else if (strstr(buffer, modem_id_database[i].idline1)) {
+                voice_modem = modem_id_database[i].modem_type;
+                break;
+             }
+
+             i++;
+          }
+          
+          /* eat the OK... */
+          voice_read(buffer);
+
+          voice_flush(3);
+
+          if (voice_modem != &no_modem) {
+             lprintf(L_MESG, "%s detected", voice_modem->name);
+             lprintf(L_NOISE, "voice modem type was set by using \
+                              identification strings");
+             return(OK);
+          }
+
+          cmnd = (char *) ati;
+          if (voice_command(cmnd, "") != OK) {
+             lprintf(L_WARN, "modem detection failed");
+             exit(FAIL);
+          }
 
           do
                {
