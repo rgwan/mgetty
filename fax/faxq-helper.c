@@ -1,4 +1,4 @@
-#ident "$Id: faxq-helper.c,v 4.10 2002/11/23 11:54:51 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxq-helper.c,v 4.11 2002/11/23 20:00:31 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxq-helper.c
  *
@@ -14,7 +14,6 @@
  * faxq-helper new
  *       user permission check (fax.allow + fax.deny)
  *       return a new job ID (F000123) and create "$OUT/.inF000123.$uid/"
- *       TODO: check for existance of $FAX_SPOOL_OUT, chmod()
  *
  * faxq-helper input $ID $filename
  *       validate $filename
@@ -38,6 +37,12 @@
  *       check that $OUT/$ID/ exists and belongs to the calling user
  *       move $JOB.error to $JOB to reactivate job
  *       touch $queue_changed
+ *
+ * some checks are done globally for all commands
+ *       faxq-helper must be suid fax, and fax user must exist in passwd
+ *       $FAX_SPOOL_OUT must exist
+ *       if $OUT is world- or group-writeable, or not owned by 'fax', issue 
+ *        warning (but go on) - this could be legal, but it's off-spec
  *
  * Note: right now, this needs an ANSI C compiler, and might not be 
  *       as portable as the remaining mgetty code.  Send diffs :-)
@@ -696,6 +701,8 @@ int rc;
 	rc = check_user_perms( JID, "JOB.error" );
     if ( rc == -2 )				/* not found */
 	rc = check_user_perms( JID, "JOB.suspended" );
+    if ( rc == -2 )				/* not found */
+	rc = check_user_perms( JID, "JOB.done" );
 
     if ( rc < 0 )				/* check failed */
     {
@@ -785,6 +792,7 @@ time_t ti;
 int main( int argc, char ** argv )
 {
     struct passwd * pw; 		/* for user name */
+    struct stat stb;
 
     program_name = strrchr( argv[0], '/' );
     if ( program_name != NULL ) program_name++;
@@ -794,11 +802,6 @@ int main( int argc, char ** argv )
 	{ error_and_exit( "keyword missing" ); }
 
     /* common things to check and prepare */
-    if ( chdir( FAX_SPOOL_OUT ) < 0 )
-    {   
-	eout( "can't chdir to %s: %s\n", FAX_SPOOL_OUT, strerror(errno) );
-	exit(2);
-    }
 
     /* directories and JOB files have to be readable */
     umask(0022);
@@ -827,6 +830,27 @@ int main( int argc, char ** argv )
 	exit(3);
     }
     real_user_name = pw->pw_name;
+
+    /* spool directory has to exist, and should be owned by 'fax' */
+    if ( chdir( FAX_SPOOL_OUT ) < 0 )
+    {   
+	eout( "can't chdir to %s: %s\n", FAX_SPOOL_OUT, strerror(errno) );
+	exit(2);
+    }
+    if ( stat( ".", &stb ) < 0 )
+    {
+	eout( "can't stat %s: %s\n", FAX_SPOOL_OUT, strerror(errno) );
+	exit(2);
+    }
+    if ( ( stb.st_mode & 0022 ) > 0 ) 
+    {
+	eout( "WARNING: %s is group- or world-writeable\n", FAX_SPOOL_OUT);
+    }
+    if ( stb.st_uid != fax_out_uid )
+    {
+	eout( "WARNING: %s should be owned by user '%s'\n",
+	      FAX_SPOOL_OUT, FAX_OUT_USER );
+    }
 
     /* now parse arguments and go to specific functions */
     if ( argc == 2 && strcmp( argv[1], "new" ) == 0 ) 
