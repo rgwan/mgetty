@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 1.5 1993/11/05 23:06:29 gert Exp $ Copyright (c) 1993 Gert Doering";
+#ident "$Id: tio.c,v 1.6 1993/11/12 15:21:15 gert Exp $ Copyright (c) 1993 Gert Doering";
 
 /* tio.c
  *
@@ -16,6 +16,10 @@ static char tio_compilation_type[]="@(#) compiled with SYSV_TERMIO";
 #endif
 #ifdef BSD_SGTTY
 static char tio_compilation_type[]="@(#) compiled with BSD_SGTTY";
+#endif
+
+#ifdef SVR4
+#include <sys/termiox.h>
 #endif
 
 /* some systems do not define all flags needed later, e.g. NetBSD */
@@ -149,13 +153,10 @@ void tio_mode_sane _P2( (t, local), TIO * t, int local )
 #endif
     
     t->c_cc[VEOF] = 0x04;
-#if defined(POSIX_TERMIOS) || !defined(linux)
+#if defined(VEOL) && VEOL < TIONCC
     t->c_cc[VEOL] = 0;
 #endif
 
-#if !defined(VSWTCH) && defined(VSWTC)
-#define VSWTCH VSWTC
-#endif
 #ifdef VSWTCH
     t->c_cc[VSWTCH] = 0;
 #endif
@@ -230,15 +231,35 @@ void tio_carrier _P2( (t, carrier_sensitive), TIO *t, int carrier_sensitive )
 #endif
 
 /* Dial-Out parallel to a Dial-in on SCO 3.2v4.0 does only work if
- * *only* CTSFLOW is set (Uwe S. Obst)
+ * *only* CTSFLOW is set (Uwe S. Fuerst)
  */
 #ifdef BROKEN_SCO_324
 # undef HARDWARE_HANDSHAKE
 # define HARDWARE_HANDSHAKE CTSFLOW
 #endif
 
-int tio_set_flow_control _P2( (t, type), TIO * t, int type )
+/* tio_set_flow_control
+ *
+ * set flow control according to the <type> parameter. It can be any
+ * combination of
+ *   FLOW_XON_IN - use Xon/Xoff on incoming data
+ *   FLOW_XON_OUT- respect Xon/Xoff on outgoing data
+ *   FLOW_HARD   - use RTS/respect CTS line for hardware handshake
+ * (not every combination will work on every system)
+ *
+ * WARNING: for most systems, this function will not touch the tty
+ *          settings, only modify the TIO structure. On some systems,
+ *          you have to use extra ioctl()s [notably SVR4 and AIX] to
+ *          modify hardware flow control settings. On those systems,
+ *          these calls are done immediately.
+ */
+
+int tio_set_flow_control _P3( (fd, t, type), int fd, TIO * t, int type )
 {
+#ifdef SVR4
+    struct termiox tix;
+#endif
+    
 #if defined( SYSV_TERMIO ) || defined( POSIX_TERMIOS )
     t->c_cflag &= ~HARDWARE_HANDSHAKE;
     t->c_iflag &= ~( IXON | IXOFF | IXANY );
@@ -252,6 +273,22 @@ int tio_set_flow_control _P2( (t, type), TIO * t, int type )
 #else
 #include "not yet implemented"
 #endif
+    /* SVR4 came up with a new method of setting h/w flow control */
+#ifdef SVR4
+    if (ioctl(fd, TCGETX, &tix) < 0)
+    {
+	lprintf( L_ERROR, "ioctl TCGETX" ); return ERROR;
+    }
+    if ( type & FLOW_HARD )
+        tix.x_hflag |= (RTSXOFF | CTSXON);
+    else
+        tix.x_hflag &= ~(RTSXOFF | CTSXON);
+    
+    if ( ioctl(fd, TCSETX, &tix) < 0 )
+    {
+	lprintf( L_ERROR, "ioctl TCSETX" ); return ERROR;
+    }
+#endif
     return NOERROR;
 }
 
@@ -264,7 +301,7 @@ TIO t;
 
     if ( tio_get( fd, &t ) == ERROR ) return ERROR;
 
-    tio_set_flow_control( &t, type );
+    tio_set_flow_control( fd, &t, type );
 
     return tio_set( fd, &t );
 }
