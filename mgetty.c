@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 2.14 1995/06/09 23:36:45 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 2.15 1995/06/29 21:56:12 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -437,6 +437,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 	     * field one: St_waiting
 	     */
 	    CallTime = CallName = CallerId = "";	/* dirty */
+	    clean_line( STDIN, 3);			/* let line settle */
 	    rmlocks();
 	    mgetty_state = St_waiting;
 	    break;
