@@ -9,7 +9,7 @@
 # There are still a lot rough edges - but it works, and should give you an
 # idea how to improve it
 #
-# SCCS: $Id: faxrunq.in,v 4.5 1997/12/12 13:57:15 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxrunq.in,v 4.6 1997/12/12 14:12:48 gert Exp $ Copyright (C) 1994 Gert Doering
 
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -134,18 +134,19 @@ do
 # read job using 'tr', remove all quote characters, dollar, and backslash
 #
     eval `tr -d '\042\047\140\134\044\073' <JOB | \
-	  $AWK 'BEGIN { user=""; mail=""; verbto=""; time=""; re=""; }
+	  $AWK 'BEGIN { user=""; mail=""; verbto=""; time=""; re=""; ah=""; }
 		$1=="user" { user=$2 }
 		$1=="mail" { mail=substr( $0, 6) }
 		$1=="phone" { printf "PHONE=%s;", $2 }
 		$1=="time" { time=$2 }
 		$1=="verbose_to" { verbto=substr($0,12) }
 		$1=="subject" { re=substr($0,9) }
+		$1=="acct_handle" { ah=substr($0,13) }
 		END { if ( mail != "" ) printf "MAIL_TO=\"%s\";", mail
 				   else printf "MAIL_TO=\"%s\";", user
 		      printf "TIME=\"%s\";", time
 		      printf "VERBOSE_TO=\"%s\";", verbto
-		      printf "RE=\"%s\"", re }' - `
+		      printf "RE=\"%s\"; AH=\"%s\"", re, ah }' - `
 
 #
 # check whether send time is reached
@@ -205,7 +206,7 @@ do
 	$echo "Status "`date`" successfully sent" >>JOB
 
 	# update accounting log
-	$echo "$MAIL_TO $PHONE "`date`" success" >>$FAX_ACCT
+	$echo "$MAIL_TO |$PHONE |$AH|"`date`"| success" >>$FAX_ACCT
 
 	# send mail, if requested
 	if [ -n "$do_mail_s" ] ; then
@@ -265,7 +266,7 @@ do
 	$echo "Status "`date`" FATAL FAILURE, exit($status): $why" >>JOB
 
 	# update accounting log
-	$echo "$MAIL_TO $PHONE "`date`" fail: $why" >>$FAX_ACCT
+	$echo "$MAIL_TO |$PHONE |$AH|"`date`"| fail: $why" >>$FAX_ACCT
 
 	# if failed <max_fail_costly> times, suspend job
 	if [ `grep "FATAL FAILURE" JOB | wc -l` -ge $max_fail_costly ]
