@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 1.10 1993/12/18 18:42:56 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 1.11 1993/12/27 22:10:24 gert Exp $ Copyright (c) 1993 Gert Doering"
 ;
 /* tio.c
  *
@@ -353,6 +353,7 @@ int tio_toggle_dtr _P2( (fd, msec_wait), int fd, int msec_wait )
 #ifdef sun
     int modem_lines;
 #endif
+    int result;
 
     if ( tio_get( fd, &t ) == ERROR ) return ERROR;
 
@@ -380,5 +381,14 @@ int tio_toggle_dtr _P2( (fd, msec_wait), int fd, int msec_wait )
     modem_lines |= (TIOCM_RTS | TIOCM_DTR);
     ioctl(STDIN, TIOCMSET, &modem_lines);
 #endif
-    return tio_set( fd, &save_t );
+    result = tio_set( fd, &save_t );
+    
+#if defined(M_UNIX) && defined(MAM_BUG)
+    /* some SCO Unix variants apparently forget to raise DTR again
+     * after lowering it. Reopening the port fixes it. Crude, but works.
+     */
+    close( open( "/dev/tty", O_RDONLY | O_NDELAY ) );
+#endif
+    
+    return result;
 }
