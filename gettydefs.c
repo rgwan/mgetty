@@ -1,4 +1,4 @@
-#ident "$Id: gettydefs.c,v 1.5 1994/01/14 19:53:51 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "$Id: gettydefs.c,v 1.6 1994/03/13 00:45:37 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 ;
 /* gettydefs.c
  *
@@ -33,6 +33,8 @@ char * mydup _P1 ((s), register char *s)
     return(p);
 }
 #ifdef USE_GETTYDEFS
+
+static char gettydefs_ID[] = "@(#)gettydefs.c compiled with USE_GETTYDEFS"
 
 #include "tio.h"
 
@@ -219,7 +221,7 @@ static struct modeword ccchars[] = {
     {"VEOL2", VEOL2, CEOL2},
 #endif
 #if defined(VSUSP) && VSUSP < TIONCC
-    {"VSUSP", VSUSP, _POSIX_VDISABLE},
+    {"VSUSP", VSUSP, CSUSP},
 #endif
 #if defined(VSTART) && VSTART < TIONCC
     {"VSTART", VSTART, CSTART},
@@ -229,6 +231,22 @@ static struct modeword ccchars[] = {
 #endif
 #if defined(VSWTCH) && VSWTCH < TIONCC
     {"VSWTCH", VSWTCH, CSWTCH},
+#endif
+/* SVR4.2 */
+#if defined(VDSUSP) && VDSUSP < TIONCC
+   {"VDSUSP", VDSUSP, CDSUSP},
+#endif
+#if defined(VREPRINT) && VREPRINT < TIONCC
+   {"VREPRINT", VREPRINT, CRPRNT},
+#endif
+#if defined(VDISCARD) && VDISCARD < TIONCC
+   {"VDISCARD", VDISCARD, CFLUSH},
+#endif
+#if defined(VWERASE) && VWERASE < TIONCC
+   {"VWERASE", VWERASE, CWERASE},
+#endif
+#if defined(VLNEXT) && VLNEXT < TIONCC
+   {"VLNEXT", VLNEXT, CLNEXT},
 #endif
     {"VMIN", VMIN, 0},
     {"VTIME", VTIME, 0},
@@ -296,26 +314,10 @@ parsetermio _P2((ti, str), TIO *ti, char *str)
     tioflag_t *flag;
     int metakey;
 
+    /* initialize c_cc[] array (tio_* doesn't init INTR/ERASE!) */
+    tio_default_cc( ti );
     ti->c_cc[VINTR] = CINTR;
-    ti->c_cc[VQUIT] = CQUIT;
     ti->c_cc[VERASE] = CERASE;
-    ti->c_cc[VKILL] = CKILL;
-    ti->c_cc[VEOF] = CEOF;
-#if defined(VEOL) && VEOL < TIONCC
-    ti->c_cc[VEOL] = CEOL;
-#endif
-#if defined(VSTART) && VSTART < TIONCC
-    ti->c_cc[VSTART] = CSTART;
-#endif
-#if defined(VSTOP) && VSTOP < TIONCC
-    ti->c_cc[VSTOP] = CSTOP;
-#endif
-#if defined(VSUSP) && VSUSP < TIONCC
-    ti->c_cc[VSUSP] = CSUSP;
-#endif
-#if defined(VSWTCH) && VSWTCH < TIONCC
-    ti->c_cc[VSWTCH] = CSWTCH;
-#endif
 
 #ifndef POSIX_TERMIOS
     ti->c_line = 0;
