@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.h,v 3.3 1996/07/09 11:29:04 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: conf_mg.h,v 3.4 1996/11/08 20:50:58 gert Exp $ Copyright (c) 1994 Gert Doering"
 
 /* all (dynamic) mgetty configuration is contained in this structure.
  * It is initialized and loaded in conf_mg.c and accessed from mgetty.c
@@ -38,6 +38,7 @@ extern struct conf_data_mgetty {
 	prompt_waittime,			/* ms wait before prompting */
 	login_prompt,
 	login_time,				/* max. time to log in */
+	do_send_emsi,				/* send EMSI_REQ string */
 
 	station_id,				/* local fax station ID */
 	fax_server_file,			/* fax to send upon poll */
