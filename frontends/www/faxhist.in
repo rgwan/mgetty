@@ -4,9 +4,12 @@
 # 
 # Copyright 1998 Gert Doering, gert@greenie.net
 #
-# CVS: $Id: faxhist.in,v 1.4 1998/10/13 15:53:37 gert Exp $
+# CVS: $Id: faxhist.in,v 1.5 1998/12/04 15:50:02 gert Exp $
 #
 # $Log: faxhist.in,v $
+# Revision 1.5  1998/12/04 15:50:02  gert
+# use $indexpage
+#
 # Revision 1.4  1998/10/13 15:53:37  gert
 # logo/<h1> header adjusted
 #
@@ -116,7 +119,7 @@ else					# show all, one line for each day
 print <<EOF;
 <p>
 <hr size="5">
-<a href="/~sd/index.html">^Hauptmenue</a>
+<a href="$indexpage">^Hauptmenue</a>
 </body>
 EOF
 
