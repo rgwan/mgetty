@@ -1,3 +1,20 @@
+Thu Dec 21 23:04:25 MET 2000   Gert Doering (gert@greenie.muc.de)
+
+	* release 1.1.23
+
+	* goodies.c: on FreeBSD 4, use /proc/<pid>/cmdline
+
+	* mgetty.c: understand VMA_FAX vgetty return codes (unexpected +FCO)
+
+Sat Sep 23 16:50:14 MEST 2000  Gert Doering (gert@greenie.muc.de)
+
+	* mgetty.h: Intel ia64 adaptions (PTR_IS_LONG) 
+		(coming from RedHat patches)
+
+Sat Aug 26 13:10:00 MEST 2000  Gert Doering (gert@greenie.muc.de)
+
+	* frontends/X11/: new viewfax version (2.5)
+
 Thu Aug 17 19:58:20 MEST 2000  Gert Doering (gert@greenie.muc.de)
 
 	* release 1.1.22
