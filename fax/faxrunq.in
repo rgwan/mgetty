@@ -6,10 +6,13 @@
 # them from the outgoing queue (and send a mail to the originator of the
 # job)
 #
-# There are still a lot rough edges - but it works, and should give you an
-# idea how to improve it
+# For details about configuration etc. see "man faxrunq".
 #
-# SCCS: $Id: faxrunq.in,v 4.12 2001/12/16 13:56:13 gert Exp $ Copyright (C) 1994 Gert Doering
+# For heavy-duty usage (multiple lines, many 100 faxes per day), check
+# out faxrunqd.
+#
+# RCS: $Id: faxrunq.in,v 4.13 2002/01/04 17:42:15 gert Exp $ Copyright (C) 1994 Gert Doering
+#
 
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -238,7 +241,7 @@ do
 	# call "success" handler program (if requested)
 	if [ -n "$exec_pgm_s" ] ; then
 	    $echo "    calling program $exec_pgm_s..."
-	    $exec_pgm_s $FAX_SPOOL_OUT/$job
+	    $exec_pgm_s $FAX_SPOOL_OUT/$job 0
 	fi
 
 	# job is done -> remove it from the queue
@@ -307,8 +310,8 @@ do
 
 	    # call error handler, if requested
 	    if [ -n "$exec_pgm_f" ] ; then
-		$echo "    calling program $exec_pgm_f..."
-		$exec_pgm_f $FAX_SPOOL_OUT/$job
+		$echo "    calling program $exec_pgm_f ($status)..."
+		$exec_pgm_f $FAX_SPOOL_OUT/$job $status
 	    fi
 
 	    #
