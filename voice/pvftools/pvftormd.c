@@ -4,7 +4,7 @@
  * pvftormd converts from the pvf (portable voice format) format to the
  * rmd (raw modem data) format.
  *
- * $Id: pvftormd.c,v 1.15 2001/03/11 12:06:12 marcs Exp $
+ * $Id: pvftormd.c,v 1.16 2001/05/14 09:52:30 marcs Exp $
  *
  */
 
@@ -30,24 +30,34 @@ static void supported_formats (void)
      {
      fprintf(stderr, "\n%s %s\n\n", program_name, vgetty_version);
      fprintf(stderr, "supported raw modem data formats:\n\n");
-     fprintf(stderr, " - Digi          4 (G.711U) and 5 (G.711A)\n");
-     fprintf(stderr, " - Elsa          2, 3 and 4 bit Rockwell ADPCM\n");
-     fprintf(stderr, " - V253modem     8 bit PCM\n");
-     fprintf(stderr, " - ISDN4Linux    2, 3 and 4 bit ZyXEL ADPCM\n");
-     fprintf(stderr, " - Lucent        1  8 bit linear\n");
-     fprintf(stderr, " - Lucent        2  16 bit linear\n");
-     fprintf(stderr, " - Lucent        4  8 bit u-law\n");
-     fprintf(stderr, " - Lucent        5  4 bit IMA ADPCM\n");
-     fprintf(stderr, " - MT_2834       4 bit IMA ADPCM\n");
-     fprintf(stderr, " - MT_5634       4 bit IMA ADPCM\n");
-     fprintf(stderr, " - Rockwell      2, 3 and 4 bit Rockwell ADPCM\n");
-     fprintf(stderr, " - Rockwell      8 bit Rockwell PCM\n");
-     fprintf(stderr, " - UMC           4 bit G.721 ADPCM\n");
-     fprintf(stderr, " - US_Robotics   1 and 4 (GSM and G.721 ADPCM)\n");
-     fprintf(stderr, " - ZyXEL_1496    2, 3 and 4 bit ZyXEL ADPCM\n");
-     fprintf(stderr, " - ZyXEL_2864    2, 3 and 4 bit ZyXEL ADPCM\n");
-     fprintf(stderr, " - ZyXEL_Omni56K 4 bit Digispeech ADPCM (?)\n");
-     fprintf(stderr, " - ZyXEL_2864   81  8 bit Mu-law PCM\n");
+     fprintf(stderr, " - Digi           4        G.711u PCM\n");
+     fprintf(stderr, " - Digi           5        G.711A PCM\n");
+     fprintf(stderr, " - Elsa           2, 3, 4  2/3/4-bit Rockwell ADPCM\n");
+     fprintf(stderr, " - ISDN4Linux     2, 3, 4  2/3/4-bit ZyXEL ADPCM\n");
+     fprintf(stderr, " - ISDN4Linux     5        G.711A PCM\n");
+     fprintf(stderr, " - ISDN4Linux     6        G.711u PCM\n");
+     fprintf(stderr, " - Lucent         1        8 bit linear PCM\n");
+     fprintf(stderr, " - Lucent         2        16 bit linear PCM\n");
+     fprintf(stderr, " - Lucent         3        G.711A PCM\n");
+     fprintf(stderr, " - Lucent         4        G.711u PCM\n");
+     fprintf(stderr, " - Lucent         5        4 bit IMA ADPCM\n");
+     fprintf(stderr, " - MT_2834        4        4 bit IMA ADPCM\n");
+     fprintf(stderr, " - MT_5634        4        bit IMA ADPCM\n");
+     fprintf(stderr, " - Rockwell       2, 3, 4  2/3/4-bit Rockwell ADPCM\n");
+     fprintf(stderr, " - Rockwell       8        8-bit Rockwell PCM\n");
+     fprintf(stderr, " - UMC            4        G.721 ADPCM\n");
+     fprintf(stderr, " - US_Robotics    1        USR-GSM\n");
+     fprintf(stderr, " - US_Robotics    4        G.721 ADPCM\n");
+     fprintf(stderr, " - V253modem      2, 4     2/4-bit Rockwell ADPCM\n");
+     fprintf(stderr, " - V253modem      5        4-bit IMA ADPCM\n");
+     fprintf(stderr, " - V253modem      6        G.711u PCM\n");
+     fprintf(stderr, " - V253modem      7        G.711A PCM\n");
+     fprintf(stderr, " - V253modem      8        8-bit linear unsigned PCM\n");
+     fprintf(stderr, " - V253modem      9        8-bit linear signed PCM\n");
+     fprintf(stderr, " - ZyXEL_1496     2, 3, 4  2/3/4-bit ZyXEL ADPCM\n");
+     fprintf(stderr, " - ZyXEL_2864     2, 3, 4  2/3/4-bit ZyXEL ADPCM\n");
+     fprintf(stderr, " - ZyXEL_2864     81       8-bit Rockwell PCM\n");
+     fprintf(stderr, " - ZyXEL_Omni56K  4        4-bit Digispeech ADPCM (?)\n");
      fprintf(stderr, "\nexample:\n\t%s Rockwell 4 infile.pvf outfile.rmd\n\n",
       program_name);
      exit(ERROR);
@@ -176,8 +186,7 @@ int main (int argc, char *argv[])
 
           };
 
-     if ((strcmp(modem_type, "Digi RAS") == 0) && ((compression == 4) ||
-      (compression == 5)))
+     if (strcmp(modem_type, "Digi RAS") == 0 && compression == 4)
           {
           header_out.bits = compression;
 
@@ -206,11 +215,42 @@ int main (int argc, char *argv[])
                exit(ERROR);
                };
 
-	  /*
-	   * TODO: handle alaw
-	   */
-          if (pvftobasic(fd_in, fd_out, &header_in) == OK)
+          if (pvftoulaw(fd_in, fd_out, &header_in) == OK)
                exit(OK);
+
+          };
+
+     if (strcmp(modem_type, "Digi RAS") == 0 && compression == 5)
+          {
+          header_out.bits = compression;
+
+          if (header_in.speed != 8000)
+               {
+               fprintf(stderr, "%s: Unsupported sample speed (%d)\n",
+                program_name, header_in.speed);
+               fprintf(stderr,
+                "%s: The Digi RAS only supports 8000 samples per second\n",
+                program_name);
+               fclose(fd_out);
+
+               if (fd_out != stdout)
+                    unlink(name_out);
+
+               exit(FAIL);
+               };
+
+          if (write_rmd_header(fd_out, &header_out) != OK)
+               {
+               fclose(fd_out);
+
+               if (fd_out != stdout)
+                    unlink(name_out);
+
+               exit(ERROR);
+               };
+
+	  if (pvftoalaw(fd_in, fd_out, &header_in) == OK)
+	       exit(OK); 
 
           };
 
@@ -249,9 +289,25 @@ int main (int argc, char *argv[])
 
           };
 
-     if ((strcmp(modem_type, "V253modem") == 0) && (compression == 8))
+     if ((strcmp(modem_type, "ISDN4Linux") == 0) &&
+      ((compression == 2) || (compression == 3) || (compression == 4)))
           {
           header_out.bits = compression;
+
+          if (header_in.speed != 8000) 
+             {
+                fprintf(stderr, "%s: Unsupported sample speed (%d)\n",
+                 program_name, header_in.speed);
+                fprintf(stderr,
+                 "%s: The ISDN4Linux driver only supports 8000 samples/second\n",
+                 program_name);
+                fclose(fd_out);
+
+                if (fd_out != stdout)
+                        unlink(name_out);
+
+                exit(FAIL);
+             };
 
           if (write_rmd_header(fd_out, &header_out) != OK)
                {
@@ -261,20 +317,88 @@ int main (int argc, char *argv[])
                     unlink(name_out);
 
                exit(ERROR);
-               }
+               };
 
-          if (pvftolin(fd_in, fd_out, &header_in, 0, 0, 0) == OK)
+          if (pvftozyxel(fd_in, fd_out, compression, &header_in) == OK)
                exit(OK);
 
-          }
+          };
 
-     if ((strcmp(modem_type, "Lucent") == 0) && (compression == 1))
-	  {
+     if (strcmp(modem_type, "ISDN4Linux") == 0 && compression == 5)
+          {
           header_out.bits = 8;
 
-	  if ((header_in.speed != 7200) && (header_in.speed != 8000) &&
-	      (header_in.speed != 11025))
-	     {
+          if (header_in.speed != 8000) 
+             {
+                fprintf(stderr, "%s: Unsupported sample speed (%d)\n",
+                 program_name, header_in.speed);
+                fprintf(stderr,
+                 "%s: The ISDN4Linux driver only supports 8000 samples/second\n",
+                 program_name);
+                fclose(fd_out);
+
+                if (fd_out != stdout)
+                        unlink(name_out);
+
+                exit(FAIL);
+             };
+
+          if (write_rmd_header(fd_out, &header_out) != OK)
+               {
+               fclose(fd_out);
+
+               if (fd_out != stdout)
+                    unlink(name_out);
+
+               exit(ERROR);
+               };
+
+          if (pvftoalaw(fd_in, fd_out, &header_in) == OK)
+               exit(OK);
+
+          };
+
+     if (strcmp(modem_type, "ISDN4Linux") == 0 && compression == 6)
+          {
+          header_out.bits = 8;
+
+          if (header_in.speed != 8000) 
+             {
+                fprintf(stderr, "%s: Unsupported sample speed (%d)\n",
+                 program_name, header_in.speed);
+                fprintf(stderr,
+                 "%s: The ISDN4Linux driver only supports 8000 samples/second\n",
+                 program_name);
+                fclose(fd_out);
+
+                if (fd_out != stdout)
+                        unlink(name_out);
+
+                exit(FAIL);
+            };
+
+          if (write_rmd_header(fd_out, &header_out) != OK)
+               {
+               fclose(fd_out);
+
+               if (fd_out != stdout)
+                    unlink(name_out);
+
+               exit(ERROR);
+               };
+
+  	    if (pvftoulaw(fd_in, fd_out, &header_in) == OK)
+	         exit(OK);
+
+          };
+
+     if ((strcmp(modem_type, "Lucent") == 0) && (compression == 1))
+          {
+          header_out.bits = 8;
+
+	    if ((header_in.speed != 7200) && (header_in.speed != 8000) &&
+	     (header_in.speed != 11025))
+	      {
 		fprintf(stderr, "%s: Unsupported sample speed (%d)\n",
 		 program_name, header_in.speed);
 	 	fprintf(stderr,
@@ -289,19 +413,19 @@ int main (int argc, char *argv[])
 		};
 
 	if (write_rmd_header(fd_out, &header_out) != OK)
-	     {
+	      {
 		fclose(fd_out);
 
 		if (fd_out != stdout)
 			unlink(name_out);
 
 		exit(ERROR);
-	     };
+	      };
 
           if (pvftolin(fd_in, fd_out, &header_in, 0, 8, 0) == OK)
                exit(OK);
 
-          };
+            };
 
      if ((strcmp(modem_type, "Lucent") == 0) && (compression == 2))
           {
@@ -337,6 +461,7 @@ int main (int argc, char *argv[])
                exit(OK);
 
           };
+
      if ((strcmp(modem_type, "Lucent") == 0) && (compression == 3))
           {
           header_out.bits = 8;
@@ -366,10 +491,8 @@ int main (int argc, char *argv[])
                 exit(ERROR);
              };
 
-	/*          if (pvftoalaw(fd_in, fd_out, compression, &header_in) == OK)
-		    exit(OK); */
-	fprintf(stderr, "%s: A-law compression is not yet supported! \n",
-                 program_name);
+          if (pvftoalaw(fd_in, fd_out, &header_in) == OK)
+               exit(OK);
 
           };
 
@@ -402,7 +525,7 @@ int main (int argc, char *argv[])
                 exit(ERROR);
              };
 
-  	if (pvftobasic(fd_in, fd_out, &header_in) == OK)
+  	if (pvftoulaw(fd_in, fd_out, &header_in) == OK)
 	  exit(OK);
 
           };
@@ -435,11 +558,9 @@ int main (int argc, char *argv[])
 
                 exit(ERROR);
              };
-
           
 	  if (pvftoimaadpcm(fd_in, fd_out, &header_in) == OK)
                exit(OK);
-
 
           };
 
@@ -477,27 +598,6 @@ int main (int argc, char *argv[])
 	fprintf(stderr, "%s: G.728 compression is not yet supported!\n",
                  program_name);
 
-
-          };
-
-     if ((strcmp(modem_type, "ISDN4Linux") == 0) &&
-      ((compression == 2) || (compression == 3) || (compression == 4)))
-          {
-          header_out.bits = compression;
-
-          if (write_rmd_header(fd_out, &header_out) != OK)
-               {
-               fclose(fd_out);
-
-               if (fd_out != stdout)
-                    unlink(name_out);
-
-               exit(ERROR);
-               };
-
-          if (pvftozyxel(fd_in, fd_out, compression, &header_in) == OK)
-               exit(OK);
-
           };
 
      if (strcmp(modem_type, "Multitech2834") == 0 && compression == 4)
@@ -512,12 +612,12 @@ int main (int argc, char *argv[])
                     unlink(name_out);
 
                exit(ERROR);
-               }
+               };
 
           if (pvftoimaadpcm(fd_in, fd_out, &header_in) == OK)
                exit(OK);
 
-          }
+          };
 
      if (strcmp(modem_type, "Multitech5634") == 0)
           {
@@ -533,127 +633,10 @@ int main (int argc, char *argv[])
                     unlink(name_out);
 
                exit(ERROR);
-               }
+               };
 
           if (pvftoimaadpcm(fd_in, fd_out, &header_in) == OK)
                exit(OK);
-
-          }
-
-     if (strcmp(modem_type, "ZyXEL Omni 56K") == 0 && compression == 4)
-          {
-          header_out.bits = compression;
-
-          if (header_in.speed != 9600)
-               {
-               fprintf(stderr, "%s: Unsupported sample speed (%d)\n",
-                program_name, header_in.speed);
-               fprintf(stderr, "%s: The ZyXEL Omni 56K"
-                " only supports 9600 samples per second\n",
-                program_name);
-               fclose(fd_out);
-
-               if (fd_out != stdout)
-                    unlink(name_out);
-
-               exit(FAIL);
-               };
-
-          if (write_rmd_header(fd_out, &header_out) != OK)
-               {
-               fclose(fd_out);
-
-               if (fd_out != stdout)
-                    unlink(name_out);
-
-               exit(ERROR);
-               }
-
-          if (pvftozo56k(fd_in, fd_out, &header_in) == OK)
-               exit(OK);
-
-          }
-
-     if ((strcmp(modem_type, "ZyXEL 1496") == 0) &&
-      ((compression == 2) || (compression == 3) || (compression == 4)))
-          {
-          header_out.bits = compression;
-
-          if (header_in.speed != 9600)
-               {
-               fprintf(stderr, "%s: Unsupported sample speed (%d)\n",
-                program_name, header_in.speed);
-               fprintf(stderr,
-                "%s: The ZyXEL 1496 only supports 9600 samples per second\n",
-                program_name);
-               fclose(fd_out);
-
-               if (fd_out != stdout)
-                    unlink(name_out);
-
-               exit(FAIL);
-               };
-
-          if (write_rmd_header(fd_out, &header_out) != OK)
-               {
-               fclose(fd_out);
-
-               if (fd_out != stdout)
-                    unlink(name_out);
-
-               exit(ERROR);
-               };
-
-          if (pvftozyxel(fd_in, fd_out, compression, &header_in) == OK)
-               exit(OK);
-
-          };
-
-     if ((strcmp(modem_type, "ZyXEL 2864") == 0) &&
-      ((compression == 2) || (compression == 3) || (compression == 4)
-       || (compression == 81)))
-          {
-          header_out.bits = compression;
-
-          if ((header_in.speed != 7200) && (header_in.speed != 8000) &&
-           (header_in.speed != 9600) && (header_in.speed != 11025))
-               {
-               fprintf(stderr, "%s: Unsupported sample speed (%d)\n",
-                program_name, header_in.speed);
-               fprintf(stderr,
-                "%s: The ZyXEL 2864 supports the following sample rates:\n",
-                program_name);
-               fprintf(stderr,
-                "%s: 7200, 8000, 9600 and 11025\n", program_name);
-               fclose(fd_out);
-
-               if (fd_out != stdout)
-                    unlink(name_out);
-
-               exit(FAIL);
-               };
-
-          if (write_rmd_header(fd_out, &header_out) != OK)
-               {
-               fclose(fd_out);
-
-               if (fd_out != stdout)
-                    unlink(name_out);
-
-               exit(ERROR);
-               };
-
-          if (compression == 81) {
-	     if (pvftorockwellpcm(fd_in,
-                                  fd_out,
-                                  compression,
-                                  &header_in) == OK)
-		  exit(OK);
-          }
-          else {
-	     if (pvftozyxel(fd_in, fd_out, compression, &header_in) == OK)
-		  exit(OK);
-          }
 
           };
 
@@ -777,6 +760,263 @@ int main (int argc, char *argv[])
                };
 
           if (pvftousr(fd_in, fd_out, compression, &header_in) == OK)
+               exit(OK);
+
+          };
+
+     if ((strcmp(modem_type, "V253modem") == 0) && ((compression == 2) ||
+      (compression == 4)))
+          {
+          header_out.bits = compression;
+
+          if (write_rmd_header(fd_out, &header_out) != OK)
+               {
+               fclose(fd_out);
+
+               if (fd_out != stdout)
+                    unlink(name_out);
+
+               exit(ERROR);
+               };
+
+          if (pvftorockwell(fd_in, fd_out, compression, &header_in) == OK)
+               exit(OK);
+
+          };
+
+     if ((strcmp(modem_type, "V253modem") == 0) && (compression == 5))
+          {
+          header_out.bits = 4;
+
+          if (write_rmd_header(fd_out, &header_out) != OK)
+               {
+               fclose(fd_out);
+
+               if (fd_out != stdout)
+                    unlink(name_out);
+
+               exit(ERROR);
+               };
+
+          if (pvftoimaadpcm(fd_in, fd_out, &header_in) == OK)
+               exit(OK);
+
+          };
+
+     if ((strcmp(modem_type, "V253modem") == 0) && (compression == 6))
+          {
+          header_out.bits = 8;
+
+        if (write_rmd_header(fd_out, &header_out) != OK)
+             {
+             fclose(fd_out);
+
+             if (fd_out != stdout)
+                     unlink(name_out);
+
+             exit(ERROR);
+             };
+
+  	  if (pvftoulaw(fd_in, fd_out, &header_in) == OK)
+	       exit(OK);
+
+          };
+
+     if ((strcmp(modem_type, "V253modem") == 0) && (compression == 7))
+          {
+          header_out.bits = 8;
+
+        if (write_rmd_header(fd_out, &header_out) != OK)
+             {
+             fclose(fd_out);
+
+             if (fd_out != stdout)
+                     unlink(name_out);
+
+             exit(ERROR);
+             };
+
+  	  if (pvftoalaw(fd_in, fd_out, &header_in) == OK)
+	       exit(OK);
+
+          };
+
+     if ((strcmp(modem_type, "V253modem") == 0) && (compression == 8))
+          {
+          header_out.bits = 8;
+
+          if (write_rmd_header(fd_out, &header_out) != OK)
+               {
+               fclose(fd_out);
+
+               if (fd_out != stdout)
+                    unlink(name_out);
+
+               exit(ERROR);
+               };
+          if (pvftolin(fd_in, fd_out, &header_in, 0, 0, 0) == OK)
+               exit(OK);
+
+          };
+
+     if ((strcmp(modem_type, "V253modem") == 0) && (compression == 9))
+          {
+          header_out.bits = 8;
+
+          if (write_rmd_header(fd_out, &header_out) != OK)
+               {
+               fclose(fd_out);
+
+               if (fd_out != stdout)
+                    unlink(name_out);
+
+               exit(ERROR);
+               };
+          if (pvftolin(fd_in, fd_out, &header_in, 1, 0, 0) == OK)
+               exit(OK);
+
+          };
+
+     if ((strcmp(modem_type, "ZyXEL 1496") == 0) &&
+      ((compression == 2) || (compression == 3) || (compression == 4)))
+          {
+          header_out.bits = compression;
+
+          if (header_in.speed != 9600)
+               {
+               fprintf(stderr, "%s: Unsupported sample speed (%d)\n",
+                program_name, header_in.speed);
+               fprintf(stderr,
+                "%s: The ZyXEL 1496 only supports 9600 samples per second\n",
+                program_name);
+               fclose(fd_out);
+
+               if (fd_out != stdout)
+                    unlink(name_out);
+
+               exit(FAIL);
+               };
+
+          if (write_rmd_header(fd_out, &header_out) != OK)
+               {
+               fclose(fd_out);
+
+               if (fd_out != stdout)
+                    unlink(name_out);
+
+               exit(ERROR);
+               };
+
+          if (pvftozyxel(fd_in, fd_out, compression, &header_in) == OK)
+               exit(OK);
+
+          };
+
+     if ((strcmp(modem_type, "ZyXEL 2864") == 0) &&
+      ((compression == 2) || (compression == 3) || (compression == 4)))
+          {
+          header_out.bits = compression;
+
+          if ((header_in.speed != 7200) && (header_in.speed != 8000) &&
+           (header_in.speed != 9600) && (header_in.speed != 11025))
+               {
+               fprintf(stderr, "%s: Unsupported sample speed (%d)\n",
+                program_name, header_in.speed);
+               fprintf(stderr,
+                "%s: The ZyXEL 2864 supports the following sample rates:\n",
+                program_name);
+               fprintf(stderr,
+                "%s: 7200, 8000, 9600 and 11025\n", program_name);
+               fclose(fd_out);
+
+               if (fd_out != stdout)
+                    unlink(name_out);
+
+               exit(FAIL);
+               };
+
+          if (write_rmd_header(fd_out, &header_out) != OK)
+               {
+               fclose(fd_out);
+
+               if (fd_out != stdout)
+                    unlink(name_out);
+
+               exit(ERROR);
+               };
+
+	     if (pvftozyxel(fd_in, fd_out, compression, &header_in) == OK)
+		  exit(OK);
+
+          };
+
+     if ((strcmp(modem_type, "ZyXEL 2864") == 0) && (compression == 81))
+          {
+          header_out.bits = compression;
+
+          if ((header_in.speed != 7200) && (header_in.speed != 8000) &&
+           (header_in.speed != 9600) && (header_in.speed != 11025))
+               {
+               fprintf(stderr, "%s: Unsupported sample speed (%d)\n",
+                program_name, header_in.speed);
+               fprintf(stderr,
+                "%s: The ZyXEL 2864 supports the following sample rates:\n",
+                program_name);
+               fprintf(stderr,
+                "%s: 7200, 8000, 9600 and 11025\n", program_name);
+               fclose(fd_out);
+
+               if (fd_out != stdout)
+                    unlink(name_out);
+
+               exit(FAIL);
+               };
+
+          if (write_rmd_header(fd_out, &header_out) != OK)
+               {
+               fclose(fd_out);
+
+               if (fd_out != stdout)
+                    unlink(name_out);
+
+               exit(ERROR);
+               };
+
+	     if (pvftorockwellpcm(fd_in, fd_out, compression, &header_in) == OK)
+	          exit(OK);
+
+          };
+
+     if (strcmp(modem_type, "ZyXEL Omni 56K") == 0 && compression == 4)
+          {
+          header_out.bits = compression;
+
+          if (header_in.speed != 9600)
+               {
+               fprintf(stderr, "%s: Unsupported sample speed (%d)\n",
+                program_name, header_in.speed);
+               fprintf(stderr, "%s: The ZyXEL Omni 56K"
+                " only supports 9600 samples per second\n",
+                program_name);
+               fclose(fd_out);
+
+               if (fd_out != stdout)
+                    unlink(name_out);
+
+               exit(FAIL);
+               };
+
+          if (write_rmd_header(fd_out, &header_out) != OK)
+               {
+               fclose(fd_out);
+
+               if (fd_out != stdout)
+                    unlink(name_out);
+
+               exit(ERROR);
+               };
+
+          if (pvftozo56k(fd_in, fd_out, &header_in) == OK)
                exit(OK);
 
           };

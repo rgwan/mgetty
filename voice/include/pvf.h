@@ -3,7 +3,7 @@
  *
  * Contains the constants and function prototypes for the pvf tools
  *
- * $Id: pvf.h,v 1.6 2000/07/22 10:01:01 marcs Exp $
+ * $Id: pvf.h,v 1.7 2001/05/14 09:52:29 marcs Exp $
  *
  */
 
@@ -109,12 +109,17 @@ extern int pvftolin (FILE *fd_in, FILE *fd_out, pvf_header *header_in,
 extern int lintopvf (FILE *fd_in, FILE *fd_out, pvf_header *header_out,
  int is_signed, int bits16, int intel);
 
-extern int pvftobasic (FILE *fd_in, FILE *fd_out, pvf_header *header_in);
-extern int basictopvf (FILE *fd_in, FILE *fd_out, pvf_header *header_out);
+extern int pvftoulaw (FILE *fd_in, FILE *fd_out, pvf_header *header_in);
+extern int ulawtopvf (FILE *fd_in, FILE *fd_out, pvf_header *header_out);
+extern int pvftoalaw (FILE *fd_in, FILE *fd_out, pvf_header *header_in);
+extern int alawtopvf (FILE *fd_in, FILE *fd_out, pvf_header *header_out);
+#define pvftobasic pvftoulaw
+#define basictopvf ulawtopvf
 
 #define SND_FORMAT_MULAW_8    1
 #define SND_FORMAT_LINEAR_8   2
 #define SND_FORMAT_LINEAR_16  3
+#define SND_FORMAT_ALAW_8     27
 
 extern int pvftoau (FILE *fd_in, FILE *fd_out, pvf_header *header_in,
  int dataFormat);

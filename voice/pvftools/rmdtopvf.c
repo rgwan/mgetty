@@ -4,7 +4,7 @@
  * rmdtopvf converts from the rmd (raw modem data) format to the pvf
  * (portable voice format) format.
  *
- * $Id: rmdtopvf.c,v 1.15 2001/03/11 12:06:12 marcs Exp $
+ * $Id: rmdtopvf.c,v 1.16 2001/05/14 09:52:30 marcs Exp $
  *
  */
 
@@ -32,27 +32,26 @@ static void supported_formats (void)
      {
      fprintf(stderr, "\n%s %s\n\n", program_name, vgetty_version);
      fprintf(stderr, "supported raw modem data formats:\n\n");
-     fprintf(stderr, " - Digi           4 (G.711U) and 5 (G.711A)\n");
+     fprintf(stderr, " - Digi RAS       G.711u/A PCM\n");
      fprintf(stderr, " - Elsa           2, 3 and 4 bit Rockwell ADPCM\n");
-     fprintf(stderr, " - ISDN4Linux     2, 3 and 4 bit ZyXEL ADPCM\n");
-     fprintf(stderr, " - Lucent     1   8 bit linear\n");
-     fprintf(stderr, " - Lucent     2   16 bit linear\n");
-     fprintf(stderr, " - Lucent     4   8 bit u-law\n");
-     fprintf(stderr, " - Lucent     5   4 bit IMA ADPCM\n");
+     fprintf(stderr, " - ISDN4Linux     2, 3 and 4 bit ZyXEL ADPCM,\n");
+     fprintf(stderr, "                  G.711u/A PCM\n");
+     fprintf(stderr, " - Lucent         8/16 bit linear PCM, G.711u/A PCM,\n");
+     fprintf(stderr, "                  4 bit IMA ADPCM\n");
      fprintf(stderr, " - Multitech 2834 4 bit IMA ADPCM\n");
      fprintf(stderr, " - Multitech 5634 4 bit IMA ADPCM\n");
-     fprintf(stderr, " - Rockwell       2, 3 and 4 bit Rockwell ADPCM\n");
-     fprintf(stderr, " - Rockwell       8 bit Rockwell PCM\n");
-     fprintf(stderr, " - V253modem      8 bit unsigned PCM\n");
-     fprintf(stderr, " - V253modem      8 bit signed PCM\n");
-     fprintf(stderr, " - V253modem      4 bit IMA ADPCM\n");
-     fprintf(stderr, " - V253modem      2 and 4 bit Rockwell ADPCM\n");
-     fprintf(stderr, " - UMC            4 (G.721 ADPCM)\n");
-     fprintf(stderr, " - US Robotics    1 and 4 (GSM and G.721 ADPCM)\n");
-     fprintf(stderr, " - ZyXEL_1496     2, 3 and 4 bit ZyXEL ADPCM\n");
-     fprintf(stderr, " - ZyXEL_2864     2, 3 and 4 bit ZyXEL ADPCM\n");
-     fprintf(stderr, " - ZyXEL_Omni 56K 4 bit Digispeech ADPCM (?)\n");
-     fprintf(stderr, " - ZyXEL_2864  81 8 bit Mu-law PCM\n\n");
+     fprintf(stderr, " - Rockwell       2, 3 and 4 bit Rockwell ADPCM,\n");
+     fprintf(stderr, "                  8 bit Rockwell PCM\n");
+     fprintf(stderr, " - UMC            G.721 ADPCM\n");
+     fprintf(stderr, " - US Robotics    USR-GSM, G.721 ADPCM\n");
+     fprintf(stderr, " - V.253          2 and 4 bit Rockwell ADPCM,\n");
+     fprintf(stderr, "                  4 bit IMA ADPCM\n");
+     fprintf(stderr, "                  8 bit linear signed/unsigned PCM\n");
+     fprintf(stderr, "                  G.711u/A PCM\n");
+     fprintf(stderr, " - ZyXEL 1496     2, 3 and 4 bit ZyXEL ADPCM\n");
+     fprintf(stderr, " - ZyXEL 2864     2, 3 and 4 bit ZyXEL ADPCM\n");
+     fprintf(stderr, "                  8 bit Rockwell PCM\n\n");
+     fprintf(stderr, " - ZyXEL Omni 56K 4 bit Digispeech ADPCM (?)\n");
      exit(ERROR);
      }
 
@@ -134,10 +133,13 @@ int main (int argc, char *argv[])
            (strcmp(modem_type, "Elsa") == 0))
                header_out.speed = 7200;
 
-	  if (strcmp(modem_type, "Lucent") == 0)
-	    header_out.speed = 8000;
+          if (strcmp(modem_type, "Lucent") == 0)
+	         header_out.speed = 8000;
 
-          }
+          if (strcmp(modem_type, "ISDN4Linux") == 0)
+	         header_out.speed = 8000;
+ 
+         }
 
      if (optind < argc)
           {
@@ -162,49 +164,120 @@ int main (int argc, char *argv[])
           exit(ERROR);
           }
 
-     if (((strcmp(modem_type, "Multitech2834") == 0 && compression == 4))  ||
-       ((strcmp(modem_type, "Lucent") == 0) && (compression == 5)))
+     if (strcmp(modem_type, "Digi RAS") == 0 && compression == 4)
           {
 
-          if (imaadpcmtopvf(fd_in, fd_out, &header_out) == OK)
+          if (ulawtopvf(fd_in, fd_out, &header_out) == OK)
                exit(OK);
 
-          }
+          };
 
-     if (strcmp(modem_type, "Multitech5634") == 0 && compression == 4)
+     if (strcmp(modem_type, "Digi RAS") == 0 && compression == 5)
           {
 
-          if (imaadpcmtopvf(fd_in, fd_out, &header_out) == OK)
-               exit(OK);
+	  if (alawtopvf(fd_in, fd_out, &header_out) == OK)
+	       exit(OK);
 
-          }
+          };
 
-     if (strcmp(modem_type, "ZyXEL Omni 56K") == 0 && compression == 4)
+     if ((strcmp(modem_type, "Elsa") == 0) && ((compression == 2) ||
+      (compression == 3) || (compression == 4)))
           {
 
-          if (zo56ktopvf(fd_in, fd_out, &header_out) == OK)
+          if (rockwelltopvf(fd_in, fd_out, compression, &header_out) == OK)
                exit(OK);
 
-          }
+          };
 
-     if ((strcmp(modem_type, "ZyXEL 2864") == 0)
-         && (compression == 81)) {
-        if (rockwellpcmtopvf(fd_in,
-                             fd_out,
-                             compression,
-                             &header_out) == OK) {
-           exit(OK);
-        }
-     }
-
-     if (((strcmp(modem_type, "ZyXEL 1496") == 0) ||
-      (strcmp(modem_type, "ZyXEL 2864") == 0) ||
-      (strcmp(modem_type, "ISDN4Linux") == 0)) &&
-      ((compression == 2) || (compression == 3) || (compression == 30) ||
-      (compression == 4)))
+     if ((strcmp(modem_type, "ISDN4Linux") == 0) && ((compression == 2) ||
+      (compression == 3) || (compression == 4)))
           {
 
           if (zyxeltopvf(fd_in, fd_out, compression, &header_out) == OK)
+               exit(OK);
+
+          };
+
+     if (strcmp(modem_type, "ISDN4Linux") == 0 && compression == 5)
+          {
+
+	  if (alawtopvf(fd_in, fd_out, &header_out) == OK)
+	       exit(OK);
+
+          };
+
+     if (strcmp(modem_type, "ISDN4Linux") == 0 && compression == 6)
+          {
+
+          if (ulawtopvf(fd_in, fd_out, &header_out) == OK)
+               exit(OK);
+
+          };
+
+     if (strcmp(modem_type, "Lucent") == 0 && compression == 1)
+          {
+
+          if (lintopvf(fd_in, fd_out, &header_out, 0, 8, 0) == OK)
+               exit(OK);
+
+          };
+
+     if (strcmp(modem_type, "Lucent") == 0 && compression == 2)
+          {
+
+          if (lintopvf(fd_in, fd_out, &header_out, 0, 16, 0) == OK)
+               exit(OK);
+
+          };
+
+     if (strcmp(modem_type, "Lucent") == 0 && compression == 3)
+          {
+
+	  if (alawtopvf(fd_in, fd_out, &header_out) == OK)
+	       exit(OK);
+
+          };
+
+     if (strcmp(modem_type, "Lucent") == 0 && compression == 4)
+          {
+
+          if (ulawtopvf(fd_in, fd_out, &header_out) == OK)
+               exit(OK);
+
+          };
+
+     if (strcmp(modem_type, "Lucent") == 0 && compression == 5)
+          {
+
+          if (imaadpcmtopvf(fd_in, fd_out, &header_out) == OK)
+               exit(OK);
+
+          };
+
+     if (strcmp(modem_type, "Lucent") == 0 && compression == 6)
+          {
+
+	/*          if (g728topvf(fd_in, fd_out, compression, &header_in) == OK)
+		    exit(OK); */
+	fprintf(stderr, "%s: G.728 compression is not yet supported!\n",
+                 program_name);
+
+          };
+
+     if (((strcmp(modem_type, "Multitech2834") == 0) ||
+      (strcmp(modem_type, "Multitech5634") == 0)) && (compression == 4))
+          {
+
+          if (imaadpcmtopvf(fd_in, fd_out, &header_out) == OK)
+               exit(OK);
+
+          };
+
+     if ((strcmp(modem_type, "Rockwell") == 0) && ((compression == 2) ||
+      (compression == 3) || (compression == 4)))
+          {
+
+          if (rockwelltopvf(fd_in, fd_out, compression, &header_out) == OK)
                exit(OK);
 
           };
@@ -213,6 +286,23 @@ int main (int argc, char *argv[])
           {
 
 	  if (rockwellpcmtopvf(fd_in, fd_out, compression, &header_out) == OK)
+               exit(OK);
+
+          };
+
+     if (strcmp(modem_type, "UMC") == 0 && compression == 4)
+          {
+
+          if (usrtopvf(fd_in, fd_out, compression, &header_out) == OK)
+               exit(OK);
+
+          };
+
+     if ((strcmp(modem_type, "US Robotics") == 0) && ((compression == 1) ||
+      (compression == 4)))
+          {
+
+          if (usrtopvf(fd_in, fd_out, compression, &header_out) == OK)
                exit(OK);
 
           };
@@ -231,83 +321,57 @@ int main (int argc, char *argv[])
             if (lintopvf(fd_in, fd_out, &header_out, 1, 0, 0) == OK)   /* signed linear */
                exit(OK);
             else exit(FAIL);
-
           case 2:
           case 4:
             if (rockwelltopvf(fd_in, fd_out, compression, &header_out) == OK)   /* the &Elsa compatible formats */
                exit(OK);
             else exit(FAIL);
-
           case 5:
             if (imaadpcmtopvf(fd_in, fd_out, &header_out) == OK)
                exit(OK);
             else exit(FAIL);
-          case 6:   /* please add here uLaw or mu-Law (thats what Zyxel calls this) */
-          case 10:  /* please add here uLaw or mu-Law (thats what Zyxel calls this) */
-             fprintf(stderr, "here should be support for u-Law logarithmic see sox -U \n");
-             break;
-
+          case 6:
+          case 10:
+            if (ulawtopvf(fd_in, fd_out, &header_out) == OK)
+                exit(OK);
+            else exit(FAIL);
           case 7:
-          case 11:  /* please add here aLaw */
-             fprintf(stderr, "here should be support for a-Law logarithmic see sox -A \n");
-             break;
+          case 11:
+            if (alawtopvf(fd_in, fd_out, &header_out) == OK)
+                exit(OK);
+            else exit(FAIL);
 
           default:
             fprintf(stderr, "%s: Unsupported compression method (%s/%d)\n",
               program_name, modem_type, compression);
             exit(FAIL);
-          }
-        }
-
-     if (((strcmp(modem_type, "Rockwell") == 0 && compression != 8) ||
-      (strcmp(modem_type, "Elsa") == 0)) && ((compression == 2) ||
-      (compression == 3) || (compression == 4)))
-          {
-
-          if (rockwelltopvf(fd_in, fd_out, compression, &header_out) == OK)
-               exit(OK);
-
           };
+        };
 
-     if ((strcmp(modem_type, "UMC") == 0) && (compression == 4))
-          {
-
-          if (usrtopvf(fd_in, fd_out, compression, &header_out) == OK)
-               exit(OK);
-
-          };
-
-     if ((strcmp(modem_type, "US Robotics") == 0) && ((compression == 1) ||
+     if (((strcmp(modem_type, "ZyXEL 1496") == 0) ||
+      (strcmp(modem_type, "ZyXEL 2864") == 0)) &&
+      ((compression == 2) || (compression == 3) || (compression == 30) ||
       (compression == 4)))
           {
 
-          if (usrtopvf(fd_in, fd_out, compression, &header_out) == OK)
+          if (zyxeltopvf(fd_in, fd_out, compression, &header_out) == OK)
                exit(OK);
 
           };
 
-     if (((strcmp(modem_type, "Digi RAS") == 0) && ((compression == 4) ||
-      (compression == 5))) || ((strcmp(modem_type, "Lucent") == 0) && (compression == 4)))
+     if (strcmp(modem_type, "ZyXEL 2864") == 0 && compression == 81)
           {
-	  /*
-	   * TODO: handle alaw
-	   */
-          if (basictopvf(fd_in, fd_out, &header_out) == OK)
+          if (rockwellpcmtopvf(fd_in, fd_out, compression, &header_out) == OK)
+               exit(OK);
+          };
+
+     if (strcmp(modem_type, "ZyXEL Omni 56K") == 0 && compression == 4)
+          {
+
+          if (zo56ktopvf(fd_in, fd_out, &header_out) == OK)
                exit(OK);
 
           };
-
-     if ((strcmp(modem_type, "Lucent") == 0) && (compression == 1))
-       {
-          if (pvftolin(fd_in, fd_out, &header_out, 0, 8, 0) == OK)
-               exit(OK);
-       }
-
-     if ((strcmp(modem_type, "Lucent") == 0) && (compression == 2))
-       {
-          if (pvftolin(fd_in, fd_out, &header_out, 0, 16, 0) == OK)
-               exit(OK);
-       }
 
      fclose(fd_out);
 
