@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-# RCS: $Id: faxrunqd.in,v 1.5 1997/10/09 11:15:06 gd Exp $
+# RCS: $Id: faxrunqd.in,v 1.6 1997/10/30 21:12:53 gert Exp $
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.6  1997/10/30 21:12:53  gert
+# add configuration items (@bla@)
+#
 # Revision 1.5  1997/10/09 11:15:06  gd
 # make sure that only one job is started for a given telephone number
 # (hash %phones remembers phone->job association for each active job)
@@ -38,16 +41,16 @@ use IO::Handle;
 # CONFIGURATION: filenames
 #
 
-$fax_spool_out='/var/spool/fax/outgoing';
+$fax_spool_out='@FAX_SPOOL_OUT@';
 
-$sendfax='/medat/bin/sendfax';
-$mail='/usr/lib/sendmail';
+$sendfax='@SBINDIR@/sendfax';
+$mail='@MAILER@';
 
-$faxrunq_cf='/stf/mail/mgetty/faxrunq.config';
-$fax_acct='/var/spool/fax/acct.log';
-$faxrd_log='/var/spool/fax/faxrunqd.log';
+$faxrunq_cf='@CONFDIR@/faxrunq.config';
+$fax_acct='@FAX_SPOOL@/acct.log';
+$faxrd_log='@FAX_SPOOL@/faxrunqd.log';
 
-$faxrd_pid='/var/spool/fax/faxrunqd.pid';
+$faxrd_pid='@FAX_SPOOL@/faxrunqd.pid';
 
 
 
