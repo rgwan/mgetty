@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.54 1994/03/01 23:35:09 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.55 1994/04/11 11:51:56 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* sendfax.c
  *
@@ -116,7 +116,9 @@ int	fd;
     fax_remote_id[0] = 0;
     fax_param[0] = 0;
 
+    log_init_paths( NULL, NULL, &fax_tty[ strlen(fax_tty)-2 ] );
     lprintf( L_NOISE, "fax_open_device succeeded, %s -> %d", fax_tty, fd );
+
     if ( verbose ) printf( "OK.\n" );
     return fd;
 }
@@ -186,8 +188,8 @@ int	fax_res_fine = 1;			/* override with "-n" */
 int	tries;
 
     /* initialize logging */
-    strcpy( log_path, FAX_LOG );
-    log_level = L_NOISE;
+    log_init_paths( argv[0], FAX_LOG, NULL );
+    log_set_llevel( L_NOISE );
 
     while ((opt = getopt(argc, argv, "d:vx:ph:l:nm:")) != EOF) {
 	switch (opt) {
@@ -198,7 +200,7 @@ int	tries;
 	    verbose = TRUE;
 	    break;
 	case 'x':	/* set debug level */
-	    log_level = atoi(optarg);
+	    log_set_llevel( atoi(optarg) );
 	    break;
 	case 'p':	/* enable polling */
 	    fax_poll_wanted = TRUE;
