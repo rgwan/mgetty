@@ -83,7 +83,7 @@ TIO tio, save_tio;			/* for stdin */
 	printf( "keyboard active. Press 'D' to change DTR, 'R' to change RTS.\r\n" );
     }
 
-    last_f == -1;
+    last_f = -1;
     do
     {
 	f = tio_get_rs232_lines( fd );
