@@ -9,10 +9,15 @@
 #
 # initial version: Feb 17, 1997
 #
-my $rcs_id='RCS: $Id: faxrunqd.in,v 1.69 2005/02/17 10:57:41 gert Exp $';
+my $rcs_id='RCS: $Id: faxrunqd.in,v 1.70 2005/02/17 13:52:33 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.70  2005/02/17 13:52:33  gert
+# do full "queue readdir()" only once per 180 seconds now, but use "stat(.)" to
+# detect modifications to spool directory (checked every 10 seconds) -> for
+# filesys. with unix mtime semantics, this reduces load AND speeds up things
+#
 # Revision 1.69  2005/02/17 10:57:41  gert
 # change over to "use strict" ->
 #   predeclare all global variables, use "my" variables for loops
@@ -618,7 +623,7 @@ while( 1 )
 
     # now, make sure all delayed jobs are rescheduled
     print LOG localtime() . ": checking internal queue for delayed jobs...\n" if $opt_v;
-    my $sleep_time=60;
+    my $sleep_time=180;
 
     foreach my $job ( keys %queue )
     {
@@ -641,8 +646,20 @@ while( 1 )
     if ( $childs == 0 && $sleep_time > 0 )
     {
 	# not even child processes to wait for... sleep.
-	print LOG "Pausing $sleep_time seconds...\n" if $opt_v;
-	sleep $sleep_time;
+	print LOG "Pausing (max.) $sleep_time seconds...\n" if $opt_v;
+
+	my $qdir_mtime = (stat '.')[9];
+	while( $sleep_time > 0 )
+	{
+	    sleep ( $sleep_time > 10? 10: $sleep_time );
+	    $sleep_time -= 10;
+	    if ( $sleep_time > 0 &&
+		 (stat '.')[9] != $qdir_mtime )
+	    {
+		print LOG "Wakeup! ($sleep_time seconds early)\n" if $opt_v;
+		last;
+	    }
+	}
     }
 }
 
