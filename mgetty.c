@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.98 1994/04/05 22:11:29 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.99 1994/04/09 14:24:00 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -700,16 +700,19 @@ waiting:
 
 		/* display ISSUE, if present
 		 */
-		if (*issue != '/') {
-			fputs(issue, stdout);
-			fputs("\r\n", stdout);
-		} else if ((fp = fopen(issue, "r")) != (FILE *) NULL) {
-			while (fgets(buf, sizeof(buf), fp) != (char *) NULL)
-			{
-				fputs(buf, stdout);
-				fputc('\r', stdout );
-			}
-			fclose(fp);
+		if (*issue != '/')
+		{
+		    printf( "%s\r\n", ln_escape_prompt( issue ) );
+		}
+		else if ((fp = fopen(issue, "r")) != (FILE *) NULL)
+		{
+		    while (fgets(buf, sizeof(buf), fp) != (char *) NULL)
+		    {
+			char * p = ln_escape_prompt( buf );
+			if ( p != NULL ) fputs( p, stdout );
+			fputc('\r', stdout );
+		    }
+		    fclose(fp);
 		}
 
 		/* set permissions to "rw-------" */
