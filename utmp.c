@@ -1,4 +1,4 @@
-#ident "$Id: utmp.c,v 2.1 1994/11/30 23:20:52 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: utmp.c,v 2.2 1995/07/30 19:46:02 gert Exp $ Copyright (c) Gert Doering"
 
 /* some parts of the code (writing of the utmp entry)
  * is based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
@@ -127,7 +127,6 @@ FILE *	fp;
 	    utmp->ut_type = ut_type;	/* {INIT,LOGIN,USER}_PROCESS */
 	                                /* "LOGIN", "uugetty", "dialout" */
 	    strncpy( utmp->ut_user, ut_user, sizeof( utmp->ut_user ) );
-	    utmp->ut_user[ sizeof( utmp->ut_user ) -1 ] = 0;
 
 #if defined(SVR4) || defined(linux)
 	    if (ut_host != NULL)
