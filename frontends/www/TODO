@@ -1,14 +1,15 @@
-1) faxq: show last faxrunq(d) run ($FAX_SPOOL_OUT/.last_run)
+* 1) faxq: show last faxrunq(d) run ($FAX_SPOOL_OUT/.last_run)
 
-2) nph-vf-gif: set umask 022 - otherwise, temp files will be world-writeable
+* 2) nph-vf-gif: set umask 022 - otherwise, temp files will be world-writeable
 
-3) nph-vf-gif: build cleanup jobs that will remove all fax files that
+- service.in service.cgi - defined, not yet realised
+- 3) nph-vf-gif: build cleanup jobs that will remove all fax files that
    haven't been looked at (atime) since over a week
 
-4) nph-vf-gif: check whether $FAX_SPOOL_IN/* is *readable*, otherwise 
+* 4) nph-vf-gif: check whether $FAX_SPOOL_IN/* is *readable*, otherwise 
    print error message [instead of just creating 0-byte-length files]
 
-5) nph-vf-gif: for all "permission denied" errors, show the user ID that
+* 5) nph-vf-gif: for all "permission denied" errors, show the user ID that
    the script is run as - this makes fixing the problems a lot easier
 
 
