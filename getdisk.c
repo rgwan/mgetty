@@ -1,4 +1,4 @@
-#ident "@(#)getdisk.c $Id: getdisk.c,v 4.1 1997/01/12 14:53:39 gert Exp $ Copyright (c) 1994 Elegant Communications Inc."
+#ident "@(#)getdisk.c $Id: getdisk.c,v 4.2 2001/01/06 23:28:05 gert Exp $ Copyright (c) 1994 Elegant Communications Inc."
 
 /*
 
@@ -194,11 +194,12 @@ long minfreespace = MINFREESPACE;
 #ifndef TESTDISK
 int checkspace _P1 ((path), char *path)
 {
-#ifdef HASDISKSTATS
+#ifdef HASDISKSTAT
     struct mountinfo mi;
     if (getdiskstats(path, &mi))
 	return(1);
-    lprintf( L_NOISE, "%ld space on %s", mi.mi_bavail * mi.mi_bsize, path);
+    lprintf( L_NOISE, "%ld Mb free on %s", 
+		(mi.mi_bavail * mi.mi_bsize)/(1024*1024), path);
     return((mi.mi_bavail * mi.mi_bsize) / minfreespace);
 #else
     return(1);
