@@ -3,7 +3,7 @@
  *
  * autodetect the modemtype we are connected to.
  *
- * $Id: detect.c,v 1.32 2001/02/24 11:43:40 marcs Exp $
+ * $Id: detect.c,v 1.33 2001/08/25 20:28:03 gert Exp $
  *
  */
 
@@ -47,6 +47,7 @@ static const struct pnp_modem_type_struct pnp_modem_database[] =
      {"ELS", "0152", &Elsa, "ELSA ML 56k internet c" },
      {"ELS", "0363", &V253modem, "ELSA ML 56k fun" },
      {"ELS", "0862", &V253modem, "ELSA MicroLink 56k Internet II" },
+     {"ELS", "6026", &V253modem, "ELSA ML 56k Fun II a" },
      {NULL, NULL, NULL}
      };
      
