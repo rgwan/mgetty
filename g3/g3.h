@@ -1,4 +1,4 @@
-#ident "$Id: g3.h,v 1.1 1993/10/06 15:15:41 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: g3.h,v 1.2 1993/10/18 20:16:14 gert Exp $ Copyright (c) Gert Doering";
 
 #ifndef NULL
 #define NULL 0L
@@ -42,12 +42,14 @@ struct g3_tree { int nr_bits;
 
 #define g3_leaf g3code
 
-extern void tree_add_node( struct g3_tree *p, struct g3code * g3c,
-		           int bit_code, int bit_length );
-extern void build_tree( struct g3_tree ** p, struct g3code * c );
+extern void tree_add_node _PROTO(( struct g3_tree *p, struct g3code * g3c,
+		                   int bit_code, int bit_length ));
+extern void build_tree _PROTO(( struct g3_tree ** p, struct g3code * c ));
 
 #ifdef DEBUG
-extern void print_g3_tree( char * t, struct g3_tree * p );
+extern void print_g3_tree _PROTO(( char * t, struct g3_tree * p ));
 #endif
 
-extern void init_byte_tab( int reverse, int byte_tab[] );
+extern void init_byte_tab _PROTO(( int reverse, int byte_tab[] ));
+
+

@@ -1,10 +1,12 @@
-#ident "$Id: g3.c,v 1.1 1993/10/06 15:15:35 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: g3.c,v 1.2 1993/10/18 20:16:11 gert Exp $ Copyright (c) Gert Doering";
 
 #include <stdio.h>
 #include <unistd.h>
 #include <malloc.h>
 #include <string.h>
 #include <fcntl.h>
+
+#include "mgetty.h"
 
 #include "g3.h"
 
@@ -206,8 +208,9 @@ struct g3code m_black[28] = {
 { 0,1728,0x14c0, 13 },
 { 0,  -1, 0, 0 } };
 
-void tree_add_node( struct g3_tree *p, struct g3code * g3c,
-		    int bit_code, int bit_length )
+void tree_add_node _P4( (p, g3c, bit_code, bit_length ),
+                        struct g3_tree *p, struct g3code * g3c,
+		        int bit_code, int bit_length )
 {
 int i;
 
@@ -246,7 +249,7 @@ int i;
     }
 }
 
-void build_tree( struct g3_tree ** p, struct g3code * c )
+void build_tree _P2( (p,c), struct g3_tree ** p, struct g3code * c )
 {
     if ( *p == NULL )
     {
@@ -263,27 +266,7 @@ void build_tree( struct g3_tree ** p, struct g3code * c )
     }
 }
 
-#ifdef DEBUG
-void print_g3_tree( char * t, struct g3_tree * p )
-{
-int i;
-    if ( p->nr_bits )
-	fprintf( stderr, "%s (%08x) leaf( nr_bits=%2d, PELs=%3d )\n",
-		 t, (int) p, p->nr_bits, ((struct g3_leaf *) p)->nr_pels );
-    else
-    {
-	fprintf( stderr, "%s (%08x) node (BITs=%d)\n", t, (int) p, BITS );
-#if DEBUG > 1
-	for ( i=0; i<BITN; i++ )
-	{
-	    fprintf( stderr, "    d[%d]->%08x\n", i, (int) (p->nextb[i]) );
-	}
-#endif
-    }
-}
-#endif
-
-void init_byte_tab( int reverse, int byte_tab[] )
+void init_byte_tab _P2( (reverse, byte_tab), int reverse, int byte_tab[] )
 {
 int i;
     if ( reverse ) for ( i=0; i<256; i++ ) byte_tab[i] = i;

@@ -1,4 +1,4 @@
-#ident "$Id: g32pbm.c,v 1.7 1993/10/06 15:15:05 gert Exp $ (c) Gert Doering";
+#ident "$Id: g32pbm.c,v 1.8 1993/10/18 20:16:19 gert Exp $ (c) Gert Doering";
 
 #include <stdio.h>
 #include <unistd.h>
@@ -6,10 +6,12 @@
 #include <string.h>
 #include <fcntl.h>
 
+#include "mgetty.h"
+
 #include "g3.h"
 
 #ifdef DEBUG
-void putbin( unsigned long d )
+void putbin _P1( (d), unsigned long d )
 {
 unsigned long i = 0x80000000;
 
@@ -34,7 +36,7 @@ static	int  rs;		/* read buffer size */
 #define MAX_ROWS 4300
 #define MAX_COLS 1728		/* !! FIXME - command line parameter */
 
-int main( int argc, char ** argv )
+int main _P2( (argc, argv), int argc, char ** argv )
 {
 int data;
 int hibit;
@@ -48,7 +50,7 @@ int cons_eol;
 char *	bitmap;			/* MAX_ROWS by MAX_COLS/8 bytes */
 char *	bp;			/* bitmap pointer */
 int	row;
-int	col;
+int	col, hcol;
 
     /* initialize lookup trees */
     build_tree( &white, t_white );
@@ -91,7 +93,7 @@ int	col;
     rp = ( rs >= 64 && strcmp( rbuf+1, "PC Research, Inc" ) == 0 ) ? 64 : 0;
 
     /* initialize bitmap */
-    row = col = 0;
+    row = col = hcol = 0;
     bitmap = (char *) calloc( MAX_ROWS, MAX_COLS / 8 );
     if ( bitmap == NULL )
     {
@@ -126,13 +128,6 @@ int	col;
 #endif
 	}
 
-#if DEBUG > 1
-	if ( color == 0 )
-	    print_g3_tree( "white=", white );
-	else
-	    print_g3_tree( "black=", black );
-#endif
-
 	if ( color == 0 )		/* white */
 	    p = white->nextb[ data & BITM ];
 	else				/* black */
@@ -140,9 +135,6 @@ int	col;
 
 	while ( p != NULL && ! ( p->nr_bits ) )
 	{
-#if DEBUG > 1
-	    print_g3_tree( "p=", p );
-#endif
 	    data >>= BITS;
 	    hibit -= BITS;
 	    p = p->nextb[ data & BITM ];
@@ -151,7 +143,7 @@ int	col;
 	if ( p == NULL )	/* invalid code */
 	{ 
 	    fprintf( stderr, "invalid code, row=%d, col=%d, file offset=%lx, skip to eol\n",
-		     row, col, lseek( 0, 0, 1 ) - rs + rp );
+		     row, col, lseek( fd, 0, 1 ) - rs + rp );
 	    while ( ( data & 0x03f ) != 0 )
 	    {
 		data >>= 1; hibit--;
@@ -172,9 +164,6 @@ int	col;
 	}
 	else				/* p != NULL <-> valid code */
 	{
-#if DEBUG > 1
-	    print_g3_tree( "p=", p );
-#endif
 	    data >>= p->nr_bits;
 	    hibit -= p->nr_bits;
 
@@ -223,13 +212,12 @@ int	col;
 	    hibit--; data >>=1;
 	    
 	    color=0; 
-#ifdef DEBUG
-	    fprintf( stderr, "EOL!\n" );
-#endif
+
 	    if ( col == 0 )
 		cons_eol++;
 	    else
 	    {
+	        if ( col > hcol && col <= MAX_COLS ) hcol = col;
 		row++; col=0; bp = &bitmap[ row * MAX_COLS/8 ]; 
 		cons_eol = 0;
 	    }
@@ -238,9 +226,9 @@ int	col;
 	{
 	    if ( col+nr_pels > MAX_COLS ) nr_pels = MAX_COLS - col;
 
-	    if ( color == 0 )
+	    if ( color == 0 )                  /* white */
 		col += nr_pels;
-	    else
+	    else                               /* black */
 	    {
             register int bit = ( 0x80 >> ( col & 07 ) );
 	    register char *w = & bp[ col>>3 ];
@@ -252,22 +240,28 @@ int	col;
 		    col++;
 		}
 	    }
-	    if ( nr_pels < 64 ) color = !color;		/* terminal code */
+	    if ( nr_pels < 64 ) color = !color;		/* terminating code */
 	}
     }		/* end main loop */
-/*!! FIXME - MAX_COLS -> really used COLs */
+
 write:		/* write pbm (or whatever) file */
 
     if( fd != 0 ) close(fd);	/* close input file */
 
 #ifdef DEBUG
-    fprintf( stderr, "consecutive EOLs: %d\n", cons_eol );
+    fprintf( stderr, "consecutive EOLs: %d, max columns: %d\n", cons_eol, hcol );
 #endif
 
-    sprintf( rbuf, "P4\n%d %d\n", MAX_COLS, row );
+    sprintf( rbuf, "P4\n%d %d\n", hcol, row );
     write( 1, rbuf, strlen( rbuf ));
 
-    write( 1, bitmap, (MAX_COLS/8) * row );
+    if ( hcol == MAX_COLS )
+        write( 1, bitmap, (MAX_COLS/8) * row );
+    else
+    {
+	for ( i=0; i<row; i++ )
+	  write( 1, &bitmap[ i*(MAX_COLS/8) ], (hcol+7)/8 );
+    }
 
     return 0;
 }

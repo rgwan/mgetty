@@ -1,4 +1,4 @@
-#ident "$Id: g3cat.c,v 1.2 1993/10/06 15:36:05 gert Exp $ (c) Gert Doering";
+#ident "$Id: g3cat.c,v 1.3 1993/10/18 20:16:17 gert Exp $ (c) Gert Doering";
 
 /* g3cat.c - concatenate multiple G3-Documents
  *
@@ -84,6 +84,8 @@ int color;
 int row, col;
 struct g3_tree * p;
 int nr_pels;
+int first_file = 1;		/* "-a" flag has to appear before */
+				/* starting the first g3 file */
 
     /* initialize lookup trees */
     build_tree( &white, t_white );
@@ -94,7 +96,6 @@ int nr_pels;
     init_byte_tab( 0, byte_tab );
     init_byte_tab( 0, out_byte_tab );
 
-    puteol();
     for ( i=1; i<argc; i++ )
     {
 	/* process options */
@@ -105,7 +106,11 @@ int nr_pels;
 	else
 	if ( strcmp( argv[i], "-a" ) == 0 )
 	{
-	    byte_align = 1; continue;
+	    if ( ! first_file )
+	        fprintf( stderr, "%s: -a may not appear after g3 file!\n", argv[0] );
+	    else
+	        byte_align = 1;
+	    continue;
 	}
 
 	/* process file(s), one by one */
@@ -116,6 +121,12 @@ int nr_pels;
 
 	if ( fd == -1 ) { perror( argv[i] ); continue; }
 
+	if ( first_file )
+	{
+	    puteol();
+	    first_file = 0;
+	}
+	
 	hibit = 0;
 	data = 0;
 
@@ -298,8 +309,9 @@ write:			/* write eol, separating lines, next file */
     for ( i=0; i<6; i++ ) puteol();
 
     /* flush buffer */
-    buf[buflen] = out_byte_tab[out_data & 0xff];
-    write( 1, buf, buflen+1 );
+    if ( out_hibit != 0 )
+        buf[buflen++] = out_byte_tab[out_data & 0xff];
+    write( 1, buf, buflen );
 
     return 0;
 }
