@@ -1,4 +1,4 @@
-/* $Id: t_ring.c,v 1.2 2005/03/16 11:06:44 gert Exp $
+/* $Id: t_ring.c,v 1.3 2005/03/23 09:56:21 gert Exp $
  *
  * test program for mgetty "ring.c"
  *
@@ -8,6 +8,9 @@
  *   <input string> <# rings> <dist-ring#> <caller id>
  *
  * $Log: t_ring.c,v $
+ * Revision 1.3  2005/03/23 09:56:21  gert
+ * add test for <DLE>P (handset on-hook)
+ *
  * Revision 1.2  2005/03/16 11:06:44  gert
  * add "msnlist" for testing destination number -> distinctive RING mapping
  * add more special cases for CallerID delivery
@@ -46,6 +49,7 @@ struct t_ring_tests { char * input;
  {"DROF=0\nDRON=11\nRING\nDROF=40\nDRON=20\nRING\n", 2, 3, "" },
 						/* V.253 dist ring */
  {"\020R\n\020R\n", 2, 0, "" },			/* voice mode RING */
+ {"\020R\n\020P\n", 2, -80, "" },		/* voice mode ACTION */
 
 	/* test MSN matching (right-to-left), ZyXEL format */
  {"RING\nFM:1234 TO:35655023\n",       2, 2, "1234" },	/* exact match */
