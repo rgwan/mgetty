@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 4.7 1998/09/01 09:48:25 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 4.8 2003/04/28 17:39:02 gert Exp $ Copyright (c) Gert Doering"
 
 /* logname.c
  *
@@ -191,7 +191,7 @@ char * ln_escape_prompt _P1( (ep), char * ep )
     
     if ( *ep != 0 )
     {
-	lprintf( L_WARN, "buffer overrun - input prompt too long" );
+	lprintf( L_WARN, "ln_escape_prompt: input line too long - data truncated" );
     }
 
     return p;
