@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 1.26 1994/10/14 00:13:29 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 1.27 1994/10/25 23:12:26 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -182,7 +182,8 @@ int  ix;
 	    fhs_lc = 9999; fhs_blc = fhs_cblc = fhs_lbc = 0;
 	    fhs_details = FALSE;
 	    
-	    if ( sscanf( &line[ix+2], "%x,%x,%x,%x",
+	    if ( line[ix+1] == ',' &&		/* +FHS:s,lc,blc */
+		 sscanf( &line[ix+2], "%x,%x,%x,%x",
 		         &fhs_lc, &fhs_blc, &fhs_cblc, &fhs_lbc ) >= 2 )
 	    {
 		lprintf( L_NOISE, "%d lines received, %d lines bad, %d bytes lost", fhs_lc, fhs_blc, fhs_lbc );
