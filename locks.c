@@ -1,10 +1,14 @@
-#ident "$Id: locks.c,v 1.2 1993/02/25 12:08:10 gert Exp $ Gert Doering / Paul Sutcliffe Jr."
+#ident "$Id: locks.c,v 1.3 1993/03/06 19:30:28 gert Exp $ Gert Doering / Paul Sutcliffe Jr."
 
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
 #include <sys/stat.h>
+
+#ifdef linux
+#include <errno.h>
+#endif
 
 #include "mgetty.h"
 
