@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.33 1993/11/13 10:52:13 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.34 1993/11/25 19:27:40 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -299,6 +299,13 @@
 #ifdef SVR4
 # define MAILER		"/usr/bin/mailx -s 'Incoming facsimile message'"
 #else
+# ifdef _AIX
+#  define MAILER	"/usr/sbin/sendmail"
+#  define NEED_MAIL_HEADERS
+# endif
+#endif
+
+#ifndef MAILER
 # define MAILER		"/usr/lib/sendmail"
 # define NEED_MAIL_HEADERS
 #endif
