@@ -1,4 +1,4 @@
-#ident "$Id: locks.c,v 1.3 1993/03/06 19:30:28 gert Exp $ Gert Doering / Paul Sutcliffe Jr."
+#ident "$Id: locks.c,v 1.4 1993/03/09 21:53:45 gert Exp $ Gert Doering / Paul Sutcliffe Jr."
 
 #include <stdio.h>
 #include <unistd.h>
@@ -109,6 +109,7 @@ checklock(char * name)
 		(void) unlink(name);
 		return(FALSE);
 	}
+	lprintf(L_NOISE, "no lockfile found" );
 
 	return(TRUE);
 }
@@ -141,5 +142,6 @@ int readlock( char * name )
 sig_t
 rmlocks()
 {
+	lprintf( L_NOISE, "removing lock file" );
 	(void) unlink(lock);
 }
