@@ -1,4 +1,4 @@
-#ident "$Id: tio.h,v 1.14 1994/03/12 19:07:39 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.h,v 1.15 1994/03/13 00:40:31 gert Exp $ Copyright (c) 1993 Gert Doering"
 ;
 #ifndef __TIO_H__
 #define __TIO_H__
@@ -93,12 +93,12 @@ typedef tcflag_t tioflag_t;
 #ifndef CEOL
 #define	CEOL	000	/* cntl j */
 #endif
-#ifndef CSWTCH
-#define CSWTCH	000	/* cntl z */
+
+#ifdef CSWTCH
+# undef CSWTCH		/* usually ^z, unwanted here */
 #endif
-#ifndef CNSWTCH
-#define CNSWTCH	0
-#endif
+#define CSWTCH	000	/* <undef> */
+
 #ifndef CSUSP
 # ifdef SVR42
 #  define CSUSP 026	/* cntl z */
