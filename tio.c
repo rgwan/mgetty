@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 1.1 1993/10/19 22:28:45 gert Exp $ Copyright (c) 1993 Gert Doering";
+#ident "$Id: tio.c,v 1.2 1993/10/19 23:26:59 gert Exp $ Copyright (c) 1993 Gert Doering";
 
 /* tio.c
  *
@@ -64,8 +64,8 @@ int tio_set_speed _P2( (t, speed ), TIO *t, int speed )
 #ifdef SYSV_TERMIO
     t->c_cflag = ( t->c_cflag & ~CBAUD) | speed;
 #elif defined( POSIX_TERMIOS )
-    cfsetospeed( speed );
-    cfsetispeed( speed );
+    cfsetospeed( t, speed );
+    cfsetispeed( t, speed );
 #else
     t->sg_ispeed = t->sg_ospeed = B0;
 #endif
@@ -117,7 +117,11 @@ void tio_mode_sane _P2( (t, local), TIO * t, int local )
     t->c_iflag = BRKINT | IGNPAR | IXON | IXANY;
     t->c_oflag = OPOST | TAB3;
     /* be careful, only touch "known" flags */
-    t->c_cflag&= ~(CSIZE | CSTOPB | PARENB | PARODD | CLOCAL | LOBLK );
+    t->c_cflag&= ~(CSIZE | CSTOPB | PARENB | PARODD | CLOCAL
+#ifdef LOBLK
+		   | LOBLK
+#endif
+		   );
     t->c_cflag|= CS8 | CREAD | HUPCL | ( local? CLOCAL:0 );
     t->c_lflag = ECHOK | ECHOE | ECHO | ISIG | ICANON;
 
@@ -254,8 +258,8 @@ int tio_toggle_dtr _P2( (fd, msec_wait), int fd, int msec_wait )
 #if defined( SYSV_TERMIO )
     t.c_cflag = ( t.c_cflag & ~CBAUD ) | B0;		/* speed = 0 */
 #elif defined( POSIX_TERMIOS )
-    cfsetospeed( t, B0 );
-    cfsetispeed( t, B0 );
+    cfsetospeed( &t, B0 );
+    cfsetispeed( &t, B0 );
 #else
     t.sg_ispeed = t.sg_ospeed = B0
 #endif
