@@ -3,7 +3,7 @@
  *
  * autodetect the modemtype we are connected to.
  *
- * $Id: detect.c,v 1.23 2000/08/14 14:34:49 gert Exp $
+ * $Id: detect.c,v 1.24 2000/08/14 20:13:55 gert Exp $
  *
  */
 
@@ -179,6 +179,14 @@ int voice_detect_modemtype(void)
 
 	  /* Let's try plug and play (Rob Ryan <rr2b@pacbell.net>) */
 
+	  /* some typical pnp return strings look like this:
+	   * (1.0USR9100\\Modem\PNPC107\U.S. Robotics 56K Message)FF
+	   * (^A#ELS8318\00717242\MODEM\\MicroLink 56k00)
+	   * (^A$ZYX56FF\00000000\MODEM\\  Omni56K Plus   1.05    CB)
+	   * (1.00HAY0001\\MODEM\\OPT288 V34+FAX+VOICE, 5310AM DB)
+	   */
+
+	  memset( buffer, '\0', sizeof(buffer) );
 	  cmnd=(char *)ati9;
 	  if (voice_command(cmnd, "") != OK)
                {
@@ -192,9 +200,13 @@ int voice_detect_modemtype(void)
 	  }
 
 	  s = strchr(buffer, '(');
-	  if ( s && strlen(s) > 3 )
+	  if ( s && s[1] != '\0' )
 	  {
-	      s+=3;
+	      if ( s[1] == '\1' )	/* binary format "(^Ax" */
+		  s+=3;
+	      else			/* ASCII format: "(1.0[0]" */
+	          do { s++; } while( isdigit(*s) || *s == '.' ) );
+
 	      lprintf(L_NOISE, "PNP String: '%s'", s);
 	      i = 0;
 	      while (voice_modem == &no_modem &&
