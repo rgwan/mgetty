@@ -1,4 +1,4 @@
-#ident "$Id: mg_utmp.h,v 3.2 1995/11/24 21:39:32 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_utmp.h,v 3.3 1996/11/18 20:40:01 gert Exp $ Copyright (c) Gert Doering"
 
 /* definitions for utmp reading / writing routines,
  * highly SysV / BSD dependent
@@ -54,7 +54,9 @@ int  get_current_users _PROTO(( void ));
 #if defined(M_UNIX)
 
 struct	utmp	*getutent _PROTO((void));
+#ifndef _SCO_DS			/* ODT 5.0 */
 struct	utmp	*pututline _PROTO((struct utmp * utmp));
+#endif
 void		setutent _PROTO((void));
 void		endutent _PROTO((void));
 
