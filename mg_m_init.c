@@ -1,4 +1,4 @@
-#ident "$Id: mg_m_init.c,v 1.14 1994/08/22 01:39:24 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_m_init.c,v 1.15 1994/10/22 15:39:57 gert Exp $ Copyright (c) Gert Doering"
 
 /* mg_m_init.c - part of mgetty+sendfax
  *
@@ -241,7 +241,7 @@ int mg_open_device _P2 ( (devname, blocking),
 int mg_init_device _P4( (fd, toggle_dtr, toggle_dtr_waittime, portspeed ),
 		       int fd,
 		       boolean toggle_dtr, int toggle_dtr_waittime,
-		       unsigned short portspeed )
+		       unsigned int portspeed )
 {
     TIO tio;
     
@@ -289,6 +289,46 @@ int mg_init_device _P4( (fd, toggle_dtr, toggle_dtr_waittime, portspeed ),
     return NOERROR;
 }
 
+/* open + initialize device
+ *
+ * if first init fails, try again: on Linux and SunOS, the port isn't
+ * able anymore after carrier drop, but after reopening it, it is.
+ */
+int mg_get_device _P5( (devname, blocking_open,
+			toggle_dtr, toggle_dtr_waittime, portspeed ),
+		      
+		        char * devname, boolean blocking_open,
+		        boolean toggle_dtr, int toggle_dtr_waittime,
+		        unsigned int portspeed)
+{
+    boolean first_try = TRUE;
+    
+    /* open device, make it stdin/out/err */
+try_again:
+    if ( mg_open_device( devname, blocking_open ) == ERROR )
+    {
+	lprintf( L_FATAL, "open device %s failed", devname );
+	return ERROR;
+    }
+
+    /* initialize device (hangup, raw, speed). May fail! */
+    if ( mg_init_device( STDIN, toggle_dtr, toggle_dtr_waittime,
+			 portspeed ) == ERROR )
+    {
+	if ( first_try )
+	{
+	    lprintf( L_WARN, "mg_init_device failed, trying again" );
+	    first_try = FALSE; goto try_again;
+	}
+
+	lprintf( L_FATAL, "mg_init_device failed, exiting" );
+	return ERROR;
+    }
+
+    return NOERROR;
+}
+    
+		      
 /* get a given tty as controlling tty
  *
  * on many systems, this works with ioctl( TIOCSCTTY ), on some
