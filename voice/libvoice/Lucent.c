@@ -3,11 +3,47 @@
  *
  * This file contains the Lucent specific hardware stuff.
  *
- * $Id: Lucent.c,v 1.1 2001/02/24 11:43:40 marcs Exp $
+ * $Id: Lucent.c,v 1.2 2003/11/07 20:56:20 gert Exp $
  *
  */
 
 #include "../include/voice.h"
+
+static int Lucent_handle_dle(char data)
+     {
+
+     switch (data)
+          {
+
+	  /*
+	   * It appears that Lucent modems have just a single
+	   * silence detection notification, that always reports
+	   * as "<DLE>-s".  This report indicates that silence
+	   * exceeding the duration of the interval set with AT+VSD
+	   * has been detected, regardless of whether there was
+	   * previously good data or not.
+	   *
+	   * So here we override the IS_101 mapping of DLE-s to
+	   * "NO_VOICE_ENERGY", and change it to "SILENCE_DETECTED".
+	   *
+	   * Caveat: this will break vgetty's heuristic "if <DLE>s
+	   *  was seen, there is nobody at the calling end, so let's try
+	   *  data/fax mode".  So if you have a Lucent modem and want to
+	   *  do voice and data/fax on the same line, you need calling
+	   *  modems that send a CNG tone, or have the caller dial up,
+	   *  wait for a few seconds, and then send another DTMF tone
+	   *  (which will trigger data/fax mode).
+	   *
+	   * Patch by Paul Fox <pgf@foxharp.boston.ma.us>
+	   */
+          case 's':
+               return(queue_event(create_event(SILENCE_DETECTED)));
+
+          }
+
+     return(IS_101_handle_dle(data));
+     }
+
 
 static int Lucent_init (void)
      {
@@ -251,7 +287,7 @@ voice_modem_struct Lucent =
      &IS_101_answer_phone,
      &Lucent_beep,
      &IS_101_dial,
-     &IS_101_handle_dle,
+     &Lucent_handle_dle,
      &Lucent_init,
      &IS_101_message_light_off,
      &IS_101_message_light_on,
