@@ -9,7 +9,7 @@
 # There are still a lot rough edges - but it works, and should give you an
 # idea how to improve it
 #
-# SCCS: $Id: faxrunq.in,v 1.6 1994/03/02 20:37:36 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxrunq.in,v 1.7 1994/03/03 12:45:44 gert Exp $ Copyright (C) 1994 Gert Doering
 
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -38,10 +38,14 @@ do
 #
 # get user to notify (->$MAIL_TO) and phone number (->$PHONE)
 #
-    eval `$AWK '$1=="user" { printf "MAIL_TO=%s;", $2 }
-	       $1=="phone" { printf "PHONE=%s;", $2 }
-	       $1=="verbose_to" { printf "VERBOSE_TO=\"%s\";",
-                                         substr($0,12) }' JOB`
+    eval `$AWK 'BEGIN { user=""; mail=""; verbto=""; }
+		$1=="user" { user=$2 }
+		$1=="mail" { mail=substr( $0, 6) }
+		$1=="phone" { printf "PHONE=%s;", $2 }
+		$1=="verbose_to" { verbto=substr($0,12) }
+		END { if ( mail != "" ) printf "MAIL_TO=\"%s\";", mail
+				   else printf "MAIL_TO=\"%s\";", user
+		      printf "VERBOSE_TO=\"%s\"", verbto }' JOB`
 #
 # construct command line to execute
 #
@@ -87,7 +91,7 @@ do
 	  date
 	  $echo "\n\nJob / Log file:"
 	  cat JOB ) |
-	$MAILER $MAIL_TO
+	$MAILER "$MAIL_TO"
 
 	# update accounting log
 	$echo "$MAIL_TO $PHONE "`date`" success" >>$FAX_ACCT
@@ -136,7 +140,7 @@ do
 	      $echo "    mv JOB.suspended JOB\n"
 	      $echo "log file follows:"
 	      cat JOB ) |
-	    $MAILER $MAIL_TO
+	    $MAILER "$MAIL_TO"
 	    #
 	    # suspend job (but do not delete it)
 	    #
