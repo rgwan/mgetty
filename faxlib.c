@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.44 1999/06/15 20:53:53 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.45 1999/07/31 20:09:57 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -752,10 +752,14 @@ int mdm_identify _P1( (fd), int fd )
 	lprintf( L_MESG, "non-numeric ID string: '%s'", l );
 
 	/* "Elink 310 Version 1.25" */
+	/* "Elink 34-3 P1 Version 1.64" */
 	if ( strncmp( l, "Elink", 5 ) == 0 )
 	{
 	    lprintf( L_MESG, "Elink detected" );
-	    modem_type=Mt_data;
+	    if ( strncmp( l+6, "34-3" , 4 ) == 0 )
+		modem_type=Mt_class2;
+	    else
+		modem_type=Mt_data;
 	}
 	else if ( strncmp( l, "Linux ISDN", 10 ) == 0 )
 	{
