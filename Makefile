@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.36 1999/02/28 20:28:01 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.37 1999/02/28 20:29:02 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -149,11 +149,11 @@ CFLAGS=-O2 -Wall -pipe
 # For Linux, add "-lutil" if the linker complains about "updwtmp".
 #
 LDFLAGS=
-#LIBS=
+LIBS=
 #LIBS=-lprot -lsocket				# SCO Unix
 #LIBS=-lsocket
 #LIBS=-lbsd					# OSF/1
-LIBS=-lutil					# FreeBSD or Linux/GNU libc2
+#LIBS=-lutil					# FreeBSD or Linux/GNU libc2
 #LDFLAGS=-posix					# NeXT with POSIX
 #LDFLAGS=-s -shlib				# 3B1
 #
@@ -259,7 +259,7 @@ TKPERL=/usr/bin/tkperl
 # please use the "mg.echo" program provided in the compat/ subdirectory.
 # Set ECHO="mg.echo" and INSTALL_MECHO to mg.echo
 #
-ECHO="echo -e"
+ECHO="echo"
 #
 # INSTALL_MECHO=mg.echo
 
