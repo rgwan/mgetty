@@ -39,7 +39,7 @@
 #  mgetty has to be compiled with "-DFIDO", otherwise a fido call won't
 #  be detected.
 #
-/FIDO/	uucp	fido	/usr/local/lib/fnet/ifcico @
+#/FIDO/	uucp	fido	/usr/local/lib/fnet/ifcico @
 
 #
 # Automatic PPP startup on receipt of LCP configure request (AutoPPP).
@@ -50,10 +50,12 @@
 #  NOTE: for *some* users, the "-detach" option has been necessary, for 
 #        others, not at all. If your pppd doesn't die after hangup, try it.
 #
-#  NOTE2: "kdebug 7 debug" creates lots of debugging info. If all works,
-#         remove those!
+#  NOTE2: "debug" creates lots of debugging info.  LOOK AT IT if things
+#         do not work out of the box, most likely it's a ppp problem!
 #
-#/AutoPPP/ -	a_ppp	/usr/sbin/pppd auth -chap +pap login kdebug 7 debug
+#  NOTE3: "man pppd" is your friend!
+#
+#/AutoPPP/ -	a_ppp	/usr/sbin/pppd auth -chap +pap login debug
 
 #
 #
