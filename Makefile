@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.56 2002/12/16 13:08:23 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.57 2003/03/05 20:33:07 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -213,6 +213,7 @@ FAX_SPOOL_IN=$(FAX_SPOOL)/incoming
 FAX_SPOOL_OUT=$(FAX_SPOOL)/outgoing
 #
 # the user that owns the "outgoing fax queue" (FAX_SPOOL_OUT)
+# this user must exist in the system, otherwise faxspool will not work!
 #
 # faxrunq and faxrunqd should run under this user ID, and nothing else.  
 # This user needs access to the modems of course.  
@@ -300,8 +301,8 @@ MV=mv
 # Nothing to change below this line ---------------------------------!
 #
 MR=1.1
-SR=30
-DIFFR=1.1.29
+SR=31
+DIFFR=1.1.30
 #
 #
 OBJS=mgetty.o logfile.o do_chat.o locks.o utmp.o logname.o login.o \
@@ -511,7 +512,7 @@ beta:	tar diff sign
 	ssh home.leo.org -l doering 'cd $$HOME ; ./beta'
 
 # send to Marc and Knarf
-	head -30 ChangeLog |mail -s "mgetty$(MR).$(SR).tar.gz on greenie/alpha" knarf@camelot.de marc marcs
+	head -30 ChangeLog |mail -s "mgetty$(MR).$(SR).tar.gz on greenie/alpha" mgetty@knarf.de marc marcs
 #	-./ftp.sh $(MR).$(SR) ftp.camelot.de /pub/incoming
 #	-./ftp.sh $(MR).$(SR) poseidon.thphy.uni-duesseldorf.de /incoming
 
@@ -600,9 +601,9 @@ install.bin: mgetty sendfax newslock \
 # data files + directories
 #
 	test -d $(LIBDIR)  || \
-		( ./mkidirs $(LIBDIR) ; chmod 755 $(LIBDIR) )
+		( ./mkidirs $(LIBDIR) &&  chmod 755 $(LIBDIR) )
 	test -d $(CONFDIR) || \
-		( ./mkidirs $(CONFDIR); chmod 755 $(CONFDIR))
+		( ./mkidirs $(CONFDIR) && chmod 755 $(CONFDIR))
 	test -f $(CONFDIR)/login.config || \
 		$(INSTALL) -o root -m 600 login.config $(CONFDIR)/
 	test -f $(CONFDIR)/mgetty.config || \
@@ -627,16 +628,16 @@ install.bin: mgetty sendfax newslock \
 # fax spool directories
 #
 	test -d $(spool) || \
-		( mkdir $(spool) ; chmod 755 $(spool) )
+		( mkdir $(spool) && chmod 755 $(spool) )
 	test -d $(FAX_SPOOL) || \
-		( mkdir $(FAX_SPOOL) ; \
-		  chown $(FAX_OUT_USER) $(FAX_SPOOL) ; \
+		( mkdir $(FAX_SPOOL) && \
+		  chown $(FAX_OUT_USER) $(FAX_SPOOL) && \
 		  chmod 755 $(FAX_SPOOL) )
 	test -d $(FAX_SPOOL_IN) || \
-		( mkdir $(FAX_SPOOL_IN) ; chmod 755 $(FAX_SPOOL_IN) )
+		( mkdir $(FAX_SPOOL_IN) && chmod 755 $(FAX_SPOOL_IN) )
 	test -d $(FAX_SPOOL_OUT) || \
-		( mkdir $(FAX_SPOOL_OUT) ; \
-		  chown $(FAX_OUT_USER) $(FAX_SPOOL_OUT) ; \
+		( mkdir $(FAX_SPOOL_OUT) && \
+		  chown $(FAX_OUT_USER) $(FAX_SPOOL_OUT) && \
 		  chmod 755 $(FAX_SPOOL_OUT) )
 #
 # g3 tool programs
