@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.10 1997/10/30 21:41:41 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.11 1997/11/01 21:21:37 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -456,7 +456,7 @@ mgetty$(DIFFR)-$(MR).$(SR).diff: \
 	gtar xvCfz /tmp/mgd mgetty$(DIFFR).tar.gz
 	gtar xvCfz /tmp/mgd mgetty$(MR).$(SR).tar.gz
 	( cd /tmp/mgd ; \
-	  gdiff -u3 +ignore-space-change +recursive +new-file \
+	  gdiff -u3 --ignore-space-change --recursive --new-file -I "^#ident" \
 		mgetty-$(DIFFR) mgetty-$(MR).$(SR) ; \
 		exit 0 ) >mgetty$(DIFFR)-$(MR).$(SR).diff
 	rm -rf /tmp/mgd
