@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 4.2 1997/03/31 21:03:13 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 4.3 1997/05/04 12:25:05 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -223,6 +223,7 @@ int	mdm_send _PROTO(( char * send, int fd ));
 int	mdm_read_byte _PROTO(( int fd, char * c ));
 char *	mdm_get_line  _PROTO(( int fd ));
 int	mdm_command   _PROTO(( char * send, int fd ));
+char *  mdm_get_idstring _PROTO(( char * send, int n, int fd ));
 
 /* logname.c */
 char *	ln_escape_prompt _PROTO(( char * prompt ));
