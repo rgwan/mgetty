@@ -1,4 +1,4 @@
-#ident "@(#)cnd.c	$Id: cnd.c,v 4.4 1997/05/19 21:23:33 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "@(#)cnd.c	$Id: cnd.c,v 4.5 1997/07/27 16:01:13 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 
 #include <stdio.h>
 #include <string.h>
@@ -57,6 +57,9 @@ struct cndtable cndtable[] =
     {"NAME = ",			&CallName},
     {"MESG = ",			&CallMsg1},
     {"MESG = ",			&CallMsg2},
+
+    /* yet another incompatible modem... */
+    {"CALLER'S NUMBER: ",	&CallerId},
 
     {NULL}
 };
