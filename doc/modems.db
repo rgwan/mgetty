@@ -72,9 +72,9 @@ remarks:                can only do 9600 bps
 #define FAX_MODEM_HANDSHAKE     "AT&K3"
 ----------------------------------------------------
 Modem brand/model:      Creatix (1&1) Polimedia 14400 voice / fax modem
-AT+FMFR?                ???
-AT+FMDL?                ???
-AT+FREV?                ???
+AT+FMFR?                Creatix
+AT+FMDL?                LC144VF
+AT+FREV?                V1.41
 ATI0			14400
 ATI1			007
 ATI3			V1.400/T4-DS29F
