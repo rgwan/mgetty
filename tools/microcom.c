@@ -1,4 +1,4 @@
-#ident "$Id: microcom.c,v 1.2 2004/11/24 15:40:25 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: microcom.c,v 1.3 2004/11/24 16:00:01 gert Exp $ Copyright (c) Gert Doering"
 
 /* microcom.c
  *
@@ -72,7 +72,10 @@ int main( int argc, char ** argv )
     }
 
     /* same thing for modem (plus: set baud rate) - TODO: make CLI option */
+    tio_get( fd, &tio );
+    tio_mode_sane( &tio );
     tio_set_speed( &tio, speed );
+    tio_mode_raw( &tio );
     if ( tio_set( fd, &tio ) == ERROR )
     {
 	fprintf( stderr, "error setting TIO settings for '%s': %s\n",
