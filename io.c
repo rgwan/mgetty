@@ -1,4 +1,4 @@
-#ident "$Id: io.c,v 1.16 1994/04/29 11:36:45 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: io.c,v 1.17 1994/05/14 16:56:52 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* io.c
  *
@@ -7,10 +7,8 @@
  */
 
 #include <stdio.h>
-#ifndef _NOSTDLIB_H
-#include <stdlib.h>
-#endif
 #include <unistd.h>
+#include "syslibs.h"
 
 #include "mgetty.h"
 
