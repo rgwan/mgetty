@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 3.6 1996/01/03 23:50:49 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 3.7 1996/01/04 00:19:25 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -644,7 +644,7 @@ void faxpoll_send_pages _P3( (fd, tio, pollfile),
 	 */
 	
 	strncpy( buf, file, sizeof(buf)-1 );
-	buf[sizeof(buf)] = 0;
+	buf[sizeof(buf)-1] = 0;
 
 	file = fgetline( fp );
 
