@@ -1,6 +1,6 @@
 # doc/Makefile
 #
-# SCCS: $Id: Makefile,v 3.2 1996/02/21 23:00:43 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: Makefile,v 3.3 1996/07/01 22:24:51 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 
 NROFF=nroff
@@ -38,6 +38,9 @@ mgetty.asc: mgetty.ms
 
 mgetty.ms: mgetty.texi
 	-texi2roff -ms <mgetty.texi >mgetty.ms
+
+mgetty.html: mgetty.texi
+	-texi2html -verbose mgetty.texi
 
 mgetty.info: mgetty.texi
 	-makeinfo mgetty.texi
@@ -86,10 +89,11 @@ install: $(MANSRC) mgetty.info
 
 doc-tar: ../mgetty0$(VS)doc.tar.gz
 
-../mgetty0$(VS)doc.tar.gz: doc-all
+../mgetty0$(VS)doc.tar.gz: doc-all mgetty.html
 	gtar cvvf ../mgetty0$(VS)doc.tar mgetty.texi mgetty.info* \
 				         mgetty.dvi mgetty.ps \
-				         mgetty.ms mgetty.asc *.man
+				         mgetty.ms mgetty.asc \
+					 mgetty.html *.man
 	gzip -f -9 -v ../mgetty0$(VS)doc.tar
 
 # explicit man page dependencies
