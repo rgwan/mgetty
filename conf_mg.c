@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.c,v 1.1 1994/12/23 13:01:01 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_mg.c,v 1.2 1995/02/11 22:49:58 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_mg.c
  *
@@ -108,6 +108,7 @@ struct conf_data_mgetty c = {
 
 	{ "debug", LOG_LEVEL, CT_INT, C_PRESET },
 	{ "gettydefs", (int)GETTYDEFS_DEFAULT_TAG, CT_STRING, C_PRESET },
+	{ "term", 0, CT_STRING, C_EMPTY },
 
 	{ NULL, 0, CT_STRING, C_EMPTY }};
 
