@@ -1,9 +1,11 @@
-#ident "$Id: logfile.c,v 1.45 1994/09/26 17:14:25 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logfile.c,v 1.46 1994/09/28 17:30:40 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <varargs.h>
+#ifndef NeXT
+# include <varargs.h>
+#endif
 #include <sys/types.h>
 #include <time.h>
 #include <errno.h>
@@ -22,6 +24,18 @@ int syslog _PROTO(( int, char *, ... ));
 #endif
 
 #endif
+
+/* on NeXTstep, we have to use this *UGLY* way to cheat varargs/stdarg
+ */
+#ifdef NeXT
+# define va_alist a1,a2,a3,a4,a5,a6,a7,a8,a9
+# define va_dcl long a1,a2,a3,a4,a5,a6,a7,a8,a9;
+# define vsprintf(buf,fmt,v) sprintf((buf),(fmt),a1,a2,a3,a4,a5,a6,a7,a8,a9)
+# define va_list int
+# define va_start(v)
+# define va_end(v)
+#endif
+
 
 static int log_level = LOG_LEVEL;  /* set default log level threshold (jcp) */
 
