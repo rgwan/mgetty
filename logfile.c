@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 1.27 1994/01/23 11:50:23 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logfile.c,v 1.28 1994/02/08 23:04:50 gert Exp $ Copyright (c) Gert Doering"
 ;
 #include <stdio.h>
 #include <unistd.h>
@@ -142,13 +142,27 @@ int     errnr;
         if ( log_path[0] == 0 )
 	    sprintf( log_path, LOG_PATH, "unknown" );
 	log_fp = fopen( log_path, "a" );
-	if ( log_fp == NULL )
+
+	if ( log_fp == NULL )		/* opening log file failed */
 	{
 
 	    sprintf(ws, "cannot open logfile %s", log_path);
 	    perror(ws);
-	    exit(10);
+	    
+	    /* use /dev/console for logging, if possible */
+	    if ( ( log_fp = fopen( CONSOLE, "w" ) ) != NULL )
+	    {
+		fprintf( log_fp, "\nmgetty: resorting to logging to %s\n",
+			CONSOLE );
+	    }
+	    else	/* give up, disable logging */
+	    {
+		sprintf( ws, "cannot log to %s, disable logging", CONSOLE );
+		perror( ws );
+		log_level = 0;
+	    }
 	}
+	
 	/* make sure that the logfile is not accidently stdin, -out or -err
 	 */
 	if ( fileno( log_fp ) < 3 )
