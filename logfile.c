@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 1.7 1993/06/04 20:48:54 gert Exp $ (c) Gert Doering"
+#ident "$Id: logfile.c,v 1.8 1993/08/22 23:34:14 gert Exp $ (c) Gert Doering"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -11,8 +11,8 @@
 
 #include "mgetty.h"
 
-int log_level = L_MESG;        /* log all, changeable from main() */
-				/* or!!! getenv("LOGLEVEL");       */
+int log_level = LOG_LEVEL;	/* set default log level threshold (jcp) */
+
 static FILE * log_fp;
 static boolean mail_logfile = FALSE;
 char log_path[ MAXPATH ];
