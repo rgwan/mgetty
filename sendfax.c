@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 4.5 1997/07/13 14:08:04 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 4.6 1997/10/31 12:54:21 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -173,6 +173,15 @@ int fax_open_device _P2( (fax_tty, use_stdin),
     }
     
     if ( verbose ) printf( "OK.\n" );
+
+    /* some modems send an "OK" after DTR is raised - catch it
+     */
+    if ( c_isset(open_delay) )
+    {
+	lprintf( L_NOISE, "pausing %d ms", c_int(open_delay));
+	delay(c_int(open_delay));		/* give modem time to settle */
+	tio_flush_queue(fd, TIO_Q_BOTH);	/* clear junk */
+    }
     return fd;
 }
 

@@ -1,4 +1,4 @@
-#ident "$Id: conf_sf.c,v 4.5 1997/07/05 17:19:56 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_sf.c,v 4.6 1997/10/31 12:54:19 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_sf.c
  *
@@ -40,6 +40,7 @@ struct conf_data_sendfax c = {
 	{ "max-tries-continue", {TRUE}, CT_BOOL, C_PRESET },
 	{ "speed", {FAX_SEND_BAUD}, CT_INT, C_PRESET },
 	{ "switchbd", {FAX_SEND_SWITCHBD}, CT_INT, C_PRESET },
+	{ "open-delay",	{0}, CT_INT, C_EMPTY },
 #ifdef FAX_SEND_IGNORE_CARRIER
 	{ "ignore-carrier", {TRUE }, CT_BOOL, C_PRESET },
 #else
