@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 1.10 1993/10/05 13:46:49 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 1.11 1993/10/06 00:35:36 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -25,14 +25,15 @@ boolean	fax_to_poll = FALSE;		/* there's something to poll */
 
 static boolean fwf_timeout = FALSE;
 
-static void fwf_sig_alarm()		/* SIGALRM handler */
+static sig_t fwf_sig_alarm()		/* SIGALRM handler */
 {
     signal( SIGALRM, fwf_sig_alarm );
     lprintf( L_WARN, "Warning: got alarm signal!" );
     fwf_timeout = TRUE;
 }
 
-int fax_wait_for( char * s, int fd )
+int fax_wait_for _P2( (s, fd),
+		      char * s, int fd )
 {
 char buffer[1000];
 char c;
@@ -105,10 +106,14 @@ int bufferp;
 	     */
 	    fax_hangup = 1; /* set this as soon as possible */
 	    /* change action for SIGHUP signals to be ignore */
+#ifdef SIG_ERR
 	    if ( signal( SIGHUP, SIG_IGN ) == SIG_ERR )
 	    {
 		lprintf( L_WARN, "fax_wait_for: cannot reset SIGHUP handler." );
 	    }
+#else
+	    signal( SIGHUP, SIG_IGN );
+#endif
 	    lprintf( L_MESG, "connection hangup: '%s'", buffer );
 	    sscanf( &buffer[6], "%d", &fax_hangup_code );
 
@@ -159,14 +164,19 @@ int bufferp;
     return NOERROR;
 }
 
-int fax_send( char * s, int fd )
+int fax_send _P2( (s, fd),
+		  char * s, int fd )
 {
     lprintf( L_NOISE, "fax_send: '%s'", s );
     return write( fd, s, strlen( s ) );
 }
 
-int fax_command( char * send, char * expect, int fd )
+int fax_command _P3( (send, expect, fd),
+		     char * send, char * expect, int fd )
 {
+#ifdef FAX_COMMAND_DELAY
+    delay(FAX_COMMAND_DELAY);
+#endif
     lprintf( L_MESG, "fax_command: send '%s'", send );
     if ( write( fd, send, strlen( send ) ) != strlen( send ) ||
 	 write( fd, "\r\n", 2 ) != 2 )
@@ -183,8 +193,8 @@ int fax_command( char * send, char * expect, int fd )
   (Part of the GNU NetFax system! gfax-3.2.1/lib/libfax/swap.c)
 */
 
-static void init_swaptable(swaptable)
-     unsigned char *swaptable;
+static void init_swaptable _P1( (swaptable),
+				unsigned char *swaptable)
 {
     int i, j;
 
@@ -204,7 +214,8 @@ static void init_swaptable(swaptable)
 /* 
   Reverses the low order 8 bits of a byte
 */
-unsigned char swap_bits(unsigned char c)
+unsigned char swap_bits _P1( (c),
+			     unsigned char c)
 {
     static unsigned char swaptable[256];
     static int swaptable_init = FALSE;
@@ -222,7 +233,8 @@ unsigned char swap_bits(unsigned char c)
  * caveat: only one fd allowed (only one buffer), no way to flush buffers
  */
 
-int fax_read_byte( int fd, char * c )
+int fax_read_byte _P2( (fd, c),
+		       int fd, char * c )
 {
 static char frb_buf[512];
 static int  frb_rp = 0;

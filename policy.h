@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.23 1993/10/05 13:48:16 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.24 1993/10/06 00:35:56 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -9,6 +9,17 @@
  * NOT USED YET.
  */
 #define CONFIG_FILE "/u/gert/mgetty/config"
+
+/* Name of the "gettydefs" file (used only if USE_GETTYDEFS is set)
+ */
+#define GETTYDEFS "/etc/gettydefs"
+
+/* If no gettydefs "tag" is specified on the command line, use
+ * this setting (from GETTYDEFS) as default (only if compiled with
+ * USE_GETTYDEFS set)
+ */
+#define GETTYDEF_DEFAULT_TAG "n"
+
 
 /* user id of the "uucp" user. The tty device will be owned by this user,
  * so parallel dial-out of uucico will be possible
@@ -34,6 +45,11 @@
  * L_FATAL, L_ERROR, L_WARN, L_MESG, L_NOISE, L_JUNK (see mgetty.h)
  */
 #define LOG_LEVEL L_MESG
+
+/* Whether "\n"s in the modem response should start a new line
+ * in the logfile
+ */
+/* #define LOG_CR_NEWLINE */
 
 /* System administrator - if a severe error happens (lprintf called
  * with log_level L_FATAL) and writing to CONSOLE is not possible,
@@ -120,7 +136,19 @@
 /* where incoming faxes go to
  * getty needs write permissions!
  */
-#define FAX_SPOOL_IN	FAX_SPOOL"/incoming"
+#ifdef __STDC__
+# define FAX_SPOOL_IN	FAX_SPOOL"/incoming"
+#else
+# define FAX_SPOOL_IN	"/usr/spool/fax/incoming"
+#endif
+
+/* some modems are a little bit slow - after sending a response (OK)
+ * to the host, it will take some time before they can accept the next
+ * command - specify the amount needed in fax mode here (in
+ * milliseconds). Normally, 50 ms should be sufficient. (On a slow
+ * machine it may even work without any delay at all)
+ */
+#define FAX_COMMAND_DELAY 50
 
 /* incoming faxes will be chown()ed to this uid and gid
  */
@@ -144,12 +172,16 @@
  * starts the fax receiver, and times out waiting for OK, receiving
  * nothing or just junk.
  */
-
 /* #define FAX_RECEIVE_USE_B19200 */
+
 
 /* name of the logfile for outgoing faxes
  */
-#define FAX_LOG		FAX_SPOOL"/Faxlog"
+#ifdef __STDC__
+# define FAX_LOG		FAX_SPOOL"/Faxlog"
+#else
+# define FAX_LOG		"/usr/spool/fax/Faxlog"
+#endif
 
 /* local station ID
  * 20 character string, most faxmodem allow all ascii characters 32..127,

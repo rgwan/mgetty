@@ -1,4 +1,4 @@
-#ident "$Id: fax_lib.h,v 1.6 1993/10/05 13:48:38 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: fax_lib.h,v 1.7 1993/10/06 00:35:34 gert Exp $ Copyright (c) Gert Doering"
 
 /* fax_lib.h
  * 
@@ -7,15 +7,16 @@
  * declare all the constants required for Class 2 faxing
  */
 
-int fax_send( char * s, int fd );	/* write to fd, with logging */
-int fax_wait_for( char * s, int fd );	/* expect string, handle fax msgs */
-int fax_command( char * send, char * expect, int fd );
+int fax_send _PROTO(( char * s, int fd ));	/* write to fd, with logging */
+                                         /* expect string, handle fax msgs */
+int fax_wait_for _PROTO(( char * s, int fd ));
+int fax_command _PROTO(( char * send, char * expect, int fd ));
 
-int fax_get_pages( int fd, int * pagenum, char * directory );
-int fax_get_page_data( int modem_fd, int pagenum, char * directory );
-int fax_read_byte( int fd, char * c );
+int fax_get_pages _PROTO(( int fd, int * pagenum, char * directory ));
+int fax_get_page_data _PROTO(( int modem_fd, int pagenum, char * directory ));
+int fax_read_byte _PROTO(( int fd, char * c ));
 
-unsigned char swap_bits(unsigned char c);
+unsigned char swap_bits _PROTO((unsigned char c));
 
 typedef	struct	{ short vr, br, wd, ln, df, ec, bf, st; } fax_param_t;
 

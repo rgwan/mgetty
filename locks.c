@@ -1,4 +1,4 @@
-#ident "$Id: locks.c,v 1.15 1993/10/05 13:46:55 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
+#ident "$Id: locks.c,v 1.16 1993/10/06 00:35:43 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
 
 /* large parts of the code in this module are taken from the
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us,
@@ -27,11 +27,12 @@
 #endif
 
 #include "mgetty.h"
+#include "policy.h"
 
 static char	lock[MAXLINE+1];	/* name of the lockfile */
 
-static int readlock( char * name );
-static char *  get_lock_name( char * lock_name, char * device );
+static int readlock _PROTO(( char * name ));
+static char *  get_lock_name _PROTO(( char * lock_name, char * device ));
 
 /*
  *	makelock() - attempt to create a lockfile
@@ -39,7 +40,8 @@ static char *  get_lock_name( char * lock_name, char * device );
  *	Returns FAIL if lock could not be made (line in use).
  */
 
-int makelock(char *device)
+int makelock _P1( (device),
+		  char *device)
 {
 	int fd, pid;
 	char *temp, buf[MAXLINE+1];
@@ -124,7 +126,8 @@ int makelock(char *device)
  *	Returns TRUE if lockfile found, FALSE if not.
  */
 
-boolean checklock(char * device)
+boolean checklock _P1( (device),
+		       char * device)
 {
 	int pid;
 	struct stat st;
@@ -170,7 +173,8 @@ boolean checklock(char * device)
  *      private function
  */
 
-static int readlock( char * name )
+static int readlock _P1( (name),
+			 char * name )
 {
 	int fd, pid;
 	char apid[16];
@@ -196,8 +200,7 @@ static int readlock( char * name )
  *	rmlocks() - remove lockfile
  */
 
-sig_t
-rmlocks()
+sig_t rmlocks()
 {
 	lprintf( L_NOISE, "removing lock file" );
 	(void) unlink(lock);
@@ -214,7 +217,8 @@ rmlocks()
  * get_lock_name() - create SVR4 lock file name (Bodo Bauer)
  */
 
-char *get_lock_name( char* lock, char* fax_tty )
+static char *get_lock_name _P2( (lock, fax_tty),
+			 char* lock, char* fax_tty )
 {
   struct stat tbuf;
   char ttyname[FILENAME_MAX];
@@ -247,7 +251,8 @@ char *get_lock_name( char* lock, char* fax_tty )
 
 #else	/* not SVR4 */ 
 
-char * get_lock_name( char * lock_name, char * device )
+static char * get_lock_name _P2( (lock_name, device),
+			  char * lock_name, char * device )
 {
     (void) sprintf(lock_name, LOCK, device);
     return lock_name;

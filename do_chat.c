@@ -1,11 +1,13 @@
-#ident "$Id: do_chat.c,v 1.16 1993/10/05 13:46:47 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: do_chat.c,v 1.17 1993/10/06 00:35:33 gert Exp $ Copyright (c) Gert Doering";
 /* do_chat.c
  *
  * This module handles all the non-fax talk with the modem
  */
 
 #include <stdio.h>
+#ifndef _NOSTDLIB_H
 #include <stdlib.h>
+#endif
 #include <unistd.h>
 #include <termio.h>
 #include <signal.h>
@@ -23,10 +25,11 @@ void chat_timeout()
 
 extern char * Device;
 
-int do_chat( int fd, char * expect_send[],
-	     chat_action_t actions[], action_t * action,
-             int chat_timeout_time, boolean timeout_first,
-             boolean locks, boolean virtual_rings )
+int do_chat _P8((fd, expect_send, actions, action, chat_timeout_time,
+		timeout_first, locks, virtual_rings), int fd, char * expect_send[],
+	        chat_action_t actions[], action_t * action,
+                int chat_timeout_time, boolean timeout_first,
+                boolean locks, boolean virtual_rings )
 {
 #define BUFFERSIZE 500
 char	buffer[BUFFERSIZE];
@@ -200,7 +203,7 @@ check_further:
 	    }
 	    p++;
 	}
-	if ( ! nocr ) { write( fd, "\r\n", 1 ); lputs( L_MESG, "\\r\\n" ); }
+	if ( ! nocr ) { write( fd, "\r\n", 2 ); lputs( L_MESG, "\\r\\n" ); }
 
 	str++;
 
@@ -212,7 +215,7 @@ check_further:
     return retcode;
 }
 
-int clean_line( int fd, int waittime )
+int clean_line _P2 ((fd, waittime), int fd, int waittime )
 {
 struct termio	termio, save_termio;
 char	buffer[2];

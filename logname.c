@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 1.10 1993/10/05 13:46:59 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 1.11 1993/10/06 00:35:46 gert Exp $ Copyright (c) Gert Doering"
 #include <stdio.h>
 #include <termio.h>
 #include <unistd.h>
@@ -6,15 +6,17 @@
 #ifndef sun
 #include <sys/ioctl.h>
 #endif
-#ifndef SYSTEM
-#include <sys/utsname.h>
-#endif
 
 #ifndef ENOENT
 #include <errno.h>
 #endif
 
 #include "mgetty.h"
+#include "policy.h"
+
+#ifndef SYSTEM
+#include <sys/utsname.h>
+#endif
 
 /* Linux apparently does not define these constants */
 #ifdef linux
@@ -27,7 +29,7 @@
 
 static int timeouts = 0;
 #ifdef MAX_LOGIN_TIME
-static void getlog_timeout()
+static sig_t getlog_timeout()
 {
     signal( SIGALRM, getlog_timeout );
 
@@ -46,7 +48,9 @@ static void getlog_timeout()
 }
 #endif
 
-int getlogname( char * prompt, struct termio * termio, char * buf, int maxsize )
+int getlogname _P4( (prompt, termio, buf, maxsize),
+		    char * prompt, struct termio * termio, char * buf,
+		    int maxsize )
 {
 int i;
 char ch;

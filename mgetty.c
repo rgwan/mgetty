@@ -1,11 +1,13 @@
-#ident "$Id: mgetty.c,v 1.49 1993/10/05 13:47:00 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.50 1993/10/06 00:35:48 gert Exp $ Copyright (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
  */
 
 #include <stdio.h>
+#ifndef _NOSTDLIB_H
 #include <stdlib.h>
+#endif
 #include <string.h>
 #include <unistd.h>
 #include <termio.h>
@@ -22,16 +24,19 @@
 #include <fcntl.h>
 
 #include "mgetty.h"
+#include "policy.h"
 
 #ifdef USE_SELECT
-#if defined (linux) || defined (sun) || defined (__hpux)
-#include <sys/time.h>
+# if defined (linux) || defined (sun) || defined (__hpux)
+#  include <sys/time.h>
+# else
+#  include <sys/select.h>
+# endif
 #else
-#include <sys/select.h>
-#endif
-#else
-#include <stropts.h>
-#include <poll.h>
+# if USE_POLL
+#  include <stropts.h>
+#  include <poll.h>
+# endif
 #endif	/* USE_SELECT */
 
 struct	speedtab {
@@ -71,6 +76,14 @@ unsigned short portspeed = DEFAULT_PORTSPEED;
  * 
  * To send a backslash, you have to use "\\\\" (four backslashes!) */
 
+#ifndef NO_FAX
+/* I know this is kinda ugly, being the way you have to do it in K&R,
+ * but, we'll eventually have to parameterize FAX_STATION_ID anyways.
+ */
+#define FLID_CMD	"AT+FLID=\"%s\""
+char	init_flid_cmd[50];
+#endif
+
 char *	init_chat_seq[] = { "", "\\d\\d\\d+++\\d\\d\\d\r\\dATQ0H0", "OK",
 
 /* initialize the modem - defined in policy.h
@@ -78,7 +91,8 @@ char *	init_chat_seq[] = { "", "\\d\\d\\d+++\\d\\d\\d\r\\dATQ0H0", "OK",
 			    MODEM_INIT_STRING, "OK",
 #ifndef NO_FAX
                             "AT+FAA=1;+FBOR=0;+FCR=1", "OK",
-			    "AT+FLID=\""FAX_STATION_ID"\"", "OK",
+			    init_flid_cmd, "OK",
+			    /*"AT+FLID=\""FAX_STATION_ID"\"", "OK",*/
 			    "AT+FDCC=1,5,0,2,0,0,0", "OK",
 #endif
                             NULL };
@@ -110,19 +124,22 @@ void		exit_usage();
 /* prototypes for system functions (that are missing in some 
  * system header files)
  */
-time_t		time( long * tloc );
+time_t		time _PROTO(( long * tloc ));
 
 /* logname.c */
-int getlogname( char * prompt, struct termio * termio,
-		char * buf, int maxsize );
+int getlogname _PROTO(( char * prompt, struct termio * termio,
+		char * buf, int maxsize ));
 
 char	* Device;			/* device to use */
+char	* GettyID = "<none>";		/* Tag for gettydefs in cmd line */
 
 boolean	toggle_dtr = TRUE;		/* lower DTR */
 int	toggle_dtr_waittime = 500;	/* milliseconds while DTR is low */
 
 int	prompt_waittime = 500;		/* milliseconds between CONNECT and */
 					/* login: -prompt */
+
+struct termio *gettermio _PROTO((char * tag, boolean first, char **prompt));
 
 boolean	direct_line = FALSE;
 
@@ -133,7 +150,7 @@ static void sig_pick_phone()		/* "simulated RING" handler */
     virtual_ring = TRUE;
 }
 
-int main( int argc, char ** argv)
+int main _P2((argc, argv), int argc, char ** argv)
 {
 	register int c, fd;
 	char devname[MAXLINE+1];
@@ -148,11 +165,18 @@ int main( int argc, char ** argv)
 
 #ifdef USE_SELECT
 	fd_set	readfds;
-#else	/* use poll */
+#else
+# ifdef USE_POLL
 	struct	pollfd fds;
+# endif
 #endif
 	int	slct;
 
+#ifdef _3B1_
+	typedef ushort uid_t;
+	typedef ushort gid_t;
+	extern struct passwd *getpwuid(), *getpwnam();
+#endif
 
 	struct passwd *pwd;
 	uid_t	uucpuid = 5;			/* typical uid for UUCP */
@@ -162,7 +186,11 @@ int main( int argc, char ** argv)
 
 	char *login = "/bin/login";		/* default login program */
 
-	char * login_prompt = LOGIN_PROMPT;	/* default login prompt */
+	char * login_prompt = NULL;	/* default login prompt */
+
+#ifndef NO_FAX
+	sprintf(init_flid_cmd, FLID_CMD, FAX_STATION_ID);
+#endif
 
 	/* startup
 	 */
@@ -218,6 +246,15 @@ int main( int argc, char ** argv)
 		exit_usage(2);
 	}
 
+#ifdef USE_GETTYDEFS
+	if (optind < argc)
+		GettyID = argv[optind++];
+	else {
+		lprintf(L_FATAL, "no gettydef tag given");
+		GettyID = GETTYDEFS_DEFAULT_TAG;
+	}
+#endif
+
 	/* remove leading /dev/ prefix */
 	if ( strcmp( Device, "/dev/" ) == 0 ) Device += 5;
 
@@ -246,7 +283,6 @@ int main( int argc, char ** argv)
 
 	/* try to lock the line
 	 */
-
 	lprintf(L_MESG, "locking the line");
 
 	if ( makelock(Device) == FAIL ) {
@@ -258,7 +294,8 @@ int main( int argc, char ** argv)
 	/* allow uucp to access the device
 	 */
 	(void) chmod(devname, FILE_MODE);
-	if ((pwd = getpwnam(UUCPID)) != (struct passwd *) NULL) {
+	if ((pwd = getpwnam(UUCPID)) != (struct passwd *) NULL)
+	{
 		uucpuid = pwd->pw_uid;
 		uucpgid = pwd->pw_gid;
 	}
@@ -396,12 +433,19 @@ int main( int argc, char ** argv)
 	lprintf( L_NOISE, "select returned %d", slct );
 
 #else	/* use poll */
+# ifdef USE_POLL
 
 	fds.fd = 1;
 	fds.events = POLLIN;
 	fds.revents= 0;
 	slct = poll( &fds, 1, -1 );
 	lprintf( L_NOISE, "poll returned %d", slct );
+# else
+	{ char t;
+	    read(1, &t, 1);
+	    lprintf(L_NOISE, "read returned: "); lputc(L_NOISE, c );
+	}
+# endif
 #endif
 
 	/* check for LOCK files, if there are none, grab line and lock it
@@ -496,6 +540,17 @@ int main( int argc, char ** argv)
 		Nusers = get_current_users();
 		/* lprintf(L_NOISE, "Nusers=%d", Nusers); */
 
+		/* set ttystate for login prompt (no mapping CR->NL)*/
+		(void) ioctl(STDIN, TCGETA, &termio);
+
+		termio = *gettermio(GettyID, TRUE, &login_prompt);
+
+		lprintf(L_NOISE, "i: %06o, o: %06o, c: %06o, l: %06o, p: %s",
+		    termio.c_iflag, termio.c_oflag, termio.c_cflag, termio.c_lflag,
+		    login_prompt);
+
+		(void) ioctl(STDIN, TCSETAW, &termio);
+
 		fputc('\r', stdout);	/* just in case */
 
 		/* display ISSUE, if present
@@ -511,17 +566,6 @@ int main( int argc, char ** argv)
 			}
 			fclose(fp);
 		}
-
-		/* set ttystate for login prompt (no mapping CR->NL)*/
-		(void) ioctl(STDIN, TCGETA, &termio);
-		termio.c_iflag = BRKINT | IGNPAR | IXON | IXANY;
-		termio.c_oflag = OPOST | TAB3;
-		termio.c_cflag = CS8 | portspeed | CREAD | HUPCL |
-			 	 HARDWARE_HANDSHAKE;
-		termio.c_lflag = ECHOK | ECHOE | ECHO | ISIG | ICANON;
-		termio.c_line = 0;
-
-		(void) ioctl(STDIN, TCSETAW, &termio);
 
 		/* set permissions to "rw-------" */
 		(void) chmod(devname, 0600);
@@ -542,10 +586,12 @@ int main( int argc, char ** argv)
 #ifndef linux
 		termio.c_cc[VEOL] = 0;		/* ^J */
 #endif
-#ifdef linux
+
+#if !defined(VSWTCH) && defined(VSWTC)
 #define VSWTCH VSWTC
 #endif
-#ifndef _3B1_
+
+#ifdef VSWTCH
 		termio.c_cc[VSWTCH] = 0;
 #endif
 
@@ -567,9 +613,63 @@ int main( int argc, char ** argv)
  *	exit_usage() - exit with usage display
  */
 
-void exit_usage( int code )
+void exit_usage _P1((code), int code )
 {
+#ifdef USE_GETTYDEFS
+    lprintf( L_FATAL, "Usage: mgetty [-x debug] [-s speed] [-r] line [gettydefentry]" );
+#else
     lprintf( L_FATAL, "Usage: mgetty [-x debug] [-s speed] [-r] line" );
+#endif
     exit(code);
 }
 
+struct termio *
+gettermio _P3 ((id, first, prompt), char *id, boolean first, char **prompt) {
+
+    static struct termio termio;
+    char *rp;
+
+#ifdef USE_GETTYDEFS
+    static loaded = 0;
+    struct gdentry *gdentry;
+#endif
+
+    /* default setting */
+    termio.c_iflag = BRKINT | IGNPAR | IXON | IXANY;
+    termio.c_oflag = OPOST | TAB3;
+    termio.c_cflag = CS8 | portspeed | CREAD | HUPCL |
+		     HARDWARE_HANDSHAKE;
+    termio.c_lflag = ECHOK | ECHOE | ECHO | ISIG | ICANON;
+    termio.c_line = 0;
+    rp = LOGIN_PROMPT;
+
+#ifdef USE_GETTYDEFS
+
+    if (!loaded) {
+	if (!loadgettydefs()) {
+	    lprintf(L_WARN, "Couldn't load gettydefs - using defaults");
+	}
+	loaded = 1;
+    }
+    if (gdentry = getgettydef(id)) {
+	lprintf(L_NOISE, "Using %s gettydefs entry entry", gdentry->tag);
+	if (first) {
+	    termio.c_iflag = gdentry->before.c_iflag;
+	    termio.c_oflag = gdentry->before.c_oflag;
+	    termio.c_cflag = gdentry->before.c_cflag;
+	    termio.c_lflag = gdentry->before.c_lflag;
+	} else {
+	    termio.c_iflag = gdentry->after.c_iflag;
+	    termio.c_oflag = gdentry->after.c_oflag;
+	    termio.c_cflag = gdentry->after.c_cflag;
+	    termio.c_lflag = gdentry->after.c_lflag;
+	}
+	rp = gdentry->prompt;
+    }
+
+#endif
+
+    if (prompt && !*prompt) *prompt = rp;
+
+    return( &termio );
+}

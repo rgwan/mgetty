@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.34 1993/10/05 13:47:04 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.35 1993/10/06 00:36:01 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -12,7 +12,9 @@
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
+#ifndef _NOSTDLIB_H
 #include <stdlib.h>
+#endif
 #include <termio.h>
 #ifndef sun
 #include <sys/ioctl.h>
@@ -20,6 +22,7 @@
 #include <signal.h>
 
 #include "mgetty.h"
+#include "policy.h"
 #include "fax_lib.h"
 
 /* I don't know *why*, but the ZyXEL wants all bytes reversed */
@@ -28,18 +31,20 @@
 char * fac_tel_no;
 boolean	verbose = FALSE;
 
-void exit_usage( char * program )
+void exit_usage _P1( (program),
+		     char * program )
 {
     fprintf( stderr,
-	     "usage: %s [options] <fax-number> <page(s) in g3-format>\n"
-	     "\tvalid options: -p, -h <header>, -v, -l <device(s)>, -x <debug>, -n\n",
-	     program );
+	     "usage: %s [options] <fax-number> <page(s) in g3-format>\n", program);
+    fprintf( stderr,
+	     "\tvalid options: -p, -h <header>, -v, -l <device(s)>, -x <debug>, -n\n");
     exit(1);
 }
 
 struct termio fax_termio;
 
-int fax_open_device( char * fax_tty )
+int fax_open_device _P1( (fax_tty),
+			 char * fax_tty )
 {
 char	device[MAXPATH];
 int	fd;
@@ -118,7 +123,8 @@ int	fd;
  * return "-1" of no open succeeded (all locked, permission denied, ...)
  */
 
-int fax_open( char * fax_ttys )
+int fax_open _P1( (fax_ttys),
+	      char * fax_ttys )
 {
 char * p, * fax_tty;
 int fd;
@@ -138,7 +144,8 @@ int fd;
 
 /* finish off - close modem device, rm lockfile */
 
-void fax_close( int fd )
+void fax_close _P1( (fd),
+		    int fd )
 {
     close( fd );
     rmlocks();
@@ -155,7 +162,8 @@ sig_t fax_send_timeout()
  * NO page punctuation is transmitted -> caller can concatenate
  * multiple parts onto one page
  */
-int fax_send_page( char * g3_file, int fd )
+int fax_send_page _P2( (g3_file, fd),
+		       char * g3_file, int fd )
 {
 int g3fd;
 char ch;
@@ -335,7 +343,8 @@ static	char	fax_end_of_page[] = { DLE, ETX };
     return NOERROR;
 }
 
-int main( int argc, char ** argv )
+int main _P2( (argc, argv),
+	      int argc, char ** argv )
 {
 int argidx;
 int fd;
@@ -344,9 +353,9 @@ int	opt;
 int i;
 boolean fax_poll_req = FALSE;
 char * 	fax_page_header = NULL;
-char	poll_directory[MAXPATH] = ".";		/* FIXME: parameter */
+char *	poll_directory = ".";			/* override with "-d" */
 
-char	fax_device_string[] = FAX_MODEM_TTYS;	/* writable! */
+char *	fax_device_string = FAX_MODEM_TTYS;	/* writable! */
 char *	fax_devices = fax_device_string;	/* override with "-l" */
 int	fax_res_fine = 1;			/* override with "-n" */
 
@@ -356,8 +365,11 @@ int	tries;
     strcpy( log_path, FAX_LOG );
     log_level = L_NOISE;
 
-    while ((opt = getopt(argc, argv, "vx:ph:l:n")) != EOF) {
+    while ((opt = getopt(argc, argv, "d:vx:ph:l:n")) != EOF) {
 	switch (opt) {
+	case 'd':	/* set target directory for polling */
+	    poll_directory = optarg;
+	    break;
 	case 'v':	/* switch on verbose mode */
 	    verbose = TRUE;
 	    break;
@@ -427,8 +439,9 @@ int	tries;
 	exit(2);
     }
 
+    sprintf( buf, "AT+FCLASS=2;+FLID=\"%s\"", FAX_STATION_ID);
     if ( fax_command( "AT", "OK", fd ) == ERROR ||
-         fax_command( "AT+FCLASS=2;+FLID=\""FAX_STATION_ID"\"", "OK", fd ) == ERROR )
+         fax_command( buf, "OK", fd ) == ERROR )
     {
 	lprintf( L_ERROR, "cannot initialize faxmodem" );
 	fprintf( stderr, "%s: cannot initialize faxmodem\n", argv[0] );
@@ -451,7 +464,8 @@ int	tries;
      */
     if ( fax_poll_req )
     {
-	if ( fax_command( "AT+FCIG=\""FAX_STATION_ID"\"", "OK", fd ) == ERROR ||
+	sprintf( buf, "AT+FCIG=\"%s\"", FAX_STATION_ID);
+	if ( fax_command( buf, "OK", fd ) == ERROR ||
 	     fax_command( "AT+FSPL=1", "OK", fd ) == ERROR )
 	{
 	    lprintf( L_WARN, "AT+FSPL=1: cannot enable polling" );

@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 1.14 1993/10/05 13:46:57 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logfile.c,v 1.15 1993/10/06 00:35:45 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -10,6 +10,7 @@
 #include <ctype.h>
 
 #include "mgetty.h"
+#include "policy.h"
 
 int log_level = LOG_LEVEL;	/* set default log level threshold (jcp) */
 
@@ -17,7 +18,7 @@ static FILE * log_fp;
 static boolean mail_logfile = FALSE;
 char log_path[ MAXPATH ];
 
-extern int atexit( void (*)(void) );
+extern int atexit _PROTO(( void (*)(void) ));
 
 /* Interactive Unix is a little bit braindead - does not have atexit(),
  * and does not define externals for sys_nerr and sys_errlist,
@@ -27,16 +28,16 @@ extern int atexit( void (*)(void) );
  * Weeeeellll... there was something about POSIX and strerror...
  */
 #if defined(ISC) || defined(SVR4) || defined(sun) || defined(_3B1_) || defined(__hpux)
-# define atexit( dummy )
-# ifdef _3B1_
-extern int errno;
-# endif
+# define atexit(dummy) 
 
 extern int sys_nerr;
 extern char *sys_errlist[];
+# ifdef _3B1_
+extern int errno;
+# endif
 #endif
 
-void logmail( void )
+void logmail _P0( void )
 {
 char	ws[MAXPATH+100];
 char	buf[512];
@@ -61,8 +62,7 @@ int	log_fd;
 	fprintf( pipe_fp, "Subject: fatal error in logfile\n" );
 	fprintf( pipe_fp, "To: %s\n", ADMIN );
 	fprintf( pipe_fp, "From: root (Fax Getty)\n" );
-	fprintf( pipe_fp, "\n"
-	                  "A fatal error has occured! The logfile follows\n" );
+	fprintf( pipe_fp, "\nA fatal error has occured! The logfile follows\n" );
 	log_fd = open( log_path, O_RDONLY );
 	if ( log_fd == -1 )
 	{
@@ -84,18 +84,21 @@ int	log_fd;
     }
 }
 
-int lputc( int level, char ch )
+int lputc _P2((level, ch), int level, char ch )
 {
     if ( log_fp != NULL && level <= log_level )
     {
 	if ( isprint(ch) ) fputc( ch, log_fp );
 		      else fprintf( log_fp, "[%02x]", (unsigned char) ch );
 	fflush( log_fp );
+#ifdef LOG_CR_NEWLINE
+	if ( ch == '\n' ) fputc( ch, log_fp );
+#endif
     }
     return 0;
 }
 
-int lputs( int level, char * s )
+int lputs _P2((level, s), int level, char * s )
 {
 int retcode = 0;
     if ( log_fp != NULL && level <= log_level )

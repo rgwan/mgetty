@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.18 1993/10/05 14:07:48 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 1.19 1993/10/06 00:35:38 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -26,18 +26,19 @@
 #endif
 
 #include "mgetty.h"
+#include "policy.h"
 #include "fax_lib.h"
 
 /* all stuff in here was programmed according to a description of the
  * class 2 standard as implemented in the SupraFAX Faxmodem
  */
 
-void fax_notify_mail( int number_of_pages );
+void fax_notify_mail _PROTO(( int number_of_pages ));
 #ifdef FAX_NOTIFY_PROGRAM
-void fax_notify_program( int number_of_pages );
+void fax_notify_program _PROTO(( int number_of_pages ));
 #endif
 
-void faxrec( char * spool_in )
+void faxrec _P1((spool_in), char * spool_in )
 {
 int pagenum = 0;
 struct termio termio;
@@ -85,7 +86,7 @@ struct termio termio;
 #endif
 }
 
-void fax_sig_hangup( )
+sig_t fax_sig_hangup( )
 {
     signal( SIGHUP, fax_sig_hangup );
     /* exit if we have not read "+FHNG:xxx" yet (unexpected hangup) */
@@ -98,7 +99,7 @@ void fax_sig_hangup( )
 
 static boolean fax_timeout = FALSE;
 
-void fax_sig_alarm( )
+sig_t fax_sig_alarm( )
 {
     signal( SIGALRM, fax_sig_alarm );
     lprintf( L_MESG, "timeout..." );
@@ -108,14 +109,15 @@ void fax_sig_alarm( )
 char *	fax_file_names = NULL;
 int	fax_fn_size = 0;
 
-int fax_get_page_data( int fd, int pagenum, char * directory )
+int fax_get_page_data _P3((fd, pagenum, directory), int fd,
+			  int pagenum, char * directory )
 {
-char temp[MAXPATH];
-FILE * fax_fp;
-char c;
-char WasDLE;
-int ErrorCount = 0;
-int ByteCount = 0;
+char	temp[MAXPATH];
+FILE *	fax_fp;
+char	c;
+char	WasDLE;
+int	ErrorCount = 0;
+int	ByteCount = 0;
 int i,j;
 
     /* temp file is named: f-{n,f}iiiijjjjjj,
@@ -237,10 +239,10 @@ int i,j;
 
 /* receive fax pages
  * will return the number of received pages in *pagenum
- * FIXME: evaluate unexpected error return codes
  */
 
-int fax_get_pages( int fd, int * pagenum, char * directory )
+int fax_get_pages _P3( (fd, pagenum, directory),
+		       int fd, int * pagenum, char * directory )
 {
 static const char start_rcv = DC2;
 
@@ -297,7 +299,8 @@ static const char start_rcv = DC2;
     return NOERROR;
 }
 
-void fax_notify_mail( int pagenum )
+void fax_notify_mail _P1( (pagenum),
+			  int pagenum )
 {
 FILE  * pipe_fp;
 char  * file_name, * p;
@@ -322,32 +325,26 @@ int	r;
     fprintf( pipe_fp, "\n" );
 #endif
 
-    fprintf( pipe_fp, "A fax has arrived:\n"
-		      "Pages: %d\n"
-		      "Sender ID: %s\n", pagenum, fax_remote_id );
+    fprintf( pipe_fp, "A fax has arrived:\n" );
+    fprintf( pipe_fp, "Pages: %d\n", pagenum );
+    fprintf( pipe_fp, "Sender ID: %s\n", fax_remote_id );
     fprintf( pipe_fp, "Communication parameters: %s\n", fax_param );
-    fprintf( pipe_fp, "    Resolution : %s\n"
-		      "    Bit Rate   : %d\n"
-		      "    Page Width : %d\n"
-		      "    Page Length: %s\n"
-		      "    Compression: %d\n"
-		      "    Error Corr : %d (none)\n"
-		      "    BFT        : %d (disabled)\n"
-		      "    Scan Time  : %d\n\n",
-		      fax_par_d.vr == 0? "normal" :"fine",
-		      (fax_par_d.br+1 ) * 2400,
-		      fax_par_d.wd,
+    fprintf( pipe_fp, "    Resolution : %s\n",
+		      fax_par_d.vr == 0? "normal" :"fine");
+    fprintf( pipe_fp, "    Bit Rate   : %d\n", ( fax_par_d.br+1 ) * 2400 );
+    fprintf( pipe_fp, "    Page Width : %d\n", fax_par_d.wd );
+    fprintf( pipe_fp, "    Page Length: %s\n",
 		      fax_par_d.ln == 2? "unlimited":
-			   fax_par_d.ln == 1? "B4 (364 mm)" : "A4 (297 mm)",
-		      fax_par_d.df,
-		      fax_par_d.ec,
-		      fax_par_d.df,
-		      fax_par_d.st );
+			   fax_par_d.ln == 1? "B4 (364 mm)" : "A4 (297 mm)" );
+    fprintf( pipe_fp, "    Compression: %d\n", fax_par_d.df );
+    fprintf( pipe_fp, "    Error Corr : %d (none)\n", fax_par_d.ec );
+    fprintf( pipe_fp, "    BFT        : %d (disabled)\n", fax_par_d.bf );
+    fprintf( pipe_fp, "    Scan Time  : %d\n\n", fax_par_d.st );
 
     if ( fax_hangup_code != 0 )
     {
-	fprintf( pipe_fp, "\nThe fax receive was *not* fully successful\n"
-		 	  "The Modem returned +FHNG:%3d\n", fax_hangup_code );
+	fprintf( pipe_fp, "\nThe fax receive was *not* fully successful\n" );
+	fprintf( pipe_fp, "The Modem returned +FHNG:%3d\n", fax_hangup_code );
     }
 
     /* list the spooled fax files (jcp/gd) */
@@ -374,7 +371,8 @@ int	r;
 }
 
 #ifdef FAX_NOTIFY_PROGRAM
-void fax_notify_program( int pagenum )
+void fax_notify_program _P1( (pagenum),
+			     int pagenum )
 {
 int	r;
 char *	line;
@@ -390,7 +388,7 @@ char *	line;
      * note: stdout / stderr redirected to console, we don't
      *       want the program talking to the modem
      */
-    sprintf( line, "%s %d '%s' %d %s >%s 2>&1",
+    sprintf( line, "%s %d '%s' %d %s >%s 2>&1 </dev/null",
 					 FAX_NOTIFY_PROGRAM,
 					 fax_hangup_code,
 					 fax_remote_id,
