@@ -1,4 +1,4 @@
-#ident "$Id: run_tbl.c,v 1.3 1994/08/08 12:38:18 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: run_tbl.c,v 3.1 1995/08/30 12:39:12 gert Exp $ Copyright (c) 1994 Gert Doering"
 
 /* run_tbl.c
  *

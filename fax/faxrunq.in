@@ -9,7 +9,7 @@
 # There are still a lot rough edges - but it works, and should give you an
 # idea how to improve it
 #
-# SCCS: $Id: faxrunq.in,v 2.6 1995/06/14 20:00:26 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxrunq.in,v 3.1 1995/08/30 12:38:50 gert Exp $ Copyright (C) 1994 Gert Doering
 
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@

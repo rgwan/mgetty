@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 2.3 1995/08/30 12:37:31 gert Exp $ (c) 1993,1994 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 3.1 1995/08/30 12:38:20 gert Exp $ (c) 1993,1994 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header

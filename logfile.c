@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 2.3 1995/07/29 13:45:45 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logfile.c,v 3.1 1995/08/30 12:40:45 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include <unistd.h>

@@ -1,4 +1,4 @@
-#ident "$Id: faxsend.c,v 2.4 1995/05/24 09:47:32 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: faxsend.c,v 3.1 1995/08/30 12:40:38 gert Exp $ Copyright (c) 1994 Gert Doering"
 
 /* faxsend.c
  *

@@ -1,7 +1,7 @@
 # Makefile for the "fax" subtree
 # of mgetty+sendfax
 #
-# SCCS: $Id: Makefile,v 2.3 1995/07/29 15:03:36 gert Exp $ Copyright (c) Gert Doering
+# SCCS: $Id: Makefile,v 3.1 1995/08/30 12:38:48 gert Exp $ Copyright (c) Gert Doering
 #
 
 CC=gcc

@@ -4,7 +4,7 @@
 #
 # like "lpq" or "mailq", show jobs waiting in the output queue
 #
-# SCCS: $Id: faxq.in,v 2.3 1995/03/26 20:05:53 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxq.in,v 3.1 1995/08/30 12:38:50 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@

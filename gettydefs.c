@@ -1,4 +1,4 @@
-#ident "$Id: gettydefs.c,v 2.4 1995/04/22 00:19:55 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "$Id: gettydefs.c,v 3.1 1995/08/30 12:40:40 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 
 /* gettydefs.c
  *

@@ -1,4 +1,4 @@
-#ident "$Id: conf_sf.h,v 1.3 1995/03/26 18:52:14 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: conf_sf.h,v 3.1 1995/08/30 12:40:27 gert Exp $ Copyright (c) 1994 Gert Doering"
 
 /* all (dynamic) sendfax configuration is contained in this structure.
  * It is initialized and loaded in conf_sf.c and accessed from sendfax.c

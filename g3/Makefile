@@ -1,7 +1,7 @@
 # Makefile for the "g3 tools" subtree
 # of mgetty+sendfax
 #
-# SCCS: $Id: Makefile,v 1.4 1994/11/06 00:25:08 gert Exp $ Copyright (c) Gert Doering
+# SCCS: $Id: Makefile,v 3.1 1995/08/30 12:39:08 gert Exp $ Copyright (c) Gert Doering
 #
 
 CC=gcc

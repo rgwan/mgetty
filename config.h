@@ -1,7 +1,7 @@
 #ifndef ___CONFIG_H
 #define ___CONFIG_H
 
-#ident "$Id: config.h,v 1.5 1995/05/17 10:27:28 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: config.h,v 3.1 1995/08/30 12:40:29 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* type definitions, prototypes, defines needed for configuration stuff
  */

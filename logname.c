@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 2.6 1995/07/21 15:46:32 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 3.1 1995/08/30 12:40:47 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include "syslibs.h"
