@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 4.18 2000/10/11 10:06:41 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 4.19 2002/11/16 22:21:36 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -26,6 +26,9 @@
 #  3.10.93: use "hp2hig3" for hp-pcl4-files (cl)
 # 19.10.93: phone directories (caz)
 # $Log: faxspool.in,v $
+# Revision 4.19  2002/11/16 22:21:36  gert
+# initial adaptions for faxq-helper
+#
 # Revision 4.18  2000/10/11 10:06:41  gert
 # fix combination of "copy_sorce" and "faxspool.rules" (command line destroyed)
 #
@@ -57,6 +60,9 @@ FAX_SEQ=$FAX_SPOOL_OUT/.Sequence
 FAX_SEQ_LOCKDIR=$FAX_SPOOL_OUT/locks
 FAX_SEQ_LOCK=$FAX_SEQ_LOCKDIR/LCK..seq
 LAST_RUN=@VARRUNDIR@/faxqueue_done
+
+# helper program for privileged queue access
+FAXQ_HELPER=@LIBDIR@/faxq-helper
 
 # fax phone directories - format: <alias> <fax phone number>
 GLOBAL_PHONE_DIR=@CONFDIR@/faxaliases
@@ -619,6 +625,7 @@ fi
 # check spool directory permissions
 #
 
+# BIG TODO HERE! -> move to faxq-helper
 if [ ! -d $FAX_SPOOL_OUT ] ; then
     if mkdir $FAX_SPOOL_OUT ; then :
     else
@@ -629,64 +636,30 @@ if [ ! -d $FAX_SPOOL_OUT ] ; then
     chown 0 $FAX_SPOOL_OUT 2>/dev/null
 fi
 
-if [ ! -w $FAX_SPOOL_OUT ] ; then
-    $echo "cannot write to $FAX_SPOOL_OUT!" >&2 ; exit 6 ; fi
-
 #
-# get unique directory name (well, at least: try to)
-# FIXME: be smarter about already-existing directory names!
+# get unique directory name, using faxq-helper
 #
-if [ ! -f $FAX_SEQ ] ; then $echo 000000 > $FAX_SEQ ; chmod 666 $FAX_SEQ ; fi
+new_seq=`$FAXQ_HELPER new`
 
-if [ -f $FAX_SEQ -a ! -w $FAX_SEQ ] ; then
-    $echo "cannot write to $FAX_SEQ!" >&2 ; exit 6 ; fi
-
-if [ ! -d $FAX_SEQ_LOCKDIR ] ; then
-    if mkdir $FAX_SEQ_LOCKDIR ; then :
-    else $echo "can't create $FAX_SEQ_LOCKDIR!" >&2 ; exit 6 ; fi
-    chmod 777 $FAX_SEQ_LOCKDIR
+if [ -z "$new_seq" ] ; then
+    $echo "can't create new job directory, give up" >&2 ; exit 6
 fi
 
-if newslock $FAX_SEQ $FAX_SEQ_LOCK ; then :
-else
-    $echo "$0: sequence file locked, waiting 5 seconds..."
-    sleep 5
-    if newslock $FAX_SEQ $FAX_SEQ_LOCK ; then :
-    else
-	$echo "$0: can't lock sequence number file. (Try again later)."
-	exit 6
-    fi
+spooldir=$FAX_SPOOL_OUT/.in$new_seq
+
+if [ ! -d $spooldir ] ; then
+    $echo "Ummm, strange - $spooldir does not exist" >&2 ; exit 6
 fi
-
-trap "rm -f $FAX_SEQ_LOCK" 0 1 2 3 15
-
-new_seq=`$AWK '{ printf "%06d", $1 + 1 }' $FAX_SEQ`
-test -z "$new_seq" && new_seq="000800"
-echo $new_seq >$FAX_SEQ
-
-rm -f $FAX_SEQ_LOCK
-trap 0 1 2 3 15
-
-
-spooldir=$FAX_SPOOL_OUT/F$new_seq
-
-if [ -d $spooldir ] ; then
-    $echo "Ummm, strange - $spooldir exists (FIX THE SOURCE!)" >&2 ; exit 6
-fi
-
-umask 022
-if mkdir $spooldir ; then :
-else $echo "Cannot make $spooldir" >&2 ; exit 6 ; fi
 
 #
 # now: spool all the files to $spooldir
 #
 $echo "spooling to $spooldir..."
 
-
 #
 # process all input files
 #
+umask 022
 input_data="$*"
 F_NO=0001
 
@@ -974,7 +947,7 @@ $echo "pages " $finalpg >>$job.q
 [ -z "$ACCT_HANDLE" ] || \
     $echo "acct_handle $ACCT_HANDLE" >>$job.q
 
-mv $job.q $job
+$FAXQ_HELPER activate $new_seq < $job.q || exit 99
 
 if [ -z "`find $LAST_RUN -ctime -1 -print 2>/dev/null`" ]
 then
