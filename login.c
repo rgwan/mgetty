@@ -1,4 +1,4 @@
-#ident "$Id: login.c,v 4.9 1999/02/24 13:02:09 gert Exp $ Copyright (C) 1993 Gert Doering"
+#ident "$Id: login.c,v 4.10 1999/05/24 13:35:31 gert Exp $ Copyright (C) 1993 Gert Doering"
 
 
 /* login.c
@@ -349,8 +349,7 @@ fallthrough:
      * logins, like Fido and AutoPPP, because /bin/login reconstructs its
      * environment from scratch) - not general enough, though.
      */
-    set_env_var( "CALLER_ID", CallerId );
-    set_env_var( "CONNECT", Connect );
+    setup_environment();
 
     /* execute login */
     execv( cmd, argv );
@@ -359,4 +358,11 @@ fallthrough:
 
     lprintf( L_FATAL, "cannot execute '%s'", cmd );
     exit(FAIL);
+}
+
+void setup_environment _P0(void)
+{
+    set_env_var( "CALLER_ID", CallerId );
+    set_env_var( "CALLED_ID", CalledNr );
+    set_env_var( "CONNECT", Connect );
 }
