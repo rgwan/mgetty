@@ -129,6 +129,15 @@ gives up. This script could, for example, print out the fax on a printer
 so that it can be sent manually on a paper fax machine.
 
 .TP
+.B update-call-program <name>
+This is, again, similar to "success-call-program".  It will be called for
+interim status updates ("we've tried and it was BUSY"), so that frontend
+programs can display this information.  "update-call-program" will only
+be called for jobs that will be
+.I kept
+in the fax queue for at least one more try.
+
+.TP
 .B maxfail-costly <n>
 This specifies the number of times that a fax may fail "fatally", that
 is, causing telephone costs (explained above). The default value is 5.
@@ -193,6 +202,18 @@ one telephone call.  The maximum number of pages that the resulting job
 may have is specified here.  Usually it makes no sense to increase this,
 but in some surroundings it might make sense to turn off this feature by
 setting it to 1.
+
+.TP
+.B sendfax-tty-map [tty] [program path] [args]
+Some special cases might require running a non-default
+.I sendfax
+binary for specific ttys (like "testing new version" or "some other
+call-compatible sendfax applications for non-class-2 modems").  If you 
+want mappings for more than one "special" tty devices, just use the
+option multiple times.  Example: 
+
+sendfax-tty-map capi0 /usr/sbin/sendfax.capi
+
 
 .SH POLICY ROUTING
 .I faxrunqd
@@ -306,5 +327,5 @@ does not report if a modem goes bad - instead it will just stop using it
 faxspool(1), sendfax(8), faxq(1), faxrunq(1), faxqueue(5)
 .SH AUTHOR
 .I faxrunqd
-is Copyright (C) 1997-2002 by Gert Doering, <gert@greenie.muc.de>.  It was
+is Copyright (C) 1997-2004 by Gert Doering, <gert@greenie.muc.de>.  It was
 inspired by Bodo Bauer's initial faxrunqd, but completely rewritten.
