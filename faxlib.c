@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 1.17 1994/01/30 00:59:38 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 1.18 1994/02/10 22:29:40 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* faxlib.c
  *
@@ -71,7 +71,7 @@ int bufferp;
 	    lputc( L_JUNK, c );
 	    if ( isprint( c ) ) buffer[ bufferp++ ] = c;
 	}
-	while ( bufferp == 0 || c != 0x0a );
+	while ( bufferp == 0 || ( c != 0x0a && c != 0x0d ) );
 	buffer[bufferp] = 0;
 
 	lprintf( L_NOISE, "fax_wait_for: string '%s'", buffer );
