@@ -3,7 +3,7 @@
  *
  * autodetect the modemtype we are connected to.
  *
- * $Id: detect.c,v 1.26 2000/09/13 19:37:12 marcs Exp $
+ * $Id: detect.c,v 1.27 2000/09/18 16:34:17 marcs Exp $
  *
  */
 
@@ -69,6 +69,8 @@ const char ati0[] = "ATI0";
 
 static const struct modem_type_struct modem_database[] =
      {
+     {ati, "TP560 Data/Fax/Voice 56K Modem",
+                                   NULL, &Multitech_5634ZBAV},
      {ati, "1.04",                 NULL,   &Cirrus_Logic},
      {ati, "144",                  NULL,   &UMC},
      {ati, "144 VOICE",            NULL,   &Rockwell},
