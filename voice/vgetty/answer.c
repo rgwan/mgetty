@@ -1,7 +1,7 @@
 /*
  * answer.c
  *
- * $Id: answer.c,v 1.3 1998/03/25 23:06:15 marc Exp $
+ * $Id: answer.c,v 1.4 1998/03/26 09:30:54 gert Exp $
  *
  */
 
@@ -234,8 +234,13 @@ static void get_greeting_message(char *message)
                strcpy(message_file_name, cvd.backup_message.d.p);
           else
                {
+#ifdef M_UNIX	/* SCO has no srandom */
+               srand(time(NULL) | getpid());
+               choice = rand() % count + 1;
+#else
                srandom(time(NULL) | getpid());
                choice = random() % count + 1;
+#endif
                lprintf(L_JUNK,
                 "%s: found %d messages, picked message number %d",
                 program_name, count, choice);
