@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.11 1998/01/18 11:52:32 gert Exp $ (c) 1993-1997 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.12 1998/01/18 11:53:31 gert Exp $ (c) 1993-1997 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -2673,7 +2673,7 @@ port <whatever2>
 @end example
 
 @node USR, Elink-ISDN, MultiTech, Modems
-@subsection USR Courier/Sportster Fax/Data modems
+@subsection US Robotics (now 3com) Courier/Sportster Fax/Data modems
 
 After long wait, the USR Faxmodems finally have a faxmode. It's class 2.0,
 which is quite good for compatibility/standardization reasons.
