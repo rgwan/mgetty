@@ -1,3 +1,16 @@
+Wed Aug  9 21:56:34 2000  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* Fix from Andrew Morris <Andrew.Morris@cnpl.enbridge.com> for
+	libvoice/US_Robotics.c silence detection threshold, rounding up
+	the silence detection so that the values are more uniformly
+ 	distributed.
+
+	* Modified IS_101.c so that the watchdog uses a timer instead
+	of doing complicated arithmetic on expected bps rate.
+	Patch by Andrew Morris <Andrew.Morris@cnpl.enbridge.com>.
+	As a side effect, the I/O data summary will now come every
+	N seconds and not every N bytes. I don't think we should care.
+
 Wed Aug  9 09:04:25 2000  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 
 	* All of below is 0.9.14
