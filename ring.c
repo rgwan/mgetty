@@ -1,4 +1,4 @@
-#ident "$Id: ring.c,v 4.10 1999/05/09 11:09:44 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: ring.c,v 4.11 1999/05/13 21:43:00 gert Exp $ Copyright (c) Gert Doering"
 
 /* ring.c
  *
@@ -40,6 +40,7 @@ static int find_msn _P2((string, msn_list),
 			 char * string, char ** msn_list )
 {
 int i, len, len2;
+char * p;
 
     lprintf( L_NOISE, "MSN: '%s'", string );
     if ( msn_list == NULL ) return 0;
@@ -47,12 +48,18 @@ int i, len, len2;
     CalledNr = safedup(string);			/* save away */
 
     len=strlen(string);
+
+    /* hack off sub-addresses ("<msn>/<subaddr>")
+     * (future versions could do comparisons with and without subaddr...) */
+    p = strchr( string, '/' );
+    if ( p != NULL ) { len = (p - string); }
+
     for( i=0; msn_list[i] != NULL; i++ )
     {
 	lprintf( L_JUNK, "match: '%s'", msn_list[i] );
 	len2=strlen( msn_list[i] );
 	if ( len2 <= len && 
-	     strcmp( msn_list[i], &string[len-len2] ) == 0 )
+	     strncmp( msn_list[i], &string[len-len2], len2 ) == 0 )
 		{ return i+1; }
     }
     return 0;				/* not found -> unspecified */
@@ -97,7 +104,12 @@ char * p;
     return ( string[6]-'0');
 }
 
-/* ZyXEL CallerID data comes in as "FM:<from> [TO:<to>]" or "TO:<to>" */
+/* ZyXEL CallerID data comes in as "FM:<from> [TO:<to>]" or "TO:<to>"
+ *
+ * unless Subadressing is used, in which case this looks like
+ *   [FM:[CallingPN] [/Subaddress/]][TO:[CalledPN] [/Subaddress/]]
+ * for now, subaddresses are completely ignored (here and in find_msn)
+ */
 static int ring_handle_ZyXEL _P2((string, msn_list),
 				 char * string, char ** msn_list )
 {
@@ -113,6 +125,14 @@ char * p, ch;
 	CallerId = safedup(string);
 	*p = ch;
 	while( isspace(*p) ) p++;
+
+	/* skip potential sub-addresses ("/<something>/") */
+	if ( *p == '/' )
+	{
+	    p++; 
+	    while ( *p != '\0' && *p != '/' ) { p++; }
+	    if ( *p != '\0' ) p++;
+	}
 	string = p;
     }
     if ( strncmp( string, "TO:", 3 ) == 0 )		/* target msn */
