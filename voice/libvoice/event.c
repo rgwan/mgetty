@@ -4,7 +4,7 @@
  * This is the callback function for the modem to the higher level
  * routines.
  *
- * $Id: event.c,v 1.7 1999/05/15 19:17:47 marcs Exp $
+ * $Id: event.c,v 1.8 2001/05/16 17:23:10 marcs Exp $
  *
  */
 
@@ -141,6 +141,7 @@ int voice_handle_event(int event, event_data data)
 
                switch (event)
                     {
+                    case LOOP_BREAK: /* This is hangup */
                     case BUSY_TONE:
                     case DIAL_TONE:
                     case DATA_CALLING_TONE:
@@ -155,6 +156,7 @@ int voice_handle_event(int event, event_data data)
 
                switch (event)
                     {
+                    case LOOP_BREAK: /* This is hangup */
                     case BUSY_TONE:
                     case DIAL_TONE:
                     case DATA_CALLING_TONE:
@@ -171,6 +173,7 @@ int voice_handle_event(int event, event_data data)
 
                switch (event)
                     {
+                    case LOOP_BREAK: /* This is hangup */
                     case BUSY_TONE:
                     case DIAL_TONE:
                     case DATA_CALLING_TONE:
