@@ -41,6 +41,9 @@ modem with the same answer. So the two lines for detect.c are:
      {ati, "ERROR", "ATI0", NULL},
      {ati6, "ZOOM*", NULL, &Lucent},
 
+[ schaefer 09/10/99: really ati0 instead of "ATI0" and ati6. This is
+                     now in code ]
+
 Bye,
 Marc
 _______________________________________________________________________________

@@ -3,7 +3,7 @@
  *
  * autodetect the modemtype we are connected to.
  *
- * $Id: detect.c,v 1.11 1999/09/16 09:54:58 marcs Exp $
+ * $Id: detect.c,v 1.12 1999/10/09 16:06:26 marcs Exp $
  *
  */
 
@@ -34,6 +34,7 @@ static const struct pnp_modem_type_struct pnp_modem_database[] =
 const char ati[] = "ATI";
 const char ati6[] = "ATI6";
 const char ati9[] = "ATI9";
+const char ati0[] = "ATI0";
 
 
 static const struct modem_type_struct modem_database[] =
@@ -55,7 +56,7 @@ static const struct modem_type_struct modem_database[] =
      {ati, "28641",                NULL,   &ZyXEL_2864},
      {ati, "28642",                NULL,   &ZyXEL_2864},
      {ati, "28643",                NULL,   &ZyXEL_2864},
-     {ati, "28800",                "ATI6", NULL},
+     {ati, "28800",                ati6, NULL},
      {ati, "2886",                 NULL,   &US_Robotics},
      {ati, "336",                  NULL,   &Rockwell},
      {ati, "3361",                 NULL,   &US_Robotics},
@@ -67,7 +68,7 @@ static const struct modem_type_struct modem_database[] =
      /* This could break Rockwell modems, but is needed for some
       * Neuhaus variants (Smarty). We keep it visible for some time in case.
       */
-     {ati, "33600",                "ATI6", NULL},
+     {ati, "33600",                ati6, NULL},
 #endif
      {ati, "3X WYSIWYF 628DBX",    NULL,   &Rockwell},
      {ati, "56000",                NULL,   &Rockwell},
@@ -78,8 +79,15 @@ static const struct modem_type_struct modem_database[] =
      {ati, "MT5600ZDXV",           NULL,   &Multitech_5600ZDXv},
      {ati, "LT V.90 1.0 MT5634ZBAV Serial Data/Fax/Voice Modem Version 4.09a",
                                    NULL,   &Multitech_5634ZBAV},
+     {ati, "ERROR", ati0, NULL}, /* it also shows up as North America,
+                                  *  then OK in ATI9. Please also read
+                                  * libvoice/README.lucent.
+                                  */
+
      {ati6, "OK",      NULL, &Dr_Neuhaus},
      {ati6, "RCV288*", NULL, &Rockwell},
+
+     {ati0, "ZOOM*", NULL, &Lucent},
 
      {NULL, NULL, NULL, NULL}
      };
