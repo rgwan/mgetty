@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 2.15 1995/06/29 21:56:12 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 2.16 1995/06/29 22:00:11 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -378,6 +378,12 @@ int main _P2((argc, argv), int argc, char ** argv)
 	    use_voice_mode = FALSE;
 	} else {
 	    use_voice_mode = TRUE;
+
+	    /* With external modems, the auto-answer LED can be used
+	     * to show a status flag. vgetty uses this to indicate
+	     * that new messages have arrived.
+	     */
+	    voice_message_light();
 	}
 #endif
     }
@@ -407,16 +413,6 @@ int main _P2((argc, argv), int argc, char ** argv)
      * log so we have to do it here (otherwise, "who" won't work) */
     make_utmp_wtmp( Device, UT_INIT, "uugetty", NULL );
 #endif
-
-#ifdef VOICE
-    if ( use_voice_mode ) {
-	/* With external modems, the auto-answer LED can be used
-	 * to show a status flag. vgetty uses this to indicate
-	 * that new messages have arrived.
-	 */
-	voice_message_light();
-    }
-#endif /* VOICE */
 
     /* set to remove lockfile(s) on certain signals (SIGHUP is ignored)
      */
