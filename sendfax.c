@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.59 1994/05/14 16:51:27 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.60 1994/05/14 16:57:38 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* sendfax.c
  *
@@ -12,9 +12,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
-#ifndef _NOSTDLIB_H
-#include <stdlib.h>
-#endif
+#include "syslibs.h"
 #ifndef sun
 #include <sys/ioctl.h>
 #endif
