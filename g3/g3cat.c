@@ -1,5 +1,5 @@
-#ident "$Id: g3cat.c,v 1.4 1993/10/27 01:44:01 gert Exp $ (c) Gert Doering";
-
+#ident "$Id: g3cat.c,v 1.5 1993/11/29 11:49:02 gert Exp $ (c) Gert Doering"
+;
 /* g3cat.c - concatenate multiple G3-Documents
  *
  * (Second try. Different algorithm.)

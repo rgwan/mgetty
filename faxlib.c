@@ -1,5 +1,5 @@
-#ident "$Id: faxlib.c,v 1.13 1993/11/12 13:44:38 gert Exp $ Copyright (c) Gert Doering";
-
+#ident "$Id: faxlib.c,v 1.14 1993/11/29 11:51:35 gert Exp $ Copyright (c) Gert Doering"
+;
 /* faxlib.c
  *
  * Module containing generic faxmodem functions (as: send a command, wait

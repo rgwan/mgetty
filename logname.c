@@ -1,4 +1,5 @@
-#ident "$Id: logname.c,v 1.20 1993/11/26 22:19:37 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: logname.c,v 1.21 1993/11/29 11:50:25 gert Exp $ Copyright (c) Gert Doering"
+;
 #include <stdio.h>
 #ifndef _NOSTDLIB_H
 #include <stdlib.h>

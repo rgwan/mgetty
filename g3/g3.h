@@ -1,5 +1,5 @@
-#ident "$Id: g3.h,v 1.2 1993/10/18 20:16:14 gert Exp $ Copyright (c) Gert Doering";
-
+#ident "$Id: g3.h,v 1.3 1993/11/29 11:49:15 gert Exp $ Copyright (c) Gert Doering"
+;
 #ifndef NULL
 #define NULL 0L
 #endif

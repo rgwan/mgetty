@@ -1,5 +1,5 @@
-#ident "$Id: tio.h,v 1.5 1993/11/12 21:42:44 gert Exp $ Copyright (c) 1993 Gert Doering";
-
+#ident "$Id: tio.h,v 1.6 1993/11/29 11:49:50 gert Exp $ Copyright (c) 1993 Gert Doering"
+;
 /* tio.h
  *
  * contains definitions / prototypes needed for tio.c

@@ -1,5 +1,5 @@
-#ident "$Id: tio.c,v 1.7 1993/11/24 14:03:56 gert Exp $ Copyright (c) 1993 Gert Doering";
-
+#ident "$Id: tio.c,v 1.8 1993/11/29 11:49:57 gert Exp $ Copyright (c) 1993 Gert Doering"
+;
 /* tio.c
  *
  * contains routines dealing with SysV termio / POSIX termios / BSD sgtty

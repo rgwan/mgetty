@@ -1,5 +1,5 @@
-#ident "$Id: locks.c,v 1.19 1993/11/12 13:43:57 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr.";
-
+#ident "$Id: locks.c,v 1.20 1993/11/29 11:50:46 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
+;
 /* large parts of the code in this module are taken from the
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us,
  * and are used with permission here.

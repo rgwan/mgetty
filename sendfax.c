@@ -1,5 +1,5 @@
-#ident "$Id: sendfax.c,v 1.44 1993/11/13 22:51:26 gert Exp $ Copyright (c) Gert Doering";
-
+#ident "$Id: sendfax.c,v 1.45 1993/11/29 11:50:08 gert Exp $ Copyright (c) Gert Doering"
+;
 /* sendfax.c
  *
  * Send a Fax using a class 2 faxmodem.

@@ -1,5 +1,5 @@
-#ident "$Id: g3.c,v 1.2 1993/10/18 20:16:11 gert Exp $ Copyright (c) Gert Doering";
-
+#ident "$Id: g3.c,v 1.3 1993/11/29 11:49:22 gert Exp $ Copyright (c) Gert Doering"
+;
 #include <stdio.h>
 #include <unistd.h>
 #include <malloc.h>
