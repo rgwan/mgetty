@@ -1,4 +1,4 @@
-#ident "$Id: faxsend.c,v 3.3 1995/12/18 22:38:12 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: faxsend.c,v 3.4 1996/01/03 21:31:27 gert Exp $ Copyright (c) 1994 Gert Doering"
 
 /* faxsend.c
  *
@@ -138,7 +138,7 @@ int fax_send_page _P5( (g3_file, bytes_sent, tio, ppm, fd),
 	alarm( 20 );
 	do
 	{
-	    if ( fax_read_byte( fd, &ch ) != 1 )
+	    if ( mdm_read_byte( fd, &ch ) != 1 )
 	    {
 		lprintf( L_ERROR, "timeout waiting for XON" );
 		fprintf( stderr, "error waiting for XON!\n" );
@@ -265,7 +265,7 @@ int fax_send_page _P5( (g3_file, bytes_sent, tio, ppm, fd),
 		lprintf( L_NOISE, "input: got " );
 		do
 		{
-		    /* intentionally don't use fax_read_byte here */
+		    /* intentionally don't use mdm_read_byte here */
 		    if ( read( fd, &ch, 1 ) != 1 )
 		    {
 			lprintf( L_ERROR, "read failed" );
@@ -351,10 +351,10 @@ int fax_send_ppm _P3( (fd, tio, ppm),
 	    return ERROR;
 	}
 
-	/* FIXME: I think this should be fax_wait_for()! */
+	/* FIXME: I think this should be done with fax_wait_for()! */
 	do
 	{
-	    ppm_r = fax_get_line( fd );
+	    ppm_r = mdm_get_line( fd );
 	    if ( ppm_r == NULL ) return ERROR;
 
 	    /* hangup code. See fax_wait_for() for comments */
