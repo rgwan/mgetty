@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.35 1998/07/20 22:02:40 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.36 1998/11/12 15:22:39 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.36  1998/11/12 15:22:39  gert
+# change max_tries_total default to 10 (same as faxrunq)
+#
 # Revision 1.35  1998/07/20 22:02:40  gert
 # put extra brackets around exec() to silence "not reached" warnings
 #
@@ -84,7 +87,7 @@ $send_mail_failure=1;
 $program_success='';
 $program_failure='';
 $max_tries_costly=3;
-$max_tries_total=20;
+$max_tries_total=10;
 $delete_jobs=0;
 
 #
