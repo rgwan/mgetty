@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.49 2001/06/29 07:12:56 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.50 2001/10/21 14:45:29 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -2975,13 +2975,21 @@ from @code{init-chat} (otherwise isdn4linux will just ignore incoming
 calls).
 
 As far as I can see, i4l will always signal the caller ID for incoming
-calls as "CALLER NUMBER = ..." to mgetty.  Mgetty can handle this
+calls as "CALLER NUMBER: ..." to mgetty.  Mgetty can handle this
 just fine.
 
 If you want to see the destination number for incoming calls, add
-@code{ATS23.0=1} to the @code{init-chat}.  This will make i4l signal
-the dialed MSN number as @code{RING/12345}, and mgetty will then pass
-it on as $CALLED_ID to fax scripts and so on.
+@code{ATS23.2=1} to the @code{init-chat}.  This will make i4l signal
+the dialed MSN number as @code{CALLED NUMBER: 12345}, and mgetty will 
+then pass it on as $CALLED_ID to fax scripts and so on.  This is
+implemented since Linux 2.4.10, or in earlier Versions with Jan
+Oberlaender's patch
+(http://www.stud.uni-karlsruhe.de/~uslk/i4l-callednumber.tar.gz).
+
+Alternatively, you can set @code{ATS23.0=1}. This will make i4l signal
+the dialed MSN number as @code{RING/12345}.  Unfortunately, it will be
+recognized by mgetty as caller ID, not destination MSN, so you might need
+to do some fiddling with 'ring.c' to get this fixed.
 
 For the full list of available AT commands, consult the i4l docs
 (for example in @file{/usr/src/linux/Documentation/isdn/README}.
