@@ -1,4 +1,4 @@
-#ident "@(#)cnd.c	$Id: cnd.c,v 1.5 1994/05/14 16:55:22 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "@(#)cnd.c	$Id: cnd.c,v 1.6 1994/07/09 10:31:39 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 ;
 #include <stdio.h>
 #include <string.h>
@@ -14,6 +14,8 @@ char *Connect = "";
 char *CallerId = "none";
 char *CallTime = "";
 char *CallName = "";
+static char * cnd_carrier = "";
+static char * cnd_protocol= "";
 
 struct cndtable {
     char *string;
@@ -30,6 +32,10 @@ struct cndtable cndtable[] =
     {"TIME: ",			&CallTime},
     {"REASON FOR NO CALLER NUMBER: ",	&CallerId},
     {"REASON FOR NO CALLER NAME: ",	&CallName},
+    /* those are for rockwell-based modems insisting on a multi-line
+       message "CARRIER ... / PROTOCOL ... / CONNECT */
+    {"CARRIER ",		&cnd_carrier},
+    {"PROTOCOL: ",		&cnd_protocol},
     {NULL}
 };
     
@@ -71,8 +77,22 @@ cndfind _P1((str), char *str)
 	{
 	    if (!cp->variable)
 		return;
-	    *(cp->variable) = malloc(strlen(str) - len + 1);
-	    (void) strcpy(*(cp->variable), str+len);
+
+	    /* special case for CONNECT on Rockwell-Based modems */
+	    if ( ( cnd_carrier[0] != 0 || cnd_protocol[0] != 0 ) &&
+		 strncmp( str, "CONNECT ", 8 ) == 0 )
+	    {
+		*(cp->variable) = malloc( strlen(str) - len +
+		                  strlen( cnd_carrier ) +
+				  strlen( cnd_protocol ) + 5 );
+		sprintf( *(cp->variable), "%s/%s %s",
+			 str+len, cnd_carrier, cnd_protocol );
+	    }
+	    else	/* normal case */
+	    {
+		*(cp->variable) = malloc(strlen(str) - len + 1);
+		(void) strcpy(*(cp->variable), str+len);
+	    }
 	    lprintf(L_JUNK, "CND: found: %s", *(cp->variable));
 	    return;
 	}
