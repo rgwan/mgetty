@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.18 1997/12/14 14:40:59 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.19 1997/12/14 16:38:17 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -376,7 +376,7 @@ DISTRIB=README.1st THANKS TODO BUGS FTP FAQ inittab.aix inst.sh version.h \
 	login.cfg.in mgetty.cfg.in sendfax.cfg.in \
 	dialin.config faxrunq.config \
         mgetty.c mgetty.h ugly.h do_chat.c logfile.c logname.c locks.c \
-	mg_m_init.c modem.c class1.c class1lib.c \
+	mg_m_init.c modem.c class1.h class1.c class1lib.c \
 	faxrec.c faxrecp.c faxsend.c faxlib.c fax_lib.h sendfax.c \
 	io.c tio.c tio.h gettydefs.c login.c do_stat.c faxhng.c \
 	config.h config.c conf_sf.h conf_sf.c conf_mg.h conf_mg.c \
