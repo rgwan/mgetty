@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.24 1997/11/18 14:54:40 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.25 1997/11/18 15:49:07 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -684,6 +684,8 @@ int mdm_identify _P1( (fd), int fd )
 
     if ( mis != NULL ) 
 	lprintf( L_MESG, "additional info: '%s'", mis );
+    if ( modem_quirks )
+	lprintf( L_MESG, "modem quirks: %04x", modem_quirks );
 
     return NOERROR;
 }
