@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.137 1994/10/22 15:40:13 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.138 1994/10/22 16:27:28 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -440,6 +440,15 @@ int main _P2((argc, argv), int argc, char ** argv)
         lprintf( L_WARN, "%s: return code %d", buf, i );
 #endif
 
+    /* setup terminal */
+
+    /* Currently, the tio returned here is ignored.
+       The invocation is only for the sideeffects of:
+       - loading the gettydefs file if enabled.
+       - setting portspeed appropriately, if not defaulted.
+       */
+    tio = *gettermio(GettyID, TRUE, &login_prompt);
+
     /* open + initialize device (mg_m_init.c) */
     if ( mg_get_device( devname, blocking_open,
 		        toggle_dtr, toggle_dtr_waittime,
@@ -449,16 +458,6 @@ int main _P2((argc, argv), int argc, char ** argv)
 	exit( 30 );
     }
     
-    /* setup terminal */
-
-    /* Currently, the tio returned here is ignored.
-       The invocation is only for the sideeffects of:
-       - loading the gettydefs file if enabled.
-       - setting portspeed appropriately, if not defaulted.
-       */
-
-    tio = *gettermio(GettyID, TRUE, &login_prompt);
-
     /* drain input - make sure there are no leftover "NO CARRIER"s
      * or "ERROR"s lying around from some previous dial-out
      */
