@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.31 1993/09/19 17:20:33 gert Exp $ (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.32 1993/09/28 16:53:55 gert Exp $ (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -85,7 +85,7 @@ int	fd;
     fax_termio.c_iflag = 0;
     fax_termio.c_oflag = 0;
 
-    fax_termio.c_cflag = FAX_SEND_BAUD | CS8 | CREAD | HUPCL | 
+    fax_termio.c_cflag = FAX_SEND_BAUD | CS8 | CREAD | HUPCL | CLOCAL |
 			 HARDWARE_HANDSHAKE;
 
     fax_termio.c_lflag = 0;
@@ -323,7 +323,7 @@ int main( int argc, char ** argv )
 int argidx;
 int fd;
 char buf[1000];
-char ch;
+int	opt;
 int i;
 boolean fax_poll_req = FALSE;
 char * 	fax_page_header = NULL;
@@ -339,8 +339,8 @@ int	tries;
     strcpy( log_path, FAX_LOG );
     log_level = L_NOISE;
 
-    while ((ch = getopt(argc, argv, "vx:ph:l:n")) != EOF) {
-	switch (ch) {
+    while ((opt = getopt(argc, argv, "vx:ph:l:n")) != EOF) {
+	switch (opt) {
 	case 'v':	/* switch on verbose mode */
 	    verbose = TRUE;
 	    break;
@@ -460,6 +460,10 @@ int	tries;
 	{ fax_close( fd ); exit(10); }
     }
     if ( verbose ) printf( "OK.\n" );
+
+    /* by now, the modem should have raised DCD, so remove CLOCAL flag */
+    fax_termio.c_cflag &= ~CLOCAL;
+    ioctl( fd, TCSETA, &fax_termio );
 
     /* process all files to send / abort, if Modem sent +FHNG result */
 
