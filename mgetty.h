@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.42 1993/12/20 10:11:39 gert Exp $ Copyright (c) Gert Doering */
+/* $Id: mgetty.h,v 1.43 1994/01/04 17:34:20 gert Exp $ Copyright (c) Gert Doering */
 
 /* ANSI vs. non-ANSI support */
 #ifdef __STDC__
@@ -110,6 +110,7 @@ RETSIGTYPE	rmlocks _PROTO (());
 /* fax stuff */
 void	faxrec _PROTO(( char * spool_dir ));
 char *	fax_strerror _PROTO(( int fax_hangup_code ));
+void	faxpoll_server_init _PROTO(( char * fax_server_file ));
 
 /* login stuff */
 void login _PROTO(( char * user ));
