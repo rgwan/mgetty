@@ -1,3 +1,41 @@
+Sat Sep  9 09:57:31 2000  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* All of below is 0.9.17
+
+	* libvoice/Elsa.c: minor fix with no consequence so that
+	gcc doesn't spit out a `warning: `/*' within comment'
+	warning.
+
+	* pvftools/pvftormd.c: patch from Mark K. Kim <markkim@email.com>
+	fixing the wrong assumption that the compression method is
+	the bits-per-sampling rate, which is wrong for USR (GSM).
+	I find this change a bit bizarre (why hasn't anyone reported this),
+	and it could be a firmware problem. Well, let's see what it
+	breaks and hope people scream loudly.
+
+	* libvoice/V253modem.c: patch from Juergen Kosel <Juergen.Kosel@gmx.de>
+	implementing new voiceformats, and check_rmd_adequation() for
+	Elsa compatibility. Caller ID and distinctive ringing; setting
+	defaults (silence sensitivity; timeout). Added CVS ID. Note that
+	this version has a gcc warning; notified Juergen.
+ 	
+	* libvoice/Elsa.c: patch from Juergen Kosel <Juergen.Kosel@gmx.de>
+	fixing AT+VRN and adding comments about VLS.
+
+	* pvftools/rmdtopvf.c: patch from Juergen Kosel <Juergen.Kosel@gmx.de>;
+	implements header management for some new voice formats.
+
+	* libvoice/ZyXEL_Omni56k.c: fixed by gert; fix from Richard L. Hamilton
+ 	(rlhamil@smart.net); ATS40= commande shall not contain spaces.
+
+	* libvoice/IS_101.c: fixed by gert; fix from Andrew Morris
+ 	(Andrew.Morris@cnpl.enbridge.com); fix to watchdog change;
+	bug introduced in 0.9.16. Would never reset the watchdog
+	after the first reset.
+
+	* voice.conf-dist: fixed by gert; comment that the speed
+	definition must match mgetty's.
+	
 Thu Aug 10 08:14:50 2000  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 
 	* All of below is 0.9.16
