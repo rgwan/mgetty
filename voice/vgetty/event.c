@@ -3,7 +3,7 @@
  *
  * Here is the vgetty specific voice event handler.
  *
- * $Id: event.c,v 1.5 2001/01/14 14:33:01 marcs Exp $
+ * $Id: event.c,v 1.6 2001/01/14 14:47:09 marcs Exp $
  *
  */
 
@@ -84,7 +84,7 @@ int vgetty_handle_event(int event, event_data data)
                /* Avoid buffer overflow.
                 * -- Georg.Kirschbaum@gimmel.franken.de
                 */
-               if (length >= (VOICE_BUF_LEN - 1))  + {
+               if (length >= (VOICE_BUF_LEN - 1)) {
                     voice_stop_current_action();
                     hangup_requested = TRUE;
                     return(OK);
