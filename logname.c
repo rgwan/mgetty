@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 3.6 1996/01/03 19:24:55 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 3.7 1996/01/03 20:23:57 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include "syslibs.h"
@@ -299,7 +299,7 @@ int getlogname _P5( (prompt, tio, buf, maxsize, do_timeout),
 		       MAX_LOGIN_TIME / 60 );
 		
 		sleep(3);		/* give message time to xmit */
-		lprintf( L_AUDIT, "failed dev=%s, pid=%s, login time out",
+		lprintf( L_AUDIT, "failed dev=%s, pid=%d, login time out",
 			 Device, getpid() );
 		exit(0);		/* bye bye... */
 	    }
