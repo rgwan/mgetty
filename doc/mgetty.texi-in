@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.24 1998/06/19 20:29:54 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.25 1998/06/29 18:51:08 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -1905,6 +1905,19 @@ to make a fax connection in "fine resolution" mode. Normally you won't need
 to use that option, since @code{faxrunq} will set the @code{-n} switch if
 needed.  Default is @samp{no}
 
+@item @code{fax-min-speed} @var{speed}
+
+Sets the lowest transmission speed that the modem will negotiate with
+the receiving modem. (Not implemented yet).
+
+@item @code{fax-max-speed} @var{speed} [-M]
+
+Sets the maximum transmission speed that the modem will negotiate with the
+fax receiver.  Usually, you don't need this, as decent modems will pick
+the best speed automtically, but sometimes (e.g. for the USR Courier
+series) this doesn't always works, and transmission fails with +FHS:25. 
+If you see that error, you might want to try @code{fax-max-speed 7200}.
+
 @item @code{verbose} @var{y|n} [-v]
 
 If set to @samp{yes} or @samp{true}, @code{sendfax} will output progress
@@ -2792,6 +2805,12 @@ all.  So if your modem works, consider yourself lucky, but if it doesn't,
 don't blaim it on me (I got some reports that Hylafax works better,
 driving the modem a bit differently, but I think this was just a lucky
 day).
+
+For some fax receivers, a problem remains: the USR modems do not want
+to negotiate 7200 bps transmission speed.  If the receiving modem won't 
+accept 9600 bps, transmission will fail after sending three DCS frames,
+with the error code +FHS:25.  In that case, try setting 
+@code{fax-max-speed 7200} in @file{sendfax.config}.
 
 
 The USR modems support Caller ID delivery (both the I-Modem series and the

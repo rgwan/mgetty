@@ -93,6 +93,11 @@ Override the default (set by sendfax.config or in policy.h) for the 'ATxxx'
 command to dial the remote number.  This is rarely used from the command
 line, but you might want to use it in combination with faxrunqd's policy 
 routing option (see example in faxrunqd.policy(5)).
+.TP
+.B -M <max speed>
+Sets the maximum transmission (modem to modem) speed.  This is only needed
+in very rare cases, because normally the modems negotiate the correct 
+speed automatically.  Example: "-M 7200".
 
 .SH CONFIG FILE
 If compiled accordingly,
