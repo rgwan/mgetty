@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 2.2 1994/12/01 16:17:08 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logfile.c,v 2.3 1995/07/29 13:45:45 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -242,6 +242,13 @@ int     errnr;
 	    }
 	}
 	fprintf( log_fp, "\n--" );
+
+	/* set close-on-exec bit (prevent user programs writing to logfile */
+	if ( fcntl( fileno( log_fp ), F_SETFD, 1 ) < 0 )
+	{
+	    lprintf( L_ERROR, "open_log: can't set close-on-exec bit" );
+	}
+	    
 #ifdef SYSLOG
 	/* initialize syslog logging */
 	openlog( log_program, LOG_PID, SYSLOG_FC );
