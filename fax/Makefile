@@ -1,7 +1,7 @@
 # Makefile for the "fax" subtree
 # of mgetty+sendfax
 #
-# SCCS: $Id: Makefile,v 1.4 1994/01/19 22:57:07 gert Exp $ Copyright (c) Gert Doering
+# SCCS: $Id: Makefile,v 1.5 1994/01/21 11:38:00 gert Exp $ Copyright (c) Gert Doering
 #
 
 CC=gcc
@@ -41,7 +41,7 @@ install: all
 	cp cour24i.pbm $(LIBDIR)/cour24i.pbm
 	chmod 644 $(LIBDIR)/cour24i.pbm
 	-test -f $(LIBDIR)/faxheader || \
-	    cp faxheader $(LBIDIR)
+	    cp faxheader $(LIBDIR)
 	chown 644 $(LIBDIR)/faxheader
 #
 # /etc/magic
