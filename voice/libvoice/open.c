@@ -4,7 +4,7 @@
  * Try all available voice devices and open the first one that
  * suceeds and initialize it.
  *
- * $Id: open.c,v 1.4 1998/09/09 21:07:32 gert Exp $
+ * $Id: open.c,v 1.5 2002/02/25 11:27:17 gert Exp $
  *
  */
 
@@ -46,7 +46,7 @@ int voice_open_device(void)
 
                if ((voice_fd = open(voice_tty, O_RDWR | O_NDELAY | O_NOCTTY)) == FAIL)
                     {
-                    lprintf(L_WARN, "error opening %s", voice_tty);
+                    lprintf(L_ERROR, "error opening %s", voice_tty);
                     rmlocks();
                     voice_fd = NO_VOICE_FD;
                     }
