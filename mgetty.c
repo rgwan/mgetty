@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.132 1994/09/18 12:25:19 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.133 1994/09/29 16:00:55 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -19,7 +19,6 @@
 
 #include <sys/stat.h>
 #include <signal.h>
-#include <fcntl.h>
 
 #include "mgetty.h"
 #include "policy.h"
