@@ -1,4 +1,4 @@
-#ident "$Id: config.c,v 4.2 1997/01/22 20:59:02 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: config.c,v 4.3 1997/06/08 15:44:27 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /*
  * config.c
@@ -334,8 +334,11 @@ int ignore = 0;		/* ignore keywords in non-matching section */
 		  switch( cp->type )
 		    {
 		      case CT_INT:
-			if ( ! isdigit( line[0] ) ) errflag ++;
-			else cp->d.i = strtol( line, NULL, 0 );
+			if ( isdigit( line[0] ) ||
+			     ( line[0] == '-' && isdigit( line[1] ) ) )
+			    cp->d.i = strtol( line, NULL, 0 );
+			else
+			    errflag++;
 			break;
 		      case CT_STRING:
 			if ( ( cp->d.p = malloc( strlen( line ) +1 ) ) == NULL )
