@@ -1,6 +1,5 @@
-#ident "$Id: logname.c,v 1.12 1993/10/08 01:30:49 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 1.13 1993/10/19 22:26:17 gert Exp $ Copyright (c) Gert Doering"
 #include <stdio.h>
-#include <termio.h>
 #include <unistd.h>
 #include <signal.h>
 #ifndef sun
@@ -13,6 +12,7 @@
 
 #include "mgetty.h"
 #include "policy.h"
+#include "tio.h"
 
 #ifndef SYSTEM
 #include <sys/utsname.h>
@@ -49,18 +49,18 @@ static sig_t getlog_timeout()
 }
 #endif
 
-int getlogname _P4( (prompt, termio, buf, maxsize),
-		    char * prompt, struct termio * termio, char * buf,
+int getlogname _P4( (prompt, tio, buf, maxsize),
+		    char * prompt, TIO * tio, char * buf,
 		    int maxsize )
 {
 int i;
 char ch;
+TIO tio_save;
 
-	/* read character by character! */
-    termio->c_lflag &= ~ICANON;
-    termio->c_cc[VMIN] = 1;
-    termio->c_cc[VTIME] = 0;
-    ioctl(STDIN, TCSETAW, termio);
+    /* read character by character! */
+    tio_save = *tio;
+    tio_mode_cbreak( tio );
+    tio_set( STDIN, tio );
 
 #ifdef MAX_LOGIN_TIME
     signal( SIGALRM, getlog_timeout );
@@ -127,17 +127,20 @@ newlogin:
 
     buf[--i] = 0;
 
+    *tio = tio_save;
     if ( ch == '\n' )
     {
+	tio_map_cr( tio, FALSE );
 	putc( '\r', stdout );
     }
     else
     {
-	termio->c_iflag |= ICRNL;
-	termio->c_oflag |= ONLCR;
+	tio_map_cr( tio, TRUE );
 	putc( '\n', stdout );
 	lprintf( L_NOISE, "input finished with '\\r', setting ICRNL ONLCR" );
     }
+
+    tio_set( STDIN, tio );
 
     if ( i == 0 ) return -1;
     else return 0;
