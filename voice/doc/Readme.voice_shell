@@ -285,7 +285,7 @@
                     case $ANSWER in
                          READY)            send "PLAY demo.rmd";;
                          RECEIVED_DTMF)    send "STOP"; proc_dtmf;;
-                         BUSY_TONE)        send "STOP"; receive; send "GOODBYE";
+                         LOOP_BREAK|BUSY_TONE) send "STOP"; receive; send "GOODBYE";
                                            receive; exit 0;;
                          FAX_CALLING_TONE) send "STOP"; receive;
                                            send "GOODBYE"; receive; exit 2;;
@@ -296,7 +296,8 @@
   In this example we play the greeting message in an infinite loop. During
   playing we can check what the modem reports. If we get a dtmf code
   (RECEIVED_DTMF), then we call our dtmf handling function (proc_dmtf). If
-  the remote end hangs up (at my place it manifests in BUSY_TONE), then we
+  the remote end hangs up (at my place it manifests in BUSY_TONE, but
+  normally it should be LOOP_BREAK, signalling remote hangup), then we
   stop playing, say GOODBYE to the voice library, then exit with code 0.
   If the modem detects a fax calling tone (FAX_CALLING_TONE), then we stop
   playing and exit with code 2 (which means that mgetty tries to make a fax
@@ -448,7 +449,9 @@
  Description:  The modem detected a bong tone on the line.
 
  Event:        BUSY_TONE
- Description:  The modem detected busy tone on the line.
+ Description:  The modem detected busy tone on the line. Note that the
+               proper IS-101 way to signal remote hangup is
+               LOOP_BREAK.
 
  Event:        CALL_WAITING
  Description:  Defined in IS-101.
@@ -472,7 +475,7 @@
  Description:  Locally connected handset went off hook.
 
  Event:        LOOP_BREAK
- Description:  Defined in IS-101.
+ Description:  Defined in IS-101. This usually is for remote hangup.
 
  Event:        LOOP_POLARITY_CHANGE
  Description:  Defined in IS-101.
