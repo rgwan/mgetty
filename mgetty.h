@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 4.19 2000/12/19 17:20:58 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 4.20 2001/01/01 13:25:01 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -165,6 +165,13 @@ typedef	char	boolean;
  */
 #if defined(linux) || defined(BSD)
 # define HAVE_MMAP
+#endif
+
+/* recent systems have mkstemp(), and it's more secure than mktemp()
+ * SCO does not have it, though :-(
+ */
+#if !defined(M_UNIX) && !defined(_3B1_)
+# define HAVE_MKSTEMP
 #endif
 
 /* On a ALPHA, the config routines won't work, unless we change the
