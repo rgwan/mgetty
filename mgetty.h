@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 3.15 1996/12/13 22:55:21 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 3.16 1996/12/29 01:19:06 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -290,7 +290,7 @@ extern char *	optarg;
 # define NEED_PUTENV
 # define NEED_STRDUP
 
- char * strdup _PPROTO(( char *src ));
+ char * strdup _PROTO(( char *src ));
 #endif
 
 #endif			/* ___MGETTY_H */
