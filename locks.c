@@ -1,4 +1,4 @@
-#ident "$Id: locks.c,v 1.26 1994/05/18 23:54:04 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
+#ident "$Id: locks.c,v 1.27 1994/07/12 22:12:36 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
 ;
 /* large parts of the code in this module are taken from the
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us,
@@ -15,14 +15,6 @@
 #include <sys/stat.h>
 #include <ctype.h>
 
-/* SVR4 uses a different locking mechanism. This is why we need this... */
-#ifdef SVR4 
-#include <sys/mkdev.h>
- 
-#define LCK_NODEV    -1
-#define LCK_OPNFAIL  -2
-#endif
-
 /* some OSes do include this in stdio.h, others don't... */
 #ifndef EEXIST
 #include <errno.h>
@@ -30,6 +22,14 @@
 
 #include "mgetty.h"
 #include "policy.h"
+
+/* SVR4 uses a different locking mechanism. This is why we need this... */
+#ifdef SVR4 
+#include <sys/mkdev.h>
+ 
+#define LCK_NODEV    -1
+#define LCK_OPNFAIL  -2
+#endif
 
 static char	lock[MAXLINE+1];	/* name of the lockfile */
 
