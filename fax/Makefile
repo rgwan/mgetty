@@ -1,21 +1,24 @@
 # Makefile for the "fax" subtree
 # of mgetty+sendfax
 #
-# SCCS: $Id: Makefile,v 3.1 1995/08/30 12:38:48 gert Exp $ Copyright (c) Gert Doering
+# SCCS: $Id: Makefile,v 3.2 1995/09/16 21:17:55 gert Exp $ Copyright (c) Gert Doering
 #
 
 CC=gcc
 CFLAGS=-O2 -I..
 
-FAX_SCRIPTS=faxspool faxrunq faxq faxrm
+FAX_SCRIPTS=faxspool faxrunq faxq faxrm 
 
-all: $(FAX_SCRIPTS) faxheader
+all: $(FAX_SCRIPTS) faxrunqd faxheader
 
 faxspool: faxspool.in ../sedscript
 	../sedscript <faxspool.in >faxspool
 
 faxrunq: faxrunq.in ../sedscript
 	../sedscript <faxrunq.in >faxrunq
+
+faxrunqd: faxrunqd.in ../sedscript
+	../sedscript <faxrunqd.in >faxrunqd
 
 faxq: faxq.in ../sedscript
 	../sedscript <faxq.in >faxq
@@ -44,6 +47,7 @@ install: all
 		$(INSTALL) -m 755 $$i $(BINDIR) ; \
 	done
 	chmod 700 $(BINDIR)/faxrunq
+	$(INSTALL) -m 700 faxrunqd $(SBINDIR)
 #
 # data files
 #
