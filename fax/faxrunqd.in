@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.15 1997/12/10 11:51:27 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.16 1997/12/10 16:45:53 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.16  1997/12/10 16:45:53  gert
+# new scheduler: use age, number of pages, and number of tries for "composite metric"
+#
 # Revision 1.15  1997/12/10 11:51:27  gert
 # if .queue-changed exists, flush internal queue and re-read from disk
 #
@@ -127,15 +130,24 @@ $delete_jobs=0;
 sub jobsort
 {
     # first, sort by priority (reverse numerical order - 9 first, 1 last)
+    # (this is absolute - high priority jobs get sent FIRST, even if it
+    # means that low prio jobs could be delayed for a very long time)
+    #
     my $p = -( $queue{$a}{priority} <=> $queue{$b}{priority} );
 
     # same priority? send out jobs with fewer pages first
+    # (but do also use AGE of fax job and number of tries for calculation: 
+    #  every 3 minutes = "1 page less", every try = "2 pages more" )
+    #
     if ( $p == 0 ) 
-	{ $p = $#{$queue{$a}{pages}} <=> $#{$queue{$b}{pages}}; }
-
-    # same number of pages? send out jobs with fewer tries first
-    if ( $p == 0 )
-	{ $p = ( $queue{$a}{tries} <=> $queue{$b}{tries} ); }
+	{ $p = 
+	     ( $#{$queue{$a}{pages}} 
+		 - ( $now - $queue{$a}{'ctime'} ) / 180
+		 + ( $queue{$a}{tries} * 2 ) )
+	  <=>
+	     ( $#{$queue{$b}{pages}} 
+		 - ( $now - $queue{$b}{'ctime'} ) / 180
+		 + ( $queue{$b}{tries} * 2 ) ); }
 
     return $p;
 }
@@ -319,7 +331,8 @@ while( 1 )
 	    print LOG "--> new job!\7\n" if $opt_d;
 
 	    $queue{$f} = { 'status' => 'unknown', 'flags' => ['-r'],
-			   'tries_c' => 0, 'tries' => 0, 'priority' => 5 };
+			   'tries_c' => 0, 'tries' => 0, 'priority' => 5,
+			   'ctime' => time()};
 
 	    if ( $opt_v > 1 )
 		{ push @{$queue{$f}->{'flags'}}, '-v'; }
@@ -355,6 +368,7 @@ while( 1 )
     $did_wait=0;
 
     # TODO: !!!!! check queue again after a given time
+    $now = time();	# for sorting by job age
     foreach $job ( sort jobsort ( keys %queue ) )
     {
 	if ( !defined( $queue{$job} ))
@@ -608,6 +622,12 @@ sub read_job_to_queue
 
 	# !!!!!!!! sanity checks (phone, pages, ... must be present)
 
+	# remember the time the job (directory) was "created", for sorting
+	unless( $queue{$job}->{'ctime'} = (stat($job))[10] )
+			{ $queue{$job}->{'ctime'} = time(); }
+
+	print LOG "$job: CREATED: " . localtime($queue{$job}->{'ctime'}) . "\n" if $opt_d; 
+
 	$queue{$job}->{'status'} = 'active'; return;
     }
 
@@ -789,6 +809,12 @@ my ($r, $s, $ex, $j);
     delete $phones{ $queue{$j}->{'phone'} };
 
     print LOG "    ---> return=**$r** (-> job=$j), status=$s -> exit($ex)\n" if $opt_d;
+
+    if ( $ex == 0 && $s > 0 )		# signal?!?
+    {
+	print LOG "$j: sendfax (pid $r) was killed with signal $s\n";
+	$ex = 15;
+    }
 
     if ( $ex == 100 )
     {
