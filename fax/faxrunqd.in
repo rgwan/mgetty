@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.57 2002/03/06 16:10:36 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.58 2002/03/19 12:20:45 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.58  2002/03/19 12:20:45  gert
+# change from deprecated "require 'getopts.pl'" to "use Getopt::Std"
+#
 # Revision 1.57  2002/03/06 16:10:36  gert
 # do not "write combine" jobs with different priorities
 # (assuming that "high prio" jobs will always be sent first, otherwise
@@ -103,9 +106,9 @@ $rcs_id='RCS: $Id: faxrunqd.in,v 1.57 2002/03/06 16:10:36 gert Exp $';
 #
 #
 require 5.004;
-require 'getopts.pl';
 use POSIX;
 use IO::Handle;
+use Getopt::Std;
 
 #
 # CONFIGURATION: filenames
@@ -162,7 +165,7 @@ $opt_d = 0;					# debug
 $opt_v = 0;					# verbose
 $opt_V = 0;					# print version number
 $opt_l = '';					# ttys to use
-&Getopts( 'dvl:V' ) || 
+getopts( 'dvl:V' ) || 
     die "Valid options: -d (debug), -v (verbose), -l tty<n>, -V (version)\n";
 
 if ( $opt_d ) { $opt_v=1; }
