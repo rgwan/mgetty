@@ -1,12 +1,21 @@
 #!@PERL@
 #
-# givgif.cgi - sends a required gif in required size
+# nph-vf-gif - sends a required gif in required size
 # 
 # Copyright 1998 Simone Demmel simone@greenie.net
 #
-# RCS: $Id: nph-vf-gif.in,v 1.2 1998/10/13 15:54:54 gert Exp $
+# RCS: $Id: nph-vf-gif.in,v 1.3 1998/10/27 14:19:46 gert Exp $
 #
 # $Log: nph-vf-gif.in,v $
+# Revision 1.3  1998/10/27 14:19:46  gert
+# first cut finished
+# - scaling implemented
+# - checking of path names for directories and programs
+# - wwwsub.pl
+# - translate comments to English
+# - rotating of images implemented
+# - fold "vf-faxov.in" into this script
+#
 # Revision 1.2  1998/10/13 15:54:54  gert
 # first working implementation...
 # gotcha: do NOT substitute '+' -> ' ' in the QUERY_STRING (fax id!)
@@ -18,10 +27,10 @@
 #
 
 #
-# Script zur Generierung der div. Fax-Bilder und senden derselben
+# Script to generate various Fax-pictures and sending them
 #
 
-#
+# sorry, no translation
 # Aufgabe:
 # - feststellen, ob das benoetigte Bild schon im tmp-Verzeichnis liegt
 # - falls dem nicht so ist, neues Bild generieren und speichern
@@ -29,47 +38,88 @@
 #
 
 #
-# Variablen 
+# Variables and checks
 #
 
 # read configuration file
 require "@CONFDIR@/wwwgui.conf";
 
-# default-size if no size is given
-$defaultsize=100;
+# read common subroutine file
+require "@LIBDIR@/wwwsub.pl";
 
-# $tmppath="/home/www/teddy/mgetty+sendfax/webviewer/";
-# webtmpabs tmp-File fuer die Bilder relativ zum Rechner root.
-#$webtmpabs="@WEB_TMP_ABS@";
-$webtmpabs="/home/sd/.html-data/tmp";
-
-# $tmpdir="tmp/";
-# webtmprel tmp-File fuer die Bilder relativ zum Web-Server-root
-#$webtmprel="@WEB_TMP_REL@";
-$webtmprel="~sd/tmp";
-
-# $webpath="/mgetty+sendfax/webviewer/";
-# $webpath Web-webviewer-root
-#$webpath="@WEB_PATH@";
-$webpath="~sd";
-
+# 
+# send server-Headers, or you can't read the error-messages of
+# the following checks...
 #
-# Ende Variablen
+# nph-script, so we have to generate all serverheaders manually...
 #
 
-#
-# Pufferungen unterbinden
-#
-$|=1;
-
-#
-# det isn nph-Teil, also muessmer alle Header selber erfinden...
-# aber nur das Noetigste.
-#
 print "HTTP/1.1 200 Document follows.\n";
 print "Server: Nekobil/1.1\n";
 print "Connection: close\n";
 print "Content-Type: text/html\n\n";
+
+# check, if fax-incoming is defined
+if ($fax_incoming eq "") 
+{
+    errormessage( "\$fax_incoming : not configured - please look at the configuration-Files and configure the Directory where you store your incoming faxes (\$fax_incoming)");
+}
+if (! -d $fax_incoming)
+    { errormessage("\$fax_incoming : no such directory $fax_incoming");}
+if (! -r $fax_incoming)
+    { errormessage( "\$fax_incoming : no read-permission for $fax_incoming");}
+
+# check, if fax-outgoing is defined
+if ($fax_outgoing eq "") 
+{
+    errormessage("\$fax_outgoing : not configured - please look at the configuration-Files and configure the Directory where you store your outgoing faxes (\$fax_outgoing)");
+}
+if (! -d $fax_outgoing)
+    { errormessage("\$fax_outgoing : no such directory $fax_outgoing");}
+if (! -r $fax_outgoing)
+    { errormessage("\$fax_outgoing : no read-permission for $fax_outgoing");}
+
+# check, if the destination-Directory for pictures is readdy
+if ($webtmpabs eq "") 
+{
+    errormessage( "\$webtmpabs : not configured - please look at the configuration-Files and configure a temporary directory, where the webserver can store his images (\$webtmpabs)");
+}
+if (! -d $webtmpabs)
+    { errormessage("\$webtmpabs : no such directory $webtmpabs");}
+if (! -r $webtmpabs)
+    { errormessage("\$webtmpabs : no read-permission for $webtmpabs");}
+if (! -w $webtmpabs)
+    { errormessage("\$webtmpabs : no write-permission for $webtmpabs");}
+if (! -x $webtmpabs)
+    { errormessage("\$webtmpabs : no execute-permission for $webtmpabs");}
+
+# check, if $webtmprel is not empty
+if ($webtmprel eq "") 
+{
+    errormessage( "\$webtmprel : not configured - please look at the configuration-Files and configure the URL for the temporary directory \$webtmpabs (\$webtmprel is missing!))");
+}
+
+# check, if $indexpage is not empty
+if ($indexpage eq "") 
+{
+    errormessage( "\$indexpage : not configured - please look at the configuration-Files and configure the URL for my main-index-page (\$indexpage)");
+}
+
+checkprogram($g3topbm, "g3topbm");
+checkprogram($ppmquant, "ppmquant");
+checkprogram($pnmscale, "pnmscale");
+checkprogram($ppmtogif, "ppmtogif");
+checkprogram($pnmflip, "pnmflip");
+
+#
+# End of Variables
+#
+
+#
+# no buffering by the webserver
+#
+$|=1;
+
 
 if ($ENV{'REQUEST_METHOD'} eq "GET")
 {
@@ -85,7 +135,7 @@ else
   $query_string='';
 };
 
-# Auswerten der Argumentzeilen
+# parse arguments
 %args=();
 foreach (split(/\&/,$query_string))
 {
@@ -98,30 +148,178 @@ foreach (split(/\&/,$query_string))
 }
 
 #
-# jetzt haben wir $args{file} und $args{size}
-# und vielleicht ein $args{page} fuer eine gezielte Seite
+# now we have $args{file} and $args{size}
+# and perhaps a $args{page} for one special page
 # 
-# $page gibt an, welche Seite, wenns leer ist, alles ausgeben...
+# $page tells, which page, if it is empty, send all...
 #
 if (defined $args{file}) 
 	{ $file = $args{file};
 	  # $file =~ s/\%2B/\+/g;
 	}
+   # Debugging - no translation
    # im echten Betrieb noetig, beim Testen willich das so nicht
    # else { print "undefined Filename\n"; exit; }
    else { print "undefined Filename\n"; }
-if (defined $args{size}) { $size = $args{size};}
-                    else { $size = $defaultsize; }
-if (defined ($args{page})) { $page = sprintf "%02d", $args{page}; }
+
+   # $nsize is the next size-step - automaticaly 10% more
+if (defined $args{size}) { $size = $args{size}; $nsize = $size+10;}
+                    else { $size = $defaultsize; $nsize = $size+10;}
+if (defined ($args{page}))
+{
+    if ($args{page} eq "overview") { $page = $args{page}; }
+    else { $page = sprintf "%02d", $args{page}; }
+}
 		   # im echten Betrieb mal sehen...
 		   # else { $page = ""; }
-		   else { $page = "alle"; }
+else { $page = "all"; }
+
+# check if there is a rotate given
+if (defined $args{r})
+{
+    $turn=$args{r} %4;
+}
+else {$turn = 0;}
 
 #
-# in $file ist der komplette Filename, ohne Seitenangabe
-# $size ist eine bel. Zahl zwischen 0 und 100 (Prozentwert)
+# $file contains the complete Filename, without page-number
+# $size is a number between 0 and 100 (Percent-value)
 #
 
+
+# sorry, no translation
+# 1. herausfinden, welche Seiten zu machen sind -> $page
+# 2. schaun, ob die schon im tmp-Verzeichnis liegen
+# 3. wenn nicht generieren...
+# Ablauf: pro Bild: schaun -> (generieren) -> html-code raus
+#
+
+#
+# $fax_incoming - incoming-Directory
+# $file - completer Filename without .$page
+# $page - pagenumber in 2-digits format
+#
+# stored in tmp/  $file.$page.$size.gif
+# $filename is the complete Filename, with pagenumber.
+#
+
+# @bilder = "";
+
+if ($page =~ /^\d+$/ )
+{ # generate this image
+    www_head_gif();
+    # DEBUGGING
+    # print "pruefe Existenz von $fax_incoming/$file.$page<br>\n";
+    if ( ! -f "$fax_incoming/$file.$page" )
+    {
+	print "Eine Seite $page oder ein Faxname $file existiert leider nicht.<p>\n";
+    }
+    else
+    {
+        genpage("$file.$page");
+        print "<a href=\"nph-vf-gif.cgi\?size=$nsize&file=$file&page=$page&r=$turn\"><img src=\"$webtmprel/$file.$page.$size.$turn.gif\" alt=\"page $page\" border=\"0\"></a>\n";
+        rotate_html($size, $file, $page);
+
+    print " | ";
+    }
+
+    # does this page have a previous and a next page?
+
+    $nextpage= sprintf "%02d", $page+1;
+    $prevpage= sprintf "%02d", $page-1;
+
+    # DEBUGGING
+    # print "pruefe auf existenz von: $fax_incoming/$file.$nextpage und $prevpage\n<p>";
+    if (-f "$fax_incoming/$file.$prevpage")
+    {
+        print "<a href=\"nph-vf-gif.cgi\?size=$size&file=$file&page=$prevpage&r=$turn\">prev Page</a>\n";
+    }
+    else { print "no prev page\n"; } # es is uns wurscht
+
+    if (-f "$fax_incoming/$file.$nextpage")
+    {
+        print "<a href=\"nph-vf-gif.cgi\?size=$size&file=$file&page=$nextpage&r=$turn\">next Page</a>\n";
+    }
+    else { print "no next page\n"; } # es is uns wurscht
+
+}
+
+elsif ($page eq "overview")
+{   # only generate an overview (former vf-faxov.cgi)
+    #
+    # 1. herausfinden, welche Seiten zu machen sind -> $page
+    #
+    # $fax_incoming - incoming-Directory
+    # $file - completer filename without .$page
+    # $page - pagenumber in 2-digits format
+    # call as - nph-vf-gif.cgi?size=20&file=fn23445&page=02
+    #
+
+    www_head_overview();
+
+    my $match = $file;
+    $match =~ s/([+*.?])/\\\1/g;
+  
+    # read incoming-Directory
+    # print "<p>bin im else...<br>";
+    opendir DIR, $fax_incoming || print "cannot open incomingdir $incoming\n";
+
+    #
+    # FIXME!!! Das wird ausgegeben, wies eingelesen wird - kann
+    # durcheinander sein!
+    #
+
+    # print "habe $fax_incoming geoeffnet...<br>\n";
+    foreach $DATEI ( readdir DIR )
+    {
+        # print "<br>\n   read $DATEI ... compare with $match";
+        if ($DATEI =~ /^$match\.(\d+)$/)
+        {
+            my $pagenumber=$1;
+	    print "<br><a href=\"nph-vf-gif.cgi?size=$size&file=$file&page=$pagenumber&r=$turn\">Seite $pagenumber</a>\n";
+        }
+        # print "<br>\n nach IF";
+    }
+    closedir (DIR);
+    # print "<br>\n nach DIR<br>\n";
+
+
+}
+
+
+else { 
+    www_head_gif();
+    my $match = $file;
+    $match =~ s/([+*.?])/\\\1/g;
+
+    # read incoming-Directory
+    # print "<p>bin im else...<br>";
+    opendir DIR, $fax_incoming || print "cannot open incomingdir $incoming\n";
+
+    #
+    # FIXME!!! Das wird ausgegeben, wies eingelesen wird - kann
+    # durcheinander sein!
+    #
+
+    # print "habe $fax_incoming geoeffnet...<br>\n";
+    foreach $DATEI ( readdir DIR )
+    {
+	# print "<br>\n   lese $DATEI ... vergleiche mit $match";
+	if ($DATEI =~ /^$match\.(\d+)$/)
+	{
+	    my $pagenumber=$1;
+	    # print "<br>generiere: $DATEI\n";
+            genpage($DATEI);
+            print "Seite $pagenumber: <a href=\"nph-vf-gif.cgi\?size=$nsize&file=$file&page=$pagenumber&r=$turn\"><img src=\"$webtmprel/$DATEI.$size.$turn.gif\" alt=\"page $DATEI\" border=\"0\"></a>\n";
+	    rotate_html($size,$file,$pagenumber);
+	}
+	# print "<br>\n nach IF";
+    }
+    closedir (DIR);
+    # print "<br>\n nach DIR<br>\n";
+}
+
+sub www_head_gif {
 print <<EOF;
 <html>
 <head><title>Fax: $file</title></head>
@@ -135,50 +333,21 @@ Seite: $page
 <p>
 
 EOF
-
-#
-# 1. herausfinden, welche Seiten zu machen sind -> $page
-# 2. schaun, ob die schon im tmp-Verzeichnis liegen
-# 3. wenn nicht generieren...
-# Ablauf: pro Bild: schaun -> (generieren) -> html-code raus
-#
-# $fax_incoming - incoming-Directory
-# $file - kompletter Filename ohne .$page
-# $page - Seitennummer im 2-stelligen Format
-#
-# abgelegt in tmp/  $file.$page.$size.gif
-# $filename ist der vollstaendige Filename, mit Seitennummer.
-#
-
-@bilder = "";
-
-if ($page =~ /^\d+$/ ) { # dieses eine Bild generieren...
-    genpage("$file.$page");
-    print "<img src=\"/$webtmprel/$file.$page.$size.gif\" alt=\"page $page\">\n";
 }
 
-else { 
-    my $match = $file;
-    $match =~ s/([+*.?])/\\\1/g;
+sub www_head_overview {
+print <<EOF;
+<html>
+<head><title>Fax-Overview: $file</title></head>
+<body bgcolor="#ffffff">
+$www_logo
 
-    # incoming-Directory lesen
-    # print "<p>bin im else...<br>";
-    opendir DIR, $fax_incoming || print "cannot open incomingdir $incoming\n";
-    # print "habe $fax_incoming geoeffnet...<br>\n";
-    foreach $DATEI ( readdir DIR )
-    {
-	# print "<br>\n   lese $DATEI ... vergleiche mit $match";
-	if ($DATEI =~ /^$match\.(\d+)$/)
-	{
-	    my $pagenumber=$1;
-	    # print "<br>generiere: $DATEI\n";
-            genpage($DATEI);
-            print "Seite $pagenumber: <img src=\"/$webtmprel/$DATEI.$size.gif\" alt=\"page $DATEI\">\n";
-	}
-	# print "<br>\n nach IF";
-    }
-    closedir (DIR);
-    # print "<br>\n nach DIR<br>\n";
+Filename: $file<br>
+<br clear="all"><hr>
+<p>
+
+EOF
+
 }
 
 sub genpage {
@@ -188,54 +357,71 @@ sub genpage {
 
     # print "<p>x= $x<br>y= $y<br> filename= $filename<br> webtmpabs= $webtmpabs\n";
 
-    if ( -f "$webtmpabs/$filename.$size.gif" )
-	 { # print "<br> picture still there...\n";
-	     return; }
-    else {
-	 if ($size != 100) { $gifscale = "$pnmscale -xscale $x -yscale $y | $ppmquant | $ppmtogif"}
-	 else              { $gifscale = "$ppmtogif"; }
-	 # print "scale=$gifscale\n";
-	system "$g3topbm $fax_incoming/$filename | $gifscale > $webtmpabs/$filename.$size.gif";
-    }
 
-    ## else {system "$g3 $webtmpabs/$filename 2>/dev/null | $scale -xscale $x -yscale $y 2>/dev/null | $quant 2>/dev/null | $togif > $webtmpabs/$filename.$size.gif 2>/dev/null";}
+    if ( -f "$webtmpabs/$filename.$size.$turn.gif")
+	   # $turn from rotate
+        { # print "<br> picture still there...\n";
+	     return; }
+    else
+    {
+
+        if ($size != 100)
+	{
+	    $gifscale = "$pnmscale -xscale $x -yscale $y | $ppmquant | $ppmtogif";
+	}
+	else
+	    { $gifscale = "$ppmtogif"; }
+
+	# print "scale=$gifscale\n";
+
+	# if we got a rotate
+        if ($turn != 0)
+	    { $r=sprintf "$pnmflip -r%d|", $turn*90; }
+	else 
+	    { $r = ""; }
+
+	system "$g3topbm $fax_incoming/$filename | $r $gifscale > $webtmpabs/$filename.$size.$turn.gif";
+    }
 }
 
-# 
-# $fax_incoming="/usr/spool/fax/incoming/";
-# $g3="/usr/bin/g3topbm";
-# $togif="/usr/local/bin/ppmtogif";
-# $quant="/usr/local/bin/ppmquant 6";
-# $scale="/usr/local/bin/pnmscale";
-# $x="0.25";
-# $y="0.25";
-# $tmppath="/home/www/teddy/mgetty+sendfax/webviewer/";
-# $webpath="/mgetty+sendfax/webviewer/";
-# $tmpdir="tmp/";
-# 
-# {
-# system "$g3 $ofile 2>/dev/null | $scale -xscale $x -yscale $y 2>/dev/null | $quant 2>/dev/null | $togif > $tmppath$tmpdir$file-small.gif 2>/dev/null";
-# }
+sub rotate_html
+{
+    my $size = shift;
+    my $file = shift;
+    my $page = shift;
 
-# #
-# # a gif-file is asked!
-# #
-# $ofile = $fax_incoming . $file;
-# $test = $tmppath . $tmpdir . $file . "." . gif;
-# $size = ((stat($file)) [8]);
-# 
-# # create the file only, if it isn't already done! or if it went wrong last
-# # time
-# if ((!(-r $test)) || ($size eq "0"))
-   # {
-     # system "$g3 $ofile 2>/dev/null | $togif > $tmppath$tmpdir$file.gif 2>/dev/null";
-   # }
-# 
-# $target = $webpath . $tmpdir . $file . "." . "gif";
-# print "Location: $target \n\n";
-# 
+    # use(einbeziehen) $turn , can be 0, 1,2,3.
+    my $format="<a href=\"nph-vf-gif.cgi\?size=$size\&file=$file\&page=$page\&r=%d\">%s</a>\n";
+    printf $format, $turn+1, "&lt;";
+    printf $format, $turn+2, "^";
+    printf $format, $turn+3, "&gt;";
+}
+
+sub checkprogram
+{
+    my $filename = shift;
+    my $variable = shift;
+    # DEBUGGING
+    # print "<p>habe als $variable: $filename\n";
+    my @tmp = split /\s+/, $filename;
+    $filename = $tmp[0];
+
+    if ($filename eq "") 
+    {
+       errormessage ("no path for $variable available");
+    }
+    if (! -x $filename) 
+    {
+       errormessage ("$variable ($filename) is not executable");
+    }
+}
+
 
 print <<EOF;
+
+<hr size="5">
+<a href="$indexpage">^Hauptmenue</a>
+<a href="viewfax.cgi">Eingegangene Faxe</a>
 
 </body>
 </html>
