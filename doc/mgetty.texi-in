@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.29 1998/08/02 20:55:52 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.30 1998/08/03 19:50:54 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -951,6 +951,20 @@ mode to command mode.
 You could prepend this sequence to @code{init-chat} (it wouldn't harm),
 but especially the pauses around the +++ sequence makes this undesirable
 slow.
+
+@item @code{post-init-chat} @var{expect send expect send ...}
+
+Some modems forget parts of their settings when going from data to fax
+mode and back during modem initialization.  For example, some USR models
+forget the settings of ``Caller ID delivery'' (AT#CID=1), and some ELSA
+modems forget their current DTE port speed when going from voice to data
+mode, thus leading to RING messages being delivered with the wrong baud
+rate.
+
+For those modems, you can use this command to set up some AT commands that
+are executed after all other fax and voice initialization has been done.
+Be careful with what you do!  If you send an ATZ (modem reset) or 
+something similar here, all your fax/voice settings will be lost!
 
 @item @code{modem-check-time} @var{seconds}
 
