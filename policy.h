@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.2 1993/03/16 09:46:38 gert Exp $ (c) Gert Doering"
+#ident "$Id: policy.h,v 1.3 1993/03/18 16:19:25 gert Exp $ (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -47,6 +47,13 @@
  */
 
 #define LOCKS_BINARY 0
+
+/* the default speed used by mgetty - override it with "-s <speed>"
+ *
+ * WARNING: ZyXELs can do faxreceive with 38400, but I've been told
+ * that supra faxmodems do only work with 19200 - could somebody try this?
+ */
+#define DEFAULT_PORTSPEED	B38400
 
 /* the main fax spool directory
  */

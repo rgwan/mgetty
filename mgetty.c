@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.14 1993/03/14 15:12:42 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.15 1993/03/18 16:19:26 gert Exp $ (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -57,7 +57,7 @@ struct	speedtab {
 	{ 0,	  0,	 ""	 }
 };
 
-unsigned short portspeed = B38400;
+unsigned short portspeed = DEFAULT_PORTSPEED;
 
 /* warning: some modems (for example my old DISCOVERY 2400P) need
    some delay before sending the next command after an OK, so give it here
