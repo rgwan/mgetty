@@ -6,7 +6,7 @@
  * A first version was written by Russell King <rmk@ecs.soton.ac.uk>,
  * based on the ZyXEL 2864 driver.
  *
- * $Id: Multitech_2834.c,v 1.5 1999/01/30 14:31:09 marcs Exp $
+ * $Id: Multitech_2834.c,v 1.6 1999/05/15 19:38:46 marcs Exp $
  *
  */
 
@@ -155,7 +155,7 @@ static int Multitech_2834_set_device(int device)
                voice_command("AT+VLS=2", "OK");
                return(OK);
           case DIALUP_LINE:
-               voice_command("AT+VLS=2", "OK");
+               voice_command("AT+VLS=1", "OK"); /* alborchers@steinerpoint.com */
                return(OK);
           case EXTERNAL_MICROPHONE:
                voice_command("AT+VLS=11", "OK");
@@ -174,6 +174,21 @@ void Multitech_2834_fix_modem(int expect_error)
 {
 	char buffer[VOICE_BUF_LEN];
 	int result = VMA_FAIL;
+
+        if (!cvd.enable_command_echo.d.i) {
+  	   /* Multitech 2834 ZDXV modem (ROM 0416A NORTH AMERICAN) 
+            * -- alborchers@steinerpoint.com
+            *    As I understand the problem -- some Multitech 2834 ZDXv
+            *    modems garble the command echo at certain points. To counter
+            *    this, a dummy command is sent at those points (just AT)
+            *    and the echo is ignored: this is the purpose of
+            *    Multitech_2834_fix_modem(). If echo is off, there is
+            *    no need to prevent garbled commands echos, and thus no need
+            *    for Multitech_2834_fix_modem() (in fact, it would fail).
+            */
+
+           return; 
+        }
 
 	/* my ZDXv with 0416A firmware seems to exhibit a bug here -
 	 * if you send the modem 'AT', it echos 'TA'.  If you send it
