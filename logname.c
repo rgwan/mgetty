@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 1.24 1993/12/27 22:17:16 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 1.25 1994/01/03 03:24:52 gert Exp $ Copyright (c) Gert Doering"
 ;
 #include <stdio.h>
 #ifndef _NOSTDLIB_H
@@ -243,6 +243,8 @@ newlogin:
 	     ch = CKILL;		/* timeout (1) -> clear input */
 	}
 
+	lputc( L_NOISE, ch );				/* logging */
+
 #ifdef FIDO
 	if ( ch == (char) TSYNC )
 	{
@@ -255,7 +257,6 @@ newlogin:
 #endif
 
 	ch = ch & 0x7f;					/* strip to 7 bit */
-	lputc( L_NOISE, ch );				/* logging */
 
 	if ( ch == CQUIT ) exit(0);
 	if ( ch == CEOF )
