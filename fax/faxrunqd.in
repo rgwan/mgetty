@@ -9,10 +9,14 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.46 1999/05/11 14:53:47 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.47 1999/05/21 13:26:41 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.47  1999/05/21 13:26:41  gert
+# write combining phase II done - if multiple jobs are queued for the
+# same telephone number, send them with one 'sendfax' call
+#
 # Revision 1.46  1999/05/11 14:53:47  gert
 # move handling of "sendfax return codes" to subroutine - preparations
 # for combining multiple jobs into one sendfax call
@@ -892,11 +896,12 @@ sub send_job_from_queue
     my $phone = $queue{$job}{phone};
     my $pri   = $queue{$job}{priority};
     my @flags = @{$queue{$job}{flags}};
+    my @pages = @{$queue{$job}{pages}};
 
     print LOG " +  phone number: $phone\n" if $opt_d;
     print LOG " +  priority    : $pri\n"   if $opt_d;
     print LOG " +  flags       : " . join( ' ', @flags ) . "\n"  if $opt_d;
-    print LOG " +  pages       : " . join( ' ', @{$queue{$job}->{'pages'}} ) . "\n" if $opt_d;
+    print LOG " +  pages       : " . join( ' ', @pages ) . "\n" if $opt_d;
 
     # lock job (just a hard link) vs. faxrunq
     unless( link "$job/JOB", "$job/JOB.locked" )
@@ -906,6 +911,45 @@ sub send_job_from_queue
         $mq_length{$tty} -= $queue{$job}->{weight};
 	&reactivate_others($job);
 	return;
+    }
+
+    # check if other jobs are queued for the same phone number, and
+    # are eligible for sending them together
+    # criteria:
+    #     - all have the same resolution (always '-n' or never)
+    #     - no polling
+    # TODO: if multiple "-A <acct>" are set, combine that info as well
+    if ( defined( $queue{$job}->{others} ) )
+    {
+	print LOG " +  others      : " . join( ' ', @{$queue{$job}->{'others'}} ) . "\n" if $opt_d;
+	my $crit = &check_flags( @flags );
+	print LOG " +  -> criteria : $crit\n" if $opt_d;
+
+	while ( ( $#{$queue{$job}->{'others'}} >= 0 ) &&
+	        ( $#pages < 10 ) )
+	{
+	    $c_job = ${$queue{$job}->{'others'}}[0];
+
+	    if ( &check_flags( @{$queue{$c_job}->{flags}} ) != $crit )
+	    {
+		last;			# incompatible job, can't combine
+	    }
+
+	    # drop from 'others' list, put on 'combined' list
+	    shift @{$queue{$job}->{'others'}};
+
+	    if ( !defined( $queue{$job}->{combined} ) )
+		    { $queue{$job}->{combined} = []; }
+	    push @{$queue{$job}->{combined}}, $c_job;
+
+	    # combine pages lists
+	    my @cpages = @{$queue{$c_job}->{'pages'}};
+
+	    print LOG " ++ combine: $c_job/ ". join(' ', @cpages) . "\n" if $opt_v;
+	    foreach $p ( @cpages )
+		    { push @pages, ("../$c_job/$p"); }
+	    print LOG " ++ combine: pages = ". join(' ', @pages) . "\n" if $opt_d;
+	}
     }
 
     # now fork child process
@@ -919,8 +963,7 @@ sub send_job_from_queue
 	chdir $job;
 
         { exec $sendfax ('sendfax', '-l', $tty, # '-x', '5',
-	       @flags, $phone, 
-	       @{$queue{$job}->{'pages'}});  }
+			   @flags, $phone, @pages);  }
 	print LOG "EXEC FAILED: $!\n"; 
 	exit(100);
     }
@@ -932,6 +975,27 @@ sub send_job_from_queue
 	$tty_in_use{$tty}=1;
 	printf LOG "$job: forked off child **$pid**...\n" if $opt_v;
     }
+}
+
+##########################################################################
+# check_flags( @flags )
+#
+# analyze sendfax arguments for '-p' or '-n', set specific bits for
+# each of them
+##########################################################################
+sub check_flags
+{
+    my $bits = 0;
+
+    while ( $#_ >= 0 )
+    {
+	$_ = shift;
+	if ( $_ eq '-n' ) { $bits |= 0x01; }		# normal res
+	elsif ( $_ eq '-p' ) { $bits |= 0x02; }		# polling
+	elsif ( $_ =~ /^-[dxhlmCIADM]/ )		# skip optarg
+		{ shift; }
+    }
+    return $bits;
 }
 
 ##########################################################################
@@ -1068,11 +1132,82 @@ my ($r, $s, $ex, $j, $t);
 	$per_phone_statistics{$ph}{$ex}++;
     }
 
-    &handle_return_code( $ex, $j, $t );
+    # now handle return codes.  This is tricky if multiple jobs have been 
+    # combined into one sendfax call - might have failed in the middle...
+    
+    if ( defined( $queue{$j}->{'combined'} ) )
+    {
+	my @jobs = @{$queue{$j}->{'combined'}};
+	delete $queue{$j}->{'combined'};
+
+	print LOG "$j: was combined with ". join(' ',@jobs) ."\n" if $opt_v;
+
+	if ( $ex == 0 )			# all succeeded
+	{
+	    foreach $jj ($j, @jobs) 
+		{ &handle_return_code( $ex, $jj, $t ); }
+	}
+	elsif ( $ex <= 10 )		# dialup failed - blaim first one
+	{
+	    &handle_return_code( $ex, $j, $t );
+	    foreach $jj (@jobs)
+	    {
+		$queue{$jj}->{status} = 'active';
+		put_job_to_modem_queue($jj);
+	    }
+	}
+	else				# some error in between
+	{				# -> check via file names (f1.done)
+	    my $found_it=0;
+	    foreach $jj ($j, @jobs)
+	    {
+		if ( ! $found_it )	# searching for "break point"
+		{
+		    if ( &check_is_job_done( $jj ) )	# was job sent?
+			{ &handle_return_code( 0, $jj, $t ); }
+		    else				# no -> gotcha
+			{ &handle_return_code( $ex, $jj, $t );
+			  $found_it=1;}
+		}
+		else			# found it -> requeue remainder
+		{
+		    $queue{$jj}->{status} = 'active';
+		    put_job_to_modem_queue($jj);
+		}
+	    }
+	}
+    }
+    else				# simple case: just a single job
+    {
+	&handle_return_code( $ex, $j, $t );
+    }
 
     return $t;
 }
 
+##########################################################################
+#
+# check_is_job_done($JOB)
+#
+# find out whether a given job has been sent completely by looking at
+# the individual page files - if all are 'gone' (renamed to f<n>.done),
+# the job has been sent completely
+#
+##########################################################################
+
+sub check_is_job_done
+{
+    my $jj = shift;
+    my $jp;
+
+    foreach $jp ( @{$queue{$jj}->{pages}} )
+    {
+	print LOG " .. check: $jj/$jp\n" if $opt_d;
+	if ( ! -f "$jj/$jp.done" )
+		    { return 0; }
+    }
+    return 1;
+}
 
 ##########################################################################
 #
