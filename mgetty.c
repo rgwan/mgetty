@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 2.8 1995/04/04 11:15:06 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 2.9 1995/04/10 22:14:36 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -264,7 +264,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 
 #ifdef USE_GETTYDEFS
     if (optind < argc)
-        conf_set_string( &c.gettydefs_tag, argv[optind++] );
+        conf_set_string( &c.gettydefs_tag, argv[optind++] )
     else
 	lprintf( L_MESG, "no gettydef tag given");
 #endif
