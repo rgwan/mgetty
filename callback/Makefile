@@ -26,6 +26,10 @@ conf_cb.o : conf_cb.c conf_cb.h ../mgetty.h ../ugly.h ../policy.h \
 	../syslibs.h ../config.h ../Makefile
 	$(CC) $(CFLAGS) -DCONFDIR=\"$(CONFDIR)\" -c conf_cb.c
 
+callback.o: callback.c ../syslibs.h ../mgetty.h ../ugly.h ../policy.h \
+	 ../tio.h ../mg_utmp.h ../version.h ../config.h conf_cb.h
+	$(CC) $(CFLAGS) -DVARRUNDIR=\"$(VARRUNDIR)\" -c callback.c
+
 clean:
 	rm -f *.o
 
