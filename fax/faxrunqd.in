@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.39 1999/02/12 12:10:15 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.40 1999/02/28 13:17:59 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.40  1999/02/28 13:17:59  gert
+# iproperly handle the case of faxrunqd.pid containing *our* PID (after reboot)
+#
 # Revision 1.39  1999/02/12 12:10:15  gert
 # show program name in .last_run
 #
@@ -148,7 +151,7 @@ if ( -f $faxrd_pid && open( FP, $faxrd_pid ) )
 {
     $p = <FP>; chomp $p; close FP;
 
-    if ( $p ne '' )		# does process exist?
+    if ( $p ne '' && $p != $$ )	# does process exist?
     {
 	if ( kill( 0 => $p ) ||	
 		$! == EPERM )
