@@ -9,10 +9,16 @@
 #
 # initial version: Feb 17, 1997
 #
-# RCS: $Id: faxrunqd.in,v 1.9 1997/11/04 15:18:30 gert Exp $
+# RCS: $Id: faxrunqd.in,v 1.10 1997/11/14 10:40:26 gert Exp $
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.10  1997/11/14 10:40:26  gert
+# - change queueing algorithm (don't block at the end of a queue run if
+#   there MIGHT be more work to do)
+# - read more data from config file
+# - print debug output from reading config file to stdout (LOG is not open yet)
+#
 # Revision 1.9  1997/11/04 15:18:30  gert
 # @PERL@
 #
@@ -172,7 +178,7 @@ if ( open( CF, $faxrunq_cf ) )
 {
     while( <CF> )
     {
-	print LOG if $opt_d;
+	print if $opt_d;
 
 	next if /^\s*#/;		# comment lines
 	chomp;
@@ -192,6 +198,12 @@ if ( open( CF, $faxrunq_cf ) )
 		{ $max_tries_costly = $1; }
 	elsif ( /^\s*maxfail-total\s+(\d+)/ )
 		{ $max_tries_total = $1; }
+	elsif ( /^\s*max-modems\s+(\d+)/ )
+		{ $max_modems = $1; }
+	elsif ( /^\s*faxrunqd-log\s+(\S+)/ )
+		{ $faxrd_log = "$1"; }
+	elsif ( /^\s*acct-log\s+(\S+)/ )
+		{ $fax_acct = "$1"; }
 	else
 		{ die "syntax error in $faxrunq_cf, line $.!\n"; }
     }
@@ -294,9 +306,19 @@ while( 1 )
     # queue, maybe a higher-priority job has been put into the queue)
     print LOG localtime() . ": walking internal queue...\n" if $opt_v;
 
+    # flag to show whether inner loop has "waited for a child"
+    # (this is used to decide whether to delay after loop)
+    $did_wait=0;
+
     # TODO: !!!!! check queue again after a given time
     foreach $job ( sort jobsort ( keys %queue ) )
     {
+	if ( !defined( $queue{$job} ))
+	{
+	    print LOG "$job: disappeared from queue, still in array, skip.\n";
+	    next;
+	}
+
 	print LOG "$job: -> status: ${queue{$job}->{'status'}}, priority: ${queue{$job}->{'priority'}}\n" if $opt_v;
 
 	if ( $queue{$job}->{'status'} eq 'unknown' )
@@ -320,7 +342,8 @@ while( 1 )
 	    }
 
 	    ## FIXME!!!! - besser auf die Modems verteilen ##
-	    while ( $max_modems-$childs <=0 ) { wait_for_child(); }
+	    while ( $max_modems-$childs <=0 ) 
+		{ wait_for_child(); $did_wait=1; }
 	    ## FIXME!!!! - besser auf die Modems verteilen ##
 
 	    &send_job_from_queue( $job );
@@ -338,29 +361,37 @@ while( 1 )
 
     # this is a bit tricky...
     #
-    # - if there are outstanding childs, there obviously has been
-    #   "a lot to do", so we don't sleep() but scan the queue right again
-    # - if there were no childs, we can assume an empty queue, and 
-    #   pause to conserve CPU time
+    # - if we have waited in the "inner loop", there was obviously
+    #   a lot activity, so we will immediately re-scan the queue
+    # - if we haven't waited yet, we wait for *ONE* child to finish,
+    #   then check the queue again (make sure that one 30-pages job
+    #   doesn't starve new jobs put into the queue recently)
+    # - if there are no childs available to wait for, we can assume an
+    #   empty queue and sleep 60 seconds to conserve CPU time.
+
+    print LOG localtime() . ": queue run finished, childs=$childs, did_wait=$did_wait\n" if $opt_v;
+
+    # much work - proceed directly to the next queue scan/run.
+    if ( $did_wait ) { next; }
+
+    # we didn't wait in the loop - not "full pressure".
+    
+    # use the time to update the "last run" file...
+    if ( open( LR, ">$fax_spool_out/.last_run" ) )
+    {
+	print LR scalar(localtime) . "\n";
+	close LR;
+    }
 
     if ( $childs > 0 )
     {
-	# wait for all children before next queue run (!!!!???!??)
-	while ( $childs > 0 )
-	{
-	    &wait_for_child;
-	}
+	# Wait for one child here, then check queue for new jobs
+	&wait_for_child;
     }
     else
     {
+	# no childs to wait for... sleep.
 	print LOG "Pausing...\n" if $opt_v;
-	# use the time to update the "last run" file...
-	if ( open( LR, ">$fax_spool_out/.last_run" ) )
-	{
-	    print LR scalar(localtime) . "\n";
-	    close LR;
-	}
-
 	sleep 60;
     }
 
@@ -370,6 +401,9 @@ while( 1 )
     if ( ( time() - $queue_last_flushed ) > $queue_flush_interval )
     {
 	print LOG "*** flush internal job queue ***\n" if $opt_v;
+	# must clean up children first!!
+	while ( $childs > 0 )
+	    { &wait_for_child; }
 	%queue=();
         $queue_last_flushed = time();
     }
