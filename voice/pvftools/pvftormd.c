@@ -4,7 +4,7 @@
  * pvftormd converts from the pvf (portable voice format) format to the
  * rmd (raw modem data) format.
  *
- * $Id: pvftormd.c,v 1.17 2002/11/19 15:39:34 gert Exp $
+ * $Id: pvftormd.c,v 1.18 2004/07/17 15:53:02 gert Exp $
  *
  */
 
@@ -535,12 +535,13 @@ int main (int argc, char *argv[])
           {
           header_out.bits = 4;
 
-          if (header_in.speed != 8000) 
+	  if ((header_in.speed != 7200)  && (header_in.speed != 8000) &&
+	      (header_in.speed != 11025))
              {
                 fprintf(stderr, "%s: Unsupported sample speed (%d)\n",
                  program_name, header_in.speed);
                 fprintf(stderr,
-                 "%s: The Lucent only supports 8000 samples/second\n",
+		 "%s: The Lucent only supports 7.2k, 8k and 11.025k samples/second\n",
                  program_name);
                 fclose(fd_out);
 
