@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.12 1998/01/18 11:53:31 gert Exp $ (c) 1993-1997 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.13 1998/04/01 18:01:20 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -10,7 +10,7 @@
 This is the online documentation for the mgetty + sendfax
 package.
 
-Copyright @copyright{} 1993-1997 Gert Doering
+Copyright @copyright{} 1993-1998 Gert Doering
 @end ifinfo
 
 @titlepage
@@ -19,14 +19,14 @@ Copyright @copyright{} 1993-1997 Gert Doering
 @sp 4
 @center Version 1.1.x
 @sp 1
-@center January 1997
+@center April 1998
 @sp 5
 @center Gert Doering
 @center gert@@greenie.muc.de
 @center gert@@space.net
 
 @vskip 0pt plus 1filll
-@c Copyright @copyright{} 1993-1997 Gert Doering
+@c Copyright @copyright{} 1993-1998 Gert Doering
 @end titlepage
 
 @ifinfo
@@ -105,7 +105,7 @@ of money, I want a share. If in doubt, just ask me.
 In any case, if you don't like the restrictions in this license, contact
 me, and we can work something out.
 
-This license expires, that is, two years after release date, a given
+This license expires, that is, five years after release date, a given
 @code{mgetty+sendfax} release falls into the public domain, and everybody
 is absolutely free to do with the code what he wants.
 
@@ -1258,7 +1258,7 @@ encapsulated PostScript files, e.g. a scanned signature.
 @item
 Another way for @TeX{} file conversion is Ralf Schleicher's @code{faxdvi}
 package, found at
-@file{ftp://ftp.leo.org/pub/comp/networking/communication/modem/mgetty/faxdvi-1.1.tar.gz}. Don't
+@file{ftp://ftp.leo.org/pub/comp/os/unix/networking/mgetty/faxdvi-1.1.tar.gz}. Don't
 ask me about, ask him!
 
 @item
@@ -3730,7 +3730,9 @@ sunsite.unc.edu:@file{/pub/Linux/system/serial/getty/mgetty+sendfax*}
 
 tsx-11.mit.edu:@file{/pub/linux/sources/sbin/mgetty+sendfax*}
 
-ftp.leo.org:@file{/pub/comp/networking/communication/modem/mgetty/*}
+alpha.greenie.net:@file{/pub/mgetty/source/*}
+
+ftp.leo.org:@file{/pub/comp/os/unix/networking/mgetty/*}
 
 ftp.mathematik.th-darmstadt.de:@file{/pub/linux/mirrors/misc/mgetty/*}
 
@@ -3738,8 +3740,10 @@ linux.nrao.edu:@file{/pub/packages/mgetty+sendfax/*}
 
 ... and on all sites that mirror SunSITE.unc.edu or tsx-11.
 
-The most recent beta release is always placed in the listed directory
-on ftp.leo.org and its mirrors on th-darmstadt.de and linux.nrao.edu.  
+The most recent beta release is always placed in the listed directories
+on alpha.greenie.net, ftp.leo.org and their mirrors on th-darmstadt.de 
+and linux.nrao.edu.  
+
 On SunSITE and TSX-11, you'll only find ``stable'' releases (even 
 version numbers, no date stamp in the file name).
 
@@ -3757,7 +3761,7 @@ wuarchive.wustl.edu:@file{/packages/X11R5/contrib-pub/pbmplus10dec91.tar.Z}
 
 ftp.germany.eu.net:@file{/X11/contrib/pbmplus10dec91.tar.Z}
 
-ftp.leo.org:@file{/pub/comp/networking/communication/modem/mgetty/}
+ftp.leo.org:@file{/pub/comp/os/unix/networking/mgetty/}
 
 The @code{pbmplus} package has been superceded by the @code{NetPBM}
 package which has some more conversion tools (but also some more bugs). It
@@ -3875,7 +3879,7 @@ with Ghostscript 3.x, produces Fax files that can not be faxed to paper
 fax machines (modems work fine) because the line width isn't exactly 1728
 pixels. Dvips 5.47 doesn't do this. It can be found on:
 
-@file{ftp.leo.org:/pub/comp/networking/communications/modem/mgetty/dvips*}
+@file{ftp.leo.org:/pub/comp/os/unix/networking/mgetty/dvips*}
 
 @file{midway.uchicago.edu:pub/tex/dvips/dvips547.tar.Z}
 

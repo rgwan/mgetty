@@ -7,8 +7,9 @@ For detailed informations how everything works and how to build and use
 it, see the file "mgetty.texi" (in doc/, see below)
 
 If you can access the WWW, you might try looking at
-http://www.leo.org/~doering/mgetty/index.html, you'll find all the
-documentation and the FAQ nicely formatted there.
+http://alpha.greenie.net/mgetty/index.html, or 
+http://www.leo.org/~doering/mgetty/index.html. You'll find 
+all the documentation and the FAQ nicely formatted there.
 
 
 My license policy boils down to this:
@@ -34,7 +35,7 @@ a "diff" from the original policy.h-dist and the policy.h used later, and
 use that as a base for configuring policy.h of this release.
 
 Most of the options set in "policy.h" can be changed at run-time from the
-"mgetty.config" configuration file. Policy.h controls where it should be.
+"mgetty.config" configuration file. Policy.h controls where that will be.
 
 With C-Compilers that do not understand the "#ident" directive, give the
 "make noident" command before using the "make" command for the first
