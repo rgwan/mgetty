@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.55 1994/08/14 17:55:54 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 1.56 1994/10/14 00:13:03 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -404,8 +404,20 @@ static const char start_rcv = DC2;
 
 	if ( fax_wait_for( "OK", fd ) == ERROR ) return ERROR;
 
+	/* check line count and bad line count. If page too short (less
+	 * than 50 lines) or bad line count too high (> lc/5), reject
+	 * page (+FPS=2, MPS, page bad - retrain requested)
+	 */
+
+	if ( fhs_details &&
+	    ( fhs_lc < 50 || fhs_blc > (fhs_lc/10)+30 || fhs_blc > 500 ) )
+	{
+	    lprintf( L_WARN, "Page doesn't look good, request retrain (MPS)" );
+	    fax_command( "AT+FPS=2", "OK", fd );
+	}
+
 	/* send command to receive next page
-	 * and to release post page response (+FPTS) to remote fax
+	 * and to release post page response (+FP[T]S) to remote fax
 	 */
 	fax_send( "AT+FDR", fd );
 
