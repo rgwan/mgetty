@@ -4,7 +4,7 @@
  * rmdtopvf converts from the rmd (raw modem data) format to the pvf
  * (portable voice format) format.
  *
- * $Id: rmdtopvf.c,v 1.11 2000/07/28 10:28:31 marcs Exp $
+ * $Id: rmdtopvf.c,v 1.12 2000/09/09 08:48:20 marcs Exp $
  *
  */
 
@@ -38,7 +38,10 @@ static void supported_formats (void)
      fprintf(stderr, " - Multitech 2834 4 bit IMA ADPCM\n");
      fprintf(stderr, " - Rockwell       2, 3 and 4 bit Rockwell ADPCM\n");
      fprintf(stderr, " - Rockwell       8 bit Rockwell PCM\n");
-     fprintf(stderr, " - V253modem      8 bit PCM\n");
+     fprintf(stderr, " - V253modem      8 bit unsigned PCM\n");
+     fprintf(stderr, " - V253modem      8 bit signed PCM\n");
+     fprintf(stderr, " - V253modem      4 bit IMA ADPCM\n");
+     fprintf(stderr, " - V253modem      2 and 4 bit Rockwell ADPCM\n");
      fprintf(stderr, " - UMC            4 (G.721 ADPCM)\n");
      fprintf(stderr, " - US Robotics    1 and 4 (GSM and G.721 ADPCM)\n");
      fprintf(stderr, " - ZyXEL 1496     2, 3 and 4 bit ZyXEL ADPCM\n");
@@ -188,8 +191,44 @@ int main (int argc, char *argv[])
 
      if (strcmp(modem_type, "V253modem")==0)
 	{
-          if (lintopvf(fd_in, fd_out, &header_out, 0, 0, 0) == OK)
+          switch(compression)
+          {
+          case 0:
+          case 1:
+          case 8:
+            if (lintopvf(fd_in, fd_out, &header_out, 0, 0, 0) == OK)
                exit(OK);
+            else exit(FAIL);
+          case 9:
+            if (lintopvf(fd_in, fd_out, &header_out, 1, 0, 0) == OK)   /* signed linear */
+               exit(OK);
+            else exit(FAIL);
+
+          case 2:
+          case 4:
+            if (rockwelltopvf(fd_in, fd_out, compression, &header_out) == OK)   /* the &Elsa compatible formats */
+               exit(OK);
+            else exit(FAIL);
+
+          case 5:
+            if (imaadpcmtopvf(fd_in, fd_out, &header_out) == OK)
+               exit(OK);
+            else exit(FAIL);
+          case 6:   /* please add here uLaw or mu-Law (thats what Zyxel calls this) */
+          case 10:  /* please add here uLaw or mu-Law (thats what Zyxel calls this) */
+             fprintf(stderr, "here should be support for u-Law logarithmic see sox -U \n");
+             break;
+
+          case 7:
+          case 11:  /* please add here aLaw */
+             fprintf(stderr, "here should be support for a-Law logarithmic see sox -A \n");
+             break;
+
+          default:
+            fprintf(stderr, "%s: Unsupported compression method (%s/%d)\n",
+              program_name, modem_type, compression);
+            exit(FAIL);
+          }
         }
 
      if (((strcmp(modem_type, "Rockwell") == 0 && compression != 8) ||
