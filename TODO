@@ -398,4 +398,7 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
 265) faxrunqd: write tty to acct.log (format change / WEB gui)
 
 266) faxunrqd: if a job fails half-way through (12), increase priority
-to re-sending missing parts quickly
+     to re-send missing parts quickly
+
+267) faxrunqd: sort per-modem statistics numerically (watchout: "total")
+     faxrunqd: include success-count in per-phone statistics
