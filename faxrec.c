@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 2.1 1994/11/30 23:20:39 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 2.2 1994/12/11 18:13:40 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -47,7 +47,9 @@ void fax_notify_program _PROTO(( int number_of_pages ));
 
 char * faxpoll_server_file = NULL;
 
-void faxrec _P2((spool_in, switchbd), char * spool_in, unsigned int switchbd )
+void faxrec _P5((spool_in, switchbd, uid, gid, mode),
+		char * spool_in, unsigned int switchbd,
+		int uid, int gid, int mode )
 {
 int pagenum = 0;
 TIO tio;
@@ -91,7 +93,7 @@ extern  char * Device;
     /* tell modem about the flow control used (+FLO=...) */
     fax_set_flowcontrol( STDIN, (FAXREC_FLOW) & FLOW_HARD );
 
-    fax_get_pages( 0, &pagenum, spool_in );
+    fax_get_pages( 0, &pagenum, spool_in, uid, gid, mode );
 
     /* send polled documents (very simple yet) */
     if ( faxpoll_server_file != NULL && fax_poll_req )
@@ -145,8 +147,9 @@ RETSIGTYPE fax_sig_alarm( )
 static	char *	fax_file_names = NULL;
 static	int	fax_fn_size = 0;
 
-int fax_get_page_data _P3((fd, pagenum, directory), int fd,
-			  int pagenum, char * directory )
+int fax_get_page_data _P6((fd, pagenum, directory, uid, gid, file_mode),
+			  int fd, int pagenum, char * directory,
+			  int uid, int gid, int file_mode )
 {
 char	temp[MAXPATH];
 FILE *	fax_fp;
@@ -336,16 +339,16 @@ char	DevId[3];
 	return ERROR;
     }
 
-#ifdef FAX_FILE_MODE
     /* change file mode */
-    if ( chmod( temp, FAX_FILE_MODE ) != 0 ) 
+    if ( file_mode != -1 &&
+	 chmod( temp, file_mode ) != 0 ) 
     {
 	lprintf( L_ERROR, "fax_get_page_data: cannot change file mode" );
     }
-#endif
 
     /* change file owner and group (jcp) */
-    if ( chown( temp, FAX_IN_OWNER, FAX_IN_GROUP ) != 0 )
+    if ( uid != -1 &&
+	 chown( temp, (uid_t) uid, (gid_t) gid ) != 0 )
     {
 	lprintf( L_ERROR, "fax_get_page_data: cannot change owner, group" );
     }
@@ -357,8 +360,9 @@ char	DevId[3];
  * will return the number of received pages in *pagenum
  */
 
-int fax_get_pages _P3( (fd, pagenum, directory),
-		       int fd, int * pagenum, char * directory )
+int fax_get_pages _P6( (fd, pagenum, directory, uid, gid, mode ),
+		       int fd, int * pagenum, char * directory,
+		       int uid, int gid, int mode )
 {
 static const char start_rcv = DC2;
 
@@ -395,7 +399,8 @@ static const char start_rcv = DC2;
 	/* read page data (into temp file), change <DLE><DLE> to <DLE>,
 	   wait for <DLE><ETX> for end of data */
 
-	if ( fax_get_page_data( fd, ++(*pagenum), directory ) == ERROR )
+	if ( fax_get_page_data( fd, ++(*pagenum), directory,
+			        uid, gid, mode ) == ERROR )
 	{
 	    fax_hangup_code = -1;
 	    return ERROR;
