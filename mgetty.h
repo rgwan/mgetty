@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 2.6 1995/04/16 22:55:35 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 2.7 1995/04/19 14:23:16 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -121,6 +121,7 @@ typedef struct	chat_actions {
 int	do_chat _PROTO(( int filedesc, char * expect_send[],
 	     	 chat_action_t actions[], action_t * action,
 		 int chat_timeout_time, boolean timeout_first ));
+int	do_chat_send _PROTO(( int filedesc, char * send_str_with_esc ));
 int	clean_line _PROTO(( int filedesc, int tenths ));
 
 /* do_stat.c */
