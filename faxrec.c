@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.14 1993/09/21 17:29:49 gert Exp $ Gert Doering"
+#ident "$Id: faxrec.c,v 1.15 1993/09/29 20:26:34 gert Exp $ Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -20,6 +20,10 @@
 #include <time.h>
 #include <malloc.h>
 #include <termio.h>
+
+#ifndef sun
+#include <sys/ioctl.h>
+#endif
 
 #include "mgetty.h"
 #include "fax_lib.h"
@@ -381,11 +385,21 @@ char *	line;
 
     lprintf( L_NOISE, "notify: '%s'", line );
 
-    r = system( line );
+    switch( fork() )
+    {
+	case 0:		/* child */
+	    /* detach from controlling tty -> no SIGHUP */
+	    close( 0 ); close( 1 ); close( 2 );
+	    setpgrp();
+	    r = system( line );
 
-    if ( r != 0 )
-	lprintf( L_ERROR, "system() failed" );
-
+	    if ( r != 0 )
+		lprintf( L_ERROR, "system() failed" );
+	    exit(0);
+	case -1:
+	    lprintf( L_ERROR, "fork() failed" );
+	    break;
+    }
     free( line );
 }
 #endif
