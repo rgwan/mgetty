@@ -1,20 +1,22 @@
-#ident "$Id: policy.h,v 1.71 1994/11/30 23:20:48 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.72 1994/12/06 17:14:36 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration defaults for mgetty / sendfax
  * are specified.
  *
  * defaults are used if no values are given in the config file(s).
  * config file values can be overridden by command line options.
+ *
+ * see mgetty.texi/mgetty.info for a description of the configuration files.
  */
 
 /* main mgetty configuration file
- * NOT USED YET.
+ * NOT USED YET (still!).
  */
-#define CONFIG_FILE "/usr/local/lib/mgetty-config"
+#define CONFIG_FILE "mgetty.config"
 
 /* sendfax configuration file
  *
- * if path doesn't start with "/", it's relative to CONF_DIR (Makefile)
+ * if path doesn't start with "/", it's relative to CONFDIR (Makefile)
  * if not defined, no configuration file is read (saves a few kbytes)
  */
 #define SENDFAX_CONFIG "sendfax.config"
@@ -34,10 +36,9 @@
  *
  * If you want to call /bin/login in any case, do not define this
  *
- * WARNING2: THE FORMAT OF THIS FILE HAS BEEN CHANGED BETWEEN MGETTY
- *           VERSIONS 0.19 AND 0.20! CHECK YOUR CONFIGURATION!
+ * If this doesn't start with "/", it's relative to CONFDIR.
  */
-#define LOGIN_CFG_FILE "/usr/local/lib/mgetty+sendfax/login.config"
+#define LOGIN_CFG_FILE "login.config"
 
 /* default login program
  *
@@ -47,6 +48,17 @@
  * elsewhere (e.g. Free/NetBSD in "/usr/bin/login").
  */
 #define DEFAULT_LOGIN_PROGRAM "/bin/login"
+
+
+/* if this file exists, it can be used to control what callers
+ * are allowed in.  If undefined, the functionality is omitted.
+ * It will work only if your modem supports it. Check the modem manual.
+ * For Rockwell-Based modems, add #CID=1 to MODEM_INIT_STRING, for
+ * ZyXELs use S40.2=1.
+ * If the path doesn't start with "/", it's relative to CONFDIR.
+ */
+/* #define CNDFILE "dialin.config" */
+
 
 /* If you want to use /etc/gettydefs to set tty flags, define this
  * I recommend against it, I suspect some bugs lingering in that code
@@ -408,7 +420,7 @@
  * but some do only allow digits and blank
  * AT+FLID=? should tell you what's allowed and what not.
  */
-#define FAX_STATION_ID	"49 89 3243328"
+#define FAX_STATION_ID	"49 89 xxxxxxxx"
 
 /* ------ sendfax-specific stuff follows here -------- */
 
@@ -440,7 +452,7 @@
  * If you don't want extra initalization, do not define it.
  * Don't forget the "AT"!
  */
-#define FAX_MODEM_HANDSHAKE "AT&H3"
+/* #define FAX_MODEM_HANDSHAKE "AT&H3" */
 
 /* This is the modem command used for dialing. The phone number will
  * get appended right after the string. Normally, "ATD" or "ATDP" should
@@ -529,6 +541,7 @@
  * 
  * Define the name of this program here
  * If you don't want this type of service, do not define it at all
+ * Absolute path name has to be used here!
  */
 #define FAX_NOTIFY_PROGRAM "/usr/local/lib/mgetty+sendfax/new_fax"
 
@@ -537,10 +550,3 @@
  */
 #define	MINFREESPACE (1024 * 1024)
 
-/* if this file exists, it can be used to control what callers
- * are allowed in.  If undefined, the functionality is omitted.
- * It will work only if your modem supports it. Check the modem manual.
- * For Rockwell-Based modems, add #CID=1 to MODEM_INIT_STRING, for
- * ZyXELs use S40.2=1.
- */
-/* #define CNDFILE "/usr/local/lib/mgetty+sendfax/dialin.config" */
