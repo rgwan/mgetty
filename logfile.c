@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 1.42 1994/08/13 18:41:20 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logfile.c,v 1.43 1994/09/13 11:19:54 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -129,6 +129,8 @@ int	log_fd;
 	close( log_fd );
 	pclose( pipe_fp );
     }
+
+    mail_logfile = FALSE;
 }
 
 int lputc _P2((level, ch), int level, char ch )
@@ -262,9 +264,10 @@ int     errnr;
 		fclose( cons_fp );
 	    }
 	    else	/* last resort */
+		if ( !mail_logfile )
 	    {
-		mail_logfile = TRUE;
 		atexit( logmail );
+		mail_logfile = TRUE;
 	    }
 	}
     }	/* end if ( L_ERROR or L_FATAL ) */
