@@ -1,4 +1,4 @@
-#ident "$Id: mg_m_init.c,v 1.9 1994/08/08 12:34:31 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_m_init.c,v 1.10 1994/08/08 14:00:27 gert Exp $ Copyright (c) Gert Doering"
 
 /* mg_m_init.c - part of mgetty+sendfax
  *
@@ -261,6 +261,16 @@ int mg_init_device _P4( (fd, toggle_dtr, toggle_dtr_waittime, portspeed ),
 	lprintf( L_MESG, "lowering DTR to reset Modem" );
 	tio_toggle_dtr( fd, toggle_dtr_waittime );
     }
+
+#ifdef TIOCSSOFTCAR
+    /* turn off SunOS soft carrier "feature" */
+
+    { int off = 0;
+    if ( ioctl( fd, TIOCSSOFTCAR, &off ) < 0 )
+	lprintf( L_ERROR, "cannot turn off soft carrier" );
+    }
+#endif
+
 
     /* initialize port */
 	
