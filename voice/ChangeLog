@@ -1,9 +1,29 @@
+Wed May 16 19:15:01 2001  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* All of below is 0.9.29.
+
+	* Patch from Olivier Kurzweg <okurzweg@siticom.com> for handling
+	LOOP_BREAK event (which is IS-101 remote hangup). I also documented
+	this in doc/Readme.voice_shell.
+
+Mon May 14 11:08:03 2001  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* Patch from Juergen.Kosel@gmx.de to ignore some V.253
+	event strings and support for vgetty to ignore it.
+	
+	* Patches to pvftormd, rmdtopvf, autopvf and pvftoau from
+	Olivier Kurzweg <okurzweg@siticom.com>, for G.711A support.
+	Enabled G.711A support for Digi RAS, Lucent, V.253 and ISDN4Linux.
+	Enabled G.711u support for V.253. Added a few integrity checks on
+	supported sample rates (e.g. ISN4Linux only supports 8kHz).
+	Better -L list. Cleanup.
+
 Sun Mar 11 13:08:29 2001  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 
 	* Added fix for vm voice shell execution result in vm/main.c,
 	submitted by Diomidis Spinellis <dspin@aegean.gr>.
 
-	* All of below is 0.9.27
+	* All of below is 0.9.27.
 
 	* Fix to vgetty/answer.c (incomplete arguments), submitted
 	by Diomidis Spinellis <dds@aueb.gr>.
