@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.1 1993/02/13 15:03:41 gert Exp $ (c) Gert Doering */
+/* $Id: mgetty.h,v 1.2 1993/02/13 15:29:56 gert Exp $ (c) Gert Doering */
 
 /* stuff in logfile.c */
 
@@ -37,14 +37,15 @@ typedef	char	boolean;
 #define SYSTEM	"greenie"
 #define LOG_PATH "/tmp"
 
-typedef	enum	{ A_FAIL, A_FAX } actions;
+typedef	enum	{ A_FAIL, A_FAX } action_t;
 typedef struct	chat_actions {
 			char * expect;
-			actions action; } chat_actions ;
+			action_t action; } chat_action_t ;
 
 /* do_chat.c */
 void delay( int waittime );
-int do_chat( char * expect_send[], char * chat_abort[],
+int do_chat( char * expect_send[],
+	     chat_action_t actions[], action_t * action,
              int chat_timeout_time, boolean timeout_first,
              boolean locks );
 int clean_line( int tenths );

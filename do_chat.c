@@ -1,4 +1,4 @@
-static char sccsid[]="$Id: do_chat.c,v 1.1 1993/02/13 14:59:39 gert Exp $ (c) Gert Doering";
+static char sccsid[]="$Id: do_chat.c,v 1.2 1993/02/13 15:29:55 gert Exp $ (c) Gert Doering";
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -33,7 +33,8 @@ void chat_timeout( void )
     chat_has_timeout = TRUE;
 }
 
-int do_chat( char * expect_send[], char * chat_abort[],
+int do_chat( char * expect_send[],
+	     chat_action_t actions[], action_t * action,
              int chat_timeout_time, boolean timeout_first,
              boolean locks )
 {
@@ -143,13 +144,15 @@ check_further:
 		}
 
 		/* look for one of the "abort"-strings */
-		for ( h=0; chat_abort[h] != NULL; h ++ )
+		for ( h=0; actions[h].expect != NULL; h ++ )
 		{
-		    cnt = strlen( chat_abort[h] );
+		    cnt = strlen( actions[h].expect );
 		    if ( i>=cnt && 
-			 memcmp( &buffer[i-cnt], chat_abort[h], cnt ) == 0 )
+			 memcmp( &buffer[i-cnt], actions[h].expect, cnt ) == 0 )
 		    {
-			lprintf( L_MESG,"found abort string: ``%s''",chat_abort[h]);
+			lprintf( L_MESG,"found action string: ``%s''",
+			                actions[h].expect );
+			*action = actions[h].action;
 			retcode = FAIL;
 			break;
 		    }

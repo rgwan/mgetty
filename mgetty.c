@@ -1,4 +1,4 @@
-static char sccsid[] = "$Id: mgetty.c,v 1.1 1993/02/13 15:04:39 gert Exp $ (c) Gert Doering";
+static char sccsid[] = "$Id: mgetty.c,v 1.2 1993/02/13 15:29:54 gert Exp $ (c) Gert Doering";
 /* some parts of the code are loosely based on the 
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us
  */
@@ -69,21 +69,21 @@ char *	init_chat_seq[] = { "", "\r\\d\\d\\d+++\\d\\d\\d\r\\dATQ0H0", "OK",
 char *	init_chat_abort[] = { "ERROR", "BUSY", NULL };
 int	init_chat_timeout = 60;
 
-struct	chat_actions	init_chat_actions[] = { { "ERROR", A_FAIL },
-						{ "BUSY", A_FAIL },
-						{ NULL,	A_FAIL } };
+chat_action_t	init_chat_actions[] = { { "ERROR", A_FAIL },
+					{ "BUSY", A_FAIL },
+					{ NULL,	A_FAIL } };
 
 char *	call_chat_seq[] = { "RING", "\\dATA", "CONNECT", "\\c", "\n", NULL };
 char *	call_chat_abort[] = { "NO CARRIER", "BUSY", "ERROR", NULL };
 int	call_chat_timeout = 60;
 
-struct	chat_actions	call_chat_actions[] = { { "NO CARRIER", A_FAIL },
-						{ "BUSY",	A_FAIL },
-						{ "ERROR", A_FAIL },
+chat_action_t	call_chat_actions[] = { { "NO CARRIER", A_FAIL },
+					{ "BUSY",	A_FAIL },
+					{ "ERROR", A_FAIL },
 #ifndef NO_FAX
-						{ "+FCON", A_FAX },
+					{ "+FCON", A_FAX },
 #endif
-						{ NULL, A_FAIL } };
+					{ NULL, A_FAIL } };
 
 
 
@@ -123,6 +123,8 @@ int main( int argc, char ** argv)
 	struct utmp *utmp;
 	struct stat st;
 	int Nusers;
+
+	action_t	what_action;
 
 	time_t	clock;
 
@@ -289,16 +291,16 @@ int main( int argc, char ** argv)
 
 	/* handle init chat if requested
 	 */
-	if ( do_chat( init_chat_seq, init_chat_abort, 
+	if ( do_chat( init_chat_seq, init_chat_actions, &what_action,
                       init_chat_timeout, TRUE, FALSE ) == FAIL )
 	{
-	    lprintf( L_MESG, "chat failed, exiting..." );
+	    lprintf( L_MESG, "init chat failed, exiting..." );
 	    rmlocks();
 	    exit(1);
 	}
 
-	/* wait for line to clear (some modems send a \n after "OK", this
-           may confuse the "call-chat"-routines) */
+	/* wait .3s for line to clear (some modems send a \n after "OK",
+	   this may confuse the "call-chat"-routines) */
 
 	clean_line(3);
 
@@ -356,10 +358,18 @@ int main( int argc, char ** argv)
            and send manual answer string to the modem */
 
 	log_level++; /*FIXME: remove this !!!!!!!!!!!*/
-	if ( do_chat( call_chat_seq, call_chat_abort, 
+	if ( do_chat( call_chat_seq, call_chat_actions, &what_action,
                       call_chat_timeout, TRUE, FALSE ) == FAIL )
 	{
-	    lprintf( L_MESG, "chat failed, exiting..." );
+	    if ( what_action == A_FAX )
+	    {
+		lprintf( L_MESG, "action is A_FAX, start fax receiver...");
+		faxrec();
+		lprintf( L_MESG, "fax receiver finished, exiting...");
+		exit(1);
+	    }
+
+	    lprintf( L_MESG, "action != A_FAX; chat failed, exiting..." );
 	    rmlocks();
 	    exit(1);
 	}
