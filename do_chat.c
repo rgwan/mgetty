@@ -1,4 +1,4 @@
-#ident "$Id: do_chat.c,v 1.40 1994/08/08 12:34:22 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: do_chat.c,v 1.41 1994/11/22 07:58:27 gert Exp $ Copyright (c) Gert Doering"
 
 /* do_chat.c
  *
@@ -277,7 +277,10 @@ TIO	tio, save_tio;
     if ( bytes > 500 )
         lprintf( L_WARN, "clean_line: only 500 of %d bytes logged", bytes );
     if ( bytes >= 10000 )
-        lprintf( L_FATAL, "clean_line: got too many junk." );
+    {
+	extern char * Device;
+        lprintf( L_FATAL, "clean_line: got too many junk (dev=%s).", Device );
+    }
     
     return 0;
 }
