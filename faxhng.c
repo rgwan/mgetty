@@ -1,4 +1,4 @@
-#ident "$Id: faxhng.c,v 1.2 1994/01/05 23:18:22 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: faxhng.c,v 1.3 1994/01/30 00:53:35 gert Exp $ Copyright (c) 1993 Gert Doering"
 ;
 /* faxhng.c - mainly table, translate +FHNG:xxx codes to english text
  */
@@ -6,6 +6,7 @@
 #include "mgetty.h"
 
 struct t_fhng_table { int i ; char * string; } fhng_table[] = {
+        {      -4, "Unexpected hangup / read() error / write() error (int.)" },
 	{      -3, "Unexpected 'ERROR' or 'NO CARRIER' response (int.)" },
 	{      -2, "Modem responded 'BUSY' (int.)" },
 	{      -1, "Invalid +FPTS:xxx code" },
