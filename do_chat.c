@@ -1,4 +1,4 @@
-#ident "$Id: do_chat.c,v 1.13 1993/10/01 00:06:02 gert Exp $ (c) Gert Doering";
+#ident "$Id: do_chat.c,v 1.14 1993/10/02 15:56:26 gert Exp $ (c) Gert Doering";
 /* do_chat.c
  *
  * This module handles all the non-fax talk with the modem
@@ -23,7 +23,7 @@ void chat_timeout()
 
 extern char * Device;
 
-int do_chat( char * expect_send[],
+int do_chat( int fd, char * expect_send[],
 	     chat_action_t actions[], action_t * action,
              int chat_timeout_time, boolean timeout_first,
              boolean locks, boolean virtual_rings )
@@ -38,13 +38,13 @@ int	h;
 boolean	nocr;
 struct termio	termio, save_termio;
 
-    (void) ioctl(STDIN, TCGETA, &termio);
+    (void) ioctl(fd, TCGETA, &termio);
     save_termio = termio;
     termio.c_iflag &= ~ICRNL;
     termio.c_lflag &= ~ICANON;
     termio.c_cc[VMIN] = 1;
     termio.c_cc[VTIME] = 0;
-    (void) ioctl(STDIN, TCSETA, &termio);
+    (void) ioctl(fd, TCSETA, &termio);
 
     signal( SIGALRM, chat_timeout );
 
@@ -82,7 +82,7 @@ struct termio	termio, save_termio;
 
 	    do
 	    {
-		cnt = read( STDIN, &buffer[i], 1 );
+		cnt = read( fd, &buffer[i], 1 );
 
 		if ( chat_has_timeout )		/* timeout */
 		{
@@ -174,10 +174,11 @@ check_further:
 	if ( expect_send[str] == NULL ) break;
 
 	/* send a string, translate esc-sequences */
+        lprintf( L_MESG, "send: " );
 
-	lprintf( L_MESG, "send: " );
 	p = expect_send[str];
 	nocr = FALSE;
+        h = 0;
 	while ( *p != 0 ) 
 	{
 	    if ( *p == '\\' )
@@ -187,30 +188,30 @@ check_further:
 		    case 'd': lputs( L_MESG, "\\d"); delay(500); break;
 		    case 'c': nocr = TRUE; break;
 		    default:
-			fputc( *p, stdout );
-			lputc( L_MESG, *p );
+		        write( fd, p, 1 );
+                        lputc( L_MESG, *p );
 		}
 	    }
 	    else
 	    {
-		fputc( *p, stdout );
+		write( fd, p, 1 );
 		lputc( L_MESG, *p );
 	    }
 	    p++;
 	}
-	if ( ! nocr ) fputc( '\n', stdout );
+	if ( ! nocr ) { write( fd, "\n", 1 ); lputs( L_MESG, "\\n" ); }
 
 	str++;
 
     }			/* end while ( expect_send[str] != NULL ) */
 
     /* reset terminal settings */
-    (void) ioctl(STDIN, TCSETAF, &save_termio);
+    (void) ioctl( fd, TCSETAF, &save_termio);
 
     return retcode;
 }
 
-int clean_line( int waittime )
+int clean_line( int fd, int waittime )
 {
 struct termio	termio, save_termio;
 char	buffer[2];
@@ -218,19 +219,25 @@ char	buffer[2];
     lprintf( L_NOISE, "waiting for line to clear, read: " );
 
     /* set terminal timeout to "waittime" tenth of a second */
-    (void) ioctl(STDIN, TCGETA, &termio);
+    (void) ioctl( fd, TCGETA, &termio);
     save_termio = termio;
     termio.c_lflag &= ~ICANON;
     termio.c_cc[VMIN] = 0;
     termio.c_cc[VTIME] = waittime;
-    (void) ioctl(STDIN, TCSETA, &termio);
+    (void) ioctl( fd, TCSETA, &termio);
 
     /* read everything that comes from modem until a timeout occurs */
-    while ( read( STDIN, buffer, 1 ) > 0 ) 
+    while ( read( fd, buffer, 1 ) > 0 ) 
         lputc( L_NOISE, buffer[0] );
 
     /* reset terminal settings */
-    (void) ioctl(STDIN, TCSETAF, &save_termio);
+    (void) ioctl( fd, TCSETAF, &save_termio);
     
     return 0;
 }
+
+
+
+
+
+
