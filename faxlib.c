@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 3.2 1995/10/25 18:55:39 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 3.3 1995/10/25 18:56:18 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -247,8 +247,6 @@ int  ix;
 	                                     fax_hangup_code = FHUP_NODIAL;
 	    else                             fax_hangup_code = FHUP_ERROR;
 	    
-	    fax_hangup_code = (strcmp( line, "BUSY" ) == 0) ? FHUP_BUSY:
-							      FHUP_ERROR;
 	    alarm( 0 ); signal( SIGALRM, SIG_DFL );
 	    return ERROR;
 	}
