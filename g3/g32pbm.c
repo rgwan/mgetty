@@ -1,4 +1,4 @@
-#ident "$Id: g32pbm.c,v 3.2 1995/09/30 10:53:28 gert Exp $ (c) Gert Doering, Chris Lewis et.al."
+#ident "$Id: g32pbm.c,v 3.3 1996/08/22 22:23:46 gert Exp $ (c) Gert Doering, Chris Lewis et.al."
 
 /* G3topbm.c
  *
@@ -583,7 +583,7 @@ void emitlj _P4((resolution, numx, numy, image),
 	while (ip < nip) {	/* inv: !*ip && !*nip */
 	    bcount = pixblock(ip, nip);
 	    printf("\033*p%dx%dY\033*r1A\033*b%dW",
-		(ip - lineanch) * 8 * resmult, (currow * resmult) << o_stretch, bcount);
+		(int) ((ip - lineanch) * 8 * resmult), (currow * resmult) << o_stretch, bcount);
 	    fwrite(ip, 1, bcount, stdout);
 	    if (o_stretch) {
 		printf("\033*b%dW", bcount);
