@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.3 1997/03/31 20:46:15 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.4 1997/03/31 20:56:23 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -249,7 +249,7 @@ int  ix;
 /* (re-) initialize all global/static variables set by faxlib.c
  * necessary if fax state machine runs multiple times, e.g. in vgetty
  */
-void faxlib_init _P0((void))
+void faxlib_init _P0( void )
 {
     fax_hangup = 0;
     fax_hangup_code = FHUP_UNKNOWN;
