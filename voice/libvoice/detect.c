@@ -3,7 +3,7 @@
  *
  * autodetect the modemtype we are connected to.
  *
- * $Id: detect.c,v 1.21 2000/08/14 13:57:04 gert Exp $
+ * $Id: detect.c,v 1.22 2000/08/14 13:57:26 gert Exp $
  *
  */
 
@@ -210,7 +210,7 @@ int voice_detect_modemtype(void)
 		       if (pnp_modem_database[i].modelid == NULL ||
 			   strncmp(pnp_modem_database[i].modelid, s+3, 4) == 0)
 		       {
-			   lprintf( L_JUNK, "PNP: found modem: %s",
+			   lprintf( L_MESG, "PNP: found modem: %s",
 					pnp_modem_database[i].verbose );
 			   voice_modem = pnp_modem_database[i].modem_type;
 			   break;
