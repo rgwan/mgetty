@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.38 1993/10/18 20:24:35 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.39 1993/10/19 22:25:45 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -15,7 +15,6 @@
 #ifndef _NOSTDLIB_H
 #include <stdlib.h>
 #endif
-#include <termio.h>
 #ifndef sun
 #include <sys/ioctl.h>
 #endif
@@ -24,6 +23,7 @@
 #include "mgetty.h"
 #include "policy.h"
 #include "fax_lib.h"
+#include "tio.h"
 
 /* I don't know *why*, but the ZyXEL wants all bytes reversed */
 #define REVERSE 1
@@ -41,7 +41,7 @@ void exit_usage _P1( (program),
     exit(1);
 }
 
-struct termio fax_termio;
+TIO fax_tio;
 
 int fax_open_device _P1( (fax_tty),
 			 char * fax_tty )
@@ -81,28 +81,22 @@ int	fd;
     }
 
     /* initialize baud rate, hardware handshake, ... */
-    ioctl( fd, TCGETA, &fax_termio );
+    tio_get( fd, &fax_tio );
 
     /* even if we use a modem that requires Xon/Xoff flow control,
      * do *not* enable it here - it would interefere with the Xon
      * received at the top of a page.
      */
-    fax_termio.c_iflag = 0;
-    fax_termio.c_oflag = 0;
-
-    fax_termio.c_cflag = FAX_SEND_BAUD | CS8 | CREAD | HUPCL | CLOCAL |
-			 HARDWARE_HANDSHAKE;
-
-    fax_termio.c_lflag = 0;
-    fax_termio.c_line = 0;
-    fax_termio.c_cc[VMIN] = 1;
-    fax_termio.c_cc[VTIME] = 0;
-
-    if ( ioctl( fd, TCSETAF, &fax_termio ) == -1 )
+    tio_mode_sane( &fax_tio, TRUE );
+    tio_set_speed( &fax_tio, FAX_SEND_BAUD );
+    tio_set_flow_control( &fax_tio, FLOW_HARD );
+    tio_mode_raw( &fax_tio );
+    
+    if ( tio_set( fd, &fax_tio ) == ERROR )
     {
-	lprintf( L_ERROR, "error in ioctl" );
+	lprintf( L_ERROR, "error in tio_set" );
 	close( fd );
-	if ( verbose ) printf( "cannot ioctl!\n" );
+	if ( verbose ) printf( "cannot set termio values!\n" );
 	rmlocks();
 	return -1;
     }
@@ -176,8 +170,8 @@ static	char	fax_end_of_page[] = { DLE, ETX };
 
 #ifdef FAX_SEND_USE_IXON
     /* disable output flow control! It would eat the XON otherwise! */
-    fax_termio.c_iflag &= ~IXON;
-    ioctl( fd, TCSETAW, &fax_termio );
+    tio_set_flow_control( &fax_tio, FLOW_HARD );
+    tio_set( fd, &fax_tio );
 #endif
 
     /* tell modem that we're ready to send - modem will answer
@@ -218,8 +212,8 @@ static	char	fax_end_of_page[] = { DLE, ETX };
      */
 
 #ifdef FAX_SEND_USE_IXON
-    fax_termio.c_iflag |= (IXON|IXANY);
-    ioctl( fd, TCSETAW, &fax_termio );
+    tio_set_flow_control( &fax_tio, FLOW_HARD | FLOW_XON_OUT );
+    tio_set( fd, &fax_tio );
 #endif
 
     /* send one page */
@@ -301,7 +295,7 @@ static	char	fax_end_of_page[] = { DLE, ETX };
 	     * problems with missing scan lines, you could try this)
 	     */
 #if 0
-	    ioctl( fd, TCSETAW, &fax_termio );
+	    ioctl( fd, TCSETAW, &fax_tio );
 #endif
 
 	    /* look if there's something to read
@@ -494,8 +488,8 @@ int	tries;
     if ( verbose ) printf( "OK.\n" );
 
     /* by now, the modem should have raised DCD, so remove CLOCAL flag */
-    fax_termio.c_cflag &= ~CLOCAL;
-    ioctl( fd, TCSETA, &fax_termio );
+    tio_carrier( &fax_tio, TRUE );
+    tio_set( fd, &fax_tio );
 
     /* process all files to send / abort, if Modem sent +FHNG result */
 
@@ -531,8 +525,8 @@ int	tries;
 	  else
 	  {
 	    /* take care of some modems pulling cd low too soon */
-	    fax_termio.c_cflag |= CLOCAL;
-	    ioctl( fd, TCSETA, &fax_termio );
+	    tio_carrier( &fax_tio, FALSE );
+	    tio_set( fd, &fax_tio );
 
 	    fax_command( "AT+FET=2", "OK", fd );	/* end session */
 	  }
@@ -614,9 +608,10 @@ int	tries;
 	else
 	{
 #ifdef FAX_SEND_USE_IXON
-	    /* disable output flow control! It would eat XON/XOFF otherwise! */
-	    fax_termio.c_iflag &= ~IXON;
-	    ioctl( fd, TCSETAW, &fax_termio );
+	    /* disable output flow control! It would eat XON/XOFF */
+	    /* otherwise! */
+	    tio_set_flow_control( &fax_tio, FLOW_HARD );
+	    tio_set( fd, &fax_tio );
 #endif
 	    if ( fax_get_pages( fd, &pagenum, poll_directory ) == ERROR )
 	    {
