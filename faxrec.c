@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.20 1993/10/18 20:18:24 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 1.21 1993/10/22 12:47:42 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -19,7 +19,6 @@
 #include <signal.h>
 #include <time.h>
 #include <malloc.h>
-#include <termio.h>
 
 #ifndef sun
 #include <sys/ioctl.h>
@@ -28,6 +27,7 @@
 #include "mgetty.h"
 #include "policy.h"
 #include "fax_lib.h"
+#include "tio.h"
 
 /* all stuff in here was programmed according to a description of the
  * class 2 standard as implemented in the SupraFAX Faxmodem
@@ -41,7 +41,7 @@ void fax_notify_program _PROTO(( int number_of_pages ));
 void faxrec _P1((spool_in), char * spool_in )
 {
 int pagenum = 0;
-struct termio termio;
+TIO tio;
 
     lprintf( L_NOISE, "fax receiver: entry" );
 
@@ -51,23 +51,20 @@ struct termio termio;
      * For some modems, it's necessary to switch to 19200 bps.
      */
 
-    ioctl( STDIN, TCGETA, &termio );
+    tio_get( STDIN, &tio );
 
 #ifdef FAX_RECEIVE_USE_B19200
-    termio.c_cflag &= ~CBAUD;		/* switch baud rate to 19200 */
-    termio.c_cflag |= B19200;		/* (tornado and supra modems) */
+    tio_set_speed( &tio, B19200 );
 #endif
 
+    tio_mode_raw( &tio );		/* no input or output post-*/
+					/* processing, no signals */
 #ifdef FAX_RECEIVE_USE_IXOFF
-    termio.c_iflag = IXOFF;		/* xon/xoff flow control */
+    tio_set_flow_control( &tio, FLOW_HARD | FLOW_XON_IN );
 #else
-    termio.c_iflag = 0;			/* do NOT process input! */
+    tio_set_flow_control( &tio, FLOW_HARD );
 #endif
-    termio.c_oflag = 0;			/* do NOT process output! */
-    termio.c_lflag = 0;			/* disable signals and echo! */
-    termio.c_cc[VMIN] = 1;
-    termio.c_cc[VTIME]= 0;
-    ioctl( STDIN, TCSETA, &termio );
+    tio_set( STDIN, &tio );
 
     /* read: +FTSI:, +FDCS, OK */
 
@@ -396,7 +393,7 @@ char *	line;
 					 fax_file_names,
 					 CONSOLE);
 
-    lprintf( L_NOISE, "notify: '%s'", line );
+    lprintf( L_NOISE, "notify: '%.320s'", line );
 
     switch( fork() )
     {
