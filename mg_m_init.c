@@ -1,4 +1,4 @@
-#ident "$Id: mg_m_init.c,v 3.8 1996/09/15 23:16:08 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_m_init.c,v 3.9 1996/11/10 18:52:45 gert Exp $ Copyright (c) Gert Doering"
 
 /* mg_m_init.c - part of mgetty+sendfax
  *
@@ -348,11 +348,16 @@ try_again:
 
     /* catch "standard question #17" (DCD drop -> fd invalid -> I/O error) */
     rs_lines = tio_get_rs232_lines(STDIN);
+    if ( rs_lines != -1 )
+    {
 #ifdef linux
-    if ( rs_lines != -1 && ( rs_lines & TIO_F_DCD ) )
-	lprintf( L_MESG, "WARNING: DCD line still active, check modem settings" );
+	if ( rs_lines & TIO_F_DCD )
+	    lprintf( L_MESG, "WARNING: DCD line still active, check modem settings (AT&Dx)" );
 #endif
-
+	if ( ! (rs_lines & TIO_F_DSR) )
+	    lprintf( L_WARN, "WARNING: DSR is off - modem turned off or bad cable?" );
+    }
+    
     /* initialize device (hangup, raw, speed). May fail! */
     if ( mg_init_device( STDIN, toggle_dtr, toggle_dtr_waittime,
 			 portspeed ) == ERROR )
