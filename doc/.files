@@ -20,3 +20,4 @@ modems.db
 scanner.txt
 ttyS-cua.txt
 secure_tty.txt
+loginv2.txt
