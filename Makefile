@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 3.5 1996/05/27 19:15:47 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 3.6 1996/07/10 17:32:56 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -104,7 +104,7 @@ CC=gcc
 # If you want to support incoming FidoNet calls, add -DFIDO. 
 # If you want to auto-detect incoming PPP calls (with PAP authorization),
 # add -DAUTO_PPP. Not needed if PPP callers want to get a real "login:"
-# prompt first.
+# prompt first. Don't forget to activate the /AutoPPP/ line in login.config!
 #
 #CFLAGS=-Wall -O2 -pipe -DSECUREWARE -DUSE_POLL
 CFLAGS=-O2 -Wall -pipe
@@ -287,7 +287,9 @@ OBJS=mgetty.o logfile.o do_chat.o locks.o utmp.o logname.o login.o \
 SFAXOBJ=sendfax.o logfile.o locks.o modem.o faxlib.o faxsend.o faxrec.o \
      io.o tio.o faxhng.o cnd.o getdisk.o config.o conf_sf.o
 
-all:	mgetty sendfax g3-tools fax-stuff call-back kvg
+all:	bin-all doc-all
+
+bin-all: mgetty sendfax kvg newslock g3-tools fax-stuff call-back 
 
 # a few C files need extra compiler arguments
 
@@ -356,7 +358,7 @@ testdisk:	getdisk
 
 # README PROBLEMS
 DISTRIB=README.1st THANKS TODO BUGS FTP FAQ inittab.aix inst.sh version.h \
-	Makefile ChangeLog policy.h-dist \
+	Makefile ChangeLog policy.h-dist ftp.sh \
 	login.cfg.in mgetty.cfg.in sendfax.cfg.in dialin.config \
         mgetty.c mgetty.h ugly.h do_chat.c logfile.c logname.c locks.c \
 	mg_m_init.c modem.c faxrec.c faxsend.c faxlib.c fax_lib.h sendfax.c \
@@ -422,7 +424,7 @@ mgetty0$(VS).tar.gz:	$(DISTRIB)
 	ln -sf . mgetty-0.$(VS)
 	( echo "$(DISTRIB)" | tr " " "\\012" ; \
 	  for i in `find . -name .files -print | sed -e 's;^./;;` ; do \
-	      cat $$i | sed -e 's;^;'`dirname $$i`'/;' ; \
+	      cat $$i | sed -e '/^\.files/d' -e 's;^;'`dirname $$i`'/;' ; \
 	  done ; \
 	) \
 	    | sed -e 's;^;mgetty-0.$(VS)/;g' \
@@ -446,8 +448,9 @@ beta:	mgetty0$(VS).tar.gz
 	test `hostname` = greenie.muc.de || exit 1
 # local
 	cp mgetty0$(VS).tar.gz /pub/uploads/
+
 # beta ftp site
-	./ftp.sh $(VS) ftp.informatik.tu-muenchen.de \
+	-./ftp.sh $(VS) hprbg7.informatik.tu-muenchen.de \
 		'~ftp/pub/comp/networking/communication/modem/mgetty' && \
 	rcmd hp2 -l doering 'cd $$HOME ; ./beta'
 
@@ -502,6 +505,9 @@ sendfax.config: sendfax.cfg.in sedscript
 kvg: kvg.in sedscript
 	./sedscript <kvg.in >kvg
 
+newslock: compat/newslock.c
+	$(CC) $(CFLAGS) -o newslock compat/newslock.c
+
 # internal: use this to create a "clean" mgetty+sendfax tree
 bindist: all doc-all sedscript
 	-rm -rf bindist
@@ -523,13 +529,15 @@ bindist: all doc-all sedscript
 
 install: install.bin install.doc
 
-install.bin: mgetty sendfax login.config mgetty.config sendfax.config 
+install.bin: mgetty sendfax kvg newslock \
+		login.config mgetty.config sendfax.config 
 #
 # binaries
 #
 	-test -d $(prefix)  || ( mkdir $(prefix)  ; chmod 755 $(prefix)  )
 	-test -d $(BINDIR)  || ( mkdir $(BINDIR)  ; chmod 755 $(BINDIR)  )
 	$(INSTALL) -m 755 kvg $(BINDIR)
+	$(INSTALL) -m 755 newslock $(BINDIR)
 
 	-test -d $(SBINDIR) || ( mkdir $(SBINDIR) ; chmod 755 $(SBINDIR) )
 	-mv -f $(SBINDIR)/mgetty $(SBINDIR)/mgetty.old
