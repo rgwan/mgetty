@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 4.1 1997/01/12 14:53:38 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 4.2 1997/01/13 22:28:41 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -34,7 +34,9 @@
        time_t call_start;		/* set in mgetty.c */
 static time_t call_done;
 
+#ifndef __NetBSD__
 time_t	time _PROTO(( long * tloc ));
+#endif
 
 /* all stuff in here was programmed according to a description of the
  * class 2 standard as implemented in the SupraFAX Faxmodem

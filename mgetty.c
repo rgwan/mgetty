@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 4.1 1997/01/12 14:53:42 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 4.2 1997/01/13 22:28:40 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -87,7 +87,9 @@ chat_action_t	* answer_chat_actions = &ring_chat_actions[1];
 /* prototypes for system functions (that are missing in some 
  * system header files)
  */
+#ifndef __NetBSD__
 time_t		time _PROTO(( long * tloc ));
+#endif
 
 /* logname.c */
 int getlogname _PROTO(( char * prompt, TIO * termio,
