@@ -1,4 +1,4 @@
-#ident "$Id: mg_m_init.c,v 1.4 1994/07/11 19:16:00 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_m_init.c,v 1.5 1994/07/21 21:32:41 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mg_m_init.c - part of mgetty+sendfax
  *
@@ -172,7 +172,13 @@ void faxpoll_server_init _P2( (fd,f), int fd, char * f )
 }
 
 
-/* open device (non-blocking / blocking) */
+/* open device (non-blocking / blocking)
+ *
+ * open with O_NOCTTY, to avoid preventing dial-out processes from
+ * getting the line as controlling tty
+ */
+
+
 int mg_open_device _P2 ( (devname, blocking),
 		         char * devname, boolean blocking )
 {
@@ -180,7 +186,7 @@ int mg_open_device _P2 ( (devname, blocking),
 
     if ( ! blocking )
     {
-	fd = open(devname, O_RDWR | O_NDELAY);
+	fd = open(devname, O_RDWR | O_NDELAY | O_NOCTTY );
 	if ( fd < 0 )
 	{
 	    lprintf( L_FATAL, "cannot open line" );
@@ -194,7 +200,7 @@ int mg_open_device _P2 ( (devname, blocking),
     }
     else		/* blocking open */
     {
-	fd = open( devname, O_RDWR );
+	fd = open( devname, O_RDWR | O_NOCTTY );
 	if ( fd < 0)
 	{
 	    lprintf( L_FATAL, "cannot open line" );
@@ -254,14 +260,6 @@ int mg_init_device _P4( (fd, toggle_dtr, toggle_dtr_waittime, portspeed ),
 	tio_toggle_dtr( fd, toggle_dtr_waittime );
     }
 
-#if ( defined(__bsdi__) || defined(BSD) ) && defined( TIOCSCTTY )
-    /* get it as controlling tty - only on BSD systems */
-
-    if ( setsid() == -1 ||
-	 ioctl( fd, TIOCSCTTY, NULL ) != 0 )
-	     lprintf( L_ERROR, "cannot set controlling tty!" );
-#endif
-
     /* initialize port */
 	
     if ( tio_get( fd, &tio ) == ERROR )
@@ -289,4 +287,61 @@ int mg_init_device _P4( (fd, toggle_dtr, toggle_dtr_waittime, portspeed ),
     }
     return NOERROR;
 }
+
+/* get a given tty as controlling tty
+ *
+ * on many systems, this works with ioctl( TIOCSCTTY ), on some
+ * others, you have to reopen the device
+ */
+
+int mg_get_ctty _P2( (fd, devname), int fd, char * devname )
+{
+    /* BSD systems, Linux */
+#if defined( TIOCSCTTY )
+    if ( setsid() == -1 ||
+	 ioctl( fd, TIOCSCTTY, NULL ) != 0 )
+    {
+	lprintf( L_ERROR, "cannot set controlling tty (ioctl)" );
+	return ERROR;
+    }
+#else
+    /* SVR3 and earlier */
+    fd = open( devname, O_RDWR | O_NDELAY );
+
+    if ( fd == -1 )
+    {
+        lprintf( L_ERROR, "cannot set controlling tty (open)" );
+	return ERROR;
+    }
+
+    fcntl( fd, F_SETFL, O_RDWR);		/* unset O_NDELAY */
+    close( fd );
+#endif						/* !def TIOCSCTTY */
+
+    return NOERROR;
+}
+
+/* get rid of a controlling tty.
+ *
+ * difficult, non-portable, *ugly*.
+ */
+
+int mg_drop_ctty _P1( (fd), int fd )
+{
+#ifdef BSD
+    setpgrp( 0, getpid() );
+#else
+    setpgrp();
+#endif
     
+    if ( setsid() == -1
+#ifdef TIOCNOTTY
+	|| ioctl( fd, TIOCNOTTY, NULL )
+#endif
+	)
+    {
+	lprintf( L_ERROR, "can't get rid of controlling tty" );
+	return ERROR;
+    }
+    return NOERROR;
+}
