@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 4.24 1999/01/05 19:44:50 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 4.25 1999/02/16 20:04:16 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -1056,7 +1056,8 @@ Ring_got_action:
 	}
 
 	/* hand off to login dispatcher (which will call /bin/login) */
-	login_dispatch( buf, mgetty_state == St_callback_login? TRUE: FALSE);
+	login_dispatch( buf, mgetty_state == St_callback_login? TRUE: FALSE,
+			c_string(login_config) );
 
 	/* doesn't return, if it does, something broke */
 	exit(FAIL);
