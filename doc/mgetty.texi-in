@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.33 1998/10/25 21:54:36 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.34 1998/11/19 20:48:39 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -855,6 +855,9 @@ Tells @code{mgetty} to put the modem in fax-only mode. You need this if
 your modem can't distinguish incoming fax and data calls, but you need fax
 more important than data; and you need it if you want to disable data calls
 for security reasons (this could be achieved via @file{login.config} as well)
+
+Watch out: if you have setup some unusual @code{answer-chat}, incoming 
+calls might still come through. So check your setup!
 
 @item @code{modem-type} [-C] @var{mtype}
 
