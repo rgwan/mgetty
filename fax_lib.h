@@ -1,4 +1,4 @@
-#ident "$Id: fax_lib.h,v 3.2 1995/10/25 18:47:23 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: fax_lib.h,v 3.3 1995/12/18 22:00:12 gert Exp $ Copyright (c) Gert Doering"
 
 
 /* fax_lib.h
@@ -39,7 +39,7 @@ int fax_set_bor  _PROTO(( int fd, int bit_order ));
 int fax_set_flowcontrol _PROTO(( int fd, int hw_flow ));
 
 #ifdef __TIO_H__
-int fax_send_page _PROTO(( char * g3_file, TIO * tio,
+int fax_send_page _PROTO(( char * g3_file, int * bytes_sent, TIO * tio,
 			   Post_page_messages ppm, int fd ));
 int fax_send_ppm  _PROTO(( int fd, TIO *tio, Post_page_messages ppm ));
 #endif
