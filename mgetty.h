@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 3.13 1996/11/02 11:41:02 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 3.14 1996/11/18 21:14:29 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -88,7 +88,17 @@ int lprintf _PROTO(());
 #define USE_SELECT
 #endif
 
+/* these definitions specify the return value type and the arguments
+ * for signal handler functions - if your compiler barfs, change them
+ */
 typedef	void	RETSIGTYPE;
+
+#ifdef _SCO_DS		/* SCO OSR 5.0 */
+# define SIG_HDLR_ARGS	int signo
+#else
+# define SIG_HDLR_ARGS
+#endif
+
 typedef	char	boolean;
 
 /* the cpp directive "sun" isn't useful at all, since is defined on
