@@ -1,4 +1,4 @@
-#ident "$Id: mksed.c,v 4.9 2002/11/23 18:45:59 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mksed.c,v 4.10 2005/02/27 11:52:26 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 
@@ -44,6 +44,8 @@ int main _P0( void )
     printf( "      -e 's;@TKPERL@;%s;g'\\\n", TKPERL );
     printf( "      -e 's;@ECHO@;%s;g'\\\n", ECHO );
     printf( "      -e 's;@SHELL@;%s;g'\\\n", SHELL );
+    printf( "      -e 's;@TRAP_OFF@;trap%s;g'\\\n", 
+			SHELL_TRAP_POSIX? " -": "" );
     printf( "      -e 's;@BINDIR@;%s;g'\\\n", BINDIR );
     printf( "      -e 's;@SBINDIR@;%s;g'\\\n", SBINDIR );
     printf( "      -e 's;@LIBDIR@;%s;g'\\\n", LIBDIR );
