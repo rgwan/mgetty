@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.c,v 3.8 1996/11/24 12:08:57 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_mg.c,v 3.9 1997/01/09 21:41:46 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_mg.c
  *
@@ -92,7 +92,7 @@ struct conf_data_mgetty c = {
 	{ "issue-file", (p_int)"/etc/issue", CT_STRING, C_PRESET },
 	{ "prompt-waittime", 500, CT_INT, C_PRESET },
 	{ "login-prompt", (p_int) LOGIN_PROMPT, CT_STRING, C_PRESET },
-#ifdef MAX_LOGIN_TIME			/*!!! hmmm? */
+#ifdef MAX_LOGIN_TIME
 	{ "login-time", MAX_LOGIN_TIME, CT_INT, C_PRESET },
 #else
 	{ "login-time", 0, CT_INT, C_EMPTY },
