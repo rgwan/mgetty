@@ -9,7 +9,7 @@
 # There are still a lot rough edges - but it works, and should give you an
 # idea how to improve it
 #
-# SCCS: $Id: faxrunq.in,v 3.3 1996/04/13 21:58:27 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxrunq.in,v 3.4 1996/07/10 17:27:18 gert Exp $ Copyright (C) 1994 Gert Doering
 
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -72,13 +72,14 @@ do
     cd $FAX_SPOOL_OUT/`dirname $job`
     $echo "processing $job..."
 #
-#   lock JOB file (by 'mv'ing it to JOB.locked)
+#   lock JOB file (by 'link(2)'ing it to JOB.locked)
+#   'newslock' is a small C program that just calls link(argv[1], argv[2])
 #
-    # make sure it will get moved back in case the shell aborts
-    trap "mv -f JOB.locked JOB 2>/dev/null" 0
-    trap "mv -f JOB.locked JOB 2>/dev/null ; exit 20" 1 2 3 15
+    # make sure Lock will be removed in case the shell aborts
+    trap "rm -f JOB.locked 2>/dev/null" 0
+    trap "rm -f JOB.locked 2>/dev/null ; exit 20" 1 2 3 15
 
-    mv -f JOB JOB.locked 2>/dev/null
+    newslock JOB JOB.locked 2>/dev/null
     if [ $? -ne 0 ]
     then
 	$echo "already locked"
@@ -100,7 +101,7 @@ do
 				   else printf "MAIL_TO=\"%s\";", user
 		      printf "TIME=\"%s\";", time
 		      printf "VERBOSE_TO=\"%s\";", verbto
-		      printf "RE=\"%s\"", re }' JOB.locked`
+		      printf "RE=\"%s\"", re }' JOB`
 
 #
 # check whether send time is reached
@@ -110,7 +111,7 @@ do
 	if [ `date "+%H""%M"` -lt $TIME ]
 	then
 	    $echo "...send time not reached, postponing job"
-	    mv JOB.locked JOB
+	    rm JOB.locked
 	    continue
 	fi
     fi
@@ -126,7 +127,7 @@ do
 		  $1=="acct_handle" { flags=flags" -A \""substr($0,13)"\"" }
 		  $1=="pages" { for( i=2; i<=NF; i++) pages=pages$i" " }
 		  END { printf "'"$FAX_SENDER"' -v%s %s %s", \
-			       flags, phone, pages }' JOB.locked`
+			       flags, phone, pages }' JOB`
 
 #
 # execute faxsend command
@@ -155,7 +156,7 @@ do
     if [ $status -eq 0 ]
     then
 	# transmission successful
-	$echo "Status "`date`" successfully sent" >>JOB.locked
+	$echo "Status "`date`" successfully sent" >>JOB
 	( 
 	  trap 0			# catch BASH bug
 	  $echo "To: $MAIL_TO"
@@ -166,8 +167,8 @@ do
 	  test -z "$RE" || \
 	    $echo "(Subject was: $RE)\n"
 	  $echo "\n\nJob / Log file:"
-	  cat JOB.locked
-	  tries=`grep Status JOB.locked | sed -e '1d' | wc -l`
+	  cat JOB
+	  tries=`grep Status JOB | sed -e '1d' | wc -l`
 	  $echo "\nSending succeeded after" $tries "unsuccessful tries."
 	) |
 	$MAILER "$MAIL_TO"
@@ -176,7 +177,7 @@ do
 	$echo "$MAIL_TO $PHONE "`date`" success" >>$FAX_ACCT
 
 	# job is done -> remove it from the queue
-	mv JOB.locked JOB.done
+	mv JOB JOB.done
 
 	# if you want to delete the job directory that has just been
 	# processed, uncomment the following two lines.
@@ -193,7 +194,7 @@ do
 	    3) why="modem initialization error" ;;
 	    4) why="dial failed - BUSY" ;;
 	esac
-	$echo "Status "`date`" failed, exit($status): $why" >>JOB.locked
+	$echo "Status "`date`" failed, exit($status): $why" >>JOB
     else
 	# error while transmitting, considered fatal
 	why="unknown" ; case $status in
@@ -201,15 +202,15 @@ do
 	    11) why="protocol failure, waiting for XON" ;;
 	    12) why="protocol failure sending page" ;;
 	esac
-	$echo "Status "`date`" FATAL FAILURE, exit($status): $why" >>JOB.locked
+	$echo "Status "`date`" FATAL FAILURE, exit($status): $why" >>JOB
 
 	# update accounting log
 	$echo "$MAIL_TO $PHONE "`date`" fail: $why" >>$FAX_ACCT
 
 	# if failed five times, supend job
-	if [ `grep "FATAL FAILURE" JOB.locked | wc -l` -gt 4 ]
+	if [ `grep "FATAL FAILURE" JOB | wc -l` -gt 4 ]
 	then
-	    $echo "Status "`date`" job suspended: too many FATAL errors" >>JOB.locked
+	    $echo "Status "`date`" job suspended: too many FATAL errors" >>JOB
 	    ( 
 	      trap 0			# catch BASH bug
               $echo "To: $MAIL_TO"
@@ -222,19 +223,19 @@ do
 	      $echo "    cd $FAX_SPOOL_OUT/"`dirname $job`
 	      $echo "    mv JOB.suspended JOB\n"
 	      $echo "log file follows:"
-	      cat JOB.locked ) |
+	      cat JOB ) |
 	    $MAILER "$MAIL_TO"
 	    #
 	    # suspend job (but do not delete it)
 	    #
-	    mv JOB.locked JOB.suspended
+	    mv JOB JOB.suspended
 	fi
     fi
 #
-# unlock job (ignore errors, the JOB.locked file may have been moved
-#             to JOB.suspended or JOB.done)
+# unlock job (even if the JOB has been renamed to JOB.suspended or 
+#             JOB.done, the link to JOB.locked still exists!)
 #
-    mv -f JOB.locked JOB 2>/dev/null
+    rm -f JOB.locked
 done
 
 trap 0 1 2 3 15
