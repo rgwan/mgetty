@@ -4,9 +4,13 @@
 # 
 # Copyright 1998 Simone Demmel simone@greenie.net
 #
-# CVS: $Id: faxq.in,v 1.12 2000/01/11 21:05:36 gert Exp $
+# CVS: $Id: faxq.in,v 1.13 2001/06/13 21:10:37 neko Exp $
 #
 # $Log: faxq.in,v $
+# Revision 1.13  2001/06/13 21:10:37  neko
+# Some changes in HTML-Output. </body> at the end of the page, fixed the
+# link in index-Pages to send faxes.
+#
 # Revision 1.12  2000/01/11 21:05:36  gert
 # Y2K bug (100)
 #
@@ -110,7 +114,7 @@ $lastrun = $lastrun[3].".".$lastrun[4]." ".$lastrun[5]." ".$lastrun[2].":".$last
 print <<EOF;
 <html><head>
 <title></title>
-</head></html>
+</head>
 <body bgcolor="#ffffff">
 
 $www_logo
@@ -247,7 +251,7 @@ Fax-Queue zuletzt bearbeitet: $lastrun
 <p>
 <hr size="5">
 <a href="$indexpage">^Hauptmenue</a>
-</body>
+</body></html>
 EOF
 
 exit 0
