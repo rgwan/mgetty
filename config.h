@@ -1,4 +1,7 @@
-#ident "$Id: config.h,v 1.3 1994/12/10 14:30:36 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ifndef ___CONFIG_H
+#define ___CONFIG_H
+
+#ident "$Id: config.h,v 1.4 1995/04/16 22:56:19 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* type definitions, prototypes, defines needed for configuration stuff
  */
@@ -56,3 +59,4 @@ void * conf_get_chat _PROTO(( char * line ));
 extern char * makepath _PROTO(( char * file, char * base ));
 #endif
 
+#endif			/* ___CONFIG_H */
