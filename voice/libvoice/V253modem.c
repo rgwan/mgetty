@@ -16,7 +16,7 @@
   Hint: Recorded voice files are in .ub format (refer to the sox manpage about this) except the header.
         So you can use this files with sox.
  *
- * $Id: V253modem.c,v 1.5 2002/11/19 15:39:05 gert Exp $
+ * $Id: V253modem.c,v 1.6 2002/11/25 21:14:51 gert Exp $
  *
  */
 
@@ -249,7 +249,7 @@ Table 17/V.253 - Compression method identifier numerics and strings
        {
 	 			/* Chipset Agere/Lucent Venus v.92 found on 
 	  			 * ActionTec v.92 Call Waiting PCI modem    */
-	 *speed=8000		/* Default RATE is 8000 but set it anyway   */
+	 /* *speed=8000;	 * Default RATE is 8000 */
 	 Kompressionmethod = 0; /* Signed PCM                 	   	    */
      /*  sil_sense = 0;  	* silence compression sensitivity Default=0 */
      /*  sil_clip = 0;  	* silence clip    Default=0                 */
