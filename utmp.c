@@ -1,4 +1,4 @@
-#ident "$Id: utmp.c,v 1.20 1994/08/08 14:30:09 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: utmp.c,v 1.21 1994/10/22 17:24:35 gert Exp $ Copyright (c) Gert Doering"
 
 /* some parts of the code (writing of the utmp entry)
  * is based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
@@ -36,6 +36,11 @@ void make_utmp_wtmp _P4( (line, ut_type, ut_user, ut_host),
 			 char * line, short ut_type,
 			 char * ut_user, char * ut_host )
 {
+    /* On BSD systems, everything works a bit differently. For
+     * UT_INIT entries, we have to write one with empty ut_name and
+     * empty ut_host, UT_LOGIN is ignored, and UT_USER is set with
+     * the login() function
+     */
 }
 int get_current_users _P0( void )
 {
