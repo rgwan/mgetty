@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.4 1993/03/23 10:52:38 gert Exp $ (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.5 1993/03/23 12:23:16 gert Exp $ (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -72,13 +72,10 @@ int	fd;
 
     fax_termio.c_iflag = IXANY;
     fax_termio.c_oflag = 0;
-#ifdef linux
+
     fax_termio.c_cflag = FAX_SEND_BAUD | CS8 | CREAD | HUPCL | CLOCAL |
-			 CRTSCTS;
-#else
-    fax_termio.c_cflag = FAX_SEND_BAUD | CS8 | CREAD | HUPCL | CLOCAL |
-			 RTSFLOW | CTSFLOW;
-#endif
+			 HARDWARE_HANDSHAKE;
+
     fax_termio.c_lflag = 0;
     fax_termio.c_line = 0;
     fax_termio.c_cc[VMIN] = 1;
@@ -204,8 +201,10 @@ char wbuf[ sizeof(buf) * 2 ];
 	    }
 
 	    /* drain output */
-	    /* strangely, some ISC versions do not like this ??? */
+	    /* strange enough, some ISC versions do not like this ??? */
+#ifndef ISC
 	    ioctl( fd, TCSETAW, &fax_termio );
+#endif
 
 	    /* look if there's an XOFF to read - most of the time, this
 	     * means total failure on my ZyXEL, but who knows.

@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.11 1993/03/21 23:35:56 gert Exp $ (c) Gert Doering */
+/* $Id: mgetty.h,v 1.12 1993/03/23 12:23:15 gert Exp $ (c) Gert Doering */
 
 /* stuff in logfile.c */
 
@@ -76,6 +76,9 @@ void faxrec( void );
 /* how much time may pass while receiving a fax without getting data */
 #define	FAX_PAGE_TIMEOUT	60
 
+/* logname.c */
+int getlogname( struct termio * termio, char * buf, int maxsize );
+
 /********* system prototypes **************/
 char * mktemp( char * template );
 
@@ -91,6 +94,20 @@ extern char *	optarg;
 # ifndef O_NDELAY
 # define O_NDELAY O_NONBLOCK
 # endif
+#endif
+
+/* hardware handshake flags - use what is available */
+/* warning: this will work only, if mgetty.h is included *after* termio.h
+ */
+
+#ifdef CRTSCTS
+#define HARDWARE_HANDSHAKE CRTSCTS
+#else
+#ifdef RTSFLOW
+#define HARDWARE_HANDSHAKE RTSFLOW | CTSFLOW
+#else
+#define HARDWARE_HANDSHAKE 0
+#endif
 #endif
 
 #include "policy.h"

@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.19 1993/03/23 10:57:55 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.20 1993/03/23 12:23:14 gert Exp $ (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -32,8 +32,11 @@
 #include <utmp.h>
 #include <fcntl.h>
 
+#ifndef ENOENT
+#include <errno.h>
+#endif
+
 #include "mgetty.h"
-int getlogname( struct termio * termio, char * buf, int maxsize );
 
 struct	speedtab {
 	ushort	cbaud;		/* baud rate */
@@ -105,8 +108,6 @@ chat_action_t	call_chat_actions[] = { { "NO CARRIER", A_FAIL },
 					{ NULL, A_FAIL } };
 
 
-
-extern	int	errno;
 
 sig_t		timeout();
 int		tputc( char c );
@@ -318,17 +319,12 @@ int main( int argc, char ** argv)
 	termio.c_oflag = OPOST | ONLCR;
 
         /* we want to set hardware (RTS+CTS) flow control here.
-	 * Apparently, every OS does it differently. These two below work
-	 * on SCO unix and on Linux, but for other OSes, you may have to
-	 * fiddle yourself. (If you use FAS, it's not necessary at all!)
+	 * see the mass of #ifdefs in mgetty.h what is defined
+	 * (and change it according to your OS)
 	 */
-#ifdef linux
 	termio.c_cflag = portspeed | CS8 | CREAD | HUPCL | CLOCAL |
-                         CRTSCTS;
-#else
-	termio.c_cflag = portspeed | CS8 | CREAD | HUPCL | CLOCAL |
-                         RTSFLOW | CTSFLOW;
-#endif
+			 HARDWARE_HANDSHAKE;
+
 	termio.c_lflag = 0;		/* echo off, signals off! */
 	termio.c_line = 0;
 	termio.c_cc[VMIN] = 1;
@@ -336,7 +332,7 @@ int main( int argc, char ** argv)
 	ioctl (STDIN, TCSETAF, &termio);
 
 	/* drain input - make sure there are no leftover "NO CARRIER"s
-	 * or "ERROR"s lying around from some dial-out
+	 * or "ERROR"s lying around from some previous dial-out
 	 */
 
 	clean_line(1);
