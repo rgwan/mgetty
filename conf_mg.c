@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.c,v 1.6 1995/06/05 10:17:59 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_mg.c,v 1.7 1995/06/30 00:08:12 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_mg.c
  *
@@ -169,7 +169,7 @@ conf_data c_a[2];
 	conf_set_bool( &c.direct_line, TRUE );
     }
 
-    while ((opt = getopt(argc, argv, "c:x:s:rp:n:R:i:DCF:S:k:m:I:ba")) != EOF)
+    while ((opt = getopt(argc, argv, "c:x:s:rp:n:R:i:DC:FS:k:m:I:ba")) != EOF)
     {
 	switch (opt)
 	{
