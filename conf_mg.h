@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.h,v 1.2 1995/02/11 22:50:15 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: conf_mg.h,v 1.3 1995/04/04 00:30:19 gert Exp $ Copyright (c) 1994 Gert Doering"
 
 /* all (dynamic) mgetty configuration is contained in this structure.
  * It is initialized and loaded in conf_mg.c and accessed from mgetty.c
@@ -45,6 +45,9 @@ extern struct conf_data_mgetty {
 	fax_mode,				/* "660" */
 
 	debug,					/* log level */
+    
+        statistics_chat,			/* get some call statist. */
+        statistics_file,			/* default: log file */
 	gettydefs_tag,
         termtype,				/* $TERM=... */
 	end_of_config; } c;
