@@ -1,4 +1,4 @@
-#ident "$Id: do_chat.c,v 1.29 1994/01/12 21:47:21 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: do_chat.c,v 1.30 1994/01/14 20:11:40 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* do_chat.c
  *
@@ -46,6 +46,9 @@ char	*p;
 int	h;
 boolean	nocr;
 TIO	tio, save_tio;
+#define	LSIZE	100
+static	char	lbuf[LSIZE];
+static	char	*lptr = lbuf;
 
     tio_get( fd, &tio );
     save_tio = tio;
@@ -107,10 +110,27 @@ TIO	tio, save_tio;
 		    break;
 		}
 
-		if ( cnt > 0 ) lputc( L_NOISE, buffer[i] );
+		if ( cnt > 0 )
+		{
+		    lputc( L_NOISE, buffer[i] );
+
+		    /* build full lines, feed them to caller-id / connect
+		     * string parsing routine in cnd.c
+		     */
+		    if ( buffer[i] == '\r' || buffer[i] == '\n' ||
+			 (lptr >= lbuf+LSIZE-3) )
+		    {
+			*lptr = '\0';
+			if (lbuf[0])
+			    cndfind(lbuf);
+			lptr = lbuf;
+		    }
+		    else
+			*lptr++ = buffer[i];
+		}
 
 		i += cnt;
-		if ( i>BUFFERSIZE-5 )
+		if ( i>BUFFERSIZE-5 )	/* buffer full -> junk oldest stuff*/
 		{
 		    memcpy( &buffer[0], &buffer[BUFFERSIZE/2], i-BUFFERSIZE/2+1 );
 		    i-=BUFFERSIZE/2;
