@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.40 1993/11/05 20:50:07 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.41 1993/11/07 01:50:54 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -21,9 +21,9 @@
 #include <signal.h>
 
 #include "mgetty.h"
+#include "tio.h"
 #include "policy.h"
 #include "fax_lib.h"
-#include "tio.h"
 
 /* I don't know *why*, but the ZyXEL wants all bytes reversed */
 #define REVERSE 1
@@ -89,7 +89,7 @@ int	fd;
      */
     tio_mode_sane( &fax_tio, TRUE );
     tio_set_speed( &fax_tio, FAX_SEND_BAUD );
-    tio_set_flow_control( &fax_tio, FLOW_HARD );
+    tio_set_flow_control( &fax_tio, (FAXSEND_FLOW) & FLOW_HARD );
     tio_mode_raw( &fax_tio );
     
     if ( tio_set( fd, &fax_tio ) == ERROR )
@@ -168,11 +168,9 @@ static	char	fax_end_of_page[] = { DLE, ETX };
 
     lprintf( L_NOISE, "fax_send_page(\"%s\") started...", g3_file );
 
-#ifdef FAX_SEND_USE_IXON
-    /* disable output flow control! It would eat the XON otherwise! */
-    tio_set_flow_control( &fax_tio, FLOW_HARD );
+    /* disable software output flow control! It would eat the XON otherwise! */
+    tio_set_flow_control( &fax_tio, (FAXSEND_FLOW) & FLOW_HARD );
     tio_set( fd, &fax_tio );
-#endif
 
     /* tell modem that we're ready to send - modem will answer
      * with a couple of "+F..." messages and finally CONNECT and XON
@@ -210,11 +208,8 @@ static	char	fax_end_of_page[] = { DLE, ETX };
     /* Since some faxmodems (ZyXELs!) do need XON/XOFF flow control
      * we have to enable it here
      */
-
-#ifdef FAX_SEND_USE_IXON
-    tio_set_flow_control( &fax_tio, FLOW_HARD | FLOW_XON_OUT );
+    tio_set_flow_control( &fax_tio, (FAXSEND_FLOW) & (FLOW_HARD|FLOW_XON_OUT));
     tio_set( fd, &fax_tio );
-#endif
 
     /* send one page */
     lprintf( L_MESG, "sending %s...", g3_file );
@@ -631,12 +626,10 @@ int	tries;
 	}
 	else
 	{
-#ifdef FAX_SEND_USE_IXON
-	    /* disable output flow control! It would eat XON/XOFF */
-	    /* otherwise! */
-	    tio_set_flow_control( &fax_tio, FLOW_HARD );
+	    /* switch to fax receiver flow control */
+	    tio_set_flow_control( &fax_tio, (FAXREC_FLOW) &
+				            (FLOW_HARD|FLOW_XON_IN) );
 	    tio_set( fd, &fax_tio );
-#endif
 	    if ( fax_get_pages( fd, &pagenum, poll_directory ) == ERROR )
 	    {
 		fprintf( stderr, "warning: polling failed\n" );
