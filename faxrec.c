@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.34 1993/12/18 19:10:46 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 1.35 1994/01/04 17:54:50 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -40,6 +40,27 @@ void fax_notify_mail _PROTO(( int number_of_pages ));
 #ifdef FAX_NOTIFY_PROGRAM
 void fax_notify_program _PROTO(( int number_of_pages ));
 #endif
+
+static char * faxpoll_server_file = NULL;
+
+void faxpoll_server_init( char * f )
+{
+    faxpoll_server_file = NULL;
+    if ( access( f, R_OK ) != 0 )
+    {
+	lprintf( L_ERROR, "cannot access/read '%s'", f );
+    }
+    else if ( fax_command( "AT+FLPL=1", "OK", 0 ) == ERROR )
+    {
+	lprintf( L_WARN, "faxpoll_server_init: no polling available" );
+	fax_hangup = 0;
+    }
+    else
+    {
+	lprintf( L_NOISE, "faxpoll_server_init: waiting for poll" );
+	faxpoll_server_file = f;
+    }
+}
 
 void faxrec _P1((spool_in), char * spool_in )
 {
@@ -373,7 +394,7 @@ time_t	ti;
     {
 	fprintf( pipe_fp, "\nThe fax receive was *not* fully successful\n" );
 	fprintf( pipe_fp, "The Modem returned +FHNG:%3d\n", fax_hangup_code );
-	fprintf( pipe_fp, "\t\t   (%s)\n", ferror( fax_hangup_code ) );
+	fprintf( pipe_fp, "\t\t   (%s)\n", fax_strerror( fax_hangup_code ) );
     }
 
     /* list the spooled fax files (jcp/gd) */
