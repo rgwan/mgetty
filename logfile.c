@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 3.1 1995/08/30 12:40:45 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logfile.c,v 3.2 1995/12/21 23:06:20 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -255,7 +255,20 @@ int     errnr;
 #endif
     }
 
-    vsprintf( ws, format, pvar );
+    /* Marc's hack to get different verbosity levels on different
+     * intendation levels
+     *!!!! ugly. Rewrite some day.
+     */
+    ws[0] = ' ';
+    ws[1] = ' ';
+
+    if (level == L_NOISE)
+     vsprintf( &ws[1], format, pvar );
+    else if (level == L_JUNK)
+     vsprintf( &ws[2], format, pvar );
+    else
+     vsprintf( &ws[0], format, pvar );
+    
     va_end( pvar );
 
     ti = time(NULL); tm = localtime(&ti);
