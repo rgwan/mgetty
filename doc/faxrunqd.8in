@@ -276,12 +276,17 @@ To control
 behaviour, you can send it the following signals:
 
 .TP
-.B SIGHUP
-.TP
 .B SIGINT
 .TP
 .B SIGTERM
 remove lock file, remove pid file, terminate immediately.
+
+.TP
+.B SIGHUP
+finish all fax jobs that are currently being sent, then terminate  (this
+is used to signal faxrunqd "I want you to terminate" without disturbing
+the normal flow of operation - SIGINT/TERM etc. can lead to some faxes being
+sent twice).
 
 .TP
 .B SIGUSR1
@@ -289,10 +294,7 @@ close, roll, and re-open log file.
 
 .TP
 .B SIGUSR2
-finish all fax jobs that are currently being sent, then terminate  (this
-is used to signal faxrunqd "I want you to terminate" without disturbing
-the normal flow of operation - SIGHUP etc. can lead to some faxes being
-sent twice).
+dump current modem success/failure statistics to log file.
 
 .IX fax
 .SH BUGS
