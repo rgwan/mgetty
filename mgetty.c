@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.92 1994/03/01 16:05:26 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.93 1994/03/01 17:24:40 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -62,6 +62,9 @@ char *	init_chat_seq[] = { "", "\\d\\d\\d+++\\d\\d\\d\r\\dATQ0V1H0", "OK",
 			    /*"AT+FLID=\""FAX_STATION_ID"\"", "OK",*/
 			    "AT+FDCC=1,5,0,2,0,0,0", "OK",
 #endif
+#ifdef DIST_RING
+			    DIST_RING_INIT, "OK",
+#endif
 #ifdef VOICE
 			    "AT+FCLASS=8", "OK",
 #endif
@@ -75,7 +78,13 @@ chat_action_t	init_chat_actions[] = { { "ERROR", A_FAIL },
 					{ NULL,	A_FAIL } };
 
 int	rings_wanted = 1;		/* default: one "RING" */
+
+#ifdef DIST_RING
+char *	ring_chat_seq[] = { "RING\r", NULL };
+#else
 char *	ring_chat_seq[] = { "RING", NULL };
+#endif
+
 chat_action_t	ring_chat_actions[] = { { "CONNECT",	A_CONN },
 					{ "NO CARRIER", A_FAIL },
 					{ "BUSY",	A_FAIL },
@@ -86,6 +95,13 @@ chat_action_t	ring_chat_actions[] = { { "CONNECT",	A_CONN },
 #endif
 #ifdef VOICE
 					{ "VCON",       A_VCON },
+#endif
+#ifdef DIST_RING
+					{ "RING 1",	A_RING1 },
+					{ "RING 2",	A_RING2 },
+					{ "RING 3",	A_RING3 },
+					{ "RING 4",	A_RING4 },
+					{ "RING 5",	A_RING5 },
 #endif
 					{ NULL,		A_FAIL } };
 
@@ -559,7 +575,11 @@ waiting:
 	    {
 		if ( do_chat( STDIN, ring_chat_seq, ring_chat_actions,
 			      &what_action, ring_chat_timeout,
-			      TRUE ) == FAIL ) break;
+			      TRUE ) == FAIL 
+#ifdef DIST_RING
+		    && (what_action != DIST_RING_VOICE)
+#endif
+		   ) break;
 		rings++;
 	    }
 
@@ -594,6 +614,9 @@ waiting:
 
 	    if ( what_action != A_CONN &&
 		 what_action != A_VCON &&	/* vgetty extensions */
+#ifdef DIST_RING
+		 (what_action < A_RING1 || what_action > A_RING5) &&
+#endif
 		 ( rings < rings_wanted ||
 	           do_chat( STDIN, answer_chat_seq, answer_chat_actions,
 			    &what_action, answer_chat_timeout, TRUE) == FAIL))
@@ -634,7 +657,8 @@ waiting:
 	    voice_answer(rings, rings_wanted,
 			 answer_chat_actions,
 			 answer_chat_timeout,
-			 answer_mode );
+			 answer_mode,
+			 what_action );
 	}
 #endif /* VOICE */
 

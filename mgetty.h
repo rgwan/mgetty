@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.h,v 1.49 1994/03/01 01:08:16 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 1.50 1994/03/01 17:24:42 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.h
  *
@@ -77,7 +77,11 @@ typedef	char	boolean;
 #define MAXPATH MAXLINE
 #define STDIN	0
 
-typedef	enum	{ A_TIMOUT, A_FAIL, A_FAX, A_VCON, A_CONN } action_t;
+typedef enum {
+	A_TIMOUT, A_FAIL, A_FAX, A_VCON, A_CONN,
+	A_RING1, A_RING2, A_RING3, A_RING4, A_RING5
+} action_t;
+
 typedef struct	chat_actions {
 			char * expect;
 			action_t action; } chat_action_t ;
