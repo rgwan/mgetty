@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.2 1993/03/14 15:38:04 gert Exp $ (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.3 1993/03/21 10:40:06 gert Exp $ (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -26,8 +26,8 @@ char * fac_tel_no;
 void exit_usage( char * program )
 {
     fprintf( stderr,
-	     "%s: usage is\n%s [-p] <fax-number> <page(s) in g3-format>\n",
-	     program, program );
+	     "Usage: %s [-p] [-h header] <fax-number> <page(s) in g3-format>\n",
+	     program );
     exit(1);
 }
 
@@ -118,19 +118,23 @@ char wbuf[sizeof(buf)*2];
 char ch;
 int i;
 boolean fax_poll_req = FALSE;
+char * 	fax_page_header = NULL;
 char	poll_directory[MAXPATH] = ".";		/* FIXME: parameter */
 
     /* initialize logging */
     strcpy( log_path, FAX_LOG );
     log_level = L_NOISE;
 
-    while ((ch = getopt(argc, argv, "x:p")) != EOF) {
+    while ((ch = getopt(argc, argv, "x:ph:")) != EOF) {
 	switch (ch) {
 	case 'x':
 	    log_level = atoi(optarg);
 	    break;
 	case 'p':
 	    fax_poll_req = TRUE;
+	    break;
+	case 'h':
+	    fax_page_header = optarg;
 	    break;
 	case '?':
 	    exit_usage(argv[0]);
@@ -183,7 +187,7 @@ char	poll_directory[MAXPATH] = ".";		/* FIXME: parameter */
     {
 	lprintf( L_ERROR, "cannot initialize faxmodem" );
 	fprintf( stderr, "%s: cannot initialize faxmodem\n", argv[0] );
-	exit(2);
+	exit(3);
     }
 
 #if REVERSE
@@ -208,9 +212,13 @@ char	poll_directory[MAXPATH] = ".";		/* FIXME: parameter */
     sprintf( buf, "AT&K4D%s", fac_tel_no );
     if ( fax_command( buf, "OK", fd ) == ERROR )
     {
-	lprintf( L_WARN, "dial failed" );
-	fprintf( stderr, "%s: dial %s failed\n", argv[0], fac_tel_no );
-	exit(3);
+	lprintf( L_WARN, "dial failed (hangup_code=%d)", fax_hangup_code );
+	fprintf( stderr, "%s: dial %s failed (%s)\n", argv[0], fac_tel_no,
+		 fax_hangup_code == FHUP_BUSY? "BUSY" : "ERROR / NO CARRIER");
+
+	/* end program - return codes signals kind of dial failure */
+	if ( fax_hangup_code == FHUP_BUSY ) exit(4);
+	exit(10);
     }
 
     /* process all files to send / abort, if Modem sent +FHNG result */
@@ -228,6 +236,7 @@ char	poll_directory[MAXPATH] = ".";		/* FIXME: parameter */
 	}
 
 	/* when modem is ready to receive data, it will send us an XON
+	 * FIXME: one should add a timeout here!
 	 */
 
 	lprintf( L_NOISE, "waiting for XON, got:" );
@@ -238,7 +247,7 @@ char	poll_directory[MAXPATH] = ".";		/* FIXME: parameter */
 	    {
 		lprintf( L_ERROR, "waiting for XON" );
 		fax_close( fd );
-		exit(10);
+		exit(11);
 	    }
 	    lputc( L_NOISE, ch );
 	}
@@ -341,7 +350,7 @@ char	poll_directory[MAXPATH] = ".";		/* FIXME: parameter */
 		 "Transmission error: +FHNG:%2d\n", 
 		 argv[0], argv[argidx-1], fax_hangup_code );
 	fax_close( fd );
-	exit(10);
+	exit(12);
     }
 
     /* OK, handle (optional) fax polling now.
