@@ -7,7 +7,7 @@
 # There are still a lot rough edges - but it works, and should give you an
 # idea how to improve it
 #
-# SCCS: $Id: faxrm.in,v 4.5 2002/11/16 22:16:51 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxrm.in,v 4.6 2003/02/04 16:46:36 gert Exp $ Copyright (C) 1994 Gert Doering
 
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -16,7 +16,7 @@ FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
 echo="@ECHO@"
 #
 # helper program for privileged queue access
-FAXQ_HELPER=/usr/local/lib/mgetty+sendfax/faxq-helper
+FAXQ_HELPER=@LIBDIR@/faxq-helper
 #
 
 if [ ! -d $FAX_SPOOL_OUT ]
