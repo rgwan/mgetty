@@ -1,10 +1,10 @@
-#ident "$Id: utmp.c,v 1.8 1993/11/03 19:20:19 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: utmp.c,v 1.9 1993/11/05 19:59:12 gert Exp $ Copyright (c) Gert Doering";
 /* some parts of the code (writing of the utmp entry)
  * is based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
  */
 
-#ifndef sun
+#if !defined(sun) && !defined(BSD)
 
 #include <stdio.h>
 #include <unistd.h>
