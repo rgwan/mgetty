@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 1.46 1994/11/02 10:06:26 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 1.47 1994/11/02 19:14:29 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include "syslibs.h"
@@ -209,16 +209,6 @@ static RETSIGTYPE getlog_timeout()
 
     lprintf( L_WARN, "getlogname: timeout\n" );
     timeouts++;
-    if ( timeouts == 1 )
-    {
-	printf( "\r\n\07\r\nHey! Please login now. You have one minute left\r\n" );
-	alarm(60);
-    }
-    else
-    {
-	printf( "\r\n\07\r\nYour login time (%d minutes) ran out. Goodbye.\r\n",
-		 MAX_LOGIN_TIME / 60 );
-    }
 }
 #endif
 
@@ -281,11 +271,23 @@ int getlogname _P5( (prompt, tio, buf, maxsize, timeout),
     {
 	if ( read( STDIN, &ch, 1 ) != 1 )
 	{
-	     if ( errno != EINTR || timeouts != 1 )	/* HUP/^D/timeout */
+	     if ( errno != EINTR ) exit(0);		/* HUP/^D/timeout */
+
+#ifdef MAX_LOGIN_TIME
+	     if ( timeouts <= 1 )			/* first timeout */
 	     {
+		 printf( "\r\n\07\r\nHey! Please login now. You have one minute left\r\n" );
+		 alarm(60);
+	     }
+	     else					/* second */
+	     {
+		 printf( "\r\n\07\r\nYour login time (%d minutes) ran out. Goodbye.\r\n",
+			MAX_LOGIN_TIME / 60 );
+	     
 		 sleep(3);		/* give message time to xmit */
 		 exit(0);		/* bye bye... */
 	     }
+#endif
 	     ch = CKILL;		/* timeout #1 -> clear input */
 	}
 
