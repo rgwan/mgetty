@@ -1,8 +1,11 @@
 # frontends/www/Makefile
 #
-# RCS: $Id: Makefile,v 1.2 1998/09/01 15:09:31 gert Exp $
+# RCS: $Id: Makefile,v 1.3 1998/09/11 13:56:57 gert Exp $
 #
 # $Log: Makefile,v $
+# Revision 1.3  1998/09/11 13:56:57  gert
+# renamed "givgif" to "nph-vf-gif" (name too long, nph- needed)
+#
 # Revision 1.2  1998/09/01 15:09:31  gert
 # faxhist.in : show fax history (from 'acct.log')
 #
@@ -10,7 +13,7 @@
 # initial release
 #
 
-CGI=faxq.cgi faxq-v.cgi faxhist.cgi
+CGI=faxq.cgi faxq-v.cgi faxhist.cgi viewfax.cgi nph-vf-gif.cgi
 HTML=index-d.html
 
 CGI_HREF=/cgi-bin/
@@ -31,6 +34,9 @@ install: all
 faxq.cgi: faxq.in ../../sedscript
 faxq-v.cgi: faxq-v.in ../../sedscript
 index-d.html: index-d.in ../../sedscript Makefile
+faxhist.cgi: faxhist.in ../../sedscript
+viewfax.cgi: viewfax.in ../../sedscript
+nph-vf-gif.cgi: nph-vf-gif.in ../../sedscript
 
 ../../sedscript: ../../policy.h ../../Makefile ../../mksed.c
 	@cd ../.. ; $(MAKE) sedscript

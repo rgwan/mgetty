@@ -4,9 +4,12 @@
 # 
 # Copyright 1998 Simone Demmel simone@greenie.net
 #
-# RCS: $Id: viewfax.in,v 1.1 1998/09/09 15:30:16 gert Exp $
+# RCS: $Id: viewfax.in,v 1.2 1998/09/11 13:57:04 gert Exp $
 #
 # $Log: viewfax.in,v $
+# Revision 1.2  1998/09/11 13:57:04  gert
+# renamed "givgif" to "nph-vf-gif" (name too long, nph- needed)
+#
 # Revision 1.1  1998/09/09 15:30:16  gert
 # display incoming fax queue, call vf-*.cgi scripts for details
 #
@@ -127,7 +130,7 @@ EOF
 
         if ($pages{$id} <= $maxpages{$protz})
         {
-	    print "    <a href=\"vf-givgif.cgi?size=$protz&file=$basename{$id}\">$protz%</a>&nbsp;\n";
+	    print "    <a href=\"nph-vf-givgif.cgi?size=$protz&file=$basename{$id}\">$protz%</a>&nbsp;\n";
 	}
 	else
 	{

@@ -1,4 +1,4 @@
-<!-- RCS: $Id: index-d.in,v 1.2 1998/09/01 15:09:33 gert Exp $ -->
+<!-- RCS: $Id: index-d.in,v 1.3 1998/09/11 13:57:00 gert Exp $ -->
 <html><head>
 <title>faxmanager - deutsch</title>
 </head></html>
@@ -7,7 +7,8 @@
 <h1 align="center">Faxmanager</h1>
 <hr size="5">
 
-<a href="@CGI_HREF@faxq.cgi">Status zu sendender Faxe</a>
-<a href="@CGI_HREF@faxhist.cgi">&Uuml;bersicht &uuml;ber gesendete Faxe</a>
+<a href="@CGI_HREF@faxq.cgi">Status zu sendender Faxe</a>&nbsp;
+<a href="@CGI_HREF@faxhist.cgi">&Uuml;bersicht &uuml;ber gesendete Faxe</a>&nbsp;
+<a href="@CGI_HREF@viewfax.cgi">Eingegangene Faxe</a>
 <hr>
 </body>
