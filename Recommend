@@ -17,7 +17,9 @@ For Data+Voice:
  
 For FAX+DATA+Voice
     * ZyXEL 2864
-    * MultiTech MT2834ZDXv
-    * ELSA MicroLink TQV series (fax is not perfect, but works ok)
+    * MultiTech MT2834ZDXv [watch out - recent firmware versions are weird,
+      I have been told that 0316D firmware is OK, but make sure that you
+      can return the modem if it doesn't work]
+    * ELSA MicroLink TQV/Office series (fax is not perfect, but works ok)
 
-Last updated: February 1998
+Last updated: March 1999
