@@ -1,3 +1,17 @@
+Thu Aug 17 19:58:20 MEST 2000  Gert Doering (gert@greenie.muc.de)
+
+	* release 1.1.22
+
+Mon Aug 14 21:20:26 MEST 2000  Gert Doering (gert@greenie.muc.de)
+
+	* callback/callback.c: use VARRUNDIR instead of MGETTY_PID_FILE
+
+	* mgetty.c: use VARRUNDIR to get name of PID file, non-conditional
+
+	* policy.h: MGETTY_PID_FILE is gone, VARRUNDIR used instead
+
+	* mgetty.c: write CallerId to UTMP, if available, Connect otherwise
+
 Sun Aug  6 16:13:43 MEST 2000  Gert Doering (gert@greenie.muc.de)
 
 	* fax/faxspool: convert .pdf files via Acroread (contributed by
