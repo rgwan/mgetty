@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 3.1 1995/08/30 12:40:47 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 3.2 1995/10/22 16:05:19 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include "syslibs.h"
@@ -230,6 +230,8 @@ int getlogname _P5( (prompt, tio, buf, maxsize, do_timeout),
     TIO  tio_save;
     char *  final_prompt;
 
+    static int ppp_level = 0;
+    
     static boolean was_all_uc = FALSE;
 
     /* read character by character! */
@@ -314,7 +316,33 @@ int getlogname _P5( (prompt, tio, buf, maxsize, do_timeout),
 	    strcpy( buf, "\377yoohoo" ); i=7; ch='\r';
 	}
 #endif
+#ifdef AUTO_PPP
+        /* Accept the following sequences as start of PPP packet:
+           PPP_FRAME, PPP_STATION, PPP_ESCAPE, PPP_CONTROL_ESCAPED (normal)
+           PPP_FRAME, PPP_STATION, PPP_CONTROL           (deviant from RFC)
+        
+           Odds are pretty low of hitting this by accident.
+           See RFC1662 for more information.
 
+	   Contributed by Erik 'PPP' Olson, <eriko@wrq.com>.
+         */
+
+        if (ch == (char) PPP_FRAME) {
+            ppp_level = 1;
+        } else if (ch == (char) PPP_STATION && ppp_level == 1) {
+            ppp_level = 2;
+        } else if (ch == (char) PPP_ESCAPE && ppp_level == 2) {
+            ppp_level = 3;
+        } else if ((ch == (char) PPP_CONTROL && ppp_level == 2)
+                   || (ch == (char) PPP_CONTROL_ESCAPED && ppp_level == 3)) {
+            strcpy (buf, "/AUTOPPP/");
+            i=9;
+            ch = '\r';
+        } else {
+            ppp_level = 0;
+        }
+#endif
+        
 #ifdef JANUS
 	/* ignore ^X as first character, some JANUS programs send it first
 	   to skip the usual bbs banner
