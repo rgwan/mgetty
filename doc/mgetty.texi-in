@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.25 1998/06/29 18:51:08 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.26 1998/07/05 20:36:13 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -1864,11 +1864,14 @@ fine up to the end of the first page, and then aborts with @samp{I/O
 error} or so.
 
 In earlier versions, you could achieve this by setting
-@code{FAX_SEND_IGNORE_CARRIER} in @file{policy.h}, but I recommend using
-the config file instead.
+@code{FAX_SEND_IGNORE_CARRIER} in @file{policy.h}, but this has been
+removed.  Use the config file instead.
 
 Modems where this is known to be necessary include all USR modems
 (Courier and Sportsters), some ZyXEL 1496 EG(+), and some GVC models.
+
+The default is @code{ignore-carrier yes}, as there are just too many users
+out there to read documentation, and it does less harm that way.
 
 @item @code{dial-prefix} @var{command}
 
@@ -3323,9 +3326,9 @@ handshake has problems on SunOS versions without the ``Jumbo TTY'' patch.
 If fax sending hangs mysteriously between the first and the second page,
 you're likely to have a modem that drops DCD during pages. As SunOS'
 serial drivers are dumb, reception of data will fail if DCD is low and
-handshake is set to RTS/CTS. So, @code{#define FAX_SEND_IGNORE_CARRIER}
-@strong{and} @code{#define FAXSEND_FLOW FLOW_SOFT} in @file{policy.h} and
-fax sending should work.
+handshake is set to RTS/CTS. So, set @code{ignore-carrier yes} in
+@file{sendfax.config} @strong{and} @code{#define FAXSEND_FLOW FLOW_SOFT} 
+in @file{policy.h} and fax sending should work.
 
 Please use the ``outgoing'' devices (@file{/dev/cua*}) for mgetty and
 dial-outs, using the ``incoming'' devices (@file{/dev/tty*}) will make

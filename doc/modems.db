@@ -331,7 +331,6 @@ OS:  Ultrix V4.2 (Rev. 96)
 #define FAX_RECV_SWITCHBD 19200
 #define FAX_SEND_BAUD	19200
 #define FAX_MODEM_HANDSHAKE "AT&K4"
-#define FAX_SEND_IGNORE_CARRIER
 at+fmfr? ROCKWELL
 at+fmdl? V.32AC
 at+frev? V1.71-02 TR14-Jxxx-001
@@ -422,7 +421,6 @@ contributor:		fte@gecko.de (Frank Tegtmeyer)
 #define FAXSEND_FLOW	FLOW_SOFT
 #define FAX_SEND_BAUD 19200
 #define FAX_MODEM_HANDSHAKE ""
-#define FAX_SEND_IGNORE_CARRIER    nessecary, also with hardware handshake 
 -----------------------------------------------------------------------
 Modem brand/model:	Supra FAX Modem V.32bis
 at+fmfr?		ROCKWELL
@@ -630,7 +628,6 @@ contributor:		fte@impulse.ris.de (Frank Tegtmeyer)
 #define FAX_SEND_BAUD 19200
 /* #define FAX_SEND_SWITCHBD 19200 */
 /* #define FAX_MODEM_HANDSHAKE "AT&H3" */
-/* #define FAX_SEND_IGNORE_CARRIER */
 /* #define FAXSEND_NO_XON */
 -----------------------------------------------------------------------
 Modem brand/model:	XLink V.34 + V.FC
@@ -676,8 +673,7 @@ working:                mgetty and sendfax, no polling available
 contributor:		schaefer@dfki.uni-sb.de (Ulrich Schaefer)
 
 policy.h:
-    everything default, except:
-    #define FAX_SEND_IGNORE_CARRIER
+    everything default
 
 mgetty.config:
     speed 115200
@@ -770,7 +766,6 @@ contributor: sakari@picea.hut.fi
 
 #define MODEM_INIT_STRING	"ATS0=0N1Q0&D3&K3&Q5"
 /*#define FAX_MODEM_HANDSHAKE "AT&H3"*/
-#define FAX_SEND_IGNORE_CARRIER
 
 all other values left at "default"
 -----------------------------------------------------------------------
@@ -957,7 +952,6 @@ contributor:            weizenkeim@t-online.de
 #define FAX_SEND_BAUD 		19200
 #define FAX_SEND_SWITCHBD 	19200 
 #define FAX_MODEM_HANDSHAKE	"AT&K3"
-#define FAX_SEND_IGNORE_CARRIER
 
 -----------------------------------------------------------------------
 Modem brand/model: 	"Bocamodem 14.4Kbps V.32bis"
@@ -1032,7 +1026,6 @@ Date: Sun, 12 Jan 1997 19:59:45 +0100 (CET)
 #define FAXREC_FLOW     FLOW_HARD | FLOW_SOFT
 #define FAX_MODEM_HANDSHAKE "AT&K3"
 #define FAX_DIAL_PREFIX "ATD"
-#define FAX_SEND_IGNORE_CARRIER
 #define FAXSEND_NO_XON			/* !!!!! */
 -----------------------------------------------------------------------
 Modem brand/model:      "IDC-1914BXL 19200 bps FAX-MODEM"
@@ -1047,8 +1040,7 @@ remarks:                This modem is very popular with fidonet sysops in
                         Russia. It is certified by the Russian Ministry of
                         Communications and has a lot of features to tweak it
                         so that it works on poor lines where other modems
-                        inevitably fail.  It is essential to define
-                        FAX_SEND_IGNORE_CARRIER to make sendfax work.
+                        inevitably fail.  
 remarks (2):            Something very weird is happening when receiving
                         faxes -- sometimes it just "stops"...!!??
 contributor:            vas@vas.tomsk.su
@@ -1064,7 +1056,6 @@ date:			Mon, 27 Jan 97 19:46:18 +0700
 #define FAXSEND_FLOW    FLOW_SOFT
 #define FAX_SEND_BAUD 19200
 #define FAX_MODEM_HANDSHAKE "AT&K3"
-#define FAX_SEND_IGNORE_CARRIER
 
 -----------------------------------------------------------------------
 Modem brand/model:      ELSA Microlink  28.8 TQV
@@ -1110,7 +1101,6 @@ date:			21 Mar 97 16:49:30 +0100
 #define FAX_RECV_SHWITCHBD 19200
 #define FAX_MODEM_HANDSHAKE     "AT&K3"
 #define MODEM_INIT_STRING       "AT%T1S0=0E0Q0V1&C1&D3"
-#define FAX_SEND_IGNORE_CARRIER
 -----------------------------------------------------------------------
 Date: Thu, 8 May 1997 08:25:39 +0000 ()
 From: Felipe Rivera Marquez <felipe@informador.com.mx>
