@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 3.4 1995/11/24 21:35:00 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 3.5 1995/11/24 21:35:50 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -125,9 +125,7 @@ typedef	char	boolean;
 #endif
 
 #define MAXLINE 1024		/* max. # chars in a line */
-#ifndef _AIX			/* compiler refuses redeclaration! */
-# define MAXPATH MAXLINE
-#endif
+#define MAXPATH MAXLINE
 #define STDIN	0
 
 typedef enum {
