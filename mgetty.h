@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.22 1993/07/22 20:45:38 gert Exp $ (c) Gert Doering */
+/* $Id: mgetty.h,v 1.23 1993/07/25 13:12:16 gert Exp $ (c) Gert Doering */
 
 /* stuff in logfile.c */
 
@@ -71,7 +71,7 @@ boolean	checklock(char * device);
 sig_t	rmlocks();
   
 /* fax stuff */
-void faxrec( void );
+void faxrec( char * spool_dir );
 
 /* how long should I wait for a string from modem */
 #define FAX_RESPONSE_TIMEOUT	120
