@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 2.5 1995/02/10 19:48:04 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 2.6 1995/02/27 16:43:45 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -426,18 +426,27 @@ int main _P2( (argc, argv),
     {
 	lprintf( L_AUDIT, "failed dialing, phone=\"%s\", +FHS:%d, time=%ds",
 		 fac_tel_no, fax_hangup_code, ( time(NULL)-call_start ) );
+
+	/* close fax line */
+	fax_close( fd );
 	
-	if ( fax_hangup_code == FHUP_BUSY )
-	    printf( "dial failed (BUSY)\n" );
+	/* print message, and end program -
+	   return codes signals kind of dial failure */
+	
+	if ( fax_hangup_code == FHUP_BUSY ||	/* BUSY */
+	     fax_hangup_code == 3 ||		/* no loop current */
+	     fax_hangup_code == 4 )		/* ringing, no answer */
+	{
+	    if ( verbose )
+	        printf( "dial failed (BUSY/NO ANSWER)\n" );
+	    exit(4);
+	}
 	else
+	{
 	    fprintf( stderr, "\n%s: dial %s failed (ERROR / NO CARRIER)\n",
 		     argv[0], fac_tel_no );
-
-	/* end program - return codes signals kind of dial failure */
-	fax_close( fd );
-
-	if ( fax_hangup_code == FHUP_BUSY ) exit(4);
-	                               else exit(10); 
+	    exit(10);
+	}
     }
     if ( verbose ) printf( "OK.\n" );
 
