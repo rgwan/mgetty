@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.8 1997/12/09 11:15:11 gert Exp $ (c) 1993-1997 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.9 1998/01/04 13:24:49 gert Exp $ (c) 1993-1997 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -2426,6 +2426,12 @@ it won't work properly with @code{mgetty+sendfax}.
 If you buy a Rockwell-based modem (they are usually quite cheap), make
 sure that you get one that can do class 2 or (better) class 2.0.  Even if
 it's written on the box, some recent models just can't do it!
+
+Together with @code{vgetty}, many Rockwell modems can distinguish between
+different types of incoming ``RING'' tones (usually called ``distinguished
+RING'' by the local Telco).  Use the command @code{AT#SDR=n} (n between 0
+and 7) to enable this feature.  If in doubt, check with your modem
+manual whether your modem can do this at all.
 
 @node Zoom-vfast, Best14496EC, Rockwell, Modems
 @subsection Zoom VFP/VFX 24K FaxModem (V.FAST modem, 24,000 bps)
