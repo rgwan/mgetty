@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.h,v 1.67 1994/10/22 15:40:39 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 1.68 1994/10/31 11:04:48 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -49,7 +49,8 @@ int lprintf _PROTO(());
 /* bsd stuff */
 #if defined(__BSD_NET2__) || defined(__386BSD__) || \
     defined(__NetBSD__)   || defined(__FreeBSD__)
-# define BSD
+/* # define BSD */	/* we better should know the exact version */
+#include <sys/param.h>	/* defines BSD, BSD4_3 and BSD4_4 */
 #endif
 
 /* define here what function to use for polling for characters
