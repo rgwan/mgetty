@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 3.2 1995/11/12 15:27:23 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 3.3 1995/11/25 15:12:14 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -145,6 +145,23 @@ enum { St_unknown,
        St_incoming_fax			/* +FCON detected */
    } mgetty_state = St_unknown;
 
+/* called on SIGUSR2. Exit, if no user online, ignore otherwise */
+static RETSIGTYPE sig_new_config()
+{
+    signal( SIGUSR2, sig_new_config );
+    if ( mgetty_state != St_answer_phone &&
+	 mgetty_state != St_get_login &&
+	 mgetty_state != St_incoming_fax )
+    {
+	lprintf( L_AUDIT, "exit dev=%s, pid=%d, got signal USR2, exiting",
+	              Device, getpid() );
+	rmlocks();
+	exit(0);
+    }
+    lprintf( L_MESG, "Got SIGUSR2, modem is off-hook --> ignored" );
+}
+   
+	
 void st_dialout _P0( void )
 {
     int pid;
@@ -225,6 +242,7 @@ int main _P2((argc, argv), int argc, char ** argv)
     siginterrupt( SIGALRM, TRUE );
     siginterrupt( SIGHUP,  TRUE );
     siginterrupt( SIGUSR1, TRUE );
+    siginterrupt( SIGUSR2, TRUE );
 #endif
 
     Device = "unknown";
@@ -407,8 +425,12 @@ int main _P2((argc, argv), int argc, char ** argv)
        machine directly attached to the modem...), so send mgetty a signal
        SIGUSR1 and it will behave as if a RING was seen
        */
-    
     signal( SIGUSR1, sig_pick_phone );
+
+    /* for reloading the configuration file, we need a way to tell mgetty
+       "restart, but only if no user is online". Use SIGUSR2 for that
+       */
+    signal( SIGUSR2, sig_new_config );
 
 #if ( defined(linux) && defined(NO_SYSVINIT) ) || defined(sysV68)
     /* on linux, "simple init" does not make a wtmp entry when you
