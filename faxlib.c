@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.18 1997/06/22 14:59:26 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.19 1997/07/13 13:36:20 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -525,6 +525,10 @@ int mdm_identify _P1( (fd), int fd )
 
 	switch(mid)
 	{
+	  case 0:		/* empty string */
+	    lprintf( L_MESG, "got no modem ID. Hagenuk Speed Dragon?" );
+	    mis = mdm_get_idstring( "ATI0", 1, fd );
+	    break;
 	  case 1496:
 	    lprintf( L_MESG, "ZyXEL 1496 detected" ); 
 	    modem_type=Mt_class2_0;
