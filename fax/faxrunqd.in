@@ -9,10 +9,16 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.43 1999/04/30 12:21:05 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.44 1999/04/30 15:07:55 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.44  1999/04/30 15:07:55  gert
+# reorganize handling of %phone (avoid sending two faxes to the
+# same telephone number at the same time).  Introduce 'other' field
+# in the $queue{job} structure to keep track of other jobs that want
+# to be sent to the same number as this job.
+#
 # Revision 1.43  1999/04/30 12:21:05  gert
 # typo ($ex/$eq)
 #
@@ -410,6 +416,7 @@ while( 1 )
     # now decide whether we want to exit, wait, or just start over
     # with reading the on-disk-queue for new jobs...
     print LOG localtime() . ": queue run finished, childs=$childs\n" if $opt_v;
+    print LOG "\tD: %phones=(". join(' ', keys %phones) .")\n" if $opt_d;
 
     # use the time to update the "last run" file...
     if ( open( LR, ">$fax_spool_out/.last_run" ) )
@@ -518,6 +525,7 @@ close FSO;
 # put_job_to_modem_queue $job
 #
 # find a "suitable" modem queue for $job
+#   - no other job for this phone number already queued
 #   - this modem must be allowed for that job
 #   - if multiple queues allowed, take the shortest one
 #
@@ -527,6 +535,29 @@ close FSO;
 sub put_job_to_modem_queue
 {
     my $j = shift;
+
+    # find out whether another job is already queued for that phone
+    # number.  If yes, "attach" to that job (so that jobs can be 
+    # combined into one sendfax run).
+    my $phone = $queue{$j}->{phone};
+
+    if ( defined($phones{$phone}) )		# already job queued
+    {
+	my $job_t = $phones{$phone};
+
+	if ( !defined( $queue{$job_t}->{others} ) )
+		{ $queue{$job_t}->{others} = []; }
+
+	push @{$queue{$job_t}->{others}}, $j;
+
+	print LOG "$j: phone number '$phone' already reserved for $job_t, put on hold\n"  if $opt_d;
+	$queue{$j}->{status}="on hold";
+
+	return;
+    }
+
+    # no jobs for that phone number queued so far -> take this one
+    $phones{$phone}=$j;
 
     my @ttys = defined( $queue{$j}->{ttys} )? 
 		               @{$queue{$j}->{ttys}} : @standard_ttys;
@@ -846,23 +877,11 @@ sub send_job_from_queue
 	print LOG "WARNING: job has disappeared from disk queue!\n";
 	$queue{$job}->{'status'}='error';
         $mq_length{$tty} -= $queue{$job}->{weight};
+	&reactivate_others($job);
 	return;
     }
 
     my $phone = $queue{$job}{phone};
-
-    # check whether phone number is free... if not, delay job
-    ### !!!!!!!!!!! SERIOUSLY UGLY !!!!!! FIXME
-    if ( defined( $phones{$phone} ) )
-    {
-	print LOG "$job: phone number '$phone' already busy with job ${phones{$phone}}, delaying\n" if $opt_v;
-	$queue{$job}->{status}='delayed';
-	$queue{$job}->{'delayed_until'}=time() + 30 + 
-			30 * scalar(@{$queue{ $phones{$phone} }{pages}});
-        $mq_length{$tty} -= $queue{$job}->{weight};
-	return;
-    }
-
     my $pri   = $queue{$job}{priority};
     my @flags = @{$queue{$job}{flags}};
 
@@ -877,6 +896,7 @@ sub send_job_from_queue
 	print LOG "WARNING: can't lock job ($!), skipping!\n";
 	$queue{$job}->{'status'}='error';
         $mq_length{$tty} -= $queue{$job}->{weight};
+	&reactivate_others($job);
 	return;
     }
 
@@ -901,9 +921,39 @@ sub send_job_from_queue
 	$childs++;
 	$pid2job{$pid}=$job;
 	$pid2tty{$pid}=$tty;
-	$phones{$phone}=$job;
 	$tty_in_use{$tty}=1;
 	printf LOG "$job: forked off child **$pid**...\n" if $opt_v;
+    }
+}
+
+##########################################################################
+#
+# reactivate_others $job
+#
+# for all jobs 'attached' to this one (in ->{others}, because of having
+# the same phone number), put jobs back to 'active' and into the queue
+#
+##########################################################################
+sub reactivate_others
+{
+my $j = shift;
+my $phone = $queue{$j}->{phone};
+
+    # if the phone number is still marked 'busy', remove from list
+    if ( defined( $phones{$phone} ) )
+		    { delete $phones{$phone}; }
+
+    # now re-queue all attached jobs (if any)
+    if ( defined( $queue{$j}->{others} ))
+    {
+	printf LOG "$j: reactivate others...\n" if $opt_d;
+	foreach $jj ( @{$queue{$j}->{others}} )
+	{
+	    # FIXME: check timing constraints (?)
+	    $queue{$jj}->{status} = 'active';
+	    put_job_to_modem_queue($jj);
+	}
+	delete $queue{$j}->{others};
     }
 }
 
@@ -975,6 +1025,9 @@ my ($r, $s, $ex, $j, $t);
     $mq_length{$t} -= $queue{$j}{weight};
     $tty_in_use{$t}=0;
 
+    # reactivate 'attached' jobs now (this phone number is free)
+    &reactivate_others($j);
+
     if ( $ex == 0 && $s > 0 )		# signal?!?
     {
 	print LOG "$j: sendfax (pid $r) was killed with signal $s\n";
@@ -985,6 +1038,7 @@ my ($r, $s, $ex, $j, $t);
     {
 	print LOG "Problems with exec() --> aborting\n";	#!!!!! DIE
 	unlink "$j/JOB.locked";
+	$queue{$j}->{'status'} = 'error';
 	return $t;
     }
 
