@@ -1,4 +1,4 @@
-#ident "$Id: conf_sf.c,v 3.3 1995/11/27 19:04:49 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_sf.c,v 3.4 1996/03/11 00:12:53 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_sf.c
  *
@@ -49,6 +49,7 @@ struct conf_data_sendfax c = {
 	{ "page-header", 0, CT_STRING, C_EMPTY },
 	{ "" /* stdin */, FALSE, CT_BOOL, C_PRESET },
 	{ "" /* rename */, FALSE, CT_BOOL, C_PRESET },
+	{ "" /* acct_handle */, FALSE, CT_STRING, C_PRESET },
 	{ NULL, 0, CT_STRING, C_EMPTY }};
 
 int sendfax_parse_args _P2( (argc,argv), int argc, char ** argv )
@@ -80,7 +81,7 @@ conf_data c_a[2];
     }
 
     /* get command line arguments */
-    while ((opt = getopt(argc, argv, "d:vx:ph:l:nm:SC:I:rV")) != EOF)
+    while ((opt = getopt(argc, argv, "d:vx:ph:l:nm:SC:I:rA:V")) != EOF)
     {
 	switch (opt) {
 	  case 'd':	/* set target directory for polling */
@@ -126,6 +127,9 @@ conf_data c_a[2];
 	    break;
 	  case 'r':
 	    conf_set_bool( &c.rename_files, TRUE );
+	    break;
+	  case 'A':
+	    conf_set_string( &c.acct_handle, optarg );
 	    break;
 	  case 'V':
 	    printf("\nmgetty+sendfax by Gert Doering\n%s\n\n",
