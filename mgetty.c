@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 4.28 2000/02/15 20:36:55 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 4.29 2000/08/14 19:36:20 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -100,7 +100,6 @@ static RETSIGTYPE sig_goodbye _P1 ( (signo), int signo )
     exit(10);
 }
 
-#ifdef MGETTY_PID_FILE
 /* create a file with the process ID of the mgetty currently
  * active on a given device in it.
  */
@@ -109,7 +108,7 @@ static void make_pid_file _P0( void )
 {
     FILE * fp;
 
-    sprintf( pid_file_name, MGETTY_PID_FILE, DevID );
+    sprintf( pid_file_name, "%s/mgetty.pid.%s", VARRUNDIR, DevID );
 
     fp = fopen( pid_file_name, "w" );
     if ( fp == NULL )
@@ -121,7 +120,6 @@ static void make_pid_file _P0( void )
     if ( chmod( pid_file_name, 0644 ) != 0 )
         lprintf( L_ERROR, "can't chmod() pid file" );
 }
-#endif
     
 
 enum mgetty_States
@@ -376,9 +374,7 @@ int main _P2((argc, argv), int argc, char ** argv)
     lprintf( L_MESG, "gettydefs tag used: %s", c_string(gettydefs_tag) );
 #endif
 
-#ifdef MGETTY_PID_FILE
     make_pid_file();
-#endif
 
     lprintf(L_MESG, "check for lockfiles");
 
@@ -951,7 +947,8 @@ Ring_got_action:
     
     /* make utmp and wtmp entry (otherwise login won't work)
      */
-    make_utmp_wtmp( Device, UT_LOGIN, "LOGIN", Connect );
+    make_utmp_wtmp( Device, UT_LOGIN, "LOGIN", 
+		      strcmp( CallerId, "none" ) != 0 ? CallerId: Connect );
 
     /* wait a little bit befor printing login: prompt (to give
      * the other side time to get ready)
@@ -1038,9 +1035,7 @@ Ring_got_action:
 	}
 
 	/* remove PID file (mgetty is due to exec() login) */
-#ifdef MGETTY_PID_FILE
 	(void) unlink( pid_file_name );
-#endif
 
 	/* dreadful hack for Linux, set TERM if desired */
 	if ( c_isset(termtype) )
