@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 3.5 1996/01/03 21:33:48 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 3.6 1996/01/22 01:13:15 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -134,7 +134,8 @@ static void make_pid_file _P0( void )
 #endif
     
 
-enum { St_unknown,
+enum mgetty_States
+     { St_unknown,
        St_go_to_jail,			/* reset after unwanted call */
        St_waiting,			/* wait for activity on tty */
        St_check_modem,			/* check if modem is alive */
@@ -164,12 +165,68 @@ static RETSIGTYPE sig_new_config()
     lprintf( L_MESG, "Got SIGUSR2, modem is off-hook --> ignored" );
 }
    
-	
-void st_dialout _P0( void )
+enum mgetty_States st_sig_callback _P2( (pid, devname),
+				        int pid, char * devname )
+{
+    TIO tio;
+    
+    lprintf( L_MESG, "Got callback signal from pid=%d!", pid );
+
+    /* reopen device */
+    if ( mg_open_device( devname, FALSE ) == ERROR )
+    {
+	lprintf( L_FATAL, "stsc: can't reopen device" );
+	exit(0);
+    }
+
+    /* setup device (but do *NOT*!! set speed) */
+    if ( tio_get( STDIN, &tio ) == ERROR )
+    {
+	lprintf( L_FATAL, "stsc: can't get TIO" ); exit(0);
+    }
+    tio_mode_sane( &tio, FALSE );
+    tio_default_cc( &tio );
+    tio_mode_raw( &tio );
+    tio_set_flow_control( STDIN, &tio, DATA_FLOW );
+    if ( tio_set( STDIN, &tio ) == ERROR )
+    {
+	lprintf( L_FATAL, "stsc: can't set TIO" ); exit(0);
+    }
+    
+    /* make line controlling tty */
+    mg_get_ctty( STDIN, devname );
+
+    /* steal lock file from callback process */
+    lprintf( L_MESG, "stealing lock file from pid=%d", pid );
+    if ( steal_lock( Device, pid ) == ERROR ) return St_dialout;
+
+    /* signal user */
+    printf( "...ok\r\n" );
+
+    /* signal callback process (but give it some time to enter pause()! */
+    delay(500);
+    if ( kill( pid, SIGUSR1 ) < 0 )
+    {
+	lprintf( L_ERROR, "can't signal callback process" );
+    }
+
+    /* now give user a login prompt! */
+    return St_get_login;
+}
+
+/* line locked, parallel dialout in process.
+ *
+ * Two things can happen now:
+ *   - lock file disappears --> dialout terminated, exit(), restart
+ *   - get signal SIGUSR1 --> dialout was callback, mgetty takes over
+ */
+enum mgetty_States st_dialout _P1( (devname), char * devname )
 {
     int pid;
     
     /* the line is locked, a parallel dialout is in process */
+
+    virtual_ring = FALSE;			/* used to signal callback */
 
     /* close all file descriptors -> other processes can read port */
     close(0);
@@ -191,7 +248,16 @@ void st_dialout _P0( void )
     
     do {
 	/* wait for lock to disappear */
-	while ( checklock(Device) != NO_LOCK ) sleep(10);
+	while ( ( pid = checklock(Device) ) != NO_LOCK ) 
+	{
+	    sleep(10);
+
+	    /* virtual ring? this would mean an active callback! */
+	    if ( virtual_ring )
+	    {
+		return st_sig_callback( pid, devname );
+	    }
+	}
 	
 	/* wait a moment, then check for reappearing locks */
 	sleep(5);
@@ -317,7 +383,7 @@ int main _P2((argc, argv), int argc, char ** argv)
      */
     if (checklock(Device) != NO_LOCK)
     {
-	st_dialout();
+	st_dialout(NULL);
     }
 
     /* try to lock the line
@@ -326,7 +392,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 
     if ( makelock(Device) == FAIL )
     {
-	st_dialout();
+	st_dialout(NULL);
     }
 
     /* the line is mine now ...  */
@@ -601,7 +667,8 @@ int main _P2((argc, argv), int argc, char ** argv)
 
 
 	  case St_dialout:
-	    st_dialout();	/* does /NOT/ return */
+	    /* wait for lock file to disappear *OR* for callback in progress */
+	    mgetty_state = st_dialout(devname);
 	    break;
 
 	  case St_wait_for_RINGs:
