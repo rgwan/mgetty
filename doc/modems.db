@@ -726,6 +726,10 @@ remarks:                "#define FAX_USRobotics" is NOT intended to use with
 			will be able to write the Caller ID to the log
 			files.
 
+WARNING: many USR Sportster models are completely unable to send and/or
+	 receive faxes.  So, if faxing is important for you, DO NOT GET
+	 AN USR SPORTSTER.  (Get an USR Courier, works very good).
+
 contributor:            kuerten@informatik.tu-muenchen.de
 contributor:            rrb@cqs.ch
  
