@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 1.46 1994/09/28 17:30:40 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logfile.c,v 1.47 1994/10/22 16:27:00 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -214,7 +214,8 @@ int     errnr;
 	    {
 		sprintf( ws, "cannot log to %s, disable logging", CONSOLE );
 		perror( ws );
-		log_level = 0;
+		log_level = -1;
+		return 0;
 	    }
 	}
 	
