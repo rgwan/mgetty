@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.22 1993/07/20 23:20:32 gert Exp $ (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.23 1993/07/20 23:24:16 gert Exp $ (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -392,6 +392,7 @@ int	tries;
     {
 	lprintf( L_ERROR, "cannot initialize faxmodem" );
 	fprintf( stderr, "%s: cannot initialize faxmodem\n", argv[0] );
+	fax_close( fd );
 	exit(3);
     }
 
@@ -426,8 +427,8 @@ int	tries;
 		 fax_hangup_code == FHUP_BUSY? "BUSY" : "ERROR / NO CARRIER");
 
 	/* end program - return codes signals kind of dial failure */
-	if ( fax_hangup_code == FHUP_BUSY ) exit(4);
-	exit(10);
+	if ( fax_hangup_code == FHUP_BUSY ) { fax_close( fd ); exit(4); }
+	{ fax_close( fd ); exit(10); }
     }
     if ( verbose ) printf( "OK.\n" );
 
