@@ -5,7 +5,7 @@
 # to be valid Perl5 syntax.  If you don't know perl, just do not modify
 # things that are not between quotation marks!
 #
-# RCS: $Id: wwwgui.cfg.in,v 1.4 1998/12/04 15:39:16 gert Exp $
+# RCS: $Id: wwwgui.cfg.in,v 1.5 2001/07/31 21:43:00 neko Exp $
 #
 
 #
@@ -22,6 +22,12 @@ $fax_outgoing = '@FAX_SPOOL_OUT@';
 # (this can be arbitrary HTML code, but usually is just an image and link)
 #
 $www_logo = '<a href="http://www.medat.de/"><img align="left" src="/medat-mini.gif" width=100 height=40 border="0"></a>';
+
+# do we want people to delete faxes?
+# 0 = no, 1 = yes
+# $allow_delete = 1;
+$allow_delete = 0;
+
 
 #
 # ---- Path names for the WWW stuff ----
@@ -99,6 +105,8 @@ $webtmprel="/~sd/tmp";
 $turn_left='<img src="/~sd/pfeill.gif" alt="turn left" border="0">';
 $turn_right='<img src="/~sd/pfeilr.gif" alt="turn right" border="0">';
 $turn_updown='<img src="/~sd/pfeild.gif" alt="upside down" border="0">';
+$delete='<img src="/projects/webfaxdemo/delete.gif" alt="delete" border="0">';
+#
 #
 # text only version
 #$turn_left='<';
