@@ -3,7 +3,7 @@
  *
  * This file contains the commands for V253 complaient modems
  *
-  For this File I used the ELSA.c as template and replaced all pre-V.253 commands
+  For this File I (Juergen.Kosel@gmx.de) used the ELSA.c as template and replaced all pre-V.253 commands
   with the commands defined in the ITU V.253 specification.
   Newer ELSA-modems follow this specification.
   So some ELSA-modems like the "ML 56k pro" could be used with the ELSA.c (and the old commands)
@@ -16,15 +16,14 @@
   Hint: Recorded voice files are in .ub format (refer to the sox manpage about this) except the header.
         So you can use this files with sox.
  *
- * $Id: V253modem.c,v 1.3 2000/09/10 08:10:10 marcs Exp $
+ * $Id: V253modem.c,v 1.4 2001/02/24 10:59:36 marcs Exp $
  *
  */
 
-#include "../include/voice.h"
 
-static int V253modem_set_device (int device);
+#include "../include/V253modem.h"
 
-static int V253modem_init (void)
+     int V253modem_init (void)
      {
      char buffer[VOICE_BUF_LEN];
 
@@ -49,7 +48,7 @@ be silence].
 >128: more aggressive [less sensitive, higher noise levels considered to be silence].
 
  */
-#if 0 /* enable this when cvd.rec_silence_threshold.d.i  is set as an absoult value
+#if 0 /* enable this when cvd.rec_silence_threshold.d.i  is set as an absolut value
 (with default 128) instead of percent */
      sprintf(buffer, "AT+VSD=%d,%d", cvd.rec_silence_threshold.d.i , cvd.rec_silence_len.d.i);
 #else /* until this, the sensitvity is harcoded with manufaturer default! */
@@ -112,8 +111,12 @@ be silence].
         with +VNH=1 the modem doesn't make an automatic disconnect if connect fails in
 	data/faxmode so mgetty could switch back to voicemode */
 
-     /* set inactivity timer to 60seconds */
-     voice_command("AT+VIT=60", "OK");
+     /* voice-inactivity-timer: This means that the modem should go back
+        to fclass 0 and enable autobauding (which wasn't disabled by vgetty with
+        AT+IPR or AT+VPR). Since it's in the TODO list that vgetty stays in voice
+        the voice-inactivity-timer is disabled.
+     */
+     voice_command("AT+VIT=0", "OK");
 
      /* enable distinctivering in pulse/pauseformat
        this will look like this:
@@ -122,13 +125,14 @@ RING
 DROF=40
 DRON=20
 RING */
-     voice_command("AT+VDR=1,5", "OK");
+     sprintf(buffer, "AT+VDR=1,%d", cvd.ring_report_delay.d.i);
+     voice_command(buffer, "OK");
 
      voice_modem_state = IDLE;
      return(OK);
      }
 
-static int V253modem_set_compression (int *compression, int *speed, int *bits)
+     int V253modem_set_compression (int *compression, int *speed, int *bits)
      {
      char buffer[VOICE_BUF_LEN];
      int Kompressionmethod = 1; /* a littlebit germinglish :-) */
@@ -146,7 +150,9 @@ static int V253modem_set_compression (int *compression, int *speed, int *bits)
        }
      /*  default is 8 Bit PCM/8 bit linear which should be supported by most modems
          and be mapped to the V.253 defined AT+VSM=1 .
-         On the otherside the the compressionmodes from the Elsa.c
+         With 8000 samples/sec it's also the default for soundcards.
+
+         On the otherside the compressionmodes from the Elsa.c
          are mapped to the manufacturer specific +VSM values (above 127)
          so voice files recorded with the &Elsa driver can be played with
          this &V253modem driver (and the same modem of course) */
@@ -159,6 +165,10 @@ static int V253modem_set_compression (int *compression, int *speed, int *bits)
             if this fails we try the other one later */
            Kompressionmethod = 129;
          }
+         else
+         {
+           Kompressionmethod = 140;
+         }
          *speed=7200;
          break;
         }
@@ -170,6 +180,10 @@ static int V253modem_set_compression (int *compression, int *speed, int *bits)
             if this fails we try the other one later */
 
            Kompressionmethod = 131;
+         }
+         else
+         {
+           Kompressionmethod = 141;
          }
          *bits=4;
          *speed=7200;
@@ -195,7 +209,7 @@ static int V253modem_set_compression (int *compression, int *speed, int *bits)
          *speed=8000;
          break;
        }
-       case 9:        /* ITU defined signed PCM */
+       case 9:        /* ITU defined unsigned PCM */
        {
           Kompressionmethod = 0;
           *bits=8;
@@ -220,6 +234,7 @@ static int V253modem_set_compression (int *compression, int *speed, int *bits)
           lprintf(L_WARN, "compression method %d is not supported -> edit voice.conf",*compression);
         /*  return(FAIL);  */
           Kompressionmethod = 1;
+          *bits=8;
        }
      }
      if (*speed == 0)
@@ -238,131 +253,75 @@ static int V253modem_set_compression (int *compression, int *speed, int *bits)
       }
 
      lprintf(L_NOISE, "Just for info: port_speed should be greater than %d bps",(*bits)*(*speed)*10/8);
-     /* 8 Databits + 1 Stopbit +1 startbit, generel: (*bits)*(*speed)*9/8,  */
+     /* 8 Databits + 1 Stopbit +1 startbit  */
      return(OK) ;
      }
 
-static int V253modem_set_device (int device)
+     int V253modem_set_device (int device)
      {
-     reset_watchdog();
+       int Result;
+       reset_watchdog();
+       lprintf(L_JUNK, "%s: %s: (%d)", voice_modem_name, 
+	       voice_device_mode_name(device), device);
 
      switch (device)
           {
           case NO_DEVICE:
-               lprintf(L_JUNK, "%s: _NO_DEV: (%d)", voice_modem_name, device);
-               if (voice_command("AT+VLS=0", "OK|VCON")!= VMA_USER_1)   /* valid answer for +vls is only "OK" but to keep this more generic... */
-               {
-                 lprintf(L_WARN, "can't set No_Device");
-                 /* I don't know what returnvalue should be used in this case of failure */
-               }
-               return(OK);
+	    Result = voice_command("AT+VLS=0", "OK");
+	    break;
           case DIALUP_LINE:
-               lprintf(L_JUNK, "%s: _DIALUP: (%d)", voice_modem_name, device);
-               if (voice_command("AT+VLS=1", "OK")!= VMA_USER_1)
-               {
-                 lprintf(L_WARN, "can't set No_Device");
-                 /* I don't know what returnvalue should be used in this case of failure */
-               }
-               return(OK);
+	    Result = voice_command("AT+VLS=1", "OK");
+	    break;
           case EXTERNAL_MICROPHONE:
-               lprintf(L_JUNK, "%s: _External_Microphone: (%d)", voice_modem_name, device);
-               if (voice_command("AT+VLS=11", "OK")!= VMA_USER_1)
-               {
-                 lprintf(L_WARN, "can't set External_Microphone");
-                 /* I don't know what returnvalue should be used in this case of failure */
-               }
-               return(OK);
+	    Result = voice_command("AT+VLS=11", "OK");
+	    break;
           case INTERNAL_MICROPHONE:
-               lprintf(L_JUNK, "%s: _INT_MIC: (%d)", voice_modem_name, device);
-               if (voice_command("AT+VLS=6", "OK|VCON")!= VMA_USER_1)
-               {
-                 lprintf(L_WARN, "can't set Internal_Microphone");
-                 /* I don't know what returnvalue should be used in this case of failure */
-               }
-               return(OK);
+	    Result = voice_command("AT+VLS=6", "OK");
+	    break;
           case INTERNAL_SPEAKER:
-               lprintf(L_JUNK, "%s: _INT_SEAK: (%d)", voice_modem_name, device);
-               if (voice_command("AT+VLS=4", "OK|VCON")!= VMA_USER_1)
-               {
-                 lprintf(L_WARN, "can't set INTERNAL_SPEAKER");
-                 /* I don't know what returnvalue should be used in this case of failure */
-               }
-               return(OK);
+	    Result = voice_command("AT+VLS=4", "OK");
+	    break;
           case EXTERNAL_SPEAKER:
-               lprintf(L_JUNK, "%s: _EXTERNAL_SPEAKER: (%d)", voice_modem_name, device);
-               if (voice_command("AT+VLS=8", "OK|VCON")!= VMA_USER_1)
-               {
-                 lprintf(L_WARN, "can't set External_SPEAKER");
-                 /* I don't know what returnvalue should be used in this case of failure */
-               }
-               return(OK);
+	    Result = voice_command("AT+VLS=8", "OK");
+	    break;
           case LOCAL_HANDSET :
-               lprintf(L_JUNK, "%s: _LOCAL_HANDSET: (%d)", voice_modem_name, device);
-               if (voice_command("AT+VLS=2", "OK|VCON") != VMA_USER_1)
-               {
-                 lprintf(L_WARN, "can't set LOCAL_HANDSET");
-                 /* I don't know what returnvalue should be used in this case of failure */
-               }
-               return(OK);
+	    Result = voice_command("AT+VLS=2", "OK");
+	    break;
           case DIALUP_WITH_EXT_SPEAKER :
-               lprintf(L_JUNK, "%s: _DIALUP_WITH_EXT_SPEAKER: (%d)", voice_modem_name, device);
-               if (voice_command("AT+VLS=9", "OK|VCON") != VMA_USER_1)
-               {
-                 lprintf(L_WARN, "can't set DIALUP_WITH_EXT_SPEAKER");
-                 /* I don't know what returnvalue should be used in this case of failure */
-               }
-               return(OK);
-
-
+	    Result = voice_command("AT+VLS=9", "OK");
+	    break;
           case DIALUP_WITH_INT_SPEAKER :
-               lprintf(L_JUNK, "%s: _DIALUP_WITH_INT_SPEAKER: (%d)", voice_modem_name, device);
-               if (voice_command("AT+VLS=5", "OK|VCON") != VMA_USER_1)
-               {
-                 lprintf(L_WARN, "can't set DIALUP_WITH_INT_SPEAKER");
-                 /* I don't know what returnvalue should be used in this case of failure */
-               }
-               return(OK);
-
+	    Result = voice_command("AT+VLS=5", "OK");
+	    break;
           case DIALUP_WITH_LOCAL_HANDSET :
-               lprintf(L_JUNK, "%s: _DIALUP_WITH_LOCAL_HANDSET: (%d)", voice_modem_name, device);
-               if (voice_command("AT+VLS=3", "OK|VCON") != VMA_USER_1)
-               {
-                 lprintf(L_WARN, "can't set DIALUP_WITH_LOCAL_HANDSET");
-                 /* I don't know what returnvalue should be used in this case of failure */
-               }
-               return(OK);
-
+	    Result = voice_command("AT+VLS=3", "OK");
+	    break;
           case DIALUP_WITH_EXTERNAL_MIC_AND_SPEAKER:
-               lprintf(L_JUNK, "%s: _DIALUP_WITH_EXTERNAL_MIC_AND_External_SPEAKER: (%d)", voice_modem_name, device);
-               if (voice_command("AT+VLS=13", "OK|VCON") != VMA_USER_1)
-               {
-                 lprintf(L_WARN, "can't set DIALUP_WITH_EXTERNAL_MIC_AND_External_SPEAKER");
-                 /* I don't know what returnvalue should be used in this case of failure */
-               }
-               return(OK);
-
+	    Result = voice_command("AT+VLS=13", "OK");
+	    break;
           case DIALUP_WITH_INTERNAL_MIC_AND_SPEAKER:
-               lprintf(L_JUNK, "%s: _DIALUP_WITH_INTERNAL_MIC_AND_Internal_SPEAKER: (%d)", voice_modem_name, device);
-               if (voice_command("AT+VLS=7", "OK|VCON") != VMA_USER_1)
-               {
-                 lprintf(L_WARN, "can't set DIALUP_WITH_INTERNAL_MIC_AND_Internal_SPEAKER");
-                 /* I don't know what returnvalue should be used in this case of failure */
-               }
-               return(OK);
-
+	    Result = voice_command("AT+VLS=7", "OK");
+	    break;
+	  default:
+	    lprintf(L_WARN, "%s: Unknown device (%d)", 
+		    voice_modem_name, device);
+	    return(FAIL);
           }
 
-     lprintf(L_WARN, "%s: Unknown device (%d)", voice_modem_name, device);
-     return(FAIL);
+     if (Result != VMA_USER_1)   
+       {
+	 lprintf(L_WARN, "can't set %s (modem hardware can't do that)",
+		 voice_device_mode_name(device));
+	 return(VMA_DEVICE_NOT_AVAIL);
+       }
+     return(OK);
      }
 
 /* Only verifies the RMD name */
 #define V253modem_RMD_NAME "V253modem"
 #define ELSA_RMD_NAME "ELSA"
-int V253_check_rmd_adequation(char *rmd_name) {
-   /* We use hardware values so that this function can be
-    * inherited from 2864 too.
-    */
+int V253_check_rmd_adequation(char *rmd_name) 
+{
    return !strncmp(rmd_name,
                    V253modem_RMD_NAME,
                    sizeof(V253modem_RMD_NAME))
@@ -372,22 +331,16 @@ int V253_check_rmd_adequation(char *rmd_name) {
 }
 
 
-
-
-
-
-
-
-static char V253modem_pick_phone_cmnd[] = "AT+FCLASS=8";  /* because this will be followed by a
+const char V253modem_pick_phone_cmnd[] = "AT+FCLASS=8";  /* because this will be followed by a
                                                              V253modem_set_device (DIALUP_LINE)
                                                              -> this picks up the line!*/
-static char V253modem_pick_phone_answr[] = "VCON|OK";
+const char V253modem_pick_phone_answr[] = "VCON|OK";
 
 
-static char V253modem_hardflow_cmnd[] = "AT+IFC=2,2";
-static char V253modem_softflow_cmnd[] = "AT+IFC=1,1";
+const char V253modem_hardflow_cmnd[] = "AT+IFC=2,2";
+const char V253modem_softflow_cmnd[] = "AT+IFC=1,1";
 
-static char V253modem_beep_cmnd[] = "AT+VTS=[%d,,%d]";
+const char V253modem_beep_cmnd[] = "AT+VTS=[%d,,%d]";
 
 
 voice_modem_struct V253modem =
@@ -442,7 +395,7 @@ voice_modem_struct V253modem =
     &IS_101_stop_waiting,
     &IS_101_switch_to_data_fax,
     &IS_101_voice_mode_off,
-    &IS_101_voice_mode_on,
+    &IS_101_voice_mode_on,      /* it's also possible to say AT+FCLASS=8.0 */
     &IS_101_wait,
     &IS_101_play_dtmf,
     &V253_check_rmd_adequation,

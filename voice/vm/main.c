@@ -5,7 +5,7 @@
  * supports the shell script execution function to test vgetty scripts
  * and to build special standalone scripts.
  *
- * $Id: main.c,v 1.7 2000/06/11 15:58:18 marcs Exp $
+ * $Id: main.c,v 1.8 2001/02/24 10:59:37 marcs Exp $
  *
  */
 
@@ -45,13 +45,14 @@ int main(int argc, char *argv[])
       (strcmp(command, "diagnostics") != 0) &&
       (strcmp(command, "dial") != 0) && (strcmp(command, "play") != 0) &&
       (strcmp(command, "record") != 0) && (strcmp(command, "shell") != 0) &&
-      (strcmp(command, "wait") != 0) && (strcmp(command, "dtmf") != 0))
+      (strcmp(command, "wait") != 0) && (strcmp(command, "dtmf") != 0) &&
+      (strcmp(command, "devicetest") !=0))
  
           usage();
 
      optind = 2;
 
-     while ((option = getopt(argc, argv, "c:hil:mestvwx:HL:PRS:T:V:")) != EOF)
+     while ((option = getopt(argc, argv, "c:d:hil:mestvwx:HL:PRS:T:V:")) != EOF)
           {
 
           switch (option)
@@ -59,6 +60,9 @@ int main(int argc, char *argv[])
                case 'c':
                     conf_set_int(&cvd.rec_compression, atoi(optarg));
                     break;
+               case 'd':
+		    voice_device = atoi(optarg);
+		    break;
                case 'i':
                     voice_device = INTERNAL_MICROPHONE;
                     break;
@@ -115,7 +119,7 @@ int main(int argc, char *argv[])
           };
 
      if (strcmp(command, "diagnostics") == 0)
-
+     {
           if (optind == argc)
                {
                fprintf(stderr, "%s: no device name given for diagnostics\n",
@@ -126,7 +130,7 @@ int main(int argc, char *argv[])
                {
                char *test_command[] = {"ATI", "ATI1", "ATI2", "ATI3",
                 "ATI4", "ATI5", "ATI6", "ATI7", "ATI8", "ATI9",
-                "AT+FMI?", "AT+FMM?", "AT+FMR?", NULL};
+                "AT+FMI?", "AT+FMM?", "AT+FMR?", "AT+IPR=?", "AT+FCLASS=?", NULL};
                char buffer[VOICE_BUF_LEN];
                char *device;
                TIO tio;
@@ -192,6 +196,7 @@ int main(int argc, char *argv[])
 
                exit(0);
                };
+     } /* if diagnostics */
 
      if (getenv("VOICE_PID") == NULL)
           {
@@ -387,6 +392,34 @@ int main(int argc, char *argv[])
 
           };
 
+     if (strcmp(command, "devicetest") == 0)
+     {
+        int VoiceDeviceMode, Resultcode;
+
+	for (VoiceDeviceMode = NUMBER_OF_MODEM_DEVICE_MODES; 
+             VoiceDeviceMode > 0;
+             VoiceDeviceMode--)
+	  {
+	    printf("\nTest %s: ",voice_device_mode_name(VoiceDeviceMode));
+	    Resultcode = voice_set_device(VoiceDeviceMode);
+	    switch(Resultcode)
+	      {
+	      case OK:
+		printf("OK");
+		break;
+		
+	      case VMA_DEVICE_NOT_AVAIL:
+		printf("not supported by modem");
+		break;
+		
+	      case FAIL:
+		printf("not supported by vm/vgetty-modemdriver");
+		break;
+	      }
+	  }
+        printf("\n");
+      };
+
 
      if (getenv("VOICE_PID") == NULL)
           {
@@ -398,3 +431,5 @@ int main(int argc, char *argv[])
      voice_unregister_event_handler();
      exit(result);
      }
+
+

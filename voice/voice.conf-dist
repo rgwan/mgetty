@@ -2,7 +2,7 @@
 # Sample voice configuration file
 # -------------------------------
 #
-# $Id: voice.conf-dist,v 1.8 2000/09/06 21:18:16 gert Exp $
+# $Id: voice.conf-dist,v 1.9 2001/02/24 10:59:34 marcs Exp $
 #
 # This file is read twice: First the program configuration is read and
 # second the port configuration. This means that generic values at the
@@ -94,6 +94,9 @@ backup_message standard.rmd
 # mode used. Note that this is an integer, not one of the Bxxxx defines.
 # Basically you should select the highest possible speed your modem and
 # computer support. The default value is 38400.
+# For V 250 compatibel modems you get the supported speeds with the command
+# AT+IPR=? (with a terminal program like minicom)
+# (AT+IPR=0 means autobauding, don't set any other value!)
 #
 # WARNING: if you use vgetty, this MUST be the same value as the
 #          setting of "speed <n>" in mgetty.config.  If you change one,
@@ -313,6 +316,17 @@ enable_command_echo false
 poll_interval 10
 
 #
+# The ML 56k Office, Internet (I), pro and Basic 
+# with actual firmware support 2 commandsets:
+# The one in Elsa.c wich is autodetected and
+# the ITU V253 (if you say TRUE here for this modems you also have to set
+# rec_speed 7200)
+# Default is FALSE
+
+#forceV253 FALSE
+
+
+#
 # Program specific initializations
 # --------------------------------
 #
@@ -341,6 +355,8 @@ program vgetty
 # provider) is sent between the first and the second ring. Since we don't
 # know in advance, if you get CID or not, we stay on the save side.
 #
+# If you have compiled mgetty/vgetty with CNDFILE defined in policy.h
+# then you must use the comandline option -n explained in `man mgetty`
 # The default is 3
 #
 
@@ -452,6 +468,31 @@ message_program
 #
 
 do_message_light false
+
+#
+# * ring_report_delay:
+# * This value determines the delay in /10 seconds between the falling edge
+# * of the ring-signal (DRON response) and the RING response.
+# * This value should be greater than the expected off-time within a distinctive
+# * ring (DROF response). So says the ITU V.253, but it seems that
+# * ring_report_delay should be greater than the mentioned DROF AND the following
+# * DRON, and shorter than the long DROF!
+#Example with ring_report_delay = 10 (2/10 sec per char):
+#           ^
+#ring-pulse | ...____###__##_______###__##_______###__##______....
+#                      | | |    | |  | | |    | |  | | |
+#                      DRON=6        DRON=6        DRON=6
+#                        DROF=4        DROF=4        DROF=4
+#                          DRON=4        DRON=4        DRON=4
+#                               RING          RING
+#                                 DROF=14       DROF=14
+#                                                    time --->
+#
+# Default is 15 (1.5 sec)
+#
+ring_report_delay 15
+
+
 
 #
 # Default values for vm
@@ -602,6 +643,8 @@ ring_type ring1
 #
 # rings /etc/rings/ring1
 # answer_mode /etc/answer/ring1
+# for setting a different set of message files:
+# message_list Index1
 #
 # and so on. Now you can set up a different number of rings and answer modes
 # by creating the files:

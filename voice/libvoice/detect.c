@@ -3,7 +3,7 @@
  *
  * autodetect the modemtype we are connected to.
  *
- * $Id: detect.c,v 1.30 2001/02/24 10:21:27 marcs Exp $
+ * $Id: detect.c,v 1.31 2001/02/24 10:59:36 marcs Exp $
  *
  */
 
@@ -46,7 +46,7 @@ static const struct pnp_modem_type_struct pnp_modem_database[] =
      {"ELS", "0667", &Elsa, "ELSA ML 56k internet" },
      {"ELS", "0152", &Elsa, "ELSA ML 56k internet c" },
      {"ELS", "0363", &V253modem, "ELSA ML 56k fun" },
-     {"ELS", "8550", &V253modem, "ELSA (coming soon...)" },
+     {"ELS", "0862", &V253modem, "ELSA MicroLink 56k Internet II" },
      {NULL, NULL, NULL}
      };
      
@@ -215,6 +215,13 @@ int voice_detect_modemtype(void)
                     lprintf(L_WARN, "modem detection failed");
                     exit(FAIL);
 	  }
+
+          /* force V253 comandset */
+          if(TRUE==cvd.forceV253.d.i)
+          {
+             lprintf(L_NOISE, "V253 forced");
+             voice_modem = &V253modem;
+          }
 
           /* Some modems have no meaningful output except in ATI9, but
            * they do not respect the standard. For them we will use

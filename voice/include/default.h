@@ -5,7 +5,7 @@
  * tools. All of these values can be changed by the configuration
  * file.
  *
- * $Id: default.h,v 1.6 2000/06/11 16:14:51 marcs Exp $
+ * $Id: default.h,v 1.7 2001/02/24 10:59:35 marcs Exp $
  *
  */
 
@@ -237,6 +237,15 @@ CONF(enable_command_echo, FALSE, CT_BOOL)
 CONF(poll_interval, 10, CT_INT)
 
 /*
+ * The ML 56k Office, Internet (I), pro and Basic 
+ * with actual firmware support 2 commandsets:
+ * The one in Elsa.c wich is autodetected and
+ * the ITU V253 (if you say TRUE here for this modems you also have to set
+ * rec_speed 7200)
+ */
+CONF(forceV253, FALSE, CT_BOOL)
+
+/*
  * Default values for vgetty
  * -------------------------
  */
@@ -453,6 +462,30 @@ CONF(ringback_goes_away, 70, CT_INT)
  */
 
 CONF(ringback_never_came, 100, CT_INT)
+
+
+/*
+ * ring_report_delay:
+ * This value determines the delay in /10 seconds between the falling edge
+ * of the ring-signal (DRON response) and the RING response.
+ * This value should be greater than the expected off-time within a
+ * distinctive ring (DROF response). So says the ITU V.253, but it seems that
+ * ring_report_delay should be greater than the mentioned DROF AND the
+ * following DRON, and shorter than the long DROF!
+ * Example with ring_report_delay = 10 (2/10 sec per char):
+ *               ^
+ *    ring-pulse | ...____###__##_______###__##_______###__##______....
+ *                          | | |    | |  | | |    | |  | | |
+ *                          DRON=6        DRON=6        DRON=6
+ *                            DROF=4        DROF=4        DROF=4
+ *                              DRON=4        DRON=4        DRON=4
+ *                                   RING          RING
+ *                                     DROF=14       DROF=14
+ *                                                        time --->
+ *
+ * Default is 15 (1.5 sec)
+ */
+CONF(ring_report_delay, 15, CT_INT)
 
 /*
  * Default values for the pvf tools

@@ -1,7 +1,7 @@
 /*
  * answer.c
  *
- * $Id: answer.c,v 1.18 2000/09/11 11:39:13 marcs Exp $
+ * $Id: answer.c,v 1.19 2001/02/24 10:59:37 marcs Exp $
  *
  */
 
@@ -278,7 +278,7 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
           }
 
      if (voice_modem_quirks() & VMQ_NEEDS_SET_DEVICE_BEFORE_ANSWER) {
-       if (voice_set_device(DIALUP_LINE) == FAIL) {
+       if (voice_set_device(DIALUP_LINE) != OK) {
 	 lprintf(L_WARN, "%s: Could not switch to dialup line",
 		 program_name);
 	 exit(99);
@@ -353,7 +353,7 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
      make_path(message, receive_dir, message_name);
 
      if (!(voice_modem_quirks() & VMQ_NEEDS_SET_DEVICE_BEFORE_ANSWER)) {
-       if (voice_set_device(DIALUP_LINE) == FAIL) {
+       if (voice_set_device(DIALUP_LINE) != OK) {
 	   lprintf(L_WARN, "%s: Could not switch to dialup line",
 		   program_name);
 	   exit(99);
@@ -418,7 +418,7 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
                          return(VMA_OK);
                     default:
 
-                         if (voice_set_device(NO_DEVICE) == FAIL)
+                         if (voice_set_device(NO_DEVICE) != OK)
                               {
                               lprintf(L_WARN,
                                "%s: Could not hang up the line",
@@ -467,13 +467,15 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
            CallName, CallerId, DevID, getpid());
           voice_execute_shell_script(dtmf_program, arguments);
 
-          if (voice_set_device(NO_DEVICE) == FAIL)
+#if 0
+/* selecting NO_DEVICE means to hang up the line-> so vgetty shouldn't do this! */
+          if (voice_set_device(NO_DEVICE) != OK)
                {
                lprintf(L_WARN, "%s: Could not hang up the line",
                 program_name);
                exit(99);
                }
-
+#endif
           if (voice_mode_off() == FAIL)
                {
                lprintf(L_WARN, "%s: Could not turn off voice mode",
@@ -497,7 +499,7 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
            "hangup requested, name='%s', caller=%s, dev=%s, pid=%d",
            CallName, CallerId, DevID, getpid());
 
-          if (voice_set_device(NO_DEVICE) == FAIL)
+          if (voice_set_device(NO_DEVICE) != OK)
                {
                lprintf(L_WARN, "%s: Could not hang up the line",
                 program_name);
@@ -553,13 +555,15 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
            CallName, CallerId, DevID, getpid());
           voice_execute_shell_script(dtmf_program, arguments);
 
+#if 0
+/* the dtmf program can't do anything with a disconnected line */
           if (voice_set_device(NO_DEVICE) == FAIL)
                {
                lprintf(L_WARN, "%s: Could not hang up the line",
                 program_name);
                exit(99);
                }
-
+#endif
           if (voice_mode_off() == FAIL)
                {
                lprintf(L_WARN, "%s: Could not turn off voice mode",
@@ -583,7 +587,7 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
            "hangup requested, name='%s', caller=%s, dev=%s, pid=%d",
            CallName, CallerId, DevID, getpid());
 
-          if (voice_set_device(NO_DEVICE) == FAIL)
+          if (voice_set_device(NO_DEVICE) != OK)
                {
                lprintf(L_WARN, "%s: Could not hang up the line",
                 program_name);
@@ -658,12 +662,14 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
            CallName, CallerId, DevID, getpid());
           voice_execute_shell_script(dtmf_program, arguments);
 
+#if 0
           if (voice_set_device(NO_DEVICE) == FAIL)
                {
                lprintf(L_WARN, "%s: Could not hang up the line",
                 program_name);
                exit(99);
                }
+#endif
 
           if (voice_mode_off() == FAIL)
                {
@@ -701,7 +707,7 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
           if (voice_beep(cvd.beep_frequency.d.i, cvd.beep_length.d.i) == FAIL)
                lprintf(L_WARN, "%s: Beep command failed");
 
-     if (voice_set_device(NO_DEVICE) == FAIL)
+     if (voice_set_device(NO_DEVICE) != OK)
           {
           lprintf(L_WARN, "%s: Could not hang up the line",
            program_name);

@@ -3,7 +3,7 @@
  * VoiceModem is the program for handling the voice modem functionality
  * from shell scripts.
  *
- * $Id: usage.c,v 1.6 2000/06/11 15:58:18 marcs Exp $
+ * $Id: usage.c,v 1.7 2001/02/24 10:59:37 marcs Exp $
  *
  */
 
@@ -11,6 +11,7 @@
 
 void usage(void)
      {
+       int i;
      fprintf(stderr, "\n%s %s\n\n", program_name, vgetty_version);
      fprintf(stderr, "usage:\n");
      fprintf(stderr,
@@ -26,21 +27,26 @@ void usage(void)
       "\t%s shell  [options] [<shell script> [shell options]]\n", program_name);
      fprintf(stderr, "\t%s wait   [options] [<time in seconds>]\n",
       program_name);
+     fprintf(stderr, "\t%s devicetest\n", program_name);
      fprintf(stderr, "\noptions:\n");
      fprintf(stderr, "\t-c <n> use compression type <n> (default is %d)\n",
       cvd.rec_compression.d.i);
      fprintf(stderr, "\t-h     this help message\n");
-     fprintf(stderr, "\t-i     input from internal microphone\n");
+
+     fprintf(stderr, "\t-d <n> set i/o device to\n");
+     for (i = 1; i <= NUMBER_OF_MODEM_DEVICE_MODES; i++)
+       {                      
+	 fprintf(stderr, "\t       <n>=%2i: %s\n", 
+		 i, voice_device_mode_name(i));
+       }
+
+     fprintf(stderr, "\t-t, -m, -i, -e, -s, -H     equals to -d <2,3,4,5,6,7>\n");
+
      fprintf(stderr, "\t-l <s> set device string (e.g. -l ttyS2:ttyC0)\n");
-     fprintf(stderr, "\t-m     input from external microphone\n");
-     fprintf(stderr, "\t-e     output to external modem speaker\n");
-     fprintf(stderr, "\t-s     output to internal modem speaker\n");
-     fprintf(stderr, "\t-t     use telco line (default)\n");
      fprintf(stderr, "\t-v     verbose output\n");
      fprintf(stderr, "\t-w     use off / on hook signal from local handset\n");
      fprintf(stderr, "\t       to start and stop recording\n");
      fprintf(stderr, "\t-x <n> set debug level\n");
-     fprintf(stderr, "\t-H     use local handset\n");
      fprintf(stderr, "\t-L <n> set maximum recording length in sec\n");
      fprintf(stderr, "\t-P     print first DTMF tone on stdout and exit\n");
      fprintf(stderr,

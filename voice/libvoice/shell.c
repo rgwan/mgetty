@@ -4,7 +4,7 @@
  * Executes the shell script given as the argument. If the argument is
  * empty, commands are read from standard input.
  *
- * $Id: shell.c,v 1.12 2001/02/24 10:26:13 marcs Exp $
+ * $Id: shell.c,v 1.13 2001/02/24 10:59:36 marcs Exp $
  *
  */
 
@@ -363,20 +363,32 @@ int voice_shell_handle_event(int event, event_data data)
                     sscanf(buffer, "%*s %s", device);
 
                     if (strcmp(device, "NO_DEVICE") == 0)
-                         voice_set_device(NO_DEVICE);
+		      voice_set_device(NO_DEVICE);
                     else if (strcmp(device, "DIALUP_LINE") == 0)
-                         voice_set_device(DIALUP_LINE);
+		      voice_set_device(DIALUP_LINE);
+		    else if (strcmp(device, "INTERNAL_MICROPHONE") == 0)
+		      voice_set_device(INTERNAL_MICROPHONE);
                     else if (strcmp(device, "EXTERNAL_MICROPHONE") == 0)
-                         voice_set_device(EXTERNAL_MICROPHONE);
+		      voice_set_device(EXTERNAL_MICROPHONE);
                     else if (strcmp(device, "INTERNAL_SPEAKER") == 0)
-                         voice_set_device(INTERNAL_SPEAKER);
+		      voice_set_device(INTERNAL_SPEAKER);
                     else if (strcmp(device, "EXTERNAL_SPEAKER") == 0)
-                         voice_set_device(EXTERNAL_SPEAKER);
+		      voice_set_device(EXTERNAL_SPEAKER);
                     else if (strcmp(device, "LOCAL_HANDSET") == 0)
-                         voice_set_device(LOCAL_HANDSET);
+		      voice_set_device(LOCAL_HANDSET);
+		    else if (strcmp(device, "DIALUP_WITH_EXT_SPEAKER") == 0)
+		      voice_set_device(DIALUP_WITH_EXT_SPEAKER);
+		    else if (strcmp(device, "DIALUP_WITH_INT_SPEAKER") == 0)
+		      voice_set_device(DIALUP_WITH_INT_SPEAKER);
+		    else if (strcmp(device, "DIALUP_WITH_LOCAL_HANDSET") == 0)
+		      voice_set_device(DIALUP_WITH_LOCAL_HANDSET);
+		    else if (strcmp(device, "DIALUP_WITH_EXTERNAL_MIC_AND_SPEAKER") == 0)
+		      voice_set_device(DIALUP_WITH_EXTERNAL_MIC_AND_SPEAKER);
+		    else if (strcmp(device, "DIALUP_WITH_INTERNAL_MIC_AND_SPEAKER") == 0)
+		      voice_set_device(DIALUP_WITH_INTERNAL_MIC_AND_SPEAKER);
                     else if (voice_write_shell("ERROR") != OK)
-                         return(FAIL);
-
+		      return(FAIL);
+		    
                     if (voice_write_shell("READY") != OK)
                          return(FAIL);
 

@@ -9,11 +9,12 @@
  * You have set port_timeout in voice.conf to a minimum of 15
  * if you use 38400 Baud
  *
- * $Id: Elsa.c,v 1.11 2000/09/09 09:01:06 marcs Exp $
+ * $Id: Elsa.c,v 1.12 2001/02/24 10:59:35 marcs Exp $
  *
  */
 
 #include "../include/voice.h"
+#include "../include/V253modem.h"
 
 static char Elsa_hardflow_cmnd[] = "AT+IFC=2,2";
 static char Elsa_hardflow_cmnd_alternate[] = "AT\\Q3";
@@ -58,7 +59,7 @@ static int Elsa_init (void)
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "can't set silence threshold VSS");
 
-     sprintf(buffer, "ATS30=60");       /* fuer 38400 */
+     sprintf(buffer, "ATS30=60");       /* setting the data-inactivity-timer in the voice part ??? */
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "can't set S30");
@@ -169,37 +170,54 @@ static int Elsa_set_compression (int *compression, int *speed, int *bits)
 
 static int Elsa_set_device (int device)
      {
-     reset_watchdog();
+       int Result;
+       reset_watchdog();
 
-     switch (device)
-          {
-          case NO_DEVICE:
-               lprintf(L_JUNK, "%s: _NO_DEV: (%d)", voice_modem_name, device);
-               voice_command("AT#VLS=0", "OK");
-               return(OK);
-          case DIALUP_LINE:
-               lprintf(L_JUNK, "%s: _DIALUP: (%d)", voice_modem_name, device);
-               voice_command("AT#VLS=4", "OK");   /* This is DIALUP_WITH_INT_SPEAKER ! Look at contrib/Steffen_Klupsch-new-set-device-modes */
-               return(OK);
-          case INTERNAL_MICROPHONE:
-               lprintf(L_JUNK, "%s: _INT_MIC: (%d)", voice_modem_name, device);
-               voice_command("AT#VLS=3", "VCON");
-               return(OK);
-          case INTERNAL_SPEAKER:
-               lprintf(L_JUNK, "%s: _INT_SEAK: (%d)", voice_modem_name, device);
-               voice_command("AT#VLS=2", "VCON");
-               return(OK);
+       lprintf(L_JUNK, "%s: %s: (%d)", voice_modem_name, 
+	       voice_device_mode_name(device), device);
+
+       switch (device)
+	 {
+	 case NO_DEVICE:
+	   Result = voice_command("AT#VLS=0", "OK");
+	   break;
+	 case DIALUP_LINE:
+	   Result = voice_command("AT#VLS=0", "OK");
+	   break;
+	 case DIALUP_WITH_INT_SPEAKER:
+	   Result = voice_command("AT#VLS=4", "OK");
+	   break;
+	 case INTERNAL_MICROPHONE:
+	   Result = voice_command("AT#VLS=3", "OK");
+	   break;
+	 case INTERNAL_SPEAKER:
+	   Result = voice_command("AT#VLS=2", "OK");
+	   break;
+	 case DIALUP_WITH_INTERNAL_MIC_AND_SPEAKER:
+	   Result = voice_command("AT#VLS=5", "OK");
+	   break;
+	 case LOCAL_HANDSET:
+	   Result = voice_command("AT#VLS=1", "OK");
+	   break;
+	 default:
+	   lprintf(L_WARN, "%s: Unknown device (%d)", 
+		   voice_modem_name, device);
+	   return(FAIL);
           }
 
-     lprintf(L_WARN, "%s: Unknown device (%d)", voice_modem_name, device);
-     return(FAIL);
+       if (Result != VMA_USER_1)
+	 {
+	   lprintf(L_WARN, "can't set %s (modem hardware can't do that)",
+		   voice_device_mode_name(device));
+	   return(VMA_DEVICE_NOT_AVAIL);       
+	 }
+       return(OK);
      }
 
 static char Elsa_pick_phone_cmnd[] = "ATA";
 static char Elsa_pick_phone_answr[] = "VCON|+VCON";
 static char Elsa_beep_cmnd[] = "AT#VTS=[%d,0,%d]";
 #define     Elsa_beep_timeunit 100
-static char Elsa_softflow_cmnd[] = "AT";
 static char Elsa_start_play_cmnd[] = "AT#VTX";
 static char Elsa_intr_play_cmnd[] = {DLE, CAN, 0x00};
 static char Elsa_intr_play_answr[] = "OK|VCON";
@@ -221,7 +239,7 @@ voice_modem_struct Elsa =
               Elsa_beep_timeunit,
      (char *) Elsa_hardflow_cmnd,
      (char *) IS_101_hardflow_answr,
-     (char *) Elsa_softflow_cmnd,
+     (char *) V253modem_softflow_cmnd,
      (char *) IS_101_softflow_answr,
      (char *) Elsa_start_play_cmnd,
      (char *) IS_101_start_play_answer,

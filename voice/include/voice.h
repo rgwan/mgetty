@@ -4,9 +4,12 @@
  * This is the main header file for vgetty, vm and the pvf tools.
  * It includes other header files and defines some global variables.
  *
- * $Id: voice.h,v 1.10 1999/11/13 11:09:39 marcs Exp $
+ * $Id: voice.h,v 1.11 2001/02/24 10:59:35 marcs Exp $
  *
  */
+
+#ifndef VOICE_INCLUDE_VOICE_H
+#define VOICE_INCLUDE_VOICE_H
 
 #ifndef _NOSTDLIB_H
 # include <stdlib.h>
@@ -217,7 +220,9 @@ extern void vgetty_rings(int *rings_wanted);
 #define DIALUP_WITH_EXTERNAL_MIC_AND_SPEAKER (0x000B)
 #define DIALUP_WITH_INTERNAL_MIC_AND_SPEAKER (0x000C)
 
+#define NUMBER_OF_MODEM_DEVICE_MODES (0x000C)
 
+extern char *voice_device_mode_name(int i);
 
 /*
  * Voice modem answers
@@ -276,6 +281,20 @@ extern void vgetty_rings(int *rings_wanted);
 
 #define VMA_FAIL         (0x4000)
 
+/* Something goes wrong, but there is no need to stop
+ * example:
+ *     The actual device is DIALUP_LINE
+ *     Then DIALUP_WITH_EXT_SPEAKER is selected
+ *     the modem has no EXT_SPEAKER and stays on
+ *     DIALUP_LINE
+ *     Now the calling function could decide to
+ *     1. Terminate
+ *     2. Go on with only DIALUP_LINE
+ *     3. Try DIALUP_WITH_INT_SPEAKER
+ */
+#define VMA_DEVICE_NOT_AVAIL (0x4001) 
+
+
 /*
  * Possible voice modem and shell execution states
  */
@@ -305,3 +324,5 @@ extern void vgetty_rings(int *rings_wanted);
 # undef LOG_PATH
 # define LOG_PATH VGETTY_LOG_PATH
 #endif
+
+#endif /* VOICE_INCLUDE_VOICE_H */
