@@ -1,7 +1,7 @@
 /*
  * answer.c
  *
- * $Id: answer.c,v 1.15 2000/09/10 08:09:43 marcs Exp $
+ * $Id: answer.c,v 1.16 2000/09/11 10:05:16 marcs Exp $
  *
  */
 
@@ -212,6 +212,7 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
      int i, j;
      int result;
      char c;
+     pid_t pid = getpid();
 
      setup_environment(); /* caller ID, called ID and stuff */
 
