@@ -1,4 +1,4 @@
-#ident "$Id: g3cat.c,v 1.8 1994/03/09 10:59:06 gert Exp $ (c) Gert Doering"
+#ident "$Id: g3cat.c,v 1.9 1994/04/13 12:52:50 gert Exp $ (c) Gert Doering"
 ;
 /* g3cat.c - concatenate multiple G3-Documents
  *
@@ -19,6 +19,9 @@
 #endif
 #include <unistd.h>
 #include <fcntl.h>
+
+extern int	optind;
+extern char *	optarg;
 
 #include "ugly.h"
 #include "g3.h"
@@ -71,22 +74,29 @@ static	int  rs;		/* read buffer size */
 
 struct g3_tree *white, *black;
 
+void exit_usage _P1( (program), char * program )
+{
+    fprintf( stderr, "usage: %s [-h <lines>] [-a] [-l] g3-file ...\n",
+	    program );
+    exit(1);
+}
+
 int main _P2( (argc, argv),
 	      int argc, char ** argv )
 {
-int i;				/* argument count */
-int fd;				/* file descriptor */
-unsigned int data;		/* read word */
-int hibit;			/* highest valid bit in "data" */
+    int i;				/* argument count */
+    int fd;				/* file descriptor */
+    unsigned int data;		/* read word */
+    int hibit;			/* highest valid bit in "data" */
 
-int cons_eol;
-int color;
-int row, col;
-struct g3_tree * p;
-int nr_pels;
-int first_file = 1;		/* "-a" flag has to appear before */
+    int cons_eol;
+    int color;
+    int row, col;
+    struct g3_tree * p;
+    int nr_pels;
+    int first_file = 1;		/* "-a" flag has to appear before */
 				/* starting the first g3 file */
-int empty_lines = 0;		/* blank lines at top of page */
+    int empty_lines = 0;	/* blank lines at top of page */
 
     /* initialize lookup trees */
     build_tree( &white, t_white );
@@ -97,37 +107,27 @@ int empty_lines = 0;		/* blank lines at top of page */
     init_byte_tab( 0, byte_tab );
     init_byte_tab( 0, out_byte_tab );
 
-    for ( i=1; i<argc; i++ )
+    /* process the command line
+     */
+
+    while ( (i = getopt(argc, argv, "lah:")) != EOF )
     {
-	/* process options */
+	switch (i)
+	{
+	  case 'l': putblackline = 1; break;
+	  case 'a': byte_align = 1; break;
+	  case 'h': empty_lines = atoi( optarg ); break;
+	  case '?': exit_usage(argv[0]); break;
+	}
+    }
+	    
+    for ( i=optind; i<argc; i++ )
+    {
+	/* '-l' option my be embedded */
         if ( strcmp( argv[i], "-l" ) == 0)
         {
 	    putblackline = 1; continue;
         }
-	else
-	if ( strcmp( argv[i], "-a" ) == 0 )
-	{
-	    if ( ! first_file )
-	        fprintf( stderr, "%s: -a may not appear after g3 file!\n", argv[0] );
-	    else
-	        byte_align = 1;
-	    continue;
-	}
-	else
-	if ( strcmp( argv[i], "-h" ) == 0 )
-	{
-	    if ( ! first_file )
-	        fprintf( stderr, "%s: -h may not appear after g3 file!\n", argv[0] );
-	    else
-	    if ( ++i >= argc )
-		fprintf( stderr, "%s: -h must have an argument!\n", argv[0] );
-	    else
-	    {
-		empty_lines = atoi( argv[i] );
-		if ( empty_lines < 0 ) empty_lines = 0;
-	    }
-	    continue;
-	}
 		
 	/* process file(s), one by one */
 	if ( strcmp( argv[i], "-" ) == 0 )
