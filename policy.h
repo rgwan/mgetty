@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.41 1994/01/14 18:55:25 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.42 1994/01/19 10:26:53 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -249,6 +249,12 @@
 #define FAX_IN_OWNER	0
 #define FAX_IN_GROUP	5
 
+/* incoming faxes will be chmod()ed to this mode
+ * (if you do not define this, the file mode will be controlled by
+ * mgetty's umask)
+ */
+#define FAX_FILE_MODE 0660
+
 /* FLOW CONTROL
  *
  * There are basically two types of flow control:
@@ -358,7 +364,7 @@
  * multiple devices can be separated by ":", e.g. "tty1a:tty2a"
  * (without (!) leading /dev/)
  */
-#define FAX_MODEM_TTYS	"tty1a:tty2a"
+#define FAX_MODEM_TTYS	"tty4c:tty4d"
 
 /* define mailer that accepts destination on command line and mail text
  * on stdin. For mailers with user friendly interfaces, (such as mail,
