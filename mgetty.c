@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.104 1994/04/26 22:00:48 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.105 1994/04/27 00:23:43 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -34,47 +34,6 @@
 
 unsigned short portspeed = B0;	/* indicates has not yet been set */
 
-/* warning: some modems (for example my old DISCOVERY 2400P) need
- * some delay before sending the next command after an OK, so give it here
- * as "\\dAT...".
- * 
- * To send a backslash, you have to use "\\\\" (four backslashes!) */
-
-#ifndef NO_FAX
-/* I know this is kinda ugly, being the way you have to do it in K&R,
- * but, we'll eventually have to parameterize FAX_STATION_ID anyways.
- */
-#define FLID_CMD	"AT+FLID=\"%s\""
-char	init_flid_cmd[50];
-#endif
-
-char *	init_chat_seq[] = { "", "\\d\\d\\d+++\\d\\d\\d\r\\dATQ0V1H0", "OK",
-
-/* initialize the modem - defined in policy.h
- */
-			    MODEM_INIT_STRING, "OK",
-#ifndef NO_FAX
-			    "AT+FCLASS=0", "OK",
-                            "AT+FAA=1;+FBOR=0;+FCR=1", "OK",
-			    init_flid_cmd, "OK",
-			    /*"AT+FLID=\""FAX_STATION_ID"\"", "OK",*/
-			    "AT+FDCC=1,5,0,2,0,0,0", "OK",
-#endif
-#ifdef DIST_RING
-			    DIST_RING_INIT, "OK",
-#endif
-#ifdef VOICE
-			    "AT+FCLASS=8", "OK",
-#endif
-                            NULL };
-
-int	init_chat_timeout = 60;
-
-chat_action_t	init_chat_actions[] = { { "ERROR", A_FAIL },
-					{ "BUSY", A_FAIL },
-					{ "NO CARRIER", A_FAIL },
-					{ NULL,	A_FAIL } };
-
 int	rings_wanted = 1;		/* default: one "RING" */
 
 #ifdef DIST_RING
@@ -87,10 +46,8 @@ chat_action_t	ring_chat_actions[] = { { "CONNECT",	A_CONN },
 					{ "NO CARRIER", A_FAIL },
 					{ "BUSY",	A_FAIL },
 					{ "ERROR",	A_FAIL },
-#ifndef NO_FAX
 					{ "+FCON",	A_FAX  },
 					{ "FAX",	A_FAX  },
-#endif
 #ifdef VOICE
 					{ "VCON",       A_VCON },
 #endif
@@ -182,6 +139,11 @@ int main _P2((argc, argv), int argc, char ** argv)
 
 	action_t	what_action;
 	int		rings = 0;
+#ifdef NO_FAX
+	boolean		data_only = TRUE;
+#else
+	boolean		data_only = FALSE;
+#endif
 
 #if defined(_3B1_) || defined(MEIBE)
 	typedef ushort uid_t;
@@ -204,10 +166,6 @@ int main _P2((argc, argv), int argc, char ** argv)
 	voice_path_init();
 #endif
 	
-#ifndef NO_FAX
-	sprintf(init_flid_cmd, FLID_CMD, FAX_STATION_ID);
-#endif
-
 	/* startup
 	 */
 	(void) signal(SIGINT, SIG_IGN);
@@ -229,7 +187,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 	/* process the command line
 	 */
 
-	while ((c = getopt(argc, argv, "c:x:s:rp:n:i:S:m:")) != EOF) {
+	while ((c = getopt(argc, argv, "c:x:s:rp:n:i:DS:m:")) != EOF) {
 		switch (c) {
 		case 'c':			/* check */
 #ifdef USE_GETTYDEFS
@@ -274,6 +232,9 @@ int main _P2((argc, argv), int argc, char ** argv)
 			break;
 		case 'i':
 			issue = optarg;		/* use different issue file */
+			break;
+		case 'D':			/* switch off fax */
+			data_only = TRUE;
 			break;
 		case 'S':
 			fax_server_file = optarg;
@@ -441,21 +402,24 @@ int main _P2((argc, argv), int argc, char ** argv)
 
 	clean_line( STDIN, 1);
 
-	/* handle init chat if requested
+	/* do modem initialization, normal stuff first, then fax
 	 */
 	if ( ! direct_line )
 	{
-	    if ( do_chat( STDIN, init_chat_seq, init_chat_actions,
-			  &what_action, init_chat_timeout, TRUE ) == FAIL )
+	    if ( mg_init_data( STDIN ) == FAIL )
 	    {
-		lprintf( L_MESG, "init chat failed, exiting..." );
 		rmlocks();
 		exit(1);
 	    }
-	    /* initialize fax polling server */
-	    if ( fax_server_file )
+	    /* initialize ``normal'' fax functions */
+	    if ( ( ! data_only ) &&
+		 mg_init_fax( STDIN, FAX_STATION_ID ) == SUCCESS )
 	    {
-		faxpoll_server_init( fax_server_file );
+		/* initialize fax polling server (only if faxmodem) */
+		if ( fax_server_file )
+		{
+		    faxpoll_server_init( STDIN, fax_server_file );
+		}
 	    }
 	}
 
