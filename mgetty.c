@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.93 1994/03/01 17:24:40 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.94 1994/03/07 18:01:17 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -662,17 +662,20 @@ waiting:
 	}
 #endif /* VOICE */
 
-	/* make utmp and wtmp entry (otherwise login won't work)
-	 */
-	make_utmp_wtmp( Device, TRUE );
-
-        delay( prompt_waittime );
-
 	/* honor carrier now: terminate if modem hangs up prematurely
 	 */
 	tio_carrier( &tio, TRUE );
 	tio_set( STDIN, &tio );
-	
+
+	/* make utmp and wtmp entry (otherwise login won't work)
+	 */
+	make_utmp_wtmp( Device, TRUE );
+
+	/* wait a little bit befor printing login: prompt (to give
+	 * the other side time to get ready)
+	 */
+        delay( prompt_waittime );
+
 	/* loop until a successful login is made
 	 */
 	for (;;)
