@@ -1,4 +1,4 @@
-#ident "$Id: tio.h,v 1.1 1993/10/19 22:28:49 gert Exp $ Copyright (c) 1993 Gert Doering";
+#ident "$Id: tio.h,v 1.2 1993/10/27 01:42:30 gert Exp $ Copyright (c) 1993 Gert Doering";
 
 /* tio.h
  *
@@ -20,16 +20,17 @@
 #undef BSG_SGTTY
 #include <termio.h>
 typedef struct termio TIO;
+#endif
 
-#elif defined(POSIX_TERMIOS)
-
+#ifdef POSIX_TERMIOS
 #undef BSD_SGTTY
 #include <termios.h>
 typedef struct termios TIO;
+#endif
 
-#elif defined(BSD_SGTTY)
-#error sgtty not yet supported
-
+#ifdef BSD_SGTTY
+#include <sgtty.h>
+typedef struct sgttyb TIO;
 #endif
 
 /* hardware handshake flags */
@@ -50,3 +51,16 @@ int  tio_set_flow_control  _PROTO(( TIO *t, int flowctrl_type ));
 int  tio_set_flow_control2 _PROTO(( int fd, int clowctrl_type ));
 void tio_carrier     _PROTO (( TIO *t, int carrier_sensitive ));
 int  tio_toggle_dtr  _PROTO(( int fd, int msec_wait ));
+
+#ifdef USE_GETTYDEFS
+typedef struct {
+    char *tag;
+    TIO before;
+    TIO after;
+    char *prompt;
+    char *nexttag;
+} GDE;
+
+int	loadgettydefs _PROTO((char *s));
+GDE	*getgettydef _PROTO((char *s));
+#endif
