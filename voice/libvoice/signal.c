@@ -7,7 +7,7 @@
  *    - Something I do not like is that it looks like we use non
  *      reentrant functions in the signal handlers (log, etc).
  *
- * $Id: signal.c,v 1.6 1999/10/09 16:22:06 marcs Exp $
+ * $Id: signal.c,v 1.7 1999/10/09 16:53:36 marcs Exp $
  *
  */
 
@@ -43,7 +43,7 @@ static void signal_sigchld(int sig)
      if (status) {
         lprintf(L_WARN, "%s: Got child %d exit status %d signal",
                 pid,
-                status
+                status,
                 program_name);
      }
      else {
