@@ -1,4 +1,4 @@
-#ident "$Id: mg_m_init.c,v 1.16 1994/10/31 12:09:29 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_m_init.c,v 1.17 1994/11/05 13:06:50 gert Exp $ Copyright (c) Gert Doering"
 
 /* mg_m_init.c - part of mgetty+sendfax
  *
@@ -302,6 +302,11 @@ int mg_get_device _P5( (devname, blocking_open,
 		        unsigned int portspeed)
 {
     boolean first_try = TRUE;
+
+    /* most likely, HUPCL was set and so DTR is low right now. Give
+     * modem some time to settle down.
+     */
+    delay(500);
     
     /* open device, make it stdin/out/err */
 try_again:
