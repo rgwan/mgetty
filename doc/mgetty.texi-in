@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.54 2002/01/05 10:12:50 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.55 2002/10/22 17:00:49 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -1441,6 +1441,12 @@ A sample command line might look like this:
 @example
 @BINDIR@/new_fax 0 "+49 89 3243328" 1 @FAX_SPOOL@/ff-01.a123
 @end example
+
+In addition, some environment variables are provide: @code{CALLER_ID},
+@code{CALLER_NAME}, @code{CALLED_ID} (Caller ID and destination ISDN MSN,
+if available and supported by your modem), and @code{DEVICE} (the full 
+name of the tty device, if you want to process faxes differently 
+depending on the line they came in).
 
 Such a ``notify program'' could print out the fax, convert it into a MIME
 metamail and send it away, display it in an X window (this a little bit
