@@ -1,5 +1,5 @@
 # 
-# $Id: Vgetty.pm,v 1.1 1998/09/09 21:48:50 gert Exp $
+# $Id: Vgetty.pm,v 1.2 1999/08/21 12:10:06 marcs Exp $
 #
 # Copyright (c) 1998 Jan "Yenya" Kasprzak <kas@fi.muni.cz>. All rights
 # reserved. This package is free software; you can redistribute it and/or
@@ -99,7 +99,8 @@ sub send {
 
 sub expect {
 	my $self = shift;
-	$self->{LOG}->print("expecting: ", (join '|', @_), "\n");
+        $self->{LOG}->print("expecting: ", (join '|', @_), "\n")
+	    if $testing > 0;
 	my $received = $self->receive || return undef;
 	for my $expected (@_) {
 		return $received if $received eq $expected;

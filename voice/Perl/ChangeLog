@@ -1,6 +1,11 @@
-$Id: ChangeLog,v 1.1 1998/09/09 21:48:41 gert Exp $
+$Id: ChangeLog,v 1.2 1999/08/21 12:10:04 marcs Exp $
 
 This is a ChangeLog file for the Modem::Vgetty Perl module.
+
+Sat Aug 21 14:08:20 MEST 1999 by schaefer@alphanet.ch
+
+Fixed perl module Vgetty.pm (was causing undefined reference errors).
+Fix submitted by the author.
 
 Tue Sep 8 12:07:03 MET DST 1998 by kas 
 
