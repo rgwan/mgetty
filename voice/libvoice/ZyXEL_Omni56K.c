@@ -6,7 +6,7 @@
  * Based on code for Elite 2864 modems (ZyXEL_2864.c), with
  * corrections made by Const Kaplinsky <const@ce.cctpu.edu.ru>
  *
- * $Id: ZyXEL_Omni56K.c,v 1.2 2000/07/22 10:03:23 marcs Exp $
+ * $Id: ZyXEL_Omni56K.c,v 1.3 2000/09/01 19:28:05 gert Exp $
  *
  */
 
@@ -26,9 +26,11 @@ static int ZyXEL_Omni56K_init (void)
       * ATS40.4=1 - Enable distincitve ring type 2 (RING 1)
       * ATS40.5=1 - Enable distincitve ring type 3 (RING 2)
       * ATS40.6=1 - Enable distincitve ring type 4 (RING 3)
+      * MUST NOT send spaces in between ATS... commands, otherwise
+      * all but the first are ignored (Richard L. Hamilton)
       */
 
-     if (voice_command("ATS40.3=1 S40.4=1 S40.5=1 S40.6=1", "OK") !=
+     if (voice_command("ATS40.3=1S40.4=1S40.5=1S40.6=1", "OK") !=
       VMA_USER_1)
           lprintf(L_WARN, "couldn't initialize distinctive RING");
 
