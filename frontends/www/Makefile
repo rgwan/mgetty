@@ -1,8 +1,12 @@
 # frontends/www/Makefile
 #
-# RCS: $Id: Makefile,v 1.13 1998/12/04 15:56:44 gert Exp $
+# RCS: $Id: Makefile,v 1.14 2004/11/17 15:07:50 gert Exp $
 #
 # $Log: Makefile,v $
+# Revision 1.14  2004/11/17 15:07:50  gert
+# adapt path names to current MEDAT system (D3.0)
+# install *.gif images (if not yet installed)
+#
 # Revision 1.13  1998/12/04 15:56:44  gert
 # faxsend added
 #
@@ -29,19 +33,20 @@
 CGI=faxq.cgi faxq-v.cgi faxhist.cgi faxhists.cgi \
 		viewfax.cgi nph-vf-gif.cgi faxsend.cgi
 HTML=index-d.html index-e.html
+IMAGES=delete.gif pfeild.gif pfeill.gif pfeilr.gif
 
 # the directory for the HTML file(s)
 # leave empty if you do not want to install the HTML files
-HTMLDIR=/home/sd/.html-data
+HTMLDIR=/david/html/quickfax/
 
 # the directory for the sample image files (left/right arrows, logo, ...)
 # (whether this is the same as HTMLDIR or not depends on local preferences,
 #  but don't forget to adapt the http path name in wwwgui.conf accordingly)
-IMAGEDIR=/home/sd/.html-data
+IMAGEDIR=/stf/html/images/
 
 # this is the directory the CGI binaries will be installed in
 # check with your local webmaster or the WWW server documentation!
-CGIBINDIR=/usr/lpp/internet/server_root/cgi-bin
+CGIBINDIR=/david/html/quickfax/cgi-bin/
 
 # this is the logical path from the WWW root to the CGI binaries
 # (if the CGI binaries are in the same directory as "index.html", just
@@ -65,10 +70,16 @@ install: all
 	cd ../.. ; $(MAKE) install.www
 
 install.www:
-	-for i in $(CGI); do \
+	-@for i in $(CGI); do \
+		echo "$$i -> $(CGIBINDIR)..." ; \
 		mv -f $(CGIBINDIR)/$$i $(CGIBINDIR)/$$i.old 2>/dev/null ; \
 		$(INSTALL) -m 755 $$i $(CGIBINDIR) ; \
 	done
+	-@for i in $(IMAGES); do \
+		echo "$$i -> $(IMAGEDIR)..." ; \
+		test -f $(IMAGEDIR)/$$i || \
+		    $(INSTALL) -m 644 $$i $(IMAGEDIR) ; \
+	done 
 	test -z "$(HTMLDIR)" || \
 	    for i in $(HTML); do \
 		test -f $(HTMLDIR)/$$i || \
