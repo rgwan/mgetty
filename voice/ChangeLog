@@ -1,3 +1,13 @@
+Thu Aug 10 08:14:50 2000  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* All of below is 0.9.16
+
+	* The fix from Andrew Morris involving libm functions has
+	three problems: Gert doesn't like it, you need to link
+	-lm to vgetty, and Gert doesn't like it. Changed it so that
+	we don't require -lm nor floating point arithmetic, and
+	so it gives the sames values as the fp was doing.
+
 Wed Aug  9 21:56:34 2000  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 
 	* Fix from Andrew Morris <Andrew.Morris@cnpl.enbridge.com> for

@@ -24,7 +24,7 @@
  * A very good US Robotics technical reference manual is available
  * at: http://www.alliancedatacom.com/us-robotics-manuals.htm (not a typo).
  *
- * $Id: US_Robotics.c,v 1.15 2000/08/09 19:56:34 marcs Exp $
+ * $Id: US_Robotics.c,v 1.16 2000/08/10 06:32:25 marcs Exp $
  *
  */
 
@@ -45,7 +45,17 @@ static int probed_for_adpcm = FALSE;
 static int in_adpcm_mode = FALSE;
 static int internal_speaker_used = FALSE;
 
-
+static int silence_threshold_compute(int threshold) {
+   if (threshold >= 100) {
+      return 3;
+   }
+   else if (threshold) {
+      return (((threshold * 3 / 10) + 10) / 10);
+   }
+   else {
+      return 0;
+   }
+}
 
 static int USR_beep(int frequency, int length)
      {
@@ -108,9 +118,9 @@ static int USR_init(void)
 
      /*
       * Set silence threshold and length. Must be in voice mode to do this.  */
-     sprintf(buffer, "AT#VSD=1#VSS=%.0f#VSP=%d",
-      ceil(cvd.rec_silence_threshold.d.i * 3.0 / 100.0) ,
-      cvd.rec_silence_len.d.i);
+     sprintf(buffer, "AT#VSD=1#VSS=%d#VSP=%d",
+             silence_threshold_compute(cvd.rec_silence_threshold.d.i),
+             cvd.rec_silence_len.d.i);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN,"setting recording preferences didn't work");
@@ -356,9 +366,10 @@ static int USR_voice_mode_on(void)
           return( ret );
 
      /* reset voice preferences, they are forgotten after leaving voice mode */
-     sprintf(buffer, "AT#VTD=3F,3F,3F#VSD=1#VSS=%.0f#VSP=%d#VRA=%d#VRN=%d",
-      ceil(cvd.rec_silence_threshold.d.i * 3.0 / 100.0), cvd.rec_silence_len.d.i,
-      cvd.ringback_goes_away.d.i, cvd.ringback_never_came.d.i);
+     sprintf(buffer, "AT#VTD=3F,3F,3F#VSD=1#VSS=%d#VSP=%d#VRA=%d#VRN=%d",
+             silence_threshold_compute(cvd.rec_silence_threshold.d.i),
+             cvd.rec_silence_len.d.i,
+             cvd.ringback_goes_away.d.i, cvd.ringback_never_came.d.i);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN,"setting voice preferences didn't work");
