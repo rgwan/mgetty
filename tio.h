@@ -1,4 +1,4 @@
-#ident "$Id: tio.h,v 1.10 1994/01/05 03:40:57 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.h,v 1.11 1994/02/15 15:48:15 gert Exp $ Copyright (c) 1993 Gert Doering"
 ;
 #ifndef __TIO_H__
 #define __TIO_H__
@@ -140,6 +140,7 @@ typedef struct {
 } GDE;
 
 int	loadgettydefs _PROTO((char *s));
+void	dumpgettydefs _PROTO((char *file));
 GDE	*getgettydef _PROTO((char *s));
 #endif		/* USE_GETTYDEFS */
 #endif		/* __TIO_H__ */
