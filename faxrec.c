@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.13 1993/09/01 22:49:10 gert Exp $ Gert Doering"
+#ident "$Id: faxrec.c,v 1.14 1993/09/21 17:29:49 gert Exp $ Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -58,7 +58,7 @@ struct termio termio;
 #else
     termio.c_iflag = 0;			/* do NOT process input! */
 #endif
-    termio.c_oflag = OPOST|ONLCR;	/* nl -> cr mapping for modem */
+    termio.c_oflag = 0;			/* do NOT process output! */
     termio.c_lflag = 0;			/* disable signals and echo! */
     termio.c_cc[VMIN] = 1;
     termio.c_cc[VTIME]= 0;
@@ -264,7 +264,7 @@ static const char start_rcv = DC2;
 	/* send command to receive next page
 	 * and to release post page response (+FPTS) to remote fax
 	 */
-	fax_send( "AT+FDR\n", fd );
+	fax_send( "AT+FDR\r\n", fd );
 
 	/* read: +FCFR, [+FDCS:], CONNECT */
 	/* if it was the *last* page, modem will send +FHNG:0 ->
