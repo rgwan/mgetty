@@ -1,3 +1,7 @@
+Sat Nov  1 17:31:37 MET 1997  Gert Doering  (gert@greenie.muc.de)
+
+	* policy.h: make /var/log/sendfax.log the default for FAX_LOG
+
 Fri Oct 31 13:54:39 1997  Gert Doering  (gert@greenie.muc.de)
 
 	* doc/mgetty.texi-in: add warning about recent Rockwelloid junk.
