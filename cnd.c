@@ -1,4 +1,4 @@
-#ident "@(#)cnd.c	$Id: cnd.c,v 1.8 1994/10/24 19:00:29 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "@(#)cnd.c	$Id: cnd.c,v 1.9 1994/11/21 21:21:20 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 
 #include <stdio.h>
 #include <string.h>
@@ -94,7 +94,8 @@ cndfind _P1((str), char *str)
 	    if (!cp->variable)
 		return;
 
-	    if ((*(cp->variable))[0] != 0)
+	    /* special case: Rockwell sends *two* MESG=... lines */
+	    if (cp->variable == &CallMsg1 && CallMsg1[0] != 0)
 		continue;
 
 	    /* special case for CONNECT on Rockwell-Based modems */
