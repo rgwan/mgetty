@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 4.21 1998/08/03 20:02:08 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 4.22 1998/09/01 10:31:31 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -695,6 +695,8 @@ int main _P2((argc, argv), int argc, char ** argv)
 		mgetty_state = St_get_login;
 		break;
 	    }
+
+	    dist_ring=0;		/* yet unspecified RING type */
 
 	    if ( c_bool(ringback) )	/* don't pick up on first call */
 	    {
