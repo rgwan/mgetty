@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 4.7 1998/05/03 11:01:30 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 4.8 1998/06/13 11:27:20 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration defaults for mgetty / sendfax
  * are specified.
@@ -468,7 +468,7 @@
  * but some do only allow digits and blank
  * AT+FLID=? should tell you what's allowed and what not.
  */
-#define FAX_STATION_ID	"49 89 xxxxxxxx"
+#define FAX_STATION_ID	"49 115 xxxxxxxx"
 
 /* ------ sendfax-specific stuff follows here -------- */
 
