@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.10 1993/06/05 15:52:16 gert Exp $ (c) Gert Doering"
+#ident "$Id: policy.h,v 1.11 1993/07/03 15:11:07 gert Exp $ (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -84,6 +84,13 @@
  */
 #define FAX_SPOOL_IN	FAX_SPOOL"/incoming"
 
+/* if your received faxes are corrupted (missing lines), because the
+ * faxmodem does not honor RTS handshake, define this.
+ * mgetty will then do XON/XOFF flow control in fax receive mode
+ * (I do *not* think that it's necessary)
+ */
+/* #define FAX_RECEIVE_USE_IXOFF */
+
 /* name of the logfile for outgoing faxes
  */
 #define FAX_LOG		FAX_SPOOL"/Faxlog"
@@ -94,6 +101,8 @@
  * AT+FLID=? should tell you what's allowed and what not.
  */
 #define FAX_STATION_ID	" 49 89 3243328 "
+
+/* ------ sendfax-specific stuff follows here -------- */
 
 /* the baudrate used for *sending* faxes. ZyXELs should handle 38400,
  * SUPRAs (and other rockwell-based faxmodems) do not
@@ -106,12 +115,11 @@
  */
 #define FAX_SEND_USE_IXON
 
-/* if your received faxes are corrupted (missing lines), because the
- * faxmodem does not honor RTS handshake, define this.
- * mgetty will then do XON/XOFF flow control in fax receive mode
- * (I do *not* think that's necessary)
+/* When sending a fax, if the other side says "page bad, retrain
+ * requested", sendfax will retry the page. Specifiy here the maximum
+ * number of retries (I recommend 3) before hanging up.
  */
-/* #define FAX_RECEIVE_USE_IXOFF */
+#define FAX_SEND_MAX_TRIES 3
 
 /* the device(s) used for faxing
  * multiple devices can be separated by ":", e.g. "tty1a:tty2a"
@@ -130,3 +138,18 @@
 /* where to send notify mail about incoming faxes to
  */
 #define MAIL_TO		ADMIN
+
+/* after a fax has arrived, mgetty can call a program for further
+ * processing of this fax.
+ *
+ * (e.g.: printing of the fax, sending as MIME mail, displaying in an X
+ * window (I expect this to be difficult) ...)
+ *
+ * It will be called as:
+ * <program> <result code> "<sender_id>" <#pgs> <pg1> <pg2>...
+ * 
+ * Define the name of this program here
+ * If you don't want this type of service, do not define it at all
+ */
+
+#define FAX_NOTIFY_PROGRAM "/usr/spool/fax/incoming/new_fax"

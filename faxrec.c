@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.4 1993/05/22 16:47:21 gert Exp $ Gert Doering"
+#ident "$Id: faxrec.c,v 1.5 1993/07/03 15:11:08 gert Exp $ Gert Doering"
 
 /* faxrec.c - part of the ZyXEL getty
  *
@@ -7,6 +7,8 @@
  *
  * The incoming fax is received, and stored to $FAX_SPOOL_IN (one file per
  * page). After completition, the result is mailed to $MAIL_TO.
+ * If FAX_NOTIFY_PROGRAM is defined, this program is called with all
+ * data about the fax as arguments (see policy.h for a description)
  */
 
 #include <stdio.h>
@@ -16,6 +18,7 @@
 #include <ctype.h>
 #include <signal.h>
 #include <time.h>
+#include <malloc.h>
 
 #include "mgetty.h"
 #include "fax_lib.h"
@@ -25,6 +28,9 @@
  */
 
 void fax_notify_mail( int number_of_pages );
+#ifdef FAX_NOTIFY_PROGRAM
+void fax_notify_program( char * directory, int number_of_pages );
+#endif
 
 void faxrec( void )
 {
@@ -44,6 +50,11 @@ int pagenum = 0;
 
     /* send mail to MAIL_TO */
     fax_notify_mail( pagenum );
+
+#ifdef FAX_NOTIFY_PROGRAM
+    /* notify program */
+    fax_notify_program( FAX_SPOOL_IN, pagenum );
+#endif
 }
 
 void fax_sig_hangup( )
@@ -61,6 +72,9 @@ void fax_sig_alarm( )
     lprintf( L_MESG, "timeout..." );
     fax_timeout = TRUE;
 }
+
+char *	fax_file_names = NULL;
+int	fax_fn_size = 0;
 
 int fax_get_page_data( int fd, int pagenum, char * directory )
 {
@@ -84,12 +98,28 @@ int ByteCount = 0;
     if ( fax_fp == NULL )
     {
 	lprintf( L_ERROR, "opening %s failed!", temp );
-	fax_fp = fopen( "/tmp/FAXxxx", "w" );
+	sprintf( temp, "/tmp/FAX%c-%02d", 
+		       fax_par_d.vr == 0? 'n': 'f', pagenum );
+	fax_fp = fopen( temp, "w" );
 	if ( fax_fp == NULL )
 	{
-	    lprintf( L_ERROR, "opening of /tmp/FAXxxx *also* failed!" );
+	    lprintf( L_ERROR, "opening of %s *also* failed!", temp );
 	    return ERROR;
 	}
+    }
+
+    /* store file name in fax_file_names */
+
+    if ( fax_file_names != NULL )
+	if ( strlen( temp ) + strlen( fax_file_names ) + 2 > fax_fn_size )
+	{
+	    fax_fn_size += MAXPATH * 2;
+	    fax_file_names = realloc( fax_file_names, fax_fn_size );
+	}
+    if ( fax_file_names != NULL )
+    {
+	strcat( fax_file_names, " " );
+	strcat( fax_file_names, temp );
     }
 
     /* install signal handlers */
@@ -156,6 +186,12 @@ int fax_get_pages( int fd, int * pagenum, char * directory )
 static const char start_rcv = DC2;
 
     *pagenum = 0;
+
+    /* allocate memory for fax page file names
+     * (error checking is done in fax_get_page_data)
+     */
+
+    fax_file_names = malloc( fax_fn_size = MAXPATH * 4 );
 
     /* send command for start page receive
      * read: +FCFR:, [+FTSI, +FDCS:], CONNECT
@@ -251,3 +287,32 @@ char	buf[100];
     pclose( pipe_fp );
 }
 
+#ifdef FAX_NOTIFY_PROGRAM
+void fax_notify_program( char * directory, int pagenum )
+{
+int	r;
+char *	line;
+
+    line = malloc( fax_fn_size + sizeof( FAX_NOTIFY_PROGRAM) + 100 );
+    if ( line == NULL )
+    {
+	lprintf( L_ERROR, "fax_notify_program: cannot malloc" );
+	return;
+    }
+
+    sprintf( line, "%s %d \"%s\" %d %s", FAX_NOTIFY_PROGRAM,
+					 fax_hangup_code,
+					 fax_remote_id,
+					 pagenum,
+					 fax_file_names);
+
+    lprintf( L_NOISE, "notify: '%s'", line );
+
+    r = system( line );
+
+    if ( r != 0 )
+	lprintf( L_ERROR, "system() failed" );
+
+    free( line );
+}
+#endif
