@@ -1,5 +1,5 @@
-#ident "$Id: io.c,v 1.21 1994/08/04 17:20:20 gert Exp $ Copyright (c) Gert Doering"
-;
+#ident "$Id: io.c,v 1.22 1994/08/08 12:34:28 gert Exp $ Copyright (c) Gert Doering"
+
 /* io.c
  *
  * This module contains a few low-level I/O functions

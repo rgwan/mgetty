@@ -1,5 +1,5 @@
-#ident "$Id: faxsend.c,v 1.7 1994/07/21 19:20:35 gert Exp $ Copyright (c) 1994 Gert Doering"
-;
+#ident "$Id: faxsend.c,v 1.8 1994/08/08 12:34:25 gert Exp $ Copyright (c) 1994 Gert Doering"
+
 /* faxsend.c
  *
  * Send single fax pages using a class 2 or class 2.0 faxmodem.

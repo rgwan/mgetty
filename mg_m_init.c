@@ -1,5 +1,5 @@
-#ident "$Id: mg_m_init.c,v 1.8 1994/08/04 17:22:46 gert Exp $ Copyright (c) Gert Doering"
-;
+#ident "$Id: mg_m_init.c,v 1.9 1994/08/08 12:34:31 gert Exp $ Copyright (c) Gert Doering"
+
 /* mg_m_init.c - part of mgetty+sendfax
  *
  * Initialize (fax-) modem for use with mgetty

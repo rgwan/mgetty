@@ -1,5 +1,5 @@
-#ident "$Id: mgetty.h,v 1.61 1994/08/02 19:00:24 gert Exp $ Copyright (c) Gert Doering"
-;
+#ident "$Id: mgetty.h,v 1.62 1994/08/08 12:34:33 gert Exp $ Copyright (c) Gert Doering"
+
 /* mgetty.h
  *
  * contains most of the constants and prototypes necessary for

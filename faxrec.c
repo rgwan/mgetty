@@ -1,5 +1,5 @@
-#ident "$Id: faxrec.c,v 1.51 1994/07/21 19:41:54 gert Exp $ Copyright (c) Gert Doering"
-;
+#ident "$Id: faxrec.c,v 1.52 1994/08/08 12:34:24 gert Exp $ Copyright (c) Gert Doering"
+
 /* faxrec.c - part of mgetty+sendfax
  *
  * this module is used when the modem sends a string that triggers the

@@ -1,5 +1,5 @@
-#ident "@(#)cnd.c	$Id: cnd.c,v 1.6 1994/07/09 10:31:39 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
-;
+#ident "@(#)cnd.c	$Id: cnd.c,v 1.7 1994/08/08 12:34:21 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>

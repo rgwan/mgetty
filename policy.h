@@ -1,5 +1,5 @@
-#ident "$Id: policy.h,v 1.58 1994/08/02 18:51:22 gert Exp $ Copyright (c) Gert Doering"
-;
+#ident "$Id: policy.h,v 1.59 1994/08/08 12:34:35 gert Exp $ Copyright (c) Gert Doering"
+
 /* this is the file where all configuration for mgetty / sendfax is done
  */
 
@@ -379,7 +379,7 @@
 
 /* some genius at US Robotics obviously decided that the above method
  * of switching baud rates is broken, and came up with something new
- * --- broken as well (why bother switching rates at all???) --- this
+ * --- broken as well (why bother switching rates at all?) --- this
  * and other USR Courier Fax follies will be handled by enabling the
  * following define (if you have an USR faxmodem that does *not* need
  * this, please send me a mail!)

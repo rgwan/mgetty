@@ -1,5 +1,5 @@
-#ident "$Id: do_chat.c,v 1.39 1994/08/07 11:21:11 gert Exp $ Copyright (c) Gert Doering"
-;
+#ident "$Id: do_chat.c,v 1.40 1994/08/08 12:34:22 gert Exp $ Copyright (c) Gert Doering"
+
 /* do_chat.c
  *
  * This module handles all the non-fax talk with the modem

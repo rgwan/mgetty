@@ -1,5 +1,5 @@
-#ident "@(#)getdisk.c $Id: getdisk.c,v 1.9 1994/07/11 19:15:57 gert Exp $ Copyright (c) 1994 Elegant Communications Inc."
-;
+#ident "@(#)getdisk.c $Id: getdisk.c,v 1.10 1994/08/08 12:34:26 gert Exp $ Copyright (c) 1994 Elegant Communications Inc."
+
 /*
 
 	This software is graciously provided by Elegant Communications Inc.,

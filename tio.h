@@ -1,5 +1,5 @@
-#ident "$Id: tio.h,v 1.18 1994/07/11 19:16:07 gert Exp $ Copyright (c) 1993 Gert Doering"
-;
+#ident "$Id: tio.h,v 1.19 1994/08/08 12:34:38 gert Exp $ Copyright (c) 1993 Gert Doering"
+
 #ifndef __TIO_H__
 #define __TIO_H__
 

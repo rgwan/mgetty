@@ -1,5 +1,5 @@
-#ident "$Id: mgetty.c,v 1.120 1994/08/04 17:21:02 gert Exp $ Copyright (c) Gert Doering"
-;
+#ident "$Id: mgetty.c,v 1.121 1994/08/08 12:34:32 gert Exp $ Copyright (c) Gert Doering"
+
 /* mgetty.c
  *
  * mgetty main module - initialize modem, lock, get log name, call login

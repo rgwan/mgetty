@@ -1,5 +1,5 @@
-#ident "$Id: mksed.c,v 1.8 1994/07/31 23:10:57 gert Exp $ Copyright (c) Gert Doering"
-;
+#ident "$Id: mksed.c,v 1.9 1994/08/08 12:34:34 gert Exp $ Copyright (c) Gert Doering"
+
 #include <stdio.h>
 
 #include "mgetty.h"

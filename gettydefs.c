@@ -1,5 +1,5 @@
-#ident "$Id: gettydefs.c,v 1.8 1994/05/30 17:17:11 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
-;
+#ident "$Id: gettydefs.c,v 1.9 1994/08/08 12:34:27 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+
 /* gettydefs.c
  *
  * Read /etc/gettydefs file, and permit retrieval of individual entries.
