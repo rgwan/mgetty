@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.139 1994/10/22 16:56:59 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.140 1994/10/31 12:08:25 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -28,6 +28,7 @@
 #include "voclib.h"
 #endif
 
+#include "config.h"
 #include "mg_utmp.h"
 
 #include "version.h"		/* for logging the mgetty release number */
@@ -101,7 +102,7 @@ time_t		time _PROTO(( long * tloc ));
 
 /* logname.c */
 int getlogname _PROTO(( char * prompt, TIO * termio,
-		char * buf, int maxsize ));
+		char * buf, int maxsize, boolean do_timeout ));
 
 char	* Device;			/* device to use */
 char	* DevID;			/* device name withouth '/'s */
@@ -231,6 +232,8 @@ int main _P2((argc, argv), int argc, char ** argv)
 #endif
     char	* modem_class = DEFAULT_MODEMTYPE;	/* policy.h */
     boolean	autobauding = FALSE;
+    extern char * def_init_chat_seq[];			/* mg_m_init.c */
+    char	** init_chat_seq = def_init_chat_seq;	/* modem init */
     
 #if defined(_3B1_) || defined(MEIBE)
     typedef ushort uid_t;
@@ -288,7 +291,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 	direct_line = TRUE;
     }
 
-    while ((c = getopt(argc, argv, "c:x:s:rp:n:R:i:DC:S:m:I:ba")) != EOF)
+    while ((c = getopt(argc, argv, "c:x:s:rp:n:R:i:DC:S:k:m:I:ba")) != EOF)
     {
 	switch (c) {
 	  case 'c':			/* check */
@@ -300,8 +303,8 @@ int main _P2((argc, argv), int argc, char ** argv)
 	    lprintf( L_FATAL, "gettydefs not supported\n");
 	    exit_usage(2);
 #endif
-	  case 'm':
-	    minfreespace = atol(optarg);
+	  case 'k':			/* kbytes free on disk */
+	    minfreespace = atol(optarg) * 1024;
 	    break;
 	  case 'x':			/* log level */
 	    log_set_llevel( atoi(optarg) );
@@ -351,6 +354,8 @@ int main _P2((argc, argv), int argc, char ** argv)
 	    blocking_open = TRUE; break;
 	  case 'a':			/* autobauding */
 	    autobauding = TRUE; break;
+	  case 'm':			/* modem init sequence */
+	    init_chat_seq = (char**) conf_get_chat( optarg ); break;
 	  case '?':
 	    exit_usage(2);
 	    break;
@@ -469,7 +474,7 @@ int main _P2((argc, argv), int argc, char ** argv)
      */
     if ( ! direct_line )
     {
-	if ( mg_init_data( STDIN ) == FAIL )
+	if ( mg_init_data( STDIN, init_chat_seq ) == FAIL )
 	{
 	    rmlocks();
 	    exit(1);
@@ -971,7 +976,7 @@ Ring_got_action:
 	   for c_oflag */
 
 	if ( getlogname( login_prompt, &tio,
-			 buf, sizeof(buf) ) == -1 ) continue;
+			 buf, sizeof(buf), !blocking_open ) == -1 ) continue;
 
 	/* remove PID file (mgetty is due to exec() login) */
 #ifdef MGETTY_PID_FILE
