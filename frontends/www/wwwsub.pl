@@ -1,7 +1,7 @@
 #
 # mgetty WWW gui common "things"
 #
-# RCS: $Id: wwwsub.pl,v 1.4 1998/12/04 15:36:04 gert Exp $
+# RCS: $Id: wwwsub.pl,v 1.5 1999/05/27 15:07:45 gert Exp $
 #
 # $Log
 
@@ -20,26 +20,34 @@ EOF
 
 
 #
-# all necessary checks for $fax_outgoing
+# all necessary checks for $fax_outgoing, $fax_incoming
 #
-sub check_outgoing
+sub check_outgoing { check_directory($fax_outgoing, "fax_outgoing"); }
+sub check_incoming { check_directory($fax_incoming, "fax_incoming"); }
+
+#
+# all necessary checks for a directory
+#
+sub check_directory
 {
 
-    # check, if fax-outgoing is defined
-    if ($fax_outgoing eq "")
+    my $directory = shift;
+    my $string = shift;
+    # check if directory is defined
+    if ($directory eq "")
     {
-	errormessage("\$fax_outgoing : not configured - please look at the configuration-Files and configure the Directory where you store your outgoing faxes (\$fax_outgoing)");
+	errormessage("\$$string : not configured - please look at the configuration-Files and configure the Directory where you store your outgoing faxes (\$$directory)");
     }
 
-    # check, if fax-outgoing exists
-    if (! -d $fax_outgoing)
-    { errormessage("\$fax_outgoing : no such directory $fax_outgoing");}
+    # check, if directory exists
+    if (! -d $directory)
+    { errormessage("\$$string : no such directory $directory");}
 
-    # check, if fax_outgoing has read-permissions
-    if (! -r $fax_outgoing)
-    { errormessage("\$fax_outgoing : no read-permission for $fax_outgoing (running with UID: $<)");}
+    # check, if directory has read-permissions
+    if (! -r $directory)
+    { errormessage("\$string : no read-permission for $directory (running with UID: $<)");}
 }
-# end check_outgoing
+# end check_directory
 
 
 # get variables and infos from CGI
