@@ -1,4 +1,4 @@
-#ident "$Id: faxrecp.c,v 1.3 1998/10/07 13:21:59 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrecp.c,v 1.4 2001/01/05 11:32:42 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrecp.c - part of mgetty+sendfax
  *
@@ -57,6 +57,7 @@ int fax_get_page_data _P6((fd, pagenum, directory, uid, gid, file_mode),
 			  int uid, int gid, int file_mode )
 {
 char	temp[MAXPATH];
+int	fax_fd;
 FILE *	fax_fp;
 char	c;
 char	WasDLE;
@@ -121,14 +122,14 @@ char	DevId[3];
 #endif
 
     if ( checkspace(directory) )
-	fax_fp = fopen( temp, "w" );
+	fax_fd = open( temp, O_WRONLY|O_EXCL|O_CREAT, 0440 );
     else
     {
 	lprintf( L_ERROR, "Not enough space on %s for fax reception", directory);
-	fax_fp = NULL;
+	fax_fd = -1;
     }
 
-    if ( fax_fp == NULL )
+    if ( fax_fd < 0 )
     {
 	lprintf( L_ERROR, "opening %s failed", temp );
 	sprintf( temp, "/tmp/FAX%c%04x.%02d",
@@ -136,19 +137,21 @@ char	DevId[3];
 		       (int) call_start & 0xffff, pagenum );
 
 	if ( checkspace("/tmp") )
-	    fax_fp = fopen( temp, "w" );
+	    fax_fd = open( temp, O_WRONLY|O_EXCL|O_CREAT, 0440 );
 	else
 	{
 	    lprintf( L_ERROR, "Not enough space on /tmp for fax reception - dropping line");
 	    return ERROR;
 	}
 	    
-	if ( fax_fp == NULL )
+	if ( fax_fd < 0 )
 	{
 	    lprintf( L_ERROR, "opening of %s *also* failed - giving up", temp );
 	    return ERROR;
 	}
     }
+
+    fax_fp = fdopen( fax_fd, "w" );
 
     /* do permission and owner changes as soon as possible -- security */
 
