@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 3.6 1997/01/12 14:51:06 gert Exp $ (c) 1993,1994 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.1 1997/01/12 14:52:32 gert Exp $ (c) 1993-1997 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -10,23 +10,23 @@
 This is the online documentation for the mgetty + sendfax
 package.
 
-Copyright @copyright{} 1993,1994,1995 Gert Doering
+Copyright @copyright{} 1993-1997 Gert Doering
 @end ifinfo
 
 @titlepage
 @sp 6
 @center @titlefont{mgetty+sendfax}
 @sp 4
-@center Version 0.99
+@center Version 1.0.0
 @sp 1
-@center August 1995
+@center January 1997
 @sp 5
 @center Gert Doering
 @center gert@@greenie.muc.de
 @center gert@@space.net
 
 @vskip 0pt plus 1filll
-@c Copyright @copyright{} 1993,1994,1995 Gert Doering
+@c Copyright @copyright{} 1993-1997 Gert Doering
 @end titlepage
 
 @ifinfo
@@ -80,7 +80,7 @@ disk, damages your hardware, or kills your dog, that is entirely your
 problem. Anyway, the program works for me and quite a lot of other people.
 @end cartouche
 
-The @code{mgetty+sendfax} package is Copyright @copyright{} 1993,1994,1995
+The @code{mgetty+sendfax} package is Copyright @copyright{} 1993-1997
 Gert Doering.
 
 You are permitted to redistribute @code{mgetty+sendfax} freely, modify it,
