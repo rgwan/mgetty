@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 1.25 1994/01/03 03:24:52 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 1.26 1994/01/03 23:39:27 gert Exp $ Copyright (c) Gert Doering"
 ;
 #include <stdio.h>
 #ifndef _NOSTDLIB_H
@@ -81,11 +81,11 @@ char * ln_escape_prompt _P1( (ep), char * ep )
 	      case 'v': p[i++] = '\013'; break;
 	      case 'f': p[i++] = '\f'; break;
 	      case 't': p[i++] = '\t'; break;
-	      case 'L':
+	      case 'L':					/* tty line */
 		if ( i + strlen(Device) +1 > MAX_PROMPT_LENGTH ) break;
 		i += strappnd( &p[i], Device );
 		break;
-	      case 'C':
+	      case 'C':					/* ctime */
 		{
 		    time_t ti = time(NULL);
 		    char * h = ctime( &ti );
@@ -93,10 +93,18 @@ char * ln_escape_prompt _P1( (ep), char * ep )
 		    i += strappnd( &p[i], h ) -1;
 		    break;
 		}
-	      case 'N':
-	      case 'U':
+	      case 'N':					/* numer of */
+	      case 'U':					/* users */
 		sprintf( &p[i], "%d", get_current_users() );
 		i = strlen(p);
+		break;
+	      case 'S':					/* port speed */
+		{					/* ugly, I know. */
+		    TIO temp_t;
+		    tio_get( 0, &temp_t );
+		    sprintf( &p[i], "%d", tio_get_speed( &temp_t ) );
+		    i = strlen(p);
+		}
 		break;
 	      case 'D':			/* fallthrough */
 	      case 'T':
