@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 2.15 1995/03/26 19:46:43 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 2.16 1995/03/26 19:54:55 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -266,8 +266,13 @@ fs_cvt_dvi()
         !"gs -sDEVICE=$driver -sOutputFile=$2%02d -dNOPAUSE -dSAFER -q -"
 #
 #	dvialw <$file |
-#	    gs -sDEVICE=$driver -sOutputFile=$target%02d -dNOPAUSE \
+#	    gs -sDEVICE=$driver -sOutputFile=$2%02d -dNOPAUSE \
 #               -dSAFER -
+
+# for those that have dvi2ps and not dvips
+#
+#	dvi2ps -r -q $q |
+#	    gs -sDEVICE=$driver -sOutputFile=$2%02d -dNOPAUSE -dSAFER -q -
 
 }
 	
@@ -603,7 +608,9 @@ do
 	*.ppm)	format="ppm"; base=`basename $file .ppm`;;
 	*.t)	format="ascii"; base=`basename $file .t`;;
 	*.txt)	format="ascii"; base=`basename $file .txt`;;
-	*.lj)   format="lj"; base=`basename $file .lj`;;
+	*.asc)	format="ascii"; base=`basename $file .asc`;;
+	*.lj)   format="lj";  base=`basename $file .lj`;;
+	*.pcl)  format="lj";  base=`basename $file .pcl`;;
 	*.xwd)	format="xwd"; base=`basename $file .xwd`;;
 	*.gif)	format="gif"; base=`basename $file .gif`;;
 	*.tif)	format="tif"; base=`basename $file .tif`;;
@@ -631,6 +638,7 @@ do
 	    *GIF*)		format="gif" ;;
 	    *Digifax*)	format="g3" ;;
 	    *DVI*)	format="dvi" ;;
+	    *PCL*)	format="lj" ;;
 	    *postscript*)	format="ps" ;;
 	    *PostScript*)	format="ps" ;;
 	    *TIF*)		format="tif" ;;
