@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 2.9 1995/04/10 22:14:36 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 2.10 1995/04/12 22:45:47 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -204,7 +204,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 #ifdef VOICE
     boolean	use_voice_mode = TRUE;
     
-    voice_path_init();
+    voice_config( argc, argv );
 #endif
 	
     /* startup
@@ -222,7 +222,7 @@ int main _P2((argc, argv), int argc, char ** argv)
     siginterrupt( SIGALRM, TRUE );
     siginterrupt( SIGHUP,  TRUE );
     siginterrupt( SIGUSR1, TRUE );
-#endif
+endif
 
     Device = "unknown";
 
