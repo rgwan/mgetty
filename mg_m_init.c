@@ -1,4 +1,4 @@
-#ident "$Id: mg_m_init.c,v 1.17 1994/11/05 13:06:50 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_m_init.c,v 1.18 1994/11/05 18:18:36 gert Exp $ Copyright (c) Gert Doering"
 
 /* mg_m_init.c - part of mgetty+sendfax
  *
@@ -21,6 +21,10 @@
 #include "tio.h"
 #include "policy.h"
 #include "fax_lib.h"
+
+#if defined(M_XENIX)
+#define O_NOCTTY 0
+#endif
 
 chat_action_t	init_chat_actions[] = { { "ERROR", A_FAIL },
 					{ "BUSY", A_FAIL },
