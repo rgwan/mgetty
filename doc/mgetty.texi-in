@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.37 1999/03/14 21:50:25 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.38 1999/04/08 15:36:44 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -2800,7 +2800,40 @@ doesn't work - and if the dealer isn't willing to do this, get a different
 modem.  Russell King told me that the firmware version 0316D should be
 working ok, but I got some negative reports as well. Hmmm.
 
-@node USR, Elink-ISDN, MultiTech, Modems
+@node ELSA, USR, MultiTech, Modems
+@subsection ELSA voice/fax modems
+
+ELSA makes a nice series of Data/Fax/Voice products, both for POTS
+lines and for ISDN.  In general, all of them are supported fairly well by
+@code{mgetty+sendfax}, but here are a couple of notes for different
+products:
+
+@itemize @bullet
+@item MicroLink 56k/56k pro -- standard analogue voice/fax/data modem.
+Pretty good for about everything, but make sure you use the latest firmware
+version (1.58), as earlier versions have bugs switching between voice and
+fax mode.
+@item MicroLink Office -- in addition to being a nice modem, this thing can
+do fax reception and answering machine functionality in "standalone mode",
+without a computer.  Received voice calls and faxes can be downloaded via
+X-Modem to the computer.  I'm working on a nice GUI application to ease
+using the standalone mode.
+@item MicroLink TL/V.34 -- this is an ISDN terminal adaptor that can also
+do V.34 modem calls and fax.  Works nicely.
+@item TanGo -- this an ISDN only terminal adaptor.  Works, but it's pretty
+boring stuff.
+@item MicroLink 28.8/33.6 TQV -- this is the old voice/fax/modem series.
+Works, but uses a different command to got to hardware flow control mode
+(@code{AT\Q3} instead of @code{AT+IFC=2,2}) so you'll see some errors in
+the voice log files.  Don't worry about that.
+@end itemize
+
+If you have any problems with ELSA modems and mgetty concerning fax/voice
+support, report them to me first, and let me report them to ELSA - I'm
+actively working together with them to iron out bugs, and it's easier if
+all the reports come from only one contact person (me).
+
+@node USR, Elink-ISDN, ELSA, Modems
 @subsection US Robotics (now 3com) Courier/Sportster Fax/Data modems
 
 There are a number of major lines of 3com/US Robotics modems:
