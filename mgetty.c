@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.85 1994/01/16 23:53:47 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.86 1994/01/17 13:02:56 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -474,7 +474,7 @@ waiting:
 	lprintf( L_NOISE, "checking lockfiles, locking the line" );
 
 	if ( makelock(Device) == FAIL) {
-	    lprintf( L_NOISE, "lock file exists!" );
+	    lprintf( L_NOISE, "lock file exists (dialout)!" );
 
 	    /* close all file descriptors -> other processes can read port */
 	    close(0);
@@ -567,7 +567,6 @@ waiting:
 	    /* pressed a "data/voice" button, ..., and we fall right */
 	    /* through) */
 
-	    log_level++;	/*FIXME!!: remove this - for debugging only */
 	    if ( what_action != A_CONN &&
 		 what_action != A_VCON &&	/* vgetty extensions */
 		 ( rings < rings_wanted ||
@@ -589,7 +588,6 @@ waiting:
 		rmlocks();
 		exit(1);
 	    }
-	    log_level--;
 	}
 
 	/* wait for line to clear (after "CONNECT" a baud rate may
