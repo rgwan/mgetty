@@ -1,4 +1,4 @@
-#ident "$Id: tio.h,v 4.3 1998/01/20 10:40:49 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.h,v 4.4 1998/06/17 13:04:27 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 #ifndef __TIO_H__
 #define __TIO_H__
@@ -86,8 +86,8 @@ typedef tcflag_t tioflag_t;
 # define USE_TERMIOX
 #endif
 
-/* AIX 4.x has it as well */
-#if defined(_AIX) && !defined(AIX3_FLOW) && !defined(USE_TERMIOX) 
+/* AIX 4.x has it as well, AIX 3.x has not, check with _AIX41 */
+#if defined(_AIX) && defined(_AIX41) && !defined(USE_TERMIOX) 
 # define USE_TERMIOX
 #endif
 
