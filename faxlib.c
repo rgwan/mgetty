@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.48 2000/07/15 12:09:08 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.49 2001/01/29 22:56:35 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -702,6 +702,11 @@ int mdm_identify _P1( (fd), int fd )
 	    break;
 	  case 643:	/* ATI6/ATI3 for model/firmware info */
 	    lprintf( L_MESG, "ELSA MicroLink ISDN/TLV.34 detected" );
+	    modem_type=Mt_class2_0;
+	    mis = mdm_get_idstring( "ATI3", 1, fd );
+	    break;
+	  case 645:	/* ATI6/ATI3 for model/firmware info */
+	    lprintf( L_MESG, "ELSA MicroLink Internet II detected" );
 	    modem_type=Mt_class2_0;
 	    mis = mdm_get_idstring( "ATI3", 1, fd );
 	    break;
