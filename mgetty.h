@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 4.3 1997/05/04 12:25:05 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 4.4 1997/06/28 20:40:02 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -82,7 +82,11 @@ int lprintf _PROTO(());
  * since the tv_usec timer is not exact at all on SCO.
  * If your System has the "nap(S)" call, you can use this instead of
  * select(S) or poll(S) for sleeping less than one second.
+ * Ditto for usleep(S), for systems having it.
  */
+#if defined(linux) || defined(_AIX)
+# define USE_USLEEP
+#endif
 
 #if !defined(USE_POLL) && !defined(USE_READ)
 #define USE_SELECT
