@@ -4,9 +4,14 @@
 # 
 # Copyright 1998 Simone Demmel simone@greenie.net
 #
-# CVS: $Id: faxq-v.in,v 1.4 1998/10/13 15:53:35 gert Exp $
+# CVS: $Id: faxq-v.in,v 1.5 1998/10/27 14:17:19 gert Exp $
 #
 # $Log: faxq-v.in,v $
+# Revision 1.5  1998/10/27 14:17:19  gert
+# move error reporting to common subroutine
+# check directory settings
+# change comments to English
+#
 # Revision 1.4  1998/10/13 15:53:35  gert
 # logo/<h1> header adjusted
 #
@@ -30,12 +35,38 @@ $target = "";
 # read configuration file
 require "@CONFDIR@/wwwgui.conf";
 
+# read common subroutine file
+require "@LIBDIR@/wwwsub.pl";
+
+#
+# check, if all necessary variables are available
+#
+
+# check, if fax-outgoing is defined
+if ($fax_outgoing eq "")
+{
+    errormessage("\$fax_outgoing : not configured - please look at the configuration-Files and configure the Directory where you store your outgoing faxes (\$fax_outgoing)");
+}
+if (! -d $fax_outgoing)
+    { errormessage("\$fax_outgoing : no such directory $fax_outgoing");}
+if (! -r $fax_outgoing)
+    { errormessage("\$fax_outgoing : no read-permission for $fax_outgoing");}
+
+
+# check, if $indexpage is not empty
+if ($indexpage eq "")
+{
+    errormessage( "\$indexpage : not configured - please look at the configuration-Files and configure the URL for my main-index-page (\$indexpage)");
+}
+
+
+
 #
 # starting
 #
 
 
-### GET oder POST?
+### GET or POST?
 if ($ENV{'REQUEST_METHOD'} eq "GET")
 {
   $query_string=$ENV{'QUERY_STRING'};
@@ -50,7 +81,7 @@ else
 #  &html_out(0,"<B>Submission method not supported!</B>\n");
 };
 
-### Auswerten der Argumentzeilen
+### parse arguments
 %args=();
 foreach (split(/\&/,$query_string))
 {
@@ -64,10 +95,11 @@ foreach (split(/\&/,$query_string))
   }
 }
 
-$name = $args{name};
+if (defined $args{name}) { $name = $args{name}; }
+else { print "<p> no Directory given!\n"; exit 0; }
 
 #
-# $name hat unsere Datei - sanity check first!!
+# $name has our Fax-Directory - sanity check first!!
 #
 
 if ( $name !~ /^F\d+$/ || ! chdir "$fax_outgoing/$name" )
@@ -139,12 +171,9 @@ print <<EOF;
 <p>
 <hr>
 <a href="faxq.cgi">Übersicht Faxe</a><br>
-<a href="/~sd/index.html">^Hauptmenue</a>
+<a href="$indexpage">^Hauptmenue</a>
 </body>
 </html>
 EOF
-exit 0
 
-# ***********************************************************************
-# Das war's
-# ***********************************************************************
+exit 0
