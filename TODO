@@ -295,9 +295,6 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
 215) implement e-mail to fax gateway using fax addressing as in IETF
      draft "draft-ietf-fax-addressing-02.txt" (or similar)
 
-216) make "wait for XON" a run time option (Phil Hands, Debian)
-     not easy: can't access "c.xyz" from faxsend.c!!
-
 217) if faxspool is called with "-c" *AND* is running as "root", it will
      try to put a header line on ".source-files/", and will fax one
      extra (nearly empty) page...
