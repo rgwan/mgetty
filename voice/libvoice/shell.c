@@ -1,0 +1,773 @@
+/*
+ * shell.c
+ *
+ * Executes the shell script given as the argument. If the argument is
+ * empty, commands are read from standard input.
+ *
+ */
+
+#include "../include/voice.h"
+
+char *libvoice_shell_c = "$Id: shell.c,v 1.1 1997/12/16 12:21:14 marc Exp $";
+
+static int events_to_shell = FALSE;
+int voice_shell_state = OFF_LINE;
+static int voice_shell_input_fd = NO_VOICE_FD;
+static int voice_shell_output_fd = NO_VOICE_FD;
+static int child_pid = 0;
+static int level = 0;
+static int autostop = FALSE;
+
+int voice_execute_shell_script _P2((shell_script, shell_options),
+ char *shell_script, char **shell_options)
+     {
+     int arg_index = 0;
+     int start_index;
+     char **shell_arguments;
+
+     if (strlen(shell_script) == 0)
+          lprintf(L_MESG, "%s: Executing shell %s", program_name,
+           shell_script, cvd.voice_shell.d.p);
+     else
+          lprintf(L_MESG, "%s: Executing shell script %s with shell %s",
+           program_name, shell_script, cvd.voice_shell.d.p);
+
+     if (getenv("VOICE_PID") == NULL)
+          {
+          int parent_pid = getpid();
+          int pipe_in[2];
+          int pipe_out[2];
+
+          lprintf(L_JUNK, "%s: opening pipes", program_name);
+
+          if (pipe(pipe_in))
+               {
+               lprintf(L_ERROR, "%s: cannot open input pipe!", program_name);
+               return(FAIL);
+               };
+
+          if (pipe(pipe_out))
+               {
+               lprintf(L_ERROR, "%s: cannot open output pipe!", program_name);
+               return(FAIL);
+               };
+
+          lprintf(L_JUNK, "%s: forking shell", program_name);
+
+          switch((child_pid = fork()))
+               {
+               case -1:
+                    lprintf(L_ERROR, "%s: cannot fork!", program_name);
+                    return(FAIL);
+               case 0:
+                    {
+                    char buffer1[VOICE_BUF_LEN];
+                    char buffer2[VOICE_BUF_LEN];
+                    char buffer3[VOICE_BUF_LEN];
+                    char buffer4[VOICE_BUF_LEN];
+
+/*
+                    if (strcmp(program_name, "vgetty") == 0)
+                         {
+                         close(STDIN_FILENO);
+                         close(STDOUT_FILENO);
+                         close(STDERR_FILENO);
+                         }
+                    else
+                         close(voice_fd);
+*/
+                    close(pipe_in[1]);
+                    close(pipe_out[0]);
+                    sprintf(buffer1, "VOICE_PID=%d", parent_pid);
+                    putenv(buffer1);
+                    sprintf(buffer2, "VOICE_PROGRAM=%s", program_name);
+                    putenv(buffer2);
+                    sprintf(buffer3, "VOICE_INPUT=%d", pipe_in[0]);
+                    putenv(buffer3);
+                    sprintf(buffer4, "VOICE_OUTPUT=%d", pipe_out[1]);
+                    putenv(buffer4);
+                    break;
+                    };
+               default:
+                    {
+                    int child_status;
+
+                    voice_shell_input_fd = pipe_out[0];
+                    voice_shell_output_fd = pipe_in[1];
+                    close(pipe_in[0]);
+                    close(pipe_out[1]);
+
+                    if (voice_write_shell("HELLO SHELL") != OK)
+                         return(FAIL);
+
+                    voice_shell_state = INITIALIZING;
+
+                    while ((wait(&child_status) == -1) && (errno == EINTR))
+                         voice_check_events();
+
+                    voice_shell_state = OFF_LINE;
+                    close(voice_shell_input_fd);
+                    close(voice_shell_output_fd);
+
+                    if (WIFEXITED(child_status) != 0)
+                         {
+                         child_status = WEXITSTATUS(child_status);
+                         lprintf(L_NOISE,
+                          "%s: shell exited normally with status 0x%04x",
+                          program_name, child_status);
+                         return(child_status);
+                         };
+
+                    lprintf(L_NOISE,
+                     "%s: shell exited not normally with status 0x%x",
+                     program_name, child_status);
+                    return(FAIL);
+                    };
+               };
+
+          };
+
+     if (shell_options != NULL)
+
+          for (arg_index = 0; shell_options[arg_index] != NULL; arg_index++)
+               ;
+
+     shell_arguments = (char**) malloc((3 + arg_index) * sizeof(char*));
+     start_index = 1;
+     shell_arguments[0] = cvd.voice_shell.d.p;
+
+     if (strlen(shell_script) != 0)
+          {
+          start_index = 2;
+          shell_arguments[1] = shell_script;
+          };
+
+     if (shell_options != NULL)
+
+          for (arg_index = 0; shell_options[arg_index] != NULL; arg_index++)
+               shell_arguments[arg_index + start_index] =
+                shell_options[arg_index];
+
+     shell_arguments[arg_index + start_index] = NULL;
+     execv(cvd.voice_shell.d.p, shell_arguments);
+     lprintf(L_ERROR, "%s: cannot execute %s %s", program_name,
+      cvd.voice_shell.d.p, shell_script);
+     exit(99);
+     }
+
+/*
+  variables to set by voice_fax.c
+*/
+int voice_fax_hangup_code;
+char *voice_fax_remote_id;
+int voice_fax_pages;
+char *voice_fax_files;
+
+int voice_shell_notify()
+     {
+     voice_write_shell("HUP_CODE\n%d", voice_fax_hangup_code);
+     voice_write_shell("REMOTE_ID\n%s", voice_fax_remote_id);
+
+     if (voice_fax_files != NULL) {
+         char **ap, *av[100];
+      char *cp = voice_fax_files;
+      int i, n;
+
+         for (ap = av, n = 0; (*ap = strsep(&cp, " \t")) != NULL;)
+              if (**ap != '\0') {
+                   ++ap;
+             ++n;
+           }
+
+         if (n > 0) {
+              voice_write_shell("FAX_FILES\n%d", n);
+
+           for (i = 0; i < n; i++)
+                   voice_write_shell("%s", av[i]);
+
+           }
+
+         }
+
+     return 0;
+     }
+
+int voice_shell_handle_event _P2((event, data), int event, event_data data)
+     {
+
+     if (voice_shell_state == OFF_LINE)
+          return(UNKNOWN_EVENT);
+
+     if (event == SIGNAL_SIGCHLD)
+          {
+          voice_shell_state = OFF_LINE;
+          voice_stop_current_action();
+          return(OK);
+          };
+
+     if (event == SIGNAL_SIGPIPE)
+          {
+          char buffer[VOICE_BUF_LEN];
+
+          level++;
+
+          if (voice_read_shell(buffer) != OK)
+               return(FAIL);
+
+          if (voice_shell_state == INITIALIZING)
+               {
+
+               if (strcmp(buffer, "HELLO VOICE PROGRAM") != 0)
+                    {
+                    lprintf(L_ERROR,
+                     "%s: cannot initialize communication!", program_name);
+                    voice_shell_state = OFF_LINE;
+                    return(FAIL);
+                    };
+
+               if (voice_write_shell("READY") != OK)
+                    return(FAIL);
+
+               voice_shell_state = ON_LINE;
+               lprintf(L_NOISE, "%s: initialized communication", program_name);
+               }
+          else
+               {
+
+               if (strncmp(buffer, "STOP", 4) == 0)
+                    {
+
+                    switch (voice_modem_state)
+                         {
+                         case DIALING:
+                         case PLAYING:
+                         case RECORDING:
+                         case WAITING:
+                              voice_stop_current_action();
+                              break;
+                         case IDLE:
+                              lprintf(L_NOISE, "%s: STOP during IDLE",
+                               program_name);
+
+                              if (voice_write_shell("READY") != OK)
+                                   return(FAIL);
+
+                              break;
+                         default:
+
+                              if (voice_write_shell("ERROR") != OK)
+                                   return(FAIL);
+
+                         };
+
+                    }
+               else if (level != 1)
+                    {
+                    lprintf(L_MESG, "%s: Nested command in shell script",
+                     program_name);
+
+                    if (voice_write_shell("ERROR") != OK)
+                         return(FAIL);
+
+                    }
+               else if (strncmp(buffer, "BEEP", 4) == 0)
+                    {
+                    int frequency = cvd.beep_frequency.d.i;
+                    int length = cvd.beep_length.d.i;
+
+                    sscanf(buffer, "%*s %d %d", &frequency, &length);
+
+                    if (voice_write_shell("BEEPING") != OK)
+                         return(FAIL);
+
+                    if (voice_beep(frequency, length) != OK)
+
+                         if (voice_write_shell("ERROR") != OK)
+                              return(FAIL);
+
+                    if (voice_write_shell("READY") != OK)
+                         return(FAIL);
+
+                    }
+               else if (strncmp(buffer, "DEVICE", 6) == 0)
+                    {
+                    char device[VOICE_BUF_LEN] = "";
+
+                    sscanf(buffer, "%*s %s", device);
+
+                    if (strcmp(device, "NO_DEVICE") == 0)
+                         voice_set_device(NO_DEVICE);
+                    else if (strcmp(device, "DIALUP_LINE") == 0)
+                         voice_set_device(DIALUP_LINE);
+                    else if (strcmp(device, "EXTERNAL_MICROPHONE") == 0)
+                         voice_set_device(EXTERNAL_MICROPHONE);
+                    else if (strcmp(device, "INTERNAL_SPEAKER") == 0)
+                         voice_set_device(INTERNAL_SPEAKER);
+                    else if (strcmp(device, "LOCAL_HANDSET") == 0)
+                         voice_set_device(LOCAL_HANDSET);
+                    else if (voice_write_shell("ERROR") != OK)
+                         return(FAIL);
+
+                    if (voice_write_shell("READY") != OK)
+                         return(FAIL);
+
+                    }
+               else if (strncmp(buffer, "DIAL", 4) == 0)
+                    {
+                    char phone_number[VOICE_BUF_LEN] = "";
+
+                    sscanf(buffer, "%*s %s", phone_number);
+
+                    if (voice_write_shell("DIALING") != OK)
+                         return(FAIL);
+
+                    if (voice_dial((void *) phone_number) == FAIL)
+
+                         if (voice_write_shell("ERROR") != OK)
+                              return(FAIL);
+
+                    if (voice_write_shell("READY") != OK)
+                         return(FAIL);
+
+                    }
+               else if (strncmp(buffer, "DISABLE EVENTS", 14) == 0)
+                    {
+                    events_to_shell = FALSE;
+
+                    if (voice_write_shell("READY") != OK)
+                         return(FAIL);
+
+                    }
+               else if (strncmp(buffer, "ENABLE EVENTS", 13) == 0)
+                    {
+                    events_to_shell = TRUE;
+
+                    if (voice_write_shell("READY") != OK)
+                         return(FAIL);
+
+                    }
+               else if (strcmp(buffer, "GET TTY") == 0)
+                    {
+
+                    if (voice_write_shell(DevID) != OK)
+                         return(FAIL);
+
+                    if (voice_write_shell("READY") != OK)
+                         return(FAIL);
+
+                    }
+               else if (strncmp(buffer, "AUTOSTOP", 8) == 0)
+                    {
+                    char buf[VOICE_BUF_LEN] = "";
+                    sscanf(buffer, "%*s %s", buf);
+
+                    if (strcmp(buf, "ON") == 0)
+                         autostop = 1;
+                    else if (strcmp(buf, "OFF") == 0)
+                         autostop = 0;
+                    else if (voice_write_shell("ERROR") != OK)
+                         return(FAIL);
+
+                    if (voice_write_shell("READY") != OK)
+                         return(FAIL);
+
+                    }
+               else if (strcmp(buffer, "GOODBYE") == 0)
+                    {
+
+                    if (voice_write_shell("GOODBYE SHELL") != OK)
+                         return(FAIL);
+
+                    }
+               else if (strncmp(buffer, "GETFAX", 6) == 0)
+                    {
+                    char path[VOICE_BUF_LEN] = "/tmp";
+/*
+                    if (voice_device != DIALUP_LINE)
+
+                         if (voice_write_shell("ERROR") != OK)
+                              return(FAIL);
+*/
+                    sscanf(buffer, "%*s %s", path);
+
+/*                  if (voice_write_shell("RECEIVING") != OK)
+                         return(FAIL);*/
+
+                    enter_fax_mode();
+                    voice_write("ATA"); /* faxrec will eat the rest */
+                    voice_faxrec(path, 0);
+                    voice_init();
+                    voice_mode_on();
+                    voice_set_device(DIALUP_LINE);
+                    voice_shell_notify();
+
+                    if (voice_write_shell("READY") != OK)
+                         return(FAIL);
+
+                    }
+               else if (strncmp(buffer, "SENDFAX", 7) == 0)
+                    {
+                    char *cp = &buffer[7];
+                    char **ap, *av[100];
+
+                    for (ap = av; (*ap = strsep(&cp, " \t")) != NULL;)
+
+                         if (**ap != '\0')
+                              ++ap;
+
+                    if (av[0] != NULL)
+                         {
+                         enter_fax_mode();
+                         voice_faxsnd(av, 0, 3);
+                         voice_init();
+                         voice_mode_on();
+                         voice_set_device(DIALUP_LINE);
+                         voice_shell_notify();
+                         }
+                    else
+                         {
+
+                         if (voice_write_shell("ERROR") != OK)
+                              return(FAIL);
+
+                         }
+
+                    if (voice_write_shell("READY") != OK)
+                         return(FAIL);
+
+                    }
+               else if (strncmp(buffer, "PLAY", 4) == 0)
+                    {
+                    char name[VOICE_BUF_LEN] = "";
+
+                    sscanf(buffer, "%*s %s", name);
+
+                    if (strlen(name) != 0)
+                         {
+
+                         if (voice_write_shell("PLAYING") != OK)
+                              return(FAIL);
+
+                         if (voice_play_file(name) == FAIL)
+
+                              if (voice_write_shell("ERROR") != OK)
+                                   return(FAIL);
+
+                         }
+                    else
+                         {
+
+                         if (voice_write_shell("ERROR") != OK)
+                              return(FAIL);
+
+                         }
+
+                    if (voice_write_shell("READY") != OK)
+                         return(FAIL);
+
+                    }
+               else if (strncmp(buffer, "RECORD", 6) == 0)
+                    {
+                    char name[VOICE_BUF_LEN] = "";
+
+                    sscanf(buffer, "%*s %s", name);
+
+                    if (strlen(name) != 0)
+                         {
+
+                         if (voice_write_shell("RECORDING") != OK)
+                              return(FAIL);
+
+                         if (voice_record_file(name) != OK)
+
+                              if (voice_write_shell("ERROR") != OK)
+                                   return(FAIL);
+
+                         }
+                    else
+                         {
+
+                         if (voice_write_shell("ERROR") != OK)
+                              return(FAIL);
+
+                         }
+
+                    if (voice_write_shell("READY") != OK)
+                         return(FAIL);
+
+                    }
+               else if (strncmp(buffer, "WAIT", 4) == 0)
+                    {
+                    int length = cvd.rec_silence_len.d.i / 10;
+
+                    sscanf(buffer, "%*s %d", &length);
+
+                    if (voice_write_shell("WAITING") != OK)
+                         return(FAIL);
+
+                    if (voice_wait(length) != OK)
+
+                         if (voice_write_shell("ERROR") != OK)
+                              return(FAIL);
+
+                    if (voice_write_shell("READY") != OK)
+                         return(FAIL);
+
+                    }
+               else
+                    {
+
+                    if (voice_write_shell("ERROR") != OK)
+                         return(FAIL);
+
+                    }
+
+               };
+
+          level--;
+          return(OK);
+          };
+
+
+     if ((voice_shell_state == ON_LINE) && (event == RECEIVED_DTMF) &&
+      ((event & VOICE_MODEM_EVENT) != 0) && autostop)
+
+          switch (voice_modem_state)
+               {
+               case PLAYING:
+               case RECORDING:
+                    lprintf(L_JUNK, "%s: stopping current action",
+                     program_name);
+                    voice_stop_current_action();
+                    break;
+               }
+
+     if ((voice_shell_state == ON_LINE) && (event == RECEIVED_DTMF) &&
+      (!events_to_shell))
+          return(OK);
+
+     if ((voice_shell_state == ON_LINE) && events_to_shell &&
+      ((event & VOICE_MODEM_EVENT) != 0))
+          {
+          lprintf(L_JUNK, "voice_shell_handle_event: event 0x%04x",
+           event);
+
+          switch (event)
+               {
+               case BONG_TONE:
+
+                    if (voice_write_shell("BONG_TONE") != OK)
+                         return(FAIL);
+
+                    return(OK);
+               case BUSY_TONE:
+
+                    if (voice_write_shell("BUSY_TONE") != OK)
+                         return(FAIL);
+
+                    return(OK);
+               case CALL_WAITING:
+
+                    if (voice_write_shell("CALL_WAITING") != OK)
+                         return(FAIL);
+
+                    return(OK);
+               case DIAL_TONE:
+
+                    if (voice_write_shell("DIAL_TONE") != OK)
+                         return(FAIL);
+
+                    return(OK);
+               case DATA_CALLING_TONE:
+
+                    if (voice_write_shell("DATA_CALLING_TONE") != OK)
+                         return(FAIL);
+
+                    return(OK);
+               case DATA_OR_FAX_DETECTED:
+
+                    if (voice_write_shell("DATA_OR_FAX_DETECTED") != OK)
+                         return(FAIL);
+
+                    return(OK);
+               case FAX_CALLING_TONE:
+
+                    if (voice_write_shell("FAX_CALLING_TONE") != OK)
+                         return(FAIL);
+
+                    return(OK);
+               case HANDSET_ON_HOOK:
+
+                    if (voice_write_shell("HANDSET_ON_HOOK") != OK)
+                         return(FAIL);
+
+                    return(OK);
+               case HANDSET_OFF_HOOK:
+
+                    if (voice_write_shell("HANDSET_OFF_HOOK") != OK)
+                         return(FAIL);
+
+                    return(OK);
+               case LOOP_BREAK:
+
+                    if (voice_write_shell("LOOP_BREAK") != OK)
+                         return(FAIL);
+
+                    return(OK);
+               case LOOP_POLARITY_CHANGE:
+
+                    if (voice_write_shell("LOOP_POLARITY_CHANGE") != OK)
+                         return(FAIL);
+
+                    return(OK);
+               case NO_ANSWER:
+
+                    if (voice_write_shell("NO_ANSWER") != OK)
+                         return(FAIL);
+
+                    return(OK);
+               case NO_DIAL_TONE:
+
+                    if (voice_write_shell("NO_DIAL_TONE") != OK)
+                         return(FAIL);
+
+                    return(OK);
+               case NO_VOICE_ENERGY:
+
+                    if (voice_write_shell("NO_VOICE_ENERGY") != OK)
+                         return(FAIL);
+
+                    return(OK);
+               case RING_DETECTED:
+
+                    if (voice_write_shell("RING_DETECTED") != OK)
+                         return(FAIL);
+
+                    return(OK);
+               case RINGBACK_DETECTED:
+
+                    if (voice_write_shell("RINGBACK_DETECTED") != OK)
+                         return(FAIL);
+
+                    return(OK);
+               case RECEIVED_DTMF:
+
+                    if (voice_write_shell("RECEIVED_DTMF") != OK)
+                         return(FAIL);
+
+                    if (voice_write_shell("%c", data.c) != OK)
+                         return(FAIL);
+                         ;
+                    return(OK);
+               case SILENCE_DETECTED:
+
+                    if (voice_write_shell("SILENCE_DETECTED") != OK)
+                         return(FAIL);
+
+                    return(OK);
+               case SIT_TONE:
+
+                    if (voice_write_shell("SIT_TONE") != OK)
+                         return(FAIL);
+
+                    return(OK);
+               case TDD_DETECTED:
+
+                    if (voice_write_shell("TDD_DETECTED") != OK)
+                         return(FAIL);
+
+                    return(OK);
+               case VOICE_DETECTED:
+
+                    if (voice_write_shell("VOICE_DETECTED") != OK)
+                         return(FAIL);
+
+                    return(OK);
+               };
+
+          };
+
+     return(UNKNOWN_EVENT);
+     }
+
+int voice_read_shell _P1((buffer), char *buffer)
+     {
+     char char_read;
+     int number_chars = 0;
+
+     lprintf(L_NOISE, "shell(%d): ", level);
+
+     do
+          {
+
+          if (read(voice_shell_input_fd, &char_read, 1) != 1)
+               {
+               lprintf(L_ERROR, "could not read from shell");
+
+               if (child_pid != 0)
+                    kill(child_pid, SIGKILL);
+
+               return(FAIL);
+               };
+
+          if (char_read != NL)
+               {
+               *buffer = char_read;
+               buffer++;
+               number_chars++;
+               lputc(L_NOISE, char_read);
+               };
+
+          }
+     while (((char_read != NL) || (number_chars == 0)) &&
+      (number_chars < (VOICE_BUF_LEN - 1)));
+
+     *buffer = 0x00;
+     return(OK);
+     }
+
+#if !defined(NeXT) || defined(NEXTSGTTY)
+# ifdef USE_VARARGS
+#  include <varargs.h>
+# else
+#  include <stdarg.h>
+# endif
+#else
+# include "../include/NeXT.h"
+#endif
+
+#ifdef USE_VARARGS
+int voice_write_shell(format, va_alist)
+     const char *format;
+     va_dcl
+#else
+int voice_write_shell(const char *format, ...)
+#endif
+
+     {
+     va_list arguments;
+     char answer[VOICE_BUF_LEN];
+
+#ifdef USE_VARARGS
+     va_start(arguments);
+#else
+     va_start(arguments, format);
+#endif
+
+     vsprintf(answer, format, arguments);
+     va_end(arguments);
+     lprintf(L_NOISE, "%s(%d): %s", program_name, level, answer);
+
+     if ((write(voice_shell_output_fd, answer, strlen(answer)) !=
+      strlen(answer)) || (write(voice_shell_output_fd, "\n", 1) != 1))
+          {
+          lprintf(L_ERROR, "%s: could not write to shell", program_name);
+
+          if (child_pid != 0)
+               kill(child_pid, SIGKILL);
+
+          return(FAIL);
+          };
+
+     return(OK);
+     }
