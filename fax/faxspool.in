@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 3.5 1996/02/15 16:53:01 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 3.6 1996/03/12 22:05:20 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -413,6 +413,12 @@ do
 	    fi
 	    shift ; shift
 	    ;;
+# set accounting handle (just a string that will be logged)
+       -A) case "$2" in
+           '') $echo "$usage" >&2 ; exit 2 ;;
+	   esac
+           ACCT_HANDLE=$2 ; shift ; shift
+	   ;;
 # shut up
        -q) exec >/dev/null ; shift
            ;;
@@ -815,6 +821,9 @@ $echo "pages " $finalpg >>$job.q
 
 [ -z "$TIME" ] || \
     $echo "time $TIME" >>$job.q
+
+[ -z "$ACCT_HANDLE" ] || \
+    $echo "acct_handle $ACCT_HANDLE" >>$job.q
 
 mv $job.q $job
 
