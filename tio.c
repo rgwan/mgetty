@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 1.20 1994/04/18 15:36:10 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 1.21 1994/04/23 21:41:49 gert Exp $ Copyright (c) 1993 Gert Doering"
 ;
 /* tio.c
  *
@@ -585,4 +585,68 @@ int tio_toggle_dtr _P2( (fd, msec_wait), int fd, int msec_wait )
     return result;
 #endif					/* !MCSETA */
 #endif					/* !SVR4 */
+}
+
+
+/* flush input or output data queue
+ *
+ * "queue" is one of the TIO_Q* values from tio.h
+ */
+
+int tio_flush_queue _P2( (fd, queue), int fd, int queue )
+{
+    int r = NOERROR;
+#ifdef POSIX_TERMIOS
+    switch( queue )
+    {
+      case TIO_Q_IN:   r = tcflush( fd, TCIFLUSH ); break;
+      case TIO_Q_OUT:  r = tcflush( fd, TCOFLUSH ); break;
+      case TIO_Q_BOTH: r = tcflush( fd, TCIOFLUSH );break;
+      default:
+	lprintf( L_WARN, "tio_flush_queue: invalid ``queue'' argument" );
+	return ERROR;
+    }
+#endif
+#ifdef SYSV_TEMIO
+    switch ( queue )
+    {
+      case TIO_Q_IN:   r = ioctl( fd, TCFLSH, 0 ); break;
+      case TIO_Q_OUT:  r = ioctl( fd, TCFLSH, 1 ); break;
+      case TIO_Q_BOTH: r = ioctl( fd, TCFLSH, 2 ); break;
+      default:
+	lprintf( L_WARN, "tio_flush_queue: invalid ``queue'' argument" );
+	return ERROR;
+    }
+#endif
+#ifdef BSD_SGTTY
+#include "not yet implemented"
+#endif
+    if ( r != 0 ) lprintf( L_ERROR, "tio: cannot flush queue" );
+
+    return r;
+}
+
+/* control flow control: if "restart_output" is TRUE, stopped tty output is
+ * resumed, if it is FALSE, the output is stopped
+ *
+ * I'm fairly sure it won't work on all supported systems...
+ */
+   
+int tio_flow _P2( (fd, restart_output), int fd, int restart_output )
+{
+    int r;
+#ifdef POSIX_TERMIOS
+    if ( restart_output ) r = tcflow( fd, TCOON );
+                     else r = tcflow( fd, TCOOFF );
+#endif
+#ifdef SYSV_TERMIO
+    if ( restart_output ) r = ioctl( fd, TCXONC, 1 );
+                     else r = ioctl( fd, TCXONC, 0 );
+#endif
+#ifdef BSD_SGTTY
+#include "not yet supported"
+#endif
+    if ( r != 0 ) lprintf( L_ERROR, "tio: cannot change flow ctrl state" );
+
+    return r;
 }
