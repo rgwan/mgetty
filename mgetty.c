@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.128 1994/08/20 23:57:54 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.129 1994/08/22 01:28:01 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -895,7 +895,7 @@ int main _P2((argc, argv), int argc, char ** argv)
     {
 	/* set ttystate for /etc/issue ("before" setting) */
 	tio = *gettermio(GettyID, TRUE, &login_prompt);
-#ifdef sunos4
+#ifdef sun
 	/* we have carrier, assert data flow control */
 	tio_set_flow_control( STDIN, &tio, DATA_FLOW );
 #endif

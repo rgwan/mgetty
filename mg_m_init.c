@@ -1,4 +1,4 @@
-#ident "$Id: mg_m_init.c,v 1.12 1994/08/19 16:39:07 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_m_init.c,v 1.13 1994/08/22 01:28:00 gert Exp $ Copyright (c) Gert Doering"
 
 /* mg_m_init.c - part of mgetty+sendfax
  *
@@ -276,7 +276,7 @@ int mg_init_device _P4( (fd, toggle_dtr, toggle_dtr_waittime, portspeed ),
     tio_default_cc( &tio );		/* init c_cc[] array */
     tio_mode_raw( &tio );
 
-#ifdef sunos4
+#ifdef sun
     /* SunOS does not rx with RTSCTS unless carrier present */
     tio_set_flow_control( STDIN, &tio, (DATA_FLOW) & (FLOW_SOFT) );
 #else

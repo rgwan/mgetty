@@ -1,4 +1,4 @@
-#ident "$Id: faxsend.c,v 1.9 1994/08/12 22:59:47 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: faxsend.c,v 1.10 1994/08/22 01:27:59 gert Exp $ Copyright (c) 1994 Gert Doering"
 
 /* faxsend.c
  *
@@ -401,7 +401,7 @@ int fax_send_ppm _P3( (fd, tio, ppm),
 	     * result code has reached the host
 	     */
 	    tio_carrier( tio, FALSE );
-#ifdef sunos4
+#ifdef sun
 	    /* HW handshake has to be off while carrier is low */
 	    tio_set_flow_control(fd, tio, (FAXSEND_FLOW) & FLOW_XON_OUT);
 #endif
