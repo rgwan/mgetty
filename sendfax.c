@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 4.7 1997/11/26 17:09:58 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 4.8 1997/12/02 13:42:46 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -214,6 +214,7 @@ int fd;
 void fax_close _P1( (fd),
 		    int fd )
 {
+    tio_flush_queue( fd, TIO_Q_BOTH );		/* unlock flow ctl. */
     fax_send( "AT+FCLASS=0", fd );
     delay(500);
     tio_flush_queue( fd, TIO_Q_BOTH );		/* unlock flow ctl. */
