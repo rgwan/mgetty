@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 1.11 1994/11/06 13:37:42 gert Exp $ (c) 1993,1994 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 1.12 1994/11/13 13:56:04 gert Exp $ (c) 1993,1994 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -17,7 +17,7 @@ Copyright @copyright{} 1993,1994 Gert Doering
 @sp 6
 @center @titlefont{mgetty+sendfax}
 @sp 4
-@center Version 0.21-pre0.22
+@center Version 0.22
 @sp 1
 @center November 1994
 @sp 5
@@ -382,7 +382,26 @@ sometimes detect this problem, and will thenlog a warning).
 
 @node Inittab, Devices, How, mgetty
 @section The @file{/etc/inittab} entry
-The following options are available:
+An typical @file{inittab} entry for @code{mgetty} looks like this (on
+SystemV-style OSes):
+
+@example
+<tt>:rlevel:<respawn|off>:@SBINDIR@/mgetty [options] <device>
+@end example
+
+where @samp{tt} is a short form of the @samp{device} name, used by
+@code{init} and @code{who} for internal purposes. Usually this is
+something like @samp{S0} or @samp{2A} or so.
+
+@samp{rlevel} specifies the runlevel that the command in the fourth field
+is run at, this may be @samp{23} or @samp{56} or so, look at @code{man
+init}.
+
+The next field tells @code{init} whether that entry is active
+(@code{respawn}) or not (@code{off}), and the fourth field specifies which
+program to run.
+
+The following options are available for @code{mgetty}:
 
 @samp{-x @var{<level>}} sets the debugging level
 
@@ -394,7 +413,7 @@ on the incoming FAX spool directory.  If there isn't this much space
 in the spool directory, the connection is terminated.  The default
 is 1 megabyte.
 
-@samp{-m @var{'expect send'}} sets the modem initialization sequence.
+@samp{-m @var{'expect send ...'}} sets the modem initialization sequence.
   
 @samp{-r} for direct lines (no modem chats are done)
 
@@ -416,7 +435,7 @@ prompting for login.
 machines (full path required). @file{<fax_document>} has to be in G3 format
 (as for @code{sendfax}).
 
-A sample entry in @file{/etc/inittab} looks like this:
+A sample entry in @file{/etc/inittab} might look like this:
 
 @example
 F1a:23:respawn:@SBINDIR@/mgetty -x 3 tty2a
@@ -2004,23 +2023,39 @@ In some circumstances, sending of @strong{large} graphics files (the
 well-known @file{tiger.ps}) may fail.
 
 @node MultiTech, Elink-ISDN, Zoltrix, Modems
-@subsection MultiTech modems
+@subsection MultiTech modems (MT1432BG)
 
-The following changes were suggested by Glenn Thobe:
+First of all, I want to thank MultiTech Munich for their support (borrowing
+me two test modems w/o charge).
 
-@itemize @bullet 
-@item
-In the file @file{mgetty.c}, around line 84, change @code{+FBOR=0}
-to @code{+FBOR=1} (this reverses the fax bit order) and replace
-@code{AT+FDCC=1,5,0,@dots{}} with @code{AT+FDCC=1,3,0,@dots{}}.
+Second, I can only strongly recommend this modem, it's @strong{great}. Got
+it, unpacked it, switched it on, set mgetty's init string
+(@code{MODEM_INIT}) to @code{ATS0=0&S1} -- and everything simply
+worked. Flawlessly. (Warning: usually I recommend @code{AT&S0} to force
+the DSR line high -- needed, because otherwise some O/Ses won't do
+hardware flow control -- but that doesn't seem to work on my model. AT&S1
+means that H/W flow control only works when a carrier is present, but
+then, who needs flow control in command mode?)
 
-@item
-In @file{policy.h}, use the following defines:
+The modem does very reliably distinguish incoming fax and data calls, and
+outgoing fax works also very good (unfortunately, it's limited to 9600 bps
+fax rate, but that's no big problem).
+
+The only problem I've seen is that this modem does the fax bit order on
+reception @strong{right} (everybody else does it wrong, to be compatible
+with Rockwell, who botched it in the first place). Thus, @code{g3topbm}
+won't be able to decode the data, unless you call it as @code{g3topbm -r}.
+(You can see if the bit order is wrong if g3topbm complains in every single
+line). I'll work something out for one of the next releases to work around
+this.
+
+Glenn Thobe suggested the following definitions for @file{policy.h} (which
+mostly are factory defaults anyway, but it wouldn't harm to set them)
+
 @example
 #define MODEM_INIT_STRING	"ATS0=0Q0&D3&E1&E4&E13&E15"
 #define FAX_MODEM_HANDSHAKE "&E4"
 @end example
-@end itemize
 
 @node Elink-ISDN, Class 1, MultiTech, Modems
 @subsection Elink ISDN Terminal Adaptors 293, 310, 393 with X.75 and V.110

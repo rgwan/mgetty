@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 1.20 1994/04/25 01:22:32 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 1.21 1994/11/13 13:55:53 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there).
@@ -29,9 +29,13 @@ CC=gcc
 #
 # For Linux, you don't have to define anything
 #
-# For SunOS, you don't have to define anything either.
-#   But be warned, Hardware handshake (and serial operations in general)
+# For SunOS 4.x, please define -Dsunos4.
+#   (We can't use "#ifdef sun" because that's defined on solaris as well)
+#   Be warned, Hardware handshake (and serial operations in general)
 #   work a lot more reliably with patch 100513-04 (jumbo tty patch)!
+#
+# For Solaris 2.x, please define -Dsolaris2, which will automatically
+#   #define SVR4.
 #
 # Add "-DISC" to compile on Interactive Unix. For posixized ISC 4.0 you
 # may have to add -D_POSIX_SOURCE
@@ -47,6 +51,8 @@ CC=gcc
 #
 # When compiling on HP/UX, make sure that the compiler defines _HPUX_SOURCE, 
 #     if it doesn't, add "-D_HPUX_SOURCE" to the CFLAGS line.
+#
+# On NeXTStep, add "-posix -DBSD" (otherwise, it won't compile)
 #
 # For (otherwise not mentioned) systems with BSD utmp handling, define -DBSD
 #
@@ -66,6 +72,10 @@ CC=gcc
 # timeouts in do_chat() don't work reliably) but do have siginterrupt(),
 # define -DHAVE_SIGINTERRUPT. This is the default if BSD is defined.
 #
+# For Systems with broken termios / VMIN/VTIME mechanism (symptom: mgetty
+# hangs in "waiting for line to clear"), define -DBROKEN_VTIME. Notably
+# this hits FreeBSD 0.9 and some SVR4.2 users...
+#
 # If you don't have *both* GNU CC and GNU AS, remove "-pipe"
 #
 # Disk statistics:
@@ -83,15 +93,17 @@ CC=gcc
 #	    SVR3	  - SVR3/88k/Apollo/SCO 4-parameter statfs()
 #	    USTAT	  - ustat(), no statfs etc.
 #
-#CFLAGS=-Wall -g -O2 -pipe -DSECUREWARE -DUSE_POLL
-CFLAGS=-g -O2 -Wall -pipe
-#CFLAGS=-g -O -DSVR4
-#CFLAGS=-g -O -DSVR4 -DSVR42
-#CFLAGS=-g -O -DUSE_POLL
+#CFLAGS=-Wall -O2 -pipe -DSECUREWARE -DUSE_POLL
+CFLAGS=-O2 -Wall -pipe
+#CFLAGS=-O -DSVR4
+#CFLAGS=-O -DSVR4 -DSVR42
+#CFLAGS=-O -DUSE_POLL
 #CFLAGS=-Wall -g -O2 -pipe
 # 3B1: You can remove _NOSTDLIB_H and USE_READ if you have the
 # networking library and gcc.
 #CFLAGS=-D_3B1_ -D_NOSTDLIB_H -DUSE_READ -DSHORT_FILENAMES
+#CFLAGS=-std -DPOSIX_TERMIOS -O2 -D_BSD -DBSD	# for OSF/1 (w/ /bin/cc)
+#CFLAGS=-posix -DBSD				# for NeXT
 
 #
 # LDFLAGS specify flags to pass to the linker. You could specify
@@ -100,16 +112,27 @@ CFLAGS=-g -O2 -Wall -pipe
 # To use the "setluid()" function on SCO, link "-lprot", and to use
 # the "syslog()" function, link "-lsocket".
 #
+# For SVR4(.2) and Solaris 2, you may need "-lsocket -lnsl" for syslog().
+#
 # For the 3B1, add "-s -shlib"
 #
 # For ISC, add "-linet -lpt" (and -lcposix, if necessary)
 #
 # For Sequent Dynix/ptx, you have to add "-lsocket"
 #
+# For OSF/1, add "-lbsd".
+#
+# On SCO Xenix, add -ldir -lx
+#
+# For FreeBSD, add "-lutil" if the linker complains about
+# 	"utmp.o: unresolved symbod _login"
+#
 LDFLAGS=
 #LDFLAGS=-lprot -lsocket
 #LDFLAGS=-s -shlib
 #LDFLAGS=-lsocket
+#LDFLAGS=-lbsd					# OSF/1
+#LDFLAGS=-posix					# NeXT
 #
 #
 # the following things are mainly used for ``make install''
@@ -120,49 +143,75 @@ LDFLAGS=
 # if your systems doesn't have one, use the shell script that I provide
 # in "inst.sh" (taken from X11R5)
 INSTALL=install -c -o bin -g bin
+#INSTALL=installbsd -c -o bin -g bin		# OSF/1
+#INSTALL=/usr/ucb/install -c -o bin -g bin	# AIX
+#
+# prefix, where most (all?) of the stuff lives, usually /usr/local or /usr
+#
+prefix=/usr/local
+#
+# prefix for all the spool directories
+#
+spool=/usr/spool
 #
 # where the mgetty + sendfax binaries live (used for "make install")
 #
-SBINDIR=/usr/local/sbin
+SBINDIR=$(prefix)/sbin
 #
 # where the user executable binaries live
 #
-BINDIR=/usr/local/bin
+BINDIR=$(prefix)/bin
 #
 # where the config files go to (check vs. policy.h!)
 #
-LIBDIR=/usr/local/lib/mgetty+sendfax
+LIBDIR=$(prefix)/lib/mgetty+sendfax
 #
 # the fax spool directory
 #
-FAX_SPOOL=/usr/spool/fax
+FAX_SPOOL=$(spool)/fax
 FAX_SPOOL_IN=$(FAX_SPOOL)/incoming
+FAX_SPOOL_OUT=$(FAX_SPOOL)/outgoing
 #
 # Where section 1 manual pages should be placed
-MAN1DIR=/usr/local/man/man1
+MAN1DIR=$(prefix)/man/man1
 #
 # Where section 4 manual pages (mgettydefs.4) should be placed
-MAN4DIR=/usr/local/man/man4
+MAN4DIR=$(prefix)/man/man4
 #
 # Section 5 man pages (faxqueue.5)
-MAN5DIR=/usr/local/man/man5
+MAN5DIR=$(prefix)/man/man5
 #
 # Section 8 man pages (sendfax.8)
-MAN8DIR=/usr/local/man/man8
+MAN8DIR=$(prefix)/man/man8
 #
 # Where the GNU Info-Files are located
 #
-INFODIR=/usr/local/info
+INFODIR=$(prefix)/info
 #
 #
 # A shell that understands bourne-shell syntax
+# (on some ultrix systems, you may need /bin/sh5 here)
 #
 SHELL=/bin/sh
 #
 # If you have problems with the awk-programs in the fax/ shell scripts,
 # try using "nawk" or "gawk" (or whatever works...) here
+# needed on most SunOS/Solaris/ISC/NeXTStep versions.
 #
 AWK=awk
+#
+# An echo program that understands escapes like "\n" for newline or
+# "\c" for "no-newline-at-end". On SunOS, this is /usr/5bin/echo, in the
+# bash, it's "echo -e"
+# (don't forget the quotes, otherwise compiling mksed will break!!)
+#
+# If you do not have *any* echo program at all that will understand "\c",
+# please use the "mg.echo" program provided in the compat/ subdirectory.
+# Set ECHO="mg.echo" and INSTALL_MECHO to mg.echo
+#
+ECHO="echo"
+#
+# INSTALL_MECHO=mg.echo
 
 #
 # for mgetty, that's it. If you want to use Klaus Weidner's voice
@@ -172,13 +221,18 @@ AWK=awk
 # All the files needed will be put here,
 # except for binaries, which are put into BINDIR (defined above)
 
-VOICE_DIR=/usr/spool/voice
+VOICE_DIR=$(spool)/voice
 
-# ZYXEL_R610 should be set to 1 if you have a ZyXEL with
-# a ROM release >= 6.10 and to 0 for older ROMs. This only
-# affects the conversion adpcm<=>pvf.
+# To maintain security, I recommend creating a new group for
+# users who are allowed to manipulate the recorded voice messages.
+PHONE_GROUP=phone
+PHONE_PERMS=770
 
-ZYXEL_R610=1
+# ZYXEL_ROM should be set to 601, 610, 611, 612, ... to match
+# your ROM release. This affects adpcm conversion and the
+# voice initialization.
+
+ZYXEL_ROM=612
 
 # Add -DNO_STRSTR to CFLAGS if you don't have strstr().
 
@@ -189,17 +243,21 @@ LN=ln -s
 #
 # Nothing to change below this line
 #
-VS=20
+VS=22
 #
 #
 OBJS=mgetty.o logfile.o do_chat.o locks.o utmp.o logname.o login.o \
-     faxrec.o faxsend.o faxlib.o faxhng.o \
-     io.o gettydefs.o tio.o config.o cnd.o getdisk.o
+     mg_m_init.o faxrec.o faxsend.o faxlib.o faxhng.o \
+     io.o gettydefs.o tio.o config.o cnd.o getdisk.o goodies.o
 
 SFAXOBJ=sendfax.o logfile.o locks.o faxlib.o faxsend.o faxrec.o \
      io.o tio.o faxhng.o cnd.o getdisk.o
 
 all:	mgetty sendfax g3-tools fax-stuff
+
+mgetty.o : mgetty.c syslibs.h mgetty.h ugly.h policy.h tio.h fax_lib.h \
+	config.h mg_utmp.h Makefile
+	$(CC) $(CFLAGS) -DFAX_SPOOL_IN=\"$(FAX_SPOOL_IN)\" -c mgetty.c
 
 mgetty: $(OBJS)
 	$(CC) -o mgetty $(OBJS) $(LDFLAGS)
@@ -223,40 +281,51 @@ testdisk:	getdisk
 	./getdisk / .
 
 # README PROBLEMS
-DISTRIB=README.1st THANKS TODO FTP inittab.aix inst.sh \
-	Makefile ChangeLog policy.h-dist login.config dialin.config \
+DISTRIB=README.1st THANKS TODO BUGS FTP FAQ inittab.aix inst.sh version.h \
+	Makefile ChangeLog policy.h-dist login.cfg.in dialin.config \
         mgetty.c mgetty.h ugly.h do_chat.c logfile.c logname.c locks.c \
-	faxrec.c faxsend.c faxlib.c fax_lib.h sendfax.c io.c \
-	tio.c tio.h gettydefs.c config.c config.h login.c faxhng.c \
-	cnd.c getdisk.c mksed.c utmp.c mg_utmp.h \
-	patches/pbmtog3.p1 patches/taylor104.p1 \
+	mg_m_init.c faxrec.c faxsend.c faxlib.c fax_lib.h sendfax.c \
+	io.c tio.c tio.h gettydefs.c config.c config.h login.c faxhng.c \
+	cnd.c getdisk.c mksed.c utmp.c mg_utmp.h syslibs.h goodies.c \
+	patches/README patches/pbmtog3.p1 patches/taylor104.p1 \
 	patches/ecu320.p1 patches/pnmtops.p1 patches/dip337.p1 \
+	patches/gslp.ps-iso.p \
 	fax/faxspool.in fax/faxrunq.in fax/faxq.in fax/faxrm.in \
-	fax/faxcvt fax/printfax \
-	fax/cour24i.pbm fax/Makefile fax/etc-magic fax/faxheader \
+	fax/faxcvt fax/printfax fax/cour25.pbm fax/cour25n.pbm \
+	fax/Makefile fax/etc-magic fax/faxheader \
 	tools/Makefile tools/g3cat.c tools/g3topbm.c tools/g3.c tools/g3.h \
 	tools/pbmtog3.c tools/run_tbl.c \
-	contrib/README contrib/scrts.c contrib/pbmscale.c contrib/g3toxwd.c \
+	compat/mg.echo.c \
+	contrib/README contrib/scrts.c contrib/pbmscale.c contrib/pgx.c \
+	contrib/g3toxwd.c contrib/g3tolj.c \
+	contrib/g3toxwd.1 contrib/g3tolj.1 \
 	contrib/3b1 contrib/faxin.c contrib/Makefile contrib/lp-fax \
 	contrib/faxiobe.sh contrib/sun.readme contrib/xforms.note \
-	contrib/gslp-iso.p contrib/dvi-fax \
-	contrib/new_fax.lj contrib/new_fax.mail contrib/new_fax.pbm \
-	contrib/log_diags \
-	dialog/faxv dialog/listen \
-	doc/Makefile doc/modems.db doc/mgetty.texi \
-	doc/g3topbm.1 doc/g3cat.1 doc/sendfax.8 doc/faxspool.1 \
-	doc/faxrunq.1 doc/faxq.1 doc/faxrm.1 doc/mgettydefs.4 \
-	doc/fhng-codes doc/pbmtog3.1 doc/faxqueue.5 \
+	contrib/dvi-fax contrib/two-modems \
+	contrib/faxdvi2.perl contrib/faxdvi.config \
+	contrib/log_diags contrib/readme.supra contrib/ttyenable \
+	samples/new_fax.lj samples/new_fax.mail samples/new_fax.pbm \
+	samples/new_fax.mime samples/new_fax.hpa \
+	samples/coverpg.pbm samples/coverpg.ps \
+	samples/fax samples/faxmemo \
+	dialog/Makefile dialog/faxv.in dialog/listen.in \
+	doc/Makefile doc/modems.db doc/mgetty.texi-in doc/fhng-codes \
+	doc/g3topbm.1in doc/g3cat.1in doc/sendfax.8in doc/faxspool.1in \
+	doc/faxrunq.1in doc/faxq.1in doc/faxrm.1in doc/mgettydefs.4in \
+	doc/pbmtog3.1in doc/faxqueue.5in doc/mgetty.8in \
+	doc/coverpg.1in doc/fax.1in doc/scanner.txt \
 	voice/MANIFEST \
-	voice/CHANGES voice/Makefile voice/README voice/TODO \
+	voice/ChangeLog voice/Makefile voice/README voice/TODO \
 	voice/voclib.c voice/voclib.h voice/vpaths.c voice/zplay.c \
-	voice/vanswer.c \
+	voice/vanswer.c voice/vmodem.c voice/vmodem.h \
+	voice/pvffft.c voice/vg_fft.in \
 	voice/pvfmain.c voice/pvflib.c voice/pvflib.h voice/pvflin.c \
 	voice/pvfutil.c voice/pvfadpcm.c voice/pvfau.c voice/pvfvoc.c \
 	voice/pvfsine.c \
-	voice/rsynth-0.9.linuxA.pch voice/speakdate \
+	voice/rsynth-0.9.linuxA.pch voice/speakdate.sh voice/speakdate.pl \
 	voice/vg_button.in voice/vg_dtmf.in voice/vg_message.in \
 	voice/vg_nmp.in voice/vg_say.in voice/play_messages.in \
+	voice/vg_call.in \
 	voice/pvf.1 voice/zplay.1
 
 noident: policy.h
@@ -265,12 +334,12 @@ noident: policy.h
 	    case $$file in \
 	      *.c) \
 		mv -f $$file tmp-noident; \
-		sed -e "s/^#ident/static char sccsid[] =/" <tmp-noident >$$file; \
+		sed -e "s/^#ident\(.*\)$$/static char sccsid[] =\1;/" <tmp-noident >$$file; \
 		;; \
 	      *.h) \
 		mv -f $$file tmp-noident; \
 		f=`basename $$file .h`; \
-		sed -e "s/^#ident/static char sccs_$$f[] =/" <tmp-noident >$$file; \
+		sed -e "s/^#ident\(.*\)$$/static char sccs_$$f[] =\1;/" <tmp-noident >$$file; \
 		;; \
 	    esac; \
 	done
@@ -283,8 +352,12 @@ sedscript: mksed
 mksed: mksed.c policy.h Makefile
 	$(CC) $(CFLAGS) -DBINDIR=\"$(BINDIR)\" -DSBINDIR=\"$(SBINDIR)\" \
 		-DLIBDIR=\"$(LIBDIR)\" \
-		-DFAX_SPOOL_OUT=\"$(FAX_SPOOL)/outgoing\" \
+		-DFAX_SPOOL=\"$(FAX_SPOOL)\" \
+		-DFAX_SPOOL_IN=\"$(FAX_SPOOL_IN)\" \
+		-DFAX_SPOOL_OUT=\"$(FAX_SPOOL_OUT)\" \
 		-DAWK=\"$(AWK)\" \
+		-DECHO=\"$(ECHO)\" \
+		-DSHELL=\"$(SHELL)\" \
 		-DVOICE_DIR=\"$(VOICE_DIR)\" \
 	-o mksed mksed.c
 
@@ -292,6 +365,14 @@ policy.h-dist: policy.h
 	@rm -f policy.h-dist
 	cp policy.h policy.h-dist
 	@chmod u+w policy.h-dist
+
+version.h: $(DISTRIB)
+	if expr $(VS) : ".[13579]" >/dev/null ; then \
+	    date=`date "+%B%d"` ;\
+	    echo "static char * mgetty_version = \"experimental test release 0.$(VS)-$$date\";" >version.h ;\
+	else \
+	    echo "static char * mgetty_version = \"official release 0.$(VS)\";" >version.h ;\
+	fi
 
 mgetty0$(VS).tar.gz:	$(DISTRIB)
 	rm -f mgetty-0.$(VS)
@@ -304,11 +385,37 @@ mgetty0$(VS).tar.gz:	$(DISTRIB)
 
 tar:	mgetty0$(VS).tar.gz
 
-uu:	mgetty0$(VS).tar.gz
+mg.uue:	mgetty0$(VS).tar.gz
 	uuencode mgetty0.$(VS)-`date +%b%d`.tar.gz <mgetty0$(VS).tar.gz >mg.uue
 
+uu:	mg.uue
+
+uu2:	mg.uue
+	split -3600 mg.uue mg.uu.
+
+# this is for automatic uploading to the beta site. 
+# DO NOT USE IT if you're not ME! Please!
+#
+beta:	mgetty0$(VS).tar.gz
+	test `hostname` = greenie.muc.de || exit 1
+# local
+	cp mgetty0$(VS).tar.gz /pub/uploads/
+# beta ftp site
+	echo "ftp -v ftp.informatik.tu-muenchen.de <<EOF" >ftp.sh
+#	echo "ftp -v -n ftp <<EOF" >ftp.sh
+#	echo "user ftp gert@greenie.muc.de" >>ftp.sh
+	echo "cd ~ftp/pub/comp/networking/communication/modem/mgetty" >>ftp.sh
+	echo "bin" >>ftp.sh
+	echo "hash" >>ftp.sh
+	echo "put mgetty0"$(VS)".tar.gz mgetty0"$(VS)-`date +%b%d`.tar.gz >>ftp.sh
+	echo "quit" >>ftp.sh
+	sh ftp.sh
+	rm ftp.sh
+	rcmd hp2 -l doering "cd ~ftp/tmp ; rm -f mgetty.tar.gz ; ln -s ../pub/comp/networking/communication/modem/mgetty/mgetty0"$(VS)-`date +%b%d`.tar.gz" mgetty.tar.gz"
+
+
 shar1:	$(DISTRIB)
-	shar -M -l 40 -n mgetty+sendfax-0.$(VS) -a -o mgetty.sh $(DISTRIB)
+	shar -M -c -l 40 -n mgetty+sendfax-0.$(VS) -a -o mgetty.sh $(DISTRIB)
 
 shar:	$(DISTRIB)
 	shar -M $(DISTRIB) >mgetty0$(VS).sh
@@ -339,8 +446,16 @@ fullclean:
 	cd doc ; $(MAKE) fullclean
 	cd voice ; $(MAKE) fullclean
 
-install: mgetty sendfax sedscript
-	-test -d $(SBINDIR) || mkdir $(SBINDIR)
+login.config: login.cfg.in sedscript
+	./sedscript <login.cfg.in >login.config
+
+install: install-bin install-doc
+
+install-bin: mgetty sendfax login.config
+#
+# binaries
+#
+	-test -d $(SBINDIR) || ( mkdir $(SBINDIR) ; chmod 755 $(SBINDIR) )
 	-mv -f $(SBINDIR)/mgetty $(SBINDIR)/mgetty.old
 	-mv -f $(SBINDIR)/sendfax $(SBINDIR)/sendfax.old
 	$(INSTALL) -s -m 700 mgetty $(SBINDIR)
@@ -348,7 +463,7 @@ install: mgetty sendfax sedscript
 #
 # data files
 #
-	test -d $(LIBDIR) || mkdir $(LIBDIR)
+	test -d $(LIBDIR) || ( mkdir $(LIBDIR) ; chmod 755 $(LIBDIR) )
 	test -f $(LIBDIR)/login.config || \
 		$(INSTALL) -o root -m 600 login.config $(LIBDIR)/
 	test -f $(LIBDIR)/dialin.config || \
@@ -366,9 +481,12 @@ install: mgetty sendfax sedscript
 #
 # fax spool directories
 #
-	test -d $(FAX_SPOOL) || mkdir $(FAX_SPOOL)
-	test -d $(FAX_SPOOL_IN) || mkdir $(FAX_SPOOL_IN)
-	test -d $(FAX_SPOOL)/outgoing || mkdir $(FAX_SPOOL)/outgoing
+	test -d $(FAX_SPOOL) || \
+		( mkdir $(FAX_SPOOL) ; chmod 755 $(FAX_SPOOL) )
+	test -d $(FAX_SPOOL_IN) || \
+		( mkdir $(FAX_SPOOL_IN) ; chmod 755 $(FAX_SPOOL_IN) )
+	test -d $(FAX_SPOOL_OUT) || \
+		( mkdir $(FAX_SPOOL_OUT) ; chmod 1777 $(FAX_SPOOL_OUT) )
 #
 # g3 tool programs
 #
@@ -380,8 +498,18 @@ install: mgetty sendfax sedscript
 	cd fax ; $(MAKE) install INSTALL="$(INSTALL)" \
 				 BINDIR=$(BINDIR) LIBDIR=$(LIBDIR)
 #
+# compatibility
+#
+	if [ ! -z "$(INSTALL_MECHO)" ] ; then \
+	    cd compat ; \
+	    gcc -o mg.echo mg.echo.c && \
+	    $(INSTALL) -s -m 755 mg.echo $(BINDIR) ; \
+	fi
+
+#
 # documentation
 #
+install-doc:
 	cd doc ; $(MAKE) install INSTALL="$(INSTALL)" \
 				MAN1DIR=$(MAN1DIR) \
 				MAN4DIR=$(MAN4DIR) \
@@ -396,34 +524,39 @@ install: mgetty sendfax sedscript
 vgetty:
 	@$(MAKE) mgetty
 	cd voice; $(MAKE) CFLAGS="$(CFLAGS)" CC="$(CC)" LDFLAGS="$(LDFLAGS)" \
-	LN="$(LN)" ZYXEL_R610=$(ZYXEL_R610) VOICE_DIR="$(VOICE_DIR)" \
+	LN="$(LN)" ZYXEL_ROM=$(ZYXEL_ROM) VOICE_DIR="$(VOICE_DIR)" \
 	vgetty-all
 
 vgetty-install: sedscript
 	cd voice; $(MAKE) CFLAGS="$(CFLAGS)" CC="$(CC)" LDFLAGS="$(LDFLAGS)" \
 	BINDIR="$(BINDIR)" SBINDIR="$(SBINDIR)" LIBDIR="$(LIBDIR)" \
 	MAN1DIR="$(MAN1DIR)" INSTALL="$(INSTALL)" \
-	LN="$(LN)" ZYXEL_R610=$(ZYXEL_R610) VOICE_DIR="$(VOICE_DIR)" \
+	PHONE_GROUP="$(PHONE_GROUP)" PHONE_PERMS="$(PHONE_PERMS)" \
+	LN="$(LN)" ZYXEL_ROM=$(ZYXEL_ROM) VOICE_DIR="$(VOICE_DIR)" \
 	vgetty-install
 
+install-vgetty: vgetty-install
+
 ######## anything below this line was generated by gcc -MM *.c
-cnd.o : cnd.c policy.h mgetty.h ugly.h 
-config.o : config.c mgetty.h ugly.h config.h 
-do_chat.o : do_chat.c mgetty.h ugly.h policy.h tio.h 
+cnd.o : cnd.c syslibs.h policy.h mgetty.h ugly.h 
+config.o : config.c syslibs.h mgetty.h ugly.h config.h 
+do_chat.o : do_chat.c syslibs.h mgetty.h ugly.h policy.h tio.h 
 faxhng.o : faxhng.c mgetty.h ugly.h 
 faxlib.o : faxlib.c mgetty.h ugly.h policy.h fax_lib.h 
-faxrec.o : faxrec.c mgetty.h ugly.h tio.h policy.h fax_lib.h 
-faxsend.o : faxsend.c mgetty.h ugly.h tio.h policy.h fax_lib.h 
+faxrec.o : faxrec.c syslibs.h mgetty.h ugly.h tio.h policy.h fax_lib.h 
+faxsend.o : faxsend.c syslibs.h mgetty.h ugly.h tio.h policy.h fax_lib.h 
 files.o : files.c mgetty.h ugly.h policy.h 
 getdisk.o : getdisk.c policy.h mgetty.h ugly.h 
-gettydefs.o : gettydefs.c mgetty.h ugly.h policy.h 
-io.o : io.c mgetty.h ugly.h 
+gettydefs.o : gettydefs.c syslibs.h mgetty.h ugly.h policy.h 
+goodies.o : goodies.c syslibs.h mgetty.h ugly.h 
+io.o : io.c syslibs.h mgetty.h ugly.h Makefile
 locks.o : locks.c mgetty.h ugly.h policy.h 
 logfile.o : logfile.c mgetty.h ugly.h policy.h 
-login.o : login.c mgetty.h ugly.h config.h policy.h 
-logname.o : logname.c mgetty.h ugly.h policy.h tio.h 
-mgetty.o : mgetty.c mgetty.h ugly.h policy.h tio.h mg_utmp.h
+login.o : login.c mgetty.h ugly.h config.h policy.h mg_utmp.h 
+logname.o : logname.c syslibs.h mgetty.h ugly.h policy.h tio.h mg_utmp.h 
+mg_m_init.o : mg_m_init.c syslibs.h mgetty.h ugly.h tio.h policy.h fax_lib.h 
+mgetty.o : mgetty.c syslibs.h mgetty.h ugly.h policy.h tio.h mg_utmp.h 
 mksed.o : mksed.c mgetty.h ugly.h policy.h 
-sendfax.o : sendfax.c mgetty.h ugly.h tio.h policy.h fax_lib.h 
+sendfax.o : sendfax.c syslibs.h mgetty.h ugly.h tio.h policy.h fax_lib.h 
 tio.o : tio.c mgetty.h ugly.h tio.h 
-utmp.o : utmp.c mgetty.h ugly.h mg_utmp.h
+utmp.o : utmp.c mgetty.h ugly.h mg_utmp.h 
