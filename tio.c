@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 3.1 1995/08/30 12:41:00 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 3.2 1996/02/01 20:28:37 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* tio.c
  *
@@ -306,11 +306,7 @@ void tio_mode_sane _P2( (t, local), TIO * t, int local )
     t->c_iflag = BRKINT | IGNPAR | IXON | IXANY;
     t->c_oflag = OPOST | TAB3;
     /* be careful, only touch "known" flags */
-    t->c_cflag&= ~(CSIZE | CSTOPB | PARENB | PARODD | CLOCAL
-#ifdef LOBLK
-		   | LOBLK
-#endif
-		   );
+    t->c_cflag&= ~(CSIZE | CSTOPB | PARENB | PARODD | CLOCAL);
     t->c_cflag|= CS8 | CREAD | HUPCL | ( local? CLOCAL:0 );
     t->c_lflag = ECHOK | ECHOE | ECHO | ISIG | ICANON;
 
@@ -793,4 +789,105 @@ int tio_flow _P2( (fd, restart_output), int fd, int restart_output )
     if ( r != 0 ) lprintf( L_ERROR, "tio: cannot change flow ctrl state" );
 
     return r;
+}
+
+
+/* tio_drain(fd): wait for output queue to drain
+ */
+
+int tio_drain_output _P1( (fd), int fd )
+{
+#ifdef POSIX_TERMIOS
+    if ( tcdrain( fd ) == ERROR )
+    {
+	lprintf( L_ERROR, "tio_drain: tcdrain" ); return ERROR;
+    }
+#else
+# ifdef SYSV_TERMIO
+    if ( ioctl( fd, TCSBRK, 1 ) == ERROR )
+    {
+    	lprintf( L_ERROR, "tio_drain: TCSBRK/1" ); return ERROR;
+    }
+# else	/* no way to wait for data to drain with BSD_SGTTY */
+    lprintf( L_WARN, "tio_drain: expect spurious failures" );
+# endif
+#endif
+    return NOERROR;
+}
+
+/* send a BREAK signal to the tty
+ *
+ * kernel break via tcsendbreak() or ioctl(TCSENDBRK) lasts at least
+ * 0.25 seconds. We can speed up this by switching baud rate to 1/4,
+ * and then sending a 0-byte (activated #ifdef FAST_BREAK).
+ * 
+ * on some systems (don't we love it all?) the "real" break functions
+ * don't work, so we must use FAST_BREAK.
+ */
+
+int tio_break _P1((fd), int fd)
+{
+/* SunOS4 doesn't seem to like "tcsendbreak" (noop), so send a "long zero" */
+#if defined(sunos4) || defined(M_UNIX) || defined(FAST_BREAK)
+    TIO tio, tio_save; int speed; char null = 0;
+
+    lprintf( L_NOISE, "sending FAST break" );
+
+    if ( tio_get( fd, &tio ) == ERROR )
+    {
+	lprintf( L_ERROR, "tio_break: can't get tio" ); return ERROR;
+    }
+    tio_save = tio;
+    if ( (speed = tio_get_speed( &tio ) ) < 150 ||
+	 tio_set_speed( &tio, speed/4 ) == ERROR ||
+	 tio_set( fd, &tio ) == ERROR )
+    {
+	lprintf( L_ERROR, "tio_break: can't set 1/4 speed" ); return ERROR;
+    }
+    if ( write( fd, &null, 1 ) != 1 )
+    {
+	lprintf( L_ERROR, "tio_break: can't write 0-byte" ); return ERROR;
+    }
+
+    /* before we switch baud rates back, make sure zero byte has been sent!
+     */
+    if ( tio_drain_output( fd ) == ERROR ) return ERROR;
+
+    if ( tio_set( fd, &tio_save ) == ERROR )
+    {
+	lprintf( L_ERROR, "tio_break: can't reset old TIO state" ); return ERROR;
+    }
+
+#else	/* !FAST_BREAK -> use standard functions */
+
+    lprintf( L_NOISE, "sending system call break" );
+#ifdef POSIX_TERMIOS
+    if ( tcsendbreak( fd, 0 ) < 0 )
+    {
+    	lprintf( L_ERROR, "tcsendbreak() failed" );
+    	return ERROR;
+    }
+#endif
+#ifdef SYSV_TERMIO
+    if ( ioctl( fd, TCSBRK, 0 ) < 0 )
+    {
+    	lprintf( L_ERROR, "ioctl( TCSBRK ) failed" );
+    	return ERROR;
+    }
+#endif
+#ifdef BSD_SGTTY
+   if ( ioctl( fd, TIOCSBRK, 0 ) < 0 )
+   {
+   	lprintf( L_ERROR, "ioctl( TIOCSBRK ) failed" );
+   	return ERROR;
+   }
+   delay( 250 );
+   if ( ioctl( fd, TIOCCBRK, 0 ) < 0 )
+   {
+   	lprintf( L_ERROR, "ioctl( TIOCCBRK ) failed" );
+   	return ERROR;
+   }
+#endif
+#endif /* FAST_BREAK */
+   return NOERROR;
 }
