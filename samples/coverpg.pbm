@@ -55,7 +55,7 @@ cat << EOF >$tmp
 
 
 
-      Fax-Software used: mgetty+sendfax 0.22
+      Fax-Software used: mgetty+sendfax 1.1.10
 
 
 
