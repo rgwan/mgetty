@@ -3,7 +3,7 @@
 #
 # This is the Makefile for the whole vgetty stuff.
 #
-# $Id: Makefile,v 1.4 1998/09/09 21:06:12 gert Exp $
+# $Id: Makefile,v 1.5 2000/08/14 19:51:48 gert Exp $
 #
 
 AR=ar
@@ -68,6 +68,7 @@ vgetty-all: all-message # shell_scripts
 		cd $$i ;\
 		$(MAKE) AR="$(AR)" ARFLAGS="$(ARFLAGS)" CC="$(CC)" \
 		 CFLAGS="$(CFLAGS)" CONFDIR="$(CONFDIR)" \
+		 VARRUNDIR="$(VARRUNDIR)" \
 		 FAX_SPOOL_IN="$(FAX_SPOOL_IN)" LIBPVF="$(LIBPVF)" \
 		 LIBUTIL="$(LIBUTIL)" LIBVOICE="$(LIBVOICE)" \
 		 LIBGSM="$(LIBGSM)" LIBS="$(LIBS)" \
