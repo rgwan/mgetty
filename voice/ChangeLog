@@ -1,3 +1,7 @@
+Sat Jul 24 14:26:46 MEST 1999  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* doc/Readme.voice_shell: updated with the new commands.
+	
 Tue Jul 20 08:49:10 MEST 1999  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 
 	* Timeouts for ringback: if no ringback is detected within the timeout
