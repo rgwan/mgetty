@@ -1,4 +1,4 @@
-#ident "$Id: class1lib.c,v 4.2 1997/12/20 17:11:53 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1lib.c,v 4.3 1998/01/01 20:50:18 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1lib.c
  *
@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
+#include <ctype.h>
 
 #include "mgetty.h"
 #include "fax_lib.h"
@@ -26,6 +27,45 @@
 static char fax1_local_id[F1LID];	/* local system ID */
 static int fax1_min, fax1_max;		/* min/max speed */
 static int fax1_res;			/* flag for normal resolution */
+
+       int fax1_dis;			/* "X"-bit (last received DIS) */
+
+static int fax1_fth, fax1_ftm;		/* local carrier capabilities */
+
+/* symbolic constants for capability check
+ */
+#define V17		0xF00
+#define V17_14400	0x800
+#define V17_12000	0x400
+#define V17_9600	0x200
+#define V17_7200	0x100
+#define V29		0x0F0
+#define V29_9600	0x080
+#define V29_7200	0x040
+#define V27ter		0x00e
+#define V27t_4800	0x008
+#define V27t_2400	0x004
+#define V21		0x001
+
+/* table of baud rate / carrier number / DCS bits
+ */
+struct fax1_btable fax1_btable[] = {
+	{ 14400, V17_14400, 145, 146, 0x20 /* 0001 */ },
+	{ 12000, V17_12000, 121, 122, 0x28 /* 0101 */ },
+	{  9600, V17_9600,   97,  98, 0x24 /* 1001 */ },
+	{  9600, V29_9600,   96,  96, 0x04 /* 1000 */ },
+	{  7200, V17_7200,   73,  74, 0x2c /* 1101 */ },
+	{  7200, V29_7200,   72,  72, 0x0c /* 1100 */ },
+	{  4800, V27t_4800,  48,  48, 0x08 /* 0100 */ },
+	{  2400, V27t_2400,  24,  24, 0x00 /* 0000 */ },
+	{   300, V21, 3, 3, 0 },
+	{    -1, -1,0,0,0 }};
+
+/* pointer to current modulation in fax1_btable
+ * (increment == fallback after FTT!)
+ */
+struct fax1_btable * dcs_btp = fax1_btable;
+		      
 
 int fax1_set_l_id _P2( (fd, fax_id), int fd, char * fax_id )
 {
@@ -44,9 +84,33 @@ int fax1_set_l_id _P2( (fd, fax_id), int fd, char * fax_id )
     return NOERROR;
 }
 
+static int fax1_carriers _P1((p), char * p )
+{
+    int cbits = 0;			/* carrier bits (V17_14400, ...) */
+    int cnr;				/* carrier number (3,24,...) */
+    char * ep;
+    struct fax1_btable * btp;		/* pointer to baud rate table */
+
+    while( *p )
+    {
+	cnr = strtol( p, &ep, 10 );
+
+	if ( *ep ) ep++;		/* skip "," */
+	p = ep;
+
+	btp = fax1_btable;
+	while( btp->speed > 0 )
+	{
+	    if ( cnr == btp->c_short || cnr == btp->c_long )
+		    { cbits |= btp->flag; break; }
+	    btp++;
+    	}
+    }
+    return cbits;
+}
 
 /* set fine/normal resolution flags and min/max transmission speed
- * TODO: find out maximum speed modem can do!
+ * including finding out maximum speed modem can do!
  */
 int fax1_set_fdcc _P4( (fd, fine, max, min),
 		       int fd, int fine, int max, int min )
@@ -76,10 +140,12 @@ int fax1_set_fdcc _P4( (fd, fine, max, min),
     }
 
     p = mdm_get_idstring( "AT+FTH=?", 1, fd );
-    lprintf( L_MESG, "modem can send HDLC headers: '%s'", p );
+    fax1_fth = fax1_carriers( p );
+    lprintf( L_MESG, "modem can send HDLC headers: %03x", fax1_fth );
 
     p = mdm_get_idstring( "AT+FTM=?", 1, fd );
-    lprintf( L_MESG, "modem can send page data: '%s'", p );
+    fax1_ftm = fax1_carriers( p );
+    lprintf( L_MESG, "modem can send page data: %03x", fax1_ftm );
 
     return NOERROR;
 }
@@ -107,7 +173,7 @@ RETSIGTYPE fax1_sig_alarm(SIG_HDLR_ARGS)
  */
 int fax1_receive_frame _P4 ( (fd, carrier, timeout, framebuf),
 			     int fd, int carrier, 
-			     int timeout, char * framebuf)
+			     int timeout, uch * framebuf)
 {
     int count=0;			/* bytes in frame */
     int rc = NOERROR;			/* return code */
@@ -225,8 +291,9 @@ void fax1_dump_frame _P2((frame, len), unsigned char * frame, int len)
 {
 int fcf = frame[1];
 
-    lprintf( L_MESG, "frame type: 0x%02x  len: %d  %s",
-                      fcf, len, frame[0]&0x10? "final": "non-final" );
+    lprintf( L_MESG, "frame type: 0x%02x  len: %d  %s%s",
+                      fcf, len, frame[0]&0x10? "final": "non-final",
+		      (fcf & 0x0e) && ( fcf & 0x01 ) ? " X": "");
 
     if ( fcf & 0x0e ) fcf &= ~0x01;	/* clear "X" bit */
 
@@ -320,8 +387,9 @@ int fax1_send_frame _P4( (fd, carrier, frame, len),
                          int fd, int carrier, char * frame, int len )
 {
 char * line;
-char frame_eof[] = { DLE, ETX };
 static carrier_active = -1;		/* inter-frame marker */
+uch dle_buf[FRAMESIZE*2+2];		/* for DLE-coded frame */
+int r,w;
 
     /* send AT+FTH=3, wait for CONNECT 
      * (but only if we've not sent an non-final frame befor!)
@@ -351,12 +419,24 @@ static carrier_active = -1;		/* inter-frame marker */
     fax1_dump_frame( frame+1, len-1 );
 
     /* send <DLE> encoded frame data */
+    for( r=w=0; r<len; r++ )
+    {
+        if ( frame[r] == DLE ) { dle_buf[w++] = DLE; }
+	dle_buf[w++] = frame[r];
+    }
 
-    /*!!! DLE CODING */
-    write( fd, frame, len );
+    /* end-of-frame: <DLE><ETX> */
+    dle_buf[w++] = DLE; dle_buf[w++] = ETX;
 
-    /* end of frame: <DLE><ETX> */
-    write( fd, frame_eof, 2 );
+    lprintf( L_JUNK, "fax1sf: %d/%d", len, w );
+
+    if ( write( fd, dle_buf, w ) != w )
+    {
+        lprintf( L_ERROR, "fax1_send_frame: can't write all %d bytes", w );
+	alarm(0);
+	fax_hangup=TRUE;
+	return ERROR;
+    }
 
     /*!!! alarm */
     /*!!! LASAT schickt "CONNECT\r\nOK" bzw. nur "OK" (final/non-final)
@@ -391,8 +471,8 @@ static carrier_active = -1;		/* inter-frame marker */
 int fax1_send_dcn _P1((fd), int fd )
 {
     char frame[] = { 0xff, 0x13, T30_DCN };
-    /*!! FIXME - set bit LSB of DCN if necessary */
 
+    frame[2] |= fax1_dis;		/* set "X"-Bit if needed */
     fax_hangup = TRUE;
 
     return fax1_send_frame( fd, 3, frame, sizeof(frame) );
@@ -411,4 +491,124 @@ int fax1_send_idframe _P2((fd,fcf), int fd, int fcf )
     memcpy( &frame[3], fax1_local_id, F1LID );
 
     return fax1_send_frame( fd, 3, frame, sizeof(frame) );
+}
+
+void fax1_copy_id _P1((frame), uch * frame )
+{
+int w, r;
+char c;
+
+    frame += 2;				/* go to start of ID */
+    r = F1LID-1; w = 0;
+
+    while ( r>= 0 && isspace(frame[r]) ) r--;	/* skip leading whitespace */
+
+    while ( r>=0 )			/* copy backwards! */
+    {
+        c = frame[r--];
+        if ( c == '"' || c == '\'' ) fax_remote_id[w++] = '_';
+				else fax_remote_id[w++] = c;
+    }
+    while( w>0 && isspace(fax_remote_id[w-1]) ) w--;
+    fax_remote_id[w]=0;
+
+    lprintf( L_MESG, "fax_id: '%s'", fax_remote_id );
+}
+
+/* parse incoming DIS frame, set remote capability flags
+ */
+
+fax_param_t remote_cap;
+
+void fax1_parse_dis _P1((frame), uch * frame )
+{
+    remote_cap.vr = remote_cap.br = remote_cap.wd = remote_cap.ln =
+    remote_cap.df = remote_cap.ec = remote_cap.bf = remote_cap.st = 0;
+
+    frame += 2;		/* go to start of FIF */
+
+    /* bit 9: ready to transmit fax (polling) */
+    if ( frame[1] & 0x01 ) fax_to_poll = TRUE;
+
+    /* bit 10: receiving capabilities */
+    if ( ( frame[1] & 0x02 ) == 0  )
+    {
+	/*!!!! HANDLE THIS */
+        lprintf( L_WARN, "remote station can't receive!" );
+	fax_hangup = TRUE; fax_hangup_code = 21; return;
+    }
+
+    switch( frame[1] & 0x3c )	/* bits 11..14 - data signalling rate */
+    {
+        case 0x00: remote_cap.br = V27t_2400; break;
+	case 0x08: remote_cap.br = V27ter; break;
+	case 0x04: remote_cap.br = V29; break;
+	case 0x0c: remote_cap.br = V29 | V27ter; break;
+	case 0x1c: remote_cap.br = V29 | V27ter; break;		/* V.33 */
+	case 0x2c: remote_cap.br = V17 | V29 | V27ter; break;
+	default:
+	    lprintf( L_WARN, "unknown signalling rate: 0x%02x, use V27ter", frame[1] & 0x3c );
+	    remote_cap.br = V27ter;
+    }
+
+    if ( frame[1] & 0x40 )	/* bit 15: fine res. */
+    {
+        remote_cap.vr = 1;
+	/*!! check bits 42 + 43 for "super-fine" (300/400 dpi) */
+    }
+
+    if ( frame[1] & 0x80 )	/* bit 16: 2D */
+    	remote_cap.df = 1;	/* df??? */
+
+    /* bit 17+18: recording width, valid: 0/1/2 = 215/255/303 mm */
+    remote_cap.wd = frame[2] & 0x03;
+
+    /* bit 19+20: recording length, valid: 0/1/2 = A4/B4/unlimited */
+    remote_cap.ln = ( frame[2] >> 2 ) & 0x03;
+
+    /* bit 21-23: minimum scan line time */
+    /*!!! UNIMPLEMENTED */
+    remote_cap.st = ( frame[2] >> 4 ) & 0x07;
+
+    if ( frame[2] & 0x80 )	/* extend bit */
+    {
+	/* bit 27: ECM */
+        if ( frame[3] & 0x04 ) remote_cap.ec = 1;
+    }
+
+    fax1_dis = 0x01;			/* set "X" bit (= received DIS OK) */
+
+    lprintf( L_MESG, "+FIS: %d,%03x,%d,%d,%d,%d,%d,%d",
+    			remote_cap.vr, remote_cap.br, remote_cap.wd,
+			remote_cap.ln, remote_cap.df, remote_cap.ec,
+			remote_cap.bf, remote_cap.st );
+}
+
+int fax1_send_dcs _P2((fd, speed), int fd, int speed )
+{
+uch framebuf[FRAMESIZE];
+
+    /* find baud/carrier table entry that has a speed not over
+     * "speed", and that uses a modulation scheme supported by both
+     * the local and remote modem
+     */
+    while( dcs_btp->speed > speed ||
+           ( dcs_btp->flag & fax1_ftm & remote_cap.br ) == 0 ) dcs_btp++;
+    
+    lprintf( L_NOISE, "+DCS: 1,%03x", dcs_btp->flag );
+
+    /*!!! calculate ALL values from DIS and to-be-sent page */
+    framebuf[0] = 0xff;			/* sync */
+    framebuf[1] = 0x03 | T30_FINAL;	/* DCS is always final frame */
+    framebuf[2] = fax1_dis | T30_DCS;	/* FCF */
+    framebuf[3] = 0;			/* bits 1..8 */
+    framebuf[4] = 0x02 |		/* bit 10: receiver operation */
+                  dcs_btp->dcs_bits |	/* bits 11..14: signalling rate */
+		  ((fax1_res&remote_cap.vr)<<6) | /* bit 15: fine mode */
+		  0x00;			/* bit 16: 2D */
+    framebuf[5] = 0x00 |		/* bit 17+18: 215 mm width */
+    		  0x04 |		/* bit 19+20: B4 length */
+		  0x70 |		/* bits 21-23: scan line time */
+		  0x00;			/* bit 24: extend bit - final */
+    return fax1_send_frame( fd, 3, framebuf, 6 );
 }

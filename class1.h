@@ -1,10 +1,25 @@
 #define FRAMESIZE	300
 
+typedef unsigned char uch;
+
+extern int fax1_dis;		/* "X"-Bit (received DIS) */
+
 RETSIGTYPE fax1_sig_alarm(SIG_HDLR_ARGS);
-void fax1_dump_frame _PROTO(( unsigned char * frame, int len ));
+void fax1_dump_frame _PROTO(( uch * frame, int len ));
 
 int fax1_send_page _PROTO(( char * g3_file, int * bytes_sent, TIO * tio,
 			    Post_page_messages ppm, int fd ));
+
+void fax1_copy_id _PROTO(( uch * frame ));
+
+struct fax1_btable { int speed;			/* bit rate */
+                     int flag;			/* flag (for capabilities) */
+		     int c_long, c_short;	/* carrier numbers */
+		     int dcs_bits;		/* bits to be set in DCS */
+		    };
+struct fax1_btable * dcs_btp;			/* current modulation */
+
+/* --- Definitions from ITU T.30, 07/96 --- */
 
 /* control field - bit set on final frame, T.30 5.3.5 */
 #define T30_FINAL	0x10

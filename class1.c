@@ -1,4 +1,4 @@
-#ident "$Id: class1.c,v 4.1 1997/12/20 17:11:52 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1.c,v 4.2 1998/01/01 20:50:19 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1.c
  *
@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
+#include <fcntl.h>
 
 #include "mgetty.h"
 #include "fax_lib.h"
@@ -23,7 +24,8 @@ enum T30_phases { Phase_A, Phase_B, Phase_C, Phase_D, Phase_E } fax1_phase;
 int fax1_dial_and_phase_AB _P2( (dial_cmd,fd),  char * dial_cmd, int fd )
 {
 char * p;			/* modem response */
-char framebuf[FRAMESIZE];
+uch framebuf[FRAMESIZE];
+int first;
 
     /* send dial command */
     if ( fax_send( dial_cmd, fd ) == ERROR )
@@ -64,29 +66,38 @@ char framebuf[FRAMESIZE];
     alarm(0);
     if ( fax_hangup ) return ERROR;
 
-    /* now start fax negotiation (receive CSI, DIS, send DCS) */
-    fax1_receive_frame( fd, 0, 30, &framebuf );
-
-    /* read further frames until FINAL bit is set */
-    while( ( framebuf[0] & T30_FINAL ) == 0 )
-	fax1_receive_frame( fd, 3, 30, &framebuf );
+    /* now start fax negotiation (receive CSI, DIS, send DCS)
+     * read all incoming frames until FINAL bit is set
+     */
+    first=TRUE;
+    do
+    {
+	if ( fax1_receive_frame( fd, first? 0:3, 30, &framebuf ) == ERROR )
+	{
+	    /*!!!! try 3 times! (flow diagram from T.30 / T30_T1 timeout) */
+	    fax_hangup = TRUE; fax_hangup_code = 11; return ERROR;
+	}
+	switch ( framebuf[1] )		/* FCF */
+	{
+	    case T30_CSI: fax1_copy_id( framebuf ); break;
+	    case T30_NSF: break;
+	    case T30_DIS: fax1_parse_dis( framebuf ); break;
+	    default:
+	        lprintf( L_WARN, "unexpected frame type 0x%02x", framebuf[1] );
+	}
+	first=FALSE;
+    }
+    while( ( framebuf[0] & T30_FINAL ) == 0 );
 
     /* send local id frame (TSI) */
     fax1_send_idframe( fd, T30_TSI|0x01 );
 
     /* send DCS */
-    /*!!!! use values from AT+FTH=? and received DIS! */
-    framebuf[0] = 0xff;
-    framebuf[1] = 0x03 | T30_FINAL;
-    framebuf[2] = 0x01 | T30_DCS;		/*!!! received_dis | ... */
-    framebuf[3] = 0;				/* bits 1-8 */
-    framebuf[4] = 0 | 0 | 0x04 | 0x40 | 0;	/* bits 9-16 */
-    framebuf[5] = 0 | 0x04 | 0x70 | 0;		/* bits 17-24 */
-    fax1_send_frame( fd, 3, framebuf, 6 );
+    if ( fax1_send_dcs( fd, 14400 ) == ERROR )
+    {
+        fax_hangup = TRUE; fax_hangup_code = 10; return ERROR;
+    }
 
-    /* send DCN - hang up */
-    /* fax1_send_dcn( fd ); */
-    
     fax1_phase = Phase_B;			/* Phase A done */
 
     return NOERROR;
@@ -105,20 +116,24 @@ int fax1_send_page _P5( (g3_file, bytes_sent, tio, ppm, fd),
 		        char * g3_file, int * bytes_sent, TIO * tio,
 		        Post_page_messages ppm, int fd )
 {
-unsigned char framebuf[FRAMESIZE];
+uch framebuf[FRAMESIZE];
 char * line;
 char cmd[40];
 char dleetx[] = { DLE, ETX };
+char rtc[] = { 0x00, 0x08, 0x80, 0x00, 0x08, 0x80, 0x00, 0x08 };
+int g3fd, r, w, rx;
+#define CHUNK 512
+char buf[CHUNK], wbuf[CHUNK];
 
     /* if we're in T.30 phase B, send training frame (TCF) now...
      * don't forget delay (75ms +/- 20ms)!
      */
     if ( fax1_phase == Phase_B )
     {
-        char train[100];
-	int i;
+        char train[150];
+	int i, num;
 
-	sprintf( cmd, "AT+FTS=8;+FTM=96" );		/*!!! PROPER CARRIER */
+	sprintf( cmd, "AT+FTS=8;+FTM=%d", dcs_btp->c_long );
 	fax_send( cmd, fd );
 
 	line = mdm_get_line( fd );
@@ -132,11 +147,12 @@ char dleetx[] = { DLE, ETX };
 	}
 
 	/* send data for training (1.5s worth) */
-	/*!!! move to class1lib.c */
+
+	num = (dcs_btp->speed/8)*1.5;
+	lprintf( L_NOISE, "fax1_send_page: send %d bytes training (TCF)", num );
 	memset( train, 0, sizeof(train));
 
-	/*!!! PROPER number of bytes for carrier! */
-	for( i=0; i<18; i++)
+	for( i=0; i<num; i+=sizeof(train))
 		write( fd, train, sizeof(train) );
 	write( fd, dleetx, 2 );
 
@@ -171,11 +187,20 @@ char dleetx[] = { DLE, ETX };
 	return ERROR;
     }
 
+    r=0;w=0;
+    g3fd = open( g3_file, O_RDONLY );
+    if ( g3fd < 0 )
+    {
+        lprintf( L_ERROR, "fax1_send_page: can't open '%s'", g3_file );
+	/*!!! do something smart here... */
+	fax_hangup = TRUE; fax_hangup_code = FHUP_ERROR;
+	fax1_send_dcn( fd );
+	return ERROR;
+    }
+
     /* Phase C: send page data with high-speed carrier
      */
-
-    /*!!! user PROPER carrier */
-    sprintf( cmd, "AT+FTM=96" );		/*!!! PROPER CARRIER */
+    sprintf( cmd, "AT+FTM=%d", dcs_btp->c_short );
     fax_send( cmd, fd );
 
     line = mdm_get_line( fd );
@@ -188,8 +213,53 @@ char dleetx[] = { DLE, ETX };
 	fax_hangup = TRUE; fax_hangup_code = 40; return ERROR;
     }
 
+    lprintf( L_NOISE, "send page data" );
 
-    /* end of page: DLE ETX */
+    /* read page data from file, invert byte order, 
+     * insert padding bits (if scan line time > 0), 
+     * at end-of-file, add RTC
+     */
+    /*!!!! padding, one-line-at-a-time, watch out for sizeof(wbuf)*/
+    /*!!!! digifax header!*/
+    rx=0; r=0; w=0;
+    do
+    {
+        if ( rx >= r )			/* buffer empty, read more */
+	{
+	    r = read( g3fd, buf, CHUNK );
+	    if ( r < 0 )
+	    {
+	    	lprintf( L_ERROR, "fax1_send_page: error reading '%s'", g3_file );
+		break;
+	    }
+	    if ( r == 0 ) break;
+	    lprintf( L_JUNK, "read %d", r );
+	    rx = 0;
+	}
+	wbuf[w] = buf[rx++];
+	if ( wbuf[w] == DLE ) wbuf[++w] = DLE;
+	w++;
+
+	/*!! zero-counting, bitpadding! */
+	if ( w >= sizeof(wbuf)-2 )
+	{
+	    if ( w != write( fd, wbuf, w ) )
+	    {
+	        lprintf( L_ERROR, "fax1_send_page: can't write %d bytes", w );
+		break;
+	    }
+	    lprintf( L_JUNK, "write %d", w );
+	    w=0;
+	}
+    }
+    while(r>0);
+    close(g3fd);
+
+    /*!!! ERROR HANDLING!! */
+    /*!!! PARANOIA: alarm()!! */
+    /* end of page: RTC */
+    write( fd, rtc, sizeof(rtc) );
+    /* end of data: DLE ETX */
     write( fd, dleetx, 2 );
 
     line = mdm_get_line( fd );
@@ -199,7 +269,9 @@ char dleetx[] = { DLE, ETX };
 	fax_hangup = TRUE; fax_hangup_code = 40; return ERROR;
     }
 
+
     /* now send end-of-page frame (MPS/EOM/EOP) and get pps */
+
     fax1_phase = Phase_D;
     lprintf( L_MESG, "page data sent, sending end-of-page frame (C->D)" );
     sprintf( cmd, "AT+FTS=8;+FTH=3" );
@@ -211,20 +283,49 @@ char dleetx[] = { DLE, ETX };
 
     if ( line == NULL || strcmp( line, "CONNECT" ) != 0 )
     {
+        if ( strcmp( line, "OK" ) == 0 ) goto tryanyway;
 	lprintf( L_ERROR, "fax1_send_page: unexpected response 4: '%s'", line );
 	fax_hangup = TRUE; fax_hangup_code = 50; return ERROR;
     }
 
+    /* some modems seemingly can't handle AT+FTS=8;+FTH=3 (returning 
+     * "OK" instead of "CONNECT"), so send AT+FTH=3 again for those.
+     */
+tryanyway:
+
     framebuf[0] = 0xff;
     framebuf[1] = 0x03 | T30_FINAL;
-    framebuf[2] = 0x01 | T30_EOP;		/*!!! receive_dis */
-    fax1_send_frame( fd, 0, framebuf, 6 );
+    switch( ppm )
+    {
+        case pp_eom: framebuf[2] = T30_EOM | fax1_dis; break;
+	case pp_eop: framebuf[2] = T30_EOP | fax1_dis; break;
+	case pp_mps: framebuf[2] = T30_MPS | fax1_dis; break;
+    }
+
+    fax1_send_frame( fd, strcmp(line, "OK")==0? 3:0 , framebuf, 3 );
 
     /* get MPS/RTP/RTN code */
     fax1_receive_frame( fd, 3, 30, framebuf );
 
-    /*!! say goodbye */
-    fax1_send_dcn( fd );
+    /*!!! T.30 flow chart... */
+
+    switch( framebuf[1] )
+    {
+        case T30_MCF:		/* page good */
+		fax_page_tx_status = 1; break;
+	case T30_RTN:		/* retrain / negative */
+		fax_page_tx_status = 2; fax1_phase = Phase_B; break;
+	case T30_RTP:		/* retrain / positive */
+		fax_page_tx_status = 3; fax1_phase = Phase_B; break;
+	case T30_PIN:		/* procedure interrupt */
+		fax_page_tx_status = 4; break;
+	case T30_PIP:
+		fax_page_tx_status = 5; break;
+	default:
+		lprintf( L_ERROR, "fax1_transmit_page: unexpected frame" );
+		fax_hangup = TRUE; fax_hangup_code = 53; 
+		fax1_send_dcn(fd); break;
+    }
 
     fax_hangup = TRUE; fax_hangup_code = 50;
     return ERROR;
