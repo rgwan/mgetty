@@ -1,7 +1,7 @@
 # Makefile for the "fax" subtree
 # of mgetty+sendfax
 #
-# SCCS: $Id: Makefile,v 2.2 1994/12/05 20:09:04 gert Exp $ Copyright (c) Gert Doering
+# SCCS: $Id: Makefile,v 2.3 1995/07/29 15:03:36 gert Exp $ Copyright (c) Gert Doering
 #
 
 CC=gcc
@@ -41,7 +41,7 @@ install: all
 #
 	-for i in $(FAX_SCRIPTS); do \
 		mv -f $(BINDIR)/$$i $(BINDIR)/$$i.old 2>/dev/null ; \
-		$(INSTALL) -m 775 $$i $(BINDIR) ; \
+		$(INSTALL) -m 755 $$i $(BINDIR) ; \
 	done
 	chmod 700 $(BINDIR)/faxrunq
 #
