@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.24 1993/11/07 01:50:27 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 1.25 1993/11/12 15:46:39 gert Exp $ Copyright (c) Gert Doering";
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -59,7 +59,8 @@ TIO tio;
 
     tio_mode_raw( &tio );		/* no input or output post-*/
 					/* processing, no signals */
-    tio_set_flow_control( &tio, (FAXREC_FLOW) & (FLOW_HARD|FLOW_XON_IN) );
+    tio_set_flow_control( STDIN, &tio,
+			 (FAXREC_FLOW) & (FLOW_HARD|FLOW_XON_IN) );
     tio_set( STDIN, &tio );
 
     /* read: +FTSI:, +FDCS, OK */

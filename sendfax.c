@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.41 1993/11/07 01:50:54 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.42 1993/11/12 15:46:44 gert Exp $ Copyright (c) Gert Doering";
 
 /* sendfax.c
  *
@@ -89,7 +89,7 @@ int	fd;
      */
     tio_mode_sane( &fax_tio, TRUE );
     tio_set_speed( &fax_tio, FAX_SEND_BAUD );
-    tio_set_flow_control( &fax_tio, (FAXSEND_FLOW) & FLOW_HARD );
+    tio_set_flow_control( fd, &fax_tio, (FAXSEND_FLOW) & FLOW_HARD );
     tio_mode_raw( &fax_tio );
     
     if ( tio_set( fd, &fax_tio ) == ERROR )
@@ -169,7 +169,7 @@ static	char	fax_end_of_page[] = { DLE, ETX };
     lprintf( L_NOISE, "fax_send_page(\"%s\") started...", g3_file );
 
     /* disable software output flow control! It would eat the XON otherwise! */
-    tio_set_flow_control( &fax_tio, (FAXSEND_FLOW) & FLOW_HARD );
+    tio_set_flow_control( fd, &fax_tio, (FAXSEND_FLOW) & FLOW_HARD );
     tio_set( fd, &fax_tio );
 
     /* tell modem that we're ready to send - modem will answer
@@ -208,7 +208,8 @@ static	char	fax_end_of_page[] = { DLE, ETX };
     /* Since some faxmodems (ZyXELs!) do need XON/XOFF flow control
      * we have to enable it here
      */
-    tio_set_flow_control( &fax_tio, (FAXSEND_FLOW) & (FLOW_HARD|FLOW_XON_OUT));
+    tio_set_flow_control( fd, &fax_tio,
+			 (FAXSEND_FLOW) & (FLOW_HARD|FLOW_XON_OUT));
     tio_set( fd, &fax_tio );
 
     /* send one page */
@@ -627,8 +628,8 @@ int	tries;
 	else
 	{
 	    /* switch to fax receiver flow control */
-	    tio_set_flow_control( &fax_tio, (FAXREC_FLOW) &
-				            (FLOW_HARD|FLOW_XON_IN) );
+	    tio_set_flow_control( fd, &fax_tio,
+				 (FAXREC_FLOW) & (FLOW_HARD|FLOW_XON_IN) );
 	    tio_set( fd, &fax_tio );
 	    if ( fax_get_pages( fd, &pagenum, poll_directory ) == ERROR )
 	    {
