@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.4 1997/05/05 19:19:26 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.5 1997/06/09 09:59:51 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -146,13 +146,14 @@ CFLAGS=-O2 -Wall -pipe
 #
 # For FreeBSD, add "-lutil" if the linker complains about
 # 	"utmp.o: unresolved symbod _login"
+# For Linux, add "-lutil" if the linker complains about "updwtmp".
 #
 LDFLAGS=
 LIBS=
 #LIBS=-lprot -lsocket				# SCO Unix
 #LIBS=-lsocket
 #LIBS=-lbsd					# OSF/1
-#LIBS=-lutil					# FreeBSD
+#LIBS=-lutil					# FreeBSD or Linux/GNU libc2
 #LDFLAGS=-posix					# NeXT with POSIX
 #LDFLAGS=-s -shlib				# 3B1
 #
@@ -225,7 +226,8 @@ INFODIR=$(prefix)/info
 #
 #
 # A shell that understands bourne-shell syntax
-# (on some ultrix systems, you may need /bin/sh5 here)
+#  Usually this will be /bin/sh or /usr/bin/sh, but bash or ksh are fine.
+#  (on some ultrix systems, you may need /bin/sh5 here)
 #
 SHELL=/bin/sh
 #
@@ -282,8 +284,8 @@ MV=mv
 # Nothing to change below this line ---------------------------------!
 #
 MR=1.1
-SR=6
-DIFFR=1.1.5
+SR=7
+DIFFR=1.1.6
 #
 #
 OBJS=mgetty.o logfile.o do_chat.o locks.o utmp.o logname.o login.o \
