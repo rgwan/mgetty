@@ -1,4 +1,4 @@
-#ident "$Id: tio.h,v 2.1 1994/11/30 23:20:51 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.h,v 2.2 1994/12/12 16:05:43 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 #ifndef __TIO_H__
 #define __TIO_H__
@@ -56,6 +56,12 @@ typedef tcflag_t tioflag_t;
 
 #if defined(BSD_SGTTY) && defined(USE_GETTYDEFS)
 #include "cannot use /etc/gettydefs with sgtty (yet?)"
+#endif
+
+/* if not defined in the default header files, #define some important things
+ */
+#ifdef _AIX
+#include <sys/ttychars.h>
 #endif
 
 #if	!defined(VSWTCH) && defined(VSWTC)
