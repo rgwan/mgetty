@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.45 2001/02/03 18:52:36 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.46 2001/02/25 12:33:49 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -292,8 +292,8 @@ MV=mv
 # Nothing to change below this line ---------------------------------!
 #
 MR=1.1
-SR=25
-DIFFR=1.1.24
+SR=26
+DIFFR=1.1.25
 #
 #
 OBJS=mgetty.o logfile.o do_chat.o locks.o utmp.o logname.o login.o \
@@ -492,6 +492,7 @@ beta:	tar diff sign
 	cp mgetty$(MR).$(SR).tar.gz /pub/mgetty-archive/
 	cp mgetty$(DIFFR)-$(MR).$(SR).diff.gz /pub/mgetty-archive/
 
+	-cvs commit -m 'new version released' version.h
 # master ftp/www site
 	./ftp.sh $(MR).$(SR) alpha.greenie.net \
 		'~ftp/pub/mgetty/source/$(MR)'
@@ -504,7 +505,6 @@ beta:	tar diff sign
 	head -30 ChangeLog |mail -s "mgetty$(MR).$(SR).tar.gz on greenie/alpha" knarf@camelot.de marc marcs
 #	-./ftp.sh $(MR).$(SR) ftp.camelot.de /pub/incoming
 #	-./ftp.sh $(MR).$(SR) poseidon.thphy.uni-duesseldorf.de /incoming
-	-cvs commit -m 'new version released' version.h
 
 #shar1:	$(DISTRIB)
 #	shar -M -c -l 40 -n mgetty+sendfax-$(MR).$(SR) -a -o mgetty.sh $(DISTRIB)
