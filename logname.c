@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 2.5 1995/07/11 16:13:35 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 2.6 1995/07/21 15:46:32 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include "syslibs.h"
@@ -265,7 +265,7 @@ int getlogname _P5( (prompt, tio, buf, maxsize, do_timeout),
 
     printf( "\r\n%s", final_prompt );
 
-    if ( ferror( STDIN ) )
+    if ( ferror( stdin ) )
     {
 	lprintf( L_ERROR, "getlogname: error writing prompt" );
     }
