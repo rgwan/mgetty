@@ -9,7 +9,7 @@
  * You have set port_timeout in voice.conf to a minimum of 15
  * if you use 38400 Baud
  *
- * $Id: Elsa.c,v 1.9 2000/07/22 11:45:10 marcs Exp $
+ * $Id: Elsa.c,v 1.10 2000/09/09 08:48:48 marcs Exp $
  *
  */
 
@@ -85,9 +85,9 @@ static int Elsa_init (void)
       * before modem assumes phone has been answered.
       */
      sprintf(buffer,
-             "AT+VRA=%d+VRN=%d",
-             cvd.ringback_goes_away.d.i,
-             cvd.ringback_never_came.d.i);
+             "AT+VRA=%d;+VRN=%d",
+             cvd.ringback_goes_away.d.i,         /* 1/10 seconds */
+             cvd.ringback_never_came.d.i/10);    /* seconds */
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "setting ringback delay didn't work");     
@@ -179,7 +179,7 @@ static int Elsa_set_device (int device)
                return(OK);
           case DIALUP_LINE:
                lprintf(L_JUNK, "%s: _DIALUP: (%d)", voice_modem_name, device);
-               voice_command("AT#VLS=4", "OK");
+               voice_command("AT#VLS=4", "OK");   /* This is DIALUP_WITH_INT_SPEAKER ! Look at ../contrib/*set-device* */
                return(OK);
           case INTERNAL_MICROPHONE:
                lprintf(L_JUNK, "%s: _INT_MIC: (%d)", voice_modem_name, device);
