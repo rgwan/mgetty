@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 1.15 1993/10/06 00:35:45 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logfile.c,v 1.16 1993/10/20 11:15:55 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -114,7 +114,7 @@ int level;
 const char * format;
 va_dcl
 {
-char    ws[200];
+char    ws[2000];
 time_t  ti;
 struct tm *tm;
 va_list pvar;
