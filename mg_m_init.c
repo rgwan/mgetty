@@ -1,4 +1,4 @@
-#ident "$Id: mg_m_init.c,v 3.1 1995/08/30 12:40:48 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_m_init.c,v 3.2 1995/11/12 13:10:44 gert Exp $ Copyright (c) Gert Doering"
 
 /* mg_m_init.c - part of mgetty+sendfax
  *
@@ -191,7 +191,7 @@ int mg_open_device _P2 ( (devname, blocking),
 	{
 	    if ( errno == EAGAIN ) goto again;
 	    
-	    lprintf( L_FATAL, "cannot open line" );
+	    lprintf( L_FATAL, "mod: cannot open line %s", devname );
 	    return ERROR;
 	}
     }
@@ -203,7 +203,7 @@ int mg_open_device _P2 ( (devname, blocking),
 	(void) close(0);
 	if (dup(fd) != 0)
 	{
-	    lprintf( L_FATAL, "cannot open stdin" );
+	    lprintf( L_FATAL, "mod: cannot make %s stdin", devname );
 	    return ERROR;
 	}
     }
@@ -215,11 +215,11 @@ int mg_open_device _P2 ( (devname, blocking),
     
     if (dup(0) != 1)
     {
-	lprintf( L_FATAL, "cannot open stdout"); return ERROR;
+	lprintf( L_FATAL, "mod: cannot dup to stdout"); return ERROR;
     }
     if (dup(0) != 2)
     {
-	lprintf( L_FATAL, "cannot open stderr"); return ERROR;
+	lprintf( L_FATAL, "mod: cannot dup to stderr"); return ERROR;
     }
 
     if ( fd > 2 ) (void) close(fd);
