@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 1.12 1994/01/03 23:29:36 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 1.13 1994/01/03 23:50:05 gert Exp $ Copyright (c) 1993 Gert Doering"
 ;
 /* tio.c
  *
@@ -38,6 +38,36 @@ static char tio_compilation_type[]="@(#) compiled with BSD_SGTTY";
 # define TAB3 OXTABS
 # endif
 #endif
+
+/* baud rate table */
+
+struct speedtab speedtab[] = {
+	{ B50,	  50,	 "50"	 },
+	{ B75,	  75,	 "75"	 },
+	{ B110,	  110,	 "110"	 },
+	{ B134,	  134,	 "134"	 },
+	{ B150,	  150,	 "150"	 },
+	{ B200,	  200,	 "200"	 },
+	{ B300,	  300,	 "300"	 },
+	{ B600,	  600,	 "600"	 },
+	{ B1200,  1200,	 "1200"	 },
+	{ B1800,  1800,	 "1800"	 },
+	{ B2400,  2400,	 "2400"	 },
+	{ B4800,  4800,	 "4800"	 },
+	{ B9600,  9600,	 "9600"	 },
+#ifdef	B19200
+	{ B19200, 19200, "19200" },
+#endif	/* B19200 */
+#ifdef	B38400
+	{ B38400, 38400, "38400" },
+#endif	/* B38400 */
+	{ EXTA,	  19200, "EXTA"	 },
+	{ EXTB,	  38400, "EXTB"	 },
+	{ 0,	  0,	 ""	 }
+};
+
+
+/* get current tio settings for given filedescriptor */
 
 int tio_get _P2((fd, t), int fd, TIO *t )
 { 
@@ -117,17 +147,7 @@ int tio_set_speed _P2( (t, speed ), TIO *t, int speed )
     return NOERROR;
 }
 
-/* defined in mgetty.c */
-
-extern struct	speedtab {
-	ushort	cbaud;		/* baud rate */
-	int	nspeed;		/* speed in numeric format */
-	char	*speed;		/* speed in display format */
-} speedtab[];
-
-
 /* get port speed. Return integer value, not symbolic constant */
-
 int tio_get_speed _P1( (t), TIO *t )
 {
 #ifdef SYSV_TERMIO
