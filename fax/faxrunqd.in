@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.31 1998/05/07 08:59:23 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.32 1998/05/25 11:46:02 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.32  1998/05/25 11:46:02  gert
+# add job number (F000123) to acct.log entries
+#
 # Revision 1.31  1998/05/07 08:59:23  gert
 # make number of logfiles to keep configurable
 #
@@ -1170,7 +1173,7 @@ sub wacct
 	print LOG "ERROR: can't open $fax_acct for appending: $!"; return;
     }
 
-    print A "$m |$p |$a|$d| $r\n";
+    print A "$m $j |$p |$a|$d| $r\n";
     close A;
 }
 

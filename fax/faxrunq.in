@@ -9,7 +9,7 @@
 # There are still a lot rough edges - but it works, and should give you an
 # idea how to improve it
 #
-# SCCS: $Id: faxrunq.in,v 4.6 1997/12/12 14:12:48 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxrunq.in,v 4.7 1998/05/25 11:46:04 gert Exp $ Copyright (C) 1994 Gert Doering
 
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -206,7 +206,7 @@ do
 	$echo "Status "`date`" successfully sent" >>JOB
 
 	# update accounting log
-	$echo "$MAIL_TO |$PHONE |$AH|"`date`"| success" >>$FAX_ACCT
+	$echo "$MAIL_TO "`dirname $job`" |$PHONE |$AH|"`date`"| success" >>$FAX_ACCT
 
 	# send mail, if requested
 	if [ -n "$do_mail_s" ] ; then
@@ -266,7 +266,7 @@ do
 	$echo "Status "`date`" FATAL FAILURE, exit($status): $why" >>JOB
 
 	# update accounting log
-	$echo "$MAIL_TO |$PHONE |$AH|"`date`"| fail: $why" >>$FAX_ACCT
+	$echo "$MAIL_TO "`dirname $job`" |$PHONE |$AH|"`date`"| fail: $why" >>$FAX_ACCT
 
 	# if failed <max_fail_costly> times, suspend job
 	if [ `grep "FATAL FAILURE" JOB | wc -l` -ge $max_fail_costly ]
