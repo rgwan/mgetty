@@ -1,9 +1,9 @@
-#ident "$Id: logfile.c,v 3.2 1995/12/21 23:06:20 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logfile.c,v 3.3 1996/03/10 12:44:03 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
-#ifndef NeXT
+#if !defined(NeXT) || defined(NEXTSGTTY)
 # include <varargs.h>
 #endif
 #include <sys/types.h>
@@ -25,9 +25,9 @@ int syslog _PROTO(( int, char *, ... ));
 
 #endif
 
-/* on NeXTstep, we have to use this *UGLY* way to cheat varargs/stdarg
+/* on NeXTstep(POSIX), we have to use this *UGLY* way to cheat varargs/stdarg
  */
-#ifdef NeXT
+#if defined(NeXT) && !defined(NEXTSGTTY)
 # define va_alist a1,a2,a3,a4,a5,a6,a7,a8,a9
 # define va_dcl long a1,a2,a3,a4,a5,a6,a7,a8,a9;
 # define vsprintf(buf,fmt,v) sprintf((buf),(fmt),a1,a2,a3,a4,a5,a6,a7,a8,a9)
