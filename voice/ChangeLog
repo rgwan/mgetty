@@ -1,3 +1,11 @@
+Tue Mar 16 11:02:26 1999  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* Fixed so that when PNP detection fails (ATI9) we correctly
+	revert to ATI, eating output when needed. This was reported by
+	Al Borchers alborchers@steinerpoint.com. This should fix
+	many problems encountered by people upgrading to 1.1.20
+	plus the 10021999 global patch.
+
 Wed Feb 10 07:17:57 CST 1999  Rick Richardson  (rick@dgii.com)
 
      * Fixed a bunch of places where feof() was being misused in
