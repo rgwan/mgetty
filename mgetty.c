@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.122 1994/08/08 14:17:12 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.123 1994/08/08 14:49:45 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -869,7 +869,7 @@ int main _P2((argc, argv), int argc, char ** argv)
     
     /* make utmp and wtmp entry (otherwise login won't work)
      */
-    make_utmp_wtmp( Device, UT_LOGIN, "LOGIN", NULL );
+    make_utmp_wtmp( Device, UT_LOGIN, "LOGIN", Connect );
 
     /* wait a little bit befor printing login: prompt (to give
      * the other side time to get ready)
