@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.49 2001/01/29 22:56:35 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.50 2001/09/04 11:22:23 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -810,6 +810,13 @@ int mdm_identify _P1( (fd), int fd )
 	{
 	    lprintf( L_MESG, "Multitech MT5600ZDXV detected" );
 	    modem_type=Mt_class2;
+	}
+	/* and yet another one - will they never end? Xavier Roche */
+	else if ( strncmp( l, "LT V.90", 7 ) == 0 )
+	{
+	    lprintf( L_MESG, "Multitech MT5634Z internal detected" );
+	    modem_type=Mt_class2;
+	    modem_quirks |= MQ_NEED2;
 	}
     }
 
