@@ -1,0 +1,154 @@
+#!@PERL@
+#
+# viewfax.cgi -- show received faxes
+# 
+# Copyright 1998 Simone Demmel simone@greenie.net
+#
+# RCS: $Id: viewfax.in,v 1.1 1998/09/09 15:30:16 gert Exp $
+#
+# $Log: viewfax.in,v $
+# Revision 1.1  1998/09/09 15:30:16  gert
+# display incoming fax queue, call vf-*.cgi scripts for details
+#
+
+#
+# Script zur Generierung einer Uebersicht aller erhaltener Faxe
+#
+
+#
+# Aufgabe:
+# - Auflistung aller erhaltenen Faxe
+#
+
+#
+# damit wirs nicht vergessen....
+#
+print "Content-type: text/html\n\n";
+
+#
+# Variablen 
+#
+
+# Incoming-Verzeichnis
+$incoming = "@FAX_SPOOL_IN@";
+
+# Abstufungen und Schwellwerte fuer "faxoverview" / "givgif"
+%maxpages = ( 30 => 10, 60 => 5, 100 => 1 );
+
+#
+# Ende der Variablen
+#
+
+#
+# jetzt gehts los
+#
+
+
+chdir $incoming;
+
+#
+# HTML-Drumherum oberer Teil
+#
+
+print <<EOF;
+<html><head>
+<title>Eingegangene Faxe</title>
+</head></html>
+<body bgcolor="#ffffff">
+
+<h1 align="center">Faxmanager - Eingegangene Faxe</h1>
+<hr size="5">
+
+<div align="center">
+<table border="1" cellpadding="4">
+<tr>
+	<th>Datum</th>
+	<th>Senderkennung</th>
+	<th>Fax-ID</th>
+	<th>Seiten</th>
+	<th>Seitenansicht</th>
+</tr>
+EOF
+
+# generieren:
+# <tr>
+# 	<td>12.3.98 9:00</td>
+# 	<td>Gemini</td>
+# 	<td>fn23467</td>
+# 	<td>3</td>
+# 	<td><a href="sendgif.cgi?100">Groáansicht</a>
+#  	    <a href="sendgif.cgi?60">60%</a>
+#	    <a href="sendgif.cgi?30">30%</a>
+#	    <a href="sendg3.cgi?100">raw g3-code</a>
+#	</td>
+# </tr>
+
+opendir DIRECTORY, "." || print "cannot open $incoming\n";
+foreach $DATEI (readdir DIRECTORY)
+{
+    next unless ( $DATEI =~ /^f/ );
+
+    if ($DATEI =~ /^f(.)(.......)(..)-(.*)\.(\d+)$/) 
+    {
+        if ( ! defined($pages{$2}) ) 
+        {
+            $pages{$2}=1;
+            $basename{$2}="f$1$2$3";
+            $sender{$2}="$4";
+	    $date{$2}=(stat($DATEI))[9];
+        }
+        else
+        {
+            $pages{$2}++;
+        }
+    }
+    else
+    {
+	print "unidentified |$DATEI|\n";
+    }
+}
+
+closedir DIRECTORY;
+
+foreach $id ( sort { $date{$a} <=> $date{$b} } ( keys %pages ) )
+{
+    $date=localtime($date{$id});
+print <<EOF;
+<tr>
+<td align="right">$date</td>
+<td>$sender{$id}</td>
+<td>$id</td>
+<td align="right">$pages{$id}</td>
+<td>
+EOF
+
+    foreach $protz ( keys %maxpages )
+    {
+
+        if ($pages{$id} <= $maxpages{$protz})
+        {
+	    print "    <a href=\"vf-givgif.cgi?size=$protz&file=$basename{$id}\">$protz%</a>&nbsp;\n";
+	}
+	else
+	{
+	    print "    <a href=\"vf-faxov.cgi?size=$protz&file=$basename{$id}\">$protz%</a>&nbsp;\n";
+	}
+    }
+
+    print "</td>\n</tr>\n";
+}
+
+print <<EOF;
+</table>
+</div>
+<hr size="5">
+<a href="/~sd/index.html">^Hauptmenue</a>
+</body>
+</html>
+EOF
+
+exit 0
+
+# ***********************************************************************
+# Das war's
+# ***********************************************************************
