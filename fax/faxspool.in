@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 4.23 2003/01/21 13:27:12 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 4.24 2003/04/09 21:05:14 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -26,6 +26,9 @@
 #  3.10.93: use "hp2hig3" for hp-pcl4-files (cl)
 # 19.10.93: phone directories (caz)
 # $Log: faxspool.in,v $
+# Revision 4.24  2003/04/09 21:05:14  gert
+# fix case of "faxing without header" (-h -) - wasn't copying G3 files
+#
 # Revision 4.23  2003/01/21 13:27:12  gert
 # abort if input file names contain whitespace or quote characters
 #
@@ -854,22 +857,23 @@ if [ ! -z "$PGM" ]
 fi
 
 #	
-# concatenate header with pages
+# concatenate header with pages (optionally) and copy over to spool dir
 #
-if [ -z "$FAX_HEADER" ]
+if [ -n "$FAX_HEADER" ]
 then
-    finalpg="$pages"				# don't :)
-else
     $echo "\nPutting Header lines on top of pages..."
 
     hdrfont=$PBMFONT_HEADER_F
     test -z "$normal_res" || hdrfont=$PBMFONT_HEADER_N
+fi
 
-    finalpg=""
-    for f in $pages
-    do
-	nr=`expr $nr + 1`
+finalpg=""
+for f in $pages
+do
+    nr=`expr $nr + 1`
 
+    if [ -n "$FAX_HEADER" ]
+    then
 	cat $FAX_HEADER | sed -e "s;@T@;$phone;g" -e "s;@P@;$nr;g" \
 			      -e "s;@M@;$maxnr;g" -e "s;@U@;$USER;g" \
 			      -e "s;@N@;$FULLNAME;g" \
@@ -880,9 +884,13 @@ else
 	| g3cat - $f | \
 	$FAXQ_HELPER input $new_seq f$nr.g3 \
 	&& rm $f
-	finalpg="$finalpg f$nr.g3"
-    done
-fi				# end "if ! -z $FAX_HEADER"
+    else
+	g3cat $f | \
+	$FAXQ_HELPER input $new_seq f$nr.g3 \
+	&& rm $f
+    fi
+    finalpg="$finalpg f$nr.g3"
+done
 
 if [ -z "$finalpg" -a -z "$poll_req" ]
 then
