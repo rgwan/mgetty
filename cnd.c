@@ -1,4 +1,4 @@
-#ident "@(#)cnd.c	$Id: cnd.c,v 4.20 2000/12/21 22:06:03 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "@(#)cnd.c	$Id: cnd.c,v 4.21 2001/10/21 14:41:38 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 
 #include <stdio.h>
 #include <string.h>
@@ -45,6 +45,9 @@ struct cndtable cndtable[] =
     {"TIME: ",			&CallTime},
     {"REASON FOR NO CALLER NUMBER: ",	&CallerId},
     {"REASON FOR NO CALLER NAME: ",	&CallName},
+
+    /* isdn4linux (2.4.10 or patched) - Jan Oberlaender, mindriot@gmx.net */
+    {"CALLED NUMBER: ",		&CalledNr},
 
     /* for the ZyXEL 2864(D)I: "FM:xxx TO:yyy" */
     {"FM:",			&CallerId},
