@@ -1,4 +1,4 @@
-#ident "$Id: config.c,v 4.4 1999/02/16 19:56:25 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: config.c,v 4.5 1999/02/24 15:56:44 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /*
  * config.c
@@ -214,6 +214,35 @@ char *  s;
     return p;
 }
 
+/* change "verbal" flow control names into FLOW_* bits
+ * note: numeric constants (0x01/0x06) are used to avoid the need
+ * to pull in tio.h/termio(s).h and friends
+ */
+int conf_get_flow _P2( (line, cp), char * line, conf_data * cp )
+{
+    if ( strncmp( line, "rts", 3 ) == 0 ||
+	 strncmp( line, "hard", 4 ) == 0 )
+    {
+	cp->d.i = FLOW_HARD; return 0;	/* hardware flow control only */
+    }
+    if ( strncmp( line, "xon", 3 ) == 0 ||
+         strncmp( line, "soft", 4 ) == 0 )
+    {
+	cp->d.i = FLOW_SOFT; return 0;	/* software flow control only */
+    }
+    if ( strcmp( line, "both" ) == 0 )
+    {
+	cp->d.i = FLOW_BOTH; return 0;	/* hardware & software */
+    }
+    if ( strcmp( line, "none" ) == 0 )
+    {
+	cp->d.i = FLOW_NONE; return 0;	/* none of it (DDTAH) */
+    }
+
+    lprintf( L_WARN, "conf_get_flow: unknown keyword '%s'", line);
+    return -1;
+}
+
 /* write the config structure into the log file */
 void display_cd _P1( (cd), conf_data * cd )
 {
@@ -234,6 +263,7 @@ char ** p;
 	else
 	  switch ( cp->type )
 	{
+	    case CT_FLOWL:
 #ifdef PTR_IS_LONG	/* 64bit machines: d.i is "long" */
 	    case CT_INT: sprintf( buf, "%ld", cp->d.i );
 #else
@@ -356,6 +386,10 @@ int ignore = 0;		/* ignore keywords in non-matching section */
 				    tolower(line[0]) == 't' ||
 				    strncmp( line, "on", 2 ) == 0 );
 			break;
+		      case CT_FLOWL:
+			if ( conf_get_flow( line, cp ) < 0 ) errflag++;
+			break;
+
 		      default:
 			lprintf( L_ERROR, "yet unable to handle type %d",
 			         cp->type );
