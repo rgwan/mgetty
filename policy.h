@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.39 1994/01/02 20:17:38 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.40 1994/01/02 20:51:59 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -128,6 +128,13 @@
  */
 #define MAX_LOGIN_TIME	240
 
+/* nologin file
+ *
+ * If that file exists, a ringing phone won't be answered (see manual).
+ * "%s" will be replaced by the device name.
+ */
+#define NOLOGIN_FILE "/etc/nologin.%s"
+
 
 /* misc */
 
@@ -196,6 +203,18 @@
  * The modem must answer with "OK" (!!!) - otherwise, change mgetty.c
  */
 #define MODEM_INIT_STRING	"ATS0=0Q0&D3&H3&N0&K4"
+
+/* command termination string
+ *
+ * for most modems, terminating the AT... command with "\r" is
+ * sufficient and "\r\n" also works without doing harm.
+ * Unfortunately, for the Courier HST, you've to use *only* \r,
+ * otherwise ATA won't work (immediate NO CARRIER), and for some
+ * ZyXELs, you have to use \r\n (no OK otherwise).
+ * So, try one, and if it doesn't work, try the other.
+ */
+#define MODEM_CMD_SUFFIX "\r"
+ 
 
 /* the main fax spool directory
  */
