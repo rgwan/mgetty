@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.47 1994/01/29 22:50:27 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.48 1994/02/18 00:05:07 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -70,7 +70,7 @@
 #define LOG_PATH "/tmp/log_mg.%s"
 
 /* Default log error level threshold. Possible error levels are
- * L_FATAL, L_ERROR, L_WARN, L_MESG, L_NOISE, L_JUNK (see mgetty.h)
+ * L_FATAL, L_ERROR, L_WARN, L_AUDIT, L_MESG, L_NOISE, L_JUNK (see mgetty.h)
  */
 #define LOG_LEVEL L_MESG
 
