@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 1.33 1994/09/19 22:23:52 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 1.34 1994/09/19 22:26:41 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* tio.c
  *
@@ -740,7 +740,8 @@ int tio_flow _P2( (fd, restart_output), int fd, int restart_output )
                      else r = ioctl( fd, TCXONC, 0 );
 #endif
 #ifdef BSD_SGTTY
-#include "not yet supported"
+    if ( restart_output ) r = ioctl( fd, TIOCSTART, NULL );
+                     else r = ioctl( fd, TIOCSTOP, NULL );
 #endif
     if ( r != 0 ) lprintf( L_ERROR, "tio: cannot change flow ctrl state" );
 
