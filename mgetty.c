@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.13 1993/03/13 22:40:17 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.14 1993/03/14 15:12:42 gert Exp $ (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -104,10 +104,6 @@ void		pututline(struct utmp * utmp);
 void		setutent(void);
 void		endutent(void);
 
-#ifndef linux
-int		getopt( int, char **, char * );
-#endif
-
 time_t		time( long * tloc );
 
 char	* Device;			/* device to use */
@@ -148,10 +144,6 @@ int main( int argc, char ** argv)
 	char *issue = "/etc/issue";		/* default issue file */
 
 	char *login = "/bin/login";		/* default login program */
-
-	extern int optind;
-	extern char *optarg;
-	extern int expect();
 
 	/* startup
 	 */

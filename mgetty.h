@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.8 1993/03/06 19:38:23 gert Exp $ (c) Gert Doering */
+/* $Id: mgetty.h,v 1.9 1993/03/14 15:12:44 gert Exp $ (c) Gert Doering */
 
 /* stuff in logfile.c */
 
@@ -68,5 +68,11 @@ void faxrec( void );
 
 /********* system prototypes **************/
 char * mktemp( char * template );
+
+#ifndef linux
+extern int	getopt( int, char **, char * );
+#endif
+extern int	optind;
+extern char *	optarg;
 
 #include "policy.h"
