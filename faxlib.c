@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 1.14 1993/11/29 11:51:35 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 1.15 1993/12/18 19:06:59 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* faxlib.c
  *
@@ -116,6 +116,8 @@ int bufferp;
 #endif
 	    lprintf( L_MESG, "connection hangup: '%s'", buffer );
 	    sscanf( &buffer[6], "%d", &fax_hangup_code );
+
+	    lprintf( L_NOISE,"(%s)", ferror( fax_hangup_code ));
 
 	    if ( strcmp( s, "OK" ) != 0 ) break;
 	}
