@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.57 1993/10/27 20:17:48 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.58 1993/11/01 14:10:52 gert Exp $ Copyright (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -261,7 +261,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 #endif
 
 	/* remove leading /dev/ prefix */
-	if ( strcmp( Device, "/dev/" ) == 0 ) Device += 5;
+	if ( strncmp( Device, "/dev/", 5 ) == 0 ) Device += 5;
 
 	/* need full name of the device */
 	sprintf(devname, "/dev/%s", Device);
@@ -636,22 +636,23 @@ gettermio _P3 ((id, first, prompt), char *id, boolean first, char **prompt) {
 	}
 	loaded = 1;
     }
-    if ( (gdp = getgettydef(id)) != NULL ) {
+    if ( (gdp = getgettydef(id)) != NULL )
+    {
 	lprintf(L_NOISE, "Using %s gettydefs entry", gdp->tag);
 	if (first) {
-	    termio = gdp->before;
+	    if ( portspeed == B0 )	/* no "-s" arg, use gettydefs */
+	        portspeed = ( gdp->before.c_cflag ) & CBAUD;
 	} else {
 	    termio = gdp->after;
 	}
-	/* side-effect - ignores ``after'' baud setting */
-	if (portspeed == B0)
-	    portspeed = termio.c_cflag & CBAUD;
 	rp = gdp->prompt;
-    } else
+    }
 
 #endif
     if (portspeed == B0)
 	portspeed = DEFAULT_PORTSPEED;
+
+    tio_set_speed( &termio, portspeed );
 
     if (prompt && !*prompt) *prompt = rp;
 
