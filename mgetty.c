@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.68 1993/11/29 11:46:50 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.69 1993/11/29 21:58:39 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -30,6 +30,9 @@
 #include "mgetty.h"
 #include "tio.h"
 #include "policy.h"
+#ifdef VOICE
+#include "voclib.h"
+#endif
 
 struct	speedtab {
 	ushort	cbaud;		/* baud rate */
@@ -88,6 +91,9 @@ char *	init_chat_seq[] = { "", "\\d\\d\\d+++\\d\\d\\d\r\\dATQ0H0", "OK",
 			    /*"AT+FLID=\""FAX_STATION_ID"\"", "OK",*/
 			    "AT+FDCC=1,5,0,2,0,0,0", "OK",
 #endif
+#ifdef VOICE
+			    "AT+FCLASS=8", "OK",
+#endif
                             NULL };
 
 int	init_chat_timeout = 60;
@@ -107,9 +113,19 @@ chat_action_t	ring_chat_actions[] = { { "CONNECT",	A_CONN },
 					{ "+FCON",	A_FAX  },
 					{ "FAX",	A_FAX  },
 #endif
+#ifdef VOICE
+					{ "VCON",       A_VCON },
+#endif
 					{ NULL,		A_FAIL } };
 
+#ifdef VOICE
+char *	answer_chat_seq[] = { "", "ATL0 A", "VCON",
+				"\\dATL" SPEAKER_ANSWER_VOLUME, "OK",
+				 NULL };
+#else
 char *	answer_chat_seq[] = { "", "ATA", "CONNECT", "\\c", "\n", NULL };
+#endif
+
 int	answer_chat_timeout = 80;
 
 /* the same actions are recognized while answering as are */
@@ -167,7 +183,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 	int cspeed;
 
 	action_t	what_action;
-	int		rings;
+	int		rings = 0;
 
 #if defined(_3B1_) || defined(MEIBE)
 	typedef ushort uid_t;
@@ -435,6 +451,14 @@ int main _P2((argc, argv), int argc, char ** argv)
 	make_utmp_wtmp( Device, FALSE );
 #endif
 
+#ifdef VOICE
+	/* With external modems, the auto-answer LED can be used
+	 * to show a status flag. vgetty uses this to indicate
+	 * that new messages have arrived.
+	 */
+	voice_message_light(&rings_wanted);
+#endif /* VOICE */
+	
 	/* wait for incoming characters (using select() or poll() to
 	 * prevent eating away from processes dialing out)
 	 */
@@ -507,6 +531,9 @@ int main _P2((argc, argv), int argc, char ** argv)
 	    log_level++; /*FIXME!!: remove this - for debugging only */
 	    
 	    if ( what_action != A_CONN &&
+#ifdef VOICE
+		 what_action != A_VCON &&
+#endif
 		 ( rings < rings_wanted ||
 	           do_chat( STDIN, answer_chat_seq, answer_chat_actions,
 			    &what_action, answer_chat_timeout, TRUE) == FAIL))
@@ -538,6 +565,22 @@ int main _P2((argc, argv), int argc, char ** argv)
 	(void) signal(SIGINT, rmlocks);
 	(void) signal(SIGQUIT, rmlocks);
 	(void) signal(SIGTERM, rmlocks);
+
+#ifdef VOICE
+	/* Answer in voice mode. The function will return only if it
+	   detects a data call, otherwise it will call exit().
+
+	   The modem will be in voice mode when voice_answer is
+	   called. If the function returns, the modem will be
+	   connected in DATA mode. */
+
+	if( ! direct_line )
+	{
+	    voice_answer(rings, rings_wanted,
+			 answer_chat_actions,
+			 answer_chat_timeout );
+	}
+#endif /* VOICE */
 
 	/* make utmp and wtmp entry (otherwise login won't work)
 	 */
