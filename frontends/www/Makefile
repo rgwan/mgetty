@@ -1,8 +1,11 @@
 # frontends/www/Makefile
 #
-# RCS: $Id: Makefile,v 1.11 1998/11/22 10:16:14 gert Exp $
+# RCS: $Id: Makefile,v 1.12 1998/11/24 16:25:43 gert Exp $
 #
 # $Log: Makefile,v $
+# Revision 1.12  1998/11/24 16:25:43  gert
+# add faxhists.in/cgi
+#
 # Revision 1.11  1998/11/22 10:16:14  gert
 # add dependencies for index-e.html
 #
@@ -20,7 +23,8 @@
 # initial release
 #
 
-CGI=faxq.cgi faxq-v.cgi faxhist.cgi viewfax.cgi nph-vf-gif.cgi 
+CGI=faxq.cgi faxq-v.cgi faxhist.cgi faxhists.cgi \
+		viewfax.cgi nph-vf-gif.cgi 
 HTML=index-d.html index-e.html
 
 # the directory for the HTML file(s)
@@ -74,9 +78,11 @@ faxq-v.cgi: faxq-v.in ../../sedscript
 index-d.html: index-d.in ../../sedscript Makefile
 index-e.html: index-e.in ../../sedscript Makefile
 faxhist.cgi: faxhist.in ../../sedscript
+faxhists.cgi: faxhists.in ../../sedscript
 viewfax.cgi: viewfax.in ../../sedscript
 nph-vf-gif.cgi: nph-vf-gif.in ../../sedscript
 vf-faxov.cgi: vf-faxov.in ../../sedscript
+service.cgi: service.in ../../sedscript
 
 wwwgui.conf: wwwgui.cfg.in ../../sedscript
 	../../sedscript <wwwgui.cfg.in >wwwgui.conf
@@ -90,10 +96,12 @@ wwwgui.conf: wwwgui.cfg.in ../../sedscript
 .SUFFIXES: .in .cgi .html
 
 .in.cgi:
+	rm -f $*.cgi
 	../../sedscript <$< >$*.cgi
 	chmod +x $*.cgi
 
 .in.html:
+	rm -f $*.html
 	../../sedscript <$< | \
 		sed -e "s!@CGI_HREF@!$(CGI_HREF)!" >$*.html
 
