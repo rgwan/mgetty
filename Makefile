@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 1.1 1993/09/01 00:59:05 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 1.2 1993/09/01 20:27:54 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use
 CC=gcc
@@ -49,7 +49,7 @@ sendfax: $(SFAXOBJ)
 # README PROBLEMS
 DISTRIB=mgetty.texi THANKS Makefile ChangeLog policy.h-dist \
         mgetty.c mgetty.h do_chat.c logfile.c logname.c locks.c \
-	faxrec.c faxlib.c fax_lib.h sendfax.c io.c \
+	faxrec.c faxlib.c fax_lib.h sendfax.c io.c utmp.c \
 	pbmtog3.p1 \
 	fax/faxcvt fax/printfax fax/faxspool fax/faxrunq \
 	contrib/README contrib/scrts.c contrib/pbmscale.c contrib/3b1 \
