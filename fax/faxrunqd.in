@@ -9,10 +9,14 @@
 #
 # initial version: Feb 17, 1997
 #
-# RCS: $Id: faxrunqd.in,v 1.4 1997/10/09 10:53:15 gd Exp $
+# RCS: $Id: faxrunqd.in,v 1.5 1997/10/09 11:15:06 gd Exp $
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.5  1997/10/09 11:15:06  gd
+# make sure that only one job is started for a given telephone number
+# (hash %phones remembers phone->job association for each active job)
+#
 # Revision 1.4  1997/10/09 10:53:15  gd
 # use '-r' flag to sendfax
 #
@@ -212,7 +216,7 @@ $queue_flush_interval = 3600;		# ... once per hour
 #
 # child processes
 #
-$childs = 0; %pid2job = ();
+$childs = 0; %pid2job = (); %phones = ();
 
 #
 # ttys available (-l tty1:tty2:... option or default)
@@ -292,6 +296,16 @@ while( 1 )
 
 	if ( $queue{$job}->{'status'} eq 'active' )
 	{
+	    my $ph = $queue{$job}->{'phone'};
+
+	    # do not send job if another job is already active for that
+	    # phone number (would be BUSY anyway)
+	    if ( defined( $phones{ $ph } ) )
+	    {
+		print LOG "$job: phone number '$ph' already busy with job ${phones{$ph}}, skipping\n" if $opt_v;
+		next;
+	    }
+
 	    ## FIXME!!!! - besser auf die Modems verteilen ##
 	    while ( $max_modems-$childs <=0 ) { wait_for_child(); }
 	    ## FIXME!!!! - besser auf die Modems verteilen ##
@@ -580,6 +594,7 @@ sub send_job_from_queue
     {
 	$childs++;
 	$pid2job{$pid}=$job;
+	$phones{$queue{$job}->{'phone'}}=$job;
 	printf LOG "$job: forked off child **$pid**...\n" if $opt_v;
     }
 }
@@ -642,6 +657,7 @@ my ($r, $s, $ex, $j);
     $childs--;
     $j = $pid2job{$r};
     delete $pid2job{$r};
+    delete $phones{ $queue{$j}->{'phone'} };
 
     print LOG "    ---> return=**$r** (-> job=$j), status=$s -> exit($ex)\n" if $opt_d;
 
