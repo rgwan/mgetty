@@ -21,6 +21,14 @@ the job fails five times "fatally", that is, not with a locked or engaged
 line, but with "NO CARRIER" (no fax machine, or line noise), the job is
 suspended, and the requestor gets a mail, telling him so.
 
+.SH OPTIONS
+.TP
+.B -q
+Tells
+.I faxrunq
+to be quiet, that is, suppress all status messages.  Error messages will
+still be printed.
+
 .SH CONFIGURATION FILE
 
 Some aspects of the behaviour of 
