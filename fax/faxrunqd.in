@@ -9,10 +9,16 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.56 2002/01/04 17:52:42 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.57 2002/03/06 16:10:36 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.57  2002/03/06 16:10:36  gert
+# do not "write combine" jobs with different priorities
+# (assuming that "high prio" jobs will always be sent first, otherwise
+# a "low prio" job for phone number 123 could be attached to a high prio
+# job to 123, and thus be sent before a high prio job to 456)
+#
 # Revision 1.56  2002/01/04 17:52:42  gert
 # pass sendfax exit code as 2nd argument to success/failure program
 #
@@ -946,7 +952,15 @@ sub send_job_from_queue
 
 	    if ( &check_flags( @{$queue{$c_job}->{flags}} ) != $crit )
 	    {
+		print LOG " ++ no-combine: $c_job: flag mismatch\n" if $opt_v;
 		last;			# incompatible job, can't combine
+	    }
+
+	    # never attach jobs with lower priority
+	    if ( $queue{$c_job}->{priority} < $pri )
+	    {
+		print LOG " ++ no-combine: $c_job: prio mismatch\n" if $opt_v;
+		last;
 	    }
 
 	    # drop from 'others' list, put on 'combined' list
