@@ -1,4 +1,4 @@
-#ident "$Id: tio.h,v 1.4 1993/11/12 15:22:07 gert Exp $ Copyright (c) 1993 Gert Doering";
+#ident "$Id: tio.h,v 1.5 1993/11/12 21:42:44 gert Exp $ Copyright (c) 1993 Gert Doering";
 
 /* tio.h
  *
@@ -33,6 +33,8 @@ typedef struct termios TIO;
 typedef struct sgttyb TIO;
 #endif
 
+/* define some types for gettydefs.c */
+
 #ifdef SYSV_TERMIO
 
 /* You may have to look at sys/termio.h to determine the type of the
@@ -41,13 +43,15 @@ typedef struct sgttyb TIO;
 typedef unsigned short tioflag_t;
 
 #define TIONCC NCC
-#else
+#endif
+
 #ifdef POSIX_TERMIOS
 typedef tcflag_t tioflag_t;
 #define TIONCC NCCS
-#else
-#include "do not support sgetty yet"
 #endif
+
+#if defined(BSD_SGTTY) && defined(USE_GETTYDEFS)
+#include "cannot use /etc/gettydefs with sgtty (yet?)"
 #endif
 
 #if	!defined(VSWTCH) && defined(VSWTC)
