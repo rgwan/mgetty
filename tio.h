@@ -1,4 +1,4 @@
-#ident "$Id: tio.h,v 1.23 1994/10/22 16:08:01 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.h,v 1.24 1994/11/21 15:38:56 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 #ifndef __TIO_H__
 #define __TIO_H__
@@ -143,7 +143,7 @@ typedef tcflag_t tioflag_t;
 int  tio_get _PROTO (( int fd, TIO *t ));
 int  tio_set _PROTO (( int fd, TIO *t ));
 int  tio_check_speed _PROTO (( int speed ));
-int  tio_set_speed   _PROTO (( TIO *t, int speed ));
+int  tio_set_speed   _PROTO (( TIO *t, unsigned int speed ));
 int  tio_get_speed   _PROTO (( TIO *t ));
 void tio_mode_raw    _PROTO (( TIO *t ));
 void tio_mode_cbreak _PROTO (( TIO *t ));
