@@ -1,4 +1,4 @@
-#ident "$Id: mksed.c,v 4.3 1997/11/28 22:04:51 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mksed.c,v 4.4 1998/03/25 23:13:01 marc Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 
@@ -54,6 +54,5 @@ int main _P0( void )
     printf( "      -e 's;@LIBDIR@;%s;g'\\\n", LIBDIR );
     printf( "      -e 's;@CONFDIR@;%s;g'\\\n", CONFDIR );
     printf( "      -e 's;@LOGIN@;%s;g'\\\n", DEFAULT_LOGIN_PROGRAM );
-    printf( "      -e 's;@VOICE_DIR@;%s;g'\n", VOICE_DIR );
     return 0;
 }
