@@ -1,7 +1,7 @@
 # Makefile for the "fax" subtree
 # of mgetty+sendfax
 #
-# SCCS: $Id: Makefile,v 4.6 2002/11/19 15:27:48 gert Exp $ Copyright (c) Gert Doering
+# SCCS: $Id: Makefile,v 4.7 2003/10/09 12:38:48 gert Exp $ Copyright (c) Gert Doering
 #
 
 CC=gcc
@@ -46,10 +46,10 @@ faxq-helper.o: faxq-helper.c
 		-c faxq-helper.c
 
 clean:
-	-rm -f $(FAX_SCRIPTS) faxrunqd faxheader
+	-rm -f $(FAX_SCRIPTS) faxrunqd faxheader *.o
 
 fullclean:
-	-rm -f $(FAX_SCRIPTS) faxrunqd faxheader
+	-rm -f $(FAX_SCRIPTS) faxrunqd faxheader *.o faxq-helper
 
 install: all
 #
