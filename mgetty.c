@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.106 1994/05/14 16:02:48 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.107 1994/05/19 00:00:15 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -178,6 +178,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 	
     /* startup
      */
+    (void) signal(SIGHUP, SIG_IGN);
     (void) signal(SIGINT, SIG_IGN);
     (void) signal(SIGQUIT, SIG_DFL);
     (void) signal(SIGTERM, SIG_DFL);
@@ -421,9 +422,8 @@ int main _P2((argc, argv), int argc, char ** argv)
     }
 #endif /* VOICE */
 
-    /* set to remove lockfile(s) on certain signals
+    /* set to remove lockfile(s) on certain signals (SIGHUP is ignored)
      */
-    (void) signal(SIGHUP, sig_goodbye);
     (void) signal(SIGINT, sig_goodbye);
     (void) signal(SIGQUIT, sig_goodbye);
     (void) signal(SIGTERM, sig_goodbye);
@@ -441,6 +441,10 @@ int main _P2((argc, argv), int argc, char ** argv)
 	     */
 	    lprintf( L_MESG, "waiting..." );
 
+	    /* ignore accidential sighup, caused by dialout or such
+	     */
+	    signal( SIGHUP, SIG_IGN );
+	    
 	    wait_for_input( STDIN );
 	
 	    /* check for LOCK files, if there are none, grab line and lock it
@@ -454,6 +458,10 @@ int main _P2((argc, argv), int argc, char ** argv)
 		mgetty_state = St_dialout;
 		break;
 	    }
+
+	    /* now: honour SIGHUP
+	     */
+	    signal(SIGHUP, sig_goodbye );
 
 	    rings = 0;
 	    
