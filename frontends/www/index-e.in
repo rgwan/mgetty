@@ -1,0 +1,14 @@
+<!-- RCS: $Id: index-e.in,v 1.1 1998/10/27 12:37:29 gert Exp $ -->
+<html><head>
+<title>faxmanager - english</title>
+</head></html>
+<body bgcolor="white">
+
+<h1 align="center">mgetty fax manager</h1>
+<hr size="5">
+
+<a href="@CGI_HREF@faxq.cgi">show outgoing fax queue</a>&nbsp;
+<a href="@CGI_HREF@faxhist.cgi">show sent fax history (overview)</a>&nbsp;
+<a href="@CGI_HREF@viewfax.cgi">show incoming faxes</a>
+<hr>
+</body></html>

@@ -3,10 +3,10 @@ INSTALL.README
 faxq-v.in
 faxq.in
 index-d.in
+index-e.in
 faxhist.in
 Makefile
 viewfax.in
 nph-vf-gif.in
-vf-faxov.in
 simplequant.pl
 wwwsub.pl

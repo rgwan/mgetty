@@ -1,8 +1,11 @@
 # frontends/www/Makefile
 #
-# RCS: $Id: Makefile,v 1.8 1998/10/22 12:55:22 gert Exp $
+# RCS: $Id: Makefile,v 1.9 1998/10/27 12:37:27 gert Exp $
 #
 # $Log: Makefile,v $
+# Revision 1.9  1998/10/27 12:37:27  gert
+# new index page (english)
+#
 # Revision 1.8  1998/10/22 12:55:22  gert
 # add (first cut) 'make install' support
 #
@@ -29,7 +32,7 @@
 #
 
 CGI=faxq.cgi faxq-v.cgi faxhist.cgi viewfax.cgi nph-vf-gif.cgi 
-HTML=index-d.html
+HTML=index-d.html index-e.html
 
 # the directory for the HTML file(s)
 # leave empty if you do not want to install the HTML files
