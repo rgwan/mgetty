@@ -1,7 +1,7 @@
 /*
  * answer.c
  *
- * $Id: answer.c,v 1.19 2001/02/24 10:59:37 marcs Exp $
+ * $Id: answer.c,v 1.20 2001/03/11 12:40:11 marcs Exp $
  *
  */
 
@@ -373,7 +373,8 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
 
           if (result == FAIL)
                {
-               lprintf(L_WARN, "%s: shell script %s exited unnormally");
+               lprintf(L_WARN, "%s: shell script %s exited unnormally",
+                       program_name, call_program);
                }
           else
 
