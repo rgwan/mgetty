@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 4.4 1997/12/16 11:39:51 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logfile.c,v 4.5 1998/09/01 11:18:54 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -86,8 +86,7 @@ void log_init_paths _P3 ( (l_program, l_path, l_infix),
 	     strcmp( l_path, log_path ) != 0 )	/* and path changed */
 	{
 	    lprintf( L_MESG, "logging continues in file %s", l_path );
-	    fclose( log_fp );
-	    log_fp = NULL;			/* -> reopen */
+	    log_close();			/* -> reopen */
 	}
 	    
 	strncpy( log_path, l_path, sizeof(log_path)-1 );
@@ -109,6 +108,13 @@ void log_set_llevel _P1( (level), int level )
     log_level = level;
 }
 	
+/* close log file, to give programs like 'savelog' a chance to move it away
+ */
+void log_close _P0(void)
+{
+    if ( log_fp != NULL ) fclose( log_fp );
+    log_fp = NULL;
+}
 	    
 void logmail _P0( void )
 {
@@ -195,6 +201,7 @@ struct tm *tm;
 va_list pvar;
 int     errnr;
 char * p;
+static int first_open = TRUE;
 
     if ( level > log_level )	/* log level high enough? */
     {
@@ -243,18 +250,24 @@ char * p;
 		log_fp = fdopen( fd, "a" );
 	    }
 	}
-	fprintf( log_fp, "\n--" );
+
+	/* the first time we open the logfile, write a separator line
+	 * and initialize syslog logging (if desired)
+	 */
+	if ( first_open )
+	{
+	    first_open = FALSE;
+	    fprintf( log_fp, "\n--" );
+#ifdef SYSLOG
+	    openlog( log_program, LOG_PID, SYSLOG_FC );
+#endif
+	}
 
 	/* set close-on-exec bit (prevent user programs writing to logfile */
 	if ( fcntl( fileno( log_fp ), F_SETFD, 1 ) < 0 )
 	{
 	    lprintf( L_ERROR, "open_log: can't set close-on-exec bit" );
 	}
-	    
-#ifdef SYSLOG
-	/* initialize syslog logging */
-	openlog( log_program, LOG_PID, SYSLOG_FC );
-#endif
     }
 
     /* Marc's hack to get different verbosity levels on different
@@ -333,3 +346,4 @@ char * p;
 
     return 0;
 }
+
