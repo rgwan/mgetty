@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.39 1993/07/25 16:24:36 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.40 1993/07/27 19:09:44 gert Exp $ (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -190,7 +190,6 @@ int main( int argc, char ** argv)
 	(void) signal(SIGTERM, SIG_DFL);
 
 	Device = "unknown";
-	toggle_dtr = TRUE;
 
 	/* process the command line
 	 */
