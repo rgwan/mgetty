@@ -1,7 +1,7 @@
 # Makefile for the "fax" subtree
 # of mgetty+sendfax
 #
-# SCCS: $Id: Makefile,v 4.5 2002/11/17 22:37:44 gert Exp $ Copyright (c) Gert Doering
+# SCCS: $Id: Makefile,v 4.6 2002/11/19 15:27:48 gert Exp $ Copyright (c) Gert Doering
 #
 
 CC=gcc
@@ -36,10 +36,7 @@ faxheader: faxheader.in ../sedscript
 	@cd .. ; $(MAKE) sedscript
 
 faxq-helper: faxq-helper.o 
-	rm -f faxq-helper
 	$(CC) $(CFLAGS) -o faxq-helper faxq-helper.o
-	SU chown root faxq-helper
-	SU chmod 4711 faxq-helper
 
 faxq-helper.o: faxq-helper.c
 	$(CC) $(CFLAGS) -DFAX_SPOOL_OUT=\"$(FAX_SPOOL_OUT)\" \
@@ -62,8 +59,10 @@ install: all
 		mv -f $(BINDIR)/$$i $(BINDIR)/$$i.old 2>/dev/null ; \
 		$(INSTALL) -m 755 $$i $(BINDIR) ; \
 	done
-	chmod 700 $(BINDIR)/faxrunq
-	$(INSTALL) -m 700 faxrunqd $(SBINDIR)
+	$(INSTALL) -m 755 faxrunqd $(SBINDIR)
+	$(INSTALL) faxq-helper $(LIBDIR)
+	chown $(FAX_OUT_USER) $(LIBDIR)/faxq-helper
+	chmod 4711 $(LIBDIR)/faxq-helper
 #
 # data files
 #
