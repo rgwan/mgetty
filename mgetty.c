@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.143 1994/11/02 19:21:41 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.144 1994/11/21 16:45:43 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -35,10 +35,18 @@
 
 
 #ifndef MODEM_CHECK_TIME
-# define MODEM_CHECK_TIME -1	/* no check */
+# define MODEM_CHECK_TIME -1		/* no check */
 #endif
 
-unsigned int portspeed = B0;	/* indicates has not yet been set */
+#ifndef FAX_RECV_SWITCHBD
+#define FAX_RECV_SWITCHBD 0		/* no switching */
+#endif
+
+#ifdef FAX_USRobotics
+#define FAX_RECV_SWITCHBD 19200
+#endif
+
+unsigned int portspeed = 0;		/* indicates has not yet been set */
 
 int	rings_wanted = 1;		/* default: one "RING" */
 
@@ -223,7 +231,6 @@ int main _P2((argc, argv), int argc, char ** argv)
     TIO	tio;
     FILE *fp;
     int i;
-    int cspeed;
     
     action_t	what_action;
     int		rings = 0;
@@ -312,11 +319,9 @@ int main _P2((argc, argv), int argc, char ** argv)
 	    log_set_llevel( atoi(optarg) );
 	    break;
 	  case 's':			/* port speed */
-	    cspeed = tio_check_speed( atoi(optarg) );
+	    portspeed = atoi(optarg);
 
-	    if ( cspeed >= 0 )		/* valid */
-		portspeed = cspeed;
-	    else
+	    if ( tio_check_speed( portspeed ) < 0 )
 	    {
 		lprintf( L_FATAL, "invalid port speed: %s", optarg);
 		exit_usage(2);
@@ -854,6 +859,8 @@ Ring_got_action:
 	     */
 	    if ( autobauding )
 	    {
+		int cspeed;
+		
 		if ( strlen( Connect ) == 0 )	/* "CONNECT\r" */
 		    cspeed = 300;
 		else
@@ -861,10 +868,8 @@ Ring_got_action:
 
 		lprintf( L_MESG, "autobauding: switch to %d bps", cspeed );
 
-		cspeed = tio_check_speed( cspeed );
-		
-		if ( cspeed >= 0 )		/* valid speed */
-		{
+		if ( tio_check_speed( cspeed ) >= 0 )
+		{				/* valid speed */
 		    portspeed = cspeed;
 		    tio_get( STDIN, &tio );
 		    tio_set_speed( &tio, portspeed );
@@ -884,7 +889,7 @@ Ring_got_action:
 	    /* incoming fax, receive it (->faxrec.c) */
 
 	    lprintf( L_MESG, "start fax receiver..." );
-	    faxrec( FAX_SPOOL_IN );
+	    faxrec( FAX_SPOOL_IN, FAX_RECV_SWITCHBD );
 	    rmlocks();
 	    exit( 0 );
 	    break;
@@ -1036,19 +1041,18 @@ gettermio _P4 ((id, first, prompt, tio),
 	lprintf(L_NOISE, "Using %s gettydefs entry, \"%s\"", gdp->tag,
 		first? "before" : "after" );
 	if (first) {
-	    if ( portspeed == B0 )	/* no "-s" arg, use gettydefs */
-	        portspeed = ( gdp->before.c_cflag ) & CBAUD;
+	    if ( portspeed == 0 )	/* no "-s" arg, use gettydefs */
+	        portspeed = tio_get_speed( &(gdp->before) );
 	} else {
 	    *tio = gdp->after;
+	    tio_set_speed( tio, portspeed );
 	}
 	rp = gdp->prompt;
     }
 
 #endif
-    if (portspeed == B0)
+    if (portspeed == 0)
 	portspeed = DEFAULT_PORTSPEED;
-
-    tio_set_speed( tio, portspeed );
 
     if (prompt && !*prompt) *prompt = rp;
 }
