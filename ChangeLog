@@ -1,3 +1,9 @@
+Sun Dec 07 13:50:01 1997  Gert Doering  (gert@greenie.muc.de)
+	
+	* release 1.1.10
+
+	* voice/: fix minor build problems on SCO.
+
 Sat Dec 06 00:45:17 1997  Gert Doering  (gert@greenie.muc.de)
 
 	* conf_mg.c, conf_mg.h, conf_sf.c, conf_sf.h: add "modem-quirks"
