@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.80 1994/01/02 20:53:37 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.81 1994/01/03 23:49:48 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -33,35 +33,6 @@
 #ifdef VOICE
 #include "voclib.h"
 #endif
-
-struct	speedtab {
-	ushort	cbaud;		/* baud rate */
-	int	nspeed;		/* speed in numeric format */
-	char	*speed;		/* speed in display format */
-} speedtab[] = {
-	{ B50,	  50,	 "50"	 },
-	{ B75,	  75,	 "75"	 },
-	{ B110,	  110,	 "110"	 },
-	{ B134,	  134,	 "134"	 },
-	{ B150,	  150,	 "150"	 },
-	{ B200,	  200,	 "200"	 },
-	{ B300,	  300,	 "300"	 },
-	{ B600,	  600,	 "600"	 },
-	{ B1200,  1200,	 "1200"	 },
-	{ B1800,  1800,	 "1800"	 },
-	{ B2400,  2400,	 "2400"	 },
-	{ B4800,  4800,	 "4800"	 },
-	{ B9600,  9600,	 "9600"	 },
-#ifdef	B19200
-	{ B19200, 19200, "19200" },
-#endif	/* B19200 */
-#ifdef	B38400
-	{ B38400, 38400, "38400" },
-#endif	/* B38400 */
-	{ EXTA,	  19200, "EXTA"	 },
-	{ EXTB,	  38400, "EXTB"	 },
-	{ 0,	  0,	 ""	 }
-};
 
 unsigned short portspeed = B0;	/* indicates has not yet been set */
 
