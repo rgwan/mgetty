@@ -1,4 +1,4 @@
-#ident "$Id: mg_m_init.c,v 3.4 1996/02/15 19:40:07 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_m_init.c,v 3.5 1996/03/03 16:30:08 gert Exp $ Copyright (c) Gert Doering"
 
 /* mg_m_init.c - part of mgetty+sendfax
  *
@@ -22,7 +22,7 @@
 #include "policy.h"
 #include "fax_lib.h"
 
-#if (defined(M_XENIX) && !defined(M_UNIX))
+#if (defined(M_XENIX) && !defined(M_UNIX)) || defined(NEXTSGTTY)
 #define O_NOCTTY 0
 #endif
 
@@ -195,6 +195,10 @@ int mg_open_device _P2 ( (devname, blocking),
 	    return ERROR;
 	}
     }
+#ifdef NEXTSGTTY
+    /* get rid of controlling tty: on NeXT, there is no O_NOCTTY */
+    ioctl( fd, TIOCNOTTY, 0 );
+#endif
 
     /* make new fd == stdin if it isn't already */
 
