@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.7 1993/03/06 16:24:01 gert Exp $ (c) Gert Doering */
+/* $Id: mgetty.h,v 1.8 1993/03/06 19:38:23 gert Exp $ (c) Gert Doering */
 
 /* stuff in logfile.c */
 
@@ -16,7 +16,7 @@ int lprintf();
 
 /* various defines */
 
-#ifndef LINUX
+#ifndef linux
 #define USE_POLL
 #endif
 
@@ -30,20 +30,11 @@ typedef	char	boolean;
 
 #define MAXLINE 256		/* max. # chars in a line */
 #define MAXPATH MAXLINE
-/* user id of the "uucp" user. The tty device will be owned by this user,
- * so parallel dial-out of uucico will be possible
- */
-#define UUCPID	5
 #ifdef OLD_STUFF
 #define STDIN	fileno(stdin)
 #else
 #define STDIN	0
 #endif
-
-#define CONSOLE "/dev/syscon"
-#define ADMIN	"gert"
-#define SYSTEM	"greenie"
-#define LOG_PATH "/tmp"
 
 typedef	enum	{ A_FAIL, A_FAX } action_t;
 typedef struct	chat_actions {
@@ -60,8 +51,6 @@ int clean_line( int tenths );
 
 /* locks.c */
 
-#define LOCK "/usr/spool/uucp/LCK..%s"
-
 int makelock(char * name);
 boolean	checklock(char * name);
 int readlock(char * name);
@@ -72,24 +61,12 @@ extern	char	*lock;
 /* fax stuff */
 void faxrec( void );
 
-/* the fax spool directory */
-#define FAX_SPOOL	"/usr/spool/fax"
-
-/* where incoming faxes go to */
-#define FAX_SPOOL_IN	FAX_SPOOL"/incoming"
-
-/* local station ID */
-#define FAX_STATION_ID	" +49-89-3243228 Gert"
-
 /* how long should I wait for a string from modem */
 #define FAX_RESPONSE_TIMEOUT	120
 /* how much time may pass while receiving a fax without getting data */
 #define	FAX_PAGE_TIMEOUT	60
 
-/* mailer that accepts destination on command line and mail text on stdin */
-#define MAILER		"/usr/lib/sendmail"
-/* where to send notify mail about incoming faxes to */
-#define MAIL_TO		ADMIN
-
 /********* system prototypes **************/
 char * mktemp( char * template );
+
+#include "policy.h"
