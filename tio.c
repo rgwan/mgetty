@@ -1,10 +1,14 @@
-#ident "$Id: tio.c,v 1.8 1993/11/29 11:49:57 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 1.9 1993/12/10 12:57:26 gert Exp $ Copyright (c) 1993 Gert Doering"
 ;
 /* tio.c
  *
  * contains routines dealing with SysV termio / POSIX termios / BSD sgtty
  *
  */
+
+#ifdef _AIX
+#include <sys/ioctl.h>
+#endif
 
 #include "mgetty.h"
 #include "tio.h"
@@ -31,10 +35,6 @@ static char tio_compilation_type[]="@(#) compiled with BSD_SGTTY";
 # ifndef TAB3
 # define TAB3 OXTABS
 # endif
-#endif
-
-#ifdef _AIX
-#include <sys/ioctl.h>
 #endif
 
 int tio_get _P2((fd, t), int fd, TIO *t )
