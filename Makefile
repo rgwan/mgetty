@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 1.4 1993/09/13 21:04:30 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 1.5 1993/09/15 15:04:11 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there).
@@ -58,6 +58,7 @@ DISTRIB=README.1st mgetty.texi THANKS TODO Makefile ChangeLog policy.h-dist \
 	faxrec.c faxlib.c fax_lib.h sendfax.c io.c utmp.c \
 	pbmtog3.p1 \
 	fax/faxcvt fax/printfax fax/faxspool fax/faxrunq \
+	tools/g3cat.c \
 	contrib/README contrib/scrts.c contrib/pbmscale.c contrib/3b1 \
 	contrib/faxin.c contrib/Makefile
 
