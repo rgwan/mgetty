@@ -1,13 +1,13 @@
 # Makefile for the "t/" subtree
 # of mgetty+sendfax
 #
-# CVS: $Id: Makefile,v 1.3 2005/02/27 11:51:58 gert Exp $ Copyright (c) Gert Doering
+# CVS: $Id: Makefile,v 1.4 2005/03/16 11:06:59 gert Exp $ Copyright (c) Gert Doering
 #
 
 CC=gcc
-CFLAGS=-O2 -I.. -g 
+CFLAGS=-O2 -I.. -g  #-DT_LOG_VERBOSE
 
-TEST_PROGRAMS=t_config
+TEST_PROGRAMS=t_config t_ring
 TEST_SCRIPTS=t_echo t_trap
 
 test: $(TEST_PROGRAMS)
@@ -29,3 +29,6 @@ clean:
 	rm -f *.o
 
 t_config.o: t_config.c ../mgetty.h ../conf_mg.h ../config.h 
+
+t_ring: t_ring.o ../ring.o ../cnd.o
+	$(CC) -o t_ring t_ring.o ../ring.o ../cnd.o $(LDFLAGS)
