@@ -1,4 +1,4 @@
-#ident "$Id: g32pbm.c,v 1.16 1994/08/08 12:37:57 gert Exp $ (c) Gert Doering"
+#ident "$Id: g32pbm.c,v 1.17 1994/09/11 12:53:37 gert Exp $ (c) Gert Doering"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -10,10 +10,11 @@
 
 #include "g3.h"
 
-int pixblock _PROTO((char *start, char *end));
+int  pixblock _PROTO((char *start, char *end));
+int  nullscan _PROTO((char *start, char *end));
 void emitlj _PROTO((int resolution, int numx, int numy, char *image));
-int nullscan _PROTO((char *start, char *end));
-int emitpbm _PROTO((int hcol, int row, char *bitmap, int bperrow ));
+
+void emitpbm _PROTO((int hcol, int row, char *bitmap, int bperrow ));
 
 
 #ifdef DEBUG
@@ -474,8 +475,8 @@ do_write:      	/* write pbm (or whatever) file */
  * than 1728 pixels wide]
  */
 
-int emitpbm _P4(( hcol, row, bitmap, bperrow),
-		  int hcol, int row, char *bitmap, int bperrow )
+void emitpbm _P4(( hcol, row, bitmap, bperrow),
+		   int hcol, int row, char *bitmap, int bperrow )
 {
     register int i;
 
