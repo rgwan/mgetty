@@ -1,4 +1,4 @@
-#ident "@(#)cnd.c	$Id: cnd.c,v 4.24 2002/11/05 21:43:04 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "@(#)cnd.c	$Id: cnd.c,v 4.25 2004/07/17 15:55:57 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 
 #include <stdio.h>
 #include <string.h>
@@ -93,6 +93,9 @@ struct cndtable cndtable[] =
 
     /* Swedish Telia/ZyXEL Omni 52k - Torulf Lundgren, torulf@upsys.se */
     {"Diverting number:",       &CallerId},
+
+    /* FALCOM A2D gsm modem - Andreas Barth, debian bug */
+    {"+CLIP: ",			&CallerId},
 
     {NULL}
 };
