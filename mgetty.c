@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 2.2 1994/12/23 12:58:30 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 2.3 1995/01/15 10:17:46 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -812,24 +812,27 @@ Ring_got_action:
 		
 	fputc('\r', stdout);	/* just in case */
 
-	/* display ISSUE, if present
-	 */
-	if (c_string(issue_file)[0] != '/')
+	if (c_isset(issue_file))
 	{
-	    printf( "%s\r\n", ln_escape_prompt( c_string(issue_file) ) );
-	}
-	else if ( (fp = fopen(c_string(issue_file), "r")) != (FILE *) NULL)
-	{
-	    while ( fgets(buf, sizeof(buf), fp) != (char *) NULL )
+	    /* display ISSUE, if desired
+	     */
+	    if (c_string(issue_file)[0] != '/')
 	    {
-		char * p = ln_escape_prompt( buf );
-		if ( p != NULL ) fputs( p, stdout );
-		fputc('\r', stdout );
+		printf( "%s\r\n", ln_escape_prompt( c_string(issue_file) ) );
 	    }
-	    fclose(fp);
+	    else if ( (fp = fopen(c_string(issue_file), "r")) != (FILE *) NULL)
+	    {
+		while ( fgets(buf, sizeof(buf), fp) != (char *) NULL )
+		{
+		    char * p = ln_escape_prompt( buf );
+		    if ( p != NULL ) fputs( p, stdout );
+		    fputc('\r', stdout );
+		}
+		fclose(fp);
+	    }
 	}
 
-	/* set permissions to "rw-------" */
+	/* set permissions to "rw-------" for login */
 	(void) chmod(devname, 0600);
 
 	/* set ttystate for login ("after"),
