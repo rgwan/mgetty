@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 1.20 1993/11/12 15:47:20 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: logfile.c,v 1.21 1993/11/12 22:11:48 gert Exp $ Copyright (c) Gert Doering";
 
 #include <stdio.h>
 #include <unistd.h>
@@ -166,7 +166,7 @@ int     errnr;
 	    fprintf(log_fp, "\n%02d/%02d %02d:%02d:%02d  %s: %s",
 		             tm->tm_mon+1,  tm->tm_mday,
 			     tm->tm_hour, tm->tm_min, tm->tm_sec, ws,
-			     ( errno <= sys_nerr ) ? sys_errlist[errno]:
+			     ( errnr <= sys_nerr ) ? sys_errlist[errnr]:
 			     "<error not in list>" );
 	    fflush(log_fp);
 	    if ( level == L_FATAL )
