@@ -5,7 +5,7 @@
 # to be valid Perl5 syntax.  If you don't know perl, just do not modify
 # things that are not between quotation marks!
 #
-# RCS: $Id: wwwgui.cfg.in,v 1.2 1998/10/20 14:28:56 gert Exp $
+# RCS: $Id: wwwgui.cfg.in,v 1.3 1998/10/27 14:21:00 gert Exp $
 #
 
 #
@@ -63,6 +63,9 @@ $ppmquant='@LIBDIR@/simplequant.pl';
 
 # scale image to desired percentage
 $pnmscale='@BINDIR@/pnmscale';
+
+# flip image 90, 180 or 270 degrees, if necessary
+$pnmflip='@BINDIR@/pnmflip';
 
 #
 # ---- paths for temporary image files for "nph-vf-gif.cgi"
