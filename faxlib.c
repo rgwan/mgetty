@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.25 1997/11/18 15:49:07 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.26 1997/11/28 11:40:53 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -117,7 +117,7 @@ int  ix;
 	{
 	    lprintf( L_MESG, "transmission par.: '%s'", line );
 	    strcpy( fax_param, line );
-	    if ( sscanf( &fax_param[ix], "%hd,%hd,%hd,%hd,%hd,%hd,%hd,%hd",
+	    if ( sscanf( &fax_param[ix], "%hd,%hx,%hd,%hd,%hd,%hd,%hd,%hd",
 			 &fax_par_d.vr, &fax_par_d.br, &fax_par_d.wd,
 			 &fax_par_d.ln, &fax_par_d.df, &fax_par_d.ec,
 			 &fax_par_d.bf, &fax_par_d.st ) != 8 )
