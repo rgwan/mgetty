@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.40 1994/01/02 20:51:59 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.41 1994/01/14 18:55:25 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -107,7 +107,7 @@
  * current date and time, respectively.
  * override with "-p <prompt>" switch
  */
-#define LOGIN_PROMPT	"@!login:"
+#define LOGIN_PROMPT	"@!login: "
 
 /* On SVR4, maybe on other systems too, you can cause the 'login' program
  * to prompt with the same string as mgetty did, instead of the standard
@@ -200,6 +200,7 @@
  *     properly in the nvram profile, and just send the modem an
  *     "ATZ". I just like to make sure the most important things are
  *     always set...
+ * If you wish to use ZyXEL callerid, add "S40.2=1"
  * The modem must answer with "OK" (!!!) - otherwise, change mgetty.c
  */
 #define MODEM_INIT_STRING	"ATS0=0Q0&D3&H3&N0&K4"
@@ -398,3 +399,12 @@
  */
 
 #define FAX_NOTIFY_PROGRAM "/usr/spool/fax/incoming/new_fax"
+
+/* default minimum space required on spooling partition for receiving a FAX
+ */
+#define	MINFREESPACE (1024 * 1024)
+
+/* if this file exists, it can be used to control what callers
+ * are allowed in.  If undefined, the functionality is omitted.
+ */
+/* #define CNDFILE "/usr/local/lib/mgetty+sendfax/dialin.config" */
