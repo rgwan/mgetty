@@ -1,0 +1,49 @@
+#!/bin/sh
+#
+# rotate mgetty log files
+# (this needs manual adaption of all relevant paths, otherwise it won't work)
+#
+# run this once per week from crontab
+#
+# $Log: mvlog,v $
+# Revision 1.1  2003/01/19 21:28:10  gert
+# mgetty log file rotator (base script)
+#
+#
+# where the "mgetty.$tty" files can be found...
+#LOG=/var/log/mgetty
+LOG=/var/log
+
+cd $LOG || exit 1
+
+# faxrunqd will rotate its log file itself - tell it to
+kill -USR1 `cat /var/run/faxrunqd.pid`
+
+# which ttys are in use here?
+TTYS=`ls -l mgetty.tty* | sed -e 's/.* mgetty\.//'`
+
+# rotate mgetty logs
+for d in $TTYS
+do
+    cd OLD || exit 1
+    for i in 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2
+    do
+	im1=$(( $i - 1 ))
+	test -f mgetty.$d.$im1 &&
+		mv mgetty.$d.$im1 mgetty.$d.$i
+    done
+    cd ..
+    cp log.$d OLD/mgetty.$d.1
+    > log.$d
+done
+
+cd OLD || exit 1
+for i in 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2
+do
+im1=$(( $i - 1 ))
+test -f sendfax.$im1 &&
+	mv sendfax.$im1 sendfax.$i
+done
+cd ..
+cp sendfax.log OLD/sendfax.1
+> sendfax.log
