@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.35 1999/02/16 20:03:22 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.36 1999/03/13 19:23:23 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -930,7 +930,9 @@ Right now, the following quirks are defined:
 0x02  class 2 bit order is correct (MultiTech) - unimplemented
 0x04  do not trust +FPTS:x,lc,blc values
 0x08  do not wait for XON character when sending pages
-0x20  old USR Courier V.32 AT+FCC/+FMINSP bug workaround
+0x20  AT+FCC/+FMINSP bug workaround for (very) old USR Courier V.32
+0x40  display incoming informations about 'non standard frames' - this
+      might be necessary on some USR modems to work around logic bugs
 @end display
 
 @item @code{init-chat} [-m] @var{expect send expect send ...}
