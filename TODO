@@ -427,3 +427,19 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
 274) g32sff  (based on g3cat routines)
 
 275) sff2g3: duplicate previous line on 0xff/0x00 tag
+
+276) fix "make beta" process (no gcc on target machine anymore)
+276a) add freshmeat net reminder
+
+277) mg_m_init.c/mg_get_ctty() - if setsid() fails, and getppid() != 1,
+     mgetty might be run from the command line.  Should we try fork()ing,
+     then setsid()'ing, and then getting a new controlling tty?  
+     (Things are likely to fail anyway due to missing utmp slots...)
+
+278) update-call-program for faxrunqd
+
+279) update-call-program for faxrunq
+
+280) add tools/microcomm  (talk to modem at "-s xxx", end, send BREAK)
+
+281) make faxrunqd work with "use strict" (declare all variables etc.)
