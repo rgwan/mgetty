@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.57 2002/11/04 22:38:32 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.58 2002/11/17 21:19:45 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -260,13 +260,20 @@ In Data mode, it will work with every Hayes-compatible modem.
 
 Compiling of the package should be quite straightforward. You have to
 copy @file{policy.h-dist} to @file{policy.h} and edit it to set some
-local policy options, see the comments in that file.
+local policy options, see the comments in that file.  (Most default
+values should be fine, though).
 
 Then, edit the @file{Makefile}, to specify installation paths, some
 system defines and some system dependent libraries (explained there).
 
-After that, a @samp{make} should build the programs, and @samp{make
-install} should install them.
+After that, a @samp{make} should build the programs and the documentation.
+
+Before you can run @samp{make install} to setup and install everything,
+make sure that the user that you specified for @samp{FAX_OUT_USER} in
+@file{Makefile} exists in your system.  This user will be needed to
+run @code{faxrunq} or @code{faxrunqd}, and owns all the outgoing fax queue
+(this has been changed for 1.1.29 - earlier versions had the fax queue
+world writeable, which was a security problem).
   
 If your compiler complains about the @code{#ident} lines I use for
 @file{RCS}, please run @code{make noident}, that will take care of those
@@ -297,6 +304,9 @@ that the modem echoes back.
 If you have any problems compiling mgetty and sendfax (on a Unix-like
 system---I do not support MS-DOS or Windows!), please contact me.
 @emph{But make sure that you have read the documentation!}
+
+Later on in this document you can find some more detailed instructions
+about specific operating systems (Linux, FreeBSD, and so on).
 
 @node intro-runtime,  , Install, Intro
 @section Runtime configuration: Overview
