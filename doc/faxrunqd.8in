@@ -173,19 +173,28 @@ substitute parts of the telefone number, for example, cut off a local
 prefix, or change a digit, or whatever.  If you do not want any
 substitutions, put a "-" in that field.
 
+The third field specifies the tty lines to use for faxes matched by this
+line (for example, you might have one modem connected to a long-distance
+provider, and others for local use or so).  Put a "-" in this field if
+you want to use the default fax modems.
+
 The remaining part of the line are appended to the sendfax command line.
-With those, you can set a different dial-string ("-D ATD"), or a special
-modem to use ("-l tty2"), or whatever else you can imagine.
+With those, you can set a different dial-string ("-D ATD"), or a higher
+debug level ("-x 9"), or whatever else you can imagine. Do NOT set a
+tty to use here ("-l ttyS1"), because that would confuse the internal
+tty handling of
+.I faxrunqd,
+leading to weird effects processing the fax queue!!
 
 Examples:
 
 # 12345-nnn is sent to "nnn" over a local PABX, modem on tty2
 
-^12345		s/12345//	-l tty2
+^12345		s/12345//	tty2
 
 # fax to 56789 (exact match) is sent with higher debugging
 
-^56789$		-		-x 8
+^56789$		-		-	-x 8
 
 
 .SH SIGNALS
