@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.125 1994/08/09 11:33:23 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.126 1994/08/10 12:53:17 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -363,8 +363,9 @@ int main _P2((argc, argv), int argc, char ** argv)
 
     /* check for existing lock file(s)
      */
-    if (checklock(Device) == TRUE) {
-	while (checklock(Device) == TRUE) sleep(10);
+    if (checklock(Device) != NO_LOCK)
+    {
+	while (checklock(Device) != NO_LOCK) sleep(10);
 	exit(0);
     }
 
@@ -372,8 +373,9 @@ int main _P2((argc, argv), int argc, char ** argv)
      */
     lprintf(L_MESG, "locking the line");
 
-    if ( makelock(Device) == FAIL ) {
-	while( checklock(Device) == TRUE) sleep(10);
+    if ( makelock(Device) == FAIL )
+    {
+	while( checklock(Device) != NO_LOCK ) sleep(10);
 	exit(0);
     }
 
@@ -661,13 +663,12 @@ int main _P2((argc, argv), int argc, char ** argv)
 
 	    do {
 		/* wait for lock to disappear */
-		while (checklock(Device) == TRUE)
-		    sleep(10);	/*!!!!! ?? wait that long? */
+		while ( checklock(Device) != NO_LOCK ) sleep(10);
 
 		/* wait a moment, then check for reappearing locks */
 		sleep(5);
 	    }
- 	    while ( checklock(Device) == TRUE );	
+ 	    while ( checklock(Device) != NO_LOCK );	
 
 	    /* OK, leave & get restarted by init */
 	    exit(0);
