@@ -1,4 +1,4 @@
-#ident "$Id: ring.c,v 4.1 1998/04/15 20:01:40 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: ring.c,v 4.2 1998/04/18 11:16:59 gert Exp $ Copyright (c) Gert Doering"
 
 /* ring.c
  *
@@ -166,14 +166,17 @@ boolean	got_dle;		/* for <DLE><char> events (voice mode) */
 	if ( *p == '\0' )			/* "classic RING" */
 	    { *dist_ring_number = 0; break; }
 
+	if ( *p == ';' )			/* ELSA type */
+	    { *dist_ring_number = ring_handle_ELSA( p, msn_list ); break; }
+
+	if ( strlen(p) > 1 )			/* USR type B: "RING 1234" */
+	    { CallerId = strdup(p); *dist_ring_number = 0; break; }
+
 	if ( isdigit( *p ) )			/* RING 1 */
 	    { *dist_ring_number = *p-'0'; break; }
 
 	if ( isalpha( *p ) )			/* RING A */
 	    { *dist_ring_number = tolower(*p)-'a' +1; break; }
-
-	if ( *p == ';' )			/* ELSA type */
-	    { *dist_ring_number = ring_handle_ELSA( p, msn_list ); break; }
     }
 
     alarm(0);
