@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 4.4 1999/10/23 21:56:57 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 4.5 2000/10/22 10:45:20 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* tio.c
  *
@@ -215,7 +215,8 @@ int tio_set_speed _P2( (t, speed ), TIO *t, unsigned int speed )
 
     for ( i=0; speedtab[i].cbaud != 0; i++ )
     {
-	if ( speedtab[i].nspeed == speed ) symspeed = speedtab[i].cbaud;
+	if ( speedtab[i].nspeed == speed ) 
+		{ symspeed = speedtab[i].cbaud; break; }
     }
 
     if ( symspeed == 0 )
