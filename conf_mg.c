@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.c,v 3.7 1996/11/10 18:35:44 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_mg.c,v 3.8 1996/11/24 12:08:57 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_mg.c
  *
@@ -141,7 +141,9 @@ void exit_usage _P1((code), int code )
 int mgetty_parse_args _P2( (argc,argv), int argc, char ** argv )
 {
 int opt;
+#ifdef USE_GETTYDEFS
 extern boolean verbose;
+#endif
 
     /* sanity check:
      * make sure that structs-in-struct can be handled exactly as if
