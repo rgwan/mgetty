@@ -1,4 +1,4 @@
-#ident "@(#)cnd.c	$Id: cnd.c,v 4.18 2000/07/20 07:27:03 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "@(#)cnd.c	$Id: cnd.c,v 4.19 2000/08/23 07:53:31 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 
 #include <stdio.h>
 #include <string.h>
@@ -84,6 +84,9 @@ struct cndtable cndtable[] =
 
     /* Kortex Adaptix 56000 (Quercia Michel, quercia@cal.enst.fr) */
     {"NBR=",			&CallerId},
+
+    /* some russian modem, Alexey Promokhov */
+    {"CallerID: ",		&CallerId},
 
     {NULL}
 };
