@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 4.18 1998/06/17 09:39:15 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 4.19 1998/07/02 09:45:26 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -491,7 +491,8 @@ int main _P2((argc, argv), int argc, char ** argv)
 	if ( ( ! c_bool(data_only) ) &&
 	     strcmp( c_string(modem_type), "data" ) != 0 && 
 	     mg_init_fax( STDIN, c_string(modem_type),
-			  c_string(station_id), c_bool(fax_only) ) == SUCCESS )
+			  c_string(station_id), c_bool(fax_only),
+			  c_int(fax_max_speed) ) == SUCCESS )
 	{
 	    /* initialize fax polling server (only if faxmodem) */
 	    if ( c_isset(fax_server_file) )

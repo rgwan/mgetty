@@ -1,4 +1,4 @@
-#ident "$Id: mg_m_init.c,v 4.3 1998/01/18 17:08:27 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_m_init.c,v 4.4 1998/07/02 09:45:29 gert Exp $ Copyright (c) Gert Doering"
 
 /* mg_m_init.c - part of mgetty+sendfax
  *
@@ -86,8 +86,9 @@ int mg_init_data _P3( (fd, chat_seq, force_chat_seq),
 
 /* initialize fax section */
 
-int mg_init_fax _P4( (fd, mclass, fax_id, fax_only),
-		      int fd, char * mclass, char * fax_id, boolean fax_only )
+int mg_init_fax _P5( (fd, mclass, fax_id, fax_only, fax_max_speed),
+		      int fd, char * mclass, char * fax_id, 
+		      boolean fax_only, int fax_max_speed )
 {
     /* find out whether this beast is a fax modem... */
 
@@ -159,7 +160,7 @@ int mg_init_fax _P4( (fd, mclass, fax_id, fax_only),
 
     /* capabilities */
 
-    if ( fax_set_fdcc( fd, 1, 14400, 0 ) == FAIL )
+    if ( fax_set_fdcc( fd, 1, fax_max_speed, 0 ) == FAIL )
     {
 	lprintf( L_MESG, "huh? Cannot set +FDCC parameters" );
     }
