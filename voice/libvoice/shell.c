@@ -4,7 +4,7 @@
  * Executes the shell script given as the argument. If the argument is
  * empty, commands are read from standard input.
  *
- * $Id: shell.c,v 1.9 1999/11/13 11:09:38 marcs Exp $
+ * $Id: shell.c,v 1.10 2000/06/11 16:14:52 marcs Exp $
  *
  */
 
@@ -24,12 +24,52 @@ int voice_execute_shell_script(char *shell_script, char **shell_options)
      int arg_index = 0;
      int start_index;
      char **shell_arguments;
+     int should_close_2 = 0;
 
      if (strlen(shell_script) == 0)
           lprintf(L_MESG, "%s: Executing shell %s", program_name, shell_script, cvd.voice_shell.d.p);
      else
           lprintf(L_MESG, "%s: Executing shell script %s with shell %s", program_name, shell_script,
            cvd.voice_shell.d.p);
+
+     if (cvd.voice_shell_log.d.p && ((char *) cvd.voice_shell_log.d.p)[0]) {
+        char log_file_name[MAXPATH];
+
+        if (snprintf(log_file_name,
+                     sizeof(log_file_name),
+                     cvd.voice_shell_log.d.p,
+                     DevID) == -1) {
+           lprintf(L_WARN,
+                   "%s: couldn't snprintf() shell log file",
+                   program_name);
+        }
+        else {
+           int shell_stderr_fd = open(log_file_name,
+                                      O_WRONLY | O_CREAT | O_APPEND);
+           if (shell_stderr_fd != -1) {
+	      /* This means we are going to close the old fd 2 if any */
+	      if (dup2(shell_stderr_fd, 2) == -1) {
+		 lprintf(L_WARN,
+			 "%s: couldn't dup2() shell log file",
+			 program_name);
+	      }
+	      else {
+		 should_close_2 = 1;
+	      }
+
+	      if (close(shell_stderr_fd)) {
+		 lprintf(L_WARN,
+			 "%s: couldn't close() shell log file dup");
+	      }
+           }
+           else {
+              lprintf(L_WARN,
+                      "%s: couldn't open() shell log file %s",
+                      program_name,
+                      log_file_name);
+           }
+        }
+     }
 
      if (getenv("VOICE_PID") == NULL)
           {
@@ -95,6 +135,10 @@ int voice_execute_shell_script(char *shell_script, char **shell_options)
                     voice_shell_output_fd = pipe_in[1];
                     close(pipe_in[0]);
                     close(pipe_out[1]);
+
+                    if (should_close_2) {
+                       close(2); /* from the dup2 */
+                    }
 
                     if (voice_write_shell("HELLO SHELL") != OK)
                          return(FAIL);
@@ -287,6 +331,24 @@ int voice_shell_handle_event(int event, event_data data)
                     if (voice_write_shell("READY") != OK)
                          return(FAIL);
 
+                    }
+               else if (strncmp(buffer, "QUOTE", 5) == 0)
+                    {
+                    char quoted_cmd[VOICE_BUF_LEN] = "";
+                    
+                    sscanf(buffer, "%*s %s", quoted_cmd);
+
+                    lprintf(L_MESG, "%s: SENDING QUOTED CMD \"%s\"",
+                            program_name, quoted_cmd);
+                       
+                    if (voice_command(quoted_cmd, "OK") == VMA_FAIL)
+                        {
+                         if (voice_write_shell("ERROR") != OK)
+                              return(FAIL);
+                        }
+                      
+                    if (voice_write_shell("READY") != OK)
+                       return(FAIL);
                     }
                else if (strncmp(buffer, "DEVICE", 6) == 0)
                     {

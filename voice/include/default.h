@@ -5,7 +5,7 @@
  * tools. All of these values can be changed by the configuration
  * file.
  *
- * $Id: default.h,v 1.5 1999/07/20 07:25:58 marcs Exp $
+ * $Id: default.h,v 1.6 2000/06/11 16:14:51 marcs Exp $
  *
  */
 
@@ -29,6 +29,10 @@ KEYWORD(ring_type)
  */
 
 CONF(voice_log_level, L_MESG, CT_INT)
+
+/* Default shell log file */
+
+CONF(voice_shell_log, STRING "", CT_STRING)
 
 /*
  * Default shell to invoke for shell scripts. The default is "/bin/sh"
