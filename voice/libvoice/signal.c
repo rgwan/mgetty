@@ -7,7 +7,7 @@
  *    - Something I do not like is that it looks like we use non
  *      reentrant functions in the signal handlers (log, etc).
  *
- * $Id: signal.c,v 1.7 1999/10/09 16:53:36 marcs Exp $
+ * $Id: signal.c,v 1.8 1999/10/09 20:13:04 marcs Exp $
  *
  */
 
@@ -42,14 +42,14 @@ static void signal_sigchld(int sig)
      signal(SIGCHLD, signal_sigchld);
      if (status) {
         lprintf(L_WARN, "%s: Got child %d exit status %d signal",
+                program_name,
                 pid,
-                status,
-                program_name);
+                status);
      }
      else {
         lprintf(L_JUNK, "%s: Got child %d exit signal",
-                pid,
-                program_name);
+                program_name,
+                pid);
      }
      queue_event(create_event(SIGNAL_SIGCHLD));
      }
