@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 2.7 1995/04/04 00:49:51 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 2.8 1995/04/04 11:15:06 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -200,8 +200,6 @@ int main _P2((argc, argv), int argc, char ** argv)
 
     uid_t	uid;			/* typical uid for UUCP */
     gid_t	gid;
-
-    /*#error here we are*/
 
 #ifdef VOICE
     boolean	use_voice_mode = TRUE;
@@ -827,14 +825,18 @@ Ring_got_action:
 	tio_set_flow_control( STDIN, &tio, DATA_FLOW );
 #endif
 	tio_set( STDIN, &tio );
-		
+	
 	fputc('\r', stdout);	/* just in case */
-
+	
 	if (c_isset(issue_file))
 	{
 	    /* display ISSUE, if desired
 	     */
-	    if (c_string(issue_file)[0] != '/')
+	    if (c_string(issue_file)[0] == '!')		/* exec */
+            {
+                system( c_string(issue_file)+1 );
+            }
+            else if (c_string(issue_file)[0] != '/')
 	    {
 		printf( "%s\r\n", ln_escape_prompt( c_string(issue_file) ) );
 	    }
