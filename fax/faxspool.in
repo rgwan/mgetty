@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 3.2 1995/09/15 20:37:55 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 3.3 1995/10/29 22:52:04 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -366,11 +366,13 @@ do
 # set page header text file
 	-h) case "$2" in
 	    '') $echo "$usage" >&2 ; exit 2 ;;
+	    '-') FAX_HEADER="" ;;
 	    /*) FAX_HEADER="$2" ;;
 	    *) FAX_HEADER=`pwd`/"$2" ;;
 	    esac
-	    if [ ! -f "$FAX_HEADER" ] ; then
-		$echo "$0: no such file: '$2'" >&2
+	    test ! -z "$FAX_HEADER" && \
+	      if [ ! -f "$FAX_HEADER" ] ; then
+		$echo "$0: no such fax header file: '$2'" >&2
 		exit 2;
 	    fi
 	    shift ; shift
@@ -758,27 +760,32 @@ fi
 #	
 # concatenate header with pages
 #
-$echo "\nPutting Header lines on top of pages..."
+if [ -z "$FAX_HEADER" ]
+then
+    finalpg="$pages"				# don't :)
+else
+    $echo "\nPutting Header lines on top of pages..."
 
-hdrfont=$PBMFONT_HEADER_F
-test -z "$normal_res" || hdrfont=$PBMFONT_HEADER_N
+    hdrfont=$PBMFONT_HEADER_F
+    test -z "$normal_res" || hdrfont=$PBMFONT_HEADER_N
 
-finalpg=""
-for f in $pages
-do
-    nr=`expr $nr + 1`
+    finalpg=""
+    for f in $pages
+    do
+	nr=`expr $nr + 1`
 
-    cat $FAX_HEADER | sed -e "s;@T@;$phone;g" -e "s;@P@;$nr;g" \
-			  -e "s;@M@;$maxnr;g" -e "s;@U@;$USER;g" \
-			  -e "s;@N@;$FULLNAME;g" \
-			  -e "s;@D@;$verbose_to;g" \
-			  -e "s;@ID@;$FAX_STATION_ID;g" \
-			  -e "s;@DATE@;`date`;g" \
-    | pbmtext -font $hdrfont | pbmtog3 \
-    | g3cat - $f > f$nr.g3 \
-    && rm $f
-    finalpg="$finalpg f$nr.g3"
-done
+	cat $FAX_HEADER | sed -e "s;@T@;$phone;g" -e "s;@P@;$nr;g" \
+			      -e "s;@M@;$maxnr;g" -e "s;@U@;$USER;g" \
+			      -e "s;@N@;$FULLNAME;g" \
+			      -e "s;@D@;$verbose_to;g" \
+			      -e "s;@ID@;$FAX_STATION_ID;g" \
+			      -e "s;@DATE@;`date`;g" \
+	| pbmtext -font $hdrfont | pbmtog3 \
+	| g3cat - $f > f$nr.g3 \
+	&& rm $f
+	finalpg="$finalpg f$nr.g3"
+    done
+fi				# end "if ! -z $FAX_HEADER"
 
 if [ -z "$finalpg" -a -z "$poll_req" ]
 then
