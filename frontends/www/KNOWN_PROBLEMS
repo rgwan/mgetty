@@ -1,0 +1,11 @@
+Known Problems
+--------------
+
+* 0 byte file in tmp, when viewing incoming faxes, generated.
+
+=======================================================================
+* 0 byte file in tmp, when viewing incoming faxes, generated.
+  - incoming-file not readable, (errormessage in never versions)
+  - simplequant.pl doesn't like the PPM files - try pointing
+    wwwgui.conf to "ppmquant" instead of "simplequant" - and remove all
+    the 0-byte-files
