@@ -1,4 +1,4 @@
-#ident "$Id: g3cat.c,v 3.1 1995/08/30 12:39:10 gert Exp $ (c) Gert Doering"
+#ident "$Id: g3cat.c,v 3.2 1996/05/26 11:35:09 gert Exp $ (c) Gert Doering"
 
 /* g3cat.c - concatenate multiple G3-Documents
  *
@@ -30,7 +30,7 @@ extern char *	optarg;
 
 int byte_align = 0;
 
-static unsigned char buf[2048];
+static unsigned char buf[8192];
 static int buflen = 0;
 static unsigned int out_data = 0;
 static unsigned int out_hibit = 0;
@@ -47,6 +47,9 @@ inline
 #endif
 void putcode _P2( (code, len), int code, int len )
 {
+#ifdef DEBUG
+    fprintf( stderr, "putcode: %03x (%d)\n", code, len );
+#endif
     out_data |= ( code << out_hibit );
     out_hibit += len;
 
@@ -60,6 +63,68 @@ void putcode _P2( (code, len), int code, int len )
 	    write( 1, buf, buflen ); b_written += buflen; buflen = 0;
 	}
     }
+}
+
+#ifdef __GNUC__
+inline
+#endif
+void putwhitespan _P1( (l), int l )
+{
+    if ( l >= 64 )
+    {
+	int mkup = ( l & ~63 );
+	int idx = (mkup / 64) -1;
+	
+	if ( mkup > 1728 )	/* extended makeup table */
+	{
+	    fprintf( stderr,
+		    "run length too long (%d) - not yet implemented",  l );
+	    exit(99);
+	}
+	else
+	{
+	    if ( m_white[idx].nr_pels != mkup )	/* paranoia alert */
+	    {
+		fprintf( stderr, "no match: idx=%d, mkup=%d", idx, mkup );
+		exit(99);
+	    }
+	    putcode( m_white[idx].bit_code, m_white[idx].bit_length );
+	}
+	l -= mkup;
+    }
+
+    putcode( t_white[l].bit_code, t_white[l].bit_length );
+}
+
+#ifdef __GNUC__
+inline
+#endif
+void putblackspan _P1( (l), int l )
+{
+    if ( l >= 64 )
+    {
+	int mkup = ( l & ~63 );
+	int idx = (mkup / 64) -1;
+	
+	if ( mkup > 1728 )	/* extended makeup table */
+	{
+	    fprintf( stderr,
+		    "run length too long (%d) - not yet implemented",  l );
+	    exit(99);
+	}
+	else
+	{
+	    if ( m_black[idx].nr_pels != mkup )	/* paranoia alert */
+	    {
+		fprintf( stderr, "no match: idx=%d, mkup=%d", idx, mkup );
+		exit(99);
+	    }
+	    putcode( m_black[idx].bit_code, m_black[idx].bit_length );
+	}
+	l -= mkup;
+    }
+    
+    putcode( t_black[l].bit_code, t_black[l].bit_length );
 }
 
 #ifdef __GNUC__
@@ -87,8 +152,7 @@ void puteol _P0( void )			/* write byte-aligned EOL */
 
 static	int putblackline = 0;	/* do not output black line */	
 
-#define CHUNK 2048;
-static	char rbuf[2048];	/* read buffer */
+static	char rbuf[8192];	/* read buffer */
 static	int  rp;		/* read pointer */
 static	int  rs;		/* read buffer size */
 
@@ -96,10 +160,20 @@ struct g3_tree *white, *black;
 
 void exit_usage _P1( (program), char * program )
 {
-    fprintf( stderr, "usage: %s [-h <lines>] [-a] [-l] [-p <n>] g3-file ...\n",
+    fprintf( stderr, "usage: %s [-h <lines>] [-a] [-l] [-p <n>] [-w <n>] g3-file ...\n",
 	    program );
     exit(1);
 }
+
+static int have_warned = 0;		/* warn only once per file */
+void warn_g3 _P1( (file), char * file )
+{
+    if ( have_warned ) return;
+    fprintf( stderr, "WARNING: G3 file \"%s\" has incorrect line width, fixed\n",
+             file );
+    have_warned++;
+}
+    
 
 int main _P2( (argc, argv),
 	      int argc, char ** argv )
@@ -117,6 +191,7 @@ int main _P2( (argc, argv),
     int first_file = 1;		/* "-a" flag has to appear before */
 				/* starting the first g3 file */
     int empty_lines = 0;	/* blank lines at top of page */
+    int line_width = 1728;	/* "force perfect" G3 file */
 
     /* initialize lookup trees */
     build_tree( &white, t_white );
@@ -130,7 +205,7 @@ int main _P2( (argc, argv),
     /* process the command line
      */
 
-    while ( (i = getopt(argc, argv, "lah:p:")) != EOF )
+    while ( (i = getopt(argc, argv, "lah:p:w:")) != EOF )
     {
 	switch (i)
 	{
@@ -138,13 +213,20 @@ int main _P2( (argc, argv),
 	  case 'a': byte_align = 1; break;
 	  case 'h': empty_lines = atoi( optarg ); break;
 	  case 'p': padding = atoi( optarg ); break;
+	  case 'w': line_width = atoi( optarg ); break;
 	  case '?': exit_usage(argv[0]); break;
 	}
+    }
+
+    if ( line_width < 100 )
+    {
+        fprintf( stderr, "%s: line width must be >= 100 PELs\n", argv[0] );
+        exit(1);
     }
 	    
     for ( i=optind; i<argc; i++ )
     {
-	/* '-l' option my be embedded */
+	/* '-l' option may be embedded */
         if ( strcmp( argv[i], "-l" ) == 0)
         {
 	    putblackline = 1; continue;
@@ -167,7 +249,7 @@ int main _P2( (argc, argv),
 	    while ( empty_lines-- > 0 )			/* leave space at */
 							/* top of page */
 	    {
-		putcode( 0x1b2, 9 ); putcode( 0x0ac, 8 );
+		putwhitespan( line_width );
 		puteol();
 	    }
 	}
@@ -179,6 +261,7 @@ int main _P2( (argc, argv),
 
 	color = 0;		/* start with white */
 
+	have_warned = 0;
 	rs = read( fd, rbuf, sizeof(rbuf) );
 	if ( rs < 0 ) { perror( "read" ); close( rs ); exit(8); }
 
@@ -277,6 +360,19 @@ int main _P2( (argc, argv),
 		fprintf( stderr, "hibit=%2d, data=", hibit );
 		putbin( data );
 #endif
+		/* fill up line width, if necessary */
+		if ( col>0 && col < line_width )
+		{
+		    warn_g3( argv[i] );
+#ifdef WDEBUG
+		    fprintf( stderr, "row: %d, col: %d, line_width: %d\n",
+		    		row, col, line_width );
+#endif
+		    if ( color != 0 )			/* black? */
+			{ putblackspan(0); }		/* 0 pix black */
+		    putwhitespan( line_width - col );	/* fill w/ white */
+		}
+
 		/* skip filler 0bits -> seek for "1"-bit */
 		while ( ( data & 0x01 ) != 1 )
 		{
@@ -321,14 +417,34 @@ int main _P2( (argc, argv),
 		    puteol();
 		}
 	    }
-	    else		/* not eol */
+	    else		/* not eol, write out code */
 	    {
-		/* output same code to g3 file on stdout */
-		putcode( ( (struct g3_leaf *) p ) ->bit_code,
-			 ( (struct g3_leaf *) p ) ->bit_length );
+	    	if ( col + nr_pels <= line_width )	/* line width in limit */
+	    	{
+		    /* output same code to g3 file on stdout */
+		    putcode( ( (struct g3_leaf *) p ) ->bit_code,
+			     ( (struct g3_leaf *) p ) ->bit_length );
 
-		col += nr_pels;
-		if ( nr_pels < 64 ) color = !color;		/* terminal code */
+		    col += nr_pels;
+		}
+		else					/* line too long */
+		{					/* ->truncate */
+		    int put_pels = (line_width - col);
+		    warn_g3( argv[i] );
+#ifdef WDEBUG
+		    fprintf( stderr, "truncate %d to %d (row %d, col %d)\n", nr_pels, put_pels, row, col );
+#endif
+		    if ( put_pels > 0 )			/* anything left? */
+		    {
+		        if ( color == 0 )	/* white */
+		            putwhitespan( put_pels );
+			else
+			    putblackspan( put_pels );
+		    }
+		    col = line_width+1;			/* do not write more to file */
+		}
+
+		if ( nr_pels < 64 ) color = !color;	/* terminal code */
 	    }
 	}		/* end processing one file */
 do_write:      		/* write eol, separating lines, next file */
@@ -341,14 +457,13 @@ do_write:      		/* write eol, separating lines, next file */
 	/* separate multiple files with a line */
 	if ( i != argc -1 )
 	{
-	    putcode( 0x1b2, 9 ); putcode( 0x0ac, 8 );	/* white line */
+	    putwhitespan( line_width );			/* white line */
 	    puteol();
             if ( putblackline )                         /* black line */
-		{ putcode( 0x0ac, 8 );
-		  putcode( 0x14c0, 13 );
-		  putcode( 0x3b0, 10);
+		{ putwhitespan( 0 );
+		  putblackspan( line_width );
 		  puteol(); }
-	    putcode( 0x1b2, 9 ); putcode( 0x0ac, 8 );	/* white line */
+	    putwhitespan( line_width );			/* white line */
 	    puteol();
 	}
 
