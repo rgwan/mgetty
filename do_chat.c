@@ -1,4 +1,4 @@
-#ident "$Id: do_chat.c,v 1.22 1993/11/13 11:09:17 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: do_chat.c,v 1.23 1993/11/20 11:49:15 gert Exp $ Copyright (c) Gert Doering";
 /* do_chat.c
  *
  * This module handles all the non-fax talk with the modem
@@ -88,9 +88,13 @@ TIO	tio, save_tio;
 
 		if ( cnt < 0 )
 		{
-		    if ( errno == EINTR ) cnt = 0;
+		    if ( errno == EINTR ) cnt = 0;	/* signal */
 		    else
-		        lprintf( L_ERROR, "do_chat: error in read()" );
+		    {					/* unsp. error */
+		        lprintf( L_ERROR, "do_chat: error in read()");
+			retcode = FAIL;
+			break;				/* -> abort */
+		    }
 		}
 
 		if ( chat_has_timeout )		/* timeout */
