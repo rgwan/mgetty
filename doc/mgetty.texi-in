@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.47 2001/01/05 18:19:50 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.48 2001/05/23 20:30:22 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -179,7 +179,7 @@ the language in the group is English. Posts in German should be ignored.
 The mailing list is archived on a WWW site, look at
 @file{http://www.elilabs.com/mgarc/index.html} (many thanks to
 Robert J. Brown, rj@@eli.elilabs.com).  It's also archived by Marc
-Schaefer, on @file{http://www-internal.alphanet.ch/recherche_ml.html}.
+Schaefer, on @file{http://search.alphanet.ch/} @strong{(NEW!)}.
 The latter search engine indexes somewhat more than only the mgetty list,
 so you might want to add 'mgetty' to your query to restrict it.
 
