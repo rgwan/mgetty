@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 3.15 1996/12/23 19:13:16 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 3.16 1997/01/02 15:16:18 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -13,9 +13,9 @@
 #   .ps  -> PostScript
 #   .t   -> plain ascii text
 #   .dvi -> TeX device independent output file (use dvips, then like .ps)
-#   .pbm -> PortableBitMap (use pbmtog3)
-#   .pgm -> PortableGrayMap (use pgmtopbm | pbmtog3)
-#   .ppm -> PortablePixMap (use ppmtopgm | pgmtopbm | pbmtog3)
+#   .pbm -> PortableBitMap (use pbm2g3)
+#   .pgm -> PortableGrayMap (use pgmtopbm | pbm2g3)
+#   .ppm -> PortablePixMap (use ppmtopgm | pgmtopbm | pbm2g3)
 #   .g3  -> raw G3 fax data
 #   .lj  -> HP Laserjet PCL4 (use hp2pbm)
 #   .xwd -> xwindow-dump (by xwd program, use xwdtopnm)
@@ -93,11 +93,11 @@ AWK=@AWK@
 # $3 can be a flag argument, "-n" for normal resolution
 
 #
-# convert portable bitmap (not scaled) - see pbm(5), pbmtog3(1)
+# convert portable bitmap (not scaled) - see pbm(5), pbm2g3(1)
 #
 fs_cvt_pbm()
 {
-    pbmtog3 $1 >$2.001
+    pbm2g3 $1 >$2.001
 }
 
 #
@@ -105,7 +105,7 @@ fs_cvt_pbm()
 #
 fs_cvt_pgm()
 {
-    pgmtopbm $1 | pbmtog3 >$2.001
+    pgmtopbm $1 | pbm2g3 >$2.001
 }
 
 #
@@ -113,7 +113,7 @@ fs_cvt_pgm()
 #
 fs_cvt_ppm()
 {
-    ppmtopgm $1 | pgmtopbm | pbmtog3 >$2.001
+    ppmtopgm $1 | pgmtopbm | pbm2g3 >$2.001
 }
 
 #
@@ -142,7 +142,7 @@ fs_cvt_xwd()
 	$REDUCE |\
 	ppmtopgm |\
 	pgmtopbm |\
-	pbmtog3 >$2.001
+	pbm2g3 >$2.001
 }
 
 #
@@ -160,7 +160,7 @@ fs_cvt_gif()
 	$REDUCE |\
 	ppmtopgm |\
 	pgmtopbm |\
-	pbmtog3 >$2.001
+	pbm2g3 >$2.001
 }
 
 #
@@ -178,7 +178,7 @@ fs_cvt_tif()
 	$REDUCE |\
 	ppmtopgm |\
 	pgmtopbm |\
-	pbmtog3 >$2.001
+	pbm2g3 >$2.001
 }
 
 #
@@ -246,7 +246,7 @@ fs_cvt_ascii()
 # Convert each page into a separate G3 file.  Uses default pagelen (60).
 #    page=1
 #    while [ $page -le $nr ]; do
-#	pgx $page < $1 | pbmtext -font $font | pbmtog3 >$2.$page
+#	pgx $page < $1 | pbmtext -font $font | pbm2g3 >$2.$page
 #	page=`expr $page + 1`
 #    done
 }
@@ -841,7 +841,7 @@ else
 			      -e "s;@D@;$verbose_to;g" \
 			      -e "s;@ID@;$FAX_STATION_ID;g" \
 			      -e "s;@DATE@;`date`;g" \
-	| pbmtext -font $hdrfont | pbmtog3 \
+	| pbmtext -font $hdrfont | pbm2g3 \
 	| g3cat - $f > f$nr.g3 \
 	&& rm $f
 	finalpg="$finalpg f$nr.g3"
