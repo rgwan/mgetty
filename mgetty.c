@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.30 1993/06/04 20:48:57 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.31 1993/06/05 10:07:10 gert Exp $ (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -116,7 +116,7 @@ void		exit_usage();
  * system header files)
  */
 
-#ifndef SVR4
+#if !defined(SVR4) && !defined(linux)
 
 struct	utmp	*getutent();
 struct	utmp	*pututline(struct utmp * utmp);
