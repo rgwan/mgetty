@@ -1,4 +1,4 @@
-#ident "$Id: conf_sf.c,v 3.4 1996/03/11 00:12:53 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_sf.c,v 3.5 1996/04/18 20:01:48 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_sf.c
  *
@@ -49,7 +49,7 @@ struct conf_data_sendfax c = {
 	{ "page-header", 0, CT_STRING, C_EMPTY },
 	{ "" /* stdin */, FALSE, CT_BOOL, C_PRESET },
 	{ "" /* rename */, FALSE, CT_BOOL, C_PRESET },
-	{ "" /* acct_handle */, FALSE, CT_STRING, C_PRESET },
+	{ "" /* acct_handle */, (int)"", CT_STRING, C_PRESET },
 	{ NULL, 0, CT_STRING, C_EMPTY }};
 
 int sendfax_parse_args _P2( (argc,argv), int argc, char ** argv )
