@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 2.3 1994/12/06 17:13:33 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 2.4 1994/12/11 18:12:13 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -584,7 +584,8 @@ int main _P2( (argc, argv),
 	    tio_set_flow_control( fd, &fax_tio,
 				 (FAXREC_FLOW) & (FLOW_HARD|FLOW_XON_IN) );
 	    tio_set( fd, &fax_tio );
-	    if ( fax_get_pages( fd, &pagenum, c_string(poll_dir) ) == ERROR )
+	    if ( fax_get_pages( fd, &pagenum, c_string(poll_dir),
+			        -1, -1, -1 ) == ERROR )
 	    {
 		fprintf( stderr, "warning: polling failed\n" );
 		lprintf( L_AUDIT, "failed: polling failed, +FHS:%2d, time=%ds",
