@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.26 1993/10/26 21:56:23 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.27 1993/10/29 10:53:19 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -9,6 +9,10 @@
  * NOT USED YET.
  */
 #define CONFIG_FILE "/usr/local/lib/mgetty-config"
+
+/* If you want to use /etc/gettydefs to set tty flags, define this
+ */
+/* #define USE_GETTYDEFS */
 
 /* Name of the "gettydefs" file (used only if USE_GETTYDEFS is set)
  */
