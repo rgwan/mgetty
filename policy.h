@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.68 1994/11/04 14:29:53 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.69 1994/11/06 15:25:01 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -39,6 +39,8 @@
 #define DEFAULT_LOGIN_PROGRAM "/bin/login"
 
 /* If you want to use /etc/gettydefs to set tty flags, define this
+ * I recommend against it, I suspect some bugs lingering in that code
+ * (and one doesn't really need it in a normal setup anyway).
  */
 /* #define USE_GETTYDEFS */
 
