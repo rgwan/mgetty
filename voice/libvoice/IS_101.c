@@ -5,7 +5,7 @@
  * follow the IS-101 interim standard for voice modems. Since the commands
  * are set in the modem structure, it should be quite generic.
  *
- * $Id: IS_101.c,v 1.10 1999/12/02 09:51:29 marcs Exp $
+ * $Id: IS_101.c,v 1.11 2000/08/09 20:09:48 marcs Exp $
  *
  */
 
@@ -548,8 +548,10 @@ int IS_101_play_file(FILE *fd, int bps)
      int bytes_out;
      int bytes_max = bps / 8 / 10;
      int count = 0;
-     int count_limit = bps / 8 * cvd.watchdog_timeout.d.i / 2;
      int play_complete = FALSE;
+     time_t watchdog_reset;
+
+     watchdog_reset = time(NULL) + (cvd.watchdog_timeout.d.i / 2);
 
      if (bytes_max > PLAY_BUFFER_SIZE)
           bytes_max = PLAY_BUFFER_SIZE;
@@ -582,7 +584,7 @@ int IS_101_play_file(FILE *fd, int bps)
 
           count += bytes_out;
 
-          if (count > count_limit)
+          if (watchdog_reset < time(NULL))
                {
                lprintf(L_JUNK, "%s: <VOICE DATA %d bytes>", program_name, count);
                reset_watchdog();
@@ -629,7 +631,9 @@ int IS_101_record_file(FILE *fd, int bps)
      int was_DLE = FALSE;
      int tcount = 0;
      int count = 0;
-     int count_limit = bps / 8 * cvd.watchdog_timeout.d.i / 2;
+     time_t watchdog_reset;
+
+     watchdog_reset = time(NULL) + (cvd.watchdog_timeout.d.i / 2);
 
      reset_watchdog();
      timeout = time(NULL) + cvd.rec_max_len.d.i;
@@ -723,7 +727,7 @@ int IS_101_record_file(FILE *fd, int bps)
 
                count++;
 
-               if (count > count_limit)
+               if (watchdog_reset < time(NULL))
                     {
                     lprintf(L_JUNK, "%s: <VOICE DATA %d bytes>", voice_modem_name,
                      count);
