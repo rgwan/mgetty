@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 1.16 1994/03/13 00:45:13 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 1.17 1994/03/13 01:17:01 gert Exp $ Copyright (c) 1993 Gert Doering"
 ;
 /* tio.c
  *
@@ -469,6 +469,27 @@ TIO t;
 
 int tio_toggle_dtr _P2( (fd, msec_wait), int fd, int msec_wait )
 {
+    /* On SVR4.2, lowering DTR by setting the port speed to zero will
+     * bring the port to some strange state where every ioctl() later
+     * on simply fails - so use special "modem control" ioctl()s to
+     * lower and raise DTR
+     */
+#if defined(SVR4) && defined(TIOCMBIS)		/* SVR4 special */
+    int mdm_ctrl = TIOCM_DTR;
+
+    if ( ioctl( fd, TIOCMBIC, (char *) mctl ) < 0 )
+    {
+	lprintf( L_ERROR, "TIOCMBIC failed" ); return ERROR;
+    }
+    delay( msec_wait );
+    if ( ioctl( fd, TIOCMBIS, (char *) mctl ) < 0 )
+    {
+	lprintf( L_ERROR, "TIOCMBIS failed" ); return ERROR;
+    }
+#else						/* !SVR4 */
+
+    /* The "standard" way of doing things - via speed = B0
+     */
     TIO t, save_t;
 #ifdef sun
     int modem_lines;
@@ -511,4 +532,5 @@ int tio_toggle_dtr _P2( (fd, msec_wait), int fd, int msec_wait )
 #endif
     
     return result;
+#endif					/* !SVR4 */
 }
