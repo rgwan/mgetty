@@ -1,4 +1,4 @@
-#ident "$Id: goodies.c,v 1.4 1994/08/22 01:22:20 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: goodies.c,v 1.5 1994/09/11 12:54:25 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /*
  * goodies.c
@@ -22,6 +22,7 @@
 
 #ifdef linux
 # include <fcntl.h>
+# include <unistd.h>
 #endif
 
 /* get the base file name of a file path */
