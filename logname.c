@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 3.11 1996/06/02 22:58:04 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 3.12 1996/06/28 23:57:44 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include "syslibs.h"
@@ -355,6 +355,13 @@ int getlogname _P5( (prompt, tio, buf, maxsize, do_timeout),
             strcpy (buf, "/AutoPPP/");
             i=9;
             ch = '\r';
+
+	    /* the following is a hack... - if pppd startup is slow, and the
+	     * caller sends its PPP frames fast, they get echoed, and will
+	     * confuse the "loop detection" of some clients. So we switch
+	     * the saved tio to raw mode, which will be "restored" soon.
+	     */
+	    tio_mode_raw( &tio_save );
         } else {
             ppp_level = 0;
         }
