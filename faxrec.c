@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 3.12 1996/05/27 19:15:27 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 3.13 1996/06/04 20:48:31 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -527,7 +527,7 @@ extern  char * Device;
 
     ti = call_done - call_start;	/* time spent */
 
-    fprintf( pipe_fp, "Reception Time : %d:%d\n\n", (int) ti/60, (int) ti%60 );
+    fprintf( pipe_fp, "Reception Time : %02d:%02d\n\n", (int) ti/60, (int) ti%60 );
 
     if ( fax_hangup_code != 0 )
     {
