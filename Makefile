@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 3.3 1995/08/30 12:47:14 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 3.4 1995/11/27 19:00:35 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -42,8 +42,9 @@ CC=gcc
 # Add "-DISC" to compile on Interactive Unix. For posixized ISC 4.0 you
 # may have to add -D_POSIX_SOURCE
 #
-# For IBM AIX, you don't have to define anything, but be warned: the
-# port is not fully complete. Something still breaks. Use -DUSE_POLL!
+# For IBM AIX, if you want to compile with xlc, add -D_ALL_SOURCE and
+# -DUSE_POLL to the CFLAGS line.
+# Be warned: the port may not fully work. Something still breaks.
 #
 # Add "-D_3B1_ -DUSE_READ -D_NOSTDLIB_H -DSHORT_FILENAMES" to compile
 # on the AT&T 3b1 machine -g.t.
@@ -94,6 +95,11 @@ CC=gcc
 #	    SVR4	  - SVR4 statvfs()
 #	    SVR3	  - SVR3/88k/Apollo/SCO 4-parameter statfs()
 #	    USTAT	  - ustat(), no statfs etc.
+#
+# If you want to support incoming FidoNet calls, add -DFIDO. 
+# If you want to auto-detect incoming PPP calls (with PAP authorization),
+# add -DAUTO_PPP. Not needed if PPP callers want to get a real "login:"
+# prompt first.
 #
 #CFLAGS=-Wall -O2 -pipe -DSECUREWARE -DUSE_POLL
 CFLAGS=-O2 -Wall -pipe
@@ -218,6 +224,18 @@ SHELL=/bin/sh
 #
 AWK=awk
 #
+# A few (very few) programs want Perl, preferably Perl5. This define
+# tells them where to find it. You can use everything except "faxrunqd"
+# and the "tkperl" frontends without PERL, so don't worry if you don't
+# have it.
+PERL=/usr/bin/perl
+#
+# If you have Perl with TK extentions, define it here. This may be the
+# same as PERL=... above, or different, if you have TkPerl statically
+# linked.
+TKPERL=/usr/bin/tkperl
+#
+#
 # An echo program that understands escapes like "\n" for newline or
 # "\c" for "no-newline-at-end". On SunOS, this is /usr/5bin/echo, in the
 # bash, it's "echo -e"
@@ -256,9 +274,9 @@ RM=rm
 MV=mv
 
 #
-# Nothing to change below this line
+# Nothing to change below this line ---------------------------------!
 #
-VS=98
+VS=99
 #
 #
 OBJS=mgetty.o logfile.o do_chat.o locks.o utmp.o logname.o login.o \
@@ -300,6 +318,17 @@ mgetty: $(OBJS)
 sendfax: $(SFAXOBJ)
 	$(CC) -o sendfax $(SFAXOBJ) $(LDFLAGS)
 
+# sentinelized binaries for runtime testing...
+sentinel:	mgetty.sen sendfax.sen
+
+mgetty.sen: $(OBJS)
+	sentinel -v $(CC) -o mgetty.sen $(OBJS) $(LDFLAGS)
+
+sendfax.sen: $(SFAXOBJ)
+	sentinel -v $(CC) -o sendfax.sen $(SFAXOBJ) $(LDFLAGS)
+
+# subdirectories...
+
 g3-tools:
 	cd tools ; $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" all
 
@@ -327,58 +356,9 @@ DISTRIB=README.1st THANKS TODO BUGS FTP FAQ inittab.aix inst.sh version.h \
 	io.c tio.c tio.h gettydefs.c login.c do_stat.c faxhng.c \
 	config.h config.c conf_sf.h conf_sf.c conf_mg.h conf_mg.c \
 	cnd.c getdisk.c mksed.c utmp.c mg_utmp.h syslibs.h goodies.c \
-	patches/README patches/pbmtog3.p1 patches/taylor104.p1 \
-	patches/ecu320.p1 patches/pnmtops.p1 patches/dip337.p1 \
-	patches/gslp.ps-iso.p \
-	fax/faxspool.in fax/faxrunq.in fax/faxq.in fax/faxrm.in \
-	fax/faxcvt fax/printfax fax/cour25.pbm fax/cour25n.pbm \
-	fax/Makefile fax/etc-magic fax/faxheader.in \
 	tools/Makefile tools/g3cat.c tools/g3topbm.c tools/g3.c tools/g3.h \
 	tools/pbmtog3.c tools/run_tbl.c \
-	compat/mg.echo.c kvg \
-	contrib/README contrib/scrts.c contrib/pbmscale.c contrib/pgx.c \
-	contrib/g3toxwd.c contrib/g3tolj.c contrib/g3hack.c \
-	contrib/g3toxwd.1 contrib/g3tolj.1 \
-	contrib/3b1 contrib/faxin.c contrib/Makefile contrib/lp-fax \
-	contrib/faxiobe.sh contrib/sun.readme \
-	contrib/dvi-fax contrib/two-modems \
-	contrib/faxdvi2.perl contrib/faxdvi.config \
-	contrib/log_diags contrib/readme.supra contrib/ttyenable \
-	contrib/logparse.c contrib/gs-security.fix \
-	frontends/README frontends/Makefile \
-	frontends/tcl/faxview-0.1 \
-	frontends/tkperl/README \
-	frontends/tkperl/faxman.pl frontends/tkperl/faxman.doc \
-	frontends/tkperl/FileSelector.pm frontends/tkperl/XYListbox.pm \
-	frontends/tkperl/handle_commands.pl frontends/tkperl/xfax.pl \
-	frontends/X11/xforms.note \
-	frontends/X11/viewfax-2.1.tar \
-	frontends/dialog/Makefile \
-	frontends/dialog/faxv.in frontends/dialog/listen.in \
-	frontends/dialog/xfaxq.in frontends/dialog/xfaxq.1in \
-	frontends/mail-to-fax/README frontends/mail-to-fax/faxgate.pl \
-	samples/new_fax.lj samples/new_fax.mail samples/new_fax.pbm \
-	samples/new_fax.mime samples/new_fax.hpa samples/new_fax.vacation \
-	samples/coverpg.pbm samples/coverpg.ps \
-	samples/fax samples/faxmemo \
-	doc/Makefile doc/modems.db doc/mgetty.texi-in doc/fhng-codes \
-	doc/g3topbm.1in doc/g3cat.1in doc/sendfax.8in doc/faxspool.1in \
-	doc/faxrunq.1in doc/faxq.1in doc/faxrm.1in doc/mgettydefs.4in \
-	doc/pbmtog3.1in doc/faxqueue.5in doc/mgetty.8in \
-	doc/coverpg.1in doc/fax.1in doc/scanner.txt \
-	voice/Readme voice/Files voice/Announce voice/version.h voice/dtmf \
-	voice/ChangeLog voice/Makefile voice/depend voice/ToDo \
-	voice/voice.h voice/vconfig.c voice/vconfig.h \
-	voice/voclib.c voice/zplay.c voice/vanswer.c voice/vmodem.c \
-	voice/pvffft.c voice/vg_fft.in voice/util.c \
-	voice/pvfmain.c voice/pvflib.c voice/pvflib.h voice/pvflin.c \
-	voice/pvfutil.c voice/pvfadpcm.c voice/pvfau.c voice/pvfvoc.c \
-	voice/pvfsine.c voice/rockwell.c \
-	voice/rsynth-0.9.linuxA.pch voice/speakdate.sh voice/speakdate.pl \
-	voice/vg_button.in voice/vg_dtmf.in voice/vg_message.in \
-	voice/vg_nmp.in voice/vg_say.in voice/play_messages.in \
-	voice/vg_call.in voice/message \
-	voice/pvf.1 voice/zplay.1
+	kvg
 
 noident: policy.h
 	    for file in $(DISTRIB) policy.h ; do \
@@ -395,7 +375,7 @@ noident: policy.h
 		;; \
 	    esac; \
 	done
-	$(MAKE) all
+	$(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS)" all
 
 sedscript: mksed
 	./mksed >sedscript
@@ -409,6 +389,7 @@ mksed: mksed.c policy.h Makefile
 		-DFAX_SPOOL_IN=\"$(FAX_SPOOL_IN)\" \
 		-DFAX_SPOOL_OUT=\"$(FAX_SPOOL_OUT)\" \
 		-DAWK=\"$(AWK)\" \
+		-DPERL=\"$(PERL)\" -DTKPERL=\"$(TKPERL)\" \
 		-DECHO=\"$(ECHO)\" \
 		-DSHELL=\"$(SHELL)\" \
 		-DVOICE_DIR=\"$(VOICE_DIR)\" \
@@ -423,17 +404,20 @@ version.h: $(DISTRIB)
 	rm -f version.h
 	if expr $(VS) : ".[13579]" >/dev/null ; then \
 	    date=`date "+%B%d"` ;\
-	    echo "static char * mgetty_version = \"experimental test release 0.$(VS)-$$date\";" >version.h ;\
+	    echo "char * mgetty_version = \"experimental test release 0.$(VS)-$$date\";" >version.h ;\
 	else \
-	    echo "static char * mgetty_version = \"official release 0.$(VS)\";" >version.h ;\
+	    echo "char * mgetty_version = \"official release 0.$(VS)\";" >version.h ;\
 	fi
 	chmod 444 version.h
 
 mgetty0$(VS).tar.gz:	$(DISTRIB)
 	rm -f mgetty-0.$(VS)
 	ln -sf . mgetty-0.$(VS)
-	echo "$(DISTRIB)" \
-	    | tr " " "\\012" \
+	( echo "$(DISTRIB)" | tr " " "\\012" ; \
+	  for i in `find . -name .files -print` ; do \
+	      cat $$i | sed -e 's;^;'`dirname $$i`'/;' ; \
+	  done ; \
+	) \
 	    | sed -e 's;^;mgetty-0.$(VS)/;g' \
 	    | gtar cvvfT mgetty0$(VS).tar -
 	gzip -f -9 -v mgetty0$(VS).tar
@@ -589,7 +573,7 @@ install-bin: mgetty sendfax login.config mgetty.config sendfax.config
 # fax programs / scripts / font file
 #
 	cd fax ; $(MAKE) install INSTALL="$(INSTALL)" \
-				BINDIR=$(BINDIR) \
+				BINDIR=$(BINDIR) SBINDIR=$(SBINDIR) \
 				LIBDIR=$(LIBDIR) CONFDIR=$(CONFDIR)
 #
 # compatibility
