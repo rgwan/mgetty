@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 4.3 1998/01/20 10:40:46 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 4.4 1999/10/23 21:56:57 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* tio.c
  *
@@ -29,9 +29,6 @@ static char tio_compilation_type[]="@(#)tio.c compiled with BSD_SGTTY";
 
 #ifdef USE_TERMIOX
 # include <sys/termiox.h>
-#endif
-#ifdef _HPUX_SOURCE
-# include <sys/modem.h>
 #endif
 
 #if defined( M_UNIX ) && defined( MAM_BUG )

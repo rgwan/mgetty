@@ -1,4 +1,4 @@
-#ident "$Id: tio.h,v 4.5 1999/02/24 15:56:13 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.h,v 4.6 1999/10/23 21:56:58 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 #ifndef __TIO_H__
 #define __TIO_H__
@@ -95,6 +95,9 @@ typedef tcflag_t tioflag_t;
  */
 #ifdef _AIX
 #include <sys/ttychars.h>
+#endif
+#ifdef _HPUX_SOURCE
+# include <sys/modem.h>
 #endif
 
 #if	!defined(VSWTCH) && defined(VSWTC)
