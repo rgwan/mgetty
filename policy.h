@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.73 1994/12/08 16:14:44 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.74 1994/12/23 12:58:48 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration defaults for mgetty / sendfax
  * are specified.
@@ -10,9 +10,8 @@
  */
 
 /* main mgetty configuration file
- * NOT USED YET (still!).
  */
-#define CONFIG_FILE "mgetty.config"
+#define MGETTY_CONFIG "mgetty.config"
 
 /* sendfax configuration file
  *
@@ -82,7 +81,11 @@
 /* user id of the "uucp" user. The tty device will be owned by this user,
  * so parallel dial-out of uucico will be possible
  */
-#define UUCPID	"uucp"
+#define DEVICE_OWNER	"uucp"
+/* group id that the device is chown()ed to. If not defined, the
+ * primary group of "DEVICE_OWNER" is used.
+ */
+#define DEVICE_GROUP	"modem"
 
 /* access mode for the line while getty has it - it should be accessible
  * by uucp / uucp, but not by others (imagine someone dialing into your
@@ -254,7 +257,7 @@
  * For instructions how to setup various other modems, look into
  *     mgetty.texi ("modems" section) and check your modem manual
  * For some modems, an initial "\d" is needed.
- * If you need a "\" in the modem command, give it as "\\\\".
+ * If you need a '\' in the modem command, give it as "\\\\".
  * Maybe the best "initialization" would be to setup everything 
  *     properly in the nvram profile, and just send the modem an
  *     "ATZ". I just like to make sure the most important things are
@@ -321,10 +324,11 @@
   */
 #define FAX_COMMAND_DELAY 50
 
-/* incoming faxes will be chown()ed to this uid and gid
+/* incoming faxes will be chown()ed to this uid and gid.
+ * if FAX_IN_GROUP is undefined, the group of ...OWNER is used.
  */
-#define FAX_IN_OWNER	0
-#define FAX_IN_GROUP	5
+#define FAX_IN_OWNER	"uucp"
+/* #define FAX_IN_GROUP	"root" */
 
 /* incoming faxes will be chmod()ed to this mode
  * (if you do not define this, the file mode will be controlled by
