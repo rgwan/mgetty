@@ -1,7 +1,7 @@
 /*
  * answer.c
  *
- * $Id: answer.c,v 1.6 1998/09/09 21:08:05 gert Exp $
+ * $Id: answer.c,v 1.7 1999/01/23 19:59:49 marcs Exp $
  *
  */
 
@@ -634,7 +634,12 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
 
      time(&call_start);
 
-     if (voice_record_file(message) == FAIL)
+     if (cvd.rec_min_len.d.i == 0) {
+       lprintf(L_NOISE,
+	       "%s: skipping message recording",
+	       program_name);
+     }
+     else if (voice_record_file(message) == FAIL)
           {
           lprintf(L_WARN, "%s: Could not record a message",
            program_name);
