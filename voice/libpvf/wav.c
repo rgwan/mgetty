@@ -7,7 +7,7 @@
  * wav.c, found in sox-11-gamma. Thank you for some funtions.
  * This is the 1. alpha release from 1997/2/14
  *
- * $Id: wav.c,v 1.3 1998/03/25 23:05:23 marc Exp $
+ * $Id: wav.c,v 1.4 1998/07/15 08:28:18 marc Exp $
  */
 
 #include "../include/voice.h"
@@ -502,7 +502,7 @@ int pvftowav (FILE *fd_in, FILE *fd_out, pvf_header *header_in, int wav_bits)
                     if   (*ptr < -0x8000)
                          *ptr = -0x8000;
 
-                    putc((*ptr++ >> 8) & 0xff, fd_out);
+                    putc((*ptr >> 8) & 0xff, fd_out);
                     putc(*ptr++ & 0xff, fd_out);
                     };
 
