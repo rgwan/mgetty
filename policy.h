@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 4.4 1997/10/21 12:34:38 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 4.5 1997/11/01 16:30:28 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration defaults for mgetty / sendfax
  * are specified.
@@ -461,7 +461,7 @@
 
 /* name of the logfile for outgoing faxes (e.g. /var/log/sendfax.log)
  */
-#define FAX_LOG		"/usr/spool/fax/Faxlog"
+#define FAX_LOG		"/var/log/sendfax.log"
 
 /* local station ID (your fax number)
  * 20 character string, most faxmodem allow all ascii characters 32..127,
