@@ -7,6 +7,10 @@ with Apache and Roxen web servers (CERN has some weird problems).
 Please direct all questions concerning the WWW gui to Simone Demmel
 (neko@greenie.muc.de) or to the mgetty mailing list (mgetty@muc.de).
 --------------------------------------------------------------------
+ATTENTION: right now, this is changing very much, and pretty much 
+broken for everybody besides us!  It's just here because it's in
+my development tree...
+--------------------------------------------------------------------
 You need on your system:
 
 * installed mgetty+sendfax package
