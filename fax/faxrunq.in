@@ -9,7 +9,7 @@
 # There are still a lot rough edges - but it works, and should give you an
 # idea how to improve it
 #
-# SCCS: $Id: faxrunq.in,v 3.6 1996/08/12 19:04:35 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxrunq.in,v 3.7 1996/11/26 22:32:11 gert Exp $ Copyright (C) 1994 Gert Doering
 
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -17,6 +17,8 @@ FAX_SENDER="@SBINDIR@/sendfax"
 FAX_ACCT=$FAX_SPOOL/acct.log
 
 MAILER="@MAILER@"
+
+CONF_FILE="@CONFDIR@/faxrunq.config"
 
 #
 # echo program that will accept escapes (bash: "echo -e", sun: /usr/5bin/echo)
@@ -34,6 +36,36 @@ AWK=@AWK@
 PATH=@BINDIR@:$PATH
 
 #
+# set defaults, then process configuration file (if it exists)
+#
+do_mail_s="TRUE"
+do_mail_f="TRUE"
+exec_pgm_s=""
+exec_pgm_f=""
+max_fail_costly=5
+max_fail_total=10
+delete_sent=""
+
+if [ -r $CONF_FILE ] ; then
+    eval `$AWK '/^ *#/ { next }
+	     $1 == "success-send-mail" \
+		{ printf "do_mail_s=\"%s\";", ($2 ~ /^[yYjJtT1]/)? "T":"" }
+	     $1 == "failure-send-mail" \
+		{ printf "do_mail_f=\"%s\";", ($2 ~ /^[yYjJtT1]/)? "T":"" }
+	     $1 == "success-call-program" \
+		{ printf "exec_pgm_s=\"%s\";", $2 }
+	     $1 == "failure-call-program" \
+		{ printf "exec_pgm_f=\"%s\";", $2 }
+	     $1 == "maxfail-costly" && $2 ~ /^[0-9]/ \
+		{ printf "max_fail_costly=\"%s\";", $2 }
+	     $1 == "maxfail-total" && $2 ~ /^[0-9]/ \
+		{ printf "max_fail_total=\"%s\";", $2 }
+	     $1 == "delete-sent-jobs" \
+		{ printf "delete_sent=\"%s\";", ($2 ~ /^[yYjJtT1]/)? "T":"" }
+	     END { printf "\n" }' $CONF_FILE`
+fi
+
+#
 # command line arguments
 #
 usage="usage: $0 [-s] [-q]"
@@ -41,9 +73,11 @@ usage="usage: $0 [-s] [-q]"
 while :
 do
     case "$1" in
-# quiet operation
+# sleep 30 seconds after each job, give modem time to settle
 	-s) sleepwait=30;shift;;
+# quiet operation
 	-q) exec >/dev/null ; shift ;;
+# invalid option
 	-*) $echo "$0: unknown option: $1" >&2
             $echo "$usage" >&2
 	    exit 1
@@ -162,33 +196,46 @@ do
     then
 	# transmission successful
 	$echo "Status "`date`" successfully sent" >>JOB
-	( 
-	  trap 0			# catch BASH bug
-	  $echo "To: $MAIL_TO"
-	  $echo "Subject: $subject"
-	  $echo "From: root (Fax Subsystem)\n"
-	  $echo "Your fax has been sent successfully at: \c"
-	  date
-	  test -z "$RE" || \
-	    $echo "(Subject was: $RE)\n"
-	  $echo "\n\nJob / Log file:"
-	  cat JOB
-	  tries=`grep Status JOB | sed -e '1d' | wc -l`
-	  $echo "\nSending succeeded after" $tries "unsuccessful tries."
-	) |
-	$MAILER "$MAIL_TO"
 
 	# update accounting log
 	$echo "$MAIL_TO $PHONE "`date`" success" >>$FAX_ACCT
 
+	# send mail, if requested
+	if [ -n "$do_mail_s" ] ; then
+	    $echo "    send mail to $MAIL_TO..."
+	    ( 
+	      trap 0			# catch BASH bug
+	      $echo "To: $MAIL_TO"
+	      $echo "Subject: $subject"
+	      $echo "From: root (Fax Subsystem)\n"
+	      $echo "Your fax has been sent successfully at: \c"
+	      date
+	      test -z "$RE" || \
+		$echo "(Subject was: $RE)\n"
+	      $echo "\n\nJob / Log file:"
+	      cat JOB
+	      tries=`grep Status JOB | sed -e '1d' | wc -l`
+	      $echo "\nSending succeeded after" $tries "unsuccessful tries."
+	    ) |
+	    $MAILER "$MAIL_TO"
+	fi
+
+	# call "success" handler program (if requested)
+	if [ -n "$exec_pgm_s" ] ; then
+	    $echo "    calling program $exec_pgm_s..."
+	    $exec_pgm_s $FAX_SPOOL_OUT/$job
+	fi
+
 	# job is done -> remove it from the queue
 	mv JOB JOB.done
 
-	# if you want to delete the job directory that has just been
-	# processed, uncomment the following two lines.
-	#
-	# cd $FAX_SPOOL_OUT
-	# rm -rf `dirname $job`
+	# completely remove JOB directory (only if requested)
+	# instead of this, the job could be archived by "$exec_pgm_s" or so
+	if [ -n "$delete_sent" ] ; then
+	    $echo "    deleting job files + directory..."
+	    cd $FAX_SPOOL_OUT
+	    rm -rf `dirname $job`
+	fi
 
     elif [ $status -lt 10 ]	
     then
@@ -213,28 +260,40 @@ do
 	# update accounting log
 	$echo "$MAIL_TO $PHONE "`date`" fail: $why" >>$FAX_ACCT
 
-	# if failed five times, supend job
-	if [ `grep "FATAL FAILURE" JOB | wc -l` -gt 4 ]
+	# if failed <max_fail_costly> times, suspend job
+	if [ `grep "FATAL FAILURE" JOB | wc -l` -ge $max_fail_costly ]
 	then
 	    $echo "Status "`date`" job suspended: too many FATAL errors" >>JOB
-	    ( 
-	      trap 0			# catch BASH bug
-              $echo "To: $MAIL_TO"
-	      $echo "Subject: $subject failed"
-	      $echo "From: root (Fax Subsystem)\n"
-	      $echo "It was not possible to send your fax to $PHONE!\n"
-	      test -z "$RE" || \
-		$echo "(Subject was: $RE)\n"
-	      $echo "The fax job is suspended, you can requeue it with the command:"
-	      $echo "    cd $FAX_SPOOL_OUT/"`dirname $job`
-	      $echo "    mv JOB.suspended JOB\n"
-	      $echo "log file follows:"
-	      cat JOB ) |
-	    $MAILER "$MAIL_TO"
+
+	    # send mail, if requested
+	    if [ -n "$do_mail_f" ] ; then
+		echo "    send mail to $MAIL_TO..."
+		( 
+		  trap 0			# catch BASH bug
+		  $echo "To: $MAIL_TO"
+		  $echo "Subject: $subject failed"
+		  $echo "From: root (Fax Subsystem)\n"
+		  $echo "It was not possible to send your fax to $PHONE!\n"
+		  test -z "$RE" || \
+		    $echo "(Subject was: $RE)\n"
+		  $echo "The fax job is suspended, you can requeue it with the command:"
+		  $echo "    cd $FAX_SPOOL_OUT/"`dirname $job`
+		  $echo "    mv JOB.suspended JOB\n"
+		  $echo "log file follows:"
+		  cat JOB ) |
+		$MAILER "$MAIL_TO"
+	    fi
+
+	    # call error handler, if requested
+	    if [ -n "$exec_pgm_f" ] ; then
+		$echo "    calling program $exec_pgm_f..."
+		$exec_pgm_f $FAX_SPOOL_OUT/$job
+	    fi
+
 	    #
 	    # suspend job (but do not delete it)
 	    #
-	    mv JOB JOB.suspended
+	    mv JOB JOB.suspended 2>/dev/null
 	fi
     fi
 #
