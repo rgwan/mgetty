@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 3.5 1995/10/25 18:59:21 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 3.6 1995/12/18 22:48:23 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -253,6 +253,10 @@ int main _P2( (argc, argv),
     int	i;
     int	tries;			/* number of unsuccessful tries */
 
+    int	total_bytes = 0;	/* number of bytes sent */
+    int total_pages = 0;	/* number of pages (files) sent */
+    int total_resent= 0;	/* number of pages resent */
+
 
     /* initialize logging */
     log_init_paths( argv[0], FAX_LOG, NULL );
@@ -490,6 +494,8 @@ int main _P2( (argc, argv),
 
 #endif	/* !FAX_SEND_IGNORE_CARRIER */
 
+    total_pages = argc-argidx;		/* for statistics */
+
     /* process all files to send / abort, if Modem sent +FHNG result */
 
     tries = 0;
@@ -526,7 +532,8 @@ int main _P2( (argc, argv),
 	
 	fax_page_tx_status = -1;	/* set by fax_send_page() */
 
-	if ( fax_send_page( argv[ argidx ], &fax_tio, ppm, fd ) == ERROR )
+	if ( fax_send_page( argv[ argidx ],
+			    &total_bytes, &fax_tio, ppm, fd ) == ERROR )
 	{
 	    break;
 	}
@@ -570,6 +577,7 @@ int main _P2( (argc, argv),
 		{
 		    if ( verbose )
 		       printf( "sending page again (retry %d)\n", tries );
+		    total_resent++;
 		    continue;	/* don't go to next page */
 		}
 	    }
@@ -666,7 +674,8 @@ int main _P2( (argc, argv),
 
     fax_close( fd );
 
-    lprintf( L_AUDIT, "success, phone=\"%s\", time=%ds",
-	              fac_tel_no, ( time(NULL)-call_start ) );
+    lprintf( L_AUDIT, "success, phone=\"%s\", time=%ds, pages=%d(+%d), bytes=%d",
+	              fac_tel_no, ( time(NULL)-call_start ),
+	              total_pages, total_resent, total_bytes );
     return 0;
 }
