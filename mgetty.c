@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.82 1994/01/04 17:35:21 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.83 1994/01/05 23:16:31 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -90,9 +90,7 @@ chat_action_t	ring_chat_actions[] = { { "CONNECT",	A_CONN },
 					{ NULL,		A_FAIL } };
 
 #ifdef VOICE
-char *	answer_chat_seq[] = { "", "ATL0 A", "VCON",
-				"\\dATL" SPEAKER_ANSWER_VOLUME, "OK",
-				 NULL };
+char *	answer_chat_seq[] = { "", "\\dATA", "VCON", NULL };
 #else
 char *	answer_chat_seq[] = { "", "ATA", "CONNECT", "\\c", "\n", NULL };
 #endif
@@ -180,6 +178,10 @@ int main _P2((argc, argv), int argc, char ** argv)
 
 	char * fax_server_file = NULL;		
 
+#ifdef VOICE
+	int answer_mode;
+#endif
+	
 #ifndef NO_FAX
 	sprintf(init_flid_cmd, FLID_CMD, FAX_STATION_ID);
 #endif
@@ -511,7 +513,12 @@ int main _P2((argc, argv), int argc, char ** argv)
 	    exit(1);
 	}
 #endif
-	
+    
+#ifdef VOICE
+	/* check for a "answer mode" file (/etc/answer.<device>) */
+	answer_mode = get_answer_mode(Device);
+#endif
+
 	/* wait for "RING", if found, send manual answer string (ATA)
 	   to the modem */
 
@@ -571,7 +578,8 @@ int main _P2((argc, argv), int argc, char ** argv)
 	{
 	    voice_answer(rings, rings_wanted,
 			 answer_chat_actions,
-			 answer_chat_timeout );
+			 answer_chat_timeout,
+			 answer_mode );
 	}
 #endif /* VOICE */
 
