@@ -53,6 +53,9 @@
 45) make fax poll server more flexible
 
 51) faxspool.c (sgid fax) -> $LIBDIR/faxspool.sh
+    -> on TODO since at least June 1994
+    -> 18.11.2002: *done* via "faxq-helper"
+
 51a) have it start faxrunq immediately (configurably)
 
 55) vhangup()? (->Linux)
