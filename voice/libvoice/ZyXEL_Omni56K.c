@@ -6,7 +6,7 @@
  * Based on code for Elite 2864 modems (ZyXEL_2864.c), with
  * corrections made by Const Kaplinsky <const@ce.cctpu.edu.ru>
  *
- * $Id: ZyXEL_Omni56K.c,v 1.1 2000/06/11 16:19:14 marcs Exp $
+ * $Id: ZyXEL_Omni56K.c,v 1.2 2000/07/22 10:03:23 marcs Exp $
  *
  */
 
@@ -271,5 +271,6 @@ voice_modem_struct ZyXEL_Omni56K =
      &ZyXEL_Omni56K_voice_mode_on,
      &IS_101_wait,
      &IS_101_play_dtmf,
+     &IS_101_check_rmd_adequation,
      0
      };
