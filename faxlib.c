@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.30 1997/12/10 18:55:59 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.31 1997/12/11 22:11:39 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -21,7 +21,7 @@
 #include "policy.h"
 #include "fax_lib.h"
 
-Modem_type modem_type = Mt_class2;	/* if uninitialized, assume class2 */
+Modem_type modem_type = Mt_unknown;	/* uninitialized */
 
 char	fax_remote_id[40];		/* remote FAX id +FTSI */
 char	fax_param[1000];		/* transm. parameters +FDCS */
@@ -313,6 +313,11 @@ int fax_set_l_id _P2( (fd, fax_id), int fd, char * fax_id )
 {
     char flid[60];
 
+#ifdef CLASS1
+    if ( modem_type == Mt_class1 )
+		return fax1_set_l_id( fd, fax_id );
+#endif
+
     if ( modem_type == Mt_class2_0 )
         sprintf( flid, "AT+FLI=\"%.40s\"",  fax_id );
     else
@@ -331,6 +336,11 @@ int fax_set_fdcc _P4( (fd, fine, max, min),
 		      int fd, int fine, int max, int min )
 {
     char buf[50];
+
+#ifdef CLASS1
+    if ( modem_type == Mt_class1 )
+		return fax1_set_fdcc( fd, fine, max, min );
+#endif
 
 #ifdef FAX_USRobotics			/* will go away...! */
     modem_quirks |= MQ_USR_FMINSP;
@@ -424,6 +434,10 @@ int faxmodem_bit_order = 0;
 int fax_set_bor _P2( (fd, bor), int fd, int bor )
 {
     char buf[20];
+#ifdef CLASS1
+    if ( modem_type == Mt_class1 )
+		fax1_set_bor( fd, bor );
+#endif
 
     faxmodem_bit_order = bor;
 
@@ -451,7 +465,8 @@ char *mc;
     /* data modem? unknown mclass? handle as "auto" (for sendfax) */
     if ( strcmp( mclass, "cls2" ) != 0 &&
 	 strcmp( mclass, "c2.0" ) != 0 &&
-	 strcmp( mclass, "auto1") != 0 )
+	 strcmp( mclass, "auto1") != 0 &&
+	 strcmp( mclass, "cls1" ) != 0 )
     {
 	mclass = "auto";
     }
@@ -507,6 +522,17 @@ char *mc;
 	    return Mt_class2_0;
 	}
     }
+
+#ifdef CLASS1
+    /* if explicitely requested, do class 1 (EXPERIMENTAL) */
+    if ( strcmp( mclass, "cls1" ) == 0 )
+    {
+	if ( mdm_command( "AT+FCLASS=1", fd ) == SUCCESS )
+	{
+	    return Mt_class1;
+	}
+    }
+#endif
 
     /* not a 2.0 modem (or not allowed to check),
        simply *try* class 2, nothing to loose */
