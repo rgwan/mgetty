@@ -3,14 +3,14 @@
 #
 # This is the Makefile for libvoice.
 #
-# $Id: Makefile,v 1.5 1998/11/17 11:48:38 marc Exp $
+# $Id: Makefile,v 1.6 1999/01/23 15:17:03 marcs Exp $
 #
 
 VOICEOBJS=analyze.o close.o command.o detect.o event.o flush.o \
 	init.o mode.o open.o play.o read.o record.o shell.o signal.o write.o \
 	voice_fax.o \
 	Cirrus_Logic.o Digi_RAS.o Dolphin.o Dr_Neuhaus.o Elsa.o IS_101.o \
-	ISDN4Linux.o Multitech_2834.o Rockwell.o Sierra.o UMC.o \
+	ISDN4Linux.o Multitech_2834.o Rockwell.o Sierra.o Supra.o UMC.o \
 	US_Robotics.o ZyXEL_1496.o ZyXEL_2864.o
 
 .c.o:

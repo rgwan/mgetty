@@ -3,7 +3,7 @@
  *
  * Defines the structure with data and routines for the hardware drivers.
  *
- * $Id: hardware.h,v 1.5 1998/11/17 11:48:35 marc Exp $
+ * $Id: hardware.h,v 1.6 1999/01/23 15:17:01 marcs Exp $
  *
  */
 
@@ -86,6 +86,7 @@ extern voice_modem_struct Dr_Neuhaus;
 extern voice_modem_struct Elsa;
 extern voice_modem_struct IS_101;
 extern voice_modem_struct ISDN4Linux;
+extern voice_modem_struct Supra;
 extern voice_modem_struct Multitech_2834ZDXv;
 extern voice_modem_struct Rockwell;
 extern voice_modem_struct Sierra;

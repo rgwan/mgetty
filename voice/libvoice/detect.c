@@ -3,7 +3,7 @@
  *
  * autodetect the modemtype we are connected to.
  *
- * $Id: detect.c,v 1.5 1998/11/17 11:48:40 marc Exp $
+ * $Id: detect.c,v 1.6 1999/01/23 15:17:05 marcs Exp $
  *
  */
 
@@ -17,8 +17,24 @@ struct modem_type_struct
      voice_modem_struct *modem_type;
      };
 
+struct pnp_modem_type_struct
+     {
+     const char *pnpid;
+     const char *modelid;
+     voice_modem_struct *modem_type;
+     };
+
+static const struct pnp_modem_type_struct pnp_modem_database[] =
+     {
+     {"SUP", NULL, &Supra},
+     {NULL, NULL, NULL}
+     };
+ 
+
 const char ati[] = "ATI";
 const char ati6[] = "ATI6";
+const char ati9[] = "ATI9";
+
 
 static const struct modem_type_struct modem_database[] =
      {
@@ -49,7 +65,7 @@ static const struct modem_type_struct modem_database[] =
      {ati, "56000",                NULL,   &Rockwell},
      {ati, "5601",                 NULL,   &US_Robotics},
      {ati, "961",                  NULL,   &Rockwell},
-     {ati, "Digi RAS modem 56000", NULL,&Digi_RAS},
+     {ati, "Digi RAS modem 56000", NULL,   &Digi_RAS},
      {ati, "Linux ISDN",           NULL,   &ISDN4Linux},
 
      {ati6, "OK",      NULL, &Dr_Neuhaus},
@@ -76,6 +92,8 @@ int voice_detect_modemtype(void)
           }
      else
           {
+          int i;
+          char *s;
 
           /*
            * First of all, let's see if a modem is connected and answering
@@ -116,6 +134,48 @@ int voice_detect_modemtype(void)
            * Let's detect the voice modem type.
            */
 
+	  /* Let's try plug and play (Rob Ryan <rr2b@pacbell.net>) */
+
+	  cmnd=(char *)ati9;
+	  if (voice_command(cmnd, "") != OK)
+               {
+               lprintf(L_WARN, "modem detection failed");
+               exit(FAIL);
+               }
+	  if (voice_read(buffer) != OK)
+                    {
+                    lprintf(L_WARN, "modem detection failed");
+                    exit(FAIL);
+	  }
+	  s = strchr(buffer, '(');
+	  if (s && s[1] > 0 && s[2] == '$')
+	  	{
+	  	s+=3;
+	  	i = 0;
+	  	while (voice_modem == &no_modem &&
+	  	     pnp_modem_database[i].pnpid &&
+	  	     strncmp(pnp_modem_database[i].pnpid, s, 3) == 0)
+	  		{
+	  		if (pnp_modem_database[i].modelid == NULL ||
+	  		   strncmp(pnp_modem_database[i].modelid,
+			   s+3, 4) == 0)
+				{
+				voice_modem =
+					pnp_modem_database[i].modem_type;
+				break;
+				}
+			i++;
+	      		}
+	     	 /* eat the OK... */
+	         voice_read(buffer);
+	  	}
+
+	  if (voice_modem != &no_modem)
+	  	{
+          	lprintf(L_NOISE, "voice modem type was set by pnp id");
+         	 return(OK);
+         	}
+
           cmnd = (char *) ati;
 
           if (voice_command(cmnd, "") != OK)
@@ -126,9 +186,6 @@ int voice_detect_modemtype(void)
 
           do
                {
-               char *s;
-               int i;
-
                if (voice_read(buffer) != OK)
                     {
                     lprintf(L_WARN, "modem detection failed");

@@ -5,7 +5,7 @@
  * wavtopvf converts from the Windows-Format .wav. to pvf
  * (portable voice format)
  *
- * $Id: wavtopvf.c,v 1.4 1998/09/09 21:07:57 gert Exp $
+ * $Id: wavtopvf.c,v 1.5 1999/01/23 15:17:09 marcs Exp $
  *
  */
 
@@ -25,6 +25,7 @@ static void usage (void)
      fprintf(stderr, "\t-8     output 8 bit samples\n");
      fprintf(stderr, "\t-16    output 16 bit samples\n");
      fprintf(stderr, "\t-32    output 32 bit samples (default)\n\n");
+     fprintf(stderr, "WARNING: does not support stereo. Merge the channels first\n");
      exit(ERROR);
      }
 

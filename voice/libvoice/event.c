@@ -4,7 +4,7 @@
  * This is the callback function for the modem to the higher level
  * routines.
  *
- * $Id: event.c,v 1.4 1998/09/09 21:07:30 gert Exp $
+ * $Id: event.c,v 1.5 1999/01/23 15:17:06 marcs Exp $
  *
  */
 
@@ -86,9 +86,16 @@ void reset_watchdog(void)
 int voice_handle_event(int event, event_data data)
      {
      int result;
+     char buffer[2];
 
-     lprintf(L_JUNK, "%s: voice_handle_event got event %s with data <%c>", program_name, event_name(event),
-      data.c);
+     buffer[0] = data.c;
+     buffer[1] = '\0';
+     lprintf(L_JUNK,
+             "%s: voice_handle_event got event %s with data <%s>",
+             program_name,
+             event_name(event),
+             data.c ? buffer
+                    : "NUL");
 
      if ((event == FAX_CALLING_TONE) && (cvd.ignore_fax_dle.d.i))
           return(OK);
