@@ -1,3 +1,4 @@
 Makefile
 t_config.c
 t_echo.in
+t_trap.in

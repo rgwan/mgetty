@@ -1,14 +1,14 @@
 # Makefile for the "t/" subtree
 # of mgetty+sendfax
 #
-# CVS: $Id: Makefile,v 1.2 2004/11/11 20:47:45 gert Exp $ Copyright (c) Gert Doering
+# CVS: $Id: Makefile,v 1.3 2005/02/27 11:51:58 gert Exp $ Copyright (c) Gert Doering
 #
 
 CC=gcc
 CFLAGS=-O2 -I.. -g 
 
 TEST_PROGRAMS=t_config
-TEST_SCRIPTS=t_echo
+TEST_SCRIPTS=t_echo t_trap
 
 test: $(TEST_PROGRAMS)
 	@for f in $(TEST_PROGRAMS) ; \
