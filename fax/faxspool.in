@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 4.17 2000/08/06 18:06:21 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 4.18 2000/10/11 10:06:41 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -26,6 +26,9 @@
 #  3.10.93: use "hp2hig3" for hp-pcl4-files (cl)
 # 19.10.93: phone directories (caz)
 # $Log: faxspool.in,v $
+# Revision 4.18  2000/10/11 10:06:41  gert
+# fix combination of "copy_sorce" and "faxspool.rules" (command line destroyed)
+#
 # Revision 4.17  2000/08/06 18:06:21  gert
 # make wording of success message clearer for -t <hh:mm> case
 #
@@ -850,7 +853,7 @@ done
 if [ ! -z "$copy_source" ] ; then
     $echo "\nCopy source files (for printing, if faxing fails)..."
     mkdir $spooldir/.source-files
-    for file
+    for file in $input_data
     do
 	b=`basename $file`
 	cp $file $spooldir/.source-files/$b
