@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.32 1998/08/31 18:43:24 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.33 1998/10/25 21:54:36 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -2857,6 +2857,9 @@ The USR modems support Caller ID delivery (both the I-Modem series and the
 analog ones).  Switch it on with @code{AT#CID=1} and mgetty should
 automatically be able to recognize the incoming caller ID.  If not, show
 me a detailed log file...
+
+Firmware upgrades and documentation are available on @code{ftp.usr.de}
+in the directory @file{/pub/USRobotics/modem/...}.
 
 @node Elink-ISDN, Class 1, USR, Modems
 @subsection Elink ISDN Terminal Adaptors 293, 310, 393 with X.75 and V.110
