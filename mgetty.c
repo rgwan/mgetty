@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.100 1994/04/11 11:52:16 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.101 1994/04/18 00:38:46 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -595,8 +595,13 @@ waiting:
 	    /* timeout - the phone stopped ringing? (human picked up) */
 	    if ( rings < rings_wanted && what_action == A_TIMOUT )
 	    {
-		lprintf( L_MESG, "phone stopped ringing" );
 		rmlocks();		/* free line again */
+		if ( rings == 0 )	/* no ring *at all* */
+		{
+		    lprintf( L_WARN, "huh? Junk on the line?" );
+		    exit(0);		/* let init restart mgetty */
+		}
+		lprintf( L_MESG, "phone stopped ringing" );
 		goto waiting;
 	    }
 
