@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 2.2 1994/12/11 18:13:40 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 2.3 1994/12/12 14:26:43 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -208,7 +208,7 @@ char	DevId[3];
 	 {
 	     if ( temp[i-1] != '-' ) temp[i++] = '-' ;
 	 }
-         else if ( c != '"' ) temp[i++] = c;
+         else if ( c != '"' && c != '\'' ) temp[i++] = c;
     }
     if ( temp[i-1] == '-' ) i--;
     sprintf( &temp[i], ".%02d", pagenum );
