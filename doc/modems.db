@@ -1273,3 +1273,45 @@ remarks: poor doc, you'll have to phone Kortex (several times) to get info
 contributor:		quercia@cal.enst.fr
 
 -----------------------------------------------------------------------
+Date: Wed, 20 May 1998 21:18:27 +0200
+From: Karel Vanthuyne <Karel.Vanthuyne@village.uunet.be>
+Subject: Re: latest release of mgetty (1.1.14) solved the problems with my E-tech modem!
+
+Modem brand/model:      E-Tech Golden Bullet E336RVP
+ATJ                     E336RVP, 00, Ver 8.00, A75F, RCV336ACF/SP 
+ATI0                    33600
+ATI3                    V2.050-V34_ACF_DS1
+ATI6                    RCV336DPFSP Rev 44BC
+AT+FCLASS=?             0,1,1.0,80
+tested on:              Linux 2.0.30 (RedHat 4.2)/UART 16550A
+working:                vgetty
+contributor:            Karel.Vanthuyne@village.uunet.be
+
+changes in voice.conf:
+
+port_speed 115200
+
+policy.h:
+
+#define DEFAULT_PORTSPEED       115200
+#define MODEM_INIT_STRING       "ATV1E1&D3&C1X4&K3Q0W2N1L0S11=100"
+#define MODEM_CMD_SUFFIX "\r"
+#define DEFAULT_MODEMTYPE "auto"
+#define DO_CHAT_SEND_DELAY 50
+#define DATA_FLOW       FLOW_HARD
+
+Remark: 
+
+Note that this modem only supports fax class 1 and 1.0
+Setting the modem-type to "auto" is harmless: vgetty doesn't detect fax
+class 2/2.0 capability and just disables faxing.
+Which is fine if you're only interested in using this modem for incoming
+voice calls and data calls.
+The modem doesn't seem to automatically distinguish between voice and
+data, so I wrote a script to take care of that (caller has to press "0"
+to get a data answering tone next time he calls).
+
+However, it seems that work is in progress for fax class 1 support 8-)
+I use efax for sending faxes right now.
+
+-----------------------------------------------------------------------
