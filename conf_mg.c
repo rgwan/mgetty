@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.c,v 3.4 1996/06/04 19:51:07 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_mg.c,v 3.5 1996/07/09 11:59:22 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_mg.c
  *
@@ -38,9 +38,15 @@ extern char * mgetty_version;		/* mgetty.c/version.h */
 /* initialize the modem - MODEM_INIT_STRING defined in policy.h
  */
 static char * def_init_chat_seq[] = { "",
-			    "\\d\\d\\d+++\\d\\d\\d\r\\dATQ0V1H0", "OK",
+			    "\\dATQ0V1H0", "OK",
 			    MODEM_INIT_STRING, "OK",
                             NULL };
+
+/* "force init" the modem (DLE ETX for voice modems, +++ATH0 for all others)
+ */
+static char * def_force_init_chat_seq[] = { "",
+			    "\\d\020\03\\d\\d\\d+++\\d\\d\\d\r\\dATQ0V1H0", 
+			    "OK", NULL };
 
 /* default way to answer the phone...
  */
@@ -74,6 +80,7 @@ struct conf_data_mgetty c = {
 	{ "fax-only", FALSE, CT_BOOL, C_PRESET },
 	{ "modem-type", (p_int) DEFAULT_MODEMTYPE, CT_STRING, C_PRESET },
 	{ "init-chat", 0, CT_CHAT, C_EMPTY },
+	{ "force-init-chat", 0, CT_CHAT, C_EMPTY },
 
 	{ "modem-check-time", MODEM_CHECK_TIME, CT_INT, C_PRESET },
 	{ "rings", 1, CT_INT, C_PRESET },
@@ -154,6 +161,9 @@ conf_data c_a[2];
     /* initialize a few things that can't be done statically */
     c.init_chat.d.p = (void *) def_init_chat_seq;
     c.init_chat.flags = C_PRESET;
+
+    c.force_init_chat.d.p = (void *) def_force_init_chat_seq;
+    c.force_init_chat.flags = C_PRESET;
 
     c.answer_chat.d.p = (void *) def_answer_chat_seq;
     c.answer_chat.flags = C_PRESET;
