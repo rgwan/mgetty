@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.5 1993/03/23 12:23:16 gert Exp $ (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.6 1993/03/24 15:08:27 gert Exp $ (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -363,7 +363,7 @@ char	poll_directory[MAXPATH] = ".";		/* FIXME: parameter */
 #if 0
 	    if ( fax_send_page( fax_page_header, fd ) == ERROR ) break;
 #else
-	    fprintf( stderr, "WARNING: no page header is transmitted. Does not work yet!" );
+	    fprintf( stderr, "WARNING: no page header is transmitted. Does not work yet!\n" );
 #endif
 	    /* NO page punctuation, we want the next file on the same page
 	     */
