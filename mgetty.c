@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.103 1994/04/25 12:00:22 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.104 1994/04/26 22:00:48 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -18,10 +18,6 @@
 #include <pwd.h>
 #include <sys/types.h>
 #include <sys/times.h>
-
-#ifndef sun
-#include <sys/ioctl.h>
-#endif
 
 #include <sys/stat.h>
 #include <signal.h>
