@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 4.4 1997/03/31 20:51:26 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 4.5 1997/07/13 14:08:04 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -206,7 +206,8 @@ void fax_close _P1( (fd),
 		    int fd )
 {
     fax_send( "AT+FCLASS=0", fd );
-    delay(100);
+    delay(500);
+    tio_flush_queue( fd, TIO_Q_BOTH );		/* unlock flow ctl. */
     close( fd );
     rmlocks();
 }
@@ -372,6 +373,7 @@ int main _P2( (argc, argv),
     {
 	lprintf( L_ERROR, "modem doesn't talk to me" );
 	fprintf( stderr, "The modem doesn't respond!\n" );
+	tio_flush_queue( fd, TIO_Q_BOTH );	/* unlock flow ctl. */
 	close(fd);
 	rmlocks();
 	exit(3);
