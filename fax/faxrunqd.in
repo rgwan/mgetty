@@ -9,10 +9,16 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.22 1998/02/11 09:00:16 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.23 1998/02/12 13:53:32 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.23  1998/02/12 13:53:32  gert
+# remove $max_modems (obsolete)
+# reduce default "check queue after..." time to 5 minutes
+# adjust delay times for failed jobs (locked, modem dead, ...)
+# clean up logging (if $opt_v/if $opt_d)
+#
 # Revision 1.22  1998/02/11 09:00:16  gert
 # Finish per-modem queues
 # implement priority on per-modem queues
@@ -118,7 +124,6 @@ $policy_config='';
 # CONFIGURATION: modem lines
 #
 $opt_l = 'tty2';
-$max_modems = 1;	# how many parallel sendfax processes possible (FIXME)
 
 #
 # CONFIGURATION: default settings, overwritten from $faxrunq_cf
@@ -227,7 +232,7 @@ if ( open( CF, $faxrunq_cf ) )
 	elsif ( /^\s*maxfail-total\s+(\d+)/ )
 		{ $max_tries_total = $1; }
 	elsif ( /^\s*max-modems\s+(\d+)/ )
-		{ $max_modems = $1; }
+		{ print STDERR "WARNING: faxrunq.config parameter 'max-modems' is obsolete, use '-l'\n";}
 	elsif ( /^\s*faxrunqd-log\s+(\S+)/ )
 		{ $faxrd_log = "$1"; }
 	elsif ( /^\s*acct-log\s+(\S+)/ )
@@ -289,7 +294,7 @@ print LOG "\n" . localtime() .": faxrunqd starting, pid=$$\n$rcs_id\n";
 %queue = ();
 
 $queue_last_read = time();		# check queue directory ...
-$queue_read_interval = 600;		# ... every 5 minutes
+$queue_read_interval = 300;		# ... every 5 minutes
 $queue_last_flushed = time();		# flush internal queue ...
 $queue_flush_interval = 3600;		# ... once per hour
 
@@ -381,7 +386,8 @@ while( 1 )
 	# leave loop if a queue is empty
 	if ( $mq_length{$tty} <= 0 )
 	{
-	    print LOG "* queue $tty empty, rescan on-disk-queue\n"; last;
+	    print LOG "* queue $tty empty, rescan on-disk-queue\n" if $opt_v; 
+	    last;
 	}
 
 	# make sure that queue is read often enough - otherwise, a high
@@ -427,7 +433,7 @@ while( 1 )
 	    if ( $queue{$jj}{status} ne 'active' &&
 		 $queue{$jj}{status} ne 'delayed' )
 	    {
-		print LOG "$jj: status='${queue{$jj}{status}}', flush\n";
+		print LOG "$jj: status='${queue{$jj}{status}}', flush\n" if $opt_d;
 		delete $queue{$jj};
 	    }
 	}
@@ -464,7 +470,7 @@ while( 1 )
     {
 	print LOG "Graceful Exit: wait for $childs child processes\n";
 	while ( $childs > 0 )
-	    { $tty=&wait_for_child; print LOG "* tty '$tty' done\n"; }
+	    { $tty=&wait_for_child; print LOG "* tty '$tty' done\n" if $opt_v; }
 	&signal_handler(USR2);
     }
 
@@ -1021,10 +1027,15 @@ my ($r, $s, $ex, $j, $t);
 	}			# end if ( max tries exceeded )
 	else			# requeue...
 	{
-	    if ( $ex == 2 || $ex == 4 ) 	# locked or BUSY
+	    if ( $ex == 4 ) 			# BUSY: delay 5 minutes
 	    {
 		$queue{$j}->{'status'}='delayed';
 		$queue{$j}->{'delayed_until'}=time()+300;
+	    }
+	    elsif ( $ex == 2 || $ex == 3 || $ex == 5 ) # HW unavailable?
+	    {
+		$queue{$j}->{'status'}='delayed';
+		$queue{$j}->{'delayed_until'}=time()+20;
 	    }
 	    else				# requeue immediately
 	    {
