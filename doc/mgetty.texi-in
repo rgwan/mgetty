@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.40 1999/07/24 21:26:32 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.41 1999/08/08 17:27:18 marcs Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -2037,8 +2037,12 @@ machine if you have a modem that understands the voice command set
 The first version of these extentions was written by Klaus Weidner. 
 
 Since February 1995 these extentions are now developed and maintained 
-by Marc Eberhard (Marc.Eberhard@@Poseidon.ThPhy.Uni-Duesseldorf.DE) 
-so please send email about the voice features to him, not to me.
+by Marc Eberhard (Marc.Eberhard@@Poseidon.ThPhy.Uni-Duesseldorf.DE).
+Since late 1998, Marc Schaefer (schaefer@@alphanet.ch) took over
+vgetty development. Please see
+http://www-internal.alphanet.ch/~schaefer/vgetty.html for vgetty
+specific information, patches and releases, and please
+send email about the voice features to him, not to me.
 
 @strong{I have removed the whole chapter from the documentation for 
 now, as the voice stuff has changed too much, but the docs were not
