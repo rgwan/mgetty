@@ -134,8 +134,16 @@ more options).
 .SH BUGS
 .I faxrunq
 doesn't handle proper time scheduling yet
+
+Don't use
+.I faxrunq
+if you have malevolent users with access to the fax spool.  It doesn't
+handle all cases of file movement tricks correctly.  Use
+.I faxrunqd(8)
+instead, which does it correctly.
+
 .SH "SEE ALSO"
 faxspool(1), sendfax(8), faxq(1), faxqueue(5), faxrunqd(8)
 .SH AUTHOR
 .I faxrunq
-is Copyright (C) 1993 by Gert Doering, <gert@greenie.muc.de>.
+is Copyright (C) 1993-2002 by Gert Doering, <gert@greenie.muc.de>.
