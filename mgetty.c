@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 3.25 1996/11/14 22:43:07 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 3.26 1996/11/24 12:21:41 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -724,7 +724,10 @@ int main _P2((argc, argv), int argc, char ** argv)
 			      &what_action,
 			      ( c_bool(ringback) && rings == 0 )
 				    ? c_int(ringback_time) : ring_chat_timeout,
-			      TRUE ) == FAIL 
+			      TRUE ) == FAIL
+#ifdef DIST_RING
+		    && ( what_action < A_RING1 || what_action > A_RING5 )
+#endif
 		   ) break;
 		rings++;
 	    }
