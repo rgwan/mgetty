@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.6 1993/07/03 15:15:30 gert Exp $ Gert Doering"
+#ident "$Id: faxrec.c,v 1.7 1993/07/25 16:24:40 gert Exp $ Gert Doering"
 
 /* faxrec.c - part of the ZyXEL getty
  *
@@ -19,6 +19,7 @@
 #include <signal.h>
 #include <time.h>
 #include <malloc.h>
+#include <termio.h>
 
 #include "mgetty.h"
 #include "fax_lib.h"
@@ -29,22 +30,40 @@
 
 void fax_notify_mail( int number_of_pages );
 #ifdef FAX_NOTIFY_PROGRAM
-void fax_notify_program( char * directory, int number_of_pages );
+void fax_notify_program( int number_of_pages );
 #endif
 
-void faxrec( void )
+void faxrec( char * spool_in )
 {
 int pagenum = 0;
+struct termio termio;
 
     log_level = L_NOISE;	/* log all */
 
     lprintf( L_NOISE, "fax receiver: entry" );
 
+    /* Setup tty interface
+     * Do not set c_cflag, assume that caller has set bit rate,
+     * hardware handshake, ... properly
+     */
+
+    ioctl( STDIN, TCGETA, &termio );
+#ifdef FAX_RECEIVE_USE_IXOFF
+    termio.c_iflag = IXOFF;		/* xon/xoff flow control */
+#else
+    termio.c_iflag = 0;			/* do NOT process input! */
+#endif
+    termio.c_oflag = OPOST|ONLCR;	/* nl -> cr mapping for modem */
+    termio.c_lflag = 0;			/* disable signals and echo! */
+    termio.c_cc[VMIN] = 1;
+    termio.c_cc[VTIME]= 0;
+    ioctl( STDIN, TCSETA, &termio );
+
     /* read: +FTSI:, +FDCS, OK */
 
     fax_wait_for( "OK", 0 );
 
-    fax_get_pages( 0, &pagenum, FAX_SPOOL_IN );
+    fax_get_pages( 0, &pagenum, spool_in );
 
     lprintf( L_NOISE, "fax receiver: hangup & end" );
 
@@ -53,7 +72,7 @@ int pagenum = 0;
 
 #ifdef FAX_NOTIFY_PROGRAM
     /* notify program */
-    fax_notify_program( FAX_SPOOL_IN, pagenum );
+    fax_notify_program( pagenum );
 #endif
 }
 
@@ -288,7 +307,7 @@ char	buf[100];
 }
 
 #ifdef FAX_NOTIFY_PROGRAM
-void fax_notify_program( char * directory, int pagenum )
+void fax_notify_program( int pagenum )
 {
 int	r;
 char *	line;
