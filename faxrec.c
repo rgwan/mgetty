@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 4.5 1997/12/16 11:39:24 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 4.6 1999/01/12 13:20:34 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -43,11 +43,12 @@ time_t	time _PROTO(( long * tloc ));
  * class 2 standard as implemented in the SupraFAX Faxmodem
  */
 
-void fax_notify_mail _PROTO(( int number_of_pages, char * mail_to ));
+void fax_notify_mail _PROTO(( int number_of_pages, int p_number_of_pages, 
+			      char * mail_to ));
 #ifdef FAX_NOTIFY_PROGRAM
 void fax_notify_program _PROTO(( int number_of_pages ));
 #endif
-void faxpoll_send_pages _PROTO(( int fd, TIO * tio, char * pollfile));
+void faxpoll_send_pages _PROTO(( int fd, int *ppagenum, TIO * tio, char * pollfile));
 
 char * faxpoll_server_file = NULL;
 
@@ -55,7 +56,7 @@ void faxrec _P6((spool_in, switchbd, uid, gid, mode, mail_to),
 		char * spool_in, unsigned int switchbd,
 		int uid, int gid, int mode, char * mail_to)
 {
-int pagenum = 0;
+int pagenum = 0, ppagenum = 0;		/* pages received / sent */
 TIO tio;
 extern  char * Device;
 
@@ -128,7 +129,7 @@ extern  char * Device;
     {
 	lprintf( L_MESG, "starting fax poll send..." );
 	
-	faxpoll_send_pages( 0, &tio, faxpoll_server_file );
+	faxpoll_send_pages( 0, &ppagenum, &tio, faxpoll_server_file );
     }
 
     call_done = time(NULL);
@@ -137,7 +138,7 @@ extern  char * Device;
 
     /* send mail to MAIL_TO */
     if ( mail_to != NULL && strlen(mail_to) != 0 )
-        fax_notify_mail( pagenum, mail_to );
+        fax_notify_mail( pagenum, ppagenum, mail_to );
 
 #ifdef FAX_NOTIFY_PROGRAM
     /* notify program */
@@ -147,16 +148,17 @@ extern  char * Device;
     call_done = call_done - call_start;
     /* write audit information and return (caller will exit() then) */
     lprintf( L_AUDIT,
-"fax dev=%s, pid=%d, caller='%s', name='%s', id='%s', +FHNG=%03d, pages=%d, time=%02d:%02d:%02d\n",
-	Device, getpid(), CallerId, CallName, fax_remote_id, fax_hangup_code, pagenum,
+"fax dev=%s, pid=%d, caller='%s', name='%s', id='%s', +FHNG=%03d, pages=%d/%d, time=%02d:%02d:%02d\n",
+	Device, getpid(), CallerId, CallName, fax_remote_id, 
+	fax_hangup_code, pagenum, ppagenum,
 	call_done / 3600, (call_done / 60) % 60, call_done % 60);
 }
 
 extern	char *	fax_file_names;
 extern	int	fax_fn_size;
 
-void fax_notify_mail _P2( (pagenum, mail_to),
-			  int pagenum, char * mail_to )
+void fax_notify_mail _P3( (pagenum, ppagenum, mail_to),
+			  int pagenum, int ppagenum, char * mail_to )
 {
 FILE  * pipe_fp;
 char  * file_name, * p;
@@ -185,10 +187,12 @@ extern  char * Device;
 #endif
 
     if ( fax_hangup_code == 0 )
+    {
 	if ( pagenum != 0 || !fax_poll_req )
 	    fprintf( pipe_fp, "A fax was successfully received:\n" );
 	else
 	    fprintf( pipe_fp, "A to-be-polled fax was successfully sent:\n" );
+    }
     else
         fprintf( pipe_fp, "An incoming fax transmission failed (+FHNG:%3d):\n",
                  fax_hangup_code );
@@ -197,7 +201,8 @@ extern  char * Device;
     fprintf( pipe_fp, "Pages received: %d\n", pagenum );
     if ( fax_poll_req )
     {
-	fprintf( pipe_fp, "Pages sent    : %s\n", faxpoll_server_file );
+	fprintf( pipe_fp, "Pages sent    : %d\n", ppagenum );
+	fprintf( pipe_fp, "Fax poll specs: %s\n", faxpoll_server_file );
     }
 
     fprintf( pipe_fp, "\nModem device: %s\n", Device );
@@ -311,8 +316,8 @@ char *	line;
 }
 #endif
 
-void faxpoll_send_pages _P3( (fd, tio, pollfile),
-			     int fd, TIO * tio, char * pollfile )
+void faxpoll_send_pages _P4( (fd, ppagenum, tio, pollfile),
+			     int fd, int *ppagenum, TIO *tio, char *pollfile )
 {
     FILE * fp;
     char buf[MAXPATH];
@@ -338,6 +343,7 @@ void faxpoll_send_pages _P3( (fd, tio, pollfile),
 
 	/* send page, no more pages to follow */
 	fax_send_page( faxpoll_server_file, NULL, tio, pp_eop, fd );
+	(*ppagenum)++;
 
 	return;
     }
@@ -384,6 +390,7 @@ void faxpoll_send_pages _P3( (fd, tio, pollfile),
 	        lprintf( L_WARN, "fax poll: +FPS: %d", fax_page_tx_status );
 	}
 	while( fax_page_tx_status == 2 && tries < 2 );
+	(*ppagenum)++;
     }
     fclose( fp );
 }
