@@ -4,9 +4,12 @@
 # 
 # Copyright 1998 Gert Doering, gert@greenie.net
 #
-# CVS: $Id: faxhists.in,v 1.1 1998/11/24 15:51:01 gert Exp $
+# CVS: $Id: faxhists.in,v 1.2 1998/12/04 14:57:54 gert Exp $
 #
 # $Log: faxhists.in,v $
+# Revision 1.2  1998/12/04 14:57:54  gert
+# substitute regex specials for dummy users
+#
 # Revision 1.1  1998/11/24 15:51:01  gert
 # Fax History Search - first cut
 #
@@ -108,6 +111,11 @@ print <<EOF;
 </table>
 </FORM>
 EOF
+
+# escape some special characters 'cause users don't understand real regex's...
+print "<!-- \$acct='$acct' =>";
+$acct =~ s/([\[\]\.])/\\$1/g;  $acct =~ s/\?/./g;  $acct =~ s/\*/.*/g;
+print "'$acct'-->\n";
 
 if ( $faxnr ne '' || $user ne '' || $acct ne '' )
 {
