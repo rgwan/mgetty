@@ -1,4 +1,4 @@
-#ident "$Id: goodies.c,v 3.2 1996/02/24 21:42:34 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: goodies.c,v 3.3 1996/03/03 16:22:36 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /*
  * goodies.c
@@ -14,6 +14,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <sys/types.h>
 #include <pwd.h>
 #include <grp.h>
 #include <sys/stat.h>
