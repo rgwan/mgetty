@@ -389,3 +389,5 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
 262) faxrunqd: smarter algorithm for "modem is broken"
      (locked = doesn't count, can't init = +1, NO CARRIER = +0.2)
 
+263) faxspool.rules: add sample mappings for PDF (via acroread, xpdf,
+     recent ghostscript versions)
