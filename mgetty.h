@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.h,v 1.64 1994/08/21 16:47:11 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 1.65 1994/09/04 23:17:52 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -187,7 +187,7 @@ int getdiskstats _PROTO ((char *path, mntinf *mi));
 extern char * mktemp _PROTO(( char * template ));
 
 #if  !defined(linux) && !defined(SVR4) && !defined(__hpux) && \
-     !defined(BSD) && !defined(M_UNIX)
+     !defined(BSD) && !defined(M_UNIX) && !defined(_AIX)
 extern int	getopt _PROTO(( int, char **, char * ));
 #endif
 extern int	optind;
