@@ -4,9 +4,12 @@
 # 
 # Copyright 1998 Simone Demmel simone@greenie.net
 #
-# CVS: $Id: faxq.in,v 1.1 1998/08/28 14:23:24 gert Exp $
+# CVS: $Id: faxq.in,v 1.2 1998/09/04 15:09:40 gert Exp $
 #
 # $Log: faxq.in,v $
+# Revision 1.2  1998/09/04 15:09:40  gert
+# "faxq-v.pl" is now named "faxq-v.cgi"
+#
 # Revision 1.1  1998/08/28 14:23:24  gert
 # initial release
 #
@@ -159,7 +162,7 @@ print <<EOF;
 	<td>$mail</td>
 	<td>$an</td>
   	<td>$fehlversuche</td>
-  	<td><a href="faxq-v.pl?name=$DATEI">Details</a></td>
+  	<td><a href="faxq-v.cgi?name=$DATEI">Details</a></td>
 </tr>
 EOF
   }
