@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.27 1997/12/04 11:47:11 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.28 1997/12/05 23:48:50 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -446,18 +446,37 @@ int fax_set_bor _P2( (fd, bor), int fd, int bor )
 Modem_type fax_get_modem_type _P2( (fd, mclass), int fd, char * mclass )
 {
 int rc;
+char *mc;
 
     /* data modem? unknown mclass? handle as "auto" (for sendfax) */
     if ( strcmp( mclass, "cls2" ) != 0 &&
-	 strcmp( mclass, "c2.0" ) != 0 )
+	 strcmp( mclass, "c2.0" ) != 0 &&
+	 strcmp( mclass, "auto1") != 0 )
     {
 	mclass = "auto";
     }
 
-    /* auto-identify */
-    if ( strcmp( mclass, "auto" ) == 0 &&
-	 mdm_identify( fd ) == NOERROR &&
-	 modem_type != Mt_unknown )
+    /* auto-identify via ATI code */
+    if ( strcmp( mclass, "auto" ) == 0 )
+    {
+	if ( mdm_identify( fd ) != NOERROR )  		/* error? */
+			    { mclass = "auto1"; }	/* try auto1 */
+    }
+
+    /* "auto1" is a variant of auto-identify, using AT+FCLASS=?
+     */
+    if ( strcmp( mclass, "auto1" ) == 0 )
+    {
+	mc = mdm_get_idstring( "AT+FCLASS=?", 1, fd );
+
+	lprintf( L_MESG, "available modem classes: %s", mc );
+
+	if      ( strstr( mc, "2.1" ) != NULL ) { modem_type = Mt_class2_1; }
+	else if ( strstr( mc, "2.0" ) != NULL ) { modem_type = Mt_class2_0; }
+	else if ( strstr( mc, "2" ) != NULL )   { modem_type = Mt_class2; }
+    }
+
+    if ( modem_type != Mt_unknown )
     {
 	/* set up modem accordingly */
 	switch( modem_type )
@@ -474,6 +493,7 @@ int rc;
 	}
 	if ( rc == NOERROR ) return modem_type;
     }
+
 
     /* not auto-identify, or initialization failed -> try "old way" 
      */
@@ -517,14 +537,13 @@ int mdm_identify _P1( (fd), int fd )
     /* try ATI first, ATI<n> later to sub-divide results
      */
     l = mdm_get_idstring( "ATI", 1, fd );
+    lprintf( L_NOISE, "mdm_identify: string '%s'", l );
     
-    if ( l == NULL ) 
+    if ( strcmp( l, "<ERROR>" ) == 0 ) 
     {
 	lprintf( L_WARN, "mdm_identify: can't get modem ID" );
 	return ERROR;
     }
-
-    lprintf( L_NOISE, "mdm_identify: string '%s'", l );
 
     /* all-numerical? */
     p = l;
