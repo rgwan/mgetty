@@ -1,3 +1,29 @@
+Sun Jan 17 18:22:48 1999  Gert Doering (gert@greenie.muc.de)
+
+	* release 1.1.20
+
+Sat Jan 16 18:19:36 1999  Gert Doering (gert@greenie.muc.de)
+
+	* frontends/www: detail fixes, some new features
+
+	* contrib/ptylogin/: add Marc Schaefer's ptylogin program, for
+          securing modem/shell access to really untrustworthy people.
+
+Tue Jan 12 14:39:15 1999  Gert Doering (gert@greenie.muc.de)
+
+	* cnd.c: accept ELSA (V25bis?) multi-line responses +MCR/+MRR
+
+	* faxrec.c: log number of sent pages (for polling)
+
+	* policy.h: change comments for EXEC_FUSER
+
+	* mgetty.c: remove #ifndef linux (et al) around EXEC_FUSER
+
+Sun Dec 06 20:06:35 1998  Igor Sysoev  (gert@greenie.muc.de)
+
+	* locks.c: fix internal race condition (that could lead to
+	deleteding "foreign" lock files)
+
 Tue Nov 24 21:09:05 1998  Gert Doering  (gert@greenie.muc.de)
 
 	* release 1.1.19
