@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 1.17 1993/10/22 11:11:57 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logfile.c,v 1.18 1993/11/05 21:47:46 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -28,7 +28,7 @@ extern int atexit _PROTO(( void (*)(void) ));
  * Weeeeellll... there was something about POSIX and strerror...
  */
 #if defined(ISC) || defined(SVR4) || defined(sun) || defined(_3B1_) || \
-    defined(__hpux) || defined(MEIBE) || defined(_SEQUENT_)
+    defined(__hpux) || defined(MEIBE) || defined(_SEQUENT_) || defined(AIX)
 # define atexit(dummy) 
 
 extern int sys_nerr;
