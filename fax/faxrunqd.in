@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.62 2002/11/23 15:38:27 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.63 2002/11/23 16:52:18 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.63  2002/11/23 16:52:18  gert
+# make messages more clear, print warning if running as root
+#
 # Revision 1.62  2002/11/23 15:38:27  gert
 # revert 1.52->1.53 change: write faxqueue_done to $FAX_SPOOL_OUT again
 #   (we can now run as unprivileged user, and thus have no access rights
@@ -208,7 +211,7 @@ if ( $opt_u ne '' )	# set user ID to $opt_u
     my ( $uid, $gid ) = ( getpwnam( $opt_u ) )[2,3];
 
     if ( !defined($uid) || !defined($gid) )
-		{ die "no such user: '$opt_u': $!\n"; }
+		{ die "$0: no such user: '$opt_u'\n"; }
 
     print "change user ID to '$opt_u' (numeric uid: $uid, gid: $gid)\n"
 								if $opt_d;
@@ -216,7 +219,11 @@ if ( $opt_u ne '' )	# set user ID to $opt_u
     $< = $> = $uid;
 
     if ( $> != $uid || $) != $gid )
-		{ die "can't set uid to $uid / gid to $gid: $!\n"; }
+		{ die "$0: can't set uid to $uid / gid to $gid: $!\n"; }
+}
+if ( $> == 0 )		# root check
+{
+    print STDERR "$0: running with root privileges is not recommended\n";
 }
 
 #
