@@ -1,4 +1,4 @@
-#ident "$Id: utmp.c,v 1.2 1993/09/01 22:49:26 gert Exp $ (c) Gert Doering";
+#ident "$Id: utmp.c,v 1.3 1993/09/13 21:03:09 gert Exp $ (c) Gert Doering";
 /* some parts of the code (writing of the utmp entry)
  * is based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -11,6 +11,11 @@
 #include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+
+#ifndef ENOENT
+#include <errno.h>
+#endif
+
 #endif
 
 #include "mgetty.h"
@@ -25,7 +30,7 @@ int get_current_users( void ) { return 0; }	/*! FIXME */
 #else
 
 /* define some prototypes - not all supported systems have these */
-#if !defined(SVR4) && !defined(linux)
+#if !defined(SVR4) && !defined(linux) && !defined(__hpux)
 struct	utmp	*getutent();
 struct	utmp	*pututline(struct utmp * utmp);
 void		setutent(void);

@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.43 1993/09/01 22:49:17 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.44 1993/09/13 21:03:04 gert Exp $ (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -21,14 +21,10 @@
 #include <signal.h>
 #include <fcntl.h>
 
-#ifndef ENOENT
-#include <errno.h>
-#endif
-
 #include "mgetty.h"
 
 #ifdef USE_SELECT
-#if defined (linux) || defined (sun)
+#if defined (linux) || defined (sun) || defined (__hpux)
 #include <sys/time.h>
 #else
 #include <sys/select.h>

@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 1.9 1993/09/01 22:49:14 gert Exp $ (c) Gert Doering"
+#ident "$Id: logfile.c,v 1.10 1993/09/13 21:03:03 gert Exp $ (c) Gert Doering"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -24,8 +24,9 @@ extern int atexit( void (*)(void) );
  * nevertheless I've been told that they exist - so I declare them myself.
  *
  * Strange enough, SVR4 and SunOS seems to be simiarily stupid.
+ * Weeeeellll... there was something about POSIX and strerror...
  */
-#if defined(ISC) || defined(SVR4) || defined(sun)
+#if defined(ISC) || defined(SVR4) || defined(sun) || defined(__hpux)
 #define atexit( dummy )
 extern int sys_nerr;
 extern char *sys_errlist[];

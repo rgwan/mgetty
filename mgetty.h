@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.25 1993/09/01 00:34:24 gert Exp $ (c) Gert Doering */
+/* $Id: mgetty.h,v 1.26 1993/09/13 21:03:07 gert Exp $ (c) Gert Doering */
 
 /* stuff in logfile.c */
 
@@ -81,7 +81,7 @@ int get_current_users( void );
 /********* system prototypes **************/
 char * mktemp( char * template );
 
-#if  !defined(linux) && !defined(SVR4)
+#if  !defined(linux) && !defined(SVR4) && !defined(__hpux)
 extern int	getopt( int, char **, char * );
 #endif
 extern int	optind;

@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 1.8 1993/09/01 20:57:29 gert Exp $ Gert Doering"
+#ident "$Id: faxlib.c,v 1.9 1993/09/13 21:02:59 gert Exp $ Gert Doering"
 
 /* faxlib.c
  *
@@ -153,6 +153,9 @@ int bufferp;
 
     alarm( 0 );
     signal( SIGALRM, SIG_DFL );
+
+    if ( fax_hangup && fax_hangup_code != 0 ) return ERROR;
+
     return NOERROR;
 }
 
