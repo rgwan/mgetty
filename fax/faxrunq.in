@@ -9,7 +9,7 @@
 # There are still a lot rough edges - but it works, and should give you an
 # idea how to improve it
 #
-# SCCS: $Id: faxrunq.in,v 3.1 1995/08/30 12:38:50 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxrunq.in,v 3.2 1996/03/12 22:22:58 gert Exp $ Copyright (C) 1994 Gert Doering
 
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -115,6 +115,7 @@ do
 		  $1=="header"     { flags=flags" -h "$2 }
 		  $1=="poll"       { flags=flags" -p" }
 		  $1=="normal_res" { flags=flags" -n" }
+		  $1=="acct_handle" { flags=flags" -A \""substr($0,13)"\"" }
 		  $1=="pages" { for( i=2; i<=NF; i++) pages=pages$i" " }
 		  END { printf "'"$FAX_SENDER"' -v%s %s %s", \
 			       flags, phone, pages }' JOB.locked`
