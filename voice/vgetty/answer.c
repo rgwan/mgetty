@@ -1,7 +1,7 @@
 /*
  * answer.c
  *
- * $Id: answer.c,v 1.13 1999/11/13 11:09:39 marcs Exp $
+ * $Id: answer.c,v 1.14 2000/06/11 16:23:08 marcs Exp $
  *
  */
 
@@ -209,7 +209,9 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
      char message[VOICE_BUF_LEN];
      char message_name[VOICE_BUF_LEN] = "vXXXXXX";
      char *ring_type = "ring";
+     int i, j;
      int result;
+     char c;
 
      setup_environment(); /* caller ID, called ID and stuff */
 
@@ -261,10 +263,6 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
           };
 
      get_greeting_message(greeting_message);
-     make_path(receive_dir, cvd.voice_dir.d.p, cvd.receive_dir.d.p);
-     mktemp(message_name);
-     strcat(message_name, ".rmd");
-     make_path(message, receive_dir, message_name);
      strcpy(dtmf_code, "");
      execute_dtmf_script = FALSE;
      first_dtmf = TRUE;
@@ -292,6 +290,35 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
           tio_set(voice_fd, &tio_save);
           return(VMA_CONNECT);
           }
+
+     make_path(receive_dir, cvd.voice_dir.d.p, cvd.receive_dir.d.p);
+     mktemp(message_name);
+
+#ifndef SHORT_FILENAMES
+     /* Include caller ID string in the file name */
+     if (strcmp(CallerId, "none")) {
+         i = strlen(message_name);
+         message_name[i++] = '-';
+         for (j = 0; j < 16 && CallerId[j]; j++) {
+             c = CallerId[j];
+             if (c == ' ' || c == '/' || c == '\\'|| c == '&' || c == ';' ||
+                 c == '(' || c == ')' || c == '>' || c == '<' || c == '|' ||
+                 c == '?' || c == '*' || c == '\''|| c == '"' || c == '`')
+                 {
+                 if (message_name[i-1] != '-')
+                     message_name[i++] = '-' ;
+                 }
+             else
+                 message_name[i++] = c;
+         }
+         if (message_name[i-1] == '-')
+             i--;
+         message_name[i] = '\0';
+     }
+#endif
+
+     strcat(message_name, ".rmd");
+     make_path(message, receive_dir, message_name);
 
      if (!(voice_modem_quirks() & VMQ_NEEDS_SET_DEVICE_BEFORE_ANSWER)) {
        if (voice_set_device(DIALUP_LINE) == FAIL) {
