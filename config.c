@@ -1,4 +1,4 @@
-#ident "$Id: config.c,v 3.4 1996/08/22 22:21:56 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: config.c,v 4.1 1997/01/12 14:53:36 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /*
  * config.c

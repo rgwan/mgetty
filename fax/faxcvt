@@ -8,7 +8,7 @@
 # - PostScript: gs -sDEVICE=dfaxhigh
 # - ASCII-Files: pbmtext -fount cour25.pbm
 #
-# SCCSID: $Id: faxcvt,v 3.2 1997/01/02 15:24:29 gert Exp $ (c) 1993 Gert Doering
+# SCCSID: $Id: faxcvt,v 4.1 1997/01/12 14:53:58 gert Exp $ (c) 1993 Gert Doering
 #
 if [ $# -lt 2 ]
 then

@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.c,v 3.9 1997/01/09 21:41:46 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_mg.c,v 4.1 1997/01/12 14:53:35 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_mg.c
  *

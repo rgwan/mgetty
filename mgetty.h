@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 3.16 1996/12/29 01:19:06 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 4.1 1997/01/12 14:53:43 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *

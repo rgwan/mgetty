@@ -1,4 +1,4 @@
-#ident "$Id: do_chat.c,v 3.4 1996/12/15 16:45:40 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: do_chat.c,v 4.1 1997/01/12 14:53:37 gert Exp $ Copyright (c) Gert Doering"
 
 /* do_chat.c
  *

@@ -1,4 +1,4 @@
-#ident "$Id: syslibs.h,v 3.2 1996/03/04 23:08:48 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: syslibs.h,v 4.1 1997/01/12 14:53:46 gert Exp $ Copyright (c) Gert Doering"
 
 /* Include stdlib.h / malloc.h, depending on the O/S
  */

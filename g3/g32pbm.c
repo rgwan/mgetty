@@ -1,4 +1,4 @@
-#ident "$Id: g32pbm.c,v 3.4 1997/01/02 15:35:39 gert Exp $ (c) Gert Doering, Chris Lewis et.al."
+#ident "$Id: g32pbm.c,v 4.1 1997/01/12 14:54:21 gert Exp $ (c) Gert Doering, Chris Lewis et.al."
 
 /* G32pbm.c
  *

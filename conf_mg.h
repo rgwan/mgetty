@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.h,v 3.4 1996/11/08 20:50:58 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: conf_mg.h,v 4.1 1997/01/12 14:53:35 gert Exp $ Copyright (c) 1994 Gert Doering"
 
 /* all (dynamic) mgetty configuration is contained in this structure.
  * It is initialized and loaded in conf_mg.c and accessed from mgetty.c

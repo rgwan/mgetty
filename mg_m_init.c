@@ -1,4 +1,4 @@
-#ident "$Id: mg_m_init.c,v 3.9 1996/11/10 18:52:45 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_m_init.c,v 4.1 1997/01/12 14:53:42 gert Exp $ Copyright (c) Gert Doering"
 
 /* mg_m_init.c - part of mgetty+sendfax
  *
