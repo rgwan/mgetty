@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.90 1994/02/10 23:28:10 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.91 1994/03/01 00:58:02 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -194,6 +194,16 @@ int main _P2((argc, argv), int argc, char ** argv)
 	(void) signal(SIGINT, SIG_IGN);
 	(void) signal(SIGQUIT, SIG_DFL);
 	(void) signal(SIGTERM, SIG_DFL);
+
+	/* some systems, notable BSD 4.3, have to be told that system
+	 * calls are to be interrupted by signals.
+	 */
+#ifdef HAVE_SIGINTERRUPT
+	siginterrupt( SIGINT,  TRUE );
+	siginterrupt( SIGALRM, TRUE );
+	siginterrupt( SIGHUP,  TRUE );
+	siginterrupt( SIGUSR1, TRUE );
+#endif
 
 	Device = "unknown";
 
