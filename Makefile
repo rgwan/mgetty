@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 1.8 1993/09/21 15:28:22 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 1.9 1993/09/30 21:41:07 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there).
@@ -61,7 +61,7 @@ FAX_SPOOL_DIR=/usr/spool/fax
 OBJS=mgetty.o logfile.o do_chat.o faxrec.o locks.o faxlib.o io.o \
      logname.o utmp.o
 SFAXOBJ=sendfax.o logfile.o locks.o faxlib.o faxrec.o io.o
-all:	mgetty sendfax tools/g3cat
+all:	mgetty sendfax tools/g3cat tools/g3topbm
 
 mgetty: $(OBJS)
 	$(CC) -o mgetty $(OBJS) $(LDFLAGS)
@@ -72,15 +72,18 @@ sendfax: $(SFAXOBJ)
 tools/g3cat: tools/g3cat.c
 	cd tools ; $(CC) $(CFLAGS) -o g3cat g3cat.c $(LDFLAGS)
 
+tools/g3topbm: tools/g3topbm.c
+	cd tools ; $(CC) $(CFLAGS) -o g3topbm g3topbm.c $(LDFLAGS)
+
 # README PROBLEMS
 DISTRIB=README.1st mgetty.texi THANKS TODO Makefile ChangeLog policy.h-dist \
         mgetty.c mgetty.h do_chat.c logfile.c logname.c locks.c \
 	faxrec.c faxlib.c fax_lib.h sendfax.c io.c utmp.c \
 	pbmtog3.p1 \
 	fax/faxcvt fax/printfax fax/faxspool fax/faxrunq \
-	tools/g3cat.c \
-	contrib/README contrib/scrts.c contrib/pbmscale.c contrib/3b1 \
-	contrib/faxin.c contrib/Makefile
+	tools/g3cat.c tools/g3topbm.c \
+	contrib/README contrib/scrts.c contrib/pbmscale.c contrib/g3toxwd.c \
+	contrib/3b1 contrib/faxin.c contrib/Makefile 
 
 policy.h-dist: policy.h
 	@rm -f policy.h-dist
