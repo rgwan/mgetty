@@ -1,4 +1,4 @@
-#ident "$Id: g32pbm.c,v 1.5 1993/10/05 14:09:11 gert Exp $ (c) Gert Doering";
+#ident "$Id: g32pbm.c,v 1.6 1993/10/06 00:34:16 gert Exp $ (c) Gert Doering";
 
 #include <stdio.h>
 #include <unistd.h>
@@ -391,7 +391,7 @@ int	col;
     {
 	if ( argv[i][1] == 'r' )	/* -reversebits */
 	{
-		init_byte_tab( 1 );
+	    init_byte_tab( 1 );
 	}
 	i++;
     }
@@ -436,7 +436,7 @@ int	col;
 	fprintf( stderr, "hibit=%2d, data=", hibit );
 	putbin( data );
 #endif
-	while ( hibit < 24 )
+	while ( hibit < 20 )
 	{
 	    data |= ( byte_tab[ (int) (unsigned char) rbuf[ rp++] ] << hibit );
 	    hibit += 8;
