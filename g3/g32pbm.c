@@ -1,4 +1,4 @@
-#ident "$Id: g32pbm.c,v 1.12 1994/03/09 10:54:48 gert Exp $ (c) Gert Doering"
+#ident "$Id: g32pbm.c,v 1.13 1994/03/11 01:46:39 gert Exp $ (c) Gert Doering"
 ;
 #include <stdio.h>
 #include <unistd.h>
@@ -62,7 +62,7 @@ int	col, hcol;
     init_byte_tab( 0, byte_tab );
 
     i = 1;
-    while ( argv[i][0] == '-' )		/* option processing */
+    while ( i<argc && argv[i][0] == '-' )/* option processing */
     {
 	if ( argv[i][1] == 'r' )	/* -reversebits */
 	{
