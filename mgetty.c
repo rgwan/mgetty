@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 4.8 1997/05/24 20:35:10 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 4.9 1997/11/28 10:30:56 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -378,6 +378,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 #endif
     lprintf( L_MESG, "mgetty: %s", mgetty_version);
     lprintf( L_NOISE, "%s compiled at %s, %s", __FILE__, __DATE__, __TIME__ );
+    lprintf( L_NOISE, "user id: %d, parent pid: %d", getuid(), getppid());
 	    
     /* read configuration file */
     mgetty_get_config( Device );
