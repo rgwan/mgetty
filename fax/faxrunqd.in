@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.20 1998/02/06 16:13:48 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.21 1998/02/06 16:28:43 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.21  1998/02/06 16:28:43  gert
+# move reading of jobs from disk to %queue up into readdir loop
+#
 # Revision 1.20  1998/02/06 16:13:48  gert
 # complete rewrite of queue handling / scheduling algorithm
 # (use per-modem queues now, scheduler is fully event-driven)
@@ -324,19 +327,16 @@ while( 1 )
 
 	    if ( $opt_v > 1 )
 		{ push @{$queue{$f}->{'flags'}}, '-v'; }
+
+	    &read_job_to_queue( $f );
 	}
     }
 
-    # we have to read in all jobs before starting to send them, because
-    # otherwise we cannot sort according to priority!!
-    print LOG localtime() . ": checking internal queue for new jobs...\n" if $opt_v;
+    # now, make sure all delayed jobs are rescheduled
+    print LOG localtime() . ": checking internal queue for delayed jobs...\n" if $opt_v;
     foreach $job ( keys %queue )
     {
-	if ( $queue{$job}->{'status'} eq 'unknown' )
-	{
-	    &read_job_to_queue( $job );
-	}
-	elsif ( $queue{$job}->{'status'} eq 'delayed' )
+	if ( $queue{$job}->{'status'} eq 'delayed' )
 	{
 	    my $s = $queue{$job}->{'delayed_until'} - time();
 	    if ( $s> 0 )
