@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 1.3 1993/05/22 16:41:30 gert Exp $ Gert Doering"
+#ident "$Id: faxlib.c,v 1.4 1993/06/01 22:51:21 gert Exp $ Gert Doering"
 
 /* faxlib.c
  *
@@ -53,7 +53,7 @@ int bufferp;
 	alarm( FAX_RESPONSE_TIMEOUT );
 
 	bufferp = 0;
-	lprintf( L_NOISE, "got:" );
+	lprintf( L_JUNK, "got:" );
 
 	/* get one string, not empty, printable chars only, ended by '\n' */
 	do
@@ -64,7 +64,7 @@ int bufferp;
 		alarm( 0 ); signal( SIGALRM, SIG_DFL );
 		return ERROR;
 	    }
-	    lputc( L_NOISE, c );
+	    lputc( L_JUNK, c );
 	    if ( isprint( c ) ) buffer[ bufferp++ ] = c;
 	}
 	while ( bufferp == 0 || c != 0x0a );
@@ -146,7 +146,7 @@ int fax_send( char * s, int fd )
 
 int fax_command( char * send, char * expect, int fd )
 {
-    lprintf( L_NOISE, "fax_command: send '%s'", send );
+    lprintf( L_MESG, "fax_command: send '%s'", send );
     if ( write( fd, send, strlen( send ) ) != strlen( send ) ||
 	 write( fd, "\r\n", 2 ) != 2 )
     {

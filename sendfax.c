@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.12 1993/05/27 21:02:45 gert Exp $ (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.13 1993/06/01 22:51:19 gert Exp $ (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -247,7 +247,7 @@ char wbuf[ sizeof(buf) * 2 ];
 		if ( wbuf[ w++ ] == DLE ) wbuf[ w++ ] = DLE;
 	    }
 
-	    lprintf(L_NOISE,"read %d, write %d", r, w );
+	    lprintf(L_JUNK,"read %d, write %d", r, w );
 
 	    if ( write( fd, wbuf, w ) != w )
 	    {
@@ -305,7 +305,7 @@ char	poll_directory[MAXPATH] = ".";		/* FIXME: parameter */
 
     /* initialize logging */
     strcpy( log_path, FAX_LOG );
-    log_level = L_MESG;
+    log_level = L_NOISE;
 
     while ((ch = getopt(argc, argv, "vx:ph:")) != EOF) {
 	switch (ch) {

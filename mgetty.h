@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.16 1993/05/02 15:22:26 gert Exp $ (c) Gert Doering */
+/* $Id: mgetty.h,v 1.17 1993/06/01 22:51:18 gert Exp $ (c) Gert Doering */
 
 /* stuff in logfile.c */
 
@@ -7,6 +7,7 @@
 #define L_WARN 2
 #define L_MESG 3
 #define L_NOISE 4
+#define L_JUNK 5
 
 extern	int	log_level;
 extern	char	log_path[];
