@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 1.34 1994/04/18 16:06:04 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 1.35 1994/04/18 16:09:59 gert Exp $ Copyright (c) Gert Doering"
 ;
 #include <stdio.h>
 #ifndef _NOSTDLIB_H
@@ -393,6 +393,7 @@ int getlogname _P4( (prompt, tio, buf, maxsize),
 	    for ( i=0; buf[i] != 0; i++ )
 	        if ( isupper( buf[i] ) ) buf[i] = tolower(buf[i]);
 	    tio_map_uclc( tio, TRUE );
+	    lprintf( L_MESG, "login name all uppercase, set IUCLC OLCUC" );
 	}
     }
 
