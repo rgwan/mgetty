@@ -1,4 +1,4 @@
-#ident "$Id: faxq-helper.c,v 4.11 2002/11/23 20:00:31 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxq-helper.c,v 4.12 2003/02/04 20:29:37 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxq-helper.c
  *
@@ -70,6 +70,8 @@ char * real_user_name;		/* user name of caller */
 
 int    fax_out_uid;		/* user ID to chown() fax jobs to */
 int    fax_out_gid;		/* group ID ... */
+
+#define	ROOT_UID	0	/* root's user ID - override checks */
 
 #define FAX_SEQ_FILE	".Sequence"
 #define FAX_SEQ_LOCK	"LCK..seq"
@@ -571,7 +573,8 @@ int fd;
 
 	if ( strncmp(buf, "user ", 5) == 0 )
 	{
-	    if ( strcmp( buf+5, real_user_name ) != 0 )
+	    if ( real_user_id != ROOT_UID &&
+		 strcmp( buf+5, real_user_name ) != 0 )
 	    {
 		eout( "user name mismatch (%s <-> %s)\n", buf+5, real_user_name );
 		break;
@@ -678,7 +681,8 @@ char jfile[MAXJIDLEN+30], lfile[MAXJIDLEN+30];
 
 	if ( strncmp(buf, "user ", 5) == 0 )
 	{
-	    if ( strcmp( buf+5, real_user_name ) != 0 )
+	    if ( real_user_id != ROOT_UID &&
+		 strcmp( buf+5, real_user_name ) != 0 )
 	    {
 		fprintf( stderr, "%s: not your job, can't do anything (%s <-> %s)\n", jfile, buf+5, real_user_name );
 		unlink( lfile );
