@@ -1,4 +1,4 @@
-#ident "$Id: sff2g3.c,v 1.2 2004/07/16 19:38:11 gert Exp $ Copyright (C) 1994 Gert Doering"
+#ident "$Id: sff2g3.c,v 1.3 2004/07/16 19:53:26 gert Exp $ Copyright (C) 1994 Gert Doering"
 
 /* sff2g3
  *
@@ -13,6 +13,10 @@
  * see also: http://sfftools.sourceforge.net/
  *
  * $Log: sff2g3.c,v $
+ * Revision 1.3  2004/07/16 19:53:26  gert
+ * portability: #define PATH_MAX if not there
+ * fix prototype warning: #include "g3.h"
+ *
  * Revision 1.2  2004/07/16 19:38:11  gert
  * add G3 output file handling
  * add function to output <n> blank lines (codes 219-253)
@@ -33,9 +37,14 @@
 #include <sys/param.h>
 
 #include "ugly.h"
+#include "g3.h"
 
 #define TRUE 1
 #define FALSE 0
+
+#ifndef PATH_MAX
+# define PATH_MAX 1024
+#endif
 
 void exit_usage _P1( (name), char * name )
 {
