@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.11 1993/03/10 23:35:45 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.12 1993/03/11 17:23:38 gert Exp $ (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -15,6 +15,11 @@
 #ifndef linux
 #include <sys/select.h>
 #endif
+#ifdef linux
+#include <sys/time.h>
+#include <sys/ioctl.h>
+#endif
+
 #include <sys/stat.h>
 #include <signal.h>
 #include <utmp.h>
@@ -99,7 +104,9 @@ void		pututline(struct utmp * utmp);
 void		setutent(void);
 void		endutent(void);
 
+#ifndef linux
 int		getopt( int, char **, char * );
+#endif
 
 time_t		time( long * tloc );
 
@@ -320,8 +327,13 @@ int main( int argc, char ** argv)
 	   with dial-outs */
 
 	lprintf( L_MESG, "waiting..." );
+#ifdef linux
+	__FD_ZERO( &readfds );
+	__FD_SET( STDIN, &readfds );
+#else
 	FD_ZERO( &readfds );
 	FD_SET( STDIN, &readfds );
+#endif
 	slct = select( 1, &readfds, NULL, NULL, NULL );
 	lprintf( L_NOISE, "select returned %d", slct );
 
