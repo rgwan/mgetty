@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 1.29 1994/02/20 09:53:58 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 1.30 1994/03/07 23:39:00 gert Exp $ Copyright (c) Gert Doering"
 ;
 #include <stdio.h>
 #ifndef _NOSTDLIB_H
@@ -310,9 +310,9 @@ newlogin:
 	    else
 		buf[i++] = ch;
 #ifdef FIDO
-	    if ( i >= 10 && strncmp( &buf[i-10], "**EMSI_INQ", 10 ) == 0 )
+	    if ( i >= 7 && strncmp( &buf[i-7], "**EMSI_", 7 ) == 0 )
 	    {
-		strcpy( buf, "\377**EMSI_INQ" ); i=11; break;
+		strcpy( buf, "\377**EMSI_" ); i=8; break;
 	    }
 #endif
 	}
@@ -320,7 +320,7 @@ newlogin:
     while ( ch != '\n' && ch != '\r' );
 
 #ifdef FIDO
-    if ( strncmp( buf, "\377**EMSI_INQ", 11 ) == 0 )
+    if ( strncmp( buf, "\377**EMSI_", 8 ) == 0 )
     {				/* read up to final \r */
 	while ( ch != '\r' )
 	{
@@ -330,6 +330,13 @@ newlogin:
 		exit(0);
 	    }
 	    if ( i < maxsize) buf[i++] = ch;
+	}
+	
+	/* log EMSI packets that are not EMSI_INQ (e.g. EMSI_DAT) */
+	if ( strncmp( buf, "\377**EMSI_INQ", 11 ) != 0 )
+	{
+	    lprintf( L_MESG, "non-INQ EMSI packet: '%.15s...', length %d",
+		              buf, i-1 );
 	}
     }
 #endif
