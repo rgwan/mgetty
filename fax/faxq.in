@@ -4,7 +4,7 @@
 #
 # like "lpq" or "mailq", show jobs waiting in the output queue
 #
-# SCCS: $Id: faxq.in,v 1.4 1994/03/02 14:30:03 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxq.in,v 1.5 1994/03/03 12:20:05 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -40,6 +40,8 @@ jobs=`ls $jobs 2>/dev/null`
 [ -z "$jobs" ] && $echo "no jobs."
 for i in $jobs
 do
+    USER=""; PHONE=""; PAGES=""; MAILTO=""; VERBTO=""; INPUT=""
+
     if [ -z "$verbose" ]
     then
 	eval `$AWK '$1=="user" { printf "USER=%s;", $2 }
@@ -48,6 +50,7 @@ do
 	$echo "$i: queued by $USER. $PAGES page(s) to $PHONE"
     else
 	eval `$AWK '$1=="user" { printf "USER=%s;", $2 }
+		   $1=="mail"  { printf "MAILTO=\"%s\";", $2 }
 		   $1=="phone" { printf "PHONE=%s;", $2 }
 		   $1=="verbose_to" \
 			       { printf "VERBTO=\"%s\";", substr( $0, 12 ) }
@@ -63,7 +66,9 @@ do
        else
 	$echo "\t       to: $VERBTO ($PHONE)"
        fi
-	test ! -z "$INPUT" && \
+       test ! -z "$MAILTO" && \
+	$echo "\t   E-Mail: $MAILTO"
+       test ! -z "$INPUT" && \
 	$echo "\t    Input: $INPUT"
 	$echo "\t    Pages: $PAGES"
 	sed -e '/Status/!d' -e 's/Status/           Status:/' $i
