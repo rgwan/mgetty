@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.29 1998/07/05 21:08:43 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.30 1998/08/07 17:42:08 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -285,8 +285,8 @@ MV=mv
 # Nothing to change below this line ---------------------------------!
 #
 MR=1.1
-SR=16
-DIFFR=1.1.15
+SR=17
+DIFFR=1.1.16
 #
 #
 OBJS=mgetty.o logfile.o do_chat.o locks.o utmp.o logname.o login.o \
@@ -381,7 +381,7 @@ DISTRIB=README.1st THANKS TODO BUGS FTP FAQ Recommend \
 	config.h config.c conf_sf.h conf_sf.c conf_mg.h conf_mg.c \
 	cnd.c getdisk.c mksed.c utmp.c mg_utmp.h syslibs.h goodies.c \
 	g3/Makefile g3/g3cat.c g3/g32pbm.c g3/g3.c g3/g3.h \
-	g3/pbm2g3.c g3/run_tbl.c 
+	g3/pbm2g3.c g3/run_tbl.c
 
 noident: policy.h
 	    for file in `find . -type f -name "*.[ch]" -print` ; do \
@@ -489,9 +489,9 @@ beta:	mgetty$(MR).$(SR).tar.gz diff
 	ssh hp2 -l doering 'cd $$HOME ; ./beta'
 
 # send to Marc and Knarf
-	head -30 ChangeLog |mail -s "mgetty$(MR).$(SR).tar.gz on greenie" knarf@camelot.de Marc@ThPhy.Uni-Duesseldorf.DE
+	head -30 ChangeLog |mail -s "mgetty$(MR).$(SR).tar.gz on greenie/alpha" knarf@camelot.de Marc@ThPhy.Uni-Duesseldorf.DE
 #	-./ftp.sh $(MR).$(SR) ftp.camelot.de /pub/incoming
-	-./ftp.sh $(MR).$(SR) poseidon.thphy.uni-duesseldorf.de /incoming
+#	-./ftp.sh $(MR).$(SR) poseidon.thphy.uni-duesseldorf.de /incoming
 	-cvs commit -m 'new version released' version.h
 
 #shar1:	$(DISTRIB)

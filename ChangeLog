@@ -1,3 +1,32 @@
+Fri Aug 07 19:41:39 1998  Gert Doering  (gert@greenie.muc.de)
+
+	* release 1.1.17
+
+Mon Aug 03 22:02:16 1998  Gert Doering  (gert@greenie.muc.de)
+
+	* policy.h: remove FAXSEND_NO_XON
+
+	* doc/mgetty.texi-in: document "modem-quirks"
+
+	* mgetty.c(main): implement "post-init-chat" for modems that
+	forget some part of their setup during fax/voice initialization
+
+	* conf_mg.c, conf_mg.h: add "post-init-chat" command
+
+Sun Aug 02 22:50:53 1998  Gert Doering  (gert@greenie.muc.de)
+
+	* mgetty.c: remove all "RING A" / "RING 1" etc. action items --
+		    they will break the new distinctive RING code in
+		    ring.c (found by Gord Lamb)
+
+Tue Jul 21 00:03:18 1998  Frank D. Cringle  (fdc@cliwe.ping.de)
+
+	* fax/faxrunqd.in: get rid of "not reached" warning after exec()
+
+Thu Jul 16 11:24:30 1998  Gert Doering (gert@greenie.muc.de)
+
+	* README.1st: point to the mailing list
+
 Sun Jul 05 22:28:05 1998  Gert Doering (gert@greenie.muc.de)
 
 	* release 1.1.16 (this bug is just too embarassing)
