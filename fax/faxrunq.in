@@ -9,7 +9,7 @@
 # There are still a lot rough edges - but it works, and should give you an
 # idea how to improve it
 #
-# SCCS: $Id: faxrunq.in,v 2.5 1995/04/04 12:49:28 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxrunq.in,v 2.6 1995/06/14 20:00:26 gert Exp $ Copyright (C) 1994 Gert Doering
 
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -147,7 +147,9 @@ do
     then
 	# transmission successful
 	$echo "Status "`date`" successfully sent" >>JOB.locked
-	( $echo "To: $MAIL_TO"
+	( 
+	  trap 0			# catch BASH bug
+	  $echo "To: $MAIL_TO"
 	  $echo "Subject: $subject"
 	  $echo "From: root (Fax Subsystem)\n"
 	  $echo "Your fax has been sent successfully at: \c"
@@ -199,7 +201,9 @@ do
 	if [ `grep "FATAL FAILURE" JOB.locked | wc -l` -gt 4 ]
 	then
 	    $echo "Status "`date`" job suspended: too many FATAL errors" >>JOB.locked
-	    ( $echo "To: $MAIL_TO"
+	    ( 
+	      trap 0			# catch BASH bug
+              $echo "To: $MAIL_TO"
 	      $echo "Subject: $subject failed"
 	      $echo "From: root (Fax Subsystem)\n"
 	      $echo "It was not possible to send your fax to $PHONE!\n"
