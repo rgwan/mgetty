@@ -7,7 +7,7 @@
 # There are still a lot rough edges - but it works, and should give you an
 # idea how to improve it
 #
-# SCCS: $Id: faxrm.in,v 4.3 1997/05/24 20:30:22 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxrm.in,v 4.4 1997/05/28 12:39:57 gert Exp $ Copyright (C) 1994 Gert Doering
 
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -71,6 +71,7 @@ do
 	    echo "$jobid: permission denied, job not removed." >&2
 	    continue
 	fi
+	test -d $jobid/.source-files && rm -rf $jobid/.source-files
 	rm -f $jobid/*
 	rmdir $jobid
 	continue
