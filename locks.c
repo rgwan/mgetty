@@ -1,4 +1,4 @@
-#ident "$Id: locks.c,v 1.13 1993/09/23 23:11:01 gert Exp $ Gert Doering / Paul Sutcliffe Jr."
+#ident "$Id: locks.c,v 1.14 1993/10/05 01:00:56 gert Exp $ Gert Doering / Paul Sutcliffe Jr."
 
 /* large parts of the code in this module are taken from the
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us,
@@ -146,6 +146,12 @@ boolean checklock(char * device)
 		return(FALSE);
 	}
 
+        if (pid == getpid())
+	{
+	        lprintf(L_WARN, "huh? It's *our* lock file!" );
+		return(FALSE);
+	}
+		
 	if ((kill(pid, 0) == FAIL) && errno == ESRCH) {
 		lprintf(L_NOISE, "checklock: no active process has lock, will remove");
 		(void) unlink(name);
