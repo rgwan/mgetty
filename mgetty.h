@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.h,v 1.63 1994/08/10 12:53:05 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 1.64 1994/08/21 16:47:11 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -124,6 +124,7 @@ void	delay _PROTO(( int waittime ));
 /* locks.c */
 #define	NO_LOCK	0	/* returned by checklock() if no lock found */
 int		makelock _PROTO((char * device));
+int		makelock_file _PROTO(( char * lockname ));
 int		checklock _PROTO((char * device));
 RETSIGTYPE	rmlocks _PROTO (());
   
