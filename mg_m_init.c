@@ -1,4 +1,4 @@
-#ident "$Id: mg_m_init.c,v 4.4 1998/07/02 09:45:29 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_m_init.c,v 4.5 1998/09/07 06:57:11 gert Exp $ Copyright (c) Gert Doering"
 
 /* mg_m_init.c - part of mgetty+sendfax
  *
@@ -420,6 +420,11 @@ int mg_get_ctty _P2( (fd, devname), int fd, char * devname )
     if ( ioctl( fd, TIOCSCTTY, NULL ) != 0 )
     {
 	lprintf( L_ERROR, "cannot set controlling tty (ioctl)" );
+	if ( getppid() != 1 )
+	{
+	    lprintf( L_WARN, ">>> this might be caused because you have run mgetty/vgetty" );
+	    lprintf( L_WARN, ">>> from the command line.  Don't do that, use /etc/inittab!" );
+	}
 	return ERROR;
     }
 #else
