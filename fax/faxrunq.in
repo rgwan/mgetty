@@ -9,7 +9,7 @@
 # There are still a lot rough edges - but it works, and should give you an
 # idea how to improve it
 #
-# SCCS: $Id: faxrunq.in,v 2.2 1994/12/03 22:25:27 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxrunq.in,v 2.3 1995/03/26 19:39:06 gert Exp $ Copyright (C) 1994 Gert Doering
 
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -81,23 +81,25 @@ do
 # get user to notify (->$MAIL_TO), phone number (->$PHONE) and
 # earliest send time (->$TIME)
 #
-    eval `$AWK 'BEGIN { user=""; mail=""; verbto=""; time=""; }
+    eval `$AWK 'BEGIN { user=""; mail=""; verbto=""; time=""; re=""; }
 		$1=="user" { user=$2 }
 		$1=="mail" { mail=substr( $0, 6) }
 		$1=="phone" { printf "PHONE=%s;", $2 }
 		$1=="time" { time=$2 }
 		$1=="verbose_to" { verbto=substr($0,12) }
+		$1=="subject" { re=substr($0,9) }
 		END { if ( mail != "" ) printf "MAIL_TO=\"%s\";", mail
 				   else printf "MAIL_TO=\"%s\";", user
 		      printf "TIME=\"%s\";", time
-		      printf "VERBOSE_TO=\"%s\"", verbto }' JOB.locked`
+		      printf "VERBOSE_TO=\"%s\";", verbto
+		      printf "RE=\"%s\"", re }' JOB.locked`
 
 #
 # check whether send time is reached
 #
     if [ ! -z "$TIME" ]
     then
-	if [ `date +%H%M` -lt $TIME ]
+	if [ `date "+%H""%M"` -lt $TIME ]
 	then
 	    echo "...send time not reached, postponing job"
 	    mv JOB.locked JOB
@@ -150,6 +152,8 @@ do
 	  $echo "From: root (Fax Subsystem)\n"
 	  $echo "Your fax has been sent successfully at: \c"
 	  date
+	  test -z "$RE" || \
+	    $echo "(Subject was: $RE)\n"
 	  $echo "\n\nJob / Log file:"
 	  cat JOB.locked
 	  tries=`grep Status JOB.locked | sed -e '1d' | wc -l`
@@ -199,6 +203,8 @@ do
 	      $echo "Subject: $subject failed"
 	      $echo "From: root (Fax Subsystem)\n"
 	      $echo "It was not possible to send your fax to $PHONE!\n"
+	      test -z "$RE" || \
+		$echo "(Subject was: $RE)\n"
 	      $echo "The fax job is suspended, you can requeue it with the command:"
 	      $echo "    cd $FAX_SPOOL_OUT/"`dirname $job`
 	      $echo "    mv JOB.suspended JOB\n"
