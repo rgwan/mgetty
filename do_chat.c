@@ -1,4 +1,4 @@
-#ident "$Id: do_chat.c,v 1.14 1993/10/02 15:56:26 gert Exp $ (c) Gert Doering";
+#ident "$Id: do_chat.c,v 1.15 1993/10/05 13:05:27 gert Exp $ (c) Gert Doering";
 /* do_chat.c
  *
  * This module handles all the non-fax talk with the modem
@@ -40,8 +40,9 @@ struct termio	termio, save_termio;
 
     (void) ioctl(fd, TCGETA, &termio);
     save_termio = termio;
-    termio.c_iflag &= ~ICRNL;
-    termio.c_lflag &= ~ICANON;
+    termio.c_iflag &= (IXON|IXOFF|IXANY);         /* clear all but handshake */
+    termio.c_oflag  = 0;
+    termio.c_lflag  = 0;
     termio.c_cc[VMIN] = 1;
     termio.c_cc[VTIME] = 0;
     (void) ioctl(fd, TCSETA, &termio);
@@ -199,7 +200,7 @@ check_further:
 	    }
 	    p++;
 	}
-	if ( ! nocr ) { write( fd, "\n", 1 ); lputs( L_MESG, "\\n" ); }
+	if ( ! nocr ) { write( fd, "\r\n", 1 ); lputs( L_MESG, "\\r\\n" ); }
 
 	str++;
 
