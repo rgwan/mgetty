@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 1.3 1993/10/27 01:42:42 gert Exp $ Copyright (c) 1993 Gert Doering";
+#ident "$Id: tio.c,v 1.4 1993/10/29 19:44:04 gert Exp $ Copyright (c) 1993 Gert Doering";
 
 /* tio.c
  *
@@ -133,7 +133,7 @@ void tio_mode_sane _P2( (t, local), TIO * t, int local )
     t->c_cflag|= CS8 | CREAD | HUPCL | ( local? CLOCAL:0 );
     t->c_lflag = ECHOK | ECHOE | ECHO | ISIG | ICANON;
 
-#ifndef __hpux
+#if !defined(__hpux) && !defined(SVR4)
     t->c_line  = 0;
 #endif
     
