@@ -26,10 +26,6 @@ output file will have a blank line at this place.
 .PP
 .SH OPTIONS
 .TP
-.B "\-a "
-byte-align the end-of-line codes (EOL) in the file. Every EOL will end at
-a byte boundary, that is, with a \001 byte.
-.TP
 .B "\-l "
 separate files with a one-pixel wide black line.
 .TP
@@ -38,12 +34,27 @@ specifies the number of blank lines
 .I g3cat
 should prepend to each page. Default is 0.
 .TP
+.B "\-L <lines>"
+limit lenght of output page to maximum <lines> lines.
+.SH SPECIAL-CASE OPTIONS
+.TP
 .B "\-w <width>"
 specifies the desired page width in pixels per line. Default is 1728 PELs,
 and this is mandatory if you want to send the fax to a standard fax machine.
 If one of the input files doesn't match this line width (for example because
 it was created by a broken G3 creator), a warning is printed, and the line
 width is transparently fixed.
+.TP
+.B "\-a "
+byte-align the end-of-line codes (EOL) in the file. Every EOL will end at
+a byte boundary, that is, with a \001 byte.
+.TP
+.B "\-p <pad>"
+specifies a minimum number of bytes that each output line must be padded
+to.  Padding is done with 0-bits before the EOL code.
+.TP
+.B "\-R"
+suppress output of end-of-page code (RTC).
 
 .PP
 .SH "Example"
