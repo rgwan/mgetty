@@ -1,4 +1,4 @@
-#ident "$Id: io.c,v 1.10 1993/10/26 22:02:36 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: io.c,v 1.11 1993/11/12 15:15:31 gert Exp $ Copyright (c) Gert Doering";
 /* io.c
  *
  * This module contains a few low-level I/O functions
@@ -133,7 +133,7 @@ void wait_for_input _P1( (fd), int fd )
     {
 	char t;
 	read(1, &t, 1);
-	lprintf(L_NOISE, "read returned: "); lputc(L_NOISE, c );
+	lprintf(L_NOISE, "read returned: "); lputc(L_NOISE, t );
     }
 # endif
 #endif
