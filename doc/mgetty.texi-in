@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 2.1 1994/11/30 23:22:18 gert Exp $ (c) 1993,1994 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 2.2 1994/12/23 13:02:41 gert Exp $ (c) 1993,1994 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -62,6 +62,7 @@ hints on handling faxes.
 * Overview::        Features of @code{mgetty} and @code{sendfax}
 * Supported::       Supported systems and modems
 * Install::         Configuration and installation
+* intro-runtime::   Runtime Configuration: an Overview
 @end menu
 
 @node Copying, Overview, Intro, Intro
@@ -248,7 +249,7 @@ the standard). @xref{Modems}. In Data mode, it will work with every
 hayes-compatible modem.
 
 
-@node Install,  , Supported, Intro
+@node Install, intro-runtime, Supported, Intro
 @section Configuration and installation
 
 Compiling of the package should be quite straightforward. You have to
@@ -288,6 +289,22 @@ If you have any problems compiling mgetty and sendfax (on a Unix-like
 system---I do not support MS-DOS or Windows!), please contact me.
 @emph{But make sure that you have read the documentation!}
 
+@node intro-runtime,  , Install, Intro
+@section Runtime configuration: Overview
+
+If @code{mgetty} or @code{sendfax} are run "as is", they will use their
+compiled-in defaults from @file{policy.h}.
+
+If the configuration files @file{mgetty.config} (@xref{runtime-mgetty}) and
+@file{sendfax.config} (@xref{runtime-sendfax}) exist (and are readable),
+both programs will get their run-time configuration from there. Items not
+specified there will still be taken from the compiled-in defaults. The
+configuration files are usually located in @file{@CONFDIR@/}.
+
+If you specify command line arguments (see the mgetty(1) and sendfax(8) man
+pages for details), this will override both compiled-in and config file
+defaults.
+
 @c ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 @node mgetty, Fax, Intro, Top
@@ -306,6 +323,7 @@ directly by the @code{init} process. The next sections explain how to do this.
 * Direct::          Direct serial lines
 * Interaction::     Interaction between @code{mgetty} and other programs
 * Caller-ID::       Using Caller-ID to selectively accept or reject calls
+* runtime-mgetty::  Runtime configuration: @file{mgetty.config}
 @end menu
 
 @node How, Inittab, mgetty, mgetty
@@ -557,8 +575,8 @@ FidoNet calls (using @code{ifcico} from Eugene Crosser's @file{ifmail}
 package).
 
 @code{mgetty} can do all this. It's controlled by a configuration file
-@file{login.config} that is normally located in
-@file{@LIBDIR@/} (definition @code{LOGIN_CFG_FILE} in
+@file{login.config}, normally located in
+@file{@CONFDIR@/} (definition @code{LOGIN_CFG_FILE} in
 @file{policy.h}). I have provided a sample file with lots of comments,
 please look into that file for the syntax to use. To make @code{mgetty}
 understand incoming fido calls, you have to compile it with @code{-DFIDO}.
@@ -568,7 +586,7 @@ call @code{@LOGIN@} only for trusted, known users, and @code{/bin/false}
 for every other login name - so, only those listed in @file{login.config}
 will be able to log in.
 
-@node Caller-ID,  , Interaction, mgetty
+@node Caller-ID, runtime-mgetty, Interaction, mgetty
 @section Using Caller-ID to selectively accept or reject calls
 
 If your modem is able to retrieve callerid information, and @code{mgetty}
@@ -579,7 +597,7 @@ Rockwell-based modems return Caller-ID informations?). If @code{CNDFILE} is
 undefined, or if that file does not exist, all calls will be allowed.
 
 Whether a call is accepted or denied is controlled by a configuration file,
-per default this is @file{@LIBDIR@/dialin.config}
+per default this is @file{@CONFDIR@/dialin.config}
 (a sample file is installed per default).
 
 That file contains a series of tokens separated by newlines, commas, tabs
@@ -618,6 +636,320 @@ For the future, Chris Lewis is planning on adding special modem initialization
 strings (e.g., 2400 bps only, fax-only, ...) dependant on the caller
 number.
 
+@node runtime-mgetty,  , Caller-ID, mgetty
+@section Runtime configuration for mgetty: @file{mgetty.config}
+
+@code{Mgetty} works quite well with the compiled-in defaults (it has been
+the only way to configure it for a long time), but that's quite unflexible,
+and especially if you use different modem types, it's extremely unhandy.
+The built-in defaults can be modified by command line options, but that's
+not perfect either, because it makes @file{/etc/inittab} entries very long
+and unreadable.
+
+If compiled with @emph{config file} support (define @code{MGETTY_CONFIG} in
+@file{policy.h}), @code{mgetty} can use a configuration file, quite similar
+to those which "Taylor UUCP" uses, which make dynamic setup far easier.
+
+The format of the config file, usually named @file{mgetty.config} and
+located in @file{@CONFDIR@/}, is simple. Each line contains one keyword,
+and arguments for it, separated by whitespace. Empty lines, and comment
+lines (lines starting with @samp{#}) are allowed.
+
+The config file is grouped into port-specific sections, separated by
+@code{port @var{<tty-name>}} lines. Everything before the first @code{port}
+line specifies global defaults, everything between two @code{port}
+statements specifies configuration items valid only for exactly this
+device. Let me show you an example:
+
+@example
+# global defaults:
+# fax station id is always the same
+fax-id ++49-89-1234
+# per port stuff
+port tty1a
+# This modem can't fax
+modem-type data
+
+port tty2a
+# more verbose logging for this modem
+debug 9
+@end example
+
+
+The data part of each line, following the keyword, can be a string (in most
+cases), a chat sequence (a series of strings, separated by whitespace, that
+specify the "modem talk" to do. Starts with "expect" string, then "send",
+then "expect" again, and so on), an integer (interpreted as decimal, octal
+or hexadecimal, depending on the leading character [1-9/0/0x]), or boolean
+(@samp{y(es)} or @samp{t(rue)} vs. @samp{n(o)} vs. @samp{f(alse)}).
+
+
+Many of those configuration items can be overriden from the command line.
+In that case, command line options take precedence before configuration
+file settings (and those take precedence before built-in defaults).
+
+The available configuration items are (command line options, if available,
+given in brackets):
+
+@itemize @minus
+@item @code{speed} [-s] @var{port speed}
+
+Specify, as integer value, the port speed to use. Default is
+@code{DEFAULT_PORTSPEED}. If the given speed is not valid, @code{mgetty}
+complains loudly and exits.
+
+@item @code{switchbd} @var{fax recv. speed}
+
+Some modems, mainly Rockwell chipsets, need to switch to 19200 bps when
+entering fax mode. Others may need other speed switches (but I know none).
+If your modem is Rockwell based, try @code{switchbd 19200} if fax reception
+doesn't work. (@strong{Warning:} if this is set wrongly, fax reception will
+definitely fail. For most sane modems, you do @strong{not need} this.).
+Default is @code{FAX_RECV_SWITCHBD}.
+
+@item @code{direct} @var{yes/no} [-r]
+
+Tells mgetty that it is running on a direct line. Mgetty won't try to
+initialize any modem, nor will it wait for @samp{RING}. It will just wait
+for any character, and then output the issue file and login prompt. This
+option is used if you want to connect to machines via nullmodem cable.
+
+@item @code{blocking} @var{yes/no} [-b]
+
+Tells mgetty to open the device in @samp{blocking} mode, that is, the
+@code{open()} system call won't succeed until carrier detect is set. This
+is set if @code{mgetty} is called as @code{getty}. I'm not sure whether
+it's very useful, but I include it for completeness.
+
+@item @code{port-owner} @var{username/userid}
+
+If set, mgetty will @code{chown} the tty line to the given username (you
+can specify a string or an integer uid, but the integer must be valid).
+This is highly recommended for security purposes: only give port access to
+those users you trust not to misuse your modem lines! Default is
+@code{PORT_OWNER}.
+
+@item @code{port-group} @var{groupname/gid}
+
+If set, mgetty will @code{chgrp} the tty line to this group id (which can
+be given as group name, or as integer gid). If it's not given, or not
+valid, the primary group id of @samp{port-owner} will be used. Default is
+@code{PORT_GROUP}.
+
+@item @code{port-mode} @var{permissons}
+
+Specifies the permissions to @code{chmod} the device to. @strong{Never}
+make a modem device world-accessible, better use @samp{0660} or even
+@samp{0600}. Default is @code{PORT_MODE}.
+
+@item @code{toggle-dtr} @var{yes/no}
+
+Tells mgetty whether it should lower the DTR line upon startup to reset
+modem. Default is @samp{yes}, but some (few) modems react allergic to that
+and crash.
+
+@item @code{toggle-dtr-waittime} @var{msecs}
+
+Specifies the time to hold the DTR line low. Default is 500 milliseconds.
+
+@item @code{data-only} @var{yes/no} [-D]
+
+Tells @code{mgetty} to forget about faxing and only use the data part of
+the modem.
+
+@item @code{modem-type} [-C] @var{mtype}
+
+Specifies the kind of modem connected to the port. Default is
+@code{DEFAULT_MODEMTYPE}. Valid options are:
+
+@itemize @bullet
+@item auto
+
+Mgetty will detect the modem type itself (which may occasionally be not
+desirable, or it may fail on old modem equipment).
+
+@item c2.0
+
+Modem is a @var{class 2.0} fax mode. Works better than class 2, if both are
+available, because its better standardized. Known to work with USR and
+ZyXEL.
+
+@item cls2
+
+Modem is a @var{class 2} fax modem, mgetty will not try class 2.0.
+
+@item data
+
+Do not try fax initialization, same as if @samp{-D} given.
+@end itemize
+
+There is no way (yet) to tell mgetty to use @strong{only} fax mode and
+refuse data calls. If you have need for this, contact me.
+
+@item @code{init-chat} [-m] @var{expect send expect send ...}
+
+Tells mgetty the chat sequence to use for initializing the modem.
+@strong{Warning}: the sequence starts with @strong{expect}, which will in
+most cases be @samp{""} (nothing). This ordering was chosen because UUCP
+does it this way, and I wanted to avoid confusion here.
+
+Example:
+
+@example
+init-chat "" \d\d\d+++\d\d\dATQ0E1V1H0 OK ATL0M0S0=0 OK AT&K3 OK
+@end example
+
+@item @code{modem-check-time} @var{seconds}
+
+Some modems have the nasty tendency to crash silently. With this option,
+you tell @code{mgetty} to check every @var{seconds} seconds with a simple
+@samp{AT...OK} sequence whether the modem still reacts. If not,
+@code{mgetty} will restart itself and do a full modem reset. Default is @code{MODEM_CHECK_TIME}
+
+@item @code{rings} [-n] @var{nnn}
+
+Sets the number of @code{RING} messages to wait for, before mgetty picks up
+the phone. Default is 1. @strong{Warning:} if your modem auto-answers, for
+whatever reason, set this to something @strong{different} than the value
+set with @code{ATS0=mmm}, otherwise the modems autoanswer and mgettys
+manual answer will collide (most modems hang up if a command is received
+during auto-answer)
+
+@item @code{get-cnd-chat} @var{chat sequence}
+
+This is needed if you have a modem that supports ``caller ID'' detection,
+but needs a special command to get the CID information. Right now, this is
+only needed for the ELINK ISDN adaptors (and doesn't work anyway).
+
+@item @code{answer-chat} @var{chat sequence}
+
+This is the command sequence that is used to answer a phone call. Usually
+you can leave it at the default @samp{ "" ATA CONNECT \c \r }, but for
+some modems you need @samp{ATS0=1} in place of @samp{ATA} (ATA not
+allowed). The extra @samp{\r} expect string is needed that the code can
+grab the full @var{CONNECT xyz\r} string. It will work without the \r,
+but then the logging information will be less detailed.
+
+@item @code{answer-chat-timeout} @var{secs}
+
+During the @var{answer-chat}, each "expect" string must be seen in the time
+specified here. Default is 80 seconds. This time should be at least some 5
+seconds longer than the time set with the @code{ATS7=...} modem setup
+command.
+
+@item @code{autobauding} @var{yes/no} [-a]
+
+Some modems switch their DTE line speed to the communication line speed
+after connecting, e.g., after sending @samp{CONNECT 2400}, the modem
+switches to 2400 bps. Newer modems usually have a switch to "lock" a DTE
+baud rate, which is strongly recommended. If your modem insists on doing
+this speed switch, setting @code{autobauding} to @var{true} will make
+mgetty behave accordingly.
+
+@item @code{ringback} @var{yes/no} [-R]
+
+If you have to put your modem and your telephone on the same phone line,
+you can switch on "ringback" or "ring-twice". This means, mgetty won't
+answer the phone on the first call, but remember the call, and pick up on
+the second call (if it is in the time specified by @code{ringback-time}).
+
+@item @code{ringback-time} @var{secs}
+
+This setting specifies how much time may pass between the first and the
+second call if "ringback" is active. Default is 30 seconds.
+
+@item @code{issue-file} [-i] @var{file}
+
+This is the file printed before the login prompt. Default is
+@samp{/etc/issue}.
+
+@item @code{prompt-waittime} @var{msecs}
+
+This specifies how long @code{mgetty} will wait for modem and line to
+settle down before printing issue file and login prompt. Default is 500
+milliseconds.
+
+@item @code{login-prompt} [-p] @var{prompt}
+
+This specifies the login prompt that mgetty will output. Some special
+characters in this string (and in the issue file, btw) are recognized and
+replaced by something else:
+
+@itemize @bullet
+
+@item @@ system name
+@item \n newline
+@item \r carriage return
+@item \g bell
+@item \b backspace (ascii 010)
+@item \f form feed (ascii 013)
+@item \t vertical TAB
+@item \P (and \L) port name (e.g. ttyS0)
+@item \C date and time, in "ctime()" format
+@item \I Connection string (e.g. 2400/REL)
+@item \N (and \U) number of users currently logged in
+@item \S Port speed (e.g. 38400)
+@item \D current date in dd/mm/yy format
+@item \T current time in hh:mm:ss format
+@item \@var{digit} character with the specified octal code
+@end itemize
+
+The maximum lenght of the login prompt is limited to 140 characters (after
+expansion).
+
+@item @code{login-time} @var{secs}
+
+This specifies the maximum time the user can take to log in. If no login
+has occured after that time, @code{mgetty} will hang up. Default is
+@code{MAX_LOGIN_TIME} from @file{policy.h}.
+
+@strong{NOT implemented yet}
+
+@item @code{fax-id} [-I] @var{local fax number}
+
+This sets the fax station ID used in fax mode to identify your site to the
+caller (usually this is simply your fax phone number). Default is
+@code{FAX_STATION_ID}.
+
+@item @code{fax-server-file} [-S] @var{g3 fax file}
+
+Specifies a fax file that is to be sent if someone else calls your modem in
+@emph{fax polling mode}, that is, the caller @emph{receives} a document.
+Not all modems support this mode, I know that the ZyXEL and MultiTech do.
+
+@item @code{diskspace} [-k] @var{kbytes}
+
+This setting tells mgetty the minimum amount of disk space that has to be
+available in the fax spool directory for fax reception to be allowed.
+Default is 1 Mbyte.
+
+@item @code{notify} @var{mail address}
+
+This is the address that will get mails if a fax is received. @strong{NOT
+implemented yet.}
+
+@item @code{fax-owner} @var{username/uid}
+@item @code{fax-group} @var{groupname/gid}
+@item @code{fax-mode} @var{perms}
+
+Similar to @code{port-owner/group/mode}, these settings specify the owner,
+group and file mode mgetty will use for incoming faxes. Defaults are
+@code{FAX_IN_OWNER}, @code{FAX_IN_GROUP}, and @code{FAX_FILE_MODE}.
+
+@item @code{debug} [-x] @var{debug level}
+
+This sets the amount of logging @code{mgetty} will do. A good value is
+@var{4}, more details are seen with @code{5}, and @code{9} is really noisy.
+Try it! The log data is written to the file specified by @code{LOG_PATH} in
+@file{policy.h}, usually this is something like @file{@LOG_PATH@}.
+
+@item @code{gettydefs} @var{gd tag}
+
+If you use the gettdefs feature of @code{mgetty} -- which is @emph{not}
+recommended! -- this specifies the gettydefs tag to use for the given line.
+
+@end itemize
+
 @c ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 @node Fax, voice, mgetty, Top
@@ -644,6 +976,7 @@ pixels in high-resolution mode.
 * Queuing::         Automated fax queuing 
 * Fax-Tools::       Additional tools provided for handling g3 files
 * Scanner::         Using an external fax as a scanner
+* runtime-sendfax::  Runtime configuration: @file{sendfax.config}
 @end menu
 
 @node Convert, Receiving, Fax, Fax
@@ -970,7 +1303,7 @@ faxspool [options] phone-number input-file(s)
 @end example
   
 @samp{phone-number} can be an alias, in this case the files
-@file{@LIBDIR@/aliases} and @file{$HOME/.faxnrs} will
+@file{@CONFDIR@/faxaliases} and @file{$HOME/.faxnrs} will
 be searched for a line starting with this alias. The remainder of this line
 will then be used as fax number.
 
@@ -980,7 +1313,7 @@ will then be used as fax number.
 at @file{fax/etc-magic}, it contains the most important magic numbers.
 
 @code{faxspool} reads the text to put on top of each fax page from
-@file{LIBDIR/faxheader}. This file must contain pure ASCII text. Some
+@file{@CONFDIR@/faxheader}. This file must contain pure ASCII text. Some
 tokens are replaced by the actual values: @@T@@ becomes the destination
 phone number, @@P@@ becomes the actual and @@M@@ the total page number,
 and @@U@@ is replaced by the user name. If your fax modem cuts of a few
@@ -1116,7 +1449,7 @@ opions: you can use Chel's @code{g3tolj} program (also in the
 
 @end itemize
 
-@node Scanner,  , Fax-Tools, Fax
+@node Scanner, runtime-sendfax, Fax-Tools, Fax
 @section Using an external fax as a scanner
 
 It is possible to tell mgetty to answer the phone even if it is not
@@ -1139,6 +1472,208 @@ possible to hit that button to make the modem pick up the phone. Mgetty
 will automatically notice that and handle it properly. (I've tested this
 only with ZyXELs - could somebody else please test this with other modem
 types and send me a logfile? Thanks)
+
+@node runtime-sendfax,  , Scanner, Fax
+@section Runtime configuration for sendfax: @file{sendfax.config}
+
+Basically, @code{sendfax} can work very well with the compiled-in defaults
+(from @file{policy.h}), sometimes slightly modified by command line
+options.
+
+If you use more than one fax modem, possibly of different type, this is
+very awkward, because the command line will get very long. For that reason,
+there is a configuration file which will control nearly every detail of
+sendfax' behaviour.
+
+It is usually named @file{@CONFDIR@/sendfax.config}.
+
+The config file consists of multiple sections, separated from each other by
+the keyword @samp{port}. All configuration options given before the
+first @samp{port} statement specify global options, and everything between
+two @samp{port} statements applies only for the device with the given name
+(@samp{port} takes an argument). Let me show you an example:
+
+@example
+# global defaults:
+# fax station id is always the same
+fax-id ++49-89-1234
+# always have the speaker on
+modem-init ATM1L3
+
+# port specific: for /dev/tty1a, switch the speaker off
+port tty1a
+modem-init ATM0L0
+
+# port specific: for ttyS1, use another fax station id
+port ttyS1
+fax-id ++1234567
+@end example
+
+As you can see, empty lines and comment lines (starting with "#") are
+allowed.
+
+Every line in the config file that is not a comment - or empty - starts
+with a keyword (listed in detail below), followed by a "data" field. In the
+example above, @samp{fax-id} is the keyword, @samp{++49-89-1234} is the
+corresponding data, the fax ID for the sending machine. Most data fields
+are strings, but there are a few boolean and integer items.
+
+The available keywords are (if it's possible to set this item from the
+command line, the flag is given in brackets).
+
+@itemize @minus
+@item @code{fax-devices} [-l] @var{ttys}
+
+Sets the fax modems to use, e.g. @samp{tty1a:tty2a}. Default is
+@code{FAX_MODEM_TTYS} from @file{policy.h}. The device names given here are
+used to look up the corresponding @code{port} section later. Watch out for
+upper-/lowercase.
+
+It is not very useful to specify this in the per-port section, so it is
+ignored if met there.
+
+@item @code{modem-init} [-m] @var{command}
+
+Specifies an @samp{AT...} command that is to be sent to the modem right at
+the @strong{beginning} of all modem talk (even before setting the modem
+into fax mode, so this could be an @samp{ATZ} if you want to reset the
+modem).
+
+@item @code{modem-handshake} @var{command}
+
+Specifies an @samp{AT...} command that will be sent to the modem at the
+@strong{end} of the modem initialization, right before dialing. @strong{Do
+not use ATZ or such here}, since resetting the modem will switch off fax
+mode. Default is @code{FAX_MODEM_HANDSHAKE}.
+
+@item @code{modem-type} [-C] @var{type}
+
+Force the modem command set to use. Default is @samp{auto} (auto-detect,
+which may not work on very cheap modems), possible other values are
+@samp{cls2}, for ``class 2 only'' modems, and @samp{c2.0} for ``class 2.0''
+faxmodems. Default is @code{DEFAULT_MODEMTYPE}.
+
+@item @code{max-tries} @var{nnn}
+
+Specify the maximum number of tries per page if the receiving end reports
+reception errors. If @var{nnn} tries do not suffice to successfully
+transmit a page, @code{sendfax} will give up. If this is set to @samp{0},
+@code{sendfax} will ignore retransmission requests and simply go on.
+Default is @code{FAX_SEND_MAX_TRIES}.
+
+@item @code{speed} @var{baudrate}
+
+Set the port speed to use for fax send operations. Usually, @samp{38400} is
+a good choice, but a few dumb modems (for example, some based on rockwell
+chipsets) need @samp{19200} or even @samp{9600}. A few modems can go
+higher, but @code{sendfax} may not support it, and it may not always work.
+Default is @code{FAX_SEND_BAUD}.
+
+@item @code{switchbd} @var{baudrate}
+
+On some (very few) modems it is necessary to start with baudrate "A" and
+switch to baudrate "B" after sending the @samp{AT+FCLASS=2} command. If you
+specify this, @code{sendfax} will switch from @code{speed} to
+@code{switchbd} right after setting the modem to class 2/2.0. Default is
+@code{FAX_SEND_SWITCHBD}, I'd recommend @strong{not} using it unless you're
+sure that you need it.
+
+@item @code{dial-prefix} @var{command}
+
+This is the command used for dialing out. Usually this will be something
+simple, as @samp{ATD} or @samp{ATDP}, but if you have an unusual setup, it
+could also be something like @samp{ATX0DP0;X4DT} (meaning: switch off
+dial-tone detection, pulse-dial @samp{0}, back to command mode, switch on
+dial-tone detection, and go ahead dialing with touch tones). The phone
+number will be sent right after the @code{dial-prefix}. Default is
+@code{FAX_DIAL_PREFIX}.
+
+@item @code{fax-id} [-I] @var{your fax phone}
+
+specifies the "fax station id" used to identify your fax machine to the
+receiving end. Usually this is the telephone number of your own fax
+machine, but if you want to (and if your modem support it), you can put up
+to 20 alphanumeric characters here, e.g. @code{+1-11-222 Fred}. Default is
+@code{FAX_STATION_ID}.
+
+Watch out: the @code{faxrunq} program does @emph{not} read sendfax' config
+file, so the fax id put on the header might not be the same as the one
+transmitted by sendfax, if you change it only in one place.
+
+@item @code{poll-dir} [-d] @var{full path}
+
+This is used to specify a directory where polled faxes (wheather maps and
+such) are to be saved into. Default is the current directory.
+
+@item @code{normal-res} @var{y|n} [-n]
+
+If set to @samp{yes} or @samp{true} (boolean), @code{sendfax} won't attempt
+to make a fax connection in "fine resolution" mode. Normally you won't need
+to use that option, since @code{faxrunq} will set the @code{-n} switch if
+needed.  Default is @samp{no}
+
+@item @code{verbose} @var{y|n} [-v]
+
+If set to @samp{yes} or @samp{true}, @code{sendfax} will output progress
+reports on stdout, if set to @samp{no}, @code{sendfax} will only print
+error and warning messages. Default is @samp{no}.
+
+@item @code{debug} [-x] @var{nn}
+
+controls the amount of information written into the fax log file
+(@code{FAX_LOG} in @file{policy.h}). @samp{0} means "totally silent" (not
+even errors are written), @samp{9} is really noisy. I usually use @samp{3}
+or @samp{4} in normal use, and @samp{6} for debugging. Default is
+@code{LOG_LEVEL}.
+
+@item @code{page-header} [-h] @var{file}
+
+Yet unused (because of implementation shortcomings in all tested modems)
+
+@end itemize
+
+To show you how it will look like, I have included a sample
+@file{sendfax.config} file below. Three modem lines exist on my system, all
+modems have different initialization and flow control commands, and on one
+line I have to tell the modem to use pulse dial because the PBX is too old.
+
+@example
+#
+# sample configuration file for sendfax
+#
+
+# global settings
+verbose y
+# the modems are attached to the following ports:
+fax-devices tty1a:tty2a:tty4c
+
+# this is my fax number
+fax-id +49-89-xxxxxx
+
+# generic defaults
+modem-init ATL3M1
+dial-prefix ATD
+debug 4
+
+# port specific overrides
+
+# Zoom 28K8
+port tty1a
+  modem-handshake AT&K4
+
+# MultiTech
+port tty2a
+  dial-prefix ATDP
+  modem-handshake
+#                ^^^ this means "no extra command to set modem handshake"
+  debug 9
+
+# ZyXEL 
+port tty4c
+  modem-init ATM1L2
+  modem-handshake AT&H3
+
+@end example
 
 @c ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
