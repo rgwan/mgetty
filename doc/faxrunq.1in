@@ -1,0 +1,36 @@
+.TH faxrunq 1 "27 Oct 93" "greenie" "mgetty+sendfax manual"
+.IX faxrunq
+.SH NAME
+faxrunq \- send fax jobs queued by faxspool(1)
+.SH SYNOPSIS
+.B faxrunq
+.SH DESCRIPTION
+Run the fax queue set up by faxspool(1), try to send all faxes, record
+result, remove job and send notify mails.
+
+.I faxrunq 
+looks for all the jobs queued by faxspool(1) to
+@FAX_SPOOL_OUT@/*. For each job in the queue, faxrunq tries to
+send it, using sendfax(8).
+
+If the send succeeds, the job is removed from the queue, and a "success"
+mail is sent to the originator of the spooled job.
+
+If the send fails, it's logged, and faxrunq proceeds to the next job. If
+the job fails three times "fatally", that is, not with a locked or engaged
+line, but with "NO CARRIER" (no fax machine, or line noise), the job is
+suspended, and the requestor gets a mail, telling him so.
+
+.IX fax
+.SH BUGS
+.I faxrunq
+doesn't remove a successfully sent job (commented out in the source), just
+de-queues it.
+
+.I faxrunq
+doesn't handle time scheduling and normal resolution yet
+.SH "SEE ALSO"
+faxspool(1), sendfax(8), faxq(1), faxqueue(5)
+.SH AUTHOR
+.I faxrunq
+is Copyright (C) 1993 by Gert Doering, <gert@greenie.muc.de>.
