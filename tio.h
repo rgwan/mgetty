@@ -1,4 +1,4 @@
-#ident "$Id: tio.h,v 1.8 1994/01/03 23:30:36 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.h,v 1.9 1994/01/03 23:49:32 gert Exp $ Copyright (c) 1993 Gert Doering"
 ;
 /* tio.h
  *
@@ -120,6 +120,12 @@ int  tio_set_flow_control  _PROTO(( int fd, TIO *t, int flowctrl_type ));
 int  tio_set_flow_control2 _PROTO(( int fd, int flowctrl_type ));
 void tio_carrier     _PROTO (( TIO *t, int carrier_sensitive ));
 int  tio_toggle_dtr  _PROTO(( int fd, int msec_wait ));
+
+extern struct	speedtab {
+    unsigned short cbaud;	/* baud rate, e.g. B9600 */
+    int	 nspeed;		/* speed in numeric format */
+    char *speed;		/* speed in display format */
+} speedtab[];
 
 #ifdef USE_GETTYDEFS
 typedef struct {
