@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 1.21 1994/05/30 17:17:09 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 1.22 1994/07/21 19:42:20 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* faxlib.c
  *
@@ -346,6 +346,10 @@ int fax_set_fdcc _P4( (fd, fine, max, min),
     sprintf( buf, "AT%s=%d,%d,0,2,0,0,0,0",
 	     (modem_type == Mt_class2_0) ? "+FCC" : "+FDCC",
 	     fine, (max/2400) -1 );
+#ifdef FAX_USRobotics
+    /* USR fools implemented it wrong. Set the *min*! speed here! */
+    sprintf( buf, "AT+FCC=%d,0", fine );
+#endif
     
     if ( mdm_command( buf, fd ) == ERROR )
     {
@@ -369,6 +373,28 @@ int fax_set_fdcc _P4( (fd, fine, max, min),
     }
     return NOERROR;
 }
+
+/* set modem flow control (for fax mode only)
+ *
+ * right now, this works only for class 2.0 faxing. Class 2 has
+ * no idea of a common flow control command.
+ * If hw_flow is set, use RTS/CTS, otherwise, use Xon/Xoff.
+ */
+
+int fax_set_flowcontrol _P2( (fd, flow), int fd, int hw_flow )
+{
+    if ( modem_type == Mt_class2_0 )
+    {
+	if ( hw_flow )
+	{
+	    if ( mdm_command( "AT+FLO=2", fd ) == NOERROR ) return NOERROR;
+	    lprintf( L_WARN, "modem doesn't like +FLO=2; using Xon/Xoff" );
+	}
+	return mdm_command( "AT+FLO=1", fd );
+    }
+    return NOERROR;
+}
+
 
 /* byte swap table used for sending (yeah. Because Rockwell screwed
  * up *that* completely in class 2, we have to have different tables
