@@ -1,4 +1,4 @@
-#ident "$Id: utmp.c,v 1.12 1994/01/18 23:12:50 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: utmp.c,v 1.13 1994/01/21 11:36:48 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* some parts of the code (writing of the utmp entry)
  * is based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
@@ -18,7 +18,7 @@
 #include <errno.h>
 #endif
 
-#if defined(_3B1_) || defined(MEIBE)
+#if defined(_3B1_) || defined(MEIBE) || defined(ISC)
 typedef short pid_t;
 #endif
 
