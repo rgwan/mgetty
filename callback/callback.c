@@ -501,8 +501,8 @@ int main _P2((argc, argv), int argc, char ** argv)
      * Also, wait for a randomized time, to confuse potential attackers.
      */
     srand((unsigned)time(NULL));
-    i = c_int(delay) + (c_int(delay_rand)>0) ? rand()%c_int(delay_rand)
-					     : rand()%5;
+    i = c_int(delay) + ( (c_int(delay_rand)>0) ? rand()%c_int(delay_rand)
+					       : rand()%5 );
     if (i<4) i=4;
     lprintf( L_NOISE, "delaying %d seconds", i );
     sleep(i);
