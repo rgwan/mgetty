@@ -1,3 +1,7 @@
+Mon Nov 03 10:01:24 1997  Gert Doering  (gert@greenie.muc.de)
+
+	* voice/: switch over to remote-CVS
+
 Sat Nov  1 17:31:37 MET 1997  Gert Doering  (gert@greenie.muc.de)
 
 	* policy.h: make /var/log/sendfax.log the default for FAX_LOG
