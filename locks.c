@@ -1,4 +1,4 @@
-#ident "$Id: locks.c,v 1.29 1994/08/10 12:54:11 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
+#ident "$Id: locks.c,v 1.30 1994/08/21 16:48:30 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
 
 /* large parts of the code in this module are taken from the
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us,
@@ -31,7 +31,7 @@
 #define LCK_OPNFAIL  -2
 #endif
 
-static char	lock[MAXLINE+1];	/* name of the lockfile */
+       char	lock[MAXLINE+1];	/* name of the lockfile */
 
 static int readlock _PROTO(( char * name ));
 static char *  get_lock_name _PROTO(( char * lock_name, char * device ));
