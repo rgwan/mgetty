@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 1.27 1994/10/25 23:12:26 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 1.28 1994/10/27 00:54:20 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -396,7 +396,7 @@ int fax_set_fdcc _P4( (fd, fine, max, min),
  * If hw_flow is set, use RTS/CTS, otherwise, use Xon/Xoff.
  */
 
-int fax_set_flowcontrol _P2( (fd, flow), int fd, int hw_flow )
+int fax_set_flowcontrol _P2( (fd, hw_flow), int fd, int hw_flow )
 {
     if ( modem_type == Mt_class2_0 )
     {
