@@ -10,3 +10,4 @@ faxheader.in
 etc-magic
 faxcvt
 faxspool.rules
+faxq-helper.c
