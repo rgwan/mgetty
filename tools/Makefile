@@ -1,13 +1,13 @@
 # Makefile for the "tools" subtree
 # of mgetty+sendfax
 #
-# RCS: $Id: Makefile,v 1.4 1998/09/11 08:27:27 gert Exp $
+# RCS: $Id: Makefile,v 1.5 1998/09/29 10:54:06 gert Exp $
 #
 
 CC=gcc
 CFLAGS=-O2 -I..
 
-SCRIPTS=kvg
+SCRIPTS=kvg cutbl
 PROGRAMS=ltest mid
 TOOLS=
 
@@ -15,6 +15,9 @@ all: $(SCRIPTS) $(PROGRAMS)
 
 kvg: kvg.in ../sedscript
 	../sedscript <kvg.in >kvg
+
+cutbl: cutbl.in ../sedscript
+	../sedscript <cutbl.in >cutbl
 
 ../sedscript: ../policy.h ../Makefile ../mksed.c
 	@cd .. ; $(MAKE) sedscript
