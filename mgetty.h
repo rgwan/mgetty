@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.h,v 1.57 1994/07/11 19:16:01 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 1.58 1994/07/12 23:09:45 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.h
  *
@@ -80,6 +80,7 @@ typedef	char	boolean;
 
 #ifdef solaris2
 # define SVR4
+# define SVR42
 # ifndef sun
 #  define sun
 # endif
@@ -111,7 +112,7 @@ int	do_chat _PROTO(( int filedesc, char * expect_send[],
 int	clean_line _PROTO(( int filedesc, int tenths ));
 
 /* goodies.c */
-char * basename _PROTO(( char * ));
+char * get_basename _PROTO(( char * ));
 
 /* io.c */
 boolean	check_for_input _PROTO (( int fd ));
