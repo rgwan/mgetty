@@ -1,8 +1,8 @@
 # doc/Makefile
 #
-# SCCS: $Id: Makefile,v 1.5 1994/09/18 00:54:48 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: Makefile,v 1.6 1994/10/22 15:45:09 gert Exp $ Copyright (C) 1994 Gert Doering
 #
-MAN1PAGES=g3topbm.1 g3cat.1 pbmtog3.1 \
+MAN1PAGES=g3topbm.1 g3cat.1 pbmtog3.1 fax.1 \
 	  faxspool.1 faxrunq.1 faxq.1 faxrm.1 coverpg.1
 MAN4PAGES=mgettydefs.4
 MAN5PAGES=faxqueue.5
@@ -54,6 +54,7 @@ fullclean: clean
 	      *.man *.[1-9]
 
 install: $(MANSRC) mgetty.info
+	-mkdir $(MAN1DIR) $(MAN4DIR) $(MAN5DIR) $(MAN8DIR)
 	for i in $(MAN1PAGES) ; do \
 		$(INSTALL) -m 644 $$i $(MAN1DIR) ; \
 	done
@@ -69,7 +70,7 @@ install: $(MANSRC) mgetty.info
 	if [ -f mgetty.info ] ; then\
 	    for i in mgetty.info* ; do \
 		$(INSTALL) -m 644 $$i $(INFODIR) ; \
-	    done \
+	    done ; \
 	else \
 	    echo "mgetty.info not made, skipping" ; \
 	fi
