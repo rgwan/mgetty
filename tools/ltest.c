@@ -1,4 +1,4 @@
-#ident "$Id: ltest.c,v 1.4 1998/07/03 11:03:09 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: ltest.c,v 1.5 1998/10/07 13:22:43 gert Exp $ Copyright (c) Gert Doering"
 
 /* ltest.c
  *
@@ -19,8 +19,8 @@ char * Device;
 int delay_time = 0;			/* in milliseconds, 0 = one-shot */
 
 /* we don't want logging here */
-int lprintf() { return 0; };
-int lputs( int level, char * string ) { return 0; };
+int lprintf() { return 0; }
+int lputs( int level, char * string ) { return 0; }
 
 int main( int argc, char ** argv )
 {
