@@ -436,4 +436,5 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
 
 280a) implement BREAK and dual-tilde sending in tools/microcom.c
 
-282)
+282) add test code for ring.c, faxlib.c, and other low-level modules
+     (overload mdm_read_byte() -> feed various RING strings to ring.c etc)
