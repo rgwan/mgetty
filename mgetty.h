@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 4.16 1999/02/28 19:14:09 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 4.17 1999/05/24 13:35:06 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -255,6 +255,7 @@ void	set_env_var _PROTO(( char * var, char * string ));
 
 /* login stuff */
 void login_dispatch _PROTO(( char * user, boolean is_callback, char * cf));
+void setup_environment _PROTO(( void ));
 
 /* how long should I wait for a string from modem */
 #define FAX_RESPONSE_TIMEOUT	120
