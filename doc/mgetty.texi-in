@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 3.1 1995/08/30 12:38:20 gert Exp $ (c) 1993,1994 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 3.2 1995/08/30 13:50:35 gert Exp $ (c) 1993,1994 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -882,7 +882,8 @@ you can leave it at the default @samp{ "" ATA CONNECT \c \r }, but for
 some modems you need @samp{ATS0=1} in place of @samp{ATA} (ATA not
 allowed). The extra @samp{\r} expect string is needed that the code can
 grab the full @var{CONNECT xyz\r} string. It will work without the \r,
-but then the logging information will be less detailed.
+but then the logging information will be less detailed. @strong{Right now,
+\r won't work at all, it's not implemented yet. Don't use it.}
 
 @item @code{answer-chat-timeout} @var{secs}
 
