@@ -4,9 +4,12 @@
 # 
 # Copyright 1998 Gert Doering, gert@greenie.net
 #
-# CVS: $Id: faxhist.in,v 1.3 1998/10/07 13:06:48 gert Exp $
+# CVS: $Id: faxhist.in,v 1.4 1998/10/13 15:53:37 gert Exp $
 #
 # $Log: faxhist.in,v $
+# Revision 1.4  1998/10/13 15:53:37  gert
+# logo/<h1> header adjusted
+#
 # Revision 1.3  1998/10/07 13:06:48  gert
 # added (preliminary) config file
 #
@@ -86,9 +89,9 @@ print <<EOF;
 <title>Fax History</title>
 </head></html>
 <body bgcolor="#ffffff">
-$www_logo
 
-<h1 align="center">Faxmanager - &Uuml;bersicht gesendeter Faxe</h1>
+$www_logo
+<h1 align="center">Faxmanager - &Uuml;bersicht gesendeter Faxe</h1><br clear="all">
 <hr size="5">
 
 <!-- acct_log: $fax_acct -->
