@@ -1,4 +1,4 @@
-#ident "$Id: faxsend.c,v 2.3 1995/03/29 00:23:38 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: faxsend.c,v 2.4 1995/05/24 09:47:32 gert Exp $ Copyright (c) 1994 Gert Doering"
 
 /* faxsend.c
  *
@@ -254,8 +254,8 @@ int rc;				/* return code */
 	     * seen very old ZyXEL releases sending junk and then
 	     * failing completely... so this may help when debugging
 	     *
-	     * Also, if you don't have defined FAX_SEND_USE_IXON,
-	     * and your modem insists on xon/xoff flow control, you'll
+	     * Also, if you don't use FLOW_SOFT for sendfax, and 
+	     * your modem insists on xon/xoff flow control, you'll
 	     * see these characters [0x11/0x13] here.
 	     */
 
@@ -276,6 +276,7 @@ int rc;				/* return code */
 		while ( check_for_input( fd ) );
 	    }
 	}		/* end while (more g3 data to read) */
+	close(g3fd);
     }			/* end if (open file succeeded) */
 
     lprintf( L_MESG, "page complete, %d bytes sent", w_total );
