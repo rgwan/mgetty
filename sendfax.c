@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.10 1993/05/22 17:56:45 gert Exp $ (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.11 1993/05/26 00:30:26 gert Exp $ (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -393,11 +393,11 @@ char	poll_directory[MAXPATH] = ".";		/* FIXME: parameter */
 	}
     }
 
-    /* set modem to hardware handshake (AT&K4), dial out
+    /* set modem to hardware handshake (AT&H3), dial out
      */
     if ( verbose ) printf( "Dialing %s... ", fac_tel_no );
 
-    sprintf( buf, "AT&K4D%s", fac_tel_no );
+    sprintf( buf, "AT&H3D%s", fac_tel_no );
     if ( fax_command( buf, "OK", fd ) == ERROR )
     {
 	lprintf( L_WARN, "dial failed (hangup_code=%d)", fax_hangup_code );

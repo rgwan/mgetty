@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.28 1993/05/02 15:22:48 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.29 1993/05/26 00:30:23 gert Exp $ (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -76,11 +76,11 @@ unsigned short portspeed = DEFAULT_PORTSPEED;
 char *	init_chat_seq[] = { "", "\r\\d\\d\\d+++\\d\\d\\d\r\\dATQ0H0", "OK",
 
 /* initialize the modem: ats0=0: do not auto-answer. E1: echo on.
- * &K4: hardware (RTS+CTS) handshake. &D3: reset on DTR->low
+ * &H3: hardware (RTS+CTS) handshake. &D3: reset on DTR->low
  * &N0: "multi-auto" connect, accept all known protocols (v32(bis),
- * v22(bis), Fax, ...
+ * v22(bis), Fax, .... &K4: enable v42bis / mnp5
  */
-			    "ATS0=0E1&K4&D3&N0", "OK",
+			    "ATS0=0E1&H3&D3&N0&K4", "OK",
 #ifndef NO_FAX
                             "AT+FAA=1;+FBOR=0;+FCR=1;+FLID=\""FAX_STATION_ID"\"", "OK",
 			    "AT+FDCC=1,5,0,2,0,0,0", "OK",
