@@ -11,9 +11,12 @@
 # For heavy-duty usage (multiple lines, many 100 faxes per day), check
 # out faxrunqd.
 #
-# RCS: $Id: faxrunq.in,v 4.15 2002/11/23 15:35:46 gert Exp $ Copyright (C) 1994 Gert Doering
+# RCS: $Id: faxrunq.in,v 4.16 2004/11/24 13:30:38 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 # $Log: faxrunq.in,v $
+# Revision 4.16  2004/11/24 13:30:38  gert
+# implement update-call-program (status update callback)
+#
 # Revision 4.15  2002/11/23 15:35:46  gert
 # test for existance of config file (not for readability) and thus produce
 # error message if it exists but is not readable (mode 600/wrong owner)
@@ -57,6 +60,7 @@ do_mail_s="TRUE"
 do_mail_f="TRUE"
 exec_pgm_s=""
 exec_pgm_f=""
+exec_pgm_u=""
 max_fail_costly=5
 max_fail_total=10
 delete_sent=""
@@ -71,6 +75,8 @@ if [ -f $CONF_FILE ] ; then
 		{ printf "exec_pgm_s=\"%s\";", $2 }
 	     $1 == "failure-call-program" \
 		{ printf "exec_pgm_f=\"%s\";", $2 }
+	     $1 == "update-call-program" \
+		{ printf "exec_pgm_u=\"%s\";", $2 }
 	     $1 == "maxfail-costly" && $2 ~ /^[0-9]/ \
 		{ printf "max_fail_costly=\"%s\";", $2 }
 	     $1 == "maxfail-total" && $2 ~ /^[0-9]/ \
@@ -329,6 +335,12 @@ do
 	    # suspend job (but do not delete it)
 	    #
 	    mv JOB JOB.suspended 2>/dev/null
+	else					# do not delete job yet...
+	    # call update handler, if requested
+	    if [ -n "$exec_pgm_u" ] ; then
+		$echo "    calling program $exec_pgm_u (-$status)..."
+		$exec_pgm_u $FAX_SPOOL_OUT/$job -$status
+	    fi
 	fi
     fi
 #

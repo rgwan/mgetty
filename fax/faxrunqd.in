@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.66 2003/08/20 10:38:50 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.67 2004/11/24 13:32:06 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.67  2004/11/24 13:32:06  gert
+# implement update-call-program (status update callback)
+#
 # Revision 1.66  2003/08/20 10:38:50  gert
 # reorganize signal handling:
 #   - HUP is now "graceful restart" (wait for all child processes, then quit)
@@ -170,6 +173,7 @@ $send_mail_success=1;
 $send_mail_failure=1;
 $program_success='';
 $program_failure='';
+$program_updates='';
 $max_tries_costly=3;
 $max_tries_total=10;
 $delete_jobs=0;
@@ -304,6 +308,8 @@ if ( open( CF, $faxrunq_cf ) )
 		{ $program_success = "$1"; }
 	elsif ( /^\s*failure-call-program\s+(\S.*)/ )
 		{ $program_failure = "$1"; }
+	elsif ( /^\s*update-call-program\s+(\S.*)/ )
+		{ $program_updates = "$1"; }
 	elsif ( /^\s*maxfail-costly\s+(\d+)/ )
 		{ $max_tries_costly = $1; }
 	elsif ( /^\s*maxfail-total\s+(\d+)/ )
@@ -1510,6 +1516,14 @@ sub handle_return_code
 	}			# end if ( max tries exceeded )
 	else			# requeue...
 	{
+	    # "status update" program (so that integrated frontends can
+	    # easily inform user about what's happening - 'BUSY again!')
+	    if ($program_updates ne '')
+	    {
+		print LOG "    calling u-program $program_updates for job $j...\n" if $opt_v;
+		system( "$program_updates $fax_spool_out/$j/JOB -$ex </dev/null" );
+	    }
+
 	    if ( $ex == 4 ) 			# BUSY: delay 5 minutes
 	    {
 		$queue{$j}->{'status'}='delayed';
