@@ -9,4 +9,5 @@
 - tested lastlog/utmp:
      - in exit case:  *BUG*: not updated
      - in hangup case: not tested
+- tested correct mode/owner on tty: yes.  DONE
 
