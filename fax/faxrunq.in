@@ -9,7 +9,7 @@
 # There are still a lot rough edges - but it works, and should give you an
 # idea how to improve it
 #
-# SCCS: $Id: faxrunq.in,v 4.2 1997/01/16 16:31:33 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxrunq.in,v 4.3 1997/07/24 20:52:20 gert Exp $ Copyright (C) 1994 Gert Doering
 
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -129,7 +129,8 @@ do
 # get user to notify (->$MAIL_TO), phone number (->$PHONE) and
 # earliest send time (->$TIME)
 #
-    eval `$AWK 'BEGIN { user=""; mail=""; verbto=""; time=""; re=""; }
+    eval `tr -d '\042\047\140\134\044\073' <JOB | \
+	  $AWK 'BEGIN { user=""; mail=""; verbto=""; time=""; re=""; }
 		$1=="user" { user=$2 }
 		$1=="mail" { mail=substr( $0, 6) }
 		$1=="phone" { printf "PHONE=%s;", $2 }
@@ -140,7 +141,7 @@ do
 				   else printf "MAIL_TO=\"%s\";", user
 		      printf "TIME=\"%s\";", time
 		      printf "VERBOSE_TO=\"%s\";", verbto
-		      printf "RE=\"%s\"", re }' JOB`
+		      printf "RE=\"%s\"", re }' - `
 
 #
 # check whether send time is reached
@@ -158,7 +159,8 @@ do
 #
 # construct command line to execute
 #
-    command=`$AWK 'BEGIN { phone="-"; flags=""; pages="" }
+    command=`tr -d '\042\047\140\134\044\073' <JOB | \
+             $AWK 'BEGIN { phone="-"; flags=""; pages="" }
 		  $1=="phone" { phone=$2 }
 		  $1=="header"     { flags=flags" -h "$2 }
 		  $1=="poll"       { flags=flags" -p" }
@@ -166,7 +168,7 @@ do
 		  $1=="acct_handle" { flags=flags" -A \""substr($0,13)"\"" }
 		  $1=="pages" { for( i=2; i<=NF; i++) pages=pages$i" " }
 		  END { printf "'"$FAX_SENDER"' -v%s %s %s", \
-			       flags, phone, pages }' JOB`
+			       flags, phone, pages }' -`
 
 #
 # execute faxsend command

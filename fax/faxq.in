@@ -4,7 +4,7 @@
 #
 # like "lpq" or "mailq", show jobs waiting in the output queue
 #
-# SCCS: $Id: faxq.in,v 4.2 1997/04/24 15:09:19 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxq.in,v 4.3 1997/07/24 20:52:20 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -59,13 +59,15 @@ do
 
     if [ -z "$verbose" ]
     then
-	eval `$AWK '$1=="user" { printf "USER=%s;", $2 }
+	eval `tr -d '\042\047\140\134\044\073' <$i | \
+	     $AWK '$1=="user" { printf "USER=%s;", $2 }
 		   $1=="phone" { printf "PHONE=%s;", $2 }
 		   $1=="pages" { printf "PAGES=%d;", NF-1 }
-		   $1=="priority" { printf "PRI=\" pri=%s.\"", $2}' $i`
+		   $1=="priority" { printf "PRI=\" pri=%s.\"", $2}' -`
 	$echo "$i: queued by $USER. $PAGES page(s) to $PHONE.$PRI"
     else
-	eval `$AWK '$1=="user" { printf "USER=%s;", $2 }
+	eval `tr -d '\042\047\140\134\044\073' <$i | \
+	     $AWK '$1=="user" { printf "USER=%s;", $2 }
 		   $1=="mail"  { printf "MAILTO=\"%s\";", substr( $0, 6 ) }
 		   $1=="phone" { printf "PHONE=%s;", $2 }
 		   $1=="verbose_to" \
@@ -82,7 +84,7 @@ do
                                      printf "PAGES=\"%s %s\";", $2, $3
 				 else
                                      printf "PAGES=\"%s ... %s\";", $2, $NF
-			       }' $i`
+			       }' -`
 	$echo "$i:"
 	$echo "\tQueued by: $USER"
        if [ -z "$VERBTO" ]
