@@ -3,7 +3,7 @@
  *
  * Conversion pvf <--> USR GSM and ADPCM formats.
  *
- * $Id: usr.c,v 1.4 1998/09/09 21:07:04 gert Exp $
+ * $Id: usr.c,v 1.5 2001/12/22 19:44:09 marcs Exp $
  *
  */
 
@@ -651,11 +651,14 @@ update(
           /* UPA1 */
           /* update predictor pole a[0] */
           state_ptr->a[0] -= state_ptr->a[0] >> 8;
-          if (dqsez != 0)
-               if (pks1 == 0)
+          if (dqsez != 0) {
+               if (pks1 == 0) {
                     state_ptr->a[0] += 192;
-               else
+	       }
+               else {
                     state_ptr->a[0] -= 192;
+	       }
+	  }
 
           /* LIMD */
           a1ul = 15360 - a2p;
