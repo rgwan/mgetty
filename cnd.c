@@ -1,4 +1,4 @@
-#ident "@(#)cnd.c	$Id: cnd.c,v 4.3 1997/05/04 10:37:57 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "@(#)cnd.c	$Id: cnd.c,v 4.4 1997/05/19 21:23:33 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 
 #include <stdio.h>
 #include <string.h>
@@ -187,7 +187,7 @@ int cndlookup _P0 (void)
 
     process_rockwell_mesg();		/* parse ugly rockwell msg */
 
-    lprintf(L_JUNK, "CND: check no: '%s'", CallerID );
+    lprintf(L_JUNK, "CND: check no: '%s'", CallerId );
 
     while (fgets(buf, sizeof(buf), cndfile)) {
 	register char *p = buf, *p2;
