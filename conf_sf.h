@@ -1,4 +1,4 @@
-#ident "$Id: conf_sf.h,v 3.1 1995/08/30 12:40:27 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: conf_sf.h,v 3.2 1995/09/06 18:30:07 gert Exp $ Copyright (c) 1994 Gert Doering"
 
 /* all (dynamic) sendfax configuration is contained in this structure.
  * It is initialized and loaded in conf_sf.c and accessed from sendfax.c
@@ -24,6 +24,7 @@ extern struct conf_data_sendfax {
 	fax_poll_wanted,	/* cli only (-p) */
 	fax_page_header,
 	use_stdin,		/* cli only (-S) */
+        rename_files,		/* cli only (-r) */
 	end_of_config; } c;
 
 int sendfax_parse_args _PROTO(( int argc, char ** argv ));
