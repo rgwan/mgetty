@@ -1,4 +1,4 @@
-#ident "$Id: login.c,v 2.2 1994/12/06 17:15:18 gert Exp $ Copyright (C) 1993 Gert Doering"
+#ident "$Id: login.c,v 2.3 1995/06/30 17:58:48 gert Exp $ Copyright (C) 1993 Gert Doering"
 
 
 /* login.c
@@ -114,6 +114,8 @@ void login_dispatch _P1( (user), char * user )
 
     char * cfg_file = makepath( LOGIN_CFG_FILE, CONFDIR );
 
+    lprintf( L_JUNK, "login: use login config file %s", cfg_file );
+    
     /* first of all, some (somewhat paranoid) checks for file ownership,
      * file permissions (0i00), ...
      * If something fails, fall through to default ("/bin/login <user>")
@@ -257,11 +259,15 @@ void login_dispatch _P1( (user), char * user )
 
     if ( fp != NULL ) fclose( fp );
 
-#endif /* LOGIN_CFG_FILE */
+#else	/* !LOGIN_CFG_FILE */
+    lprintf( L_JUNK, "login: no login cfg file defined" );
+#endif	/* LOGIN_CFG_FILE */
 
     /* default to "/bin/login <user>" */
     if ( argc == 0 )
     {
+	lprintf( L_NOISE, "login: fall back to %s", DEFAULT_LOGIN_PROGRAM );
+	
 	cmd = DEFAULT_LOGIN_PROGRAM;
 	argv[argc++] = "login";
 
