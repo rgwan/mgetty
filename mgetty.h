@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.h,v 1.46 1994/02/12 14:10:37 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 1.47 1994/02/20 11:31:36 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.h
  *
@@ -66,7 +66,7 @@ int lprintf _PROTO(());
 typedef	void	RETSIGTYPE;
 typedef	char	boolean;
 
-#define MAXLINE 256		/* max. # chars in a line */
+#define MAXLINE 1024		/* max. # chars in a line */
 #define MAXPATH MAXLINE
 #define STDIN	0
 
