@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.97 1994/03/13 00:23:31 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.98 1994/04/05 22:11:29 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -358,6 +358,11 @@ int main _P2((argc, argv), int argc, char ** argv)
 		exit(FAIL);
 	}
 
+	/* unset O_NDELAY (otherwise waiting for characters */
+	/* would be "busy waiting", eating up all cpu) */
+
+	fcntl( fd, F_SETFL, O_RDWR);
+
 	/* make new fd == stdin if it isn't already */
 
 	if (fd > 0) {
@@ -389,11 +394,6 @@ int main _P2((argc, argv), int argc, char ** argv)
 	setbuf(stdin, (char *) NULL);
 	setbuf(stdout, (char *) NULL);
 	setbuf(stderr, (char *) NULL);
-
-	/* unset O_NDELAY (otherwise waiting for characters */
-	/* would be "busy waiting", eating up all cpu) */
-
-	fcntl(STDIN, F_SETFL, O_RDWR);
 
 	/* setup terminal */
 
