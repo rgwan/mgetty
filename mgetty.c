@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.34 1993/06/28 11:48:10 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.35 1993/07/01 18:42:15 gert Exp $ (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -152,7 +152,7 @@ int main( int argc, char ** argv)
 	struct stat st;
 	int Nusers;
 	int i;
-	short cspeed;
+	int cspeed;
 
 	action_t	what_action;
 
