@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 1.23 1994/05/01 01:28:11 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 1.24 1994/05/25 13:34:47 gert Exp $ Copyright (c) 1993 Gert Doering"
 ;
 /* tio.c
  *
@@ -33,6 +33,14 @@ static char tio_compilation_type[]="@(#)tio.c compiled with BSD_SGTTY";
 
 #if defined( M_UNIX ) && defined( MAM_BUG )
 #include <fcntl.h>
+#endif
+
+#ifdef sysV68
+#include <fcntl.h>
+#include <errno.h>
+#include <sys/tty.h>
+#include <sys/sxt.h>
+#include <sys/mvme332xt.h>
 #endif
 
 /* some systems do not define all flags needed later, e.g. NetBSD */
@@ -418,9 +426,9 @@ void tio_carrier _P2( (t, carrier_sensitive), TIO *t, int carrier_sensitive )
  *
  * WARNING: for most systems, this function will not touch the tty
  *          settings, only modify the TIO structure. On some systems,
- *          you have to use extra ioctl()s [notably SVR4 and AIX] to
- *          modify hardware flow control settings. On those systems,
- *          these calls are done immediately.
+ *          you have to use extra ioctl()s [notably SVR4, sysV68, and
+ *          AIX] to modify hardware flow control settings. On those
+ *          systems, these calls are done immediately.
  */
 
 int tio_set_flow_control _P3( (fd, t, type), int fd, TIO * t, int type )
@@ -480,6 +488,36 @@ int tio_set_flow_control _P3( (fd, t, type), int fd, TIO * t, int type )
     }
 #endif			/* DEBUG */
 #endif			/* _AIX */
+
+/*
+ * sysV68 uses special ioctls, too. The following code should work for
+ * mvme332xt controllers. The mvme337 driver supports the same ioctls
+ * but has not been tested. Others may not support hardware flow
+ * control at all. Refer to the corresponding mvmeXXX(7) manpage for
+ * details.
+ */
+#ifdef sysV68
+    if ( type & FLOW_HARD ) {
+	if ( ioctl(fd, TCSETHW, 1) < 0 ) {
+		lprintf( L_ERROR, "ioctl TCSETHW on failed" );
+		return ERROR;
+	}
+    } else {
+	if ( ioctl(fd, TCSETHW, 0) < 0 ) {
+		/* We use a lower logging priority if errno is EINVAL, so
+		 * mgetty can be used on devices which do not support the
+		 * special m332xt ioctls without filling syslog with
+		 * unnecessary error messages.
+		 */
+		if (EINVAL == errno) {
+			lprintf( L_NOISE, "ioctl TCSETHW off failed" );
+		} else {
+			lprintf( L_ERROR, "ioctl TCSETHW off failed" );
+			return ERROR;
+		}
+	}
+    }
+#endif /* sysV68 */
     return NOERROR;
 }
 
@@ -579,8 +617,8 @@ int tio_toggle_dtr _P2( (fd, msec_wait), int fd, int msec_wait )
 #endif
     result = tio_set( fd, &save_t );
     
-#if defined(M_UNIX) && defined(MAM_BUG)
-    /* some SCO Unix variants apparently forget to raise DTR again
+#if (defined(M_UNIX) && defined(MAM_BUG)) || defined (sysV68)
+    /* some Unix variants apparently forget to raise DTR again
      * after lowering it. Reopening the port fixes it. Crude, but works.
      */
     close( open( "/dev/tty", O_RDONLY | O_NDELAY ) );
