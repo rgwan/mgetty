@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 3.11 1996/04/05 19:12:20 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 3.12 1996/05/27 19:15:27 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -83,6 +83,23 @@ extern  char * Device;
 #ifndef FAX_USRobotics
     fax_wait_for( "OK", 0 );
 #endif
+
+    /* if the "switchbd" flag is set wrongly, the fax_wait_for() command
+     * will time out -> write a warning to the log file and give up
+     */
+    if ( fax_hangup_code == FHUP_TIMEOUT )
+    {
+	lprintf( L_WARN, ">> The problem seen above might be caused by a wrong value of the" );
+	lprintf( L_WARN, ">> 'switchbd' option in 'mgetty.config' (currently set to '%d')", switchbd );
+
+	if ( switchbd > 0 && switchbd != 19200 )
+		lprintf( L_WARN, ">> try using 'switchbd 19200' or 'switchbd 0'");
+	else if ( switchbd > 0 )
+		lprintf( L_WARN, ">> try using 'switchbd 0'" );
+	else    lprintf( L_WARN, ">> try using 'switchbd 19200'" );
+
+	fax_hangup = 1;
+    }
 
     /* *now* set flow control (we could have set it earlier, but on SunOS,
      * enabling CRTSCTS while DCD is low will make the port hang)
