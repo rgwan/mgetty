@@ -1,12 +1,12 @@
 # doc/Makefile
 #
-# SCCS: $Id: Makefile,v 3.7 1996/11/21 23:11:56 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: Makefile,v 3.8 1997/01/02 15:04:03 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 
 NROFF=nroff
 #
 #
-MAN1PAGES=g3topbm.1 g3cat.1 pbmtog3.1 fax.1 \
+MAN1PAGES=g32pbm.1 g3cat.1 pbm2g3.1 fax.1 \
 	  faxspool.1 faxrunq.1 faxq.1 faxrm.1 coverpg.1
 MAN4PAGES=mgettydefs.4
 MAN5PAGES=faxqueue.5
@@ -106,10 +106,10 @@ faxrunq.1: faxrunq.1in ../sedscript
 faxspool.1: faxspool.1in ../sedscript
 coverpg.1: coverpg.1in ../sedscript
 g3cat.1: g3cat.1in ../sedscript
-g3topbm.1: g3topbm.1in ../sedscript
+g32pbm.1: g32pbm.1in ../sedscript
 mgetty.8: mgetty.8in ../sedscript
 mgettydefs.4: mgettydefs.4in ../sedscript
-pbmtog3.1: pbmtog3.1in ../sedscript
+pbm2g3.1: pbm2g3.1in ../sedscript
 sendfax.8: sendfax.8in ../sedscript
 callback.8: callback.8in ../sedscript
 
