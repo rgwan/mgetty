@@ -1,4 +1,4 @@
-#ident "$Id: mg_m_init.c,v 1.11 1994/08/09 11:29:44 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_m_init.c,v 1.12 1994/08/19 16:39:07 gert Exp $ Copyright (c) Gert Doering"
 
 /* mg_m_init.c - part of mgetty+sendfax
  *
@@ -301,7 +301,7 @@ int mg_get_ctty _P2( (fd, devname), int fd, char * devname )
 {
     /* BSD systems, Linux */
 #if defined( TIOCSCTTY )
-    if ( setsid() == -1 )
+    if ( setsid() == -1 && errno != EPERM )
     {
 	lprintf( L_ERROR, "cannot make myself session leader (setsid)" );
     }
@@ -324,30 +324,5 @@ int mg_get_ctty _P2( (fd, devname), int fd, char * devname )
     close( fd );
 #endif						/* !def TIOCSCTTY */
 
-    return NOERROR;
-}
-
-/* get rid of a controlling tty.
- *
- * difficult, non-portable, *ugly*.
- */
-
-int mg_drop_ctty _P1( (fd), int fd )
-{
-#ifdef BSD
-    setpgrp( 0, getpid() );
-#else
-    setpgrp();
-#endif
-    
-    if ( setsid() == -1
-#ifdef TIOCNOTTY
-	|| ioctl( fd, TIOCNOTTY, NULL )
-#endif
-	)
-    {
-	lprintf( L_ERROR, "can't get rid of controlling tty" );
-	return ERROR;
-    }
     return NOERROR;
 }
