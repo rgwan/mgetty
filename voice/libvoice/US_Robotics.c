@@ -24,7 +24,7 @@
  * A very good US Robotics technical reference manual is available
  * at: http://www.alliancedatacom.com/us-robotics-manuals.htm (not a typo).
  *
- * $Id: US_Robotics.c,v 1.9 1999/07/20 07:26:00 marcs Exp $
+ * $Id: US_Robotics.c,v 1.10 1999/07/20 07:29:17 marcs Exp $
  *
  */
 
@@ -345,6 +345,28 @@ static int USR_handle_dle(char data)
    return(IS_101_handle_dle(data));
    }
 
+/* -- alborchers@steinerpoint.com */
+static int USR_voice_mode_on(void)
+     {
+
+     int ret;
+     static char buffer[VOICE_BUF_LEN];
+
+
+     if( (ret=IS_101_voice_mode_on( )) != OK )
+          return( ret );
+
+     /* reset voice preferences, they are forgotten after leaving voice mode */
+     sprintf(buffer, "AT#VTD=3F,3F,3F#VSD=1#VSS=%d#VSP=%d#VRA=%d#VRN=%d",
+      cvd.rec_silence_threshold.d.i * 3 / 100, cvd.rec_silence_len.d.i,
+      cvd.ringback_goes_away.d.i, cvd.ringback_never_came.d.i);
+
+     if (voice_command(buffer, "OK") != VMA_USER_1)
+          lprintf(L_WARN,"setting voice preferences didn't work");
+
+     return(OK);
+     }
+
 static char USR_pick_phone_cmnd[] = "AT#VLS=4A";
 static char USR_pick_phone_answr[] = "VCON";
 static char USR_beep_cmnd[] = "AT#VTS=[%d,0,%d]";
@@ -413,7 +435,7 @@ voice_modem_struct US_Robotics =
      &IS_101_stop_waiting,
      &USR_switch_to_data_fax,
      &IS_101_voice_mode_off,
-     &IS_101_voice_mode_on,
+     &USR_voice_mode_on,
      &IS_101_wait,
      &IS_101_play_dtmf,
      0
