@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 1.38 1994/10/22 16:27:40 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 1.39 1994/11/21 16:42:28 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* tio.c
  *
@@ -8,6 +8,7 @@
 
 #include <unistd.h>
 #include <sys/types.h>
+#include <errno.h>
 
 #ifdef _AIX
 #include <sys/ioctl.h>
@@ -204,18 +205,36 @@ int tio_check_speed _P1( (speed), int speed )
     return -1;
 }
 
-/* set speed, do not touch the other flags */
-int tio_set_speed _P2( (t, speed ), TIO *t, int speed )
+/* set speed, do not touch the other flags
+ * "speed" is given as numeric baud rate, not as Bxxx constant
+ */
+int tio_set_speed _P2( (t, speed ), TIO *t, unsigned int speed )
 {
+    int i, symspeed=0;
+
+    for ( i=0; speedtab[i].cbaud != 0; i++ )
+    {
+	if ( speedtab[i].nspeed == speed ) symspeed = speedtab[i].cbaud;
+    }
+
+    if ( symspeed == 0 )
+    {
+	errno=EINVAL;
+	lprintf( L_ERROR, "tss: unknown/unsupported bit rate: %d", speed );
+	return ERROR;
+    }
+
+    lprintf( L_NOISE, "tss: set speed to %d (%03o)", speed, symspeed );
+	
 #ifdef SYSV_TERMIO
-    t->c_cflag = ( t->c_cflag & ~CBAUD) | speed;
+    t->c_cflag = ( t->c_cflag & ~CBAUD) | symspeed;
 #endif
 #ifdef POSIX_TERMIOS
-    cfsetospeed( t, speed );
-    cfsetispeed( t, speed );
+    cfsetospeed( t, symspeed );
+    cfsetispeed( t, symspeed );
 #endif
 #ifdef BSD_SGTTY
-    t->sg_ispeed = t->sg_ospeed = B0;
+    t->sg_ispeed = t->sg_ospeed = symspeed;
 #endif
     return NOERROR;
 }
