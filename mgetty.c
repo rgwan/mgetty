@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.109 1994/05/25 13:03:59 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.110 1994/05/25 13:08:46 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -157,6 +157,8 @@ int main _P2((argc, argv), int argc, char ** argv)
 #if defined(_3B1_) || defined(MEIBE)
     typedef ushort uid_t;
     typedef ushort gid_t;
+#endif
+#if defined(_3B1_) || defined(MEIBE) || defined(sysV86)
     extern struct passwd *getpwuid(), *getpwnam();
 #endif
 
@@ -409,7 +411,7 @@ int main _P2((argc, argv), int argc, char ** argv)
     
     signal( SIGUSR1, sig_pick_phone );
 
-#if defined(linux) && defined(NO_SYSVINIT)
+#if ( defined(linux) && defined(NO_SYSVINIT) ) || defined(sysV86) )
     /* on linux, "simple init" does not make a wtmp entry when you
      * log so we have to do it here (otherwise, "who" won't work) */
     make_utmp_wtmp( Device, UT_INIT, "uugetty" );

@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.46 1994/05/14 16:11:28 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 1.47 1994/05/25 13:10:38 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -35,7 +35,7 @@ static time_t call_done;
 
 time_t	time _PROTO(( long * tloc ));
 
-#if !defined(sun) && !defined(MEIBE)
+#if !defined(sun) && !defined(MEIBE) && !defined(sysV86)
 int	chmod _PROTO(( char * path, mode_t mode ));
 #endif
 
