@@ -4,7 +4,7 @@
 #
 # like "lpq" or "mailq", show jobs waiting in the output queue
 #
-# SCCS: $Id: faxq.in,v 4.3 1997/07/24 20:52:20 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxq.in,v 4.4 1997/07/24 21:59:34 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -57,6 +57,7 @@ do
     USER=""; PHONE=""; PAGES=""; MAILTO=""; VERBTO=""; 
     ACCT=""; INPUT=""; PRI=""; RE=""
 
+    # read jobs using 'tr', remove all quote characters, dollar, and backslash
     if [ -z "$verbose" ]
     then
 	eval `tr -d '\042\047\140\134\044\073' <$i | \

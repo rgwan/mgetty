@@ -9,7 +9,7 @@
 # There are still a lot rough edges - but it works, and should give you an
 # idea how to improve it
 #
-# SCCS: $Id: faxrunq.in,v 4.3 1997/07/24 20:52:20 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxrunq.in,v 4.4 1997/07/24 21:59:35 gert Exp $ Copyright (C) 1994 Gert Doering
 
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -129,6 +129,8 @@ do
 # get user to notify (->$MAIL_TO), phone number (->$PHONE) and
 # earliest send time (->$TIME)
 #
+# read job using 'tr', remove all quote characters, dollar, and backslash
+#
     eval `tr -d '\042\047\140\134\044\073' <JOB | \
 	  $AWK 'BEGIN { user=""; mail=""; verbto=""; time=""; re=""; }
 		$1=="user" { user=$2 }
@@ -158,6 +160,7 @@ do
 
 #
 # construct command line to execute
+# read job using 'tr', remove all quote characters, dollar, and backslash
 #
     command=`tr -d '\042\047\140\134\044\073' <JOB | \
              $AWK 'BEGIN { phone="-"; flags=""; pages="" }
