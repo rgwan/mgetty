@@ -1,4 +1,4 @@
-#ident "$Id: locks.c,v 1.20 1993/11/29 11:50:46 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
+#ident "$Id: locks.c,v 1.21 1994/01/02 20:33:18 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
 ;
 /* large parts of the code in this module are taken from the
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us,
@@ -12,6 +12,7 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <ctype.h>
 
 /* SVR4 uses a different locking mechanism. This is why we need this... */
 #ifdef SVR4 
@@ -190,7 +191,16 @@ static int readlock _P1( (name),
 	     pid == 0 )
 	{
 	    pid = * ( (int *) apid );
+#if LOCKS_BINARY == 0
+	    lprintf( L_WARN, "compiled with ascii locks, found binary lock file (length=%d, pid=%d)!", length, pid );
+#endif
 	}
+#if LOCKS_BINARY == 1
+	else
+	{
+	    lprintf( L_WARN, "compiled with binary locks, found ascii lock file (length=%d, pid=%d)!", length, pid );
+	}
+#endif
 
 	(void) close(fd);
 	return(pid);
@@ -254,8 +264,25 @@ static char *get_lock_name _P2( (lock, fax_tty),
 static char * get_lock_name _P2( (lock_name, device),
 			  char * lock_name, char * device )
 {
-    (void) sprintf(lock_name, LOCK, device);
+#ifdef LOCKS_LOWERCASE
+    /* sco locking convention -> change all device names to lowercase */
+
+    char p[MAXLINE+1];
+    int i;
+    if ( ( i = strlen( device ) ) > sizeof(p) )
+    {
+	lprintf( L_FATAL, "get_lock_name: device name too long" );
+	exit(5);
+    }
+    while ( i >= 0 )
+    {
+	p[i] = tolower( device[i] ); i--;
+    }
+    sprintf( lock_name, LOCK, p );
+#else
+    sprintf( lock_name, LOCK, device);
+#endif
     return lock_name;
 }
 	
-#endif /* SVR4 */
+#endif /* !SVR4 */
