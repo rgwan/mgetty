@@ -4,7 +4,7 @@
  * This is the callback function for the modem to the higher level
  * routines.
  *
- * $Id: event.c,v 1.6 1999/01/23 20:34:12 marcs Exp $
+ * $Id: event.c,v 1.7 1999/05/15 19:17:47 marcs Exp $
  *
  */
 
@@ -175,6 +175,7 @@ int voice_handle_event(int event, event_data data)
                     case DIAL_TONE:
                     case DATA_CALLING_TONE:
                     case FAX_CALLING_TONE:
+                    case RING_DETECTED:
                          return(voice_stop_waiting());
                     };
 
