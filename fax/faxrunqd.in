@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.32 1998/05/25 11:46:02 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.33 1998/05/28 14:37:26 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.33  1998/05/28 14:37:26  gert
+# write "Status" line for successful send attempts as well
+#
 # Revision 1.32  1998/05/25 11:46:02  gert
 # add job number (F000123) to acct.log entries
 #
@@ -962,6 +965,9 @@ my ($r, $s, $ex, $j, $t);
 	# remove from internal work queue
 	$queue{$j}->{'status'} = 'done';
 
+	# write status line to JOB file
+	&wstat( $j, "Status " . localtime() . " successfully sent\n");
+
 	# write acct.log
 	&wacct($j, "success");
 
@@ -1009,18 +1015,8 @@ my ($r, $s, $ex, $j, $t);
 	$queue{$j}->{'tries_c'}++  if $ex >= 10;
 
 	# write status line to JOB file
-	unless ( open( J, ">>$j/JOB" ) )
-	{
-	    print LOG "ERROR: can't append status line to $j/JOB: $!\n";
-	    &remove_error_job($j);
-	}
-	else
-	{
-	    my $fstr = ( $ex<10 )? "failed" : "FATAL FAILURE";
-
-	    print J "Status " . localtime() . " $fstr, exit($ex): $verb_ex\n";
-	    close(J);
-	}
+	my $fstr = ( $ex<10 )? "failed" : "FATAL FAILURE";
+	&wstat( $j, "Status " . localtime() . " $fstr, exit($ex): $verb_ex\n");
 
 	# write acct.log
 	&wacct($j, "fail $ex: $verb_ex");
@@ -1154,6 +1150,23 @@ EOF1
     close(F);
 
     close(M);
+}
+
+# write "Status" record to JOB file
+# parameters: job id, string to write to file
+sub wstat
+{
+    my ($j,$r) = @_;
+
+    unless ( open( J, ">>$j/JOB" ) )
+    {
+	print LOG "ERROR: can't append status line to $j/JOB: $!\n";
+	&remove_error_job($j);
+	return;
+    }
+
+    print J $r;
+    close J;
 }
 
 # write record to acct.log
