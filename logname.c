@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 4.2 1997/10/21 12:34:39 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 4.3 1998/04/02 16:45:08 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include "syslibs.h"
@@ -242,8 +242,6 @@ int getlogname _P6( (prompt, tio, buf, maxsize, max_login_time, do_fido),
     static int ppp_level = 0;
 #endif
     
-    static boolean was_all_uc = FALSE;
-
     /* read character by character! */
     tio_save = *tio;
     tio_mode_raw( tio );
@@ -507,6 +505,8 @@ int getlogname _P6( (prompt, tio, buf, maxsize, max_login_time, do_fido),
 #ifdef DO_LCUC_MAP
     if ( ln_all_upper( buf ) )
     {
+    static boolean was_all_uc = FALSE;
+
 	if ( !was_all_uc )	/* first time */
 	{
 	    printf("\r\n\nIf your terminal supports lower case letter, please\r\n");
