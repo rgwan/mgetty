@@ -6,6 +6,10 @@
 #
 # gert@greenie.muc.de
 #
+# $Log: new_fax.mail,v $
+# Revision 1.2  2000/07/16 21:18:08  gert
+# add .gz to file names, for automatic unziping
+#
 MAILTO="you@yourhost.do.main"
 MAILER=/usr/lib/sendmail
 
@@ -38,7 +42,7 @@ do
 	    echo ""
 	    $G3TOPBM $STRETCH $FAX \
 	    | gzip -9 \
-	    | uuencode `basename $FAX`.pbm
+	    | uuencode `basename $FAX`.pbm.gz
 	) | $MAILER $MAILTO
 
 	shift
