@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.62 2005/02/27 11:52:54 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.63 2005/02/27 11:58:12 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -317,7 +317,7 @@ SFAXOBJ=sendfax.o logfile.o locks.o modem.o \
 
 all:	bin-all doc-all
 
-bin-all: mgetty sendfax newslock subdirs call-back 
+bin-all: mgetty sendfax newslock sedscript subdirs call-back 
 
 # a few C files need extra compiler arguments
 
@@ -704,7 +704,7 @@ vgetty-install: sedscript
 install-vgetty: vgetty-install
 
 ## test suite
-test: bin-all sedscript
+test: bin-all
 	for D in g3 t ; do \
 	    ( cd $$D ; $(MAKE) CFLAGS="$(CFLAGS) -I.." test ); \
 	done
