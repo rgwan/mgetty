@@ -3,7 +3,7 @@
  *
  * autodetect the modemtype we are connected to.
  *
- * $Id: detect.c,v 1.15 2000/06/11 16:22:31 marcs Exp $
+ * $Id: detect.c,v 1.16 2000/07/22 10:19:51 marcs Exp $
  *
  */
 
@@ -237,6 +237,10 @@ int voice_detect_modemtype(void)
                for (s = buffer; ((s <= buffer + strlen(buffer) - 1) &&
                 ((*s == ' ') || (*s == '\t'))); s++)
                     ;
+
+               /* Supports the modem V250 commands? */
+               if (voice_command("AT+IFC=?", "ERROR") != OK) voice_modem=&V250modem;
+		/* if the modem not answers with error then it supports V250 commands */
 
                for (i = 0; ((modem_database[i].at_cmnd != NULL) &&
                 (voice_modem == &no_modem)); i++)

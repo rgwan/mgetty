@@ -4,7 +4,7 @@
  * pvftormd converts from the pvf (portable voice format) format to the
  * rmd (raw modem data) format.
  *
- * $Id: pvftormd.c,v 1.9 2000/07/22 10:01:01 marcs Exp $
+ * $Id: pvftormd.c,v 1.10 2000/07/22 10:19:51 marcs Exp $
  *
  */
 
@@ -32,6 +32,7 @@ static void supported_formats (void)
      fprintf(stderr, "supported raw modem data formats:\n\n");
      fprintf(stderr, " - Digi          4 (G.711U) and 5 (G.711A)\n");
      fprintf(stderr, " - Elsa          2, 3 and 4 bit Rockwell ADPCM\n");
+     fprintf(stderr, " - V250modem   8 bit PCM\n");
      fprintf(stderr, " - ISDN4Linux    2, 3 and 4 bit ZyXEL ADPCM\n");
      fprintf(stderr, " - MT_2834       4 bit IMA ADPCM\n");
      fprintf(stderr, " - Rockwell      2, 3 and 4 bit Rockwell ADPCM\n");
@@ -111,6 +112,7 @@ int main (int argc, char *argv[])
 
      if ((strcmp(modem_type, "Digi RAS") == 0) ||
       (strcmp(modem_type, "Elsa") == 0) ||
+      (strcmp(modem_type, "V250modem") == 0) ||
       (strcmp(modem_type, "ISDN4Linux") == 0) ||
       (strcmp(modem_type, "Multitech2834") == 0) ||
       (strcmp(modem_type, "Rockwell") == 0) ||
@@ -232,6 +234,25 @@ int main (int argc, char *argv[])
                exit(OK);
 
           };
+
+     if ((strcmp(modem_type, "V250modem") == 0) && (compression == 8))
+          {
+          header_out.bits = compression;
+
+          if (write_rmd_header(fd_out, &header_out) != OK)
+               {
+               fclose(fd_out);
+
+               if (fd_out != stdout)
+                    unlink(name_out);
+
+               exit(ERROR);
+               }
+
+          if (pvftolin(fd_in, fd_out, &header_in, 0, 0, 0) == OK)
+               exit(OK);
+
+          }
 
      if ((strcmp(modem_type, "ISDN4Linux") == 0) &&
       ((compression == 2) || (compression == 3) || (compression == 4)))

@@ -4,7 +4,7 @@
  * rmdtopvf converts from the rmd (raw modem data) format to the pvf
  * (portable voice format) format.
  *
- * $Id: rmdtopvf.c,v 1.9 2000/07/22 10:01:02 marcs Exp $
+ * $Id: rmdtopvf.c,v 1.10 2000/07/22 10:19:52 marcs Exp $
  *
  */
 
@@ -38,6 +38,7 @@ static void supported_formats (void)
      fprintf(stderr, " - Multitech 2834 4 bit IMA ADPCM\n");
      fprintf(stderr, " - Rockwell       2, 3 and 4 bit Rockwell ADPCM\n");
      fprintf(stderr, " - Rockwell       8 bit Rockwell PCM\n");
+     fprintf(stderr, " - V250modem      8 bit PCM\n");
      fprintf(stderr, " - UMC            4 (G.721 ADPCM)\n");
      fprintf(stderr, " - US Robotics    1 and 4 (GSM and G.721 ADPCM)\n");
      fprintf(stderr, " - ZyXEL 1496     2, 3 and 4 bit ZyXEL ADPCM\n");
@@ -184,6 +185,12 @@ int main (int argc, char *argv[])
                exit(OK);
 
           };
+
+     if (strcmp(modem_type, "V250modem")==0)
+	{
+          if (lintopvf(fd_in, fd_out, &header_out, 0, 0, 0) == OK)
+               exit(OK);
+        }
 
      if (((strcmp(modem_type, "Rockwell") == 0 && compression != 8) ||
       (strcmp(modem_type, "Elsa") == 0)) && ((compression == 2) ||
