@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.36 1993/12/15 11:00:42 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.37 1993/12/15 14:08:00 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -41,6 +41,8 @@
 #define GETTYDEFS_DEFAULT_TAG "n"
 
 
+/* access modes */
+
 /* user id of the "uucp" user. The tty device will be owned by this user,
  * so parallel dial-out of uucico will be possible
  */
@@ -52,11 +54,20 @@
  */
 #define FILE_MODE 0660
 
+
+/* logging */
+
 /* system console - if a severe error happens at startup, mgetty writes
  * a message to this file and aborts
  * On SCO, this may be /dev/syscon!
  */
 #define CONSOLE "/dev/console"
+
+/* Name of the mgetty log file
+ * e.g. "/usr/spool/log/mgetty.log.%s"
+ * a "%s" will be replaced by the device name, e.g. "tty2a"
+ */
+#define LOG_PATH "/tmp/log_mg.%s"
 
 /* Default log error level threshold. Possible error levels are
  * L_FATAL, L_ERROR, L_WARN, L_MESG, L_NOISE, L_JUNK (see mgetty.h)
@@ -73,6 +84,18 @@
  * the logfile will be mailed to him
  */
 #define ADMIN	"root"
+
+/* Syslog
+ *
+ * If you want logging messages of type L_AUDIT, L_ERROR and L_FATAL
+ * to go to the "syslog", define this.
+ * mgetty will use the facility "LOG_DAEMON", and the priorities
+ * LOG_NOTICE, LOG_ERR and LOG_ALERT, respectively.
+ */
+/* #define SYSLOG */
+
+
+/* login stuff */
 
 /* System name - printed at login prompt
  * If you do not define this, the uname() call will be used
@@ -105,11 +128,8 @@
  */
 #define MAX_LOGIN_TIME	240
 
-/* Name of the mgetty log file
- * e.g. "/usr/spool/log/mgetty.log.%s"
- * a "%s" will be replaced by the device name, e.g. "tty2a"
- */
-#define LOG_PATH "/tmp/log_mg.%s"
+
+/* misc */
 
 /* Path for the lock files. A %s will be replaced with the device name,
  * e.g. tty2a -> /usr/spool/uucp/LCK..%s

@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 1.23 1993/12/02 19:58:34 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logfile.c,v 1.24 1993/12/15 14:07:57 gert Exp $ Copyright (c) Gert Doering"
 ;
 #include <stdio.h>
 #include <unistd.h>
@@ -11,6 +11,13 @@
 
 #include "mgetty.h"
 #include "policy.h"
+
+#ifdef SYSLOG
+#include <syslog.h>
+
+int openlog _PROTO(( char *, int, int ));
+int syslog _PROTO(( int, char *, ... ));
+#endif
 
 int log_level = LOG_LEVEL;	/* set default log level threshold (jcp) */
 
@@ -122,7 +129,7 @@ int     errnr;
 
     errnr = errno;
 
-    if ( log_fp == NULL )
+    if ( log_fp == NULL )		/* open log file */
     {
         if ( log_path[0] == 0 )
 	    sprintf( log_path, LOG_PATH, "unknown" );
@@ -146,6 +153,10 @@ int     errnr;
 	    }
 	}
 	fprintf( log_fp, "\n--" );
+#ifdef SYSLOG
+	/* initialize syslog logging */
+	openlog( "mgetty", LOG_PID, LOG_DAEMON );
+#endif
     }
 
     vsprintf( ws, format, pvar );
@@ -159,6 +170,9 @@ int     errnr;
 	    fprintf(log_fp, "\n%02d/%02d %02d:%02d:%02d  #### %s",
 		             tm->tm_mon+1,  tm->tm_mday,
 			     tm->tm_hour, tm->tm_min, tm->tm_sec, ws );
+#ifdef SYSLOG
+	    syslog( LOG_NOTICE, "%s", ws );
+#endif
 	}
 	else if ( level != L_ERROR && level != L_FATAL )
 	{
@@ -166,13 +180,17 @@ int     errnr;
 		             tm->tm_mon+1,  tm->tm_mday,
 			     tm->tm_hour, tm->tm_min, tm->tm_sec, ws );
 	}
-	else
+	else		/* ERROR or FATAL */
 	{
 	    fprintf(log_fp, "\n%02d/%02d %02d:%02d:%02d  %s: %s",
 		             tm->tm_mon+1,  tm->tm_mday,
 			     tm->tm_hour, tm->tm_min, tm->tm_sec, ws,
 			     ( errnr <= sys_nerr ) ? sys_errlist[errnr]:
 			     "<error not in list>" );
+#ifdef SYSLOG
+	    syslog( level == L_FATAL? LOG_ALERT: LOG_ERR,
+		    "%s: %m", ws );
+#endif
 	    if ( level == L_FATAL )
 	    {
 	    FILE * cons_fp;
