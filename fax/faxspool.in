@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 2.6 1994/10/02 18:17:48 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 2.7 1994/10/08 22:22:23 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -48,7 +48,7 @@ FAX_HEADER=@LIBDIR@/faxheader
 #
 # for creating the fax page header, pbmtext is used, and this specifies
 # the font file to use
-PBMFONT=@LIBDIR@/cour24i.pbm
+PBMFONT=@LIBDIR@/cour25.pbm
 
 #
 # program that will generate fax coverpage (see "man coverpg")

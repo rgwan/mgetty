@@ -6,9 +6,9 @@
 #
 # - DVI-Files: dvialw <file>, -> gs <file>
 # - PostScript: gs -sDEVICE=dfaxhigh
-# - ASCII-Files: pbmtext -fount cour24i.pbm
+# - ASCII-Files: pbmtext -fount cour25.pbm
 #
-# SCCSID: $Id: faxcvt,v 1.1 1994/01/17 12:12:35 gert Exp $ (c) 1993 Gert Doering
+# SCCSID: $Id: faxcvt,v 1.2 1994/10/08 22:21:27 gert Exp $ (c) 1993 Gert Doering
 #
 if [ $# -lt 2 ]
 then
@@ -25,7 +25,7 @@ do
     tgt=/tmp/$file.g3
     case "$format" in
 	-ascii)	tgt=/tmp/$file
-		pbmtext -font cour24i.pbm <$file | pbmtog3 >$tgt-1.g3
+		pbmtext -font cour25.pbm <$file | pbmtog3 >$tgt-1.g3
 		;;
 	-ps)	tgt=/tmp/`basename $file .ps`
 	        cat $file |
