@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.h,v 1.68 1994/10/31 11:04:48 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 1.69 1994/10/31 12:01:11 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -134,7 +134,7 @@ void	faxrec _PROTO(( char * spool_dir ));
 char *	fax_strerror _PROTO(( int fax_hangup_code ));
 
 /* initialization stuff: mg_m_init.c */
-int	mg_init_data  _PROTO(( int fd ));
+int	mg_init_data  _PROTO(( int fd, char * chat_seq[] ));
 int	mg_init_fax   _PROTO(( int fd, char * mclass, char * fax_id ));
 int 	mg_init_voice _PROTO(( int fd ));
 void	faxpoll_server_init _PROTO(( int fd, char * fax_server_file ));
