@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.21 1993/09/21 15:18:01 gert Exp $ (c) Gert Doering"
+#ident "$Id: policy.h,v 1.22 1993/09/29 20:24:04 gert Exp $ (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -13,7 +13,7 @@
 /* user id of the "uucp" user. The tty device will be owned by this user,
  * so parallel dial-out of uucico will be possible
  */
-#define UUCPID	5
+#define UUCPID	"uucp"
 
 /* access mode for the line while getty has it - it should be accessible
  * by uucp / uucp, but not by others (imagine someone dialing into your
