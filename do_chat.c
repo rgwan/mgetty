@@ -1,4 +1,4 @@
-#ident "$Id: do_chat.c,v 1.25 1993/11/29 11:44:26 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: do_chat.c,v 1.26 1993/12/19 23:34:21 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* do_chat.c
  *
@@ -100,7 +100,7 @@ TIO	tio, save_tio;
 
 		if ( chat_has_timeout )		/* timeout */
 		{
-		    lprintf( L_ERROR,"timeout in chat skript, waiting for `%s'", expect_send[str] );
+		    lprintf( L_ERROR,"timeout in chat script, waiting for `%s'", expect_send[str] );
 		    retcode = FAIL;
 		    break;
 		}
