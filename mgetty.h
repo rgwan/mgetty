@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 3.5 1995/11/24 21:35:50 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 3.6 1996/01/03 20:35:21 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -184,6 +184,12 @@ int	mg_get_device _PROTO(( char * devname, boolean blocking,
 			       unsigned int portspeed ));
 int	mg_get_ctty _PROTO(( int fd, char * devname ));
 int	mg_drop_ctty _PROTO(( int fd ));
+
+/* modem.c */
+int	mdm_send _PROTO(( char * send, int fd ));
+int	mdm_read_byte _PROTO(( int fd, char * c ));
+char *	mdm_get_line  _PROTO(( int fd ));
+int	mdm_command   _PROTO(( char * send, int fd ));
 
 /* logname.c */
 char *	ln_escape_prompt _PROTO(( char * prompt ));
