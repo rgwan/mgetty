@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.27 1998/06/01 16:59:39 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.28 1998/06/17 12:43:35 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -42,9 +42,8 @@ CC=gcc
 # Add "-DISC" to compile on Interactive Unix. For posixized ISC 4.0 you
 # may have to add -D_POSIX_SOURCE
 #
-# For IBM AIX, if you want to compile with xlc, add -D_ALL_SOURCE and
-# -DUSE_POLL to the CFLAGS line.
-# If you use AIX 3.x, add "-DAIX3_FLOW", otherwise tio.c won't compile.
+# For IBM AIX 4.x, no changes should be necessary. For AIX 3.x, it might
+# be necessary to add -D_ALL_SOURCE and -DUSE_POLL to the CFLAGS line.
 # [If you experience "strange" problems with AIX, report to me...!]
 #
 # Add "-D_3B1_ -DUSE_READ -D_NOSTDLIB_H -DSHORT_FILENAMES" to compile
@@ -121,7 +120,6 @@ CFLAGS=-O2 -Wall -pipe
 #CFLAGS=-posix -DUSE_VARARGS -DBSD -O2		# for NeXT with POSIX
 #CFLAGS=-D_HPUX_SOURCE -Aa -DBSDSTATFS		# for HP-UX 9.x
 #CFLAGS=-cckr -D__STDC__ -O -DUSE_READ 		# for IRIX 5.2
-#CFLAGS=-O -DAIX3_FLOW				# for AIX 3.2.x (*NOT* 4.x!)
 
 
 #
