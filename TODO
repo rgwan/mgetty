@@ -303,3 +303,7 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
      the remaining number of RINGs.
      (Also, that way vgetty can control the number of RINGs depending on
      the distinctive RING number / ISDN MSN)
+
+227) mgetty: add config option to call external program in the case
+     of "L_AUDIT / failed" exit's?  Might be helpful for an external
+     management system... (Robert Canary)
