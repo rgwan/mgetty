@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.9 1993/03/14 15:12:44 gert Exp $ (c) Gert Doering */
+/* $Id: mgetty.h,v 1.10 1993/03/20 17:47:24 gert Exp $ (c) Gert Doering */
 
 /* stuff in logfile.c */
 
@@ -74,5 +74,13 @@ extern int	getopt( int, char **, char * );
 #endif
 extern int	optind;
 extern char *	optarg;
+
+/* system specific stuff */
+#ifdef ISC
+#define fileno(p)	(p)->_file
+# ifndef O_NDELAY
+# define O_NDELAY O_NONBLOCK
+# endif
+#endif
 
 #include "policy.h"
