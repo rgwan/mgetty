@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.38 1998/10/13 15:24:14 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.39 1998/11/22 10:05:52 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -644,6 +644,12 @@ int mdm_identify _P1( (fd), int fd )
 	    modem_quirks |= MQ_NEED2;
 	    mis = mdm_get_idstring( "ATI9", 1, fd );
 	    break;
+          case 932:	/* Thomas Schuett, info@thomas-schuett.de */
+	    lprintf( L_MESG, "Zoom MX/S detected" );
+	    modem_type=Mt_class2;
+	    modem_quirks |= MQ_NEED2;
+	    mis = mdm_get_idstring( "ATI3", 1, fd );
+	    break;	      
 	  case 961:
 	    lprintf( L_MESG, "Zoltrix 14400 faxmodem detected (?)" );
 	    modem_type=Mt_class2;
