@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.7 1997/10/30 11:37:32 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.8 1997/10/30 20:54:28 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -431,6 +431,7 @@ version.h: $(DISTRIB)
 	    echo "char * mgetty_version = \"official release $(MR).$(SR)\";" >version.h ;\
 	fi
 	chmod 444 version.h
+	cvs commit -m 'new version' version.h
 
 mgetty$(MR).$(SR).tar.gz:	$(DISTRIB)
 	rm -f mgetty-$(MR).$(SR)
