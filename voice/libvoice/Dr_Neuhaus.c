@@ -3,7 +3,7 @@
  *
  * This file contains the Dr. Neuhaus Cybermod specific hardware stuff.
  *
- * $Id: Dr_Neuhaus.c,v 1.5 1999/01/30 14:31:06 marcs Exp $
+ * $Id: Dr_Neuhaus.c,v 1.6 1999/05/15 19:30:49 marcs Exp $
  *
  */
 
@@ -130,6 +130,13 @@ static int Dr_Neuhaus_set_device (int device)
           case INTERNAL_SPEAKER:
                voice_command("AT+VLS=4", "OK");
                return(OK);
+          case INTERNAL_MICROPHONE:
+	       /* The Smarty has an INTERNAL_MICROPHONE.
+		* -- Raoul Boenisch <Raoul.Boenisch@uni-essen.de>
+		*/
+               voice_command("AT+VLS=14", "OK");
+               return(OK);
+
           };
 
      lprintf(L_WARN, "%s: Unknown output device (%d)", voice_modem_name,
