@@ -1,4 +1,4 @@
-#ident "@(#)cnd.c	$Id: cnd.c,v 4.23 2002/10/20 12:28:21 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "@(#)cnd.c	$Id: cnd.c,v 4.24 2002/11/05 21:43:04 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 
 #include <stdio.h>
 #include <string.h>
@@ -152,8 +152,17 @@ cndfind _P1((str), char *str)
 	    }
 	    else	/* normal case */
 	    {
-		*(cp->variable) = malloc(strlen(str) - len + 1);
+		*(cp->variable) = p = malloc(strlen(str) - len + 1);
 		(void) strcpy(*(cp->variable), str+len);
+
+		/* nuke quotes and non-printable characters (some of this 
+		 * stuff is passed to shell commands and environment vars)
+		 */
+		while( *p != '\0' )
+		{ 
+		    if ( *p == '\'' || *p == '\"' || !isprint(*p) ) *p = ' ';
+		    p++;
+		}
 	    }
 	    lprintf(L_JUNK, "CND: found: %s", *(cp->variable));
 	    return;
