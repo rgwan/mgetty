@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.h,v 1.55 1994/04/27 00:08:31 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 1.56 1994/05/14 16:43:33 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.h
  *
@@ -107,9 +107,14 @@ void	faxrec _PROTO(( char * spool_dir ));
 char *	fax_strerror _PROTO(( int fax_hangup_code ));
 
 /* initialization stuff: mg_m_init.c */
-int	mg_init_data _PROTO(( int fd ));
-int	mg_init_fax  _PROTO(( int fd, char * fax_id ));
+int	mg_init_data  _PROTO(( int fd ));
+int	mg_init_fax   _PROTO(( int fd, char * mclass, char * fax_id ));
+int 	mg_init_voice _PROTO(( int fd ));
 void	faxpoll_server_init _PROTO(( int fd, char * fax_server_file ));
+int	mg_open_device _PROTO(( char * devname, boolean blocking ));
+int	mg_init_device _PROTO(( int fd, boolean toggle_dtr,
+			        int toggle_dtr_waittime,
+			        unsigned short portspeed ));
 
 /* logname.c */
 char *	ln_escape_prompt _PROTO(( char * prompt ));
