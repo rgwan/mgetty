@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.c,v 4.12 1999/02/24 16:10:23 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_mg.c,v 4.13 1999/02/28 19:13:07 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_mg.c
  *
@@ -72,6 +72,7 @@ struct conf_data_mgetty c = {
 
 	{ "toggle-dtr", {TRUE}, CT_BOOL, C_PRESET },
 	{ "toggle-dtr-waittime", {500}, CT_INT, C_PRESET },
+	{ "need-dsr", {FALSE}, CT_BOOL, C_PRESET },
 	{ "data-only", {FALSE}, CT_BOOL, C_PRESET },
 	{ "fax-only", {FALSE}, CT_BOOL, C_PRESET },
 	{ "modem-type", {(p_int) DEFAULT_MODEMTYPE}, CT_STRING, C_PRESET },
