@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 3.4 1996/01/03 21:32:16 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 3.5 1996/04/05 19:12:21 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -19,7 +19,7 @@
 
 Modem_type modem_type = Mt_class2;	/* if uninitialized, assume class2 */
 
-char	fax_remote_id[1000];		/* remote FAX id +FTSI */
+char	fax_remote_id[40];		/* remote FAX id +FTSI */
 char	fax_param[1000];		/* transm. parameters +FDCS */
 fax_param_t	fax_par_d;		/* fax params detailed */
 char	fax_hangup = 0;
@@ -35,6 +35,19 @@ int	fhs_lc, fhs_blc, fhs_cblc, fhs_lbc;
 /* wait for a given modem response string,
  * handle all the various class 2 / class 2.0 status responses
  */
+
+/* copy fax station id, removing quote characters (dangerous for shell!) */
+static void fwf_copy_remote_id _P1( (id), char * id )
+{
+int w = 0;
+    while ( *id && w < sizeof(fax_remote_id)-1 )
+    {
+        if ( *id == '"' || *id == '\'' ) fax_remote_id[w++] = '_';
+                                    else fax_remote_id[w++] = *id;
+        id++;
+    }
+    fax_remote_id[w]=0;
+}
 
 static boolean fwf_timeout = FALSE;
 
@@ -89,7 +102,7 @@ int  ix;
 	     strncmp( line, "+FPI:", 5 ) == 0 )
 	{
 	    lprintf( L_MESG, "fax_id: '%s'", line );
-	    strcpy( fax_remote_id, &line[ix] );
+	    fwf_copy_remote_id( &line[ix] );
 	}
 
 	else if ( strncmp( line, "+FDCS:", 6 ) == 0 ||

@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 3.10 1996/03/03 22:44:55 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 3.11 1996/04/05 19:12:20 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -212,8 +212,8 @@ char	DevId[3];
     {
 	char c = fax_remote_id[j];
          if ( c == ' ' || c == '/' || c == '\\'|| c == '&' || c == ';' ||
-	      c == '(' || c == ')' || c == '>' || c == '<' ||
-	      c == '?' || c == '*' )
+	      c == '(' || c == ')' || c == '>' || c == '<' || c == '|' ||
+	      c == '?' || c == '*' || c == '\''|| c == '"' || c == '`' )
 	 {
 	     if ( temp[i-1] != '-' ) temp[i++] = '-' ;
 	 }
