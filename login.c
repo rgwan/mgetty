@@ -1,4 +1,4 @@
-#ident "$Id: login.c,v 4.16 2002/03/02 18:25:35 gert Exp $ Copyright (C) 1993 Gert Doering"
+#ident "$Id: login.c,v 4.17 2002/03/11 17:57:42 gert Exp $ Copyright (C) 1993 Gert Doering"
 
 
 /* login.c
@@ -17,6 +17,7 @@
 #endif
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <fcntl.h>
 
 /* NeXTStep/86 has some byte order problems (Christian Starkjohann) */
 #if defined(NeXT) && defined(__LITTLE_ENDIAN__) && !defined(NEXTSGTTY)
@@ -354,6 +355,12 @@ fallthrough:
      * environment from scratch) - not general enough, though.
      */
     setup_environment();
+
+    /* make sure close-on-exec bit is unset
+     * (BUG in FreeBSD 4.1.1 syslog() - sets c-o-e on FD 0 !!!
+     */
+    if ( fcntl(0, F_GETFD, 0 ) & 1 ) 
+	lprintf( L_WARN, "WARNING: close-on-exec bit set on FD 0 - OS BUG?" );
 
     /* execute login */
     execv( cmd, argv );
