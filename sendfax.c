@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.17 1993/06/05 15:54:58 gert Exp $ (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.18 1993/06/21 15:30:46 gert Exp $ (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -91,7 +91,7 @@ int	fd;
     fax_termio.c_iflag = IXANY;
     fax_termio.c_oflag = 0;
 
-    fax_termio.c_cflag = FAX_SEND_BAUD | CS8 | CREAD | HUPCL | CLOCAL |
+    fax_termio.c_cflag = FAX_SEND_BAUD | CS8 | CREAD | HUPCL | 
 			 HARDWARE_HANDSHAKE;
 
     fax_termio.c_lflag = 0;
