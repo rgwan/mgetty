@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 2.9 1994/10/26 13:59:35 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 2.10 1994/10/26 14:55:56 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -249,8 +249,18 @@ fs_cvt_ascii()
 #
 fs_cvt_dvi()
 {
+    if [ X$3 = X-n ]
+    then 
+	driver=dfaxlow ; dvipscfg="-P dfaxlow"
+    else
+	driver=dfaxhigh ; dvipscfg="-P dfaxhigh"
+    fi
+
     driver=dfaxhigh
     test X$3 = X-n && driver=dfaxlow
+
+# if you have the dfaxlow/dfaxhigh dvips modes configured, call
+# dvips as "dvips $dvipscfg $1 ..." instead.
 
     dvips $1 -o \
         !"gs -sDEVICE=$driver -sOutputFile=$2%02d -dNOPAUSE -dSAFER -q -"
