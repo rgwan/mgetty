@@ -1,5 +1,5 @@
 /*
- * US_Robotics.c V0.4b3
+ * US_Robotics.c V0.4b4
  *
  * This file contains hardware driver functions for some USRobotics modems.
  * Made from compilations from the old US_Robotics driver, originally from
@@ -24,7 +24,7 @@
  * A very good US Robotics technical reference manual is available
  * at: http://www.alliancedatacom.com/us-robotics-manuals.htm (not a typo).
  *
- * $Id: US_Robotics.c,v 1.13 1999/12/02 09:51:30 marcs Exp $
+ * $Id: US_Robotics.c,v 1.14 2000/06/11 16:20:35 marcs Exp $
  *
  */
 
@@ -382,6 +382,7 @@ static char USR_stop_rec_cmnd[] = {DLE, 0x00};
 static char USR_stop_rec_answr[] = "OK|VCON";
 static char USR_switch_mode_cmnd[] = "AT#CLS=";
 static char USR_ask_mode_cmnd[] = "AT#CLS?";
+static char USR_hardflow_answr[] = "OK|VCON";
 
 voice_modem_struct US_Robotics =
      {
@@ -393,7 +394,7 @@ voice_modem_struct US_Robotics =
      (char *) IS_101_beep_answr,
               USR_beep_timeunit,
      (char *) USR_hardflow_cmnd,
-     (char *) IS_101_hardflow_answr,
+     (char *) USR_hardflow_answr,
      (char *) USR_softflow_cmnd,
      (char *) IS_101_softflow_answr,
      (char *) USR_start_play_cmnd,
