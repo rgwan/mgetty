@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.49 1999/06/11 11:50:12 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.50 1999/06/11 11:54:23 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.50  1999/06/11 11:54:23  gert
+# clean up history, make logging message more clear
+#
 # Revision 1.49  1999/06/11 11:50:12  gert
 # if policy routing is active, show a matching rule (if any)
 #
@@ -36,9 +39,6 @@ $rcs_id='RCS: $Id: faxrunqd.in,v 1.49 1999/06/11 11:50:12 gert Exp $';
 # in the $queue{job} structure to keep track of other jobs that want
 # to be sent to the same number as this job.
 #
-# Revision 1.43  1999/04/30 12:21:05  gert
-# typo ($ex/$eq)
-#
 # Revision 1.42  1999/04/27 10:21:43  gert
 # if locking a job (before sending) fails, set it to status 'error'.
 # the job will then be retried about an hour later.
@@ -52,18 +52,6 @@ $rcs_id='RCS: $Id: faxrunqd.in,v 1.49 1999/06/11 11:50:12 gert Exp $';
 #
 # Revision 1.40  1999/02/28 13:17:59  gert
 # iproperly handle the case of faxrunqd.pid containing *our* PID (after reboot)
-#
-# Revision 1.39  1999/02/12 12:10:15  gert
-# show program name in .last_run
-#
-# Revision 1.38  1999/02/12 11:58:45  gert
-# add '-V' option to display version info and exit
-#
-# Revision 1.37  1999/01/04 08:48:13  gert
-# make error message more clear
-#
-# Revision 1.36  1998/11/12 15:22:39  gert
-# change max_tries_total default to 10 (same as faxrunq)
 #
 # Revision 1.35  1998/07/20 22:02:40  gert
 # put extra brackets around exec() to silence "not reached" warnings
@@ -84,23 +72,6 @@ $rcs_id='RCS: $Id: faxrunqd.in,v 1.49 1999/06/11 11:50:12 gert Exp $';
 # Revision 1.30  1998/04/23 14:25:13  gert
 # add 'modem badness' counter ($mq_badness{$tty}) to avoid using a modem
 # that is broken (locked forever / cannot be initialized / NO DIALTONE)
-#
-# Revision 1.29  1998/04/23 13:52:07  gert
-# rotate @standard_ttys after each job, to distribute jobs more evenly
-#
-# Revision 1.28  1998/04/21 13:53:30  gert
-# make log file more readable (insert '+')
-#
-# Revision 1.27  1998/02/27 15:15:31  gert
-# added handling of 'time' flag (start time/start+end time range)
-#
-# Revision 1.22  1998/02/11 09:00:16  gert
-# Finish per-modem queues
-# implement priority on per-modem queues
-# tweak implementation details regarding delayed faxes / pausing
-#
-# Revision 1.18  1998/01/20 12:07:33  gert
-# change format for faxrunqd.policy (separate field for "ttys")
 # ...
 # Revision 1.1  1997/10/02 09:58:56  gd
 # Initial revision
@@ -755,7 +726,7 @@ sub read_job_to_queue
 		unless( $po->{substitute} eq '-' )
 		    { eval '$phone =~ ' . $po->{substitute} . ';'; }
 		push @{$queue{$job}{'flags'}}, @{$po->{args}};
-		print LOG "    policy ($po->{match}): -> phone: $phone, args: ". join(' ',@{$queue{$job}{'flags'}}) ."\n"  if $opt_v;
+		print LOG "    policy: rule=/$po->{match}/ -> phone: $phone, args: ". join(' ',@{$queue{$job}{'flags'}}) ."\n"  if $opt_v;
 		$queue{$job}{'phone'} = $phone;
 
 		if( scalar( @{$po->{ttys}} ) > 0 ) 
