@@ -1,9 +1,12 @@
-static char sccsid[]="$Id: do_chat.c,v 1.2 1993/02/13 15:29:55 gert Exp $ (c) Gert Doering";
+static char sccsid[]="$Id: do_chat.c,v 1.3 1993/03/11 11:09:58 gert Exp $ (c) Gert Doering";
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <termio.h>
 #include <signal.h>
+#ifdef linux
+#include <sys/ioctl.h>
+#endif
 
 #include "mgetty.h"
 
