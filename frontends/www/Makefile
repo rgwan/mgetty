@@ -1,8 +1,11 @@
 # frontends/www/Makefile
 #
-# RCS: $Id: Makefile,v 1.10 1998/11/22 10:13:35 gert Exp $
+# RCS: $Id: Makefile,v 1.11 1998/11/22 10:16:14 gert Exp $
 #
 # $Log: Makefile,v $
+# Revision 1.11  1998/11/22 10:16:14  gert
+# add dependencies for index-e.html
+#
 # Revision 1.10  1998/11/22 10:13:35  gert
 # fix sed/@CGI_HREF@ for empty definition
 #
@@ -69,6 +72,7 @@ install.www:
 faxq.cgi: faxq.in ../../sedscript
 faxq-v.cgi: faxq-v.in ../../sedscript
 index-d.html: index-d.in ../../sedscript Makefile
+index-e.html: index-e.in ../../sedscript Makefile
 faxhist.cgi: faxhist.in ../../sedscript
 viewfax.cgi: viewfax.in ../../sedscript
 nph-vf-gif.cgi: nph-vf-gif.in ../../sedscript
