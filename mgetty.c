@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.70 1993/12/01 20:07:01 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.71 1993/12/01 20:29:53 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -540,7 +540,6 @@ int main _P2((argc, argv), int argc, char ** argv)
 		{
 		    lprintf( L_MESG, "action is A_FAX, start fax receiver...");
 		    faxrec( FAX_SPOOL_IN );
-		    lprintf( L_MESG, "fax receiver finished, exiting...");
 		    exit(1);
 		}
 
@@ -638,7 +637,7 @@ int main _P2((argc, argv), int argc, char ** argv)
                 if ( getlogname( login_prompt, &tio,
 				 buf, sizeof(buf) ) == -1 ) continue;
 
-		lprintf( L_MESG, "device=%s, pid=%d, calling 'login %s'...\n", Device, getpid(), buf );
+		lprintf( L_AUDIT, "device=%s, pid=%d, calling 'login %s'...\n", Device, getpid(), buf );
 
 		/* hand off to login, (can be a shell script!) */
 		
