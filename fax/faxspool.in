@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 2.12 1994/11/30 23:21:33 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 2.13 1994/12/05 20:22:30 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -31,20 +31,20 @@ FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
 FAX_SEQ=$FAX_SPOOL_OUT/.Sequence
 
 # fax phone directories - format: <alias> <fax phone number>
-GLOBAL_PHONE_DIR=@LIBDIR@/aliases
+GLOBAL_PHONE_DIR=@CONFDIR@/faxaliases
 PRIVATE_PHONE_DIR=$HOME/.faxnrs
 
 # permissions - see the "crontab" or "faxspool" manual page for a
 #               description how the files have to be set up
 #
-FAX_ALLOW=@LIBDIR@/fax.allow
-FAX_DENY=@LIBDIR@/fax.deny
+FAX_ALLOW=@CONFDIR@/fax.allow
+FAX_DENY=@CONFDIR@/fax.deny
 
 # you have to adapt this to your local system!
 #
 # this is the file with the fax header - @T@ / @P@ / @M@ / @U@ stand for
 # telephone / page number / maximum page number / user name, respectively
-FAX_HEADER=@LIBDIR@/faxheader
+FAX_HEADER=@CONFDIR@/faxheader
 #
 # for creating the fax page header, pbmtext is used, and this specifies
 # the font file to use (fine/normal res.)
