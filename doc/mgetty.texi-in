@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 3.4 1997/01/02 15:09:06 gert Exp $ (c) 1993,1994 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 3.5 1997/01/08 08:33:06 gert Exp $ (c) 1993,1994 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -3145,7 +3145,18 @@ Ask him @emph{many} questions, and he'll write a chapter about HP-UX :-)
 @node NEXTSTEP, , HP-UX, Systems
 @subsection The NEXTSTEP operating system
 
-Currently, there are two different ways to compile @code{mgetty} for NEXTSTEP.
+NEXTSTEP is lacking quite a few commands used by mgetty and its
+tools: Luckily, they are available from the GNU project
+(please mail me if I forgot any),
+e.g. gawk, cut (from textutils), id and logname (from sh-utils). All of
+them can be compiled for NEXTSTEP without problems, and it's certainly
+a good idea to install them anyway. ghostscript needs some fiddling for
+NEXTSTEP, but it's available precompiled on the arcives as GSPrintFilter.
+If you don't intend to use faxspool and friends, you may succeed without
+installing the forementioned utilities.
+
+Having said this, there are two different ways to compile @code{mgetty}
+for NEXTSTEP, each with their pros and contras:
 
 @itemize @bullet
 @item
@@ -3155,6 +3166,9 @@ default), you have to link against NEXTSTEP's buggy POSIX library.
 In the Makefile, add "-posix -DBSD" to CFLAGS and LDFLAGS.
 
 Drawbacks: The log file will be corrupted due to an append bug in libposix.
+
+Use this only if you want to try vgetty. In all other cases it's probably
+better to choose the second variant:
 
 @item
 With sgtty interface: Ben Stuyts @samp{benst@@stuyts.nl} has done an
@@ -3171,9 +3185,9 @@ has problems with 8-bit logins. I've got one report from Ben Stuyts,
 though, that @samp{modem-login} does fix problems on ``Black NeXT''s as
 well. Just try it.
 
-Drawback: The new vgetty hasn't sgtty support yet. If you want to use
-vgetty with NEXTSTEP, you'll have to use the termios port to compile
-vgetty. There are problems with the LNOHANG bit not being acknowledged
+Drawback: You can't compile vgetty with sgtty support yet! If you want to use
+vgetty with NEXTSTEP, you'll have to stick with the termios port. There are
+problems with the LNOHANG bit not being acknowledged
 correctly, therefore hanging the modem when the caller hangs up.
 @end itemize
 
