@@ -1,0 +1,671 @@
+#!@SHELL@
+#
+# faxspool - sample script how to spool fax input data to a spool
+#            directory, creating jobs to be run by faxrunq
+#
+# sccsid: $Id: faxspool.in,v 2.1 1994/09/21 22:24:28 gert Exp $ (c) Gert Doering
+#
+# syntax: faxspool [flags] <phone-number> <job(s)>
+#
+# <job(s)> may be any number of files. The file type has to be guessed -
+# for now, the following file extensions are recognized:
+#
+#   .ps  -> PostScript
+#   .t   -> plain ascii text
+#   .dvi -> TeX device independent output file (use dvips, then like .ps)
+#   .pbm -> PortableBitMap (use pbmtog3)
+#   .pgm -> PortableGrayMap (use pgmtopbm | pbmtog3)
+#   .ppm -> PortablePixMap (use ppmtopgm | pgmtopbm | pbmtog3)
+#   .g3  -> raw G3 fax data
+#   .lj  -> HP Laserjet PCL4 (use hp2pbm)
+#   .xwd -> xwindow-dump (by xwd program, use xwdtopnm)
+#
+# ChangeLog:
+#  3.6.93: use dvips instead of dvialw now (GD)
+# 15.9.93: use g3cat to concatenate header and page (GD)
+#  3.10.93: use "hp2hig3" for hp-pcl4-files (cl)
+# 19.10.93: phone directories (caz)
+
+FAX_SPOOL=@FAX_SPOOL@
+FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
+FAX_SEQ=$FAX_SPOOL_OUT/.Sequence
+
+# fax phone directories - format: <alias> <fax phone number>
+GLOBAL_PHONE_DIR=@LIBDIR@/aliases
+PRIVATE_PHONE_DIR=$HOME/.faxnrs
+
+# permissions - see the "crontab" or "faxspool" manual page for a
+#               description how the files have to be set up
+#
+FAX_ALLOW=@LIBDIR@/fax.allow
+FAX_DENY=@LIBDIR@/fax.deny
+
+# you have to adapt this to your local system!
+#
+# this is the file with the fax header - @T@ / @P@ / @M@ / @U@ stand for
+# telephone / page number / maximum page number / user name, respectively
+FAX_HEADER=@LIBDIR@/faxheader
+#
+# for creating the fax page header, pbmtext is used, and this specifies
+# the font file to use
+PBMFONT=@LIBDIR@/cour24i.pbm
+
+#
+# program that will generate fax coverpage (see "man coverpg")
+#
+MAKE_COVER_PG=@LIBDIR@/make.coverpg
+
+#
+# local fax number
+#
+FAX_STATION_ID="@FAX_STATION_ID@"
+
+#
+# echo program that will accept escapes (bash: "echo -e", sun: /usr/5bin/echo)
+#
+echo="@ECHO@"
+
+AWK=@AWK@
+
+#### end of configuration section
+
+#
+#### shell functions for conversions
+#
+
+# naming scheme: fs_cvt_$type()
+# converts a $type file ($1) to g3 file(s), named $2.$i,
+# where "i" is a decimal number
+
+#
+# convert portable bitmap (not scaled) - see pbm(5), pbmtog3(1)
+#
+fs_cvt_pbm()
+{
+    pbmtog3 $1 >$2.1
+}
+
+#
+# convert portable greymap (not scaled) - see pgm(5)
+#
+fs_cvt_pgm()
+{
+    pgmtopbm $1 | pbmtog3 >$2.1
+}
+
+#
+# convert portable pixmap (no scaling) - see ppm(5)
+#
+fs_cvt_ppm()
+{
+    ppmtopgm $1 | pgmtopbm | pbmtog3 >$2.1
+}
+
+#
+# "convert" G3 file
+# actually, it's just copied, but I want the interface to be the same
+# later on, one could do page resizing, resolution changing, ... here
+#
+fs_cvt_g3()
+{
+    cat $1 >$2.1
+}
+
+#
+# convert a X11 xwd file - scaled to fill the whole page width
+# since we do not know whether it's colour or grey or what, we have
+# to do *all* the conversions *all* the time - ugly. FIXME.
+#
+
+fs_cvt_xwd()
+{
+    xwdtopnm $1 |\
+	pnmscale -xsize 1728 |\
+	ppmtopgm |\
+	pgmtopbm |\
+	pbmtog3 >$2.1
+}
+
+#
+# convert a CompuServe GIF file, also properly scaled
+# problem: a GIF file can contain multiple images - FIXME
+#
+
+fs_cvt_gif()
+{
+    giftoppm $1 |\
+	pnmscale -xsize 1728 |\
+	ppmtopgm |\
+	pgmtopbm |\
+	pbmtog3 >$2.1
+}
+
+#
+# convert TIFF file
+# problem1: conversion always via ppm, pgm
+# problem2: multipage TIFFs
+#
+fs_cvt_tif()
+{
+    tifftopnm $1 |\
+	pnmscale -xsize 1728 |\
+	ppmtopgm |\
+	pgmtopbm |\
+	pbmtog3 >$2.1
+}
+
+#
+# convert HP laserjet input files
+# needs Chris Lewis' hp2pbm package
+#
+fs_cvt_lj()
+{
+     hp2hig3 -r$2 <$1
+}
+
+#
+# convert postscript data
+# needs GNU GhostScript installed, with the "dfaxhigh" driver compiled in
+#
+fs_cvt_ps()
+{
+     cat $1 |
+	gs -sDEVICE=dfaxhigh -sOutputFile=$2%02d -dNOPAUSE -q -dSAFER -
+}
+       
+#
+# convert ASCII text files
+# go via GhostScript and gslp.ps
+# (could also used hp2hig3 or nenscript -> gs or pbmtext)
+#
+fs_cvt_ascii()
+{
+    gs -sDEVICE=dfaxhigh -sOutputFile=$2%02d -dNOPAUSE \
+        -dSAFER -r204x196 -- gslp.ps $1
+#
+# hp2hig3 -r$2 <$1
+#
+# pbmtext $1 | pbmtog3 >$2
+#
+}
+
+#
+# convert TeX DVI files
+# needs GhostScript and dvips installed.
+# alternatively, one could use dvialw.
+#
+fs_cvt_dvi()
+{
+    dvips $1 -o \
+        !"gs -sDEVICE=dfaxhigh -sOutputFile=$2%02d -dNOPAUSE -dSAFER -q -"
+#
+#	dvialw <$file |
+#	    gs -sDEVICE=dfaxhigh -sOutputFile=$target%02d -dNOPAUSE \
+#               -dSAFER -
+
+}
+	
+#
+#### "main" function
+#
+
+#
+# setup defaults / get values
+#
+
+# user name (for authentification)
+##########
+
+if user=`logname`
+then :
+else
+    id=`id`
+    user=`expr "$id" : "[^( ]*(\([^)]*\)"`
+fi
+test -z "$user" && user=$LOGNAME
+test -z "$user" && user=$USER
+
+if [ -z "$user" ]
+then
+    $echo "cannot determine user id. fix program." >&2
+    exit 1
+fi
+
+# email (for return mail)
+##########
+
+test -z "$USER" && USER=$LOGNAME
+test -z "$USER" && USER=$user
+
+# everything else is initialized empty
+##########
+poll_req=""
+verbose_to=""
+normal_res=""
+
+#
+# get command line arguments (overriding some of the values above)
+##########
+#
+usage="Usage: $0 [-p] [-f mailaddr] [-u user] [-q] [-D dest] phone file ..."
+
+while :
+do
+    case "$1" in
+# enable polling
+	-p) poll_req=true ; shift
+            ;;
+# use normal resolution (as opposed to fine resolution)
+        -n) normal_res=true ; shift
+            $echo "warning: normal resolution not implemented yet" >&2 
+            ;;
+# set verbose destination address
+        -D) case "$2" in
+	    '') $echo "$usage" >&2 ; exit 2 ;;
+            esac
+            verbose_to="$2"
+	    shift ; shift
+	    ;;
+# set verbose origination address ("fullname")
+        -F) case "$2" in
+	    '') $echo "$usage" >&2 ; exit 2 ;;
+            esac
+            FULLNAME="$2"
+	    shift ; shift
+	    ;;
+# set e-mail return address
+	-f) case "$2" in
+	    '') $echo "$usage" >&2 ; exit 2 ;;
+            esac
+	    USER="$2"
+	    shift ; shift
+	    ;;
+# set user name for authorization purposes (only allowed for ``trusted'' users
+	-u) case "$2" in
+	    '') $echo "$usage" >&2 ; exit 2 ;;
+            esac
+	    if [ "$user" = "root" -o "$user" = "fax" -o \
+	         "$user" = "lp" -o "$user" = "daemon" ]
+	    then
+		user="$2"
+	    else
+		$echo "not authorized to use \`\`-u $2'' switch." >&2
+		exit 3
+	    fi
+	    shift ; shift
+	    ;;
+# shut up
+       -q) exec >/dev/null ; shift
+           ;;
+# unknown options
+       -*) $echo "unknown option: $1" >&2
+           $echo "$usage" >&2
+	   exit 1
+	   ;;
+# anything else: leave loop	
+	*) break
+    esac
+done
+
+#
+# if not yet set, get full name from /etc/passwd
+#
+if [ -z "$FULLNAME" ]
+then
+    FULLNAME=`grep "^$user:" /etc/passwd | cut -f5 -d:`
+fi
+
+#
+# validate user
+#
+if [ -r $FAX_ALLOW ]
+then
+    if cut -d" " -f1 $FAX_ALLOW | grep "^$user$" >/dev/null
+    then :
+    else
+	$echo "You are not allowed to use the fax service. Sorry." >&2
+	exit 1
+    fi
+elif [ -r $FAX_DENY ]
+then
+    if grep "^$user$" $FAX_DENY >/dev/null
+    then
+	$echo "You are not allowed to use the fax service. Sorry." >&2
+	exit 2
+    fi
+elif [ "$user" != "root" ]
+then
+    $echo "Neither $FAX_ALLOW nor $FAX_DENY exist," >&2
+    $echo "so only root may use the fax service. Sorry." >&2
+    exit 2
+fi
+
+#
+# check syntax
+#
+
+if [ $# -eq 0 ] ; then
+    $echo "$0: phone number missing" >&2
+    $echo "$usage" >&2
+    exit 3
+fi
+
+phone=$1 ; shift
+if expr "$phone" : "[-0-9TtPpW,;]*$" >/dev/null ; then :
+else
+    alias="$phone"
+    phone=""
+    awkpgm='$1 == "'"$alias"'" { printf "phone=\"%s\"; vto=\"", $2;
+                                 for ( i=3; i<=NF-1; i++ ) printf "%s ",$i;
+				 printf "%s\"\n", $i; exit }'
+    if [ -r $PRIVATE_PHONE_DIR ]
+    then
+	eval `$AWK "$awkpgm" $PRIVATE_PHONE_DIR`
+    fi
+    if [ -z "$phone" -a -r $GLOBAL_PHONE_DIR ]
+    then
+	eval `$AWK "$awkpgm" $GLOBAL_PHONE_DIR`
+    fi
+    if [ -z "$phone" ]
+    then
+	$echo "$0:\nNon-numeric characters in phone number and" >&2
+	$echo "'$alias' not found in fax directories\n$usage" >&2
+	exit 4
+    fi
+
+    [ -z "$verbose_to" ] && verbose_to="$vto"
+    [ -z "$verbose_to" ] && verbose_to="$alias"
+
+    $echo "sending fax to '$verbose_to' using phone number '$phone'..."
+fi
+
+#
+# check, if all the files exist & are readable
+#
+
+for file
+do
+    if [ ! -r $file -a x$file != x- ]
+    then
+	$echo "$0: cannot open '$file'!" >&2 ; exit 5
+    fi
+done
+
+#
+# if no file specified on command line, use stdin
+# (only if not polling)
+#
+
+if [ $# -eq 0 -a -z "$poll_req" ]
+then
+    # if stdin is connected to a tty, notify user
+    #
+    tty -s && \
+	$echo "spooling text from standard input. End typing with ^D" >&2
+    set -- -
+fi
+
+
+#
+# check spool directory permissions
+#
+
+if [ ! -d $FAX_SPOOL_OUT ] ; then
+    if mkdir $FAX_SPOOL_OUT ; then :
+    else
+	$echo "cannot create $FAX_SPOOL_OUT" >&2 ; exit 6
+    fi
+    chmod 1777 $FAX_SPOOL_OUT
+    chgrp 0 $FAX_SPOOL_OUT 2>/dev/null
+    chown 0 $FAX_SPOOL_OUT 2>/dev/null
+fi
+
+if [ ! -w $FAX_SPOOL_OUT ] ; then
+    $echo "cannot write to $FAX_SPOOL_OUT!" >&2 ; exit 6 ; fi
+
+if [ ! -f $FAX_SEQ ] ; then $echo 000000 > $FAX_SEQ ; chmod 666 $FAX_SEQ ; fi
+
+if [ -f $FAX_SEQ -a ! -w $FAX_SEQ ] ; then
+    $echo "cannot write to $FAX_SEQ!" >&2 ; exit 6 ; fi
+
+#
+# get unique directory name (well, at least: try to)
+# FIXME: one should worry about concurrent processes here! This is a clear
+#        race condition!
+#
+
+new_seq=`$AWK '{ printf "%06d", $1 + 1 >"'$FAX_SEQ'";
+		printf "%06d", $1 + 1 }' $FAX_SEQ `
+
+spooldir=$FAX_SPOOL_OUT/F$new_seq.$$
+
+if [ -d $spooldir ] ; then
+    $echo "Ummm, strange - $spooldir exists (FIX THE SOURCE!)" >&2 ; exit 6
+fi
+
+umask 022
+if mkdir $spooldir ; then :
+else $echo "Cannot make $spooldir" >&2 ; exit 6 ; fi
+
+#
+# now: spool all the files to $spooldir
+#
+$echo "spooling to $spooldir..."
+
+#
+# remember input files (to be put in JOB file)
+#
+input_data="$*"
+
+#
+# process all input files
+#
+for file
+do
+#
+# if filename is "-", use stdin
+#
+    if [ x$file = x- ]
+    then
+	trap "rm /tmp/faxsp.$$" 0
+        cat - >/tmp/faxsp.$$
+	file=/tmp/faxsp.$$
+	$echo "spooling $file (stdin)..."
+    else
+	$echo "spooling $file..."
+    fi
+
+    format=""
+    base=`basename $file`
+
+#
+# try to determine file type by extention (won't work for print spooler!)
+#
+    case $file in
+	*.g3)	format="g3" ; base=`basename $file .g3` ;;
+	*.ps)	format="ps" ; base=`basename $file .ps` ;;
+	*alw)	format="ps" ; base=`basename $file alw` ;;
+	*.dvi)	format="dvi"; base=`basename $file .dvi`;;
+	*.pbm)	format="pbm"; base=`basename $file .pbm`;;
+	*.pgm)	format="pgm"; base=`basename $file .pgm`;;
+	*.ppm)	format="ppm"; base=`basename $file .ppm`;;
+	*.t)	format="ascii"; base=`basename $file .t`;;
+	*.lj)   format="lj"; base=`basename $file .lj`;;
+	*.xwd)	format="xwd"; base=`basename $file .xwd`;;
+	*.gif)	format="gif"; base=`basename $file .gif`;;
+	*.tif)	format="tif"; base=`basename $file .tif`;;
+	*.tiff)	format="tif"; base=`basename $file .tiff`;;
+    esac
+
+# if we don't know the file type now, let's try something more esoteric
+
+    if [ -z "$format" ]
+    then
+#
+# ask "file"
+# (extend /etc/magic if necessary!)
+#
+	case "`file $file`" in
+	    *"English text"*)	format="ascii" ;;
+	    *"ascii text"*)	format="ascii" ;;
+	    *"News text"*)	format="ascii" ;;
+	    *"commands text"*)	format="ascii" ;;
+	    *"c program text"*)	format="ascii" ;;
+	    *"script text"*)	format="ascii" ;;
+	    *PBM*)		format="pbm" ;;
+	    *PGM*)		format="pgm" ;;
+	    *PPM*)		format="ppm" ;;
+	    *GIF*)		format="gif" ;;
+	    *Digifax*)	format="g3" ;;
+	    *DVI*)	format="dvi" ;;
+	    *postscript*)	format="ps" ;;
+	    *PostScript*)	format="ps" ;;
+	    *TIF*)		format="tif" ;;
+	esac
+
+# if file told us, it's an ascii text, or if we still don't know, try
+# looking at the first few bytes (do not use "head", it may break on
+# binary data)
+
+	if [ -z "$format" -o "$format" = "ascii" ]
+	then
+	    case "`dd if=$file bs=1 count=4 2>/dev/null`" in
+		%!*)            format="ps" ;;
+		P1*|P4*)	format="pbm" ;;
+		P2*|P5*)	format="pgm" ;;
+		P3*|P6*)	format="ppm" ;;
+		GIF*)		format="gif" ;;	# hmmm.
+	    	II*)		format="tif" ;;
+		MM*)		format="tif" ;;
+	    esac
+	fi
+#
+# detect dvi by directly looking at bytes 16...25
+#
+	if [ -z "$format" ]
+	then
+	    if [ "`dd if=$file bs=1 skip=16 count=11 2>/dev/null`" \
+	         = "TeX output " ]
+	    then
+	        format="dvi"
+	    fi
+	fi
+    fi
+
+#
+# ok, now we should *really* know what the file type is.
+#
+    if [ -z "$format" ] ; then
+	$echo "$file: cannot determine file format (extend source)" >&2
+#
+# if stdin is a tty, ask the user for the file type
+#
+        if tty -s
+	then
+	    $echo "$file: please enter type: " >&2
+	    read format
+	else
+	    exit 7
+	fi
+    fi
+
+    $echo "$file is format: $format"
+
+    target=$spooldir/$base
+
+    if
+    case $format in
+	ps)     fs_cvt_ps $file $target ;;    
+	ascii)  fs_cvt_ascii $file $target ;;
+	pbm)	fs_cvt_pbm $file $target ;;
+	pgm)	fs_cvt_pgm $file $target ;;
+	ppm)	fs_cvt_ppm $file $target ;;
+        g3)	fs_cvt_g3  $file $target ;;
+        dvi)    fs_cvt_dvi $file $target ;;    
+	lj)	fs_cvt_lj  $file $target ;;
+	xwd)	fs_cvt_xwd $file $target ;;
+	gif)	fs_cvt_gif $file $target ;;
+	tif)	fs_cvt_tif $file $target ;;
+	*) $echo "$0: unknown format: $format!" >&2 ; exit 8 ;;
+    esac 
+    then : ; else
+	$echo "Error spooling $file - aborting!" >&2 ; exit 8
+    fi
+
+done
+
+#
+# OK, all files are done now.
+#
+# Now let's create the work file
+#
+
+job=$spooldir/JOB
+
+#
+# conversion complete. Post-process G3 files
+#
+
+pages=`ls -rt $spooldir`
+#
+# get list / number of pages
+#
+cd $spooldir
+
+nr=0
+maxnr=`ls | wc -l | tr -d " "`
+
+#
+# generate cover page
+#
+if [ -x $MAKE_COVER_PG ]
+then
+    $echo "Generating cover page..."
+    maxnr=`expr $maxnr + 1`
+    $MAKE_COVER_PG $maxnr "$FAX_STATION_ID" "$FULLNAME" \
+	"$phone" "$verbose_to" "`date +%D`" "`date +%T`" >cover.g3
+    if [ -s cover.g3 ]
+    then
+	pages="cover.g3 $pages"
+    else
+	echo "generating cover page failed!" >&2
+	maxnr=`expr $maxnr - 1`
+    fi
+fi
+
+#	
+# concatenate header with pages
+#
+
+finalpg=""
+for f in $pages
+do
+    nr=`expr $nr + 1`
+
+    cat $FAX_HEADER | sed -e "s;@T@;$phone;g" -e "s;@P@;$nr;g" \
+			  -e "s;@M@;$maxnr;g" -e "s;@U@;$USER;g" \
+			  -e "s;@N@;$FULLNAME;g" \
+			  -e "s;@D@;$verbose_to;g" \
+			  -e "s;@ID@;$FAX_STATION_ID;g" \
+			  -e "s;@DATE@;`date`;g" \
+    | pbmtext -font $PBMFONT | pbmtog3 \
+    | g3cat - $f > f$nr.g3 \
+    && rm $f
+    finalpg="$finalpg f$nr.g3"
+done
+
+$echo "phone $phone" >$job.q
+$echo "user $user" >>$job.q
+[ "$user" != "$USER" ] &&
+    $echo "mail $USER" >>$job.q
+
+$echo "input $input_data" >>$job.q
+$echo "pages " $finalpg >>$job.q
+
+[ -z "$verbose_to" ] || \
+    $echo "verbose_to $verbose_to" >>$job.q
+
+[ -z "$poll_req" ] || \
+    $echo "poll" >>$job.q
+
+mv $job.q $job
