@@ -346,3 +346,5 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
 244) faxrunqd / write combining: if some pages of a "combined" job
      (everything but the first) have already been renamed to f<n>.g3.done,
      sendfax will refuse cooperation ("command line error").  BUG.
+
+245) open anon CVS for mgetty
