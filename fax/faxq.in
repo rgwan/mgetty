@@ -4,7 +4,7 @@
 #
 # like "lpq" or "mailq", show jobs waiting in the output queue
 #
-# SCCS: $Id: faxq.in,v 4.4 1997/07/24 21:59:34 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxq.in,v 4.5 1997/12/10 14:24:32 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -28,15 +28,21 @@ fi
 
 jobs="*/JOB"
 requeue=""
+changepri=""
 
-for flag
+while [ -n "$1" ]
 do
-    case $flag in
+    case $1 in
 	-v) verbose="true" ;;
 	-o) jobs="*/JOB.done" ;;
 	-s) jobs="*/JOB.s*" ;;
 	-a) jobs="*/JOB*" ;;
 	-r) jobs="*/JOB.s*"; requeue="true" ;;
+	-P) if [ -z "$2" -o -z "$3" ] ; then
+		echo "$0: -P needs arguments!" >&2 ; exit 1 ;
+	    fi
+	    jobs="$2/JOB"; changepri="$3" ; shift ; shift
+	    ;;
 	*) cat <<EOF_MSG >&2
 $0: invalid option: $flag
 valid options:
@@ -45,9 +51,11 @@ valid options:
   -a: show all jobs
   -v: verbose output
   -r: restart suspended jobs
+  -P <job> <pri>: change priority of job <job> to <pri>
 EOF_MSG
 	   exit 1 ;;
     esac
+    shift
 done
 
 jobs=`ls $jobs 2>/dev/null`
@@ -64,7 +72,7 @@ do
 	     $AWK '$1=="user" { printf "USER=%s;", $2 }
 		   $1=="phone" { printf "PHONE=%s;", $2 }
 		   $1=="pages" { printf "PAGES=%d;", NF-1 }
-		   $1=="priority" { printf "PRI=\" pri=%s.\"", $2}' -`
+		   $1=="priority" { printf "PRI=\" pri=%s.\";", $2}' -`
 	$echo "$i: queued by $USER. $PAGES page(s) to $PHONE.$PRI"
     else
 	eval `tr -d '\042\047\140\134\044\073' <$i | \
@@ -117,6 +125,19 @@ do
        fi
     fi
 
+# if "changepri", change priority of job
+    if [ -n "$changepri" ] && expr "$i" : ".*JOB$" >/dev/null
+    then
+	d=`dirname $i`
+	if [ ! -w $d ] ; then
+	    $echo "$i: not owner, can't change priority"
+	else
+	    echo "priority $changepri" >>$i
+	    $echo "Priority changed to $changepri"
+	    touch .queue-changed 2>/dev/null
+	fi
+    fi
+
 # if "requeue", requeue *.suspended-Jobs
     if [ -n "$requeue" ] && expr "$i" : ".*JOB.s" >/dev/null
     then
@@ -126,9 +147,9 @@ do
 	else
 	    $echo "Status "`date`" - reactivated by $LOGNAME" >>$i
 	    mv $i $d/JOB
+	    touch .queue-changed 2>/dev/null
 	fi
     fi
-
 done
 
 test -n "$verbose" -a -n "$jobs" -a -r .last_run &&
