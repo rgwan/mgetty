@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 4.7 1999/05/24 13:39:04 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 4.8 2000/12/12 15:28:04 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -254,7 +254,7 @@ extern  char * Device;
 
     if ( ( r = pclose( pipe_fp ) ) != 0 )
     {
-	lprintf( L_WARN, "fax_notify_mail: mailer exit status: %d\n", r );
+	lprintf( L_WARN, "fax_notify_mail: mailer exit status: %d (%d)", r, r>>8 );
     }
 }
 
