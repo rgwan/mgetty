@@ -1,7 +1,7 @@
 /*
  * answer.c
  *
- * $Id: answer.c,v 1.17 2000/09/11 10:12:39 marcs Exp $
+ * $Id: answer.c,v 1.18 2000/09/11 11:39:13 marcs Exp $
  *
  */
 
@@ -285,12 +285,27 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
        }
      }
 
-     if ((result = voice_answer_phone()) == VMA_CONNECT)
-          {
-          voice_restore_signal_handler();
-          tio_set(voice_fd, &tio_save);
-          return(VMA_CONNECT);
-          }
+     result = voice_answer_phone();
+     switch (result) {
+        case VMA_OK:
+           /* VOICE */
+           break;
+        case VMA_CONNECT:
+           /* DATA */
+        case VMA_FCON:
+           /* FAX */
+        case VMA_FAX:
+        case VMA_FCO:
+           voice_restore_signal_handler();
+           tio_set(voice_fd, &tio_save);
+           return result;
+           break;
+        default:
+           lprintf(L_WARN, "%s: Could not answer the phone. Strange...",
+                           program_name);
+           exit(99);
+           break;
+     }
 
      make_path(receive_dir, cvd.voice_dir.d.p, cvd.receive_dir.d.p);
 
@@ -344,13 +359,6 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
 	   exit(99);
 	 }
      }
-
-     if (result == VMA_ERROR)
-          {
-          lprintf(L_WARN, "%s: Could not answer the phone. Strange...",
-           program_name);
-          exit(99);
-          }
 
      if (strlen(cvd.call_program.d.p) != 0)
           {
