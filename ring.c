@@ -1,4 +1,4 @@
-#ident "$Id: ring.c,v 4.8 1998/09/01 10:30:27 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: ring.c,v 4.9 1998/11/19 20:48:22 gert Exp $ Copyright (c) Gert Doering"
 
 /* ring.c
  *
@@ -80,6 +80,21 @@ char * p;
 	CallerId = safedup( string );
 	return find_msn( p+1, msn_list );
     }
+}
+
+/* Zoom MX/S CallerID data comes in as "RING: <type> DN<id> <from> <?>"
+ * contributed by Thomas Schuett <info@thomas-schuett.de> */
+static int ring_handle_ZoomMX _P1((string), char * string)
+{
+char * p;
+    lprintf( L_MESG, "Zoom MX/S: '%s'", string );
+
+    p=&string[8];
+    while( isdigit(*p) ) p++;
+
+    *p = '\0';
+    CallerId = safedup( &string[8] );
+    return ( string[6]-'0');
 }
 
 /* ZyXEL CallerID data comes in as "FM:<from> [TO:<to>]" or "TO:<to>" */
@@ -235,6 +250,9 @@ boolean	got_dle;		/* for <DLE><char> events (voice mode) */
 	if ( *p == ';' )			/* ELSA type */
 	    { *dist_ring_number = ring_handle_ELSA( p, msn_list ); break; }
 
+	if ( *p== ':' )				/* Zoom MX type */
+	    { *dist_ring_number = ring_handle_ZoomMX( p ); break; }
+	    
 	if ( strlen(p) > 1 )			/* USR type B: "RING 1234" */
 	    { CallerId = safedup(p); break; }
 
