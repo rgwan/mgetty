@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.41 1998/12/25 11:14:12 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.42 1999/03/14 20:42:11 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -600,6 +600,11 @@ int mdm_identify _P1( (fd), int fd )
 	    modem_type=Mt_class2_0;
 	    mis = mdm_get_idstring( "ATI1", 2, fd );
 	    break;
+	  case 33604:
+	    lprintf( L_MESG, "ZyXEL U-336E detected" );
+	    modem_type=Mt_class2_0;
+	    mis = mdm_get_idstring( "ATI1", 2, fd );
+	    break;
 	  case 1281:
 	  case 1291:
 	  case 1292:
@@ -768,6 +773,12 @@ int mdm_identify _P1( (fd), int fd )
 	    lprintf( L_MESG, "USR Courier/Sportster V90 (national variant?) detected" );
 	    modem_type=Mt_class2_0;
 	    mis = mdm_get_idstring( "ATI3", 1, fd );
+	}
+	/* grrr, another one of those - Bill Nugent <whn@topelo.lopi.com> */
+	else if ( strncmp( l, "MT5600ZDXV", 10 ) == 0 )
+	{
+	    lprintf( L_MESG, "Multitech MT5600ZDXV detected" );
+	    modem_type=Mt_class2;
 	}
     }
 
