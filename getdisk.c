@@ -1,4 +1,4 @@
-#ident "@(#)getdisk.c $Id: getdisk.c,v 2.2 1995/03/14 09:20:24 gert Exp $ Copyright (c) 1994 Elegant Communications Inc."
+#ident "@(#)getdisk.c $Id: getdisk.c,v 2.3 1995/03/15 00:37:07 gert Exp $ Copyright (c) 1994 Elegant Communications Inc."
 
 /*
 
@@ -221,7 +221,8 @@ getdiskstats _P2 ((path, mi), char *path, mntinf *mi)
     if (MYSTATFS(path, &info) < 0) {
 	return(1);
     }
-#if defined(ISC) || defined(M_UNIX) /* Systems known to lie & have NBPSCTR */
+    /* Systems known to lie & have NBPSCTR */
+#if defined(ISC) || defined(M_UNIX) || defined(m88k)
     /*
      * Interactive 1.0.6 lies - it says bsize is 1024, but returns a frag
      * size of zero instead of 512.  NBPSCTR (Number of Bytes per Physical
