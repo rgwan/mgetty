@@ -3,7 +3,7 @@
  * VoiceModem is the program for handling the voice modem functionality
  * from shell scripts.
  *
- * $Id: usage.c,v 1.4 1998/09/09 21:08:12 gert Exp $
+ * $Id: usage.c,v 1.5 1999/10/09 15:54:01 marcs Exp $
  *
  */
 
@@ -33,6 +33,7 @@ void usage(void)
      fprintf(stderr, "\t-i     input from internal microphone\n");
      fprintf(stderr, "\t-l <s> set device string (e.g. -l ttyS2:ttyC0)\n");
      fprintf(stderr, "\t-m     input from external microphone\n");
+     fprintf(stderr, "\t-e     output to external modem speaker\n");
      fprintf(stderr, "\t-s     output to internal modem speaker\n");
      fprintf(stderr, "\t-t     use telco line (default)\n");
      fprintf(stderr, "\t-v     verbose output\n");

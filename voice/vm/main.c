@@ -5,7 +5,7 @@
  * supports the shell script execution function to test vgetty scripts
  * and to build special standalone scripts.
  *
- * $Id: main.c,v 1.5 1999/01/30 14:31:17 marcs Exp $
+ * $Id: main.c,v 1.6 1999/10/09 15:54:00 marcs Exp $
  *
  */
 
@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
 
      optind = 2;
 
-     while ((option = getopt(argc, argv, "c:hil:mstvwx:HL:PRS:T:V:")) != EOF)
+     while ((option = getopt(argc, argv, "c:hil:mestvwx:HL:PRS:T:V:")) != EOF)
           {
 
           switch (option)
@@ -61,6 +61,9 @@ int main(int argc, char *argv[])
                     break;
                case 'i':
                     voice_device = INTERNAL_MICROPHONE;
+                    break;
+               case 'e':
+                    voice_device = EXTERNAL_SPEAKER;
                     break;
                case 'l':
                     conf_set_string(&cvd.voice_devices, optarg);
