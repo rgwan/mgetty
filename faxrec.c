@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 4.11 2002/01/10 20:11:13 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 4.12 2003/06/12 14:56:35 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -208,7 +208,7 @@ extern  char * Device;
     fprintf( pipe_fp, "\nModem device: %s\n", Device );
     fprintf( pipe_fp, "\nCommunication parameters: %s\n", fax_param );
     fprintf( pipe_fp, "    Resolution : %s\n",
-		      fax_par_d.vr == 0? "normal" :"fine");
+	      (fax_par_d.vr == 0 || fax_par_d.vr == 8) ? "normal" :"fine");
     fprintf( pipe_fp, "    Bit Rate   : %d\n", ( fax_par_d.br+1 ) * 2400 );
     fprintf( pipe_fp, "    Page Width : %d pixels\n", fax_par_d.wd == 0? 1728:
 	              ( fax_par_d.wd == 1 ? 2048: 2432 ) );

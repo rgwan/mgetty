@@ -1,4 +1,4 @@
-#ident "$Id: faxrecp.c,v 1.7 2002/11/23 11:56:48 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrecp.c,v 1.8 2003/06/12 14:56:36 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrecp.c - part of mgetty+sendfax
  *
@@ -94,13 +94,13 @@ char	DevId[3];
 
 #ifdef SHORT_FILENAMES
     sprintf(temp, "%s/f%c%07x%s.%02d", directory,
-		 fax_par_d.vr == 0? 'n': 'f',
+		 (fax_par_d.vr == 0 || fax_par_d.vr == 8) ? 'n': 'f',
 	         (int) call_start & 0xfffffff,
 	         DevId, pagenum );
 #else
     /* include sender's fax id - if present - into filename */
     sprintf(temp, "%s/f%c%07x%s-", directory,
-		fax_par_d.vr == 0? 'n': 'f',
+		(fax_par_d.vr == 0 || fax_par_d.vr == 8) ? 'n': 'f',
 		(int) call_start & 0xfffffff,
 		DevId );
     i = strlen(temp);
