@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.h,v 1.3 1995/04/04 00:30:19 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: conf_mg.h,v 1.4 1995/06/05 10:18:38 gert Exp $ Copyright (c) 1994 Gert Doering"
 
 /* all (dynamic) mgetty configuration is contained in this structure.
  * It is initialized and loaded in conf_mg.c and accessed from mgetty.c
@@ -18,6 +18,7 @@ extern struct conf_data_mgetty {
 	toggle_dtr,				/* toggle DTR for modem reset */
 	toggle_dtr_waittime,			/* time to hold DTR low */
 	data_only,				/* no fax */
+        fax_only,				/* no data */
 	modem_type,				/* auto/c2.0/cls2/data */
 	init_chat,				/* modem initialization */
 
