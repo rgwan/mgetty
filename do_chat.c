@@ -1,4 +1,4 @@
-#ident "$Id: do_chat.c,v 1.26 1993/12/19 23:34:21 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: do_chat.c,v 1.27 1993/12/27 21:45:21 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* do_chat.c
  *
@@ -20,6 +20,7 @@
 #endif
 
 #include "mgetty.h"
+#include "policy.h"
 #include "tio.h"
 
 boolean chat_has_timeout;
