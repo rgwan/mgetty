@@ -1,4 +1,4 @@
-#ident "$Id: ring.c,v 4.12 1999/06/07 20:41:15 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: ring.c,v 4.13 1999/07/15 13:34:28 gert Exp $ Copyright (c) Gert Doering"
 
 /* ring.c
  *
@@ -65,7 +65,11 @@ char * p;
     return 0;				/* not found -> unspecified */
 }
 
-/* ELSA CallerID data comes in as "RING;<from>[;<to>]" */
+/* ELSA CallerID data comes in as "RING;<from>[;<to>]"
+ *
+ * this function is also used for others that report the number in
+ * the format <from>[non-digit(s)]<to>
+ */
 static int ring_handle_ELSA _P2((string, msn_list),
 				 char * string, char ** msn_list )
 {
@@ -85,7 +89,11 @@ char * p;
     {
 	*p = '\0';
 	CallerId = safedup( string );
-	return find_msn( p+1, msn_list );
+
+	p++;
+	while( *p != '\0' && !isdigit(*p) ) p++;
+
+	return find_msn( p, msn_list );
     }
 }
 
@@ -280,7 +288,7 @@ boolean	got_dle;		/* for <DLE><char> events (voice mode) */
 	    { *dist_ring_number = ring_handle_ZoomMX( p ); break; }
 	    
 	if ( strlen(p) > 1 )			/* USR type B: "RING 1234" */
-	    { CallerId = safedup(p); break; }
+	    { *dist_ring_number = ring_handle_ELSA( p, msn_list ); break; }
 
 	if ( isdigit( *p ) )			/* RING 1 */
 	    { *dist_ring_number = *p-'0'; break; }
