@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 3.1 1995/08/30 12:40:36 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 3.2 1995/11/20 19:36:03 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -252,6 +252,23 @@ char	DevId[3];
 	}
     }
 
+    /* do permission and owner changes as soon as possible -- security */
+
+    /* change file mode */
+    if ( file_mode != -1 &&
+	 chmod( temp, file_mode ) != 0 ) 
+    {
+	lprintf( L_ERROR, "fax_get_page_data: cannot change file mode" );
+    }
+
+    /* change file owner and group (jcp) */
+    if ( uid != -1 &&
+	 chown( temp, (uid_t) uid, (gid_t) gid ) != 0 )
+    {
+	lprintf( L_ERROR, "fax_get_page_data: cannot change owner, group" );
+    }
+
+
     /* store file name in fax_file_names */
 
     if ( fax_file_names != NULL )
@@ -345,20 +362,6 @@ char	DevId[3];
     {
 	lprintf( L_MESG, "fax_get_page_data: aborting receive, timeout!" );
 	return ERROR;
-    }
-
-    /* change file mode */
-    if ( file_mode != -1 &&
-	 chmod( temp, file_mode ) != 0 ) 
-    {
-	lprintf( L_ERROR, "fax_get_page_data: cannot change file mode" );
-    }
-
-    /* change file owner and group (jcp) */
-    if ( uid != -1 &&
-	 chown( temp, (uid_t) uid, (gid_t) gid ) != 0 )
-    {
-	lprintf( L_ERROR, "fax_get_page_data: cannot change owner, group" );
     }
 
     return NOERROR;
