@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.13 1993/03/23 12:33:36 gert Exp $ (c) Gert Doering */
+/* $Id: mgetty.h,v 1.14 1993/03/23 16:44:16 gert Exp $ (c) Gert Doering */
 
 /* stuff in logfile.c */
 
@@ -16,18 +16,20 @@ int lprintf();
 
 /* various defines */
 
-/* define here, what function to use for sleeping less than one second.
- * Chose one of the following: USE_SELECT, USE_POLL, USE_NAP
- * I recommend USE_POLL on SCO unix, and USE_SELECT on linux
- * (select() seems not be able to sleep *exactly* 500 msec on SCO!??)
+/* define here what function to use for polling for characters
+ * Chose one of the following: USE_SELECT, USE_POLL
+ * I recommend USE_SELECT on all machines that have it, except SCO Unix,
+ * since the tv_usec timer is not exact at all on SCO.
+ * If your System has the "nap(S)" call, you can use this instead of
+ * select(S) or poll(S) for sleeping less than one second.
  */
 
 #ifndef linux
 #define USE_POLL
 #endif
 
-#ifndef USE_SELECT
-#define USE_POLL
+#ifndef USE_POLL
+#define USE_SELECT
 #endif
 
 #define TRUE (1==1)

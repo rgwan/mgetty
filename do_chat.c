@@ -1,4 +1,4 @@
-#ident "$Id: do_chat.c,v 1.5 1993/03/21 23:36:18 gert Exp $ (c) Gert Doering";
+#ident "$Id: do_chat.c,v 1.6 1993/03/23 16:44:17 gert Exp $ (c) Gert Doering";
 /* do_chat.c
  *
  * This module handles all the talk with the modem
@@ -13,6 +13,8 @@
 
 #include "mgetty.h"
 
+/* warning: these includes have to appear *after* "mgetty.h"! */
+
 #ifdef USE_POLL
 #include <poll.h>
 int poll( struct pollfd fds[], unsigned long nfds, int timeout );
@@ -21,7 +23,7 @@ int poll( struct pollfd fds[], unsigned long nfds, int timeout );
 # ifndef linux
 # include <sys/select.h>
 # else
-# include <sys/types.h>
+# include <sys/time.h>
 # endif
 #endif
 #endif

@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.21 1993/03/23 12:29:59 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.22 1993/03/23 16:44:14 gert Exp $ (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -13,18 +13,6 @@
 #include <sys/types.h>
 #include <sys/times.h>
 
-#ifdef USE_SELECT
-#ifndef linux
-#include <sys/select.h>
-#endif
-#ifdef linux
-#include <sys/time.h>
-#endif
-#else
-#include <stropts.h>
-#include <poll.h>
-#endif
-
 #include <sys/ioctl.h>
 
 #include <sys/stat.h>
@@ -37,6 +25,18 @@
 #endif
 
 #include "mgetty.h"
+
+#ifdef USE_SELECT
+#ifndef linux
+#include <sys/select.h>
+#endif
+#ifdef linux
+#include <sys/time.h>
+#endif
+#else
+#include <stropts.h>
+#include <poll.h>
+#endif	/* USE_SELECT */
 
 struct	speedtab {
 	ushort	cbaud;		/* baud rate */
