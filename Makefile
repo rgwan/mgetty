@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 1.11 1993/09/30 21:57:25 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 1.12 1993/10/05 02:44:45 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there).
@@ -9,7 +9,7 @@ CC=gcc
 #
 # For SCO Unix 3.2v4, it may be necessary to define -D__STDC__=0
 # If you have problems with dial-in / dial-out on the same line (e.g.
-# 'cu' telling you "CAN'T ACCESS DEVICE", you should try -DBROKEN_SCO_324
+# 'cu' telling you "CAN'T ACCESS DEVICE"), you should try -DBROKEN_SCO_324
 #
 # On SCO Unix 3.2.2, select(S) refuses to sleep less than a second,
 # so use poll(S) instead. Define -DUSE_POLL
@@ -35,7 +35,7 @@ CC=gcc
 #
 # If you don't have GNU AS, remove "-pipe"!
 #
-CFLAGS=-Wall -g -O2 -pipe -DUSE_POLL -DBROKEN_SCO_324
+CFLAGS=-Wall -g -O2 -pipe -DUSE_POLL
 #CFLAGS=-g -O2 -Wall -pipe
 #CFLAGS=-g -O -DSVR4
 #CFLAGS=-g -O -DUSE_POLL
