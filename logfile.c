@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 1.31 1994/04/12 18:43:42 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logfile.c,v 1.32 1994/04/14 13:36:58 gert Exp $ Copyright (c) Gert Doering"
 ;
 #include <stdio.h>
 #include <unistd.h>
@@ -72,7 +72,7 @@ void log_init_paths _P3 ( (l_program, l_path, l_infix),
     }
 }
 
-void log_set_llevel _P1( (l_level), int level )
+void log_set_llevel _P1( (level), int level )
 {
     log_level = level;
 }
