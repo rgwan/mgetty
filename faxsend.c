@@ -1,4 +1,4 @@
-#ident "$Id: faxsend.c,v 2.2 1994/12/12 22:30:06 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: faxsend.c,v 2.3 1995/03/29 00:23:38 gert Exp $ Copyright (c) 1994 Gert Doering"
 
 /* faxsend.c
  *
@@ -320,12 +320,14 @@ int fax_send_ppm _P3( (fd, tio, ppm),
 	    ppm_char = 0x3b; break;
 	  case pp_eop:		/* no more pages or documents */
 	    /* stop being sensitive to DCD drops */
+#ifndef FAX_SEND_IGNORE_CARRIER
 #ifdef sun
 	    /* HW handshake has to be off while carrier is low */
 	    tio_set_flow_control(fd, tio, (FAXSEND_FLOW) & FLOW_XON_OUT);
 #endif
 	    tio_carrier( tio, FALSE );
 	    tio_set( fd, tio );
+#endif
 	    ppm_char = 0x2e; break;
 	  default:
 	    lprintf( L_WARN, "ppm type %d not implemented", ppm );
@@ -395,13 +397,14 @@ int fax_send_ppm _P3( (fd, tio, ppm),
 	    /* take care of modems pulling DCD low before the final
 	     * result code has reached the host
 	     */
+#ifndef FAX_SEND_IGNORE_CARRIER
 	    tio_carrier( tio, FALSE );
 #ifdef sun
 	    /* HW handshake has to be off while carrier is low */
 	    tio_set_flow_control(fd, tio, (FAXSEND_FLOW) & FLOW_XON_OUT);
 #endif
 	    tio_set( fd, tio );
-
+#endif
 	    rc = fax_command( "AT+FET=2", "OK", fd );
 	    break;
 	  default:		/* pri-xxx codes */
