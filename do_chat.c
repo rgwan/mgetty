@@ -1,4 +1,4 @@
-#ident "$Id: do_chat.c,v 1.37 1994/08/03 11:12:33 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: do_chat.c,v 1.38 1994/08/04 17:20:42 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* do_chat.c
  *
@@ -227,11 +227,18 @@ static	char	*lptr = lbuf;
 
 int clean_line _P2 ((fd, waittime), int fd, int waittime )
 {
-#ifdef MEIBE
-    lprintf( L_NOISE, "clean_line() not available on MEIBE" );
+char	buffer[2];
+#if defined(MEIBE) || defined(BROKEN_VTIME)
+    /* on some systems, the VMIN/VTIME mechanism is obviously totally
+     * broken. So, use a select()/flush queue loop instead.
+     */
+    lprintf( L_NOISE, "waiting for line to clear" );
+    while( wait_for_input( fd, waittime * 100 ) )
+    {
+	read( fd, buffer, 1); lputc( L_NOISE, buffer[0] );
+    }
 #else
 TIO	tio, save_tio;
-char	buffer[2];
 
     lprintf( L_NOISE, "waiting for line to clear, read: " );
 
