@@ -1,4 +1,4 @@
-#ident "$Id: login.c,v 2.1 1994/11/30 23:20:44 gert Exp $ Copyright (C) 1993 Gert Doering"
+#ident "$Id: login.c,v 2.2 1994/12/06 17:15:18 gert Exp $ Copyright (C) 1993 Gert Doering"
 
 
 /* login.c
@@ -112,25 +112,27 @@ void login_dispatch _P1( (user), char * user )
 
     struct stat st;
 
+    char * cfg_file = makepath( LOGIN_CFG_FILE, CONFDIR );
+
     /* first of all, some (somewhat paranoid) checks for file ownership,
      * file permissions (0i00), ...
      * If something fails, fall through to default ("/bin/login <user>")
      */       
        
-    if ( stat( LOGIN_CFG_FILE, &st ) < 0 )
+    if ( stat( cfg_file, &st ) < 0 )
     {
-	lprintf( L_ERROR, "login: stat('%s') failed", LOGIN_CFG_FILE );
+	lprintf( L_ERROR, "login: stat('%s') failed", cfg_file );
     }
     else	/* permission check */
       if ( st.st_uid != 0 || ( ( st.st_mode & 0077 ) != 0 ) )
     {
 	errno=EINVAL;
-	lprintf( L_FATAL, "login: '%s' must be root/0600", LOGIN_CFG_FILE );
+	lprintf( L_FATAL, "login: '%s' must be root/0600", cfg_file );
     }
     else
-      if ( (fp = fopen( LOGIN_CFG_FILE, "r" )) == NULL )
+      if ( (fp = fopen( cfg_file, "r" )) == NULL )
     {
-	lprintf( L_FATAL, "login: cannot open %s", LOGIN_CFG_FILE );
+	lprintf( L_FATAL, "login: cannot open %s", cfg_file );
     }
     else
 	while ( ( line = fgetline( fp ) ) != NULL )
