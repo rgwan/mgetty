@@ -1,4 +1,4 @@
-#ident "$Id: utmp.c,v 1.14 1994/03/08 15:46:42 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: utmp.c,v 1.15 1994/04/20 14:57:27 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* some parts of the code (writing of the utmp entry)
  * is based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
@@ -56,7 +56,8 @@ FILE *	fp;
 
     while ((utmp = getutent()) != (struct utmp *) NULL)
     {
-	if (utmp->ut_type == INIT_PROCESS && utmp->ut_pid == pid)
+	if (utmp->ut_pid == pid &&
+	    (utmp->ut_type == INIT_PROCESS || utmp->ut_type == LOGIN_PROCESS))
 	{
 	    strcpy(utmp->ut_line, line );
 
@@ -67,7 +68,10 @@ FILE *	fp;
 	    strncpy( utmp->ut_user, ut_user, sizeof( utmp->ut_user ) );
 	    utmp->ut_user[ sizeof( utmp->ut_user ) -1 ] = 0;
 
-	    pututline(utmp);
+	    if ( pututline(utmp) == NULL )
+	    {
+		lprintf( L_ERROR, "cannot create utmp entry" );
+	    }
 
 	    /* write same record to end of wtmp
 	     * if wtmp file exists
