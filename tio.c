@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 1.21 1994/04/23 21:41:49 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 1.22 1994/04/29 09:55:50 gert Exp $ Copyright (c) 1993 Gert Doering"
 ;
 /* tio.c
  *
@@ -334,7 +334,10 @@ void tio_map_cr _P2( (t, perform_mapping), TIO * t, int
 void tio_map_uclc _P2( (t, perform_mapping), TIO * t, int
 		    perform_mapping )
 {
-#if defined(SYSV_TERMIO) || defined(POSIX_TERMIOS)
+#ifdef __bsdi__
+    lprintf( L_WARN, "uclc mapping not available on BSDI" );
+#else
+# if defined(SYSV_TERMIO) || defined(POSIX_TERMIOS)
     if ( perform_mapping )
     {
 	t->c_iflag |= IUCLC;
@@ -347,9 +350,10 @@ void tio_map_uclc _P2( (t, perform_mapping), TIO * t, int
 	t->c_oflag &= ~OLCUC;
 	t->c_lflag &= ~XCASE;
     }
-#else
-#include "not implemented yet"
-#endif
+# else
+# include "not implemented yet"
+# endif
+#endif		/* BSDI */
 }
 
 /* tio_carrier()
