@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.75 1995/03/24 15:08:33 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.76 1995/05/09 16:28:02 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration defaults for mgetty / sendfax
  * are specified.
@@ -411,6 +411,8 @@
  * and other USR Courier Fax follies will be handled by enabling the
  * following define (if you have an USR faxmodem that does *not* need
  * this, please send me a mail!)
+ * It seems as if the newest V.34 modems do not need this anymore, please
+ * try it out...
  */
 /* #define FAX_USRobotics */
 
