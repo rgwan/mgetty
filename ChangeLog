@@ -1,3 +1,39 @@
+Thu Apr 02 18:45:13 1998  Gert Doering (gert@greenie.muc.de)
+
+	* release 1.1.14
+
+	* mgetty.c: recognize "RING U" as A_RING5 (Nick Holloway)
+
+	* logname.c, g3/g32pbm.c: fix some warnings (Florian La Roche)
+
+Wed Apr 01 20:05:28 1998  Gert Doering (gert@greenie.muc.de)
+
+	* Makefile, ftp.sh: gzip diffs before uploading
+
+	* Makefile, doc/mgetty.texi: new master FTP site: alpha.greenie.net
+
+Sat Mar 28 22:29:08 1998  Gert Doering (gert@greenie.muc.de)
+
+	* release 1.1.13
+
+Thu Mar 26 10:04:20 1998  Gert Doering (gert@greenie.muc.de)
+
+	* cnd.c: repair ELSA CID support
+
+	* frontends/dialog/: remove listen.in, doesn't work anymore
+
+	* Makefile: remove all references to VOICE_DIR
+
+Sat Mar 14 19:25:31 1998  Gert Doering (gert@greenie.muc.de)
+
+	* cnd.c: add [preliminary] support for ELSA ISDN Caller-ID
+
+	* fax/faxrunqd: new scheduler with all bells and whistles done
+
+Fri Feb 06 17:19:23 1998  Gert Doering  (gd@medat.de)
+
+	* fax/faxrunqd: first cut of new scheduler / queue manager
+
 Tue Jan 27 12:34:36 1998  Gert Doering  (gd@medat.de)
 
 	* release 1.1.12
