@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.h,v 1.1 1994/12/23 13:01:05 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: conf_mg.h,v 1.2 1995/02/11 22:50:15 gert Exp $ Copyright (c) 1994 Gert Doering"
 
 /* all (dynamic) mgetty configuration is contained in this structure.
  * It is initialized and loaded in conf_mg.c and accessed from mgetty.c
@@ -46,6 +46,7 @@ extern struct conf_data_mgetty {
 
 	debug,					/* log level */
 	gettydefs_tag,
+        termtype,				/* $TERM=... */
 	end_of_config; } c;
 
 int mgetty_parse_args _PROTO(( int argc, char ** argv ));
