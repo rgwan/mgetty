@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.26 1998/07/05 20:36:13 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.27 1998/07/05 21:02:13 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -2755,29 +2755,51 @@ port <whatever2>
 @node USR, Elink-ISDN, MultiTech, Modems
 @subsection US Robotics (now 3com) Courier/Sportster Fax/Data modems
 
-After long wait, the USR Faxmodems finally have a faxmode. It's class 2.0,
-which is quite good for compatibility/standardization reasons.
-Unfortunately, their tech guys aren't very clever, so early implementations
-have had bad bugs, depending on the ROM release.  If you want to use USR
-modems for faxing, get an upgrade to the very latest available firmware
-versions (for Courier V.34+, this is the "X.2" firmware released in
-mid-1997), because they have fixed many fax bugs in earlier versions.
+There are a number of major lines of 3com/US Robotics modems:
 
-Very old USR modems had the nasty habit of interpreting the "maximum
-connection speed" setting as "minimum speed", thus failing to connect to
-any non-14400 fax machine. This is fixed.
+@itemize @bullet
+@item USR Courier V.34/V.everything -- those are quite expensive, but 
+really, really good modems.  I think those are the best V.34/X.2/V.90 
+modems around, and they are also very good for class 2.0 faxing.   But 
+make sure that you use a recent firmware, as older versions had very 
+bad (and stooopid) bugs in the fax department.  You can find out the
+firmware version with the @code{ATI7} modem command.  The 
+@samp{Supervisor rev} version listed should be at least @samp{6.5.3}, 
+better @samp{7.1.8} (this is the @samp{X.2 upgrade}).
 
-Many older models insist on switching the baud rate to 19200 when receiving a
-fax, but, alas, not at the same place in the protocol Rockwell uses, but at
-yet another place.
+Fax polling still doesn't work, and if you send faxes to a modem that can
+only accept fax with 7200 bps, it will fail with @code{+FHS:25} unless you
+specify @code{sendfax -M 7200}.
 
-Those two get taken care of if you @code{#define FAX_USRobotics} in
-@file{policy.h}.
+The Courier series does not have voice features.
 
-Another problem that appeared recently is that they have severe bugs when
-doing RTS/CTS (that is, hardware) flow control. Occasionally, a byte gets
-lost, and sometimes this confuses the modem enough to abort transmission
-with the error message
+@item USR I-Modem -- this is an ISDN Terminal Adaptor with built in
+V.34/fax mode (``ISDN Modem'').  Nice product.  Works.  The same stuff
+said for the Courier V.34/V.everything is true for the I-Modem.
+
+@item older USR Courier modems -- older series without flash ROM, and
+possibly not upgradable to V.34/X.2 at all, might give problems.  Fax was
+added fairly late, and the first fax-capable releases are very buggy.  If
+you have such a modem, and @code{ATI7} does not list @samp{V34} in the
+@samp{Options} line, you might try the FAX_USRobotics option in
+@file{policy.h}.  Maybe it helps.  But don't expect too much.
+
+@item USR Sportster series -- the ``Sportster'' is actually a range of
+many different low-end modems.  Most of them can do voice stuff, some of
+them have flash ROM to be upgraded to newer firmware.  For data, this
+modem is quite good.  For fax, it might work, and it might not -- I have
+received a very high number of ``it doesn't work at all'' reports, and
+also a number of ``it works very well for me'' reports.  If you plan to
+buy one, make sure you can return it if it doesn't work.
+
+@item Internal PC card -- I haven't been able to find out yet whether that
+is a ``Sportster'' or a ``Courier'', but it seems to be a Sportster, with
+all its negative habits.
+@end itemize
+
+Some older USR firmware versions had severe bugs when doing RTS/CTS (that 
+is, hardware) flow control. Occasionally, a byte got lost, and sometimes 
+this confuses the modem enough to abort transmission with the error message
 @example
 Transmission error: +FHNG:44 (Unrecognized Transparent data command)
 @end example
@@ -2795,19 +2817,8 @@ claims so. It will work half-way through, but fail miserably later.
 
 When sending faxes with an USR faxmodem, set @code{ignore-carrier yes} in
 @file{sendfax.config}.  Otherwise it will fail after the first page with a
-read error and error code -5.
-
-
-Experience shows that recent USR Courier firmware versions (get the latest
-you can, make sure it contains support for ``X.2'') are very stable for
-sending and receiving faxes.  Polling still doesn't work.
-
-Experience also shows that USR Sporsters are quite unreliable.  There are
-firmware versions that work pretty well, and others that do not work at
-all.  So if your modem works, consider yourself lucky, but if it doesn't,
-don't blaim it on me (I got some reports that Hylafax works better,
-driving the modem a bit differently, but I think this was just a lucky
-day).
+read error and error code -5.  (But that is default anyway, if you use
+mgetty 1.1.16 and up).
 
 For some fax receivers, a problem remains: the USR modems do not want
 to negotiate 7200 bps transmission speed.  If the receiving modem won't 
@@ -2819,7 +2830,7 @@ with the error code +FHS:25.  In that case, try setting
 The USR modems support Caller ID delivery (both the I-Modem series and the
 analog ones).  Switch it on with @code{AT#CID=1} and mgetty should
 automatically be able to recognize the incoming caller ID.  If not, show
-me a detailed log file.
+me a detailed log file...
 
 @node Elink-ISDN, Class 1, USR, Modems
 @subsection Elink ISDN Terminal Adaptors 293, 310, 393 with X.75 and V.110
