@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.42 1994/01/19 10:26:53 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.43 1994/01/23 13:44:10 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -139,7 +139,7 @@
 /* misc */
 
 /* Path for the lock files. A %s will be replaced with the device name,
- * e.g. tty2a -> /usr/spool/uucp/LCK..%s
+ * e.g. tty2a -> /usr/spool/uucp/LCK..tty2a
  * Make sure that this is the same file that your uucico uses for
  * locking!
  */
@@ -193,7 +193,7 @@
  *     replace &H3 (rts/cts flow control), &K4 (enable v42bis) and &N0
  *     (answer with all known protocols).
  * For instructions how to setup various other modems, look into
- *     mgetty.texi ("modems" section)
+ *     mgetty.texi ("modems" section) and check your modem manual
  * For some modems, an initial "\d" is needed.
  * If you need a "\" in the modem command, give it as "\\\\".
  * Maybe the best "initialization" would be to setup everything 
