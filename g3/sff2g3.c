@@ -1,4 +1,4 @@
-#ident "$Id: sff2g3.c,v 1.3 2004/07/16 19:53:26 gert Exp $ Copyright (C) 1994 Gert Doering"
+#ident "$Id: sff2g3.c,v 1.4 2004/07/16 20:30:16 gert Exp $ Copyright (C) 1994 Gert Doering"
 
 /* sff2g3
  *
@@ -13,6 +13,10 @@
  * see also: http://sfftools.sourceforge.net/
  *
  * $Log: sff2g3.c,v $
+ * Revision 1.4  2004/07/16 20:30:16  gert
+ * work on debugging output (verbose>1)
+ * handle "0xff 0x00" tagged lines correctly (input error -> blank line)
+ *
  * Revision 1.3  2004/07/16 19:53:26  gert
  * portability: #define PATH_MAX if not there
  * fix prototype warning: #include "g3.h"
@@ -131,7 +135,7 @@ int i, ch;
     for( i=0;i<bytes;i++)
     {
 	ch=getc(rfp);
-	if ( i<16 && verbose>1 ) 
+	if ( i<10 && verbose>1 ) 
 		printf( " %02x", out_byte_tab[ch&0xff] );
 	putc( out_byte_tab[ch&0xff], wfp );
     }
@@ -236,7 +240,11 @@ int main _P2( (argc, argv), int argc, char ** argv )
 
 	/* end of file reached? -> might lead to 'short read' */
 	if ( ( len >= 2 && pbuf[1] == 0 ) || 
-	     ( len >= 3 && pbuf[2] == 255 ) ) break;
+	     ( len >= 3 && pbuf[2] == 255 ) ) 
+	{
+	    if ( verbose>1 ) printf( "END: pbuf[1]=%d, pbuf[2]=%d\n", pbuf[1], pbuf[2] );
+	    break;
+	}
 
 	if ( len != SIZEOF_PAGE_HEADER )
 	{
@@ -283,6 +291,8 @@ int main _P2( (argc, argv), int argc, char ** argv )
 	while( 1 )
 	{
 	    c = getc(rfp);
+	    if ( verbose>1 ) printf( "tag [0x%02x] ", c );
+
 	    if ( c < 0 )			/* EOF/error -> end page */
 		{ break; }
 	    if ( c == 0 )			/* multibyte length */
@@ -300,7 +310,12 @@ int main _P2( (argc, argv), int argc, char ** argv )
 	    else if ( c == 254 )		/* next page header */
 		{ ungetc(c, rfp); break; }
 	    else if ( c == 255 )		/* user data */
-		{ sff_skip_bytes( getc(rfp) ); break; }
+	    {
+		int c1 = getc(rfp);
+		if ( c1 > 0 ) sff_skip_bytes( c1 );
+			 else sff_output_blank_lines(1);	/* bad line */
+		/* TODO: copy previous line in case of error */
+	    }
 	}
 
 	/* close G3 file */
