@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.16 1997/06/22 11:31:54 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.17 1997/06/22 14:58:08 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -623,6 +623,14 @@ int mdm_identify _P1( (fd), int fd )
 	    {
 		lprintf( L_MESG, "Sounds more like Dr.Neuhaus Cybermod" );
 		modem_quirks |= MQ_NEED2;
+	    }
+	    else					/* "Version 6.00" */
+	      if ( mid == 28800 && strncmp( mis, "Version", 7 ) == 0 )
+	    {
+		lprintf( L_MESG, "Could be a Hayes Optima/Accura modem" );
+	        mis = mdm_get_idstring( "ATI7", 1, fd );
+		modem_quirks |= MQ_NEED2;
+		break;
 	    }
 	    mis = mdm_get_idstring( "ATI4", 1, fd );
 	    break;
