@@ -1,4 +1,4 @@
-#ident "$Id: faxsend.c,v 4.3 1997/03/20 12:52:18 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: faxsend.c,v 4.4 1997/12/09 11:05:01 gert Exp $ Copyright (c) 1994 Gert Doering"
 
 /* faxsend.c
  *
@@ -128,11 +128,10 @@ int fax_send_page _P5( (g3_file, bytes_sent, tio, ppm, fd),
      * (20 seconds timeout)
      *
      * Not all issues of the class 2 draft require this Xon, and, further,
-     * the class 2.0 standard does *not* have it, so it's optional.
+     * the class 2.0 and 2.1 standard do *not* have it, so it's optional.
      */
-
-#ifndef FAXSEND_NO_XON
-    if ( modem_type != Mt_class2_0 )
+    if ( modem_type == Mt_class2 &&
+	 ( modem_quirks & MQ_NO_XON ) == 0 )
     {
 	lprintf( L_NOISE, "waiting for XON, got:" );
 
@@ -150,11 +149,9 @@ int fax_send_page _P5( (g3_file, bytes_sent, tio, ppm, fd),
 	}
 	while ( ch != XON );
 	alarm(0);
-    }					/* end if ( mt != class 2.0 ) */
-#endif
+    }					/* end if ( mt == class 2 ) */
 
-    /* Since some faxmodems (ZyXELs!) do need XON/XOFF flow control
-     * we have to enable it here
+    /* Now enable software flow control, if desired, we've got the Xon
      */
     tio_set_flow_control( fd, tio, (FAXSEND_FLOW) & (FLOW_HARD|FLOW_XON_OUT));
     tio_set( fd, tio );
