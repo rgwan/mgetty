@@ -1,0 +1,50 @@
+Hi all,
+
+sorry, that it took so long to release this new version. I had nearly no
+time and always something stupid happened, when I finally wanted to sit down
+and work on vgetty. Let's hope this won't continue in the future, but I see
+again many dark clouds approaching... :-(
+
+As always this is yet another vgetty test release. I incorporated many
+changes and I probably forgot some of the patches, that you mail me. Please
+feel free to resubmit them to me. Things have been so chaotic, that I
+probably simply missed them by accident. If you plan to submit changes,
+please keep in mind: I only accept a unified diff against the latest
+released mgetty/vgetty version. Everything else is more work for me and I
+don't have the time for that. You can produce a unified diff by first
+copying the original uncahnged file to something like file.c.orig and then
+use the command "diff -u file.c.orig file.c > patch_for_marc". Thanks a lot!
+
+Please have a look at the voice/ToDo file. If there is something missing,
+that you would like to see, please let me know, I probably add it to the
+ToDo list. If there is something you want to do, please get in contact with
+me first, to avoid, that two people are working on the same problem.
+
+Also if you did something for vgetty and I didn't put you in the voice/Credits
+file, please mail me! I don't want to forget someone, but I probably did
+already.
+
+Now the good things:
+
+* Bug fixes for some hardware drivers.
+
+* Included fax commands from within a voice shell
+
+* Included the mvm voicemail system
+
+* Included new hardware driver for Multitech modems. Since I don't know the
+  ATI code for these modems, I could not include them in detect.c. I'll post
+  a patch for that, as soon as I know the code. In the meantime, the driver
+  is there, but the modem won't be detected. Same for the pvf conversion
+  tools.
+
+* Documentation for the voice shell commands and the vgetty beginners guide
+  in voice/doc
+
+The new release is included in the latest mgetty-beta on ftp.leo.org as
+always.
+
+Enjoy,
+Marc
+
+$Id: Announce,v 1.1 1997/12/16 10:41:45 marc Exp $
