@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 1.28 1994/02/12 14:08:28 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 1.29 1994/02/20 09:53:58 gert Exp $ Copyright (c) Gert Doering"
 ;
 #include <stdio.h>
 #ifndef _NOSTDLIB_H
@@ -248,7 +248,7 @@ char * final_prompt;
 
 newlogin:
 #ifdef FIDO
-    printf( "**EMSI_REQA77E\r              \r" );
+    printf( "**EMSI_REQA77E\r\021              \r" );
 #endif
 
     printf( "\r\n%s", final_prompt );
