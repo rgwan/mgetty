@@ -1,4 +1,4 @@
-#ident "$Id: goodies.c,v 3.7 1996/12/09 21:41:47 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: goodies.c,v 3.8 1996/12/13 22:55:22 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /*
  * goodies.c
@@ -205,9 +205,9 @@ char * get_ps_args _P1 ((pid), int pid )
 #endif
 }
 
-#if defined(NeXT) || defined(NEED_PUTENV)
+#if defined(NEED_STRDUP)
 
-/* provide strdup() for NEXTSTEP */
+/* provide strdup() for systems not having it... */
 char * strdup _P1( (src), char *src)
 {
 char * dest;
@@ -219,6 +219,10 @@ char * dest;
     return(dest);
 }
 
+#endif
+
+
+#if defined(NEED_PUTENV)
 
 /* provide putenv() for NEXTSTEP:
  * original code by Terrence W. Holm (tholm@uvicctr.UUCP),
@@ -227,6 +231,8 @@ char * dest;
  */
 
 #define  PSIZE  sizeof(char *)
+
+extern char **environ;
 
 int putenv _P1( (entry), char *entry)
 {
