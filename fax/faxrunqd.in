@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-# RCS: $Id: faxrunqd.in,v 1.1 1997/10/02 09:58:56 gd Exp $
+# RCS: $Id: faxrunqd.in,v 1.2 1997/10/02 11:15:18 gd Exp $
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.2  1997/10/02 11:15:18  gd
+# if rename(JOB->JOB.done/suspended) fails, die only in "critical" circumstances
+#
 # Revision 1.1  1997/10/02 09:58:56  gd
 # Initial revision
 #
@@ -655,7 +658,13 @@ my ($r, $s, $ex, $j);
 	# remove JOB file
 	unless( rename( "$j/JOB", "$j/JOB.done" ) )
 	{
-	    die "error renaming $j/JOB: $!";
+	    # failed -- maybe the "$program_success" has removed it?
+	    # --> die only if the file and directory still exist
+
+	    if ( -d "$j" && -f "$j/JOB" )
+		{ die "error renaming $j/JOB: $!"; }
+	    else
+		{ print LOG "$j/JOB: rename failed ($!) - whatever...\n"; }
 	}
 
 	# if requested, erase all files
@@ -714,7 +723,13 @@ my ($r, $s, $ex, $j);
 	    # remove from queue directory (suspend, but do not delete it)
 	    unless( rename( "$j/JOB", "$j/JOB.suspended" ) )
 	    {
-		die "error renaming $j/JOB: $!";
+		# failed -- maybe the "$program_failure" has removed it?
+		# --> die only if the file and directory still exist
+
+		if ( -d "$j" && -f "$j/JOB" )
+		    { die "error renaming $j/JOB: $!"; }
+		else
+		    { print LOG "$j/JOB: rename failed ($!) - whatever...\n"; }
 	    }
 
 	    # remove from internal queue
