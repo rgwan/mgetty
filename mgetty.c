@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 2.5 1995/03/24 00:11:52 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 2.6 1995/03/31 15:58:15 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -31,8 +31,9 @@
 #include "config.h"
 #include "conf_mg.h"
 
+#ifndef VOICE
 #include "version.h"		/* for logging the mgetty release number */
-
+#endif
 
 #ifdef DIST_RING
 char *	ring_chat_seq[] = { "RING\r", NULL };
@@ -255,7 +256,10 @@ int main _P2((argc, argv), int argc, char ** argv)
     /* name of the logfile is device-dependant */
     sprintf( buf, LOG_PATH, DevID );
     log_init_paths( argv[0], buf, &Device[strlen(Device)-3] );
+
+#ifndef VOICE
     lprintf( L_NOISE, "mgetty: %s", mgetty_version );
+#endif
 	    
     /* read configuration file */
     mgetty_get_config( Device );
@@ -636,7 +640,7 @@ Ring_got_action:
 		    rmlocks();		/* line is free again */
 		    exit(0);		/* let init restart mgetty */
 		}
-		lprintf( L_MESG, "phone stopped ringing (rings=%d)", rings );
+		lprintf( L_AUDIT, "phone stopped ringing (rings=%d)", rings );
 		mgetty_state = St_go_to_jail;
 		break;
 	      case A_CONN:		/* CONNECT */
