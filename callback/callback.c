@@ -479,6 +479,10 @@ int main _P2((argc, argv), int argc, char ** argv)
 	t_count = 1;
 	t_numbers = &t_help;
 	t_numbers[0] = phonebuf;
+
+        i = strlen(phonebuf);
+	while (i>0 && !isprint(phonebuf[i-1]))
+	    phonebuf[--i] = 0;
     }
 
     /* Initialize Logging */
