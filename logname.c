@@ -1,6 +1,8 @@
-#ident "$Id: logname.c,v 1.3 1993/03/06 19:31:00 gert Exp $ (c) Gert Doering"
+#ident "$Id: logname.c,v 1.4 1993/03/11 11:12:17 gert Exp $ (c) Gert Doering"
 #include <stdio.h>
 #include <termio.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
 
 #include "mgetty.h"
 
