@@ -1,4 +1,4 @@
-#ident "$Id: tio.h,v 1.13 1994/03/01 01:06:42 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.h,v 1.14 1994/03/12 19:07:39 gert Exp $ Copyright (c) 1993 Gert Doering"
 ;
 #ifndef __TIO_H__
 #define __TIO_H__
@@ -100,7 +100,30 @@ typedef tcflag_t tioflag_t;
 #define CNSWTCH	0
 #endif
 #ifndef CSUSP
-#define CSUSP _POSIX_VDISABLE
+# ifdef SVR42
+#  define CSUSP 026	/* cntl z */
+# else
+#  define CSUSP _POSIX_VDISABLE		/* have only job control aware */
+					/* shells use it */
+# endif
+#endif
+
+/* the following are used only if the corresponding V... defines are */
+/* available, and that's only on SVR42 (as far as I know) */
+#ifndef CDSUSP
+#define CDSUSP		025	/* cntl y */
+#endif
+#ifndef CRPRNT
+#define CRPRNT		000	/* <undef> */
+#endif
+#ifndef CFLUSH
+#define CFLUSH		000	/* <undef> */
+#endif
+#ifndef CWERASE
+#define CWERASE		000	/* <undef> */
+#endif
+#ifndef CLNEXT
+#define CLNEXT		000	/* <undef> */
 #endif
 
 /* hardware handshake flags */
@@ -118,6 +141,7 @@ int  tio_get_speed   _PROTO (( TIO *t ));
 void tio_mode_raw    _PROTO (( TIO *t ));
 void tio_mode_cbreak _PROTO (( TIO *t ));
 void tio_mode_sane   _PROTO (( TIO *t, int set_clocal_flag ));
+void tio_default_cc  _PROTO (( TIO *t ));
 void tio_map_cr      _PROTO (( TIO *t, int perform_crnl_mapping ));
 int  tio_set_flow_control  _PROTO(( int fd, TIO *t, int flowctrl_type ));
 int  tio_set_flow_control2 _PROTO(( int fd, int flowctrl_type ));
