@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.55 2002/10/22 17:00:49 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.56 2002/11/04 22:25:41 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -2820,6 +2820,15 @@ or less.  So make sure you can return your modem to the dealer if it
 doesn't work - and if the dealer isn't willing to do this, get a different
 modem.  Russell King told me that the firmware version 0316D should be
 working ok, but I got some negative reports as well. Hmmm.
+
+@strong{News} The most recent series of MultiTech modems (MT5634ZBA-V92
+external, or MT5634ZPX-PCI-V92 / ISI5634PCI internal), based on the
+Lucent/Agere Venus chipset, seem to be really good for fax, data and 
+voice support.  Older firmware releases had bugs in the voice area, but 
+if you use the most recent firmware version, they should be fine.  For 
+vgetty, you might need to set "forceV253 true" and "rec\_compression 6" 
+in @file{voice.conf}  (Contributed by Lee Howard, <faxguy@@howardsilvan.com>
+-- thanks).
 
 @node ELSA, USR, MultiTech, Modems
 @subsection ELSA voice/fax modems
