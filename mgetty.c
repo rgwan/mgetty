@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.20 1993/03/23 12:23:14 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.21 1993/03/23 12:29:59 gert Exp $ (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -118,6 +118,9 @@ void		setutent(void);
 void		endutent(void);
 
 time_t		time( long * tloc );
+
+/* logname.c */
+int getlogname( struct termio * termio, char * buf, int maxsize );
 
 char	* Device;			/* device to use */
 
