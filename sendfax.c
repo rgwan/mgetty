@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.3 1993/03/21 10:40:06 gert Exp $ (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.4 1993/03/23 10:52:38 gert Exp $ (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -109,12 +109,141 @@ void fax_close( int fd )
 
 char fax_end_of_page[] = { DLE, ETX };
 
+/* fax_send_page - send one complete fax-G3-file to the modem
+ *
+ * modem has to be in sync, waiting for at+fdt
+ * NO page punctuation is transmitted -> caller can concatenate
+ * multiple parts onto one page
+ */
+int fax_send_page( char * g3_file, int fd )
+{
+int g3fd;
+char ch;
+char buf[256];
+char wbuf[ sizeof(buf) * 2 ];
+
+    lprintf( L_NOISE, "fax_send_page(\"%s\") started...", g3_file );
+    /* tell modem that we're ready to send - modem will answer
+     * with a couple of "+F..." messages and finally CONNECT
+     */
+
+    if ( fax_command( "AT+FDT", "CONNECT", fd ) == ERROR ||
+	 fax_hangup_code != 0 )
+    {
+	lprintf( L_WARN, "AT+FDT -> some error, abort fax send!" );
+	return ERROR;
+    }
+
+    /* when modem is ready to receive data, it will send us an XON
+     * FIXME: one should have a timeout here!
+     */
+
+    lprintf( L_NOISE, "waiting for XON, got:" );
+
+    do
+    {
+	if ( read( fd, &ch, 1 ) != 1 )
+	{
+	    lprintf( L_ERROR, "waiting for XON" );
+	    fax_close( fd );
+	    exit(11);
+	}
+	lputc( L_NOISE, ch );
+    }
+    while ( ch != XON );
+
+    /* enable polling */
+    fax_termio.c_cc[VMIN] = 0;
+    ioctl( fd, TCSETAW, &fax_termio );
+
+    /* send one page */
+    lprintf( L_MESG, "sending %s...", g3_file );
+
+    g3fd = open( g3_file, O_RDONLY );
+    if ( g3fd == -1 )
+    {
+	lprintf( L_ERROR, "cannot open %s", g3_file );
+	lprintf( L_WARN, "have to send empty page instead" );
+    }
+    else
+    {
+	int r, i, w;
+	boolean first = TRUE;
+
+	while ( ( r = read( g3fd, buf, 64 ) ) > 0 )
+	{
+	    i = 0;
+	    /* skip over GhostScript / digifaxhigh header */
+
+	    if ( first )
+	    {
+		first = FALSE;
+		if ( r >= 64 && strcmp( buf+1,
+					"PC Research, Inc" ) == 0 )
+		{
+		    lprintf( L_MESG, "skipping over GhostScript header" );
+		    i = 64;
+		}
+	    }
+
+	    for ( w = 0; i < r; i++ )
+	    {
+#if REVERSE
+		wbuf[ w ] = swap_bits( buf[ i ] );
+#else
+		wbuf[ w ] = buf[ i ];
+#endif
+		if ( wbuf[ w++ ] == DLE ) wbuf[ w++ ] = DLE;
+	    }
+
+	    lprintf(L_NOISE,"read %d, write %d", r, w );
+
+	    if ( write( fd, wbuf, w ) != w )
+	    {
+		lprintf( L_ERROR, "could not write all %d bytes", w );
+	    }
+
+	    /* drain output */
+	    /* strangely, some ISC versions do not like this ??? */
+	    ioctl( fd, TCSETAW, &fax_termio );
+
+	    /* look if there's an XOFF to read - most of the time, this
+	     * means total failure on my ZyXEL, but who knows.
+	     * (this should not happen anyway! Modem is set to use
+	     * hardware handshake!)
+	     */
+	    if ( read( fd, &ch, 1 ) == 1 )
+	    {
+		lprintf( L_NOISE, "input: read" );
+		lputc( L_NOISE, ch );
+		if ( ch == XOFF )
+		{
+		    lprintf( L_NOISE, "got XOFF, wait 2 seconds" );
+		    sleep(2);
+		}
+	    }
+	}
+
+	/* disable polling */
+	fax_termio.c_cc[VMIN] = 1;
+	ioctl( fd, TCSETAW, &fax_termio );
+
+    }	/* end if (open file succeeded) */
+
+    /* transmit end of page */
+    lprintf( L_NOISE, "sending DLE ETX..." );
+    write( fd, fax_end_of_page, sizeof( fax_end_of_page ));
+
+    if ( fax_wait_for( "OK", fd ) == ERROR ) return ERROR;
+
+    return NOERROR;
+}
+
 int main( int argc, char ** argv )
 {
 int argidx;
-int fd, rfd;
+int fd;
 char buf[1000];
-char wbuf[sizeof(buf)*2];
 char ch;
 int i;
 boolean fax_poll_req = FALSE;
@@ -135,6 +264,7 @@ char	poll_directory[MAXPATH] = ".";		/* FIXME: parameter */
 	    break;
 	case 'h':
 	    fax_page_header = optarg;
+	    lprintf( L_MESG, "page header: %s", fax_page_header );
 	    break;
 	case '?':
 	    exit_usage(argv[0]);
@@ -209,6 +339,9 @@ char	poll_directory[MAXPATH] = ".";		/* FIXME: parameter */
 	}
     }
 
+    /* set modem to hardware handshake (AT&K4), dial out
+     */
+
     sprintf( buf, "AT&K4D%s", fac_tel_no );
     if ( fax_command( buf, "OK", fd ) == ERROR )
     {
@@ -225,111 +358,25 @@ char	poll_directory[MAXPATH] = ".";		/* FIXME: parameter */
 
     while ( argidx < argc && ! fax_hangup )
     {
-	/* tell modem that we're ready to send - modem will answer
-	 * with a couple of "+F..." messages and finally CONNECT
-	 */
-
-	if ( fax_command( "AT+FDT", "CONNECT", fd ) == ERROR )
+	/* send page header, if requested */
+	if ( fax_page_header )
 	{
-	    lprintf( L_WARN, "AT+FDT -> some error, abort fax send!" );
-	    break;
-	}
-
-	/* when modem is ready to receive data, it will send us an XON
-	 * FIXME: one should add a timeout here!
-	 */
-
-	lprintf( L_NOISE, "waiting for XON, got:" );
-
-	do
-	{
-	    if ( read( fd, &ch, 1 ) != 1 )
-	    {
-		lprintf( L_ERROR, "waiting for XON" );
-		fax_close( fd );
-		exit(11);
-	    }
-	    lputc( L_NOISE, ch );
-	}
-	while ( ch != XON );
-
-	/* enable polling */
-	fax_termio.c_cc[VMIN] = 0;
-	ioctl( fd, TCSETAW, &fax_termio );
-
-	/* send one page */
-	lprintf( L_MESG, "sending %s...", argv[argidx] );
-
-	rfd = open( argv[ argidx ], O_RDONLY );
-	if ( rfd == -1 )
-	{
-	    lprintf( L_ERROR, "cannot open %s", argv[ argidx ] );
-	}
-	else
-	{
-	    int r, i, w;
-	    boolean first = TRUE;
-
-	    while ( ( r = read( rfd, buf, 64 ) ) > 0 )
-	    {
-		i = 0;
-		/* skip over GhostScript / digifaxhigh header */
-		if ( first )
-		{
-		    first = FALSE;
-		    if ( r >= 64 && strcmp( buf+1,
-					    "PC Research, Inc" ) == 0 )
-		    {
-			lprintf( L_MESG, "skipping over GhostScript header" );
-		        i = 64;
-		    }
-		}
-
-		for ( w = 0; i < r; i++ )
-		{
-#if REVERSE
-		    wbuf[ w ] = swap_bits( buf[ i ] );
+#if 0
+	    if ( fax_send_page( fax_page_header, fd ) == ERROR ) break;
 #else
-		    wbuf[ w ] = buf[ i ];
+	    fprintf( stderr, "WARNING: no page header is transmitted. Does not work yet!" );
 #endif
-		    if ( wbuf[ w++ ] == DLE ) wbuf[ w++ ] = DLE;
-		}
-
-		lprintf(L_NOISE,"read %d, write %d", r, w );
-
-		if ( write( fd, wbuf, w ) != w )
-		{
-		    lprintf( L_ERROR, "did not write %d bytes", w );
-		}
-
-		/* drain output */
-		ioctl( fd, TCSETAW, &fax_termio );
-
-		if ( read( fd, &ch, 1 ) == 1 )
-		{
-		    lprintf( L_NOISE, "input: read" );
-		    lputc( L_NOISE, ch );
-		    if ( ch == XOFF )
-		    {
-			lprintf( L_NOISE, "got XOFF, wait 2 seconds" );
-			sleep(2);
-		    }
-		}
-	    }
-
-	    /* disable polling */
-	    fax_termio.c_cc[VMIN] = 1;
-	    ioctl( fd, TCSETAW, &fax_termio );
-
-	    /* end of page */
-	    lprintf( L_NOISE, "sending DLE ETX..." );
-	    write( fd, fax_end_of_page, sizeof( fax_end_of_page ));
+	    /* NO page punctuation, we want the next file on the same page
+	     */
 	}
 
-	fax_wait_for( "OK", fd );
+	/* send page */
+	if ( fax_send_page( argv[ argidx ], fd ) == ERROR ) break;
+
 	argidx++;
 
         /* transmit page punctuation
+	 * (three cases: more pages, last page but polling, last page at all)
 	 */
 
 	if ( argidx == argc )		/* was this the last page to send? */
