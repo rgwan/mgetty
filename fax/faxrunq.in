@@ -11,9 +11,12 @@
 # For heavy-duty usage (multiple lines, many 100 faxes per day), check
 # out faxrunqd.
 #
-# RCS: $Id: faxrunq.in,v 4.17 2005/01/03 16:46:28 gert Exp $ Copyright (C) 1994 Gert Doering
+# RCS: $Id: faxrunq.in,v 4.18 2005/02/27 11:57:31 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 # $Log: faxrunq.in,v $
+# Revision 4.18  2005/02/27 11:57:31  gert
+# get "trap off" handling from mksed/sedscript
+#
 # Revision 4.17  2005/01/03 16:46:28  gert
 # workaround for needless bash3 incompatibility ("trap 0 1 2 3" doesn't work
 # anymore, need to use "trap - 0 1 2 3", which doesn't work on old /bin/sh)
@@ -155,7 +158,7 @@ do
     if [ $? -ne 0 ]
     then
 	$echo "already locked"
-	trap - 0 1 2 3 15
+	@TRAP_OFF@ 0 1 2 3 15
 	continue
     fi
 #
@@ -243,7 +246,7 @@ do
 	if [ -n "$do_mail_s" ] ; then
 	    $echo "    send mail to $MAIL_TO..."
 	    ( 
-	      trap 0			# catch BASH bug
+	      @TRAP_OFF@ 0			# catch BASH bug
 	      $echo "To: $MAIL_TO"
 	      $echo "Subject: OK: $subject"
 	      $echo "From: root (Fax Subsystem)\n"
@@ -314,7 +317,7 @@ do
 	    if [ -n "$do_mail_f" ] ; then
 		echo "    send mail to $MAIL_TO..."
 		( 
-		  trap 0			# catch BASH bug
+		  @TRAP_OFF@ 0			# catch BASH bug
 		  $echo "To: $MAIL_TO"
 		  $echo "Subject: FAIL: $subject failed"
 		  $echo "From: root (Fax Subsystem)\n"
@@ -354,8 +357,7 @@ do
     rm -f JOB.locked
 done
 
-trap - 1 2 3 15
-trap 0
+@TRAP_OFF@ 0 1 2 3 15
 
 #
 # touch the time stamp, to make faxspool happy
