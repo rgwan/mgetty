@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.24 1993/07/21 12:05:47 gert Exp $ (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.25 1993/07/21 17:45:11 gert Exp $ (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -260,8 +260,11 @@ char wbuf[ sizeof(buf) * 2 ];
 	    }
 
 	    /* drain output */
-	    /* strange enough, some ISC versions do not like this (???) */
-#ifndef ISC
+	    /* well, since the handshake stuff seems to work now,
+	     * this shouldn't be necessary anymore (but if you have
+	     * problems with missing scan lines, you could try this)
+	     */
+#if 0
 	    ioctl( fd, TCSETAW, &fax_termio );
 #endif
 
@@ -282,7 +285,10 @@ char wbuf[ sizeof(buf) * 2 ];
 		do
 		{
 		    if ( read( fd, &ch, 1 ) != 1 )
+		    {
 			lprintf( L_ERROR, "read failed" );
+			break;
+		    }
 		    else
 			lputc( L_NOISE, ch );
 		}
@@ -425,11 +431,11 @@ int	tries;
 	}
     }
 
-    /* set modem to hardware handshake (AT&H3), dial out
+    /* set modem to use hardware handshake, dial out
      */
     if ( verbose ) { printf( "Dialing %s... ", fac_tel_no ); fflush(stdout); }
 
-    sprintf( buf, "AT&H3D%s", fac_tel_no );
+    sprintf( buf, "AT%sD%s", FAX_MODEM_HANDSHAKE, fac_tel_no );
     if ( fax_command( buf, "OK", fd ) == ERROR )
     {
 	lprintf( L_WARN, "dial failed (hangup_code=%d)", fax_hangup_code );
