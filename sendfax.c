@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.39 1993/10/19 22:25:45 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.40 1993/11/05 20:50:07 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -145,7 +145,7 @@ void fax_close _P1( (fd),
     rmlocks();
 }
 
-sig_t fax_send_timeout()
+RETSIGTYPE fax_send_timeout()
 {
     lprintf( L_ERROR, "timeout!" );
 }
@@ -345,6 +345,9 @@ int fd;
 char buf[1000];
 int	opt;
 int i;
+
+/* variables settable by command line options */
+char *	extra_modem_init = NULL;
 boolean fax_poll_req = FALSE;
 char * 	fax_page_header = NULL;
 char *	poll_directory = ".";			/* override with "-d" */
@@ -359,7 +362,7 @@ int	tries;
     strcpy( log_path, FAX_LOG );
     log_level = L_NOISE;
 
-    while ((opt = getopt(argc, argv, "d:vx:ph:l:n")) != EOF) {
+    while ((opt = getopt(argc, argv, "d:vx:ph:l:nm:")) != EOF) {
 	switch (opt) {
 	case 'd':	/* set target directory for polling */
 	    poll_directory = optarg;
@@ -388,6 +391,9 @@ int	tries;
 	    break;
 	case 'n':	/* set normal resolution */
 	    fax_res_fine = 0;
+	    break;
+	case 'm':
+	    extra_modem_init = optarg;
 	    break;
 	case '?':	/* unrecognized parameter */
 	    exit_usage(argv[0]);
@@ -443,6 +449,24 @@ int	tries;
 	fax_close( fd );
 	exit(3);
     }
+
+    if ( extra_modem_init != NULL )
+    {
+	if ( strncmp( extra_modem_init, "AT", 2 ) != 0 )
+	{
+	    fax_send( "AT", fd );
+	}
+
+	if ( fax_command( extra_modem_init, "OK", fd ) == ERROR )
+	{
+	    lprintf( L_WARN, "cannot send extra modem init string '%s'",
+		    extra_modem_init );
+	    fprintf( stderr, "%s: modem doesnt't accept '%s'\n",
+		    argv[0], extra_modem_init );
+	    fax_close( fd );
+	    exit(3);
+	}
+    }		/* end if (extra_modem_init != NULL) */
 
     /* FIXME: ask modem if it can do 14400 bps / fine res. at all */
 
