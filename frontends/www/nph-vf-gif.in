@@ -4,9 +4,14 @@
 # 
 # Copyright 1998 Simone Demmel simone@greenie.net
 #
-# RCS: $Id: nph-vf-gif.in,v 1.1 1998/09/11 13:56:12 gert Exp $
+# RCS: $Id: nph-vf-gif.in,v 1.2 1998/10/13 15:54:54 gert Exp $
 #
 # $Log: nph-vf-gif.in,v $
+# Revision 1.2  1998/10/13 15:54:54  gert
+# first working implementation...
+# gotcha: do NOT substitute '+' -> ' ' in the QUERY_STRING (fax id!)
+# gotcha: before doing perl regex match, substitute '+' -> '\+' (same for '?.*')
+#
 # Revision 1.1  1998/09/11 13:56:12  gert
 # display HTML page with GIF images (scaled down) on it
 #
@@ -27,16 +32,11 @@
 # Variablen 
 #
 
-# Incoming-Verzeichnis
-$incoming="@FAX_SPOOL_IN@";
+# read configuration file
+require "@CONFDIR@/wwwgui.conf";
 
-# $g3="/usr/bin/g3topbm";
-# g3topbm
-$g3="@BINDIR@/g3topbm";
-
-# $togif="/usr/local/bin/ppmtogif";
-# ppmtogif
-$togif="@BINDIR@/ppmtogif";
+# default-size if no size is given
+$defaultsize=100;
 
 # $tmppath="/home/www/teddy/mgetty+sendfax/webviewer/";
 # webtmpabs tmp-File fuer die Bilder relativ zum Rechner root.
@@ -69,9 +69,21 @@ $|=1;
 print "HTTP/1.1 200 Document follows.\n";
 print "Server: Nekobil/1.1\n";
 print "Connection: close\n";
-print "Content-type: text/html\n\n";
+print "Content-Type: text/html\n\n";
 
-$query_string=$ENV{'QUERY_STRING'};
+if ($ENV{'REQUEST_METHOD'} eq "GET")
+{
+  $query_string=$ENV{'QUERY_STRING'};
+}
+elsif (($ENV{'REQUEST_METHOD'} eq "POST") &&
+       ($ENV{'CONTENT_TYPE'} eq "application/x-www-form-urlencoded"))
+{
+  read(STDIN,$query_string,$ENV{'CONTENT_LENGTH'});
+}
+else
+{
+  $query_string='';
+};
 
 # Auswerten der Argumentzeilen
 %args=();
@@ -79,7 +91,6 @@ foreach (split(/\&/,$query_string))
 {
 	if ( /^(\w+)=/ && ($key=$1) && ($value=$') )
 	{
-		$value =~ s/\+/ /go;
 		$value =~ s/\%([0-9a-f]{2})/pack(C,hex($1))/eig;
 		$args{"$key"}=$args{"$key"} . " " . $value if ($value!~/^\s*$/);
 		$args{"$key"} =~ s/^\s*//o;
@@ -90,54 +101,108 @@ foreach (split(/\&/,$query_string))
 # jetzt haben wir $args{file} und $args{size}
 # und vielleicht ein $args{page} fuer eine gezielte Seite
 # 
-$file = $args{file};
-$size = $args{size};
-$page = $args{page};
+# $page gibt an, welche Seite, wenns leer ist, alles ausgeben...
+#
+if (defined $args{file}) 
+	{ $file = $args{file};
+	  # $file =~ s/\%2B/\+/g;
+	}
+   # im echten Betrieb noetig, beim Testen willich das so nicht
+   # else { print "undefined Filename\n"; exit; }
+   else { print "undefined Filename\n"; }
+if (defined $args{size}) { $size = $args{size};}
+                    else { $size = $defaultsize; }
+if (defined ($args{page})) { $page = sprintf "%02d", $args{page}; }
+		   # im echten Betrieb mal sehen...
+		   # else { $page = ""; }
+		   else { $page = "alle"; }
 
 #
-# in $file ist nur der eindeutige Teil des Files
-# $size ist eine bel. Zahl zwischen 0 und 100
+# in $file ist der komplette Filename, ohne Seitenangabe
+# $size ist eine bel. Zahl zwischen 0 und 100 (Prozentwert)
 #
 
 print <<EOF;
 <html>
-<head><title></title></head>
-<body>
+<head><title>Fax: $file</title></head>
+<body bgcolor="#ffffff">
+$www_logo
+
 Filename: $file<br>
-Groesse: $size<br>
+Gr&ouml;&szlig;e: $size\%<br>
 Seite: $page
-</body>
-</html>
+<br clear="all"><hr>
+<p>
+
 EOF
 
+#
+# 1. herausfinden, welche Seiten zu machen sind -> $page
+# 2. schaun, ob die schon im tmp-Verzeichnis liegen
+# 3. wenn nicht generieren...
+# Ablauf: pro Bild: schaun -> (generieren) -> html-code raus
+#
+# $fax_incoming - incoming-Directory
+# $file - kompletter Filename ohne .$page
+# $page - Seitennummer im 2-stelligen Format
+#
+# abgelegt in tmp/  $file.$page.$size.gif
+# $filename ist der vollstaendige Filename, mit Seitennummer.
+#
 
+@bilder = "";
 
+if ($page =~ /^\d+$/ ) { # dieses eine Bild generieren...
+    genpage("$file.$page");
+    print "<img src=\"/$webtmprel/$file.$page.$size.gif\" alt=\"page $page\">\n";
+}
 
+else { 
+    my $match = $file;
+    $match =~ s/([+*.?])/\\\1/g;
 
+    # incoming-Directory lesen
+    # print "<p>bin im else...<br>";
+    opendir DIR, $fax_incoming || print "cannot open incomingdir $incoming\n";
+    # print "habe $fax_incoming geoeffnet...<br>\n";
+    foreach $DATEI ( readdir DIR )
+    {
+	# print "<br>\n   lese $DATEI ... vergleiche mit $match";
+	if ($DATEI =~ /^$match\.(\d+)$/)
+	{
+	    my $pagenumber=$1;
+	    # print "<br>generiere: $DATEI\n";
+            genpage($DATEI);
+            print "Seite $pagenumber: <img src=\"/$webtmprel/$DATEI.$size.gif\" alt=\"page $DATEI\">\n";
+	}
+	# print "<br>\n nach IF";
+    }
+    closedir (DIR);
+    # print "<br>\n nach DIR<br>\n";
+}
 
+sub genpage {
+    my $filename = shift;
+    my $x=$size/100;
+    my $y=$size/100;
 
-# #
-# # a gif-file is asked!
-# #
-# $ofile = $incoming . $file;
-# $test = $tmppath . $tmpdir . $file . "." . gif;
-# $size = ((stat($file)) [8]);
+    # print "<p>x= $x<br>y= $y<br> filename= $filename<br> webtmpabs= $webtmpabs\n";
+
+    if ( -f "$webtmpabs/$filename.$size.gif" )
+	 { # print "<br> picture still there...\n";
+	     return; }
+    else {
+	 if ($size != 100) { $gifscale = "$pnmscale -xscale $x -yscale $y | $ppmquant | $ppmtogif"}
+	 else              { $gifscale = "$ppmtogif"; }
+	 # print "scale=$gifscale\n";
+	system "$g3topbm $fax_incoming/$filename | $gifscale > $webtmpabs/$filename.$size.gif";
+    }
+
+    ## else {system "$g3 $webtmpabs/$filename 2>/dev/null | $scale -xscale $x -yscale $y 2>/dev/null | $quant 2>/dev/null | $togif > $webtmpabs/$filename.$size.gif 2>/dev/null";}
+}
+
 # 
-# # create the file only, if it isn't already done! or if it went wrong last
-# # time
-# if ((!(-r $test)) || ($size eq "0"))
-   # {
-     # system "$g3 $ofile 2>/dev/null | $togif > $tmppath$tmpdir$file.gif 2>/dev/null";
-   # }
-# 
-# $target = $webpath . $tmpdir . $file . "." . "gif";
-# print "Location: $target \n\n";
-# 
-exit 0;
-
-
-# 
-# $incoming="/usr/spool/fax/incoming/";
+# $fax_incoming="/usr/spool/fax/incoming/";
 # $g3="/usr/bin/g3topbm";
 # $togif="/usr/local/bin/ppmtogif";
 # $quant="/usr/local/bin/ppmquant 6";
@@ -152,4 +217,28 @@ exit 0;
 # system "$g3 $ofile 2>/dev/null | $scale -xscale $x -yscale $y 2>/dev/null | $quant 2>/dev/null | $togif > $tmppath$tmpdir$file-small.gif 2>/dev/null";
 # }
 
-# exit 0;
+# #
+# # a gif-file is asked!
+# #
+# $ofile = $fax_incoming . $file;
+# $test = $tmppath . $tmpdir . $file . "." . gif;
+# $size = ((stat($file)) [8]);
+# 
+# # create the file only, if it isn't already done! or if it went wrong last
+# # time
+# if ((!(-r $test)) || ($size eq "0"))
+   # {
+     # system "$g3 $ofile 2>/dev/null | $togif > $tmppath$tmpdir$file.gif 2>/dev/null";
+   # }
+# 
+# $target = $webpath . $tmpdir . $file . "." . "gif";
+# print "Location: $target \n\n";
+# 
+
+print <<EOF;
+
+</body>
+</html>
+EOF
+
+exit 0;
