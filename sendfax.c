@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 2.1 1994/11/30 23:20:49 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 2.2 1994/12/05 20:51:04 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -24,7 +24,11 @@
 #include "policy.h"
 #include "fax_lib.h"
 
-/* I don't know *why*, but the ZyXEL wants all bytes reversed */
+/* configuration */
+#include "config.h"
+#include "conf_sf.h"
+
+/* use direct bit order in modem, that means, we have to reverse */
 #define REVERSE 1
 
 char * fac_tel_no;
@@ -119,7 +123,7 @@ int fax_open_device _P2( (fax_tty, use_stdin),
      * received at the top of a page.
      */
     tio_mode_sane( &fax_tio, TRUE );
-    tio_set_speed( &fax_tio, FAX_SEND_BAUD );
+    tio_set_speed( &fax_tio, c_int(speed) );
     tio_mode_raw( &fax_tio );
 #ifdef sun
     /* sunos does not rx with RTSCTS unless carrier present */
@@ -230,87 +234,36 @@ RETSIGTYPE fax_sig_goodbye _P1( (signo), int signo )
 int main _P2( (argc, argv),
 	      int argc, char ** argv )
 {
-int argidx;
-int fd;
-char buf[1000];
-int	opt;
-int i;
-
-/* variables settable by command line options */
-char *	extra_modem_init = NULL;
-boolean fax_poll_wanted = FALSE;
-char * 	fax_page_header = NULL;
-char *	poll_directory = ".";			/* override with "-d" */
-
-static char 	fax_device_string[] = FAX_MODEM_TTYS;	/* writable! */
-char *	fax_devices = fax_device_string;	/* override with "-l" */
-int	fax_res_fine = 1;			/* override with "-n" */
-char *  modem_class = DEFAULT_MODEMTYPE;	/* override with "-C" */
-char *  fax_station_id = FAX_STATION_ID;	/* "-I <id>" */
-
-boolean	use_stdin = FALSE;			/* modem on stdin */
-
-int	tries;
+    int	argidx;
+    int	fd;
+    char buf[1000];
+    int	i;
+    int	tries;			/* number of unsuccessful tries */
 
 
     /* initialize logging */
     log_init_paths( argv[0], FAX_LOG, NULL );
-    log_set_llevel( L_NOISE );
 
-    while ((opt = getopt(argc, argv, "d:vx:ph:l:nm:SC:I:")) != EOF) {
-	switch (opt) {
-	case 'd':	/* set target directory for polling */
-	    poll_directory = optarg;
-	    break;
-	case 'v':	/* switch on verbose mode */
-	    verbose = TRUE;
-	    break;
-	case 'x':	/* set debug level */
-	    log_set_llevel( atoi(optarg) );
-	    break;
-	case 'p':	/* enable polling */
-	    fax_poll_wanted = TRUE;
-	    break;
-	case 'h':	/* set page header */
-	    fax_page_header = optarg;
-	    lprintf( L_MESG, "page header: %s", fax_page_header );
-	    break;
-	case 'l':	/* set device(s) to use */
-	    fax_devices = optarg;
-	    if ( optarg[0] == '/' &&
-		 strncmp( optarg, "/dev/", 5 ) != 0 )
-	    {
-		fprintf( stderr, "%s: -l: device must be located in /dev!\n",
-		                 argv[0]);
-		exit(1);
-	    }
-	    break;
-	case 'n':	/* set normal resolution */
-	    fax_res_fine = 0;
-	    break;
-	case 'm':
-	    extra_modem_init = optarg;
-	    break;
-        case 'S':	/* modem on stdin */
-	    use_stdin = TRUE;
-	    break;
-	case 'C':	/* modem class */
-	    modem_class = optarg;
-	    if ( strcmp( modem_class, "cls2" ) != 0 &&
-		 strcmp( modem_class, "c2.0" ) != 0 )
-	    {
-		fprintf( stderr, "%s: warning: invalid modem class '-C %s'\n",
-			 argv[0], modem_class );
-	    }
-	    break;
-	case 'I':	/* local fax id */
-	    fax_station_id = optarg;
-	    break;
-	case '?':	/* unrecognized parameter */
-	    exit_usage(argv[0]);
-	    break;
-	}
+    /* parse switches (-> conf_sf.c) and read global config file */
+    if ( sendfax_parse_args( argc, argv ) == ERROR )
+    {
+	exit_usage(argv[0]);
     }
+
+    /* read config file (defaults) */
+    sendfax_get_config( NULL );
+
+    /* sanity checks */
+    if ( strcmp( c_string(modem_type), "cls2" ) != 0 &&
+	 strcmp( c_string(modem_type), "c2.0" ) != 0 &&
+	 strcmp( c_string(modem_type), "auto" ) != 0 )
+    {
+	fprintf( stderr, "%s: warning: invalid modem class '%s'\n",
+		 argv[0], c_string(modem_type) );
+    }
+
+    /* for simplicity, put a few config things into global variables */
+    verbose = c_bool( verbose );
 
     argidx = optind;
 
@@ -322,7 +275,7 @@ int	tries;
 
     lprintf( L_MESG, "sending fax to %s", fac_tel_no );
 
-    if ( ! fax_poll_wanted && argidx == argc )
+    if ( ! c_bool(fax_poll_wanted) && argidx == argc )
     {
 	exit_usage(argv[0]);
     }
@@ -341,9 +294,10 @@ int	tries;
 	}
     }
 
-    if ( use_stdin ) verbose = FALSE;		/* no blurb to modem! */
+    /* if modem on stdin, shut off blurb */
+    if ( c_bool(use_stdin) ) verbose = FALSE;
     
-    fd = fax_open( fax_devices, use_stdin );
+    fd = fax_open( c_string(ttys), c_bool(use_stdin) );
 
     if ( fd == -1 )
     {
@@ -351,6 +305,9 @@ int	tries;
 	fprintf( stderr, "%s: cannot access fax device(s) (locked?)\n", argv[0] );
 	exit(2);
     }
+
+    /* read config file (port specific) */
+    sendfax_get_config( Device );
 
     /* arrange that lock files get removed if INTR or QUIT is pressed */
     signal( SIGINT, fax_sig_goodbye );
@@ -364,8 +321,37 @@ int	tries;
     siginterrupt( SIGHUP,  TRUE );
 #endif
 
-    if ( fax_command( "AT", "OK", fd ) == ERROR ||
-	 ( modem_type = fax_get_modem_type( fd, modem_class ) ) == Mt_unknown )
+    if ( fax_command( "ATV1Q0", "OK", fd ) == ERROR )
+    {
+	lprintf( L_ERROR, "modem doesn't talk to me" );
+	fprintf( stderr, "The modem doesn't respond!\n" );
+	close( fd );
+	exit( 3 );
+    }
+
+    /* extra initialization: -m / modem-init */
+    if ( c_isset(modem_init) )
+    {
+	if ( strncmp( c_string(modem_init), "AT", 2 ) != 0 )
+	{
+	    write( fd, "AT", 2 );
+	}
+
+	if ( fax_command( c_string(modem_init), "OK", fd ) == ERROR )
+	{
+	    lprintf( L_WARN, "cannot send extra modem init string '%s'",
+		    c_string(modem_init) );
+	    fprintf( stderr, "%s: modem doesnt't accept '%s'\n",
+		    argv[0], c_string(modem_init) );
+	    fax_close( fd );
+	    exit(3);
+	}
+    }		/* end if (c_isset(modem_init)) */
+
+    /* get modem type (class 2 / class 2.0), switch modem to fax mode */
+
+    if ( (modem_type = 
+	  fax_get_modem_type( fd, c_string(modem_type) ) ) == Mt_unknown )
     {
 	lprintf( L_ERROR, "cannot set modem to fax mode" );
 	fprintf( stderr, "%s: cannot set modem to fax mode\n", argv[0] );
@@ -373,15 +359,18 @@ int	tries;
 	exit( 3 );
     }
 
-#ifdef FAX_SEND_SWITCHBD
     /* some modems need a baud rate switch after +FCLASS=2,
      * see policy.h for details
      */
-    tio_set_speed( &fax_tio, FAX_SEND_SWITCHBD );
-    tio_set( fd, &fax_tio );
-#endif
+    if ( c_isset(switchbd) && c_int(switchbd) != 0 &&
+	 c_int(switchbd) != c_int(speed) )
+    {
+	lprintf( L_MESG, "switchbd: change to %d", c_int(switchbd) );
+	tio_set_speed( &fax_tio, c_int(switchbd) );
+	tio_set( fd, &fax_tio );
+    }
 
-    if ( fax_set_l_id( fd, fax_station_id ) == ERROR )
+    if ( fax_set_l_id( fd, c_string(station_id) ) == ERROR )
     {
 	lprintf( L_ERROR, "cannot set fax station ID" );
 	fprintf( stderr, "%s: cannot set fax station ID\n", argv[0] );
@@ -389,28 +378,10 @@ int	tries;
 	exit(3);
     }
 
-    if ( extra_modem_init != NULL )
-    {
-	if ( strncmp( extra_modem_init, "AT", 2 ) != 0 )
-	{
-	    write( fd, "AT", 2 );
-	}
-
-	if ( fax_command( extra_modem_init, "OK", fd ) == ERROR )
-	{
-	    lprintf( L_WARN, "cannot send extra modem init string '%s'",
-		    extra_modem_init );
-	    fprintf( stderr, "%s: modem doesnt't accept '%s'\n",
-		    argv[0], extra_modem_init );
-	    fax_close( fd );
-	    exit(3);
-	}
-    }		/* end if (extra_modem_init != NULL) */
-
     /* set desired resolution, maximum and minimum bit rate */
 
     /* FIXME: ask modem if it can do 14400 bps / fine res. at all */
-    fax_set_fdcc( fd, fax_res_fine, 14400, 0 );
+    fax_set_fdcc( fd, !c_bool(normal_res), 14400, 0 );
 
 #if REVERSE
     fax_set_bor( fd, 0 );
@@ -420,13 +391,13 @@ int	tries;
 
     /* tell the modem if we are willing to poll faxes
      */
-    if ( fax_poll_wanted )
+    if ( c_bool(fax_poll_wanted) )
     {
-	if ( faxpoll_client_init( fd, FAX_STATION_ID ) == ERROR )
+	if ( faxpoll_client_init( fd, c_string(station_id) ) == ERROR )
 	{
 	    lprintf( L_WARN, "cannot enable polling" );
 	    fprintf( stderr, "Warning: polling is not possible!\n" );
-	    fax_poll_wanted = FALSE;
+	    conf_set_bool( &c.fax_poll_wanted, FALSE );
 	}
     }
 
@@ -437,18 +408,18 @@ int	tries;
 	lprintf( L_WARN, "cannot set modem flow control" );
     }
 
-#ifdef FAX_MODEM_HANDSHAKE
-    if ( mdm_command( FAX_MODEM_HANDSHAKE, fd ) == ERROR )
+    if ( c_isset( modem_handshake ) && 
+	 strlen( c_string(modem_handshake) ) != 0 &&
+	 mdm_command( c_string(modem_handshake), fd ) == ERROR )
     {
-	lprintf( L_WARN, "cannot set FAX_MODEM_HANDSHAKE; ignored" );
+	lprintf( L_WARN, "cannot set 'modem_handshake'; ignored" );
     }
-#endif
 
     if ( verbose ) { printf( "Dialing %s... ", fac_tel_no ); fflush(stdout); }
 
     call_start = time( NULL );
 
-    sprintf( buf, "%s%s", FAX_DIAL_PREFIX, fac_tel_no );
+    sprintf( buf, "%s%s", c_string(dial_prefix), fac_tel_no );
     if ( fax_command( buf, "OK", fd ) == ERROR )
     {
 	lprintf( L_AUDIT, "failed dialing, phone=\"%s\", +FHS:%d, time=%ds",
@@ -488,15 +459,14 @@ int	tries;
 	Post_page_messages ppm;
 	
 	/* send page header, if requested */
-	if ( fax_page_header )
+	if ( c_string(fax_page_header) )
 	{
 #if 0
-	    if ( fax_send_page( fax_page_header, fd ) == ERROR ) break;
+	    if ( fax_send_page( c_string(fax_page_header), fd ) == ERROR )
+		 break;
 #else
 	    fprintf( stderr, "WARNING: no page header is transmitted. Does not work yet!\n" );
 #endif
-	    /* NO page punctuation, we want the next file on the same page
-	     */
 	}
 
 	/* send page */
@@ -506,7 +476,8 @@ int	tries;
 
 	if ( argidx == argc -1 )	/* last page to send */
 	{
-	    if ( fax_poll_wanted && fax_to_poll )	/* polling! */
+	    if ( c_bool(fax_poll_wanted) &&	/* do we want to poll? */
+		 fax_to_poll )			/* yeah!! */
 	        ppm = pp_eom;		/* another doc. next (->phase B) */
 	    else
 	        ppm = pp_eop;		/* over & out (->hangup) */
@@ -530,40 +501,43 @@ int	tries;
 
 	switch ( fax_page_tx_status )
 	{
-	    case 1: tries = 0; break;		/* page good */
+	  case 1: tries = 0; break;		/* page good */
 						/* page bad - r. req. */
-	    case 2:
-#if FAX_SEND_MAX_TRIES <= 0
-	      fprintf( stderr, "WARNING: page bad (+FTPS:2), ignoring\n" );
-	      lprintf( L_WARN, "WARNING: +FPTS:2 ignored\n" );
-#else	      
-	      fprintf( stderr, "ERROR: RTN: page bad - retrain requested\n" );
-	      tries ++;	
-	      if ( tries >= FAX_SEND_MAX_TRIES )
-	      {
-		  fprintf( stderr, "ERROR: too many retries - aborting send\n" );
-		  fax_hangup_code = -1;
-		  fax_hangup = 1;
-	      }
-	      else
-	      {
-		  if ( verbose )
-		  printf( "sending page again (retry %d)\n", tries );
-		  continue;	/* don't go to next page */
-	      }
-#endif	/* FAX_SEND_MAX_TRIES > 0 */
-	      break;
-	    case 3: fprintf( stderr, "WARNING: RTP: page good, but retrain requested\n" );
+	  case 2:
+	    if ( c_int(max_tries) <= 0 )	/* ignore */
+	    {
+		fprintf( stderr, "WARNING: page bad (RTN), ignoring\n" );
+		lprintf( L_WARN, "WARNING: RTN ignored\n" );
+	    }
+	    else				/* try again */
+	    {
+		fprintf( stderr, "ERROR: RTN: page bad - retrain requested\n" );
+		tries ++;	
+		if ( tries >= c_int(max_tries) )
+		{
+		    fprintf( stderr, "ERROR: too many retries - aborting send\n" );
+		    fax_hangup_code = -1;
+		    fax_hangup = 1;
+		}
+		else
+		{
+		    if ( verbose )
+		    printf( "sending page again (retry %d)\n", tries );
+		    continue;	/* don't go to next page */
+		}
+	    }
+	    break;
+	  case 3: fprintf( stderr, "WARNING: RTP: page good, but retrain requested\n" );
 		    break;
-	    case 4:
-	    case 5: fprintf( stderr, "WARNING: procedure interrupt requested - don't know how to handle it\n" );
+	  case 4:
+	  case 5: fprintf( stderr, "WARNING: procedure interrupt requested - don't know how to handle it\n" );
 		    break;
-	    case -1:			/* something broke */
-		    lprintf( L_WARN, "fpts:-1" );
-		    break;
-	    default:fprintf( stderr, "WARNING: invalid code: +FPTS:%d\n",
-	                             fax_page_tx_status );
-		    break;
+	  case -1:			/* something broke */
+		  lprintf( L_WARN, "fpts:-1" );
+		  break;
+	  default:fprintf( stderr, "WARNING: invalid code: +FPTS:%d\n",
+				   fax_page_tx_status );
+		  break;
 	}
 
 	if ( fax_hangup && fax_hangup_code != 0 ) break;
@@ -594,7 +568,7 @@ int	tries;
      * faxmodem sent us a "+FPOLL" response
      */
 
-    if ( fax_poll_wanted )
+    if ( c_bool(fax_poll_wanted) )
     {
     int pagenum = 0;
 
@@ -610,7 +584,7 @@ int	tries;
 	    tio_set_flow_control( fd, &fax_tio,
 				 (FAXREC_FLOW) & (FLOW_HARD|FLOW_XON_IN) );
 	    tio_set( fd, &fax_tio );
-	    if ( fax_get_pages( fd, &pagenum, poll_directory ) == ERROR )
+	    if ( fax_get_pages( fd, &pagenum, c_string(poll_dir) ) == ERROR )
 	    {
 		fprintf( stderr, "warning: polling failed\n" );
 		lprintf( L_AUDIT, "failed: polling failed, +FHS:%2d, time=%ds",
