@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 3.20 1996/10/02 13:12:20 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 3.21 1996/10/05 15:20:18 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -754,7 +754,10 @@ Ring_got_action:
 		    rmlocks();		/* line is free again */
 		    exit(0);		/* let init restart mgetty */
 		}
-		lprintf( L_AUDIT, "phone stopped ringing (rings=%d)", rings );
+		if ( c_bool(ringback) )
+		    lprintf( L_AUDIT "missed ringback!" );
+		else
+		    lprintf( L_AUDIT, "phone stopped ringing (rings=%d)", rings );
 		mgetty_state = St_go_to_jail;
 		break;
 	      case A_CONN:		/* CONNECT */
