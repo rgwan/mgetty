@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.36 1998/11/12 15:22:39 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.37 1999/01/04 08:48:13 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.37  1999/01/04 08:48:13  gert
+# make error message more clear
+#
 # Revision 1.36  1998/11/12 15:22:39  gert
 # change max_tries_total default to 10 (same as faxrunq)
 #
@@ -203,7 +206,7 @@ if ( open( CF, $faxrunq_cf ) )
 }
 
 if ( $opt_l eq '' )
-	{ die "$0: no tty lines specified - use '-l tty<n>' or 'faxrunq.config'\n"; }
+	{ die "$0: no tty lines specified\n\t- must use '-l tty<n>' or 'fax-devices tty<n>' in 'faxrunq.config'\n"; }
 
 #
 # policy configuration
