@@ -1,7 +1,7 @@
 # Makefile for the "fax" subtree
 # of mgetty+sendfax
 #
-# SCCS: $Id: Makefile,v 1.3 1994/01/19 11:29:46 gert Exp $ Copyright (c) Gert Doering
+# SCCS: $Id: Makefile,v 1.4 1994/01/19 22:57:07 gert Exp $ Copyright (c) Gert Doering
 #
 
 CC=gcc
@@ -11,7 +11,6 @@ all: faxspool faxrunq faxq
 
 faxspool: faxspool.in ../sedscript
 	../sedscript <faxspool.in >faxspool
-	@echo "WARNING: do not forget to change fax header line in faxspool"
 
 faxrunq: faxrunq.in ../sedscript
 	../sedscript <faxrunq.in >faxrunq
