@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.48 1999/05/21 14:27:24 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.49 1999/06/11 11:50:12 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.49  1999/06/11 11:50:12  gert
+# if policy routing is active, show a matching rule (if any)
+#
 # Revision 1.48  1999/05/21 14:27:24  gert
 # remove status value 'on hold' - leads to problems with queue flushing
 #
@@ -752,7 +755,7 @@ sub read_job_to_queue
 		unless( $po->{substitute} eq '-' )
 		    { eval '$phone =~ ' . $po->{substitute} . ';'; }
 		push @{$queue{$job}{'flags'}}, @{$po->{args}};
-		print LOG "    policy: -> phone: $phone, args: ". join(' ',@{$queue{$job}{'flags'}}) ."\n"  if $opt_v;
+		print LOG "    policy ($po->{match}): -> phone: $phone, args: ". join(' ',@{$queue{$job}{'flags'}}) ."\n"  if $opt_v;
 		$queue{$job}{'phone'} = $phone;
 
 		if( scalar( @{$po->{ttys}} ) > 0 ) 
