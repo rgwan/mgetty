@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.58 1993/11/01 14:10:52 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.59 1993/11/06 00:04:10 gert Exp $ Copyright (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -251,15 +251,6 @@ int main _P2((argc, argv), int argc, char ** argv)
 		exit_usage(2);
 	}
 
-#ifdef USE_GETTYDEFS
-	if (optind < argc)
-		GettyID = argv[optind++];
-	else {
-		lprintf(L_FATAL, "no gettydef tag given");
-		GettyID = GETTYDEFS_DEFAULT_TAG;
-	}
-#endif
-
 	/* remove leading /dev/ prefix */
 	if ( strncmp( Device, "/dev/", 5 ) == 0 ) Device += 5;
 
@@ -268,6 +259,15 @@ int main _P2((argc, argv), int argc, char ** argv)
 
 	/* name of the logfile is device-dependant */
 	sprintf( log_path, LOG_PATH, Device );
+
+#ifdef USE_GETTYDEFS
+	if (optind < argc)
+		GettyID = argv[optind++];
+	else {
+		lprintf(L_WARN, "no gettydef tag given");
+		GettyID = GETTYDEFS_DEFAULT_TAG;
+	}
+#endif
 
 	lprintf(L_MESG, "check for lockfiles");
 
@@ -545,14 +545,8 @@ int main _P2((argc, argv), int argc, char ** argv)
 		Nusers = get_current_users();
 		/* lprintf(L_NOISE, "Nusers=%d", Nusers); */
 
-		/* set ttystate for login prompt (no mapping CR->NL)*/
-
+		/* set ttystate for /etc/issue ("before" setting) */
 		tio = *gettermio(GettyID, TRUE, &login_prompt);
-
-		lprintf(L_NOISE, "i: %06o, o: %06o, c: %06o, l: %06o, p: %s",
-		    tio.c_iflag, tio.c_oflag, tio.c_cflag, tio.c_lflag,
-		    login_prompt);
-
 		tio_set( STDIN, &tio );
 		
 		fputc('\r', stdout);	/* just in case */
@@ -574,6 +568,17 @@ int main _P2((argc, argv), int argc, char ** argv)
 		/* set permissions to "rw-------" */
 		(void) chmod(devname, 0600);
 
+		/* set ttystate for login ("after"),
+		 *  cr-nl mapping flags are set by getlogname()!
+		 */
+#ifdef USE_GETTYDEFS
+		tio = *gettermio(GettyID, FALSE, &login_prompt);
+		tio_set( STDIN, &tio );
+
+		lprintf(L_NOISE, "i: %06o, o: %06o, c: %06o, l: %06o, p: %s",
+		    tio.c_iflag, tio.c_oflag, tio.c_cflag, tio.c_lflag,
+		    login_prompt);
+#endif
 		/* read a login name from tty */
 		/* (if just <cr> is pressed, re-print issue file) */
 		/* also adjust ICRNL / IGNCR to characters recv'd at */
@@ -586,10 +591,6 @@ int main _P2((argc, argv), int argc, char ** argv)
 		lprintf( L_MESG, "device=%s, pid=%d, calling 'login %s'...\n", Device, getpid(), buf );
 
 		/* hand off to login, (can be a shell script!) */
-
-#ifdef USE_GETTYDEFS
-		tio_set(STDIN, gettermio(GettyID, FALSE, (char **) NULL));
-#endif
 		(void) execl(login, "login", buf, (char *) NULL);
 		(void) execl("/bin/sh", "sh", "-c",
 				login, buf, (char *) NULL);
@@ -638,7 +639,8 @@ gettermio _P3 ((id, first, prompt), char *id, boolean first, char **prompt) {
     }
     if ( (gdp = getgettydef(id)) != NULL )
     {
-	lprintf(L_NOISE, "Using %s gettydefs entry", gdp->tag);
+	lprintf(L_NOISE, "Using %s gettydefs entry, \"%s\"", gdp->tag,
+		first? "before" : "after" );
 	if (first) {
 	    if ( portspeed == B0 )	/* no "-s" arg, use gettydefs */
 	        portspeed = ( gdp->before.c_cflag ) & CBAUD;
