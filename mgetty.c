@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.112 1994/05/25 13:18:39 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.113 1994/07/11 19:15:36 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -173,6 +173,8 @@ int main _P2((argc, argv), int argc, char ** argv)
     char * fax_server_file = NULL;		/* -S <file> */
     char * fax_station_id = FAX_STATION_ID;	/* -I <id> */
 
+    boolean	blocking_open = FALSE;	/* open device in blocking mode */
+    
 #ifdef VOICE
     boolean	use_voice_mode = TRUE;
     
@@ -201,7 +203,14 @@ int main _P2((argc, argv), int argc, char ** argv)
     /* process the command line
      */
 
-    while ((c = getopt(argc, argv, "c:x:s:rp:n:i:DC:S:m:I:")) != EOF)
+    /* some magic done by the command's name */
+    if ( strcmp( basename( argv[0] ), "getty" ) == NULL )
+    {
+	blocking_open = TRUE;
+	direct_line = TRUE;
+    }
+
+    while ((c = getopt(argc, argv, "c:x:s:rp:n:i:DC:S:m:I:b")) != EOF)
     {
 	switch (c) {
 	  case 'c':			/* check */
@@ -260,6 +269,8 @@ int main _P2((argc, argv), int argc, char ** argv)
 	    break;
 	  case 'I':
 	    fax_station_id = optarg; break;
+	  case 'b':			/* open port in blocking mode */
+	    blocking_open = TRUE; break;
 	  case '?':
 	    exit_usage(2);
 	    break;
@@ -333,7 +344,7 @@ int main _P2((argc, argv), int argc, char ** argv)
     (void) chown(devname, uucpuid, uucpgid);
 
     /* open the device; don't wait around for carrier-detect */
-    if ( mg_open_device( devname, FALSE ) == ERROR )	/* mg_m_init.c */
+    if ( mg_open_device( devname, blocking_open ) == ERROR ) /* mg_m_init.c */
     {
 	lprintf( L_FATAL, "open device %s failed, exiting", devname );
 	exit( FAIL );
@@ -450,7 +461,13 @@ int main _P2((argc, argv), int argc, char ** argv)
 	     */
 	    signal( SIGHUP, SIG_IGN );
 	    
-	    wait_for_input( STDIN );
+	    /* here's mgetty's magic. Wait with select() or something
+	     * similar non-destructive for activity on the line.
+	     * If called with "-b" or as "getty", the blocking has
+	     * already happened in the open() call.
+	     */
+	    if ( ! blocking_open )
+		wait_for_input( STDIN );
 	
 	    /* check for LOCK files, if there are none, grab line and lock it
 	     */
@@ -737,7 +754,7 @@ int main _P2((argc, argv), int argc, char ** argv)
     {
 	/* set ttystate for /etc/issue ("before" setting) */
 	tio = *gettermio(GettyID, TRUE, &login_prompt);
-#ifdef sun
+#ifdef sunos4
 	/* we have carrier, assert data flow control */
 	tio_set_flow_control( STDIN, &tio, DATA_FLOW );
 #endif
