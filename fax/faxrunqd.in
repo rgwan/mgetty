@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.38 1999/02/12 11:58:45 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.39 1999/02/12 12:10:15 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.39  1999/02/12 12:10:15  gert
+# show program name in .last_run
+#
 # Revision 1.38  1999/02/12 11:58:45  gert
 # add '-V' option to display version info and exit
 #
@@ -394,7 +397,7 @@ while( 1 )
     # use the time to update the "last run" file...
     if ( open( LR, ">$fax_spool_out/.last_run" ) )
     {
-	print LR scalar(localtime) . "\n";
+	print LR scalar(localtime) . " $0\n";
 	close LR;
     }
 
