@@ -1,3 +1,9 @@
+Wed Jan 17 12:34:35 2001  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* Reverted some changes in 1.16 to 1.17 of libvoice/US_Robotics.c
+	which were completely bizarre, and made beeping fail. Found
+ 	by Chun-Chung Chen <cjj@u.washington.edu>.
+
 Sun Jan 14 15:17:34 2001  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 
 	* All of below is 0.9.23
