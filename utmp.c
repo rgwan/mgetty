@@ -1,4 +1,4 @@
-#ident "$Id: utmp.c,v 1.7 1993/10/26 22:15:30 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: utmp.c,v 1.8 1993/11/03 19:20:19 gert Exp $ Copyright (c) Gert Doering";
 /* some parts of the code (writing of the utmp entry)
  * is based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -25,9 +25,9 @@ typedef short pid_t;
 
 #include "mgetty.h"
 
-#ifdef sun
-/* on SunOS, the getty process does not have to care for the utmp
- * entries, login and init do all the work
+#if defined(sun) || defined(BSD)
+/* on SunOS (and other BSD-derived systems), the getty process does *
+ * not have to care for the utmp entries, login and init do all the work
  * Anyway, we have to _read_ it to get the number of users logged in.
  */
 void make_utmp_wtmp _P2( (line, login_process),
@@ -36,6 +36,7 @@ void make_utmp_wtmp _P2( (line, login_process),
 }
 int get_current_users _P0( void )
 {
+    lprintf( L_WARN, "get_current_users: not implemented on BSD" );
     return 0;
 }	/*! FIXME */
 #else
