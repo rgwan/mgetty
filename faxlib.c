@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.53 2002/11/04 22:45:19 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.54 2002/11/04 22:54:37 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -42,7 +42,9 @@ int	modem_quirks = 0;		/* modem specials */
  * handle all the various class 2 / class 2.0 status responses
  */
 
-/* copy fax station id, removing quote characters (dangerous for shell!) */
+/* copy fax station id, removing quote characters (dangerous for shell!)
+ * and leading/trailing whitespace
+ */
 static void fwf_copy_remote_id _P1( (id), char * id )
 {
 int w = 0;
@@ -54,6 +56,10 @@ int w = 0;
         if ( *id != '"' && *id != '\'' ) fax_remote_id[w++] = *id;
         id++;
     }
+
+    /* remove trailing whitespace */
+    while ( w>0 && isspace(fax_remote_id[w-1]) ) w--;
+
     fax_remote_id[w]=0;
 }
 
