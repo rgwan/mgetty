@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.64 2003/01/07 14:48:52 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.65 2003/01/14 14:16:09 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.65  2003/01/14 14:16:09  gert
+# include "total success" counter in the per_phone_statistics
+#
 # Revision 1.64  2003/01/07 14:48:52  gert
 # If a job is re-queued, heavily penalize previously used modem.
 # This way, a defective modem (or a modem that has problems connecting to
@@ -1277,15 +1280,13 @@ my ($r, $s, $ex, $j, $t);
     $tty_statistics{$t}{total}++;
     $tty_statistics{$t}{$ex}++;
 
-    # and, in case of errors, for per-remote-phone statistics
-    if ( $ex > 0 )
-    {
-        my $ph = $queue{$j}->{'phone'};
-	if ( ! defined( $per_phone_statistics{$ph} ) || 
-	     ! defined( $per_phone_statistics{$ph}{$ex} ) )
-		{ $per_phone_statistics{$ph}{$ex} = 0; }
-	$per_phone_statistics{$ph}{$ex}++;
-    }
+    # and for per-remote-phone statistics
+    my $ph = $queue{$j}->{'phone'};
+    if ( ! defined( $per_phone_statistics{$ph} ) )
+	    { $per_phone_statistics{$ph}{0} = 0; }
+    if ( ! defined( $per_phone_statistics{$ph}{$ex} ) )
+	    { $per_phone_statistics{$ph}{$ex} = 0; }
+    $per_phone_statistics{$ph}{$ex}++;
 
     # now handle return codes.  This is tricky if multiple jobs have been 
     # combined into one sendfax call - might have failed in the middle...
@@ -1720,7 +1721,7 @@ my $t;
     foreach $t (keys %tty_statistics)
     {
 	print LOG "modem statistics for tty '$t'\n";
-	print LOG "    total faxes sent: ${tty_statistics{$t}{'total'}}\n";
+	print LOG "    total fax calls : ${tty_statistics{$t}{'total'}}\n";
 	print LOG "    total success   : ${tty_statistics{$t}{'0'}}\n";
 	foreach (sort(keys %{$tty_statistics{$t}}))
 	{
@@ -1735,8 +1736,10 @@ my $t;
     foreach $t (sort (keys %per_phone_statistics))
     {
 	print LOG "error statistics for remote number '$t'\n";
+	print LOG "    total success   : ${per_phone_statistics{$t}{'0'}}\n";
 	foreach (sort(keys %{$per_phone_statistics{$t}}))
 	{
+	    next if ( $_ eq '0' );
             printf LOG "    error code %-2d   : %d [%s]\n",
 		$_, $per_phone_statistics{$t}{$_}, 
 		$exitcodes[$_];
