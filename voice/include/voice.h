@@ -4,7 +4,7 @@
  * This is the main header file for vgetty, vm and the pvf tools.
  * It includes other header files and defines some global variables.
  *
- * $Id: voice.h,v 1.11 2001/02/24 10:59:35 marcs Exp $
+ * $Id: voice.h,v 1.12 2001/05/14 11:24:17 marcs Exp $
  *
  */
 
@@ -274,6 +274,28 @@ extern char *voice_device_mode_name(int i);
 #define VMA_RING_5       (0x2010)
 #define VMA_RING         (0x2011)
 #define VMA_VCON         (0x2012)
+
+/*
+ * additonal events (from V.253)
+ */
+#define VMA_DLE_SHIELD   (0x2013)
+#define VMA_DATE         (0x2014)
+#define VMA_TIME         (0x2015)
+#define VMA_NMBR         (0x2016)
+#define VMA_MESG         (0x2017)
+#define VMA_ERRM         (0x2018)
+#define VMA_DRON         (0x2019)
+#define VMA_DROF         (0x201a)
+#define VMA_CPON         (0x201b)
+#define VMA_CPOF         (0x201c)
+#define VMA_CWON         (0x201d)
+#define VMA_CWOF         (0x201e)
+
+/*
+ * For the unsupported manufacturer specific events.
+ * At least they shouldn't break anything
+ */
+#define VMA_IGNORED      (0x2100)
 
 /*
  * If something goes wrong

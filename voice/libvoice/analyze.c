@@ -5,7 +5,7 @@
  * possibilities given in expected_answers in the form "OK|BUSY".
  * If this fails, try to detect some standard voice modem answers.
  *
- * $Id: analyze.c,v 1.5 2001/02/24 10:21:26 marcs Exp $
+ * $Id: analyze.c,v 1.6 2001/05/14 11:24:18 marcs Exp $
  *
  */
 
@@ -50,8 +50,27 @@ one_modem_answer modem_answers[] =
      {"VCON", VMA_VCON},
      {"#VCON", VMA_VCON},
      {"VOICE", VMA_VCON},
+     {"\020", VMA_DLE_SHIELD  }, /* in voice:
+				  * events reported by the modem are
+				  * dle shielded
+				  */
+     {"DATE", VMA_DATE },        /* Callerid date */
+     {"TIME", VMA_TIME },        /* Callerid time */
+     {"NMBR", VMA_NMBR },        /* Callerid number */
+     {"MESG", VMA_MESG },        /* Callerid unformatted message */
+     {"ERRM", VMA_ERRM },        /* Checksumerror in callerid */
+     {"DRON", VMA_DRON },        /* Ring on time*/
+     {"DROF", VMA_DROF },        /* Ring off time */
+     {"CPON", VMA_CPON },        /* Cadencetone on time */
+     {"CPOF", VMA_CPOF },        /* Cadencetone off time */
+     {"CWON", VMA_CWON },        /* Callwaitingtone on time */
+     {"CWOF", VMA_CWOF },        /* Callwaitingtone off time */
+     {"ASTB",VMA_IGNORED},
+     {"NDID",VMA_IGNORED},
+     {"SITT",VMA_IGNORED},
+     {"Z",VMA_IGNORED},          /* Manufacturer specific */
      {NULL, VMA_FAIL}
-     };
+     };    
 
 int voice_analyze(char *buffer, char *expected_answers, int exact_match)
      {
