@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.8 1993/04/19 20:45:19 gert Exp $ (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.9 1993/05/22 16:40:02 gert Exp $ (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -23,11 +23,12 @@
 #define REVERSE 1
 
 char * fac_tel_no;
+boolean	verbose = FALSE;
 
 void exit_usage( char * program )
 {
     fprintf( stderr,
-	     "Usage: %s [-p] [-h header] <fax-number> <page(s) in g3-format>\n",
+	     "Usage: %s [-p] [-h header] [-v] <fax-number> <page(s) in g3-format>\n",
 	     program );
     exit(1);
 }
@@ -37,15 +38,17 @@ void exit_usage( char * program )
 struct termio fax_termio;
 
 char	lockname[MAXPATH];
-int fax_open( void )
+int fax_open_device( char * fax_tty )
 {
-char *	fax_tty = FAX_MODEM_TTY;
 char	device[MAXPATH];
 int	fd;
+
+    if ( verbose ) printf( "Trying fax device '/dev/%s'... ", fax_tty );
 
     sprintf( lock = lockname, LOCK, fax_tty );
     if ( makelock( lock ) != SUCCESS )
     {
+	if ( verbose ) printf( "locked!\n" );
 	lprintf( L_MESG, "cannot lock %s", lock );
 	return -1;
     }
@@ -55,6 +58,7 @@ int	fd;
     if ( ( fd = open( device, O_RDWR | O_NDELAY ) ) == -1 )
     {
 	lprintf( L_ERROR, "error opening %s", device );
+	if ( verbose ) printf( "cannot open!\n" );
 	return fd;
     }
 
@@ -65,12 +69,17 @@ int	fd;
     {
 	lprintf( L_ERROR, "error in fcntl" );
 	close( fd );
+	if ( verbose ) printf( "cannot fcntl!\n" );
 	return -1;
     }
 
     /* initialize baud rate, hardware handshake, ... */
     ioctl( fd, TCGETA, &fax_termio );
 
+    /* welll... some modems do need XOFF/XON flow control,
+     * but setting it here would interfere with waiting for an XON
+     * later -> we do not set it here
+     */
     fax_termio.c_iflag = IXANY;
     fax_termio.c_oflag = 0;
 
@@ -86,6 +95,7 @@ int	fd;
     {
 	lprintf( L_ERROR, "error in ioctl" );
 	close( fd );
+	if ( verbose ) printf( "cannot ioctl!\n" );
 	return -1;
     }
 
@@ -95,7 +105,34 @@ int	fd;
     fax_remote_id[0] = 0;
     fax_param[0] = 0;
 
-    lprintf( L_NOISE, "fax_open succeeded, %s -> %d", fax_tty, fd );
+    lprintf( L_NOISE, "fax_open_device succeeded, %s -> %d", fax_tty, fd );
+    if ( verbose ) printf( "OK.\n" );
+    return fd;
+}
+
+/* fax_open: loop through all FAX_MODEM_TTYS until fax_open_device()
+ * succeeds on one of them; then return file descriptor
+ * return "-1" of no open succeeded
+ */
+
+int fax_open( void )
+{
+char fax_ttys[] = FAX_MODEM_TTYS;
+char * p, * fax_tty;
+int fd;
+
+    p = fax_tty = fax_ttys;
+    do
+    {
+	p = strchr( fax_tty, ':' );
+	if ( p != NULL ) *p = 0;
+	fd = fax_open_device( fax_tty );
+	if ( p != NULL ) *p = ':';
+	fax_tty = p+1;
+
+	if ( fd == -1 ) rmlocks();
+    }
+    while ( p != NULL && fd == -1 );
     return fd;
 }
 
@@ -149,6 +186,15 @@ char wbuf[ sizeof(buf) * 2 ];
 	lputc( L_NOISE, ch );
     }
     while ( ch != XON );
+
+    /* Since some faxmodems (ZyXELs!) do need XON/XOFF flow control
+     * we enable it here
+     */
+
+#ifdef FAX_SEND_USE_IXON
+    fax_termio.c_iflag |= IXON;
+    ioctl( fd, TCSETAW, &fax_termio );
+#endif
 
     /* enable polling */
     fax_termio.c_cc[VMIN] = 0;
@@ -254,8 +300,11 @@ char	poll_directory[MAXPATH] = ".";		/* FIXME: parameter */
     strcpy( log_path, FAX_LOG );
     log_level = L_NOISE;
 
-    while ((ch = getopt(argc, argv, "x:ph:")) != EOF) {
+    while ((ch = getopt(argc, argv, "vx:ph:")) != EOF) {
 	switch (ch) {
+	case 'v':
+	    verbose = TRUE;
+	    break;
 	case 'x':
 	    log_level = atoi(optarg);
 	    break;
@@ -305,12 +354,10 @@ char	poll_directory[MAXPATH] = ".";		/* FIXME: parameter */
 
     if ( fd == -1 )
     {
-	lprintf( L_WARN, "cannot open fax device" );
-	fprintf( stderr, "%s: cannot access fax device (locked?)\n", argv[0] );
+	lprintf( L_WARN, "cannot open fax device(s)" );
+	fprintf( stderr, "%s: cannot access fax device(s) (locked?)\n", argv[0] );
 	exit(2);
     }
-
-    /* FIXMEEEEE: return codes! */
 
     if ( fax_command( "AT", "OK", fd ) == ERROR ||
          fax_command( "AT+FCLASS=2;+FLID=\""FAX_STATION_ID"\"", "OK", fd ) == ERROR )
@@ -341,18 +388,20 @@ char	poll_directory[MAXPATH] = ".";		/* FIXME: parameter */
 
     /* set modem to hardware handshake (AT&K4), dial out
      */
+    if ( verbose ) printf( "Dialing %s... ", fac_tel_no );
 
     sprintf( buf, "AT&K4D%s", fac_tel_no );
     if ( fax_command( buf, "OK", fd ) == ERROR )
     {
 	lprintf( L_WARN, "dial failed (hangup_code=%d)", fax_hangup_code );
-	fprintf( stderr, "%s: dial %s failed (%s)\n", argv[0], fac_tel_no,
+	fprintf( stderr, "\n%s: dial %s failed (%s)\n", argv[0], fac_tel_no,
 		 fax_hangup_code == FHUP_BUSY? "BUSY" : "ERROR / NO CARRIER");
 
 	/* end program - return codes signals kind of dial failure */
 	if ( fax_hangup_code == FHUP_BUSY ) exit(4);
 	exit(10);
     }
+    if ( verbose ) printf( "OK.\n" );
 
     /* process all files to send / abort, if Modem sent +FHNG result */
 
@@ -371,6 +420,7 @@ char	poll_directory[MAXPATH] = ".";		/* FIXME: parameter */
 	}
 
 	/* send page */
+	if ( verbose ) printf( "sending '%s'...\n", argv[ argidx ] );
 	if ( fax_send_page( argv[ argidx ], fd ) == ERROR ) break;
 
 	argidx++;
@@ -393,7 +443,7 @@ char	poll_directory[MAXPATH] = ".";		/* FIXME: parameter */
 	lprintf( L_WARN, "Failure transmitting %s: +FHNG:%2d",
 		 argv[argidx-1], fax_hangup_code );
 	fprintf( stderr,
-		 "%s: FAILED transmitting '%s'.\n"
+		 "\n%s: FAILED transmitting '%s'.\n"
 		 "Transmission error: +FHNG:%2d\n", 
 		 argv[0], argv[argidx-1], fax_hangup_code );
 	fax_close( fd );
@@ -409,6 +459,8 @@ char	poll_directory[MAXPATH] = ".";		/* FIXME: parameter */
     {
     int pagenum = 0;
 
+	if ( verbose ) printf( "starting fax poll\n" );
+
 	if ( ! fax_to_poll )
 	{
 	    printf( "remote does not have document to poll!\n" );
@@ -421,7 +473,7 @@ char	poll_directory[MAXPATH] = ".";		/* FIXME: parameter */
 		lprintf( L_WARN, "warning: polling failed!" );
 	    }
 	}
-	printf( "%d pages successfully polled!\n", pagenum );
+	if ( verbose ) printf( "%d pages successfully polled!\n", pagenum );
     }
 
     fax_close( fd );
