@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.140 1994/10/31 12:08:25 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.141 1994/11/01 21:09:45 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -156,6 +156,8 @@ static void make_pid_file _P0( void )
     {
 	fprintf( fp, "%d\n", (int) getpid() ); fclose( fp );
     }
+    if ( chmod( pid_file_name, 0644 ) != 0 )
+        lprintf( L_ERROR, "can't chmod() pid file" );
 }
 #endif
     
