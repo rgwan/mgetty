@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 3.3 1996/01/17 10:36:48 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 3.4 1996/03/19 20:34:44 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration defaults for mgetty / sendfax
  * are specified.
@@ -512,9 +512,10 @@
  */
 #define FAX_MODEM_TTYS	"tty4c:tty4d"
 
-/* some modems, notably some GVC modems and the german telecom approved
- * ZyXEL EG+ have the annoying behaviour of lowering and raising the
- * DCD line during the pre- and post-page handshake (when sending).
+/* some modems, notably some GVC modems, all USR models, and the german
+ * telecom approved ZyXEL EG+ have the annoying behaviour of lowering
+ * and raising the DCD line during the pre- and post-page handshake
+ * (when sending faxes).
  *
  * If your modem does this, sendfax will terminate immediately after
  * starting to send the first page, or between the first and second
