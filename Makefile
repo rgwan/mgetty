@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 3.4 1995/11/27 19:00:35 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 3.5 1996/05/27 19:15:47 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -34,7 +34,7 @@ CC=gcc
 #   If you use gcc, add -Wno-missing-prototypes, our code is OK, but
 #   the Sun4 header files lack a lot standard definitions...
 #   Be warned, Hardware handshake (and serial operations in general)
-#   work a lot more reliably with patch 100513-04 (jumbo tty patch)!
+#   work a lot more reliably with patch 100513-05 (jumbo tty patch)!
 #
 # For Solaris 2.x, please define -Dsolaris2, which will automatically
 #   #define SVR4.
@@ -55,7 +55,12 @@ CC=gcc
 # When compiling on HP/UX, make sure that the compiler defines _HPUX_SOURCE, 
 #     if it doesn't, add "-D_HPUX_SOURCE" to the CFLAGS line.
 #
-# On NeXTStep, add "-posix -DBSD" (otherwise, it won't compile)
+# On NeXTStep, add "-posix -DBSD" (otherwise, it won't compile). A second
+#     port has been done, use "-DNEXTSGTTY -DBSD" to try it it.
+#
+# On the MIPS RiscOS, add "-DMIPS -DSVR4 -systype svr4" (the other
+#     subsystems are too broken. Watch out that *all* programs honour
+#     the SVR4 locking convention, "standard" UUCP and CU do not!)
 #
 # For (otherwise not mentioned) systems with BSD utmp handling, define -DBSD
 #
@@ -112,6 +117,7 @@ CFLAGS=-O2 -Wall -pipe
 #CFLAGS=-D_3B1_ -D_NOSTDLIB_H -DUSE_READ -DSHORT_FILENAMES
 #CFLAGS=-std -DPOSIX_TERMIOS -O2 -D_BSD -DBSD	# for OSF/1 (w/ /bin/cc)
 #CFLAGS=-posix -DBSD -O2			# for NeXT
+#CFLAGS=-DNEXTSGTTY -DBSD -O2			# for NeXT with sgtty
 #CFLAGS=-D_HPUX_SOURCE -Aa -DBSDSTATFS		# for HP-UX 9.x
 #CFLAGS=-cckr -D__STDC__ -O -DSVR42		# for IRIX 5.2
 
@@ -143,7 +149,7 @@ LDFLAGS=
 #LDFLAGS=-s -shlib
 #LDFLAGS=-lsocket
 #LDFLAGS=-lbsd					# OSF/1
-#LDFLAGS=-posix					# NeXT
+#LDFLAGS=-posix					# NeXT (not sgtty variant)
 #
 #
 # the following things are mainly used for ``make install''
@@ -250,14 +256,8 @@ ECHO="echo"
 # INSTALL_MECHO=mg.echo
 
 #
-# for mgetty, that's it. If you want to use Klaus Weidner's voice
+# for mgetty, that's it. If you want to use the voice
 # extentions, go ahead (don't forget to read the manual!)
-#
-#
-# All the files needed will be put here,
-# except for binaries, which are put into BINDIR (defined above)
-
-VOICE_DIR=$(spool)/voice
 
 # To maintain security, I recommend creating a new group for
 # users who are allowed to manipulate the recorded voice messages.
@@ -266,8 +266,8 @@ PHONE_PERMS=770
 
 # Add -DNO_STRSTR to CFLAGS if you don't have strstr().
 
-# create hard/soft links, add `-s' if you want symlinks
-LN=ln -s
+# create hard/soft links (-s will be added by vgetty Makefile)
+LN=ln
 #LN=/usr/5bin/ln
 
 RM=rm
@@ -280,14 +280,14 @@ VS=99
 #
 #
 OBJS=mgetty.o logfile.o do_chat.o locks.o utmp.o logname.o login.o \
-     mg_m_init.o faxrec.o faxsend.o faxlib.o faxhng.o \
+     mg_m_init.o modem.o faxrec.o faxsend.o faxlib.o faxhng.o \
      io.o gettydefs.o tio.o cnd.o getdisk.o goodies.o \
      config.o conf_mg.o do_stat.o
 
-SFAXOBJ=sendfax.o logfile.o locks.o faxlib.o faxsend.o faxrec.o \
+SFAXOBJ=sendfax.o logfile.o locks.o modem.o faxlib.o faxsend.o faxrec.o \
      io.o tio.o faxhng.o cnd.o getdisk.o config.o conf_sf.o
 
-all:	mgetty sendfax g3-tools fax-stuff
+all:	mgetty sendfax g3-tools fax-stuff call-back kvg
 
 # a few C files need extra compiler arguments
 
@@ -335,11 +335,17 @@ g3-tools:
 fax-stuff:
 	cd fax ; $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" all
 
+call-back:
+	@$(MAKE) mgetty
+	cd callback ; $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" "CONFDIR=$(CONFDIR)" all
+
 contrib-all: 
 	cd contrib ; $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" all
 
 doc-all: 
 	cd doc ; $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" doc-all
+
+# things...
 
 getdisk: getdisk.c
 	$(CC) $(CFLAGS) -DTESTDISK getdisk.c -o getdisk
@@ -347,21 +353,22 @@ getdisk: getdisk.c
 testdisk:	getdisk
 	./getdisk / .
 
+
 # README PROBLEMS
 DISTRIB=README.1st THANKS TODO BUGS FTP FAQ inittab.aix inst.sh version.h \
 	Makefile ChangeLog policy.h-dist \
 	login.cfg.in mgetty.cfg.in sendfax.cfg.in dialin.config \
         mgetty.c mgetty.h ugly.h do_chat.c logfile.c logname.c locks.c \
-	mg_m_init.c faxrec.c faxsend.c faxlib.c fax_lib.h sendfax.c \
+	mg_m_init.c modem.c faxrec.c faxsend.c faxlib.c fax_lib.h sendfax.c \
 	io.c tio.c tio.h gettydefs.c login.c do_stat.c faxhng.c \
 	config.h config.c conf_sf.h conf_sf.c conf_mg.h conf_mg.c \
 	cnd.c getdisk.c mksed.c utmp.c mg_utmp.h syslibs.h goodies.c \
 	tools/Makefile tools/g3cat.c tools/g3topbm.c tools/g3.c tools/g3.h \
 	tools/pbmtog3.c tools/run_tbl.c \
-	kvg
+	kvg.in
 
 noident: policy.h
-	    for file in $(DISTRIB) policy.h ; do \
+	    for file in `find . -type f -name "*.[ch]" -print` ; do \
 	    echo "$$file..."; \
 	    case $$file in \
 	      *.c) \
@@ -414,7 +421,7 @@ mgetty0$(VS).tar.gz:	$(DISTRIB)
 	rm -f mgetty-0.$(VS)
 	ln -sf . mgetty-0.$(VS)
 	( echo "$(DISTRIB)" | tr " " "\\012" ; \
-	  for i in `find . -name .files -print` ; do \
+	  for i in `find . -name .files -print | sed -e 's;^./;;` ; do \
 	      cat $$i | sed -e 's;^;'`dirname $$i`'/;' ; \
 	  done ; \
 	) \
@@ -440,23 +447,20 @@ beta:	mgetty0$(VS).tar.gz
 # local
 	cp mgetty0$(VS).tar.gz /pub/uploads/
 # beta ftp site
-	echo "ftp -v ftp.informatik.tu-muenchen.de <<EOF" >ftp.sh
-#	echo "ftp -v -n ftp <<EOF" >ftp.sh
-#	echo "user ftp gert@greenie.muc.de" >>ftp.sh
-	echo "cd ~ftp/pub/comp/networking/communication/modem/mgetty" >>ftp.sh
-	echo "bin" >>ftp.sh
-	echo "hash" >>ftp.sh
-	echo "put mgetty0"$(VS)".tar.gz mgetty0"$(VS)-`date +%b%d`.tar.gz >>ftp.sh
-	echo "quit" >>ftp.sh
-	sh ftp.sh
-	rm ftp.sh
+	./ftp.sh $(VS) ftp.informatik.tu-muenchen.de \
+		'~ftp/pub/comp/networking/communication/modem/mgetty' && \
 	rcmd hp2 -l doering 'cd $$HOME ; ./beta'
 
-shar1:	$(DISTRIB)
-	shar -M -c -l 40 -n mgetty+sendfax-0.$(VS) -a -o mgetty.sh $(DISTRIB)
+# send to Marc and Knarf
+	head -30 ChangeLog |mail -s "mgetty0$(VS).tar.gz on greenie" knarf@camelot.de Marc@ThPhy.Uni-Duesseldorf.DE
+	-./ftp.sh $(VS) ftp.camelot.de /pub/incoming
+	-./ftp.sh $(VS) poseidon.thphy.uni-duesseldorf.de /incoming
 
-shar:	$(DISTRIB)
-	shar -M $(DISTRIB) >mgetty0$(VS).sh
+#shar1:	$(DISTRIB)
+#	shar -M -c -l 40 -n mgetty+sendfax-0.$(VS) -a -o mgetty.sh $(DISTRIB)
+#
+#shar:	$(DISTRIB)
+#	shar -M $(DISTRIB) >mgetty0$(VS).sh
 
 doc-tar:
 	cd doc ; $(MAKE) "VS=$(VS)" doc-tar
@@ -472,6 +476,7 @@ clean:
 	rm -f *.o getdisk
 	cd tools ; $(MAKE) clean
 	cd fax ; $(MAKE) clean
+	cd callback ; $(MAKE) clean
 	cd contrib ; $(MAKE) clean
 	cd doc ; $(MAKE) clean
 	cd voice ; $(MAKE) clean
@@ -480,6 +485,7 @@ fullclean:
 	rm -f *.o mgetty sendfax testgetty getdisk mksed sedscript *~
 	cd tools ; $(MAKE) fullclean
 	cd fax ; $(MAKE) fullclean
+	cd callback ; $(MAKE) fullclean
 	cd contrib ; $(MAKE) fullclean
 	cd doc ; $(MAKE) fullclean
 	cd voice ; $(MAKE) fullclean
@@ -492,6 +498,9 @@ mgetty.config: mgetty.cfg.in sedscript
 
 sendfax.config: sendfax.cfg.in sedscript
 	./sedscript <sendfax.cfg.in >sendfax.config
+
+kvg: kvg.in sedscript
+	./sedscript <kvg.in >kvg
 
 # internal: use this to create a "clean" mgetty+sendfax tree
 bindist: all doc-all sedscript
@@ -512,9 +521,9 @@ bindist: all doc-all sedscript
 	cd bindist; gtar cvvfz mgetty$(VS)-bin.tgz *
 
 
-install: install-bin install-doc
+install: install.bin install.doc
 
-install-bin: mgetty sendfax login.config mgetty.config sendfax.config
+install.bin: mgetty sendfax login.config mgetty.config sendfax.config 
 #
 # binaries
 #
@@ -580,14 +589,14 @@ install-bin: mgetty sendfax login.config mgetty.config sendfax.config
 #
 	if [ ! -z "$(INSTALL_MECHO)" ] ; then \
 	    cd compat ; \
-	    gcc -o mg.echo mg.echo.c && \
+	    $(CC) $(CFLAGS) -o mg.echo mg.echo.c && \
 	    $(INSTALL) -s -m 755 mg.echo $(BINDIR) ; \
 	fi
 
 #
 # documentation
 #
-install-doc:
+install.doc:
 	cd doc ; $(MAKE) install INSTALL="$(INSTALL)" \
 				MAN1DIR=$(MAN1DIR) \
 				MAN4DIR=$(MAN4DIR) \
@@ -619,7 +628,7 @@ install-vgetty: vgetty-install
 ## misc
 
 dump: logfile.o config.o conf_mg.o goodies.o getdisk.o tio.o gettydefs.o io.o
-	gcc -o dump -g dump.c logfile.o config.o conf_mg.o goodies.o getdisk.o tio.o gettydefs.o io.o $(LDFLAGS)
+	$(CC) -o dump -g dump.c logfile.o config.o conf_mg.o goodies.o getdisk.o tio.o gettydefs.o io.o $(LDFLAGS)
 
 ######## anything below this line was generated by gcc -MM *.c
 cnd.o : cnd.c syslibs.h policy.h mgetty.h ugly.h config.h 
