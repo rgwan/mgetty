@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.47 1993/09/29 20:24:01 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.48 1993/10/02 15:57:00 gert Exp $ (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -342,12 +342,12 @@ int main( int argc, char ** argv)
 	 * or "ERROR"s lying around from some previous dial-out
 	 */
 
-	clean_line(1);
+	clean_line( STDIN, 1);
 
 	/* handle init chat if requested
 	 */
 	if ( ! direct_line )
-	  if ( do_chat( init_chat_seq, init_chat_actions, &what_action,
+	  if ( do_chat( STDIN, init_chat_seq, init_chat_actions, &what_action,
                         init_chat_timeout, TRUE, FALSE, FALSE ) == FAIL )
 	{
 	    lprintf( L_MESG, "init chat failed, exiting..." );
@@ -358,7 +358,7 @@ int main( int argc, char ** argv)
 	/* wait .3s for line to clear (some modems send a \n after "OK",
 	   this may confuse the "call-chat"-routines) */
 
-	clean_line(3);
+	clean_line( STDIN, 3);
 
 	/* remove locks, so any other process can dial-out. When waiting
 	   for "RING" we check for foreign lockfiles, if there are any, we
@@ -443,7 +443,7 @@ int main( int argc, char ** argv)
 	if ( access( buf, F_OK ) == 0 )
 	{
 	    lprintf( L_MESG, "%s exists - do not accept call!", buf );
-	    clean_line( 80 );		/* wait for ringing to stop */
+	    clean_line( STDIN, 80 );		/* wait for ringing to stop */
 	    exit(1);
 	}
 
@@ -452,7 +452,7 @@ int main( int argc, char ** argv)
 
 	log_level++; /*FIXME: remove this - for debugging only !!!!!!!!!!!*/
 	if ( ! direct_line )
-	  if ( do_chat( call_chat_seq, call_chat_actions, &what_action,
+	  if ( do_chat( STDIN, call_chat_seq, call_chat_actions, &what_action,
                         call_chat_timeout, TRUE, FALSE, virtual_ring ) == FAIL)
 	{
 	    if ( what_action == A_FAX )
@@ -473,7 +473,7 @@ int main( int argc, char ** argv)
            be sent by the modem, on a non-MNP-Modem the MNP-request
            string sent by a calling MNP-Modem is discarded here, too) */
 
-	clean_line(3);
+	clean_line( STDIN, 3);
 
 	/* set to remove lockfile(s) on certain signals
 	 */
