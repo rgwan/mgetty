@@ -4,9 +4,12 @@
 # 
 # Copyright 1998 Simone Demmel simone@greenie.net
 #
-# CVS: $Id: faxq.in,v 1.6 1998/10/27 15:37:10 gert Exp $
+# CVS: $Id: faxq.in,v 1.7 1998/11/10 16:26:07 gert Exp $
 #
 # $Log: faxq.in,v $
+# Revision 1.7  1998/11/10 16:26:07  gert
+# use ctime, not atime for "date" column
+#
 # Revision 1.6  1998/10/27 15:37:10  gert
 # if JOB file doesn't exist, just say so, but don't write a red error message
 #
@@ -172,7 +175,7 @@ $mail = "&nbsp;";		# mail
   }
   # $zeit = -M $fax_outgoing."/".$DATEI."/JOB";
   @tmp = stat $fax_outgoing."/".$DATEI;
-  @tmp = localtime($tmp[8]);
+  @tmp = localtime($tmp[10]);
   $tmp[4] = (Jan,Feb,Mar,Apr,Mai,Jun,Jul,Aug,Sep,Okt,Nov,Dez) [$tmp[4]];
   $zeit = $tmp[3].".".$tmp[4]." ".$tmp[5]." ".$tmp[2].":".$tmp[1].":".$tmp[0];
 
