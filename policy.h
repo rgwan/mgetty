@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 4.11 1998/08/06 21:04:40 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 4.12 1999/01/05 19:43:28 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration defaults for mgetty / sendfax
  * are specified.
@@ -106,7 +106,11 @@
 
 /* security: optionally, mgetty can system() this, to kill any dangling
  * processes on the current tty. A %s is replaced with the tty device.
- * NOT NEEDED on SCO, SunOS 4 or Linux!
+ * 
+ * Under most circumstances, this is not needed.  You might want
+ * to use it if you offer dial-in services with shell accounts to people
+ * that you don't trust (they might try to abuse your modems, and this
+ * will stop a number of attacks).
  */
 /* #define EXEC_FUSER "exec fuser -k -f %s >/dev/null 2>&1" */
 
