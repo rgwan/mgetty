@@ -142,6 +142,11 @@ option.
 Specifies where the accounting records (success, failure, etc.) should be
 written to.
 
+.TP
+.B policy-config [filename]
+Specifies a file containing rules for "policy routing", see below.
+Default is "no file".
+
 .SH POLICY ROUTING
 .I faxrunqd
 can do some things differently, depending on the phone number where the
@@ -153,9 +158,40 @@ paying telco charges)
 - send long-distance faxes to the US over a special LD provider, that is,
 use a specific dial-prefix for those
 
+- use extra high debugging when sending to a known-to-be problematic
+receipient
+
 etc.
 
-[This is to be documented.  Look for sample files in @CONFDIR@/]
+This feature is controlled by a file, containing match / substitute
+rules.  The name of the file is specified with the "policy-config"
+option in faxrunq.config.
+
+The file is read from top to bottom.  Each line starting with a "#" sign
+is a comment, and is skipped.  In every other line, the first field of
+the line is interpreted as a "match" clause, and compared to the
+telefone number of an to-be-sent fax job.  Regular expressions can be
+used (see perlre(1)).
+
+If the telefone number is matched, the second field is used to
+substitute parts of the telefone number, for example, cut off a local
+prefix, or change a digit, or whatever.  If you do not want any
+substitutions, put a "-" in that field.
+
+The remaining part of the line are appended to the sendfax command line.
+With those, you can set a different dial-string ("-D ATD"), or a special
+modem to use ("-l tty2"), or whatever else you can imagine.
+
+Examples:
+
+# 12345-nnn is sent to "nnn" over a local PABX, modem on tty2
+
+^12345		s/12345//	-l tty2
+
+# fax to 56789 (exact match) is sent with higher debugging
+
+^56789$		-		-x 8
+
 
 .SH SIGNALS
 To control
