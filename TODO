@@ -436,6 +436,6 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
      then setsid()'ing, and then getting a new controlling tty?  
      (Things are likely to fail anyway due to missing utmp slots...)
 
-280) add tools/microcomm  (talk to modem at "-s xxx", end, send BREAK)
+280a) implement BREAK and dual-tilde sending in tools/microcom.c
 
-281) make faxrunqd work with "use strict" (declare all variables etc.)
+282)
