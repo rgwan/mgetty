@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.c,v 4.7 1998/06/01 16:19:17 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_mg.c,v 4.8 1998/07/02 09:42:37 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_mg.c
  *
@@ -103,6 +103,8 @@ struct conf_data_mgetty c = {
 	{ "fido-send-emsi", {TRUE}, CT_BOOL, C_PRESET },
 
 	{ "fax-id", {(p_int)FAX_STATION_ID}, CT_STRING, C_PRESET },
+	{ "fax-min-speed", {0}, CT_INT, C_PRESET },
+	{ "fax-max-speed", {14400}, CT_INT, C_PRESET },
 	{ "fax-server-file", {0}, CT_STRING, C_EMPTY },
 	{ "diskspace", {MINFREESPACE}, CT_INT, C_PRESET },
 #ifdef MAIL_TO
