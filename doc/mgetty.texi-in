@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 1.12 1994/11/13 13:56:04 gert Exp $ (c) 1993,1994 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 1.13 1994/11/30 23:21:53 gert Exp $ (c) 1993,1994 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -1803,7 +1803,7 @@ it switches baud rate.  Stupid, but true). After that, receiving fax + data
 calls works fine.
 
 Fax sending is not that trivial. Basically, it works after defining
-@code{FAX_MODEM_HANDSHAKE} to @code{&K3}. @code{FAX_SEND_FLOW} can be
+@code{FAX_MODEM_HANDSHAKE} to @code{AT&K3}. @code{FAX_SEND_FLOW} can be
 anything that the host machine supports (because the modem does both
 Xon/Xoff and RTS/CTS handshake simultaneously).
 
@@ -1838,7 +1838,7 @@ proper values for your modem, that is, change @code{AT&H3&N0&K4} to
 @code{AT&K3}.
 
 Especially for the @samp{SupraFax} modem, I've been told that you have
-to define @code{FAX_MODEM_HANDSHAKE} to @code{&K3} and initialize the
+to define @code{FAX_MODEM_HANDSHAKE} to @code{AT&K3} and initialize the
 modem with @code{AT&S0&D2&K3}. Since the modem does not like being
 reset with DTR->low (do @strong{not} use @code{&D3}!), an @code{ATZ} in
 the first initizalization string in @file{mgetty.c}, to reset the modem
@@ -1875,7 +1875,7 @@ it, I run my Zoom as data-only.
 Works quite well. Use @code{FLOW_HARD} for all flow control settings, use
 19200 bps for sending and receiving. Define @code{MODEM_INIT_STRING} to
 @code{AT S7=60 &D3 \\\\Q3 %C1 \\\\N7}, and @code{FAX_MODEM_HANDSHAKE} to
-@code{\\Q3&S0}. 
+@code{AT\\Q3&S0}. 
 
 After that it should work. Kudos to Sami Koskinen (tossu@@krk.fi).
 
@@ -1887,7 +1887,7 @@ Basically, the modem is similar to the SupraFax modem.
 Change @code{FAX_SEND_BAUD} and @code{DEFAULT_PORTSPEED} in
 @file{policy.h} to @code{B19200}, remove the ZyXEL-specific stuff
 (@samp{AT&N0&K4&H3}) from the initialization (@code{MODEM_INIT_STRING})
-in @file{policy.h}; #define @code{FAX_MODEM_HANDSHAKE} as @code{"&H3"}
+in @file{policy.h}; #define @code{FAX_MODEM_HANDSHAKE} as @code{"AT&H3"}
 instead of @code{"&K4"}.
 
 Further, if your model toggles DCD betwen fax pages (@code{sendfax} fails
@@ -1910,7 +1910,7 @@ For the new CREATIX modem, use the following defines in @file{policy.h}
 @example
 #define DEFAULT_PORTSPEED B38400
 #define MODEM_INIT_STRING "ATS0=0Q0&D3&K6"
-#define FAX_MODEM_HANDSHAKE "&K6"
+#define FAX_MODEM_HANDSHAKE "AT&K6"
 @end example
 
 The modem has a voice mode, too, and it should work with @code{vgetty} by
@@ -1927,7 +1927,7 @@ modem profile sets @samp{&S1}, which makes the modem disable DSR all the
 time. On systems using the FAS serial driver, this will @emph{disable
 CTS flow control}!
 
-So, #define @code{FAX_MODEM_HANDSHAKE "\\Q3&S0"} in @file{policy.h}, do not
+So, #define @code{FAX_MODEM_HANDSHAKE "AT\\Q3&S0"} in @file{policy.h}, do not
 define @code{FLOW_SOFT} for flow control, and fax sending should work. (It
 does for me!)  Changing @code{FAX_SEND_BAUD} to @code{B19200} is not
 necessary, it works with @code{B38400}.
@@ -2015,7 +2015,7 @@ Herczeg)
 #define FAXREC_FLOW	FLOW_SOFT
 #define FAXSEND_FLOW	FLOW_SOFT
 #define FAX_SEND_BAUD B38400
-#define FAX_MODEM_HANDSHAKE "&K3"
+#define FAX_MODEM_HANDSHAKE "AT&K3"
 #define MODEM_INIT_STRING	"ATS0=0V1Q0&D3&K3%C1W1"
 @end example
 
@@ -2054,7 +2054,7 @@ mostly are factory defaults anyway, but it wouldn't harm to set them)
 
 @example
 #define MODEM_INIT_STRING	"ATS0=0Q0&D3&E1&E4&E13&E15"
-#define FAX_MODEM_HANDSHAKE "&E4"
+#define FAX_MODEM_HANDSHAKE "AT&E4"
 @end example
 
 @node Elink-ISDN, Class 1, MultiTech, Modems
