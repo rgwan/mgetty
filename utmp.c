@@ -1,9 +1,11 @@
-#ident "$Id: utmp.c,v 1.21 1994/10/22 17:24:35 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: utmp.c,v 1.22 1994/10/31 11:11:24 gert Exp $ Copyright (c) Gert Doering"
 
 /* some parts of the code (writing of the utmp entry)
  * is based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
  */
+
+#include "mgetty.h"
 
 #if !defined(sunos4) && !defined(BSD)
 
@@ -24,7 +26,6 @@ typedef short pid_t;
 
 #endif
 
-#include "mgetty.h"
 #include "mg_utmp.h"
 
 #if defined(sunos4) || defined(BSD) || defined(ultrix)
@@ -42,11 +43,29 @@ void make_utmp_wtmp _P4( (line, ut_type, ut_user, ut_host),
      * the login() function
      */
 }
-int get_current_users _P0( void )
+
+int get_current_users _P0(void)
 {
-    lprintf( L_WARN, "get_current_users: not implemented on BSD" );
-    return 0;
-}	/*! FIXME */
+struct utmp utmp;
+FILE *f;
+int Nusers;
+
+    Nusers = 0;
+    f = fopen(_PATH_UTMP, "r");
+    if (!f)
+    {
+    	lprintf(L_ERROR, "%s: %s", _PATH_UTMP, strerror(errno));
+	return 0;
+    }
+    while (1) 
+    {
+    	if (fread(&utmp, sizeof utmp, 1, f) < 1) break;
+	if (utmp.ut_name[0] && utmp.ut_line[0])
+	    Nusers++;
+    }
+    fclose(f);
+    return Nusers;
+}
 
 #else			/* System V style utmp handling */
 
