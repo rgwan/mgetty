@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.20 1993/09/21 14:49:01 gert Exp $ (c) Gert Doering"
+#ident "$Id: policy.h,v 1.21 1993/09/21 15:18:01 gert Exp $ (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -101,6 +101,8 @@
  * this sample string is for ZyXELs, for other modems you'll have to
  *     replace &H3 (rts/cts flow control), &K4 (enable v42bis) and &N0
  *     (answer with all known protocols).
+ * For instructions how to setup various other modems, look into
+ *     mgetty.texi ("modems" section)
  * For some modems, an initial "\d" is needed.
  * If you need a "\" in the modem command, give it as "\\\\".
  * Maybe the best "initialization" would be to setup everything 

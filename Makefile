@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 1.6 1993/09/19 17:26:45 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 1.7 1993/09/21 15:17:55 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there).
@@ -25,6 +25,8 @@ CC=gcc
 #
 # Add "-Aa -D_HPUX_SOURCE" to use the Ansi-C-Compiler on HP-UX 8.0x and above
 #
+# Add "-D3B1" to compile on the AT&T 3b1 machine -g.t.
+#
 # For Systems without the select() call, use poll(), define -DUSE_POLL
 #
 # If you don't have GNU AS, remove "-pipe"!
@@ -33,6 +35,16 @@ CFLAGS=-Wall -g -O2 -pipe -DUSE_POLL -DBROKEN_SCO_324
 #CFLAGS=-g -O2 -Wall -pipe
 #CFLAGS=-g -O -DSVR4
 #CFLAGS=-g -O -DUSE_POLL
+#CFLAGS=-Wall -g -O2 -pipe -D3B1
+
+#
+# LDFLAGS specify flags to pass to the linker. You could specify
+# additional libraries here, special link flags, ...
+#
+# For the 3B1, add "-s -shlib"
+#
+LDFLAGS=
+#LDFLAGS=-s -shlib
 #
 # where the binaries (mgetty + sendfax) live (used for "make install")
 #
@@ -52,13 +64,13 @@ SFAXOBJ=sendfax.o logfile.o locks.o faxlib.o faxrec.o io.o
 all:	mgetty sendfax tools/g3cat
 
 mgetty: $(OBJS)
-	$(CC) -o mgetty $(OBJS)
+	$(CC) -o mgetty $(OBJS) $(LDFLAGS)
 
 sendfax: $(SFAXOBJ)
-	$(CC) -o sendfax $(SFAXOBJ)
+	$(CC) -o sendfax $(SFAXOBJ) $(LDFLAGS)
 
 tools/g3cat: tools/g3cat.c
-	cd tools ; $(CC) $(CFLAGS) -o g3cat g3cat.c
+	cd tools ; $(CC) $(CFLAGS) -o g3cat g3cat.c $(LDFLAGS)
 
 # README PROBLEMS
 DISTRIB=README.1st mgetty.texi THANKS TODO Makefile ChangeLog policy.h-dist \
