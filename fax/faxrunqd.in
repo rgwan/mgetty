@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.44 1999/04/30 15:07:55 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.45 1999/05/11 11:36:37 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.45  1999/05/11 11:36:37  gert
+# don't delay after reactivating 'delayed' jobs (=0)
+#
 # Revision 1.44  1999/04/30 15:07:55  gert
 # reorganize handling of %phone (avoid sending two faxes to the
 # same telephone number at the same time).  Introduce 'other' field
@@ -503,7 +506,8 @@ while( 1 )
 	    else
 		{ print LOG "$job: was delayed, is active again\n" if $opt_d;
 		  $queue{$job}->{'status'} = 'active'; 
-		  &put_job_to_modem_queue($job); }
+		  &put_job_to_modem_queue($job); 
+		  $sleep_time = 0; }
 	    if ( $s < $sleep_time ) 
 		{ $sleep_time = $s; }
 	}
