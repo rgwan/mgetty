@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.38 1999/04/08 15:36:44 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.39 1999/04/27 14:16:02 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -2101,6 +2101,7 @@ enough feedback from config file users yet.
 * Tornado::         Tornado / Lightspeed modems
 * Zoltrix::         Zoltrix Platinum Series 14.4 (Rockwell-Based)
 * MultiTech::       MultiTech modems
+* ELSA::            ELSA analog/ISDN faxmodems
 * USR::             US Robotics Courier/Sportster Data/Faxmodems
 * Elink-ISDN::      Elink ISDN Terminal Adaptors (``ISDN Modems'')
 * Class 1::         Class 1 Faxmodems
@@ -2724,7 +2725,7 @@ Herczeg)
 In some circumstances, sending of @strong{large} graphics files (the
 well-known @file{tiger.ps}) may fail.
 
-@node MultiTech, USR, Zoltrix, Modems
+@node MultiTech, ELSA, Zoltrix, Modems
 @subsection MultiTech modems (MT1432BG and MT2834BG)
 
 First of all, I want to thank MultiTech Munich for their support (borrowing
