@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.66 1993/11/26 22:21:13 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.67 1993/11/28 15:43:20 gert Exp $ Copyright (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -627,7 +627,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 		    setluid(uucpuid);
 		    setuid(uucpuid);
 
-		    execl( "/usr/local/lib/fnet/ifcico", "ifcico", buf,
+		    execl( "/usr/local/lib/fnet/ifcico", "ifcico", &buf[1],
 			  NULL );
 		}
 #endif
