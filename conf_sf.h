@@ -1,4 +1,4 @@
-#ident "$Id: conf_sf.h,v 1.1 1994/12/05 20:52:19 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: conf_sf.h,v 1.2 1995/03/24 13:17:42 gert Exp $ Copyright (c) 1994 Gert Doering"
 
 /* all (dynamic) sendfax configuration is contained in this structure.
  * It is initialized and loaded in conf_sf.c and accessed from sendfax.c
@@ -11,6 +11,7 @@ extern struct conf_data_sendfax {
 	modem_handshake,
 	modem_type,
 	max_tries,
+        max_tries_ctd,
 	speed,
 	switchbd,
 	dial_prefix,
