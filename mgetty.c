@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.50 1993/10/06 00:35:48 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.51 1993/10/18 20:19:46 gert Exp $ Copyright (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -90,6 +90,7 @@ char *	init_chat_seq[] = { "", "\\d\\d\\d+++\\d\\d\\d\r\\dATQ0H0", "OK",
  */
 			    MODEM_INIT_STRING, "OK",
 #ifndef NO_FAX
+			    "AT+FCLASS=0", "OK",
                             "AT+FAA=1;+FBOR=0;+FCR=1", "OK",
 			    init_flid_cmd, "OK",
 			    /*"AT+FLID=\""FAX_STATION_ID"\"", "OK",*/
@@ -133,7 +134,12 @@ int getlogname _PROTO(( char * prompt, struct termio * termio,
 char	* Device;			/* device to use */
 char	* GettyID = "<none>";		/* Tag for gettydefs in cmd line */
 
+#ifndef sun
 boolean	toggle_dtr = TRUE;		/* lower DTR */
+#else
+boolean toggle_dtr = FALSE;             /* doesn't work on SunOS! */
+#endif
+
 int	toggle_dtr_waittime = 500;	/* milliseconds while DTR is low */
 
 int	prompt_waittime = 500;		/* milliseconds between CONNECT and */
