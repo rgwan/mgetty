@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.46 2000/08/19 12:00:51 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.47 2001/01/05 18:19:50 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -1170,6 +1170,15 @@ group and file mode mgetty will use for incoming faxes. Defaults are taken
 from @code{FAX_IN_OWNER}, @code{FAX_IN_GROUP}, and
 @code{FAX_FILE_MODE}.
 
+@item @code{fax-spool-in} @var{dir1:dir2:dirn}
+
+Specifies a directory, or list of directories, where incoming faxes are
+saved.  Multiple directories are tried in order until, the first one
+that has enough disk space and is writeable is used.
+
+The default setting is taken from @code{FAX_SPOOL_IN} in the Makefile
+usually @code{@FAX_SPOOL_IN@:/tmp} (/tmp is used as fallback).
+
 @item @code{debug} [-x] @var{debug level}
 
 This sets the amount of logging @code{mgetty} will do. A good value is
@@ -1374,8 +1383,9 @@ directory. @xref{Queuing}.
 If everything has been set up properly, faxes will be received
 automatically. Obviously, mgetty has to be listening to the proper modem
 line. Then, if a fax arrives, mgetty will store it in the directory
-@code{FAX_SPOOL_IN} and send a mail to @code{MAIL_TO} (defined in
-@file{policy.h}).
+@code{FAX_SPOOL_IN} (or the directory configured in @file{mgetty.config}, 
+@pxref{runtime-mgetty}) and send a mail to @code{MAIL_TO} (defined 
+in @file{policy.h}).
 
 The file name format is somewhat tricky (the reason behind it is that I
 have to create something unique without using @code{mktemp()}, because that
