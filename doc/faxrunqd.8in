@@ -118,14 +118,14 @@ The options that are specific to
 are:
 
 .TP
-.B max-modems [n]
-Specifies how many parallel jobs should be started by 
+.B fax-devices [tty(s)]
+Specifies which ttys should be used for sending jobs.  
 .I faxrunqd
-if enough jobs are in the queue.  No two jobs for the same destination
-number will ever be started in parallel.  Which ttys get used is
-controlled by 'sendfax.config' (or the compiled-in default in
-.I sendfax(8)
-).
+will always explicitely tell
+.I sendfax
+which modem to use, so the settings in sendfax.config are ignored.
+If you use policy routing (see below), this applies only to fax jobs that
+do not have a tty set by faxrunqd.policy.
 
 .TP
 .B faxrunqd-log [filename]
