@@ -1,4 +1,4 @@
-#ident "$Id: locks.c,v 1.8 1993/03/18 16:47:22 gert Exp $ Gert Doering / Paul Sutcliffe Jr."
+#ident "$Id: locks.c,v 1.9 1993/03/23 11:04:46 gert Exp $ Gert Doering / Paul Sutcliffe Jr."
 
 /* large parts of the code in this module are taken from the
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us,
@@ -11,7 +11,8 @@
 #include <signal.h>
 #include <sys/stat.h>
 
-#ifdef linux
+/* some OSes do include this in stdio.h, others don't... */
+#ifndef EEXIST
 #include <errno.h>
 #endif
 
