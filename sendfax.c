@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.74 1994/09/29 15:15:22 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.75 1994/09/29 15:19:41 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -450,8 +450,8 @@ int	tries;
     sprintf( buf, "%s%s", FAX_DIAL_PREFIX, fac_tel_no );
     if ( fax_command( buf, "OK", fd ) == ERROR )
     {
-	lprintf( L_AUDIT, "dial failedm, +FHS:%d, time=%ds",
-		fax_hangup_code, (int) ( time(NULL)-call_start ) );
+	lprintf( L_AUDIT, "failed dialing, phone=\"%s\", +FHS:%d, time=%ds",
+		 fac_tel_no, fax_hangup_code, ( time(NULL)-call_start ) );
 	
 	if ( fax_hangup_code == FHUP_BUSY )
 	    printf( "dial failed (BUSY)\n" );
