@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.60 2002/04/02 15:13:09 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.61 2002/11/13 22:12:21 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.61  2002/11/13 22:12:21  gert
+# guard against file move/symlink tricks with JOB files
+#
 # Revision 1.60  2002/04/02 15:13:09  gert
 # when removing a job from the modem queue, correct queue length!
 #
@@ -751,9 +754,21 @@ sub read_job_to_queue
 
     if ( -f "$job/JOB" )
     {
+	# guard against symlink / file-move attacks
+	my ( $inum1, $mode1 ) = (lstat "$job/JOB")[1,2];
+
 	unless ( open J, "$job/JOB" )
 	{
 	    $queue{$job}->{'status'} = 'error'; return;
+	}
+
+	$queue{$job}->{'inum'} = (stat J)[1];
+
+	if ( ! S_ISREG($mode1) || $inum1 != $queue{$job}->{'inum'} )
+	{
+	    printf LOG "$job: suspicious file permissions: 0%o, inum1=$inum1, inum2=%d!\n", $mode1, $queue{$job}->{'inum'};
+	    &remove_error_job($job);
+	    return;
 	}
 
 	$queue{$job}->{'tries'} = $queue{$job}->{'tries_c'} = 0;
@@ -1534,6 +1549,17 @@ EOF1
 sub wstat
 {
     my ($j,$r) = @_;
+
+    # guard against file move / symlink attacks
+    my ( $check_inum, $check_mode ) = (lstat "$j/JOB")[1,2];
+
+    if ( ! S_ISREG($check_mode) || 
+         $check_inum != $queue{$j}->{'inum'} )
+    {
+	printf LOG "ERROR: suspicious file permissions: 0%o, inum old: %d, new: %d\n", $check_mode, $queue{$j}->{'inum'}, $check_inum;
+	&remove_error_job($j);
+	return;
+    }
 
     unless ( open( J, ">>$j/JOB" ) )
     {
