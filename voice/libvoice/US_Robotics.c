@@ -24,7 +24,7 @@
  * A very good US Robotics technical reference manual is available
  * at: http://www.alliancedatacom.com/us-robotics-manuals.htm (not a typo).
  *
- * $Id: US_Robotics.c,v 1.10 1999/07/20 07:29:17 marcs Exp $
+ * $Id: US_Robotics.c,v 1.11 1999/07/20 07:30:38 marcs Exp $
  *
  */
 
@@ -52,7 +52,7 @@ static int USR_beep(int frequency, int length)
 
      /*
       * Ugly hack: my USRobotics SportsterFlash doesn't catch dtmf codes
-      * after a beep.  If I send it the "AT#VLS=4A" (answer phone) string
+      * after a beep.  If I send it the "AT#VLS=0A" (answer phone) string
       * after an "AT#VTS[%d,0,%d]" (beep) command it would resume detecting
       * tones
       * 
@@ -367,7 +367,7 @@ static int USR_voice_mode_on(void)
      return(OK);
      }
 
-static char USR_pick_phone_cmnd[] = "AT#VLS=4A";
+static char USR_pick_phone_cmnd[] = "AT#VLS=0A"; /* -- alborchers@steinerpoint.com */
 static char USR_pick_phone_answr[] = "VCON";
 static char USR_beep_cmnd[] = "AT#VTS=[%d,0,%d]";
 #define     USR_beep_timeunit 100
