@@ -22,6 +22,9 @@
  * -skiprows for long faxes.
  * 
  * $Log: g3toxwd.c,v $
+ * Revision 1.2  2003/10/03 11:36:03  gert
+ * fix some return types and prototypes (Debian/ABA)
+ *
  * Revision 1.1  2003/10/03 11:34:56  gert
  * G3 -> X11 xwd, initial checkin
  *
@@ -31,6 +34,8 @@
 #include <sys/types.h>
 #include <ctype.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 typedef unsigned char bit;
 
@@ -336,6 +341,8 @@ static struct tableentry extable[]=
 
 #endif	/* _G3_H_ */
 
+void skiptoeol (void);
+
 FILE *
   pm_openr (name)
      char *name;
@@ -609,7 +616,7 @@ getfaxrow (row, bitrow)
     return (0);
 }
 
-skiptoeol ()
+void skiptoeol ()
 {
     while (rawzeros < 11)
 	(void) rawgetbit ();
@@ -737,7 +744,7 @@ static void xwd_writerow (FILE * fd, bit * writerow, int wcols)
 	putchar (byte);
 };
 
-void main (argc, argv)
+int main (argc, argv)
      int argc;
      char *argv[];
 {
@@ -888,5 +895,6 @@ void main (argc, argv)
 	xwd_writerow (stdout, writerow, wcols);
 	wrow++;
     }
-    exit (0);
+
+    return 0;
 }

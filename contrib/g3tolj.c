@@ -51,6 +51,9 @@
  * Support for long faxes
  *
  * $Log: g3tolj.c,v $
+ * Revision 1.2  2003/10/03 11:36:02  gert
+ * fix some return types and prototypes (Debian/ABA)
+ *
  * Revision 1.1  2003/10/03 11:34:41  gert
  * G3 -> HP PCL bitmap, initial checkin
  *
@@ -62,6 +65,7 @@
 #include <sys/types.h>
 #include <ctype.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 typedef unsigned char bit;
 
@@ -307,6 +311,8 @@ static struct tableentry extable[]=
 };
 
 #endif	/* _G3_H_ */
+
+void skiptoeol (void);
 
 FILE *
   pm_openr (name)
@@ -557,7 +563,7 @@ getfaxrow (row, bitrow)
     return (0);
 }
 
-skiptoeol ()
+void skiptoeol ()
 {
     while (rawzeros < 11)
 	(void) rawgetbit ();
@@ -712,9 +718,9 @@ static void lj_writerow (FILE * fd, bit * writerow, int wcols)
 	newpage (fd);
 };
 
-void main (argc, argv)
-     int argc;
-     char *argv[];
+int main (argc, argv)
+    int argc;
+    char *argv[];
 {
     int argn, rows, wrows, cols, wcols, row, wrow, col, wcol, i;
     int vval, hval;
@@ -869,5 +875,6 @@ void main (argc, argv)
 	    break;
     }
     putrest ();
-    exit (0);
+
+    return 0;
 }
