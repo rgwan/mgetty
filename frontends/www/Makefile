@@ -1,8 +1,11 @@
 # frontends/www/Makefile
 #
-# RCS: $Id: Makefile,v 1.4 1998/10/07 13:05:31 gert Exp $
+# RCS: $Id: Makefile,v 1.5 1998/10/07 13:08:01 gert Exp $
 #
 # $Log: Makefile,v $
+# Revision 1.5  1998/10/07 13:08:01  gert
+# remove wwwgui.conf on "make clean"
+#
 # Revision 1.4  1998/10/07 13:05:31  gert
 # added wwwgui.cfg.in/wwwgui.conf
 #
@@ -26,6 +29,7 @@ all: $(CGI) $(HTML) wwwgui.conf
 clean:
 	rm -f $(CGI)
 	rm -f $(HTML)
+	rm -f wwwgui.conf
 
 fullclean: clean
 
