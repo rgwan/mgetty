@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 2.16 1995/06/29 22:00:11 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 2.17 1995/07/02 11:39:50 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -53,6 +53,8 @@ chat_action_t	ring_chat_actions[] = { { "CONNECT",	A_CONN },
 					{ "+FCON",	A_FAX  },
 					{ "+FCO\r",	A_FAX  },
 					{ "FAX",	A_FAX  },
+					{ "+FHS:",	A_FAIL },
+					{ "+FHNG:",	A_FAIL },
 #ifdef VOICE
 					{ "VCON",       A_VCON },
 #endif
