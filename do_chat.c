@@ -1,4 +1,4 @@
-#ident "$Id: do_chat.c,v 1.6 1993/03/23 16:44:17 gert Exp $ (c) Gert Doering";
+#ident "$Id: do_chat.c,v 1.7 1993/05/22 16:45:59 gert Exp $ (c) Gert Doering";
 /* do_chat.c
  *
  * This module handles all the talk with the modem
@@ -54,7 +54,7 @@ struct pollfd sdummy;
 }
     
 boolean chat_has_timeout;
-void chat_timeout( void )
+void chat_timeout()
 {
     chat_has_timeout = TRUE;
 }
