@@ -1,4 +1,4 @@
-#ident "$Id: locks.c,v 1.24 1994/03/01 15:50:37 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
+#ident "$Id: locks.c,v 1.25 1994/04/16 20:40:46 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
 ;
 /* large parts of the code in this module are taken from the
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us,
@@ -69,12 +69,19 @@ int do_makelock _P0( void )
 
 #if LOCKS_BINARY
 	bpid = getpid();
-	(void) write(fd, &bpid, sizeof( bpid ) );
+	if ( write(fd, &bpid, sizeof(bpid) ) != sizeof(bpid) )
 #else
-	(void) sprintf(apid, "%10d\n", getpid());
-	(void) write(fd, apid, strlen(apid));
+	sprintf( apid, "%10d\n", getpid() );
+	if ( write(fd, apid, strlen(apid)) != strlen(apid) )
 #endif
-	(void) close(fd);
+	{
+	    lprintf( L_FATAL, "cannot write PID to (temp) lock file" );
+	    close(fd);
+	    unlink(temp);
+	    return(FAIL);
+	}
+	
+	close(fd);
 
 	/* link it to the lock file */
 
