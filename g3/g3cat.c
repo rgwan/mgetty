@@ -1,4 +1,4 @@
-#ident "$Id: g3cat.c,v 1.12 1994/09/07 22:25:49 gert Exp $ (c) Gert Doering"
+#ident "$Id: g3cat.c,v 1.13 1994/10/31 11:14:07 gert Exp $ (c) Gert Doering"
 
 /* g3cat.c - concatenate multiple G3-Documents
  *
@@ -240,7 +240,7 @@ int main _P2( (argc, argv),
 	    if ( p == NULL )	/* invalid code */
 	    { 
 		fprintf( stderr, "invalid code, row=%d, col=%d, file offset=%lx, skip to eol\n",
-			 row, col, lseek( 0, 0, 1 ) - rs + rp );
+			 row, col, (unsigned long)lseek( 0, 0, 1 ) - rs + rp );
 		while ( ( data & 0x03f ) != 0 )
 		{
 		    data >>= 1; hibit--;
