@@ -1,4 +1,4 @@
-#ident "$Id: do_chat.c,v 1.31 1994/02/04 21:46:42 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: do_chat.c,v 1.32 1994/02/19 00:31:17 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* do_chat.c
  *
@@ -84,7 +84,8 @@ static	char	*lptr = lbuf;
 
 	    do
 	    {
-		if ( virtual_ring && strcmp( expect_send[str], "RING" ) == 0 )
+		if ( virtual_ring &&
+		     strncmp( expect_send[str], "RING", 4 ) == 0 )
 		{
 		    lputs( L_MESG, " ``found''" );
 		    break;
