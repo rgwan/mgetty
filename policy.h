@@ -1,5 +1,5 @@
-#ident "$Id: policy.h,v 1.34 1993/11/25 19:27:40 gert Exp $ Copyright (c) Gert Doering"
-
+#ident "$Id: policy.h,v 1.35 1993/11/26 19:19:45 gert Exp $ Copyright (c) Gert Doering"
+;
 /* this is the file where all configuration for mgetty / sendfax is done
  */
 
