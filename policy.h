@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 4.6 1997/12/09 10:58:01 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 4.7 1998/05/03 11:01:30 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration defaults for mgetty / sendfax
  * are specified.
@@ -219,7 +219,7 @@
  * If you define this, mgetty will create a file with the given name and
  * put its process ID in it. A "%s" will be replaced by the device id.
  *
- * Depending on your system, "/var/run/mgetty.%d" might be a good place.
+ * Depending on your system, "/var/run/mgetty.%s" might be a good place.
  */
 #define MGETTY_PID_FILE	"/etc/mg-pid.%s"
 
