@@ -1,4 +1,4 @@
-#ident "$Id: config.c,v 3.1 1995/08/30 12:40:28 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: config.c,v 3.2 1995/12/02 00:09:41 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /*
  * config.c
@@ -285,6 +285,17 @@ int ignore = 0;		/* ignore keywords in non-matching section */
 	{
 	    if ( strcmp( cp->key, key ) == 0 )
 	    {
+		/* special case: CT_KEYWORD pseudo-type
+		 *
+		 * additional "section key" keyword, handled similar to the
+		 * "standard" section keyword -> ignore everything below
+		 */
+		if ( cp->type == CT_KEYWORD )
+		{
+		    lprintf( L_NOISE, "found CT_KEYWORD %s %s", key, line );
+		    ignore = TRUE; break;
+		}
+		
 		if ( cp->flags == C_CONF &&
 		     ( cp->type == CT_STRING || cp->type == CT_CHAT ) )
 		{
