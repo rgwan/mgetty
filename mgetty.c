@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.116 1994/07/21 21:41:27 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.117 1994/07/22 10:52:26 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -91,6 +91,7 @@ int getlogname _PROTO(( char * prompt, TIO * termio,
 		char * buf, int maxsize ));
 
 char	* Device;			/* device to use */
+char	* DevID;			/* device name withouth '/'s */
 char	* GettyID = "<none>";		/* Tag for gettydefs in cmd line */
 
 boolean	toggle_dtr = TRUE;		/* lower DTR */
@@ -126,16 +127,16 @@ static RETSIGTYPE sig_goodbye _P1 ( (signo), int signo )
 /* create a file with the process ID of the mgetty currently
  * active on a given device in it.
  */
+static char pid_file_name[ MAXPATH ];
 static void make_pid_file _P0( void )
 {
     FILE * fp;
-    char fn[ MAXPATH ];
 
-    sprintf( fn, MGETTY_PID_FILE, Device );
+    sprintf( pid_file_name, MGETTY_PID_FILE, DevID );
 
-    fp = fopen( fn, "w" );
+    fp = fopen( pid_file_name, "w" );
     if ( fp == NULL )
-	lprintf( L_ERROR, "can't create pid file %s", fn );
+	lprintf( L_ERROR, "can't create pid file %s", pid_file_name );
     else
     {
 	fprintf( fp, "%d\n", (int) getpid() ); fclose( fp );
@@ -316,9 +317,14 @@ int main _P2((argc, argv), int argc, char ** argv)
     /* need full name of the device */
     sprintf( devname, "/dev/%s", Device);
 
+    /* Device ID = Device name without "/dev/", all '/' converted to '-' */
+    DevID = mydup( Device );
+    for ( i=0; DevID[i] != 0; i++ )
+        if ( DevID[i] == '/' ) DevID[i] = '-';
+		  
     /* name of the logfile is device-dependant */
-    sprintf( buf, LOG_PATH, get_basename( Device ) );
-    log_init_paths( argv[0], buf, &Device[strlen(Device)-2] );
+    sprintf( buf, LOG_PATH, DevID );
+    log_init_paths( argv[0], buf, &Device[strlen(Device)-3] );
 
 #ifdef USE_GETTYDEFS
     if (optind < argc)
@@ -531,7 +537,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 	    /* check, whether /etc/nologin.<device> exists. If yes, do not
 	       answer the phone. Instead, wait for ringing to stop. */
 #ifdef NOLOGIN_FILE
-	    sprintf( buf, NOLOGIN_FILE, strrchr( devname, '/' )+1 );
+	    sprintf( buf, NOLOGIN_FILE, DevID );
 
 	    if ( access( buf, F_OK ) == 0 )
 	    {
@@ -551,7 +557,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 	       nologin file while the phone is RINGing), and if the modem
 	       auto-answers, handle it properly */
 	    
-	    sprintf( buf, NOLOGIN_FILE, strrchr( devname, '/' )+1 );
+	    sprintf( buf, NOLOGIN_FILE, DevID );
 
 	    /* while phone is ringing... */
 	    
@@ -842,6 +848,11 @@ int main _P2((argc, argv), int argc, char ** argv)
 	if ( getlogname( login_prompt, &tio,
 			 buf, sizeof(buf) ) == -1 ) continue;
 
+	/* remove PID file (mgetty is due to exec() login) */
+#ifdef MGETTY_PID_FILE
+	(void) unlink( pid_file_name );
+#endif
+	
 	/* hand off to login (dispatcher) */
 	login( buf );
 
