@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 3.15 1996/08/25 10:10:17 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 3.16 1996/09/02 09:33:29 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -62,6 +62,11 @@ chat_action_t	ring_chat_actions[] = { { "CONNECT",	A_CONN },
 					{ "RING 3",	A_RING3 },
 					{ "RING 4",	A_RING4 },
 					{ "RING 5",	A_RING5 },
+					{ "RING A",	A_RING1 },
+					{ "RING B",	A_RING2 },
+					{ "RING C",	A_RING3 },
+					{ "RING D",	A_RING4 },
+					{ "RING E",	A_RING5 },
 #endif
 					{ NULL,		A_FAIL } };
 
