@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.17 1993/03/22 12:09:05 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.18 1993/03/22 22:25:56 gert Exp $ (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -71,7 +71,12 @@ unsigned short portspeed = DEFAULT_PORTSPEED;
    as "\\dAT..." */
 
 char *	init_chat_seq[] = { "", "\r\\d\\d\\d+++\\d\\d\\d\r\\dATQ0H0", "OK",
-			    /*"\\dAT&V", "OK\n", !!!weg*/
+
+/* initialize the modem: ats0=0: do not auto-answer. E1: echo on.
+ * &K4: hardware (RTS+CTS) handshake. &D3: reset on DTR->low
+ * &N0: "multi-auto" connect, accept all known protocols (v32(bis),
+ * v22(bis), Fax, ...
+ */
 			    "ATS0=0E1&K4&D3&N0", "OK",
 #ifndef NO_FAX
                             "AT+FAA=1;+FBOR=0;+FCR=1;+FLID=\""FAX_STATION_ID"\"", "OK",
@@ -360,16 +365,14 @@ int main( int argc, char ** argv)
 	lprintf( L_MESG, "waiting..." );
 
 #ifdef USE_SELECT
-#ifdef linux
-	__FD_ZERO( &readfds );
-	__FD_SET( STDIN, &readfds );
-#else
+
 	FD_ZERO( &readfds );
 	FD_SET( STDIN, &readfds );
-#endif
 	slct = select( 1, &readfds, NULL, NULL, NULL );
 	lprintf( L_NOISE, "select returned %d", slct );
+
 #else	/* use poll */
+
 	fds.fd = 1;
 	fds.events = POLLIN;
 	fds.revents= 0;
@@ -425,7 +428,7 @@ int main( int argc, char ** argv)
            first string), if "RING" found and no lock-file, lock the line
            and send manual answer string to the modem */
 
-	log_level++; /*FIXME: remove this !!!!!!!!!!!*/
+	log_level++; /*FIXME: remove this - for debugging only !!!!!!!!!!!*/
 	if ( do_chat( call_chat_seq, call_chat_actions, &what_action,
                       call_chat_timeout, TRUE, FALSE ) == FAIL )
 	{
