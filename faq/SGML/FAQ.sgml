@@ -107,7 +107,7 @@ ZyXELs; I [steve@work.bellingham.wa.us] assume other voice modems
 are similar.)
 <p>
 For an example on how a voice mail system looks like, there is the 
-<url url="http://www-internal.alphanet.ch/~schaefer/mvm" name="mvm">
+<url url="http://www-internal.alphanet.ch/~schaefer/mvm/" name="mvm">
 from Marc Schaefer.
 Since the voice shell is independent of the real modem hardware, it
 works on all supported modems, not just ZyXELs. The hardware drivers
@@ -143,7 +143,7 @@ Voice extensions were originally written by Klaus Weidner
 (Marc.Eberhard@Uni-Duesseldorf.DE) but are now being maintained by
 Marc Schaefer (schaefer@alphanet.ch).  Direct questions about them to
 that address. This is the <url name="official vgetty server"
-url="http://www-internal.alphanet.ch/~schaefer/vgetty">
+url="http://www-internal.alphanet.ch/~schaefer/vgetty.html">
 There you will find special patches, too.
  
 More from the distribution (some edits):
