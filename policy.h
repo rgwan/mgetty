@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.30 1993/11/06 00:11:09 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.31 1993/11/07 01:53:41 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -175,13 +175,58 @@
 #define FAX_IN_OWNER	0
 #define FAX_IN_GROUP	5
 
-/* if your received faxes are corrupted (missing lines), because the
- * faxmodem does not honor RTS handshake, define this.
- * mgetty will then do XON/XOFF flow control in fax receive mode
- * (I do *not* think that it's necessary)
+/* FLOW CONTROL
+ *
+ * There are basically two types of flow control:
+ * - hardware flow control: pull the RTS/CTS lines low to stop the other
+ *   side from spilling out data too fast
+ * - sofware flow control: send an Xoff-Character to tell the other
+ *   side to stop sending, send an Xon to restart
+ * obviously, use of Xon/Xoff has the disadvantage that you cannot send
+ * those characters in your data anymore, but additionally, hardware flow
+ * control is normally faster and more reliable
+ *
+ * mgetty can use multiple flow control variants:
+ * FLOW_NONE  - no flow control at all (absolutely not recommended)
+ * FLOW_HARD  - use RTS/CTS flow control (if available on your machine)
+ * FLOW_SOFT  - use Xon/Xoff flow control, leave HW lines alone
+ * FLOW_BOTH  - use both types simultaneously, if possible
+ *
+ * Note that few operating systems allow both types to be used together.
+ *
+ * mgetty won't (cannot!) notice if your settings don't work, but you'll
+ * see it yourself: you'll experience character losses, garbled faxes,
+ * low data throughput,..., if the flow control settings are wrong
+ *
+ * If in doubt what to use, try both and compare results.
+ * (if you use FAS or SAS with the recommended settings, FLOW_HARD is a
+ * "don't care" since the driver will use RTS/CTS anyway)
+ *
+ * If you use an atypical system, check whether tio_set_flow_control in
+ * tio.c does the right thing for your system.
  */
-/* #define FAX_RECEIVE_USE_IXOFF */
 
+/* This is the flow control used for normal data (login) connections
+ * Set it to FLOW_HARD except in very special cases.
+ */
+#define DATA_FLOW	FLOW_HARD
+
+/* This is the flow control used for incoming fax connections
+ * Wrong settings will result in missing lines or erroneous lines
+ * in most of the received faxes.
+ * Most faxmodems expect Xon/Xoff, few honour the RTS line.
+ */
+#define FAXREC_FLOW	FLOW_HARD | FLOW_SOFT
+
+/* And this is for sending faxes
+ * Wrong settings here will typically result in that the first few
+ * centimeters of a transmitted fax look perfect, and then (the buffer
+ * has filled up), the rest is more or less illegible junk.
+ * For most faxes, this has to be FLOW_SOFT, though the Supra and ZyXEL
+ * modems will (sometimes) do hardware flow control, too. Try it.
+ */
+#define FAXSEND_FLOW	FLOW_HARD | FLOW_SOFT
+ 
 /* if your faxmodem switches to 19200 bps just after sending the "+FCON"
  * message to the host, define this. (Not important if you have the
  * portspeed set to 19200 anyway).
@@ -218,16 +263,11 @@
  */
 #define FAX_SEND_BAUD B38400
 
-/* this is the command to set the modem to use the desired flow control
- * for hardware handshake, this could be &H3 for the ZyXEL, &K3 for
+/* this is the command to set the modem to use the desired flow control.
+ * For hardware handshake, this could be &H3 for the ZyXEL, &K3 for
  * Rockwell-Based modems or \\Q3&S0 for Exar-Based Modems (i.e. some GVC's)
  */
 #define FAX_MODEM_HANDSHAKE "&H3"
-
-/* if your faxmodem insists on using XON/XOFF flow control in class 2 fax
- * mode (even when told not to), define this (ZyXELs are know to do this).
- */
-#define FAX_SEND_USE_IXON
 
 /* When sending a fax, if the other side says "page bad, retrain
  * requested", sendfax will retry the page. Specifiy here the maximum
