@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.54 2002/11/04 22:54:37 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.55 2003/06/12 07:47:23 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -834,6 +834,11 @@ int mdm_identify _P1( (fd), int fd )
 	    lprintf( L_MESG, "Multitech MT5634Z internal detected" );
 	    modem_type=Mt_class2;
 	    modem_quirks |= MQ_NEED2;
+	}
+	else if ( strncmp( l, "LT V.92", 7 ) == 0 )	/* gert */
+	{
+	    lprintf( L_MESG, "Multitech MT5634ZBA-V92 detected" );
+	    modem_type=Mt_class2_0;
 	}
     }
 
