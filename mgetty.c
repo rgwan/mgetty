@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.130 1994/08/30 23:21:22 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.131 1994/09/16 15:32:56 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -526,7 +526,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 	    if ( ! blocking_open )
 	    {
 		if ( ! wait_for_input( STDIN, MODEM_CHECK_TIME*1000 ) &&
-		     ! direct_line )
+		     ! direct_line && ! virtual_ring )
 		{
 		    /* no activity - is the modem alive or dead? */
 		    mgetty_state = St_check_modem;
