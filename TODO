@@ -318,3 +318,8 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
 230) add "frontends" section to the documentation (mgetty.texi)
 
 231) pass dist_ring and called_id as env variables to login/new_fax
+
+232) have cndfind() signal back to ring.c if the string found was a
+     "caller ID" (for speedups, Caller ID is counted as "RING", to
+     avoid waiting for the next real RING which might delay answering 
+     by a number of seconds)
