@@ -4,9 +4,12 @@
 # 
 # Copyright 1998 Simone Demmel simone@greenie.net
 #
-# RCS: $Id: nph-vf-gif.in,v 1.5 1998/11/20 16:37:30 gert Exp $
+# RCS: $Id: nph-vf-gif.in,v 1.6 1998/12/04 15:29:53 gert Exp $
 #
 # $Log: nph-vf-gif.in,v $
+# Revision 1.6  1998/12/04 15:29:53  gert
+# include image refs for turn buttons
+#
 # Revision 1.5  1998/11/20 16:37:30  gert
 # - set umask 022 (for temp files)
 # - move parsing of CGI parameters to wwwsub.pl
@@ -384,9 +387,9 @@ sub rotate_html
 
     # use(einbeziehen) $turn , can be 0, 1,2,3.
     my $format="<a href=\"nph-vf-gif.cgi\?size=$size\&file=$file\&page=$page\&r=%d\">%s</a>\n";
-    printf $format, $turn+1, "&lt;";
-    printf $format, $turn+2, "^";
-    printf $format, $turn+3, "&gt;";
+    printf $format, $turn+1, "$turn_left";
+    printf $format, $turn+2, "$turn_updown";
+    printf $format, $turn+3, "$turn_right";
 }
 
 sub checkprogram
