@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 3.8 1996/05/27 19:46:46 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 3.9 1996/05/27 19:48:44 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -263,8 +263,6 @@ int main _P2( (argc, argv),
     /* initialize logging */
     log_init_paths( argv[0], FAX_LOG, NULL );
 
-    lprintf( L_MESG, "sendfax: %s", mgetty_version );
-
     /* parse switches (-> conf_sf.c) and read global config file */
     if ( sendfax_parse_args( argc, argv ) == ERROR )
     {
@@ -273,6 +271,8 @@ int main _P2( (argc, argv),
 
     /* read config file (defaults) */
     sendfax_get_config( NULL );
+
+    lprintf( L_MESG, "sendfax: %s", mgetty_version );
 
     /* for simplicity, put a few config things into global variables */
     verbose = c_bool( verbose );
