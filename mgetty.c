@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.141 1994/11/01 21:09:45 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.142 1994/11/02 10:17:31 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -323,11 +323,9 @@ int main _P2((argc, argv), int argc, char ** argv)
 	    }
 	    break;
 	  case 'r':
-	    direct_line = TRUE;
-	    break;
+	    direct_line = TRUE; break;
 	  case 'p':
-	    login_prompt = optarg;
-	    break;
+	    login_prompt = optarg; break;
 	  case 'n':			/* ring counter */
 	    rings_wanted = atoi( optarg );
 	    if ( rings_wanted == 0 ) rings_wanted = 1;
@@ -341,15 +339,11 @@ int main _P2((argc, argv), int argc, char ** argv)
 	    issue = optarg;		/* use different issue file */
 	    break;
 	  case 'D':			/* switch off fax */
-	    data_only = TRUE;
-	    break;
-	  case 'C':
-	    modem_class = optarg;
-	    if ( strcmp( modem_class, "data" ) == 0 ) data_only = TRUE;
-	    break;
+	    data_only = TRUE; break;
+	  case 'C':			/* set modem mode (fax/data) */
+	    modem_class = optarg; break;
 	  case 'S':
-	    fax_server_file = optarg;
-	    break;
+	    fax_server_file = optarg; break;
 	  case 'I':
 	    fax_station_id = optarg; break;
 	  case 'b':			/* open port in blocking mode */
@@ -481,8 +475,10 @@ int main _P2((argc, argv), int argc, char ** argv)
 	    rmlocks();
 	    exit(1);
 	}
+
 	/* initialize ``normal'' fax functions */
 	if ( ( ! data_only ) &&
+	     strcmp( modem_class, "data" ) != 0 && 
 	     mg_init_fax( STDIN, modem_class, fax_station_id ) == SUCCESS )
 	{
 	    /* initialize fax polling server (only if faxmodem) */
