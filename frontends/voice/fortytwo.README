@@ -1,0 +1,55 @@
+From gert Sat Apr 24 08:57:36 1999
+Return-Path: <gert>
+Received: by greenie.muc.de
+	via sendmail with stdio
+	id <m10awNb-0005iGC@greenie.muc.de>
+	for mgetty-list; Sat, 24 Apr 1999 08:57:35 +0200 (MEST)
+	(Smail-3.2 1996-Jul-4 #4 built -Feb-21)
+Sender: gert (Gert Doering)
+Received: from slarti.muc.de(really [193.149.48.10]) by greenie.muc.de
+	via smtpd with smtp
+	id <m10awNa-0005haC@greenie.muc.de>
+	for <mgetty-local@greenie.muc.de>; Sat, 24 Apr 1999 08:57:34 +0200 (MEST)
+	(Smail-3.2 1996-Jul-4 #20 built -Feb-16)
+Received: (qmail 27197 invoked by uid 1013); 24 Apr 1999 06:59:28 -0000
+Delivered-To: mgetty@muc.de
+Received: (qmail 27191 invoked from network); 24 Apr 1999 06:59:27 -0000
+Received: from greenie.muc.de (root@193.149.48.161)
+  by slarti.muc.de with SMTP; 24 Apr 1999 06:59:27 -0000
+Received: by greenie.muc.de
+	via sendmail with stdio
+	id <m10awNG-0005YJC@greenie.muc.de>
+	for mgetty@muc.de; Sat, 24 Apr 1999 08:57:14 +0200 (MEST)
+	(Smail-3.2 1996-Jul-4 #4 built -Feb-21)
+Received: from GATEWAY by greenie.muc.de with netnews
+	for mgetty@muc.de (mgetty@muc.de)
+To: mgetty@muc.de
+Date: 23 Apr 1999 16:55:15 GMT
+From: Bjoern Giesler <Bjoern.Giesler@stud.uni-karlsruhe.de>
+Message-ID: <7fq8lj$ijh$1@news.rz.uni-karlsruhe.de>
+Organization: Parfaith
+Sender: owner-mgetty@greenie.muc.de
+Subject: ANN: FortyTwo GUI voice tool
+Status: RO
+Content-Length: 584
+Lines: 18
+
+Hi,
+
+I've written (as an offspring of the Amock project) a tiny Python applet
+which lists recorded phone calls and lets you play them back and delete
+them selectively.
+
+It's called FortyTwo, and it's available from the Amock home page at
+
+		http://www.uni-karlsruhe.de/~Bjoern.Giesler/Amock.html
+
+(look under "Offspring Projects").
+
+Regards,
+				--Bjoern
+-- 
+| thank you for your time, worship the antichrist, and have a nice day /\
++---------------------------------------------------------------------/()\
+| pgp key available on request                                       /____\
+
