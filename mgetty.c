@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 3.16 1996/09/02 09:33:29 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 3.17 1996/09/15 23:16:25 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -57,16 +57,21 @@ chat_action_t	ring_chat_actions[] = { { "CONNECT",	A_CONN },
 					{ "VCON",       A_VCON },
 #endif
 #ifdef DIST_RING
-					{ "RING 1",	A_RING1 },
+		/* ZyXEL */		{ "RING 1",	A_RING1 },
 					{ "RING 2",	A_RING2 },
 					{ "RING 3",	A_RING3 },
 					{ "RING 4",	A_RING4 },
 					{ "RING 5",	A_RING5 },
-					{ "RING A",	A_RING1 },
+		/* USR */		{ "RING A",	A_RING1 },
 					{ "RING B",	A_RING2 },
 					{ "RING C",	A_RING3 },
 					{ "RING D",	A_RING4 },
 					{ "RING E",	A_RING5 },
+		/* Supra */		{ "RING1",	A_RING1 },
+					{ "RING2",	A_RING2 },
+					{ "RING3",	A_RING3 },
+					{ "RING4",	A_RING4 },
+					{ "RING5",	A_RING5 },
 #endif
 					{ NULL,		A_FAIL } };
 
@@ -997,6 +1002,13 @@ Ring_got_action:
 	    char * t = malloc( 6 + strlen( c_string(termtype)) );
 	    if ( t != NULL )
 	        { sprintf( t, "TERM=%s", c_string(termtype) ); putenv(t); }
+	}
+
+	/* catch "standard question #29" (DCD low -> /bin/login gets stuck) */
+	i = tio_get_rs232_lines(STDIN);
+	if ( i != -1 && (( i & TIO_F_DCD ) == 0 ) )
+	{
+	    lprintf( L_WARN, "WARNING: starting login while DCD is low!" );
 	}
 
 	/* hand off to login dispatcher (which will call /bin/login) */
