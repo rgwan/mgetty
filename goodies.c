@@ -1,4 +1,4 @@
-#ident "$Id: goodies.c,v 3.6 1996/03/10 22:00:22 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: goodies.c,v 3.7 1996/12/09 21:41:47 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /*
  * goodies.c
@@ -223,7 +223,7 @@ char * dest;
 /* provide putenv() for NEXTSTEP:
  * original code by Terrence W. Holm (tholm@uvicctr.UUCP),
  * slightly modified by Karl Berry (karl@cs.umb.edu)
- * contributed to mgetty by Georg Hoffleit (flight@mathi.uni-heidelberg.DE)
+ * contributed to mgetty by Gregor Hoffleit (flight@mathi.uni-heidelberg.DE)
  */
 
 #define  PSIZE  sizeof(char *)
