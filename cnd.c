@@ -1,4 +1,4 @@
-#ident "@(#)cnd.c	$Id: cnd.c,v 4.1 1997/01/12 14:53:35 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "@(#)cnd.c	$Id: cnd.c,v 4.2 1997/05/04 10:34:51 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 
 #include <stdio.h>
 #include <string.h>
@@ -198,12 +198,13 @@ int cndlookup _P0 (void)
 	    if (!match)
 		p2++;
 
+	    lprintf(L_JUNK, "CND: check no: %s", p2);
+
 	    if (strcmp(p2, "all") == 0)
 		goto leave;
 	    if (strncmp(p2, CallerId, strlen(p2)) == 0)
 		goto leave;
 
-	    lprintf(L_JUNK, "CND: number: %s", p2);
 	    p = NULL;
 	}
     }
