@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.13 1993/07/22 20:17:44 gert Exp $ (c) Gert Doering"
+#ident "$Id: policy.h,v 1.14 1993/07/22 20:56:50 gert Exp $ (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -65,7 +65,6 @@
  * If it is "0", HDB locking will be used - the PID will be written as
  * 10 byte ascii, with a trailing newline
  */
-
 #define LOCKS_BINARY 0
 
 /* the default speed used by mgetty - override it with "-s <speed>"
@@ -74,6 +73,16 @@
  * that supra faxmodems do only work with 19200 - could somebody try this?
  */
 #define DEFAULT_PORTSPEED	B38400
+
+/* the modem initialization string
+ *
+ * this sample string is for ZyXELs, for other modems you'll have to
+ * replace &H3 (rts/cts flow control), &K4 (enable v42bis) and &N0 (answer
+ * with all known protocols).
+ * For some modems, an initial "\d" is needed
+ * The modem must answer with "OK" (!!!) - otherwise, change mgetty.c
+ */
+#define MODEM_INIT_STRING	"ATS0=0Q0&D3&H3&N0&K4"
 
 /* the main fax spool directory
  */
