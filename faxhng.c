@@ -1,4 +1,4 @@
-#ident "$Id: faxhng.c,v 4.2 1997/12/17 21:52:00 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: faxhng.c,v 4.3 2002/12/16 13:07:53 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* faxhng.c - mainly table, translate +FHNG:xxx codes to english text
  */
@@ -67,8 +67,14 @@ struct t_fhng_table { int i ; char * string; } fhng_table[] = {
 	{     100, "Unspecified Receive Phase D errors" },
 	{     101, "RSPREC invalid response received" },
 	{     102, "COMREC invalid response received" },
-	{     103, "Unable to continue after PIN or PIP" }
+	{     103, "Unable to continue after PIN or PIP" },
 /*	{ 120-255, "RESERVED CODES" },	*/
+/* the i4l fax class 2 driver for the DIVA cards uses 120-151 */
+	{     128, "DIVA: all rates failed" },
+	{     129, "DIVA: too many trains" },
+	{     130, "DIVA: receive corrupted" },
+	{     131, "DIVA: unexpected disconnect" },
+	{     141, "DIVA: scan line too long" } 
 	};
 
 char * fax_strerror _P1( (fhng), int fhng )
