@@ -4,9 +4,12 @@
 # 
 # Copyright 1998 Simone Demmel simone@greenie.net
 #
-# RCS: $Id: nph-vf-gif.in,v 1.3 1998/10/27 14:19:46 gert Exp $
+# RCS: $Id: nph-vf-gif.in,v 1.4 1998/11/20 10:06:46 gert Exp $
 #
 # $Log: nph-vf-gif.in,v $
+# Revision 1.4  1998/11/20 10:06:46  gert
+# move check for $fax_spool_out to wwwsub.pl
+#
 # Revision 1.3  1998/10/27 14:19:46  gert
 # first cut finished
 # - scaling implemented
@@ -70,14 +73,7 @@ if (! -r $fax_incoming)
     { errormessage( "\$fax_incoming : no read-permission for $fax_incoming");}
 
 # check, if fax-outgoing is defined
-if ($fax_outgoing eq "") 
-{
-    errormessage("\$fax_outgoing : not configured - please look at the configuration-Files and configure the Directory where you store your outgoing faxes (\$fax_outgoing)");
-}
-if (! -d $fax_outgoing)
-    { errormessage("\$fax_outgoing : no such directory $fax_outgoing");}
-if (! -r $fax_outgoing)
-    { errormessage("\$fax_outgoing : no read-permission for $fax_outgoing");}
+check_outgoing();
 
 # check, if the destination-Directory for pictures is readdy
 if ($webtmpabs eq "") 
@@ -116,7 +112,7 @@ checkprogram($pnmflip, "pnmflip");
 #
 
 #
-# no buffering by the webserver
+# no buffering by perl
 #
 $|=1;
 

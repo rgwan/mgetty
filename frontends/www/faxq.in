@@ -4,9 +4,12 @@
 # 
 # Copyright 1998 Simone Demmel simone@greenie.net
 #
-# CVS: $Id: faxq.in,v 1.7 1998/11/10 16:26:07 gert Exp $
+# CVS: $Id: faxq.in,v 1.8 1998/11/20 10:06:44 gert Exp $
 #
 # $Log: faxq.in,v $
+# Revision 1.8  1998/11/20 10:06:44  gert
+# move check for $fax_spool_out to wwwsub.pl
+#
 # Revision 1.7  1998/11/10 16:26:07  gert
 # use ctime, not atime for "date" column
 #
@@ -56,15 +59,7 @@ require "@LIBDIR@/wwwsub.pl";
 #
 
 # check, if fax-outgoing is defined
-if ($fax_outgoing eq "")
-{
-    errormessage("\$fax_outgoing : not configured - please look at the configuration-Files and configure the Directory where you store your outgoing faxes (\$fax_outgoing)");
-}
-if (! -d $fax_outgoing)
-    { errormessage ("\$fax_outgoing : no such directory $fax_outgoing");}
-if (! -r $fax_outgoing)
-    { errormessage( "\$fax_outgoing : no read-permission for $fax_outgoing");}
-
+check_outgoing();
 
 # check, if $indexpage is not empty
 if ($indexpage eq "")
