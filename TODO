@@ -208,6 +208,7 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
      (in faxspool or faxrunq, not in sendfax).
      Add a note to the documentation to use this for in-house/outbound
      calls, too.
+     --> policy routing feature in "faxrunqd"
 
 174) on Dr.Neuhaus: stay in +fclass=2 mode, don't go to +fclass=0
      same for the Hayes Optima (+FAA=1 doesn't work in +fclass=0 mode)
@@ -269,8 +270,6 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
      portmasters, that have special IP ports to access their modem cards)
 
 203) fix ATD/ERROR problem with USR vs. ERROR response in fax_send_ppm
-
-204) convert hardware flow control on AIX 4.1/4.2 to use termio*x*
 
 205) vgetty on AIX: make sure VTIME is not set != 0 while waiting with
      select() or poll() -- drivers are dumb and use VTIME for timeout, 
