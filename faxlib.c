@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.57 2004/11/13 10:28:04 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.58 2004/11/13 22:14:31 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -799,7 +799,7 @@ int mdm_identify _P1( (fd), int fd )
 	}
 	else if ( strncmp( l, "Eicon ISDN Modem", 16 ) == 0 )
 	{
-	    lprintf( L_MESG, "Diehl/Eicon ISDN (assuming DIVA)" );
+	    lprintf( L_MESG, "Diehl/Eicon ISDN (assuming DIVA card with class 2 fax)" );
 	    modem_type=Mt_class2;
 	}
 	else if ( strncmp( l, "Linux ISDN", 10 ) == 0 )
