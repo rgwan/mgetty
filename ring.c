@@ -1,4 +1,4 @@
-#ident "$Id: ring.c,v 4.18 2002/12/04 22:04:34 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: ring.c,v 4.19 2002/12/05 20:29:10 gert Exp $ Copyright (c) Gert Doering"
 
 /* ring.c
  *
@@ -319,8 +319,9 @@ boolean	got_dle;		/* for <DLE><char> events (voice mode) */
 	/* Rockwell (et al) caller ID - handled by cndfind(), but
 	 * we count it as "RING" to be able to pick up immediately 
 	 * instead of waiting for the next "real" RING
+	 * (but don't do this for V253 DRON/DROF modems!)
 	 */
-	if ( strncmp( buf, "NMBR", 4 ) == 0 ) { break; }
+	if ( strncmp( buf, "NMBR", 4 ) == 0 && drox_count == 0 ) { break; }
 
 	/* V.253 ring cadences */
 	if ( strncmp( buf, "DRON", 4 ) == 0 ||
