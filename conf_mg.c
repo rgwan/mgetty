@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.c,v 3.6 1996/11/08 20:50:58 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_mg.c,v 3.7 1996/11/10 18:35:44 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_mg.c
  *
@@ -52,10 +52,6 @@ static char * def_force_init_chat_seq[] = { "",
  */
 static char * def_answer_chat_seq[] =
 			    { "", "ATA", "CONNECT", "\\c", "\n", NULL };
-
-#ifdef ELINK
-char *	elink_cnd_chat[] = { "", "AT\\\\O", "OK", "\\c", "\n", NULL };
-#endif /* !ELINK */
 
 /* this is the default configuration...
  */
@@ -168,11 +164,6 @@ conf_data c_a[2];
 
     c.answer_chat.d.p = (void *) def_answer_chat_seq;
     c.answer_chat.flags = C_PRESET;
-
-#ifdef ELINK
-    c.getcnd_chat.d.p = (void *) elink_cnd_chat;
-    c.getcnd_chat.flags = C_PRESET;
-#endif /* !ELINK */
 
 
     /* get command line arguments */
