@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 2.6 1995/04/07 01:14:20 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 2.7 1995/04/26 16:06:14 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -568,7 +568,7 @@ char *	line;
 	case 0:		/* child */
 	    /* detach from controlling tty -> no SIGHUP */
 	    close( 0 ); close( 1 ); close( 2 );
-#ifdef BSD
+#if defined(BSD) || defined(sunos4)
 	    setpgrp( 0, getpid() );
 	    if ( ( r = open( "/dev/tty", O_RDWR ) ) >= 0 )
 	    {
