@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.66 1994/10/31 11:35:50 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.67 1994/11/04 14:22:37 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -275,19 +275,6 @@
  */
 #define DEFAULT_MODEMTYPE "auto"
 
-
-/* the main fax spool directory
- */
-#define FAX_SPOOL	"/usr/spool/fax"
-
-/* where incoming faxes go to
- * getty needs write permissions!
- */
-#ifdef __STDC__
-# define FAX_SPOOL_IN	FAX_SPOOL"/incoming"
-#else
-# define FAX_SPOOL_IN	"/usr/spool/fax/incoming"
-#endif
 
 /* some modems are a little bit slow - after sending a response (OK)
  * to the host, it will take some time before they can accept the next
