@@ -3,7 +3,7 @@
  *
  * autodetect the modemtype we are connected to.
  *
- * $Id: detect.c,v 1.14 1999/11/13 11:10:34 marcs Exp $
+ * $Id: detect.c,v 1.15 2000/06/11 16:22:31 marcs Exp $
  *
  */
 
@@ -47,7 +47,8 @@ static const struct modem_type_struct modem_database[] =
      {ati, "1443",                 NULL,   &Dolphin},
      {ati, "1445",                 NULL,   &US_Robotics},
      {ati, "1496",                 NULL,   &ZyXEL_1496},
-     {ati, "1500",                 NULL,   &ZyXEL_2864},
+     {ati, "1500",                 NULL,   &ZyXEL_Omni56K},
+     {ati, "1501",                 NULL,   &ZyXEL_Omni56K},
      {ati, "247",                  NULL,   &Multitech_2834ZDXv},
      {ati, "248",                  NULL,   &Sierra},
      {ati, "249",                  NULL,   &Rockwell},
@@ -90,11 +91,14 @@ static const struct modem_type_struct modem_database[] =
                                   */
 
      {ati6, "OK",      NULL, &Dr_Neuhaus},
+     {ati6, "RCV288DPi Rev 05BA",  NULL,   &Rockwell},
      {ati6, "RCV288*", NULL, &Rockwell},
 
 #if 0 /* Please read libvoice/README.lucent */
      {ati0, "ZOOM*", NULL, &Lucent},
 #endif
+
+     {ati4, "WS-3314JS3", NULL, &Rockwell},
 
      {NULL, NULL, NULL, NULL}
      };
