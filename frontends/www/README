@@ -1,4 +1,4 @@
-[ $Id: README,v 1.5 2001/06/14 07:29:26 neko Exp $ ]
+[ $Id: README,v 1.6 2002/12/03 22:09:35 gert Exp $ ]
 
 This is a collection of tools to maintain mgetty using a WWW interface
 (CGI binaries and a couple of static pages).
@@ -141,6 +141,19 @@ the CGIBINDIR that contains the following lines:
     order deny,allow
     deny from all
     allow from <hostname/domain>
+
+or if you want to do username+password authentication (again assuming 
+apache) it could look like this:
+
+    deny from all
+    allow from localhost
+    AuthType Basic
+    AuthUserFile /var/lib/apache/conf/passwd
+    AuthName "special directory"
+    require valid-user 
+    satisfy any
+
+(Check with the WWW server documentation!)
 
 --------------------------------------------------------------------
 Please direct all questions concerning the WWW gui to Simone Demmel
