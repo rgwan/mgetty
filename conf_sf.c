@@ -1,4 +1,4 @@
-#ident "$Id: conf_sf.c,v 3.1 1995/08/30 12:40:26 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_sf.c,v 3.2 1995/09/06 18:30:54 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_sf.c
  *
@@ -47,6 +47,7 @@ struct conf_data_sendfax c = {
 	{ "" /* polling */, FALSE, CT_BOOL, C_PRESET },
 	{ "page-header", 0, CT_STRING, C_EMPTY },
 	{ "" /* stdin */, FALSE, CT_BOOL, C_PRESET },
+	{ "" /* rename */, FALSE, CT_BOOL, C_PRESET },
 	{ NULL, 0, CT_STRING, C_EMPTY }};
 
 int sendfax_parse_args _P2( (argc,argv), int argc, char ** argv )
@@ -78,7 +79,7 @@ conf_data c_a[2];
     }
 
     /* get command line arguments */
-    while ((opt = getopt(argc, argv, "d:vx:ph:l:nm:SC:I:")) != EOF)
+    while ((opt = getopt(argc, argv, "d:vx:ph:l:nm:SC:I:r")) != EOF)
     {
 	switch (opt) {
 	  case 'd':	/* set target directory for polling */
@@ -121,6 +122,9 @@ conf_data c_a[2];
 	    break;
 	  case 'I':	/* local fax id */
 	    conf_set_string( &c.station_id, optarg );
+	    break;
+	  case 'r':
+	    conf_set_bool( &c.rename_files, TRUE );
 	    break;
 	  case '?':	/* unrecognized parameter */
 	    return ERROR;
