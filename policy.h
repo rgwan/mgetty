@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.69 1994/11/06 15:25:01 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.70 1994/11/21 16:45:12 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -214,12 +214,15 @@
 
 /* the default speed used by mgetty - override it with "-s <speed>"
  *
- * WARNING: ZyXELs *can* do faxreceive with 38400, but a lot other modems,
- * especially such based on the rockwell chipset can *not*. So, if
- * your fax receive fails mysteriously, timing out waiting for "OK", try
- * setting this to B19200
+ * WARNING: this is a bit tricky, since some modems insist on going to
+ * 19200 bps when in fax mode. So, if fax receiving with a port speed of
+ * something else doesn't work, try experimenting with FAX_RECV_SWITCHBD,
+ * and if that doesn't help, try DEFAULT_PORTSPEED 19200
+ *
+ * WARNING2: Speeds higher than 38400 aren't supported on all platforms,
+ * and sometimes you have to use "50" to get 57600 or so!
  */
-#define DEFAULT_PORTSPEED	B38400
+#define DEFAULT_PORTSPEED	38400
 
 /* the modem initialization string
  *
@@ -235,6 +238,10 @@
  *     "ATZ". I just like to make sure the most important things are
  *     always set...
  * If you wish to use ZyXEL callerid, add "S40.2=1"
+ *
+ * Very IMPORTANT: make sure that the modem assigns the DCD line properly,
+ * usually this is done with the AT&C1 command!
+ *
  * The modem must answer with "OK" (!!!) - otherwise, change mgetty.c
  */
 #define MODEM_INIT_STRING	"ATS0=0Q0&D3&H3&N0&K4"
@@ -360,17 +367,18 @@
  */
 #define FAXSEND_FLOW	FLOW_HARD | FLOW_SOFT
  
-/* if your faxmodem switches to 19200 bps just after sending the "+FCON"
- * message to the host, define this. (Not important if you have the
- * portspeed set to 19200 anyway).
- * Some Tornado and Supra modems are know to do this.
- * ZyXELs do *not* do this, except if explicitely told to do so.
+/* if your faxmodem switches port bit rate just after sending the "+FCON"
+ * message to the host, define this to contain the baudrate used. (Not
+ * important if you have the portspeed set to this value anyway).
  *
- * You can see if this happens if mgetty gets the "+FCON" response,
+ * Most Rockwell-based modems need FAX_RECV_SWITCHBD 19200.
+ * ZyXELs do *not* need this, except if explicitely told to do so.
+ *
+ * You can see if this is set wrong if mgetty gets the "+FCON" response,
  * starts the fax receiver, and times out waiting for OK, receiving
  * nothing or just junk.
  */
-/* #define FAX_RECEIVE_USE_B19200 */
+/* #define FAX_RECV_SWITCHBD 19200 */
 
 /* some genius at US Robotics obviously decided that the above method
  * of switching baud rates is broken, and came up with something new
@@ -395,10 +403,10 @@
 /* ------ sendfax-specific stuff follows here -------- */
 
 /* the baudrate used for *sending* faxes. ZyXELs can handle 38400,
- * SUPRAs (and other rockwell-based faxmodems) do not
+ * SUPRAs (and many other rockwell-based faxmodems) can not.
  * I recommend 38400, since 19200 may be to slow for 14400 bps faxmodems!
  */
-#define FAX_SEND_BAUD B38400
+#define FAX_SEND_BAUD 38400
 
 /* switch baud rate after +FCLASS=2
  *
@@ -414,12 +422,13 @@
  * Only try fiddling with this if sendfax times out during modem
  * initialization, receiving junk instead of "OK" or "ERROR" (logfile!)
  */
-/* #define FAX_SEND_SWITCHBD B19200 */
+/* #define FAX_SEND_SWITCHBD 19200 */
 
 /* this is the command to set the modem to use the desired flow control.
  * For hardware handshake, this could be AT&H3 for the ZyXEL, &K3 for
  * Rockwell-Based modems or AT\\Q3&S0 for Exar-Based Modems (i.e. some GVC's)
  * If you don't want extra initalization, do not define it.
+ * Don't forget the "AT"!
  */
 #define FAX_MODEM_HANDSHAKE "AT&H3"
 
@@ -444,7 +453,7 @@
 
 /* the device(s) used for faxing
  * multiple devices can be separated by ":", e.g. "tty1a:tty2a"
- * (without (!) leading /dev/)
+ * (with or without leading /dev/)
  */
 #define FAX_MODEM_TTYS	"tty4c:tty4d"
 
