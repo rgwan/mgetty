@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.77 1993/12/27 22:00:24 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.78 1994/01/02 18:05:08 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -172,6 +172,12 @@ static RETSIGTYPE sig_pick_phone()		/* "simulated RING" handler */
 {
     signal( SIGUSR1, sig_pick_phone );
     virtual_ring = TRUE;
+}
+static RETSIGTYPE sig_goodbye( int signo )
+{
+    lprintf( L_AUDIT, "got signal %d, exiting", signo );
+    rmlocks();
+    exit(10);
 }
 
 int main _P2((argc, argv), int argc, char ** argv)
@@ -563,10 +569,10 @@ int main _P2((argc, argv), int argc, char ** argv)
 
 	/* set to remove lockfile(s) on certain signals
 	 */
-	(void) signal(SIGHUP, rmlocks);
-	(void) signal(SIGINT, rmlocks);
-	(void) signal(SIGQUIT, rmlocks);
-	(void) signal(SIGTERM, rmlocks);
+	(void) signal(SIGHUP, sig_goodbye);
+	(void) signal(SIGINT, sig_goodbye);
+	(void) signal(SIGQUIT, sig_goodbye);
+	(void) signal(SIGTERM, sig_goodbye);
 
 #ifdef VOICE
 	/* Answer in voice mode. The function will return only if it
