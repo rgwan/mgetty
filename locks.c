@@ -1,4 +1,4 @@
-#ident "$Id: locks.c,v 1.28 1994/08/08 12:34:28 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
+#ident "$Id: locks.c,v 1.29 1994/08/10 12:54:11 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
 
 /* large parts of the code in this module are taken from the
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us,
@@ -169,48 +169,51 @@ int makelock_file _P1( (file), char * file )
 }
    
 /*
- *	checklock() - test for presense of valid lock file
+ *	checklock() - test for presence of valid lock file
  *
- *	Returns TRUE if lockfile found, FALSE if not.
+ *	if lockfile found, return PID of process holding it, 0 otherwise
  */
 
-boolean checklock _P1( (device),
-		       char * device)
+int checklock _P1( (device), char * device)
 {
-	int pid;
-	struct stat st;
-	char name[MAXLINE+1];
+    int pid;
+    struct stat st;
+    char name[MAXLINE+1];
+    
+    if ( get_lock_name( name, device ) == NULL )
+    {
+	lprintf( L_ERROR, "cannot get lock name" );
+	return NO_LOCK;
+    }
 
-	if ( get_lock_name( name, device ) == NULL )
-	{
-	    lprintf( L_ERROR, "cannot get lock name" );
-	    return FALSE;
-	}
+    if ((stat(name, &st) == FAIL) && errno == ENOENT)
+    {
+	lprintf(L_NOISE, "checklock: stat failed, no file");
+	return NO_LOCK;
+    }
+    
+    if ((pid = readlock(name)) == FAIL)
+    {
+	lprintf(L_MESG, "checklock: couldn't read lockfile");
+	return NO_LOCK;
+    }
 
-	if ((stat(name, &st) == FAIL) && errno == ENOENT) {
-		lprintf(L_NOISE, "checklock: stat failed, no file");
-		return(FALSE);
-	}
-
-	if ((pid = readlock(name)) == FAIL) {
-		lprintf(L_MESG, "checklock: couldn't read lockfile");
-		return(FALSE);
-	}
-
-        if (pid == getpid())
-	{
-	        lprintf(L_WARN, "huh? It's *our* lock file!" );
-		return(FALSE);
-	}
+    if (pid == getpid())
+    {
+	lprintf(L_WARN, "huh? It's *our* lock file!" );
+	return NO_LOCK;
+    }
 		
-	if ((kill(pid, 0) == FAIL) && errno == ESRCH) {
-		lprintf(L_NOISE, "checklock: no active process has lock, will remove");
-		(void) unlink(name);
-		return(FALSE);
-	}
-	lprintf(L_NOISE, "lockfile found" );
-
-	return(TRUE);
+    if ((kill(pid, 0) == FAIL) && errno == ESRCH)
+    {
+	lprintf(L_NOISE, "checklock: no active process has lock, will remove");
+	(void) unlink(name);
+	return NO_LOCK;
+    }
+    
+    lprintf(L_NOISE, "lockfile found, pid=%d", pid );
+    
+    return pid;
 }
 
 /*
