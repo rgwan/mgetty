@@ -4,7 +4,7 @@
  * Executes the shell script given as the argument. If the argument is
  * empty, commands are read from standard input.
  *
- * $Id: shell.c,v 1.16 2001/08/06 17:45:17 marcs Exp $
+ * $Id: shell.c,v 1.17 2001/12/22 19:38:53 marcs Exp $
  *
  */
 
@@ -107,6 +107,7 @@ int voice_execute_shell_script(char *shell_script, char **shell_options)
                case -1:
                     lprintf(L_WARN, "%s: cannot fork!", program_name);
                     return(FAIL);
+		    break;
                case 0:
                     {
                     char buffer1[VOICE_BUF_LEN];
