@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 3.13 1996/11/26 22:32:25 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 3.14 1996/11/28 22:06:22 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -88,7 +88,7 @@ AWK=@AWK@
 #
 fs_cvt_pbm()
 {
-    pbmtog3 $1 >$2.1
+    pbmtog3 $1 >$2.001
 }
 
 #
@@ -96,7 +96,7 @@ fs_cvt_pbm()
 #
 fs_cvt_pgm()
 {
-    pgmtopbm $1 | pbmtog3 >$2.1
+    pgmtopbm $1 | pbmtog3 >$2.001
 }
 
 #
@@ -104,7 +104,7 @@ fs_cvt_pgm()
 #
 fs_cvt_ppm()
 {
-    ppmtopgm $1 | pgmtopbm | pbmtog3 >$2.1
+    ppmtopgm $1 | pgmtopbm | pbmtog3 >$2.001
 }
 
 #
@@ -114,7 +114,7 @@ fs_cvt_ppm()
 #
 fs_cvt_g3()
 {
-    g3cat $1 >$2.1
+    g3cat $1 >$2.001
 }
 
 #
@@ -133,7 +133,7 @@ fs_cvt_xwd()
 	$REDUCE |\
 	ppmtopgm |\
 	pgmtopbm |\
-	pbmtog3 >$2.1
+	pbmtog3 >$2.001
 }
 
 #
@@ -151,7 +151,7 @@ fs_cvt_gif()
 	$REDUCE |\
 	ppmtopgm |\
 	pgmtopbm |\
-	pbmtog3 >$2.1
+	pbmtog3 >$2.001
 }
 
 #
@@ -169,7 +169,7 @@ fs_cvt_tif()
 	$REDUCE |\
 	ppmtopgm |\
 	pgmtopbm |\
-	pbmtog3 >$2.1
+	pbmtog3 >$2.001
 }
 
 #
@@ -197,7 +197,7 @@ fs_cvt_ps()
     test X$3 = X-n && driver=dfaxlow
 
     cat $1 |
-	gs -sDEVICE=$driver -sOutputFile=$2%02d -dNOPAUSE -q -dSAFER -
+	gs -sDEVICE=$driver -sOutputFile=$2%03d -dNOPAUSE -q -dSAFER -
 }
        
 #
@@ -213,7 +213,7 @@ fs_cvt_ascii()
     driver=dfaxhigh
     test X$3 = X-n && driver=dfaxlow
 
-    gs -sDEVICE=$driver -sOutputFile=$2%02d -dNOPAUSE \
+    gs -sDEVICE=$driver -sOutputFile=$2%03d -dNOPAUSE \
         -- gslp.ps -fCourier-Bold10 -B $1
 
 #####
@@ -260,16 +260,16 @@ fs_cvt_dvi()
 # dvips as "dvips $dvipscfg $1 ..." instead.
 
     dvips $1 -o \
-        !"gs -sDEVICE=$driver -sOutputFile=$2%02d -dNOPAUSE -dSAFER -q -"
+        !"gs -sDEVICE=$driver -sOutputFile=$2%03d -dNOPAUSE -dSAFER -q -"
 #
 #	dvialw <$file |
-#	    gs -sDEVICE=$driver -sOutputFile=$2%02d -dNOPAUSE \
+#	    gs -sDEVICE=$driver -sOutputFile=$2%03d -dNOPAUSE \
 #               -dSAFER -
 
 # for those that have dvi2ps and not dvips
 #
 #	dvi2ps -r -q $q |
-#	    gs -sDEVICE=$driver -sOutputFile=$2%02d -dNOPAUSE -dSAFER -q -
+#	    gs -sDEVICE=$driver -sOutputFile=$2%03d -dNOPAUSE -dSAFER -q -
 
 }
 	
@@ -607,6 +607,7 @@ $echo "spooling to $spooldir..."
 # process all input files
 #
 input_data="$*"
+F_NO=0001
 
 for file
 do
@@ -624,28 +625,27 @@ do
     fi
 
     format=""
-    base=`basename $file`
 
 #
 # try to determine file type by extention (won't work for print spooler!)
 #
     case $file in
-	*.g3)	format="g3" ; base=`basename $file .g3` ;;
-	*.ps)	format="ps" ; base=`basename $file .ps` ;;
-	*alw)	format="ps" ; base=`basename $file alw` ;;
-	*.dvi)	format="dvi"; base=`basename $file .dvi`;;
-	*.pbm)	format="pbm"; base=`basename $file .pbm`;;
-	*.pgm)	format="pgm"; base=`basename $file .pgm`;;
-	*.ppm)	format="ppm"; base=`basename $file .ppm`;;
-	*.t)	format="ascii"; base=`basename $file .t`;;
-	*.txt)	format="ascii"; base=`basename $file .txt`;;
-	*.asc)	format="ascii"; base=`basename $file .asc`;;
-	*.lj)   format="lj";  base=`basename $file .lj`;;
-	*.pcl)  format="lj";  base=`basename $file .pcl`;;
-	*.xwd)	format="xwd"; base=`basename $file .xwd`;;
-	*.gif)	format="gif"; base=`basename $file .gif`;;
-	*.tif)	format="tif"; base=`basename $file .tif`;;
-	*.tiff)	format="tif"; base=`basename $file .tiff`;;
+	*.g3)	format="g3" ;;
+	*.ps)	format="ps" ;;
+	*alw)	format="ps" ;;
+	*.dvi)	format="dvi";;
+	*.pbm)	format="pbm";;
+	*.pgm)	format="pgm";;
+	*.ppm)	format="ppm";;
+	*.t)	format="ascii";;
+	*.txt)	format="ascii";;
+	*.asc)	format="ascii";;
+	*.lj)   format="lj" ;;
+	*.pcl)  format="lj" ;;
+	*.xwd)	format="xwd";;
+	*.gif)	format="gif";;
+	*.tif)	format="tif";;
+	*.tiff)	format="tif";;
     esac
 
 # if we don't know the file type now, let's try something more esoteric
@@ -656,7 +656,7 @@ do
 # ask "file"
 # (extend /etc/magic if necessary!)
 #
-	case "`file $file | cut -d':' -f2- `" in
+	case "`LANG=C file $file | cut -d':' -f2- `" in
 	    *"nglish text"*)	format="ascii" ;;
 	    *"ascii text"*)	format="ascii" ;;
 	    *"ews text"*)	format="ascii" ;;
@@ -724,7 +724,7 @@ do
 
     $echo "$file is format: $format"
 
-    target=$spooldir/$base
+    target=$spooldir/i-$F_NO-
 
     if
     case $format in
@@ -738,6 +738,8 @@ do
 	$echo "\n$0: error spooling \"$file\" - aborting!" >&2 ; exit 8
     fi
 
+    # next temporary file number (using awk 'cause expr can't do "%04d"!)
+    F_NO=`echo $F_NO | $AWK '{ printf "%04d", $1 + 1 }' -`
 done
 
 #
@@ -765,7 +767,7 @@ job=$spooldir/JOB
 # conversion complete. Post-process G3 files
 #
 
-pages=`ls -rt $spooldir`
+pages=`ls $spooldir`
 #
 # get list / number of pages
 #
