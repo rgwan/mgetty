@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.23 1998/03/26 09:00:55 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.24 1998/04/02 21:05:26 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -287,8 +287,8 @@ MV=mv
 # Nothing to change below this line ---------------------------------!
 #
 MR=1.1
-SR=13
-DIFFR=1.1.12
+SR=14
+DIFFR=1.1.13
 #
 #
 OBJS=mgetty.o logfile.o do_chat.o locks.o utmp.o logname.o login.o \
@@ -451,9 +451,9 @@ mgetty$(MR).$(SR).tar.gz:	$(DISTRIB)
 
 tar:	mgetty$(MR).$(SR).tar.gz
 
-diff:	mgetty$(DIFFR)-$(MR).$(SR).diff
+diff:	mgetty$(DIFFR)-$(MR).$(SR).diff.gz
 
-mgetty$(DIFFR)-$(MR).$(SR).diff: \
+mgetty$(DIFFR)-$(MR).$(SR).diff.gz: \
 	mgetty$(DIFFR).tar.gz mgetty$(MR).$(SR).tar.gz
 	-rm -rf /tmp/mgd
 	mkdir /tmp/mgd
@@ -464,6 +464,7 @@ mgetty$(DIFFR)-$(MR).$(SR).diff: \
 		mgetty-$(DIFFR) mgetty-$(MR).$(SR) ; \
 		exit 0 ) >mgetty$(DIFFR)-$(MR).$(SR).diff
 	rm -rf /tmp/mgd
+	gzip -9v mgetty$(DIFFR)-$(MR).$(SR).diff
 
 mg.uue:	mgetty$(MR).$(SR).tar.gz
 	uuencode mgetty$(MR).$(SR)-`date +%b%d`.tar.gz <mgetty$(MR).$(SR).tar.gz >mg.uue
@@ -482,9 +483,12 @@ beta:	mgetty$(MR).$(SR).tar.gz diff
 	cp mgetty$(MR).$(SR).tar.gz /pub/mgetty-archive/
 	cp mgetty$(DIFFR)-$(MR).$(SR).diff /pub/mgetty-archive/
 
-# beta ftp site
-	-./ftp.sh $(MR).$(SR) hp2 \
-		'~ftp/pub/comp/networking/communication/modem/mgetty' && \
+# master ftp/www site
+	./ftp.sh $(MR).$(SR) alpha.greenie.net \
+		'~ftp/pub/mgetty/source/$(MR)'
+	ssh alpha.greenie.net './beta $(MR) $(SR) $(DIFFR)'
+
+# old master ftp site
 	ssh hp2 -l doering 'cd $$HOME ; ./beta'
 
 # send to Marc and Knarf
