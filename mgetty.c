@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.127 1994/08/10 14:55:07 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.128 1994/08/20 23:57:54 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -482,7 +482,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 	 * to show a status flag. vgetty uses this to indicate
 	 * that new messages have arrived.
 	 */
-	voice_message_light(&rings_wanted);
+	voice_message_light();
     }
 #endif /* VOICE */
 
@@ -687,6 +687,13 @@ int main _P2((argc, argv), int argc, char ** argv)
 		break;
 	    }
 	    
+#ifdef VOICE
+	    if ( use_voice_mode ) {
+		/* check how many RINGs we're supposed to wait for */
+		voice_rings(&rings_wanted);
+	    }
+#endif /* VOICE */
+
 	    while ( rings < rings_wanted )
 	    {
 		if ( do_chat( STDIN, ring_chat_seq, ring_chat_actions,
