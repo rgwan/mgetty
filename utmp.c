@@ -1,4 +1,4 @@
-#ident "$Id: utmp.c,v 1.25 1994/11/02 19:33:13 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: utmp.c,v 1.26 1994/11/02 22:20:31 gert Exp $ Copyright (c) Gert Doering"
 
 /* some parts of the code (writing of the utmp entry)
  * is based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
@@ -10,6 +10,8 @@
 #if defined(sunos4) || defined(BSD)
 
 #include <stdio.h>
+#include <string.h>
+#include <time.h>
 
 #else		/* !BSD */
 
