@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 3.8 1996/05/26 11:29:43 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 3.9 1996/07/01 19:46:00 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -201,6 +201,7 @@ int	mdm_command   _PROTO(( char * send, int fd ));
 
 /* logname.c */
 char *	ln_escape_prompt _PROTO(( char * prompt ));
+void	set_env_var _PROTO(( char * var, char * string ));
 
 /* login stuff */
 void login_dispatch _PROTO(( char * user ));
