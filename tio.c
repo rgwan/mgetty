@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 1.36 1994/10/06 14:25:27 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 1.37 1994/10/21 21:32:39 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* tio.c
  *
@@ -262,7 +262,7 @@ void tio_mode_cbreak _P1( (t), TIO * t )
 #if defined(SYSV_TERMIO) || defined(POSIX_TERMIOS)
     t->c_oflag = 0;
     t->c_iflag &= ~( IGNCR | ICRNL | INLCR | IUCLC );
-    t->c_lflag &= ~( ICANON );
+    t->c_lflag &= ~( ICANON | ISIG );
     t->c_cc[VMIN] = 1;
     t->c_cc[VTIME]= 0;
 #else
