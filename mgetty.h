@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.14 1993/03/23 16:44:16 gert Exp $ (c) Gert Doering */
+/* $Id: mgetty.h,v 1.15 1993/04/05 01:08:57 gert Exp $ (c) Gert Doering */
 
 /* stuff in logfile.c */
 
@@ -106,10 +106,14 @@ extern char *	optarg;
 #ifdef CRTSCTS
 #define HARDWARE_HANDSHAKE CRTSCTS
 #else
+#ifdef CRTSFL
+#define HARDWARE_HANDSHAKE CRTSFL
+#else
 #ifdef RTSFLOW
 #define HARDWARE_HANDSHAKE RTSFLOW | CTSFLOW
 #else
 #define HARDWARE_HANDSHAKE 0
+#endif
 #endif
 #endif
 
