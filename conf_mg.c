@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.c,v 1.5 1995/04/22 00:19:37 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_mg.c,v 1.6 1995/06/05 10:17:59 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_mg.c
  *
@@ -69,6 +69,7 @@ struct conf_data_mgetty c = {
 	{ "toggle-dtr", TRUE, CT_BOOL, C_PRESET },
 	{ "toggle-dtr-waittime", 500, CT_INT, C_PRESET },
 	{ "data-only", FALSE, CT_BOOL, C_PRESET },
+	{ "fax-only", FALSE, CT_BOOL, C_PRESET },
 	{ "modem-type", (int) DEFAULT_MODEMTYPE, CT_STRING, C_PRESET },
 	{ "init-chat", 0, CT_CHAT, C_EMPTY },
 
@@ -168,7 +169,7 @@ conf_data c_a[2];
 	conf_set_bool( &c.direct_line, TRUE );
     }
 
-    while ((opt = getopt(argc, argv, "c:x:s:rp:n:R:i:DC:S:k:m:I:ba")) != EOF)
+    while ((opt = getopt(argc, argv, "c:x:s:rp:n:R:i:DCF:S:k:m:I:ba")) != EOF)
     {
 	switch (opt)
 	{
@@ -209,6 +210,9 @@ conf_data c_a[2];
 	    break;
 	  case 'D':			/* switch off fax */
 	    conf_set_bool( &c.data_only, TRUE );
+	    break;
+	  case 'F':			/* switch off data-mode (security!) */
+	    conf_set_bool( &c.fax_only, TRUE );
 	    break;
 	  case 'C':			/* set modem mode (fax/data) */
 	    conf_set_string( &c.modem_type, optarg );
