@@ -1,9 +1,12 @@
-#ident "$Id: faxlib.c,v 4.26 1997/11/28 11:40:53 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.27 1997/12/04 11:47:11 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
  * Module containing generic faxmodem functions (as: send a command, wait
  * for modem responses, parse modem responses)
+ *
+ * Only class 2 and class 2.0 stuff is here. Class 1 stuff is so
+ * different that it goes to a separate library.
  */
 
 #include <stdio.h>
@@ -562,9 +565,13 @@ int mdm_identify _P1( (fd), int fd )
 	    mis = mdm_get_idstring( "ATI1", 1, fd );
 	    break;
 	  case 1444:
-	  case 1445:
 	    lprintf( L_MESG, "USR Courier/Sportster v32bis detected (assuming non-fax capable)" );
 	    modem_type=Mt_data;
+	    break;
+	  case 1445:
+	    lprintf( L_MESG, "USR Courier/Sportster v32bis detected (buggy fax implementation)" );
+	    modem_type=Mt_class2_0;
+	    modem_quirks |= MQ_USR_FMINSP;
 	    break;
 	  case 2886:
 	  case 3361:
