@@ -69,7 +69,7 @@ chat_action_t	dial_chat_actions[] = { { "NO CARRIER", A_FAIL },
 /* prototypes for system functions (that are missing in some 
  * system header files)
  */
-#ifndef __NetBSD__
+#if !defined(__NetBSD__) && !defined(__OpenBSD__)
 time_t		time _PROTO(( long * tloc ));
 #endif
 

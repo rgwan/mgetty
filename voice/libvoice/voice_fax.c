@@ -2,7 +2,7 @@
  * This file is only temporarily needed until the fax part and the voice
  * part are better integrated
  *
- * $Id: voice_fax.c,v 1.4 1998/09/09 21:07:37 gert Exp $
+ * $Id: voice_fax.c,v 1.5 2001/09/28 21:09:51 gert Exp $
  *
  */
 
@@ -29,7 +29,7 @@
 #define REVERSE 1
 
 /* seems to missing nearly everywhere */
-#ifndef __NetBSD__
+#if !defined(__NetBSD__) && !defined(__OpenBSD__)
 time_t    time _PROTO(( long * tloc ));
 #endif
 

@@ -4,7 +4,7 @@
  * This is the main header file for vgetty, vm and the pvf tools.
  * It includes other header files and defines some global variables.
  *
- * $Id: voice.h,v 1.12 2001/05/14 11:24:17 marcs Exp $
+ * $Id: voice.h,v 1.13 2001/09/28 21:10:04 gert Exp $
  *
  */
 
@@ -22,7 +22,7 @@
 #include <errno.h>
 #include <fcntl.h>
 
-#if !defined( __bsdi__ ) && !defined(__FreeBSD__) && !defined(NeXT)
+#if !defined( __bsdi__ ) && !defined(__FreeBSD__) && !defined(NeXT) && !defined(__OpenBSD__)
 # include <malloc.h>
 #endif
 
