@@ -9,10 +9,14 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.67 2004/11/24 13:32:06 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.68 2004/11/24 15:01:29 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.68  2004/11/24 15:01:29  gert
+# Implement 'sendfax-tty-map' (run tty-specific sendfax binary)
+# add job ID to log file entry for "faxrm removed job"
+#
 # Revision 1.67  2004/11/24 13:32:06  gert
 # implement update-call-program (status update callback)
 #
@@ -178,6 +182,7 @@ $max_tries_costly=3;
 $max_tries_total=10;
 $delete_jobs=0;
 $max_combined_pages=10;
+my %sendfax_tty_map = ();
 
 #
 # verbose strings for error messages
@@ -328,6 +333,9 @@ if ( open( CF, $faxrunq_cf ) )
 		{ $policy_config = "$1"; }
 	elsif ( /^\s*faxrunqd-max-pages\s+(\d+)/ )
 		{ $max_combined_pages = $1; }
+	elsif ( /^\s*sendfax-tty-map\s+(\S+)\s+(\S+)\s*(.*)/ )
+		{ $sendfax_tty_map{$1} = { 'cmd' => $2, 
+					   'args' => [ split /\s+/, $3 ] }; }
 	else
 		{ die "syntax error in $faxrunq_cf, line $.!\n"; }
     }
@@ -1057,7 +1065,7 @@ sub send_job_from_queue
     # check whether job has been removed (faxrm) in the meantime...
     unless( -d "$job" && -f "$job/JOB" )
     {
-	print LOG "WARNING: job has disappeared from disk queue!\n";
+	print LOG "WARNING: job $job has disappeared from disk queue!\n";
 	$queue{$job}->{'status'}='error';
         $mq_length{$tty} -= $queue{$job}->{weight};
 	&reactivate_others($job);
@@ -1073,6 +1081,11 @@ sub send_job_from_queue
     print LOG " +  priority    : $pri\n"   if $opt_d;
     print LOG " +  flags       : " . join( ' ', @flags ) . "\n"  if $opt_d;
     print LOG " +  pages       : " . join( ' ', @pages ) . "\n" if $opt_d;
+
+    if ( defined $sendfax_tty_map{$tty} )
+    {
+        print LOG " +  sendfax cmd : $sendfax_tty_map{$tty}{cmd} @{$sendfax_tty_map{$tty}{args}}\n" if $opt_d;
+    }
 
     # lock job (just a hard link) vs. faxrunq
     unless( link "$job/JOB", "$job/JOB.locked" )
@@ -1141,8 +1154,17 @@ sub send_job_from_queue
     {
 	chdir $job;
 
-        { exec $sendfax ('sendfax', '-l', $tty, # '-x', '5',
-			   @flags, $phone, @pages);  }
+	my $sendfax_cmd=$sendfax;
+	my @args = ( '-l', $tty, @flags, $phone, @pages );
+
+	if ( defined $sendfax_tty_map{$tty} )
+	{
+	    $sendfax_cmd=$sendfax_tty_map{$tty}{'cmd'};
+	    unshift @args, @{ $sendfax_tty_map{$tty}{'args'} };
+	}
+
+        { exec $sendfax_cmd ('sendfax', @args ); }
+
 	print LOG "EXEC FAILED: $!\n"; 
 	exit(100);
     }
