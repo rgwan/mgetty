@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 3.5 1995/11/12 18:05:05 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 3.6 1996/01/03 19:24:55 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include "syslibs.h"
@@ -25,6 +25,8 @@
 #include <sys/utsname.h>
 #endif
 
+extern char * Device;				/* mgetty.c */
+
 /* ln_escape_prompt()
  *
  * substitute all "known" escapes, e.g. "\n" and "\t", plus some
@@ -46,7 +48,6 @@ char * ln_escape_prompt _P1( (ep), char * ep )
 #define MAX_PROMPT_LENGTH 140
     static char * p = NULL;
     int    i;
-    extern char * Device;		/* mgetty.c */
 
     if ( p == NULL ) p = malloc( MAX_PROMPT_LENGTH );
     if ( p == NULL ) return ep;
@@ -298,6 +299,8 @@ int getlogname _P5( (prompt, tio, buf, maxsize, do_timeout),
 		       MAX_LOGIN_TIME / 60 );
 		
 		sleep(3);		/* give message time to xmit */
+		lprintf( L_AUDIT, "failed dev=%s, pid=%s, login time out",
+			 Device, getpid() );
 		exit(0);		/* bye bye... */
 	    }
 #endif
