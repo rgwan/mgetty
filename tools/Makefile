@@ -1,7 +1,7 @@
 # Makefile for the "tools" subtree
 # of mgetty+sendfax
 #
-# RCS: $Id: Makefile,v 1.5 1998/09/29 10:54:06 gert Exp $
+# RCS: $Id: Makefile,v 1.6 1999/01/04 21:47:36 gert Exp $
 #
 
 CC=gcc
@@ -34,6 +34,9 @@ mid: mid.o ../tio.o ../io.o ../locks.o
 
 mid.o: mid.c ../tio.h ../mgetty.h
 	$(CC) $(CFLAGS) -c -o mid.o mid.c
+
+vhangup: vhangup.c
+	$(CC) $(CFLAGS) -o vhangup vhangup.c
 
 clean:
 	-rm -f $(SCRIPTS) $(PROGRAMS) *.o
