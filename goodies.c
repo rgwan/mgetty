@@ -1,4 +1,4 @@
-#ident "$Id: goodies.c,v 3.4 1996/03/06 12:21:59 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: goodies.c,v 3.5 1996/03/06 20:48:01 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /*
  * goodies.c
@@ -20,7 +20,7 @@
 #include <sys/stat.h>
 
 /* NeXTStep/86 has some byte order problems (Christian Starkjohann) */
-#if defined(NeXT) && defined(__LITTLE_ENDIAN__)
+#if defined(NeXT) && defined(__LITTLE_ENDIAN__) && !defined(NEXTSGTTY)
 # define pw_uid pw_short_pad1
 # define pw_gid pw_short_pad2
 # define gr_gid gr_short_pad
