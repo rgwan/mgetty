@@ -1,4 +1,4 @@
-#ident "$Id: locks.c,v 1.21 1994/01/02 20:33:18 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
+#ident "$Id: locks.c,v 1.22 1994/01/23 14:01:40 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
 ;
 /* large parts of the code in this module are taken from the
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us,
@@ -36,13 +36,12 @@ static int readlock _PROTO(( char * name ));
 static char *  get_lock_name _PROTO(( char * lock_name, char * device ));
 
 /*
- *	makelock() - attempt to create a lockfile
+ *	do_makelock() - attempt to create a lockfile
  *
  *	Returns FAIL if lock could not be made (line in use).
  */
 
-int makelock _P1( (device),
-		  char *device)
+int do_makelock _P0( void )
 {
 	int fd, pid;
 	char *temp, buf[MAXLINE+1];
@@ -52,14 +51,7 @@ int makelock _P1( (device),
 	char apid[16];
 #endif
 
-	lprintf(L_NOISE, "makelock(%s) called", device);
-
-	if ( get_lock_name( lock, device ) == NULL )
-	{
-	    lprintf( L_ERROR, "cannot get lock name" );
-	    return FAIL;
-	}
-	lprintf( L_NOISE, "lock='%s'", lock );
+	lprintf( L_NOISE, "do_makelock: lock='%s'", lock );
 
 	/* first make a temp file */
 
@@ -85,42 +77,89 @@ int makelock _P1( (device),
 
 	/* link it to the lock file */
 
-	while (link(temp, lock) == FAIL) {
-		lprintf(L_ERROR, "link(temp,lock) failed" );
+	while (link(temp, lock) == FAIL)
+	{
+	        if (errno != EEXIST )
+		{
+		    lprintf(L_ERROR, "lock not made: link(temp,lock) failed" );
+		}
 
-		if (errno == EEXIST) {		/* lock file already there */
-			if ((pid = readlock(lock)) == FAIL)
+		if (errno == EEXIST)		/* lock file already there */
+		{
+		    if ((pid = readlock(lock)) == FAIL)
+		    {
+			if ( errno == ENOENT )	/* disappeared */
+			    continue;
+			else
 			{
 			    lprintf( L_NOISE, "cannot read lockfile" );
-			    if ( errno == ENOENT )	/* disappeared */
-				continue;
-			    else
-				return FAIL;
+			    unlink(temp);
+			    return FAIL;
 			}
+		    }
 
-			if (pid == getpid())	/* huh? WE locked the line!*/
-			{
-				lprintf( L_WARN, "we *have* the line!" );
-				unlink(temp);
-				return SUCCESS;
-			}
+		    if (pid == getpid())	/* huh? WE locked the line!*/
+		    {
+			lprintf( L_WARN, "we *have* the line!" );
+			unlink(temp);
+			return SUCCESS;
+		    }
 
-			if ((kill(pid, 0) == FAIL) && errno == ESRCH) {
-				/* pid that created lockfile is gone */
-				lprintf( L_NOISE, "stale lockfile, created by process %d, ignoring", pid );
-				(void) unlink(lock);
-				continue;
-			}
-		}
-		lputs(L_MESG, " - lock NOT made");
+		    if ((kill(pid, 0) == FAIL) && errno == ESRCH)
+		    {
+			/* pid that created lockfile is gone */
+			lprintf( L_NOISE, "stale lockfile, created by process %d, ignoring", pid );
+			(void) unlink(lock);
+			continue;
+		    }
+		    
+		    lprintf(L_MESG, "lock not made: lock file exists");
+		}				/* if (errno == EEXIST) */
+		
 		(void) unlink(temp);
 		return(FAIL);
 	}
+	
 	lprintf(L_NOISE, "lock made");
 	(void) unlink(temp);
 	return(SUCCESS);
 }
 
+/* makelock( Device )
+ *
+ * lock a device,
+ * using the LOCK directory from mgetty.c resp. get_lock_name()
+ */
+
+int makelock _P1( (device),
+		  char *device)
+{
+    lprintf(L_NOISE, "makelock(%s) called", device);
+
+    if ( get_lock_name( lock, device ) == NULL )
+    {
+	lprintf( L_ERROR, "cannot get lock name" );
+	return FAIL;
+    }
+
+    return do_makelock();
+}
+
+/* makelock_file( lock file )
+ *
+ * make a lock file with a given name (uses for locking of other files
+ * than device nodes)
+ */
+
+int makelock_file _P1( (file), char * file )
+{
+    lprintf(L_NOISE, "makelock_file(%s) called", file);
+
+    strcpy( lock, file );
+    
+    return do_makelock();
+}
+   
 /*
  *	checklock() - test for presense of valid lock file
  *
