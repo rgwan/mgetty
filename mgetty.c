@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.16 1993/03/20 17:47:14 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.17 1993/03/22 12:09:05 gert Exp $ (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -12,12 +12,19 @@
 #include <pwd.h>
 #include <sys/types.h>
 #include <sys/times.h>
+
+#ifdef USE_SELECT
 #ifndef linux
 #include <sys/select.h>
 #endif
 #ifdef linux
 #include <sys/time.h>
 #endif
+#else
+#include <stropts.h>
+#include <poll.h>
+#endif
+
 #include <sys/ioctl.h>
 
 #include <sys/stat.h>
@@ -131,7 +138,11 @@ int main( int argc, char ** argv)
 
 	time_t	clock;
 
+#ifdef USE_SELECT
 	fd_set	readfds;
+#else	/* use poll */
+	struct	pollfd fds;
+#endif
 	int	slct;
 
 
@@ -343,9 +354,12 @@ int main( int argc, char ** argv)
 	/* wait for incoming characters.
 	   I use select() instead of a blocking read(), since select()
 	   does *not* eat up characters and thus prevents collisions
-	   with dial-outs */
+	   with dial-outs
+	   On Systems without select(S), poll(S) can be used. */
 
 	lprintf( L_MESG, "waiting..." );
+
+#ifdef USE_SELECT
 #ifdef linux
 	__FD_ZERO( &readfds );
 	__FD_SET( STDIN, &readfds );
@@ -355,6 +369,14 @@ int main( int argc, char ** argv)
 #endif
 	slct = select( 1, &readfds, NULL, NULL, NULL );
 	lprintf( L_NOISE, "select returned %d", slct );
+#else	/* use poll */
+	fds.fd = 1;
+	fds.events = POLLIN;
+	fds.revents= 0;
+	slct = poll( &fds, 1, -1 );
+	if (slct == -1 ) lprintf( L_ERROR, "poll error" );
+	lprintf( L_NOISE, "poll returned %d", slct );
+#endif
 
 	/* check for LOCK files, if there are none, grab line and lock it
 	*/
