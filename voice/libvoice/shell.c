@@ -4,7 +4,7 @@
  * Executes the shell script given as the argument. If the argument is
  * empty, commands are read from standard input.
  *
- * $Id: shell.c,v 1.17 2001/12/22 19:38:53 marcs Exp $
+ * $Id: shell.c,v 1.18 2002/02/19 10:25:23 gert Exp $
  *
  */
 
@@ -51,7 +51,7 @@ int voice_execute_shell_script(char *shell_script, char **shell_options)
 	   sprintf( log_file_name, cvd.voice_shell_log.d.p, DevID );
 
            shell_stderr_fd = open(log_file_name,
-                                      O_WRONLY | O_CREAT | O_APPEND);
+                                      O_WRONLY | O_CREAT | O_APPEND, 0600);
 
 	   /* FIXME: this really should go after the fork() call, as
 	    * it will destroy vgetty's fd = 2, which might be needed
