@@ -4,7 +4,7 @@
  * pvftormd converts from the pvf (portable voice format) format to the
  * rmd (raw modem data) format.
  *
- * $Id: pvftormd.c,v 1.14 2001/02/24 11:43:41 marcs Exp $
+ * $Id: pvftormd.c,v 1.15 2001/03/11 12:06:12 marcs Exp $
  *
  */
 
@@ -47,6 +47,7 @@ static void supported_formats (void)
      fprintf(stderr, " - ZyXEL_1496    2, 3 and 4 bit ZyXEL ADPCM\n");
      fprintf(stderr, " - ZyXEL_2864    2, 3 and 4 bit ZyXEL ADPCM\n");
      fprintf(stderr, " - ZyXEL_Omni56K 4 bit Digispeech ADPCM (?)\n");
+     fprintf(stderr, " - ZyXEL_2864   81  8 bit Mu-law PCM\n");
      fprintf(stderr, "\nexample:\n\t%s Rockwell 4 infile.pvf outfile.rmd\n\n",
       program_name);
      exit(ERROR);
@@ -609,7 +610,8 @@ int main (int argc, char *argv[])
           };
 
      if ((strcmp(modem_type, "ZyXEL 2864") == 0) &&
-      ((compression == 2) || (compression == 3) || (compression == 4)))
+      ((compression == 2) || (compression == 3) || (compression == 4)
+       || (compression == 81)))
           {
           header_out.bits = compression;
 
@@ -641,8 +643,17 @@ int main (int argc, char *argv[])
                exit(ERROR);
                };
 
-          if (pvftozyxel(fd_in, fd_out, compression, &header_in) == OK)
-               exit(OK);
+          if (compression == 81) {
+	     if (pvftorockwellpcm(fd_in,
+                                  fd_out,
+                                  compression,
+                                  &header_in) == OK)
+		  exit(OK);
+          }
+          else {
+	     if (pvftozyxel(fd_in, fd_out, compression, &header_in) == OK)
+		  exit(OK);
+          }
 
           };
 
