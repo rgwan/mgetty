@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.39 1999/04/27 14:16:02 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.40 1999/07/24 21:26:32 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -2806,8 +2806,8 @@ working ok, but I got some negative reports as well. Hmmm.
 
 ELSA makes a nice series of Data/Fax/Voice products, both for POTS
 lines and for ISDN.  In general, all of them are supported fairly well by
-@code{mgetty+sendfax}, but here are a couple of notes for different
-products:
+@code{mgetty+sendfax} (fax works, fax polling works(!), voice works), but 
+here are a couple of notes for different products:
 
 @itemize @bullet
 @item MicroLink 56k/56k pro -- standard analogue voice/fax/data modem.
@@ -2818,7 +2818,8 @@ fax mode.
 do fax reception and answering machine functionality in "standalone mode",
 without a computer.  Received voice calls and faxes can be downloaded via
 X-Modem to the computer.  I'm working on a nice GUI application to ease
-using the standalone mode.
+using the standalone mode.  The ML Office seems to be the only non-ISDN
+ELSA modem that can do Caller ID (CLIP).
 @item MicroLink TL/V.34 -- this is an ISDN terminal adaptor that can also
 do V.34 modem calls and fax.  Works nicely.
 @item TanGo -- this an ISDN only terminal adaptor.  Works, but it's pretty
