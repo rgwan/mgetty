@@ -7,7 +7,7 @@
               which are now maintained by Marc Schaefer
 <author>			 Klaus Lichtenwalder, now maintained by
                                  Marc Schaefer
-<date>$Date: 2000/02/07 10:32:30 $
+<date>$Date: 2000/07/22 10:00:16 $
 
 <abstract>
 This document attempts to answer the most frequently asked questions
@@ -1286,5 +1286,17 @@ Unfortunately, I didn't save the URL.
 <p>
 (alternatively, here is a <url name="a utility converting WAV to GSM and back"
 url="http://www2.sienanet.it/users/guido/gsm_6_10.htm">).
+
+<sect1>vgetty disables voice mode after initialization <label id="vgetty voice mode off">
+<p>
+From: miscellaenous
+<p>
+Because leaving the modem in voice mode breaks RING handling, vgetty
+disables voice mode while waiting for a call. Normally it isn't required
+to do anything about it. However, for very rare setup, e.g. for getting
+CALLER ID on some specific modems, you might want to add the following
+in post-init-chat: 
+<p>
+post-init-chat "" AT#CID=1 OK
 
 </article>
