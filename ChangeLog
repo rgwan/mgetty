@@ -1,3 +1,11 @@
+Thu Oct 30 22:11:07 1997  Gert Doering  (gert@greenie.muc.de)
+
+	* fax/faxrunqd.in: replace Bodo Bauer's version with a complete
+	  rewrite.  Uses less processes, and should be more stable even on
+	  weird systems.  Needs Perl 5.004.
+
+	* ALL: move from SCCS to CVS
+
 Tue Oct 21 12:34:48 1997  Gert Doering  (gert@greenie.muc.de)
 
 	* policy.h, logname.c: make uppercase/lowercase mapping optional
