@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 1.17 1994/03/13 01:17:01 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 1.18 1994/03/13 13:31:26 gert Exp $ Copyright (c) 1993 Gert Doering"
 ;
 /* tio.c
  *
@@ -15,17 +15,20 @@
 #include "mgetty.h"
 #include "tio.h"
 #ifdef POSIX_TERMIOS
-static char tio_compilation_type[]="@(#) compiled with POSIX_TERMIOS";
+static char tio_compilation_type[]="@(#)tio.c compiled with POSIX_TERMIOS";
 #endif
 #ifdef SYSV_TERMIO
-static char tio_compilation_type[]="@(#) compiled with SYSV_TERMIO";
+static char tio_compilation_type[]="@(#)tio.c compiled with SYSV_TERMIO";
 #endif
 #ifdef BSD_SGTTY
-static char tio_compilation_type[]="@(#) compiled with BSD_SGTTY";
+static char tio_compilation_type[]="@(#)tio.c compiled with BSD_SGTTY";
 #endif
 
 #ifdef SVR4
-#include <sys/termiox.h>
+# include <sys/termiox.h>
+#endif
+#ifdef _HPUX_SOURCE
+# include <sys/modem.h>
 #endif
 
 #if defined( M_UNIX ) && defined( MAM_BUG )
@@ -486,8 +489,33 @@ int tio_toggle_dtr _P2( (fd, msec_wait), int fd, int msec_wait )
     {
 	lprintf( L_ERROR, "TIOCMBIS failed" ); return ERROR;
     }
+    return NOERROR;
 #else						/* !SVR4 */
 
+    /* On HP/UX, lowering DTR by setting the port speed to B0 will
+     * leave it there. So, do it via HP/UX's special ioctl()'s...
+     */
+#if defined(_HPUX_SOURCE) || defined(MCGETA)
+    unsigned long mflag = 0L;
+
+    if ( ioctl( fd, MCSETAF, &mflag ) < 0 )
+    {
+	lprintf( L_ERROR, "MCSETAF failed" ); return ERROR;
+    }
+    delay( msec_wait );
+    if ( ioctl( fd, MCGETA, &mflag ) < 0 )
+    {
+	lprintf( L_ERROR, "MCGETA failed" ); return ERROR;
+    }
+    mflag = MRTS | MDTR;
+    if ( ioctl( fd, MCSETAF, &mflag ) < 0 )
+    {
+	lprintf( L_ERROR, "MCSETAF failed" ); return ERROR;
+    }
+    return NOERROR;
+
+#else /* !MCGETA */
+    
     /* The "standard" way of doing things - via speed = B0
      */
     TIO t, save_t;
@@ -532,5 +560,6 @@ int tio_toggle_dtr _P2( (fd, msec_wait), int fd, int msec_wait )
 #endif
     
     return result;
+#endif					/* !MCSETA */
 #endif					/* !SVR4 */
 }
