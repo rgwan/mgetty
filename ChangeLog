@@ -1,3 +1,29 @@
+Tue Jan 27 12:34:36 1998  Gert Doering  (gd@medat.de)
+
+	* release 1.1.12
+
+	* new voice tree from Marc
+
+	* fax/faxrunqd: preparations for new per-modem queues
+
+Tue Jan 20 11:40:40 1998  Gert Doering  (gd@medat.de)
+
+	* fax/faxrunqd: change format of "faxrunqd.policy" file
+
+	* tools/ltest.c: add -d, -k options (RTSL)
+
+	* tio.c: implement tio_set_rs232_lines() (for systems with the
+	TIOCMBI[CS] ioctl() calls)
+
+Sun Jan 18 18:08:35 1998  Gert Doering  (gert@greenie.muc.de)
+
+	* mg_m_init.c: add detection for "setserial spd_hi/spd_vhi" and
+	warn user if this is active (use of setserial is deprecated)
+
+Fri Dec 19 17:06:55 1997  Gert Doering  (gd@medat.de)
+
+	* sendfax.c: add better logging (L_AUDIT) for "failed startups"
+
 Tue Dec 16 12:35:47 1997  Gert Doering  (gert@greenie.muc.de)
 
 	* release 1.1.11
