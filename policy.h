@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.11 1993/07/03 15:11:07 gert Exp $ (c) Gert Doering"
+#ident "$Id: policy.h,v 1.12 1993/07/21 17:45:26 gert Exp $ (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -109,6 +109,12 @@
  * I recommend 38400, since 19200 may be to slow for 14400 bps faxmodems!
  */
 #define FAX_SEND_BAUD B38400
+
+/* this is the command to set the modem to use the desired flow control
+ * for hardware handshake, this could be &H3 for the ZyXEL, &K4 for
+ * Rockwell-Based modems or \\Q3 for Exar-Based Modems (i.e. some GVC's)
+ */
+#define FAX_MODEM_HANDSHAKE "&H3"
 
 /* if your faxmodem insists on using XON/XOFF flow control in class 2 fax
  * mode (even when told not to), define this (ZyXELs are know to do this).
