@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.c,v 4.10 1999/02/16 20:00:05 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_mg.c,v 4.11 1999/02/24 13:07:02 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_mg.c
  *
@@ -103,8 +103,8 @@ struct conf_data_mgetty c = {
 #endif
 	{ "fido-send-emsi", {TRUE}, CT_BOOL, C_PRESET },
 
-#ifdef LOGIN_CONFIG
-	{ "login-conf-file", {(p_int) LOGIN_CONFIG}, CT_STRING, C_PRESET },
+#ifdef LOGIN_CFG_FILE
+	{ "login-conf-file", {(p_int) LOGIN_CFG_FILE}, CT_STRING, C_PRESET },
 #else
 	{ "login-conf-file", {0}, CT_STRING, C_EMPTY },
 #endif
