@@ -1,4 +1,4 @@
-.TH faxspool 1 "18 Oct 94" "greenie" "mgetty+sendfax manual"
+.TH faxspool 1 "23 Nov 02" "greenie" "mgetty+sendfax manual"
 .IX faxspool
 .SH NAME
 faxspool \- queue and convert files for faxing with sendfax(8)
@@ -147,6 +147,13 @@ Don't send the fax before the time given. It may not be sent exactly at
 runs after that time. If the fax cannot be sent successfully before
 midnight, it won't be sent on the next day until <hh:mm>!
 .TP
+.B -t <hh:mm>-<hh:mm>
+Only send the fax in the time range between those two times.  This is only
+implemented in 
+.I faxrunqd.
+If the second time specified is 'earlier' than the first time, it is 
+interpreted as a time range crossing midnight.
+.TP
 .B -A <data>
 pass faxspool a chunk of data that is ignored (so you can put anything you
 want here), but written to all the log files (acct.log, sendfax.log).  
@@ -210,10 +217,10 @@ the input files.
 Multicasting with the -m and -M options is not implemented yet.
 
 .SH "SEE ALSO"
-g3cat(1), pbm2g3(1), sendfax(8), faxrunq(1), faxq(1), faxqueue(5),
+g3cat(1), pbm2g3(1), sendfax(8), faxrunq(1), faxrunqd(8), faxq(1), faxqueue(5),
 coverpg(1)
 .SH AUTHOR
 .I faxspool
-is Copyright (C) 1993 by Gert Doering, <gert@greenie.muc.de>.  Access
+is Copyright (C) 1993-2002 by Gert Doering, <gert@greenie.muc.de>.  Access
 control and alias handling suggested by Caz Yokoyama,
 <caz@shoki.osk.psq.mei.co.jp>.
