@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 3.1 1995/08/30 12:40:55 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 3.2 1995/12/31 17:36:42 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration defaults for mgetty / sendfax
  * are specified.
@@ -47,6 +47,17 @@
  * elsewhere (e.g. Free/NetBSD in "/usr/bin/login").
  */
 #define DEFAULT_LOGIN_PROGRAM "/bin/login"
+
+
+/* callback config file
+ *
+ * this file controls the operation of the optional "callback" program.
+ * how callback works, is explained in detail in mgetty.texi. You need
+ * to set LOGIN_CFG_FILE (see above) to use callback from mgetty. 
+ *
+ * If this path does not start with "/", it's relative to CONFDIR.
+ */
+#define CALLBACK_CONFIG "callback.config"
 
 
 /* if this file exists, it can be used to control what callers
