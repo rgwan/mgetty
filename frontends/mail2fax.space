@@ -4,19 +4,26 @@
 #
 # send fax to a GIVEN phone number (on the command line). Everybody may send.
 #
-# $Id: mail2fax.space,v 1.1 2001/10/17 10:53:30 gert Exp $
+# $Id: mail2fax.space,v 1.2 2001/10/17 11:02:44 gert Exp $
 #
 # $Log: mail2fax.space,v $
+# Revision 1.2  2001/10/17 11:02:44  gert
+# -A <acct>
+# DATE: ausgeben
+#
 # Revision 1.1  2001/10/17 10:53:30  gert
 # mail2fax gateway, currently used at SpaceNet
 #
 
 # options
 CATPGM="cat"
+acct=""
 
 while expr "X$1" : "X-" >/dev/null; do
     case X$1 in
 	X-p) CATPGM="head -"`echo $2 | awk '{ print ($1 * 66) - 12}'`; 
+	     shift; shift ;;
+	X-A) acct="-A $2"
 	     shift; shift ;;
 	*) echo "unknown option: $1" >&2 ; exit 99 ;;
     esac
@@ -59,7 +66,7 @@ eval `awk ' function getaddr(line) {
 		split( line, broken );
 		return broken[2];
 	    }
-	    BEGIN { header=1; from=""; replyto=""; subject=""; fullfrom="" }
+	    BEGIN { header=1; from=""; replyto=""; subject=""; fullfrom=""; date="" }
 	    NF == 0 { if ( header ) { header = 0; next; } }
 	            { if ( header ) print >> "'$head'";
                                else print >> "'$body'" }
@@ -71,8 +78,12 @@ eval `awk ' function getaddr(line) {
                     { if ( header ) subject=substr($0, 10); }
 	    /^From:[ \t]/ \
                     { if ( header ) fullfrom=substr($0, 7); }
-	    END { printf "subject=\"%s\"; from=\"%s\"; replyto=\"%s\"; fullfrom=\"%s\"\n", \
-			 subject, from, replyto, fullfrom }
+	    /^Date:[ \t]/ \
+                    { if ( header ) date=substr($0, 7); }
+	    END { gsub( "\"", "", subject); gsub( "\"", "", from); 
+	          gsub( "\"", "", replyto); gsub( "\"", "", fullfrom); 
+		  printf "subject=\"%s\"; from=\"%s\"; date=\"%s\"; replyto=\"%s\"; fullfrom=\"%s\"\n", \
+			 subject, from, date, replyto, fullfrom }
            ' - `
 
 # determine reply address
@@ -89,13 +100,14 @@ whoami=`hostname 2>/dev/null` || whoami=`uname -n`
 #
 # ok. Authentication granted. Queue fax.
 #
-echo "faxspool -f $mailto $faxphone $body" >>$LOG
+echo "faxspool $acct -f $mailto $faxphone $body" >>$LOG
 
 cat <<EOF >$fax
 
 FAX FROM: $fullfrom
       TO: $faxphone
  SUBJECT: $subject
+    DATE: $date
 
 This fax was converted automatically from an electronic mail, so 
 please don't wonder too much about the unusual form. Thanks.
@@ -108,7 +120,7 @@ Our telephone number: ++49-89-32356-0, fax: ++49-89-32356-299.
 EOF
 $CATPGM $body >>$fax
 
-faxspool -C - -f "$admin" \
+faxspool $acct -C - -f "$admin" \
 	-h /usr/local/etc/mgetty+sendfax/faxhead.mail \
 	$faxphone $fax >$tmp 2>$etmp
 
