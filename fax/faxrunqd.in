@@ -9,10 +9,15 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.58 2002/03/19 12:20:45 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.59 2002/04/02 14:42:15 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.59  2002/04/02 14:42:15  gert
+# fix 'write combining prio clash' problem (a high prio job gets attached
+# to a previously-queued lower-prio job, and is then sent later with the
+# low prio job, instead of immediately).  Yet another ugly special-case.
+#
 # Revision 1.58  2002/03/19 12:20:45  gert
 # change from deprecated "require 'getopts.pl'" to "use Getopt::Std"
 #
@@ -555,6 +560,7 @@ while( 1 )
 }
 
 close FSO;
+# end of main loop
 
 ##########################################################################
 #
@@ -581,14 +587,33 @@ sub put_job_to_modem_queue
     {
 	my $job_t = $phones{$phone};
 
+	# make sure the "others" array (ref) exists
 	if ( !defined( $queue{$job_t}->{others} ) )
 		{ $queue{$job_t}->{others} = []; }
 
-	push @{$queue{$job_t}->{others}}, $j;
+	# if the "new" job has lower or equal priority, attach 
+	# (special-case: if the "old" job is currently being sent,
+	# attach higher-prio job as well - queue reordering is not 
+	# possible in that case, and this simplifies the code)
 
-	print LOG "$j: phone number '$phone' already reserved for $job_t, put on hold\n"  if $opt_d;
+	if ( ( $queue{$j}->{priority} <= $queue{$job_t}->{priority} )  ||
+	       is_on_modem($job_t) )
+	{
+	    print LOG "$j: phone number '$phone' already reserved for $job_t, attach\n"  if $opt_d;
+	    push @{$queue{$job_t}->{others}}, $j;
+	    return;
+	}
 
-	return;
+	# remove lower-prio job from modem queue, put this job on modem
+	# queue, copy over "others", and add lower-prio job to it
+
+	print LOG "$j: reorder queue, prio clash with $job_t for '$phone'\n"  if $opt_d;
+	delete_job_from_queue( $job_t );
+
+	$queue{$j}->{others} = [ $job_t, @{$queue{$job_t}->{others}} ];
+	delete $queue{$job_t}->{others};
+
+	# fall-through: phone number is free, put this job into queue
     }
 
     # no jobs for that phone number queued so far -> take this one
@@ -645,7 +670,43 @@ sub put_job_to_modem_queue
 }
 
 ##########################################################################
+#
+# delete_job_from_queue $job
+#
+# find modem queue for $job, remove $job, correct $mq_length{$job's tty}
+#
+# called when there's a priority clash for the same phone number
+# and the "lower prio" job in front of the queue has to be removed
+#
+# (yes, this is massively ugly, but other queueing strategies are no better)
+#
+##########################################################################
+sub delete_job_from_queue
+{
+    my $j = shift;
+    my $i;
+    print LOG " DFQ: delete job $j from modem queue\n" if $opt_d;
 
+    foreach my $tty ( keys %modem_queue )
+    {
+	my $len=$#{$modem_queue{$tty}}+1;
+	print LOG " DFQ $tty ($len): ". join(" ", @{$modem_queue{$tty}}) ."\n" if $opt_d;
+	
+	for ($i=0; $i<$len; $i++)
+	{
+	    if ( $modem_queue{$tty}[$i] eq $j )
+	    {
+		splice @{$modem_queue{$tty}}, $i, 1;
+		print LOG " DFQ found --> ". join(" ", @{$modem_queue{$tty}}) ."\n" if $opt_d;
+		return;
+	    }
+	}
+    }
+    print LOG "ERROR - can't happen: Job $j not found in modem queues!\n";
+}
+
+
+##########################################################################
 #
 # get_d_time $DIR
 #
@@ -1235,6 +1296,27 @@ sub check_is_job_done
 		    { return 0; }
     }
     return 1;
+}
+
+##########################################################################
+# is_on_modem($JOB)
+#
+# find out whether a given job is being sent "right now", or just in queue
+#
+##########################################################################
+sub is_on_modem
+{
+    my $jj = shift;
+    foreach $p ( keys %pid2job )
+    {
+	print LOG "\tcheck pid $p -> job $pid2job{$p}\n" if $opt_d;
+	if ( $pid2job{$p} eq $jj )
+	{
+	    print LOG "\tfound job $jj as pid $p, tty $pid2tty{$p} -> on modem!\n" if $opt_d;
+	    return 1;
+	}
+    }
+    return 0;
 }
 
 ##########################################################################
