@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 1.4 1993/03/16 09:54:27 gert Exp $ (c) Gert Doering"
+#ident "$Id: logfile.c,v 1.5 1993/04/19 21:43:47 gert Exp $ (c) Gert Doering"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -107,7 +107,7 @@ int     errnr;
     if ( log_fp == NULL )
     {
         if ( log_path[0] == 0 )
-	    sprintf( log_path, "%s/log_mgetty", LOG_PATH );
+	    sprintf( log_path, LOG_PATH, "unknown" );
 	log_fp = fopen( log_path, "a" );
 	if ( log_fp == NULL )
 	{

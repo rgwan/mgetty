@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.3 1993/03/18 16:19:25 gert Exp $ (c) Gert Doering"
+#ident "$Id: policy.h,v 1.4 1993/04/19 21:43:45 gert Exp $ (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -29,9 +29,10 @@
  */
 #define SYSTEM	"greenie"
 
-/* Path where the GETTY logfiles go to.
+/* Name of the mgetty log file
+ * a "%s" will be replaced by the device name, e.g. "tty2a"
  */
-#define LOG_PATH "/tmp"
+#define LOG_PATH "/tmp/log_m_%s"
 
 /* Path for the lock files. A %s will be replaced with the device name,
  * e.g. tty2a -> /usr/spool/uucp/LCK..%s
