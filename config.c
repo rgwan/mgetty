@@ -1,4 +1,4 @@
-#ident "$Id: config.c,v 3.3 1996/03/26 13:22:31 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: config.c,v 3.4 1996/08/22 22:21:56 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /*
  * config.c
@@ -234,7 +234,11 @@ char ** p;
 	else
 	  switch ( cp->type )
 	{
+#ifdef PTR_IS_LONG	/* 64bit machines: d.i is "long" */
+	    case CT_INT: sprintf( buf, "%ld", cp->d.i );
+#else
 	    case CT_INT: sprintf( buf, "%d", cp->d.i );
+#endif
 			 lputs( L_NOISE, buf );
 			 break;
 	    case CT_STRING:
