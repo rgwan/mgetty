@@ -14,8 +14,8 @@ looks for all the jobs queued by faxspool(1) to
 @FAX_SPOOL_OUT@/*. For each job in the queue,
 .I faxq
 displays some status informations about it. If no options are specified,
-one line per fax job is printed, displaying the job number, sender, number
-of pages and target fax number.
+one line per queued fax job is printed, displaying the job number, sender,
+number of pages and target fax number.
 
 .SH OPTIONS
 .TP
@@ -26,6 +26,18 @@ to print a more verbose report for each job (multiple lines).
 .TP
 .B -o
 Show old jobs, already sent but still in the queue directory, too.
+.TP
+.B -s
+Show suspended jobs (stopped because of too many fatal errors during sending). You can restart those jobs with
+.I faxq -r
+.TP
+.B -a
+Show all jobs (active, old, suspended).
+.TP
+.B -r
+Restart suspended jobs. For every job that you have still in the queue,
+you will be asked whether you want to retry sending that job (NOT
+IMPLEMENTED YET).
 
 .SH BUGS
 .I faxq
