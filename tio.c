@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 1.9 1993/12/10 12:57:26 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 1.10 1993/12/18 18:42:56 gert Exp $ Copyright (c) 1993 Gert Doering"
 ;
 /* tio.c
  *
@@ -62,6 +62,9 @@ int tio_get _P2((fd, t), int fd, TIO *t )
 
 int tio_set _P2( (fd, t), int fd, TIO * t)	/*!! FIXME: flags, wait */
 {
+#ifdef sun
+    int modem_lines;
+#endif
 #ifdef SYSV_TERMIO
     if ( ioctl( fd, TCSETA, t ) < 0 )
     {
@@ -73,7 +76,20 @@ int tio_set _P2( (fd, t), int fd, TIO * t)	/*!! FIXME: flags, wait */
     {
 	lprintf( L_ERROR, "tcsetattr failed" ); return ERROR;
     }
-#endif
+#ifdef sun
+    /* On SunOS, make sure that RTS and DTR are asserted if you wanna
+     * use hardware flow control
+     */
+    if (t->c_cflag & CRTSCTS)
+    {
+        /* make sure RTS is asserted!!!!!! */
+        ioctl(STDIN, TIOCMGET, &modem_lines);
+        modem_lines |= (TIOCM_RTS | TIOCM_DTR);
+        ioctl(STDIN, TIOCMSET, &modem_lines);
+    }
+#endif /* sun */
+#endif /* posix_termios */
+
 #ifdef BSD_SGTTY
     if ( stty( fd, t ) < 0 )
     {
@@ -334,6 +350,9 @@ TIO t;
 int tio_toggle_dtr _P2( (fd, msec_wait), int fd, int msec_wait )
 {
     TIO t, save_t;
+#ifdef sun
+    int modem_lines;
+#endif
 
     if ( tio_get( fd, &t ) == ERROR ) return ERROR;
 
@@ -353,5 +372,13 @@ int tio_toggle_dtr _P2( (fd, msec_wait), int fd, int msec_wait )
     tio_set( fd, &t );
     delay( msec_wait );
     
+#ifdef sun
+    /* on SunOS, if you hangup via B0, the DTR line will *stay* low.
+     * So: enable it manually again.
+     */
+    ioctl(STDIN, TIOCMGET, &modem_lines);
+    modem_lines |= (TIOCM_RTS | TIOCM_DTR);
+    ioctl(STDIN, TIOCMSET, &modem_lines);
+#endif
     return tio_set( fd, &save_t );
 }
