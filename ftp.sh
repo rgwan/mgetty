@@ -18,7 +18,7 @@ else
 fi
 
 # find diff's, if any...
-DIFF=`ls -rt mgetty*-$VS.diff 2>/dev/null |tail -1`
+DIFF=`ls -rt mgetty*-$VS.diff.gz 2>/dev/null |tail -1`
 test -n "$DIFF" && DIFF="put $DIFF"
 
 # normal FTP upload
