@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.72 1994/09/21 14:17:49 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.73 1994/09/21 14:40:52 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -444,7 +444,7 @@ int	tries;
     {
 	lprintf( L_WARN, "dial failed (hangup_code=%d)", fax_hangup_code );
 	if ( fax_hangup_code == FHUP_BUSY )
-	    printf( "dial failed (BUSY)\n", argv[0], fac_tel_no );
+	    printf( "dial failed (BUSY)\n" );
 	else
 	    fprintf( stderr, "\n%s: dial %s failed (ERROR / NO CARRIER)\n",
 		     argv[0], fac_tel_no );
