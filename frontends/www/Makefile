@@ -1,8 +1,11 @@
 # frontends/www/Makefile
 #
-# RCS: $Id: Makefile,v 1.6 1998/10/13 15:41:20 gert Exp $
+# RCS: $Id: Makefile,v 1.7 1998/10/20 15:47:01 gert Exp $
 #
 # $Log: Makefile,v $
+# Revision 1.7  1998/10/20 15:47:01  gert
+# remove vf-faxov.cgi
+#
 # Revision 1.6  1998/10/13 15:41:20  gert
 # vf-faxov added
 #
@@ -22,7 +25,7 @@
 # initial release
 #
 
-CGI=faxq.cgi faxq-v.cgi faxhist.cgi viewfax.cgi nph-vf-gif.cgi vf-faxov.cgi
+CGI=faxq.cgi faxq-v.cgi faxhist.cgi viewfax.cgi nph-vf-gif.cgi 
 HTML=index-d.html
 
 CGI_HREF=/cgi-bin/
