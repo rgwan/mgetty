@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.1 1997/01/12 14:53:38 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.2 1997/03/31 20:25:57 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -204,7 +204,8 @@ int  ix;
 	if ( strcmp( line, "ERROR" ) == 0 ||
 	     strcmp( line, "NO CARRIER" ) == 0 ||
 	     strcmp( line, "BUSY" ) == 0 ||
-	     strcmp( line, "NO DIALTONE" ) == 0 )
+	     strcmp( line, "NO DIALTONE" ) == 0 ||
+	     strcmp( line, "NO DIAL TONE" ) == 0 )
 	{
 	    if ( modem_type == Mt_class2_0 )		/* valid response */
 	    {						/* in class 2.0! */
