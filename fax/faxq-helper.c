@@ -1,4 +1,4 @@
-#ident "$Id: faxq-helper.c,v 4.13 2003/06/28 20:17:33 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxq-helper.c,v 4.14 2003/06/28 20:43:40 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxq-helper.c
  *
@@ -388,7 +388,7 @@ int fd, r, w;
 
     sprintf( pathbuf, "%s/%s", dir1, outfilename );
 
-    fd = open( pathbuf, O_WRONLY | O_CREAT | O_EXCL, 0600 );
+    fd = open( pathbuf, O_WRONLY | O_CREAT | O_EXCL, 0644 );
     if ( fd < 0 )
     {
 	eout( "can't open '%s' for writing: %s\n", pathbuf, strerror(errno));
@@ -544,6 +544,9 @@ int fd;
     if ( validate_dir( dir1 ) < 0 ) return -1;
 
     sprintf( buf, "%s/JOB", dir1 );
+
+    /* the JOB file has to be world-readable, relax umask */
+    umask( 0022 );
 
 /* TODO: check if this portably catches symlinks to non-existant files! */
     if ( ( fd = open( buf, O_WRONLY | O_CREAT | O_EXCL, 0644 ) ) < 0 )
@@ -807,8 +810,11 @@ int main( int argc, char ** argv )
 
     /* common things to check and prepare */
 
-    /* directories and JOB files have to be readable */
-    umask(0022);
+    /* make sure people do not play umask tricks on us - the only
+     * bits that are accepted in a user umask are "044" - permit/prevent 
+     * read access by group/other.  Write access is always denied.
+     */
+    umask( ( umask(0) & 0044 ) | 0022 );
 
     /* get numeric uid/gid for fax user */
     pw = getpwnam( FAX_OUT_USER );
