@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 3.16 1997/01/02 15:16:18 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 3.17 1997/01/09 21:29:47 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -80,6 +80,11 @@ FAX_STATION_ID="@FAX_STATION_ID@"
 echo="@ECHO@"
 
 AWK=@AWK@
+
+#
+# make sure that pbm2g3 and newslock can be found
+#
+PATH=@BINDIR@:$PATH
 
 #### end of configuration section
 
