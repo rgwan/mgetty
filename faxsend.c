@@ -1,4 +1,4 @@
-#ident "$Id: faxsend.c,v 4.5 1997/12/20 17:13:00 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: faxsend.c,v 4.6 1999/03/13 14:06:36 gert Exp $ Copyright (c) 1994 Gert Doering"
 
 /* faxsend.c
  *
@@ -215,7 +215,7 @@ int fax_send_page _P5( (g3_file, bytes_sent, tio, ppm, fd),
                 if ( r >= 2 && ( ( buf[0] == 0x49 && buf[1] == 0x49 ) ||
                                  ( buf[0] == 0x4d && buf[1] == 0x4d ) ) )
 		{
-		    lprintf( L_WARN, "may be TIFF file" );
+		    lprintf( L_WARN, "file may be 'tiffg3' - TIFF is *not* a valid input format" );
 		    fprintf( stderr, "WARNING: file may be 'tiffg3' - TIFF file format is *not* supported!\n" );
 		    fprintf( stderr, "         Thus, fax transmission will most propably fail\n" );
 		}   
