@@ -3,14 +3,14 @@
 #
 # This is the Makefile for vgetty.
 #
-# $Id: Makefile,v 1.3 1998/03/25 23:06:14 marc Exp $
+# $Id: Makefile,v 1.4 1998/04/19 09:27:33 gert Exp $
 #
 
 VGETTYOBJS=vgetty.o answer.o button.o event.o message.o rings.o
 
 MGETTYOBJS=../../cnd.o ../../conf_mg.o ../../do_chat.o ../../do_stat.o \
 	../../faxhng.o ../../faxlib.o ../../faxrec.o ../../faxrecp.o \
-	../../faxsend.o \
+	../../faxsend.o ../../ring.o \
 	../../gettydefs.o ../../login.o ../../logname.o ../../mg_m_init.o \
 	../../utmp.o 
 
