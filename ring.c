@@ -1,4 +1,4 @@
-#ident "$Id: ring.c,v 4.6 1998/07/05 20:30:18 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: ring.c,v 4.7 1998/08/02 20:50:47 gert Exp $ Copyright (c) Gert Doering"
 
 /* ring.c
  *
@@ -199,7 +199,7 @@ boolean	got_dle;		/* for <DLE><char> events (voice mode) */
 		if ( w >= len &&
 		     memcmp( &buf[w-len], actions[i].expect, len ) == 0 )
 		{
-		    lprintf( L_MESG, "found action string: ``%s''",
+		    lprintf( L_MESG, "wfr: found action string: ``%s''",
 				     actions[i].expect );
 		    *action = actions[i].action;
 		    rc = FAIL; break;
