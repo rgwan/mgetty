@@ -361,3 +361,6 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
      directly to "login.config")
 
 252) implement backend code for mgetty/sendfax.config "*-flow" directives
+
+253) rewrite modem ID code (base on ATI9, fall back to ATI if ATI9 
+     doesn't work)
