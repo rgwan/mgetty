@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 4.19 1998/07/02 09:45:26 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 4.20 1998/08/02 20:50:40 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -52,24 +52,6 @@ chat_action_t	ring_chat_actions[] = { { "CONNECT",	A_CONN },
 					{ "+FHNG:",	A_FAIL },
 #ifdef VOICE
 					{ "VCON",       A_VCON },
-#endif
-#ifdef DIST_RING
-		/* ZyXEL */		{ "RING 1",	A_RING1 },
-					{ "RING 2",	A_RING2 },
-					{ "RING 3",	A_RING3 },
-					{ "RING 4",	A_RING4 },
-					{ "RING 5",	A_RING5 },
-		/* USR */		{ "RING A",	A_RING1 },
-					{ "RING B",	A_RING2 },
-					{ "RING C",	A_RING3 },
-					{ "RING D",	A_RING4 },
-					{ "RING E",	A_RING5 },
-		/* Hayes Acura */	{ "RING U",	A_RING5 },
-		/* Supra */		{ "RING1",	A_RING1 },
-					{ "RING2",	A_RING2 },
-					{ "RING3",	A_RING3 },
-					{ "RING4",	A_RING4 },
-					{ "RING5",	A_RING5 },
 #endif
 					{ NULL,		A_FAIL } };
 
