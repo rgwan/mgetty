@@ -9,7 +9,7 @@
 # There are still a lot rough edges - but it works, and should give you an
 # idea how to improve it
 #
-# SCCS: $Id: faxrunq.in,v 4.8 1998/08/20 10:19:47 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxrunq.in,v 4.9 1998/08/20 10:43:44 gert Exp $ Copyright (C) 1994 Gert Doering
 
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -258,6 +258,7 @@ do
 	    10) why="dial failed - NO CARRIER" ; comment="FATAL FAILURE";;
 	    11) why="protocol failure, waiting for XON" ; comment="FATAL FAILURE";;
 	    12) why="protocol failure sending page" ; comment="FATAL FAILURE";;
+	    15) why="sendfax killed by signal(?)" ; comment="FATAL FAILURE";;
 	esac
 	$echo "Status "`date`" $comment, exit($status): $why" >>JOB
 
