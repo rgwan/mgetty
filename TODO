@@ -323,3 +323,11 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
 233) have different login: prompts for callback/non-callback logins
 
 234) make new_fax path configurable
+
+235) build "faxspool-d" daemon that listens to network requests, plus
+     "r-faxspool" client.
+
+236) make Windows client use faxspool-d, not lpd
+
+237) use r-faxspool/faxspool-d locally as well, to avoid world-writeable
+     /var/spool/fax directory
