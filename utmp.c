@@ -1,4 +1,4 @@
-#ident "$Id: utmp.c,v 1.24 1994/11/02 11:44:19 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: utmp.c,v 1.25 1994/11/02 19:33:13 gert Exp $ Copyright (c) Gert Doering"
 
 /* some parts of the code (writing of the utmp entry)
  * is based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
@@ -58,6 +58,7 @@ void make_utmp_wtmp _P4( (line, ut_type, ut_user, ut_host),
      */
 #ifdef __FreeBSD__
     struct utmp utmp;
+    extern void login _PROTO(( struct utmp * utmp ));
 
     bzero( (void*) &utmp, sizeof(utmp) );
     if ( ut_type == UT_USER )
