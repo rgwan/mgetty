@@ -1,7 +1,7 @@
 # Makefile for the "fax" subtree
 # of mgetty+sendfax
 #
-# SCCS: $Id: Makefile,v 4.2 1997/11/14 13:47:46 gert Exp $ Copyright (c) Gert Doering
+# SCCS: $Id: Makefile,v 4.3 1999/06/29 13:27:50 gert Exp $ Copyright (c) Gert Doering
 #
 
 CC=gcc
@@ -64,3 +64,7 @@ install: all
 		echo "WARNING: no PBM magic (string P1) found in /etc/magic" ; \
 		echo "         maybe you should append the definitions in \`\`fax/etc-magic''." ; \
 	    fi
+#
+# faxspool.rules sample file
+#
+	$(INSTALL) -m 644 faxspool.rules $(CONFDIR)/faxspool.rules.sample
