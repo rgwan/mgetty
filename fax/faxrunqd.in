@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.27 1998/02/27 15:15:31 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.28 1998/04/21 13:53:30 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.28  1998/04/21 13:53:30  gert
+# make log file more readable (insert '+')
+#
 # Revision 1.27  1998/02/27 15:15:31  gert
 # added handling of 'time' flag (start time/start+end time range)
 #
@@ -813,10 +816,10 @@ sub send_job_from_queue
     my $pri   = $queue{$job}{priority};
     my @flags = @{$queue{$job}{flags}};
 
-    print LOG "    phone number: $phone\n" if $opt_d;
-    print LOG "    priority    : $pri\n"   if $opt_d;
-    print LOG "    flags       : " . join( ' ', @flags ) . "\n"  if $opt_d;
-    print LOG "    pages       : " . join( ' ', @{$queue{$job}->{'pages'}} ) . "\n" if $opt_d;
+    print LOG " +  phone number: $phone\n" if $opt_d;
+    print LOG " +  priority    : $pri\n"   if $opt_d;
+    print LOG " +  flags       : " . join( ' ', @flags ) . "\n"  if $opt_d;
+    print LOG " +  pages       : " . join( ' ', @{$queue{$job}->{'pages'}} ) . "\n" if $opt_d;
 
     # lock job (just a hard link) vs. faxrunq
     unless( link "$job/JOB", "$job/JOB.locked" )
