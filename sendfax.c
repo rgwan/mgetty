@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 4.8 1997/12/02 13:42:46 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 4.9 1997/12/05 23:50:00 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -348,7 +348,7 @@ int main _P2( (argc, argv),
     /* sanity checks */
     if ( strcmp( c_string(modem_type), "cls2" ) != 0 &&
 	 strcmp( c_string(modem_type), "c2.0" ) != 0 &&
-	 strcmp( c_string(modem_type), "auto" ) != 0 )
+	 strncmp(c_string(modem_type), "auto", 4) != 0 )
     {
 	fprintf( stderr, "%s: warning: invalid modem class '%s'\n",
 		 argv[0], c_string(modem_type) );
