@@ -1,6 +1,6 @@
 # doc/Makefile
 #
-# SCCS: $Id: Makefile,v 3.1 1995/08/30 12:38:20 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: Makefile,v 3.2 1996/02/21 23:00:43 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 
 NROFF=nroff
@@ -10,7 +10,7 @@ MAN1PAGES=g3topbm.1 g3cat.1 pbmtog3.1 fax.1 \
 	  faxspool.1 faxrunq.1 faxq.1 faxrm.1 coverpg.1
 MAN4PAGES=mgettydefs.4
 MAN5PAGES=faxqueue.5
-MAN8PAGES=sendfax.8 mgetty.8
+MAN8PAGES=sendfax.8 mgetty.8 callback.8
 MANSRC=$(MAN1PAGES) $(MAN4PAGES) $(MAN5PAGES) $(MAN8PAGES)
 MAN1DIR=/usr/local/man/man1
 MAN4DIR=/usr/local/man/man4
