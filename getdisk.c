@@ -1,4 +1,4 @@
-#ident "@(#)getdisk.c $Id: getdisk.c,v 4.2 2001/01/06 23:28:05 gert Exp $ Copyright (c) 1994 Elegant Communications Inc."
+#ident "@(#)getdisk.c $Id: getdisk.c,v 4.3 2001/01/27 16:22:49 gert Exp $ Copyright (c) 1994 Elegant Communications Inc."
 
 /*
 
@@ -196,11 +196,19 @@ int checkspace _P1 ((path), char *path)
 {
 #ifdef HASDISKSTAT
     struct mountinfo mi;
+    unsigned int kbytes;
+
     if (getdiskstats(path, &mi))
 	return(1);
-    lprintf( L_NOISE, "%ld Mb free on %s", 
-		(mi.mi_bavail * mi.mi_bsize)/(1024*1024), path);
-    return((mi.mi_bavail * mi.mi_bsize) / minfreespace);
+
+    /* the "shift" stuff is actually a division by 1024, to get "kbytes"
+     * instead of bytes.  But if we do it that way, we risk 32bit overflows 
+     * on disks > 4G, or "0" if mi_bsize is 512 or 256.
+     */
+    kbytes = (mi.mi_bavail>>2) * (mi.mi_bsize>>8);
+
+    lprintf( L_NOISE, "%d Mb free on %s", kbytes/1024, path );
+    return( kbytes / minfreespace);
 #else
     return(1);
 #endif
