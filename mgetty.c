@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.56 1993/10/27 01:35:24 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.57 1993/10/27 20:17:48 gert Exp $ Copyright (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -306,14 +306,6 @@ int main _P2((argc, argv), int argc, char ** argv)
 	}
 	(void) chown(devname, uucpuid, uucpgid);
 
-	/* Currently, the tio returned here is ignored.
-	   The invocation is only for the sideeffects of:
-	    - loading the gettydefs file if enabled.
-	    - setting portspeed appropriately, if not defaulted.
-	 */
-
-	tio = *gettermio(GettyID, TRUE, &login_prompt);
-
 	/* the line is mine now ...  */
 
 	/* open the device; don't wait around for carrier-detect */
@@ -361,6 +353,14 @@ int main _P2((argc, argv), int argc, char ** argv)
 	fcntl(STDIN, F_SETFL, O_RDWR);
 
 	/* setup terminal */
+
+	/* Currently, the tio returned here is ignored.
+	   The invocation is only for the sideeffects of:
+	    - loading the gettydefs file if enabled.
+	    - setting portspeed appropriately, if not defaulted.
+	 */
+
+	tio = *gettermio(GettyID, TRUE, &login_prompt);
 
 	if (toggle_dtr)
 	{
