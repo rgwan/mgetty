@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.51 2001/10/01 18:47:18 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.52 2002/04/22 12:47:32 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -607,10 +607,14 @@ int mdm_identify _P1( (fd), int fd )
 	    break;
 	  case 1281:
 	  case 1291:
-	  case 1292:
 	  case 1293:
 	    lprintf( L_MESG, "ZyXEL Omni.NET detected" );
 	    modem_type=Mt_data;				/* has no fax mode */
+	    mis = mdm_get_idstring( "ATI1", 1, fd );
+	    break;
+	  case 1292:
+	    lprintf( L_MESG, "ZyXEL Omni.NET LCD+M detected" );
+	    modem_type=Mt_class2;			/* rockwell based */
 	    mis = mdm_get_idstring( "ATI1", 1, fd );
 	    break;
 	  case 1500:
