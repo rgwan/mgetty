@@ -331,3 +331,9 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
 
 237) use r-faxspool/faxspool-d locally as well, to avoid world-writeable
      /var/spool/fax directory
+
+238) show vgetty version in "vgetty -V", not only mgetty version
+
+239) make utmp entry (CallerId/Connect) configurable from mgetty.config
+
+240) do away with policy.h, make everything run-time configurable
