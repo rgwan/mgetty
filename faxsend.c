@@ -1,4 +1,4 @@
-#ident "$Id: faxsend.c,v 1.1 1994/01/05 04:44:00 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: faxsend.c,v 1.2 1994/01/30 18:35:59 gert Exp $ Copyright (c) 1994 Gert Doering"
 ;
 /* faxsend.c
  *
@@ -62,9 +62,10 @@ static	char	fax_end_of_page[] = { DLE, ETX };
      */
 
     if ( fax_command( "AT+FDT", "CONNECT", fd ) == ERROR ||
-	 fax_hangup_code != 0 )
+	 fax_hangup != 0 )
     {
-	lprintf( L_WARN, "AT+FDT -> some error, abort fax send!" );
+	lprintf( L_WARN, "AT+FDT -> some error (%d), abort fax send!",
+		 fax_hangup_code );
 	return ERROR;
     }
 
