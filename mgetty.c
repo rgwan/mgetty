@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.31 1993/06/05 10:07:10 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.32 1993/06/05 15:52:13 gert Exp $ (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -70,8 +70,10 @@ struct	speedtab {
 unsigned short portspeed = DEFAULT_PORTSPEED;
 
 /* warning: some modems (for example my old DISCOVERY 2400P) need
-   some delay before sending the next command after an OK, so give it here
-   as "\\dAT..." */
+ * some delay before sending the next command after an OK, so give it here
+ * as "\\dAT...".
+ * 
+ * To send a backslash, you have to use "\\\\" (four backslashes!) */
 
 char *	init_chat_seq[] = { "", "\r\\d\\d\\d+++\\d\\d\\d\r\\dATQ0H0", "OK",
 
@@ -462,9 +464,13 @@ int main( int argc, char ** argv)
 	    if ( what_action == A_FAX )
 	    {
 		lprintf( L_MESG, "action is A_FAX, start fax receiver...");
+#ifdef FAX_RECEIVE_USE_IXOFF
+		termio.c_iflag = IXOFF		/* xon/xoff flow control */
+#else
 		termio.c_iflag = 0;		/* do NOT process input! */
+#endif
 		termio.c_lflag &= ~ISIG;	/* disable signals! */
-		ioctl (STDIN, TCSETAF, &termio);
+		ioctl (STDIN, TCSETA, &termio);
 		faxrec();
 		lprintf( L_MESG, "fax receiver finished, exiting...");
 		exit(1);

@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.9 1993/06/04 20:49:02 gert Exp $ (c) Gert Doering"
+#ident "$Id: policy.h,v 1.10 1993/06/05 15:52:16 gert Exp $ (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -105,6 +105,13 @@
  * mode (even when told not to), define this (ZyXELs are know to do this).
  */
 #define FAX_SEND_USE_IXON
+
+/* if your received faxes are corrupted (missing lines), because the
+ * faxmodem does not honor RTS handshake, define this.
+ * mgetty will then do XON/XOFF flow control in fax receive mode
+ * (I do *not* think that's necessary)
+ */
+/* #define FAX_RECEIVE_USE_IXOFF */
 
 /* the device(s) used for faxing
  * multiple devices can be separated by ":", e.g. "tty1a:tty2a"
