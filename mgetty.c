@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.135 1994/10/13 14:09:36 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.136 1994/10/15 12:49:10 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -711,7 +711,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 		int n = 0;
 		
 		while ( do_chat( STDIN, ring_chat_seq, ring_chat_actions,
-				 &what_action, 30, TRUE ) == SUCCESS &&
+				 &what_action, 17, TRUE ) == SUCCESS &&
 		        ! virtual_ring )
 		{ n++; }
 		
