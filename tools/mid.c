@@ -1,4 +1,4 @@
-#ident "$Id: mid.c,v 1.4 1998/07/07 15:30:40 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mid.c,v 1.5 1998/10/05 08:39:04 gert Exp $ Copyright (c) Gert Doering"
 
 /* mid.c
  *
@@ -172,7 +172,7 @@ FILE * out_fp = stdout;
 	char mailer[MAXPATH];
 
 	sprintf( mailer, "%s %.*s", MAILER, 
-		 sizeof(mailer)-sizeof(MAILER)-10, mailaddr );
+		 (int)(sizeof(mailer)-sizeof(MAILER)-10), mailaddr );
 	out_fp = popen( mailer, "w" );
 
 	if ( out_fp == NULL )
