@@ -1,6 +1,6 @@
 # doc/Makefile
 #
-# SCCS: $Id: Makefile,v 2.1 1994/11/30 23:22:18 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: Makefile,v 2.2 1995/05/30 21:51:25 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 
 NROFF=nroff
@@ -62,7 +62,7 @@ fullclean: clean
 	      *.man *.[1-9] mgetty.texi
 
 install: $(MANSRC) mgetty.info
-	-mkdir $(MAN1DIR) $(MAN4DIR) $(MAN5DIR) $(MAN8DIR) 2>/dev/null
+	-mkdir `dirname $(MAN1DIR)` $(MAN1DIR) $(MAN4DIR) $(MAN5DIR) $(MAN8DIR) 2>/dev/null
 	for i in $(MAN1PAGES) ; do \
 		$(INSTALL) -m 644 $$i $(MAN1DIR) ; \
 	done
@@ -76,6 +76,7 @@ install: $(MANSRC) mgetty.info
 		$(INSTALL) -m 644 $$i $(MAN8DIR) ; \
 	done
 	if [ -f mgetty.info ] ; then\
+	    test -d $(INFODIR) || mkdir $(INFODIR) 2>/dev/null ; \
 	    for i in mgetty.info* ; do \
 		$(INSTALL) -m 644 $$i $(INFODIR) ; \
 	    done ; \
