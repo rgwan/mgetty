@@ -214,8 +214,7 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
      and do vhangup() stuff
 
 180) switch from policy.h-dist to policy.h with "reasonable defaults"
-
-183) change license to GPL?
+240) do away with policy.h, make everything run-time configurable
 
 184) make sendfax choose fax device in a "random" fashion (avoid 
      problems when the first modem in a "hunt group" dies (NO DIALTONE))
@@ -334,8 +333,9 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
 
 239) make utmp entry (CallerId/Connect) configurable from mgetty.config
 
-240) do away with policy.h, make everything run-time configurable
-
 241) cnd-program rework (more return codes, call after first RING)
 
 242) document callback and login.conf v2
+
+243) fix page lengths while sending (integrate in "send G3 file with
+     byte padding" that's necessary for class 1 anyway)
