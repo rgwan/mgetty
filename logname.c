@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 4.5 1998/05/09 14:38:03 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 4.6 1998/08/04 13:27:23 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include "syslibs.h"
@@ -223,7 +223,7 @@ static RETSIGTYPE getlog_timeout(SIG_HDLR_ARGS)
 {
     signal( SIGALRM, getlog_timeout );
 
-    lprintf( L_WARN, "getlogname: timeout\n" );
+    lprintf( L_WARN, "getlogname: timeout" );
     timeouts++;
 }
 
