@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 3.2 1995/08/30 12:45:03 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 3.3 1995/08/30 12:47:14 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -645,7 +645,7 @@ config.o : config.c syslibs.h mgetty.h ugly.h config.h
 do_chat.o : do_chat.c syslibs.h mgetty.h ugly.h policy.h tio.h 
 do_stat.o : do_stat.c syslibs.h mgetty.h ugly.h policy.h tio.h 
 dump.o : dump.c syslibs.h mgetty.h ugly.h policy.h tio.h fax_lib.h mg_utmp.h \
-  config.h conf_mg.h version.h 
+  config.h conf_mg.h 
 faxhng.o : faxhng.c mgetty.h ugly.h 
 faxlib.o : faxlib.c mgetty.h ugly.h policy.h fax_lib.h 
 faxrec.o : faxrec.c syslibs.h mgetty.h ugly.h tio.h policy.h fax_lib.h 
@@ -661,7 +661,7 @@ login.o : login.c mgetty.h ugly.h config.h policy.h mg_utmp.h
 logname.o : logname.c syslibs.h mgetty.h ugly.h policy.h tio.h mg_utmp.h 
 mg_m_init.o : mg_m_init.c syslibs.h mgetty.h ugly.h tio.h policy.h fax_lib.h 
 mgetty.o : mgetty.c syslibs.h mgetty.h ugly.h policy.h tio.h fax_lib.h mg_utmp.h \
-  config.h conf_mg.h version.h 
+  config.h conf_mg.h 
 sendfax.o : sendfax.c syslibs.h mgetty.h ugly.h tio.h policy.h fax_lib.h config.h \
   conf_sf.h 
 tio.o : tio.c mgetty.h ugly.h tio.h 
