@@ -1,4 +1,4 @@
-#ident "$Id: pbm2g3.c,v 1.2 1994/03/01 17:08:36 gert Exp $ Copyright (C) 1994 Gert Doering"
+#ident "$Id: pbm2g3.c,v 1.3 1994/05/20 09:07:35 gert Exp $ Copyright (C) 1994 Gert Doering"
 ;
 /* pbmtog3
  *
@@ -16,7 +16,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
-#include <malloc.h>
+#include "syslibs.h"
 #include <ctype.h>
 
 #include "ugly.h"

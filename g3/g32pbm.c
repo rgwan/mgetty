@@ -1,8 +1,8 @@
-#ident "$Id: g32pbm.c,v 1.14 1994/04/28 13:18:52 gert Exp $ (c) Gert Doering"
+#ident "$Id: g32pbm.c,v 1.15 1994/05/20 09:07:23 gert Exp $ (c) Gert Doering"
 ;
 #include <stdio.h>
 #include <unistd.h>
-#include <malloc.h>
+#include "syslibs.h"
 #include <string.h>
 #include <fcntl.h>
 
