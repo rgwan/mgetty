@@ -1,4 +1,4 @@
-#ident "$Id: modem.c,v 4.3 1997/05/04 13:09:17 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: modem.c,v 4.4 1997/12/05 23:48:08 gert Exp $ Copyright (c) Gert Doering"
 
 /* modem.c
  *
@@ -167,7 +167,7 @@ char * mdm_get_idstring _P3( (send, n, fd), char * send, int n, int fd )
     char * l; int i;
     static char rbuf[80];
 
-    if ( mdm_send( send, fd ) == ERROR ) return NULL;
+    if ( mdm_send( send, fd ) == ERROR ) return "<ERROR>";
 
     /* wait for OK or ERROR, *without* side effects (as fax_wait_for
      * would have)
@@ -196,7 +196,7 @@ char * mdm_get_idstring _P3( (send, n, fd), char * send, int n, int fd )
 
     alarm(0); signal( SIGALRM, SIG_DFL );
     
-    if ( l == NULL ) return NULL;	/* error */
+    if ( l == NULL ) return "<ERROR>";			/* error */
 
     return rbuf;
 }
