@@ -1,4 +1,4 @@
-#ident "$Id: mg_m_init.c,v 1.6 1994/07/27 15:50:33 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_m_init.c,v 1.7 1994/08/03 11:17:42 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mg_m_init.c - part of mgetty+sendfax
  *
@@ -11,6 +11,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <signal.h>
+#include <errno.h>
 
 #ifndef sunos4
 #include <sys/ioctl.h>
@@ -60,7 +61,8 @@ int mg_init_data _P1( (fd), int fd )
     if ( do_chat( fd, init_chat_seq, init_chat_actions,
 		 &what_action, init_chat_timeout, TRUE ) == FAIL )
     {
-	lprintf( L_MESG, "init chat failed, exiting..." );
+	errno = ( what_action == A_TIMOUT )? EINTR: EINVAL;
+	lprintf( L_FATAL, "init chat failed, exiting..." );
 	return FAIL;
     }
     return SUCCESS;
