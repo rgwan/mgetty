@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 1.24 1994/05/25 13:34:47 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 1.25 1994/07/11 19:16:05 gert Exp $ Copyright (c) 1993 Gert Doering"
 ;
 /* tio.c
  *
@@ -113,7 +113,7 @@ int tio_get _P2((fd, t), int fd, TIO *t )
 
 int tio_set _P2( (fd, t), int fd, TIO * t)	/*!! FIXME: flags, wait */
 {
-#ifdef sun
+#ifdef sunos4
     int modem_lines;
 #endif
 #ifdef SYSV_TERMIO
@@ -127,7 +127,7 @@ int tio_set _P2( (fd, t), int fd, TIO * t)	/*!! FIXME: flags, wait */
     {
 	lprintf( L_ERROR, "tcsetattr failed" ); return ERROR;
     }
-#ifdef sun
+#ifdef sunos4
     /* On SunOS, make sure that RTS and DTR are asserted if you wanna
      * use hardware flow control
      */
@@ -138,7 +138,7 @@ int tio_set _P2( (fd, t), int fd, TIO * t)	/*!! FIXME: flags, wait */
         modem_lines |= (TIOCM_RTS | TIOCM_DTR);
         ioctl(STDIN, TIOCMSET, &modem_lines);
     }
-#endif /* sun */
+#endif /* sunos4 */
 #endif /* posix_termios */
 
 #ifdef BSD_SGTTY
@@ -541,16 +541,26 @@ int tio_toggle_dtr _P2( (fd, msec_wait), int fd, int msec_wait )
      * bring the port to some strange state where every ioctl() later
      * on simply fails - so use special "modem control" ioctl()s to
      * lower and raise DTR
+     * Strange enough, on *some* platforms, you have to pass the mctl
+     * flag word by value, on others by reference. Oh world...
      */
 #if defined(SVR4) && defined(TIOCMBIS)		/* SVR4 special */
     int mctl = TIOCM_DTR;
 
+#ifdef sun
+    if ( ioctl( fd, TIOCMBIC, &mctl ) < 0 )
+#else
     if ( ioctl( fd, TIOCMBIC, (char *) mctl ) < 0 )
+#endif
     {
 	lprintf( L_ERROR, "TIOCMBIC failed" ); return ERROR;
     }
     delay( msec_wait );
+#ifdef sun
+    if ( ioctl( fd, TIOCMBIS, &mctl ) < 0 )
+#else
     if ( ioctl( fd, TIOCMBIS, (char *) mctl ) < 0 )
+#endif
     {
 	lprintf( L_ERROR, "TIOCMBIS failed" ); return ERROR;
     }
@@ -584,7 +594,7 @@ int tio_toggle_dtr _P2( (fd, msec_wait), int fd, int msec_wait )
     /* The "standard" way of doing things - via speed = B0
      */
     TIO t, save_t;
-#ifdef sun
+#ifdef sunos4
     int modem_lines;
 #endif
     int result;
@@ -607,7 +617,7 @@ int tio_toggle_dtr _P2( (fd, msec_wait), int fd, int msec_wait )
     tio_set( fd, &t );
     delay( msec_wait );
     
-#ifdef sun
+#ifdef sunos4
     /* on SunOS, if you hangup via B0, the DTR line will *stay* low.
      * So: enable it manually again.
      */

@@ -1,4 +1,4 @@
-#ident "$Id: io.c,v 1.19 1994/05/25 13:16:58 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: io.c,v 1.20 1994/07/11 19:15:58 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* io.c
  *
@@ -23,7 +23,7 @@ int poll _PROTO(( struct pollfd fds[], unsigned long nfds, int timeout ));
 
 #ifdef USE_SELECT
 # include <string.h>
-# if defined (linux) || defined (sun) || defined (SVR4) || \
+# if defined (linux) || defined (sunos4) || defined (SVR4) || \
      defined (__hpux) || defined (MEIBE) || defined(sgi) || \
      defined (ISC) || defined (BSD) || defined(sysV68)
 #  include <sys/types.h>

@@ -1,4 +1,4 @@
-#ident "@(#)getdisk.c $Id: getdisk.c,v 1.8 1994/06/03 21:56:20 gert Exp $ Copyright (c) 1994 Elegant Communications Inc."
+#ident "@(#)getdisk.c $Id: getdisk.c,v 1.9 1994/07/11 19:15:57 gert Exp $ Copyright (c) 1994 Elegant Communications Inc."
 ;
 /*
 
@@ -66,7 +66,7 @@
 #endif
 
 #if defined(vpyr) || defined(vsnxdyn) || defined(__hpux) || defined(vdynix) || \
-    defined(vaix) || defined(_AIX) || defined(vaixps2) || defined(sun) || \
+    defined(vaix) || defined(_AIX) || defined(vaixps2) || defined(sunos4) || \
     defined(linux) || defined(__osf__) || defined(BSD)
 # define BSDSTATFS	/* as used from the att universe of Pyramid! :-) */
 #endif

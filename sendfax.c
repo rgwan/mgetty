@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.62 1994/06/28 22:06:30 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.63 1994/07/11 19:16:03 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* sendfax.c
  *
@@ -13,7 +13,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include "syslibs.h"
-#ifndef sun
+#ifndef sunos4
 #include <sys/ioctl.h>
 #endif
 #include <signal.h>
@@ -101,7 +101,7 @@ int fax_open_device _P2( (fax_tty, use_stdin),
     tio_mode_sane( &fax_tio, TRUE );
     tio_set_speed( &fax_tio, FAX_SEND_BAUD );
     tio_mode_raw( &fax_tio );
-#ifdef sun
+#ifdef sunos4
     /* sunos does not rx with RTSCTS unless carrier present */
     tio_set_flow_control( fd, &fax_tio, FLOW_NONE );
 #else
@@ -431,10 +431,10 @@ int	tries;
     /* by now, the modem should have raised DCD, so remove CLOCAL flag */
     tio_carrier( &fax_tio, TRUE );
 
-#ifdef sun
+#ifdef sunos4
     /* now we can request hardware flow control since we have carrier */
     tio_set_flow_control( fd, &fax_tio, (FAXSEND_FLOW) & (FLOW_HARD|FLOW_XON_OUT) );
-#endif	/* sun */
+#endif	/* sunos4 */
     tio_set( fd, &fax_tio );
 
 #endif	/* !FAX_SEND_IGNORE_CARRIER */

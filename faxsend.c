@@ -1,4 +1,4 @@
-#ident "$Id: faxsend.c,v 1.5 1994/05/14 16:05:48 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: faxsend.c,v 1.6 1994/07/11 19:15:56 gert Exp $ Copyright (c) 1994 Gert Doering"
 ;
 /* faxsend.c
  *
@@ -18,7 +18,7 @@
 #include <unistd.h>
 #include "syslibs.h"
 
-#ifndef sun
+#ifndef sunos4
 #include <sys/ioctl.h>
 #endif
 #include <signal.h>
@@ -393,7 +393,7 @@ int fax_send_ppm _P3( (fd, tio, ppm),
 	     * result code has reached the host
 	     */
 	    tio_carrier( tio, FALSE );
-#ifdef sun
+#ifdef sunos4
 	    /* HW handshake has to be off while carrier is low */
 	    tio_set_flow_control(fd, tio, (FAXSEND_FLOW) & FLOW_XON_OUT);
 #endif

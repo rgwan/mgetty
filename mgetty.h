@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.h,v 1.56 1994/05/14 16:43:33 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 1.57 1994/07/11 19:16:01 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.h
  *
@@ -67,9 +67,27 @@ int lprintf _PROTO(());
 typedef	void	RETSIGTYPE;
 typedef	char	boolean;
 
+/* the cpp directive "sun" isn't useful at all, since is defined on
+ * SunOS 4, Solaris 2, and even Solaris x86...
+ * So, you have to define -Dsunos4, -Dsolaris2, or -Dsolaris86.
+ * Otherwise: barf!
+ */
+#ifdef sun
+# if !defined( sunos4 ) && !defined( solaris2 ) && !defined( solaris86 )
+#  error "Please define -Dsunos4 or -Dsolaris2 or -Dsolaris86"
+# endif
+#endif
+
+#ifdef solaris2
+# define SVR4
+# ifndef sun
+#  define sun
+# endif
+#endif
+
 /* assume that all BSD systems have the siginterrupt() function
  */
-#if ( defined(BSD) || defined(sun) ) && !defined(NO_SIGINTERRUPT)
+#if ( defined(BSD) || defined(sunos4) ) && !defined(NO_SIGINTERRUPT)
 #define HAVE_SIGINTERRUPT
 #endif
 
@@ -91,6 +109,9 @@ int	do_chat _PROTO(( int filedesc, char * expect_send[],
 	     	 chat_action_t actions[], action_t * action,
 		 int chat_timeout_time, boolean timeout_first ));
 int	clean_line _PROTO(( int filedesc, int tenths ));
+
+/* goodies.c */
+char * basename _PROTO(( char * ));
 
 /* io.c */
 boolean	check_for_input _PROTO (( int fd ));

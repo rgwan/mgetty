@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.48 1994/05/25 13:17:13 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 1.49 1994/07/11 19:15:56 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -21,7 +21,7 @@
 #include <sys/types.h>
 #include <sys/times.h>
 
-#ifndef sun
+#ifndef sunos4
 #include <sys/ioctl.h>
 #endif
 
@@ -35,7 +35,7 @@ static time_t call_done;
 
 time_t	time _PROTO(( long * tloc ));
 
-#if !defined(sun) && !defined(MEIBE) && !defined(sysV68)
+#if !defined(sunos4) && !defined(MEIBE) && !defined(sysV68)
 int	chmod _PROTO(( char * path, mode_t mode ));
 #endif
 

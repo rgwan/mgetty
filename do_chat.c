@@ -1,4 +1,4 @@
-#ident "$Id: do_chat.c,v 1.35 1994/05/14 16:57:00 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: do_chat.c,v 1.36 1994/07/11 19:15:54 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* do_chat.c
  *
@@ -10,7 +10,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <string.h>
-#ifndef sun
+#ifndef sunos4
 #include <sys/ioctl.h>
 #endif
 

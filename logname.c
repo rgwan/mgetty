@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 1.40 1994/07/06 00:33:08 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 1.41 1994/07/11 19:15:59 gert Exp $ Copyright (c) Gert Doering"
 ;
 #include <stdio.h>
 #include "syslibs.h"
@@ -8,7 +8,7 @@
 #include <sys/types.h>
 #include <time.h>
 #include <ctype.h>
-#ifndef sun
+#ifndef sunos4
 #include <sys/ioctl.h>
 #endif
 
