@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.2 1997/03/31 20:25:57 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.3 1997/03/31 20:46:15 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -207,6 +207,7 @@ int  ix;
 	     strcmp( line, "NO DIALTONE" ) == 0 ||
 	     strcmp( line, "NO DIAL TONE" ) == 0 )
 	{
+#if 0		/* not needed right now (fax_send_ppm), problem with USR!! */
 	    if ( modem_type == Mt_class2_0 )		/* valid response */
 	    {						/* in class 2.0! */
 		if ( strcmp( line, "ERROR" ) == 0 )
@@ -216,6 +217,7 @@ int  ix;
 		    return NOERROR;			/* !C2 */
 		}
 	    }
+#endif
 
 	    /* in class 2, one of the above codes means total failure */
 	    
@@ -223,7 +225,8 @@ int  ix;
 	    fax_hangup = 1;
 	    
 	    if ( strcmp(line, "BUSY") == 0 ) fax_hangup_code = FHUP_BUSY;
-	    else if (strcmp(line, "NO DIALTONE") == 0)
+	    else if (strcmp(line, "NO DIALTONE") == 0 ||
+		     strcmp(line, "NO DIAL TONE") == 0)
 	                                     fax_hangup_code = FHUP_NODIAL;
 	    else                             fax_hangup_code = FHUP_ERROR;
 	    
@@ -241,6 +244,19 @@ int  ix;
     if ( fax_hangup && fax_hangup_code != 0 ) return ERROR;
 
     return NOERROR;
+}
+
+/* (re-) initialize all global/static variables set by faxlib.c
+ * necessary if fax state machine runs multiple times, e.g. in vgetty
+ */
+void faxlib_init _P0((void))
+{
+    fax_hangup = 0;
+    fax_hangup_code = FHUP_UNKNOWN;
+    fax_page_tx_status = 0;
+    fax_to_poll = fax_poll_req = FALSE;
+    fhs_details = FALSE;
+    fax_remote_id[0] = '\0';
 }
 
 /* send a command string to the modem, terminated with the
