@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.117 1994/07/22 10:52:26 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.118 1994/08/02 12:46:51 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -177,7 +177,8 @@ int main _P2((argc, argv), int argc, char ** argv)
     boolean	data_only = FALSE;
 #endif
     char	* modem_class = DEFAULT_MODEMTYPE;	/* policy.h */
-
+    boolean	autobauding = FALSE;
+    
 #if defined(_3B1_) || defined(MEIBE)
     typedef ushort uid_t;
     typedef ushort gid_t;
@@ -234,7 +235,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 	direct_line = TRUE;
     }
 
-    while ((c = getopt(argc, argv, "c:x:s:rp:n:i:DC:S:m:I:b")) != EOF)
+    while ((c = getopt(argc, argv, "c:x:s:rp:n:i:DC:S:m:I:ba")) != EOF)
     {
 	switch (c) {
 	  case 'c':			/* check */
@@ -295,6 +296,8 @@ int main _P2((argc, argv), int argc, char ** argv)
 	    fax_station_id = optarg; break;
 	  case 'b':			/* open port in blocking mode */
 	    blocking_open = TRUE; break;
+	  case 'a':			/* autobauding */
+	    autobauding = TRUE; break;
 	  case '?':
 	    exit_usage(2);
 	    break;
@@ -747,6 +750,40 @@ int main _P2((argc, argv), int argc, char ** argv)
 		rmlocks();
 		exit(1);
 	    }
+
+	    /* some (old) modems require the host to change port speed
+	     * to the speed returned in the CONNECT string, usually
+	     * CONNECT 2400 / 1200 / "" (meaning 300)
+	     */
+	    if ( autobauding )
+	    {
+		if ( strlen( Connect ) == 0 )	/* "CONNECT\r" */
+		    cspeed = 300;
+		else
+		    cspeed = atoi(Connect);
+
+		lprintf( L_MESG, "autobauding: switch to %d bps", cspeed );
+		
+		for ( i = 0; speedtab[i].cbaud != 0; i++ )
+		{
+		    if ( speedtab[i].nspeed == cspeed )
+		    {
+			portspeed = speedtab[i].cbaud;
+			break;
+		    }
+		}
+		if ( speedtab[i].cbaud == 0 )
+		{
+		    lprintf( L_ERROR, "autobauding: cannot parse 'CONNECT %s'",
+			               Connect );
+		}
+		else
+		{
+		    tio_set_speed( &tio, portspeed );
+		    tio_set( STDIN, &tio );
+		}
+	    }
+	    
 	    mgetty_state = St_get_login;
 	    break;
 	    
