@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 3.9 1996/02/15 16:19:26 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 3.10 1996/02/25 22:29:20 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -914,10 +914,9 @@ Ring_got_action:
     {
 	/* set ttystate for /etc/issue ("before" setting) */
 	gettermio(c_string(gettydefs_tag), TRUE, &tio);
-#ifdef sun
-	/* we have carrier, assert data flow control */
-	tio_set_flow_control( STDIN, &tio, DATA_FLOW );
-#endif
+
+	/* we have carrier, assert flow control (including HARD and IXANY!) */
+	tio_set_flow_control( STDIN, &tio, DATA_FLOW | FLOW_XON_IXANY );
 	tio_set( STDIN, &tio );
 	
 	fputc('\r', stdout);	/* just in case */
