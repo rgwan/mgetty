@@ -1,6 +1,6 @@
 # doc/Makefile
 #
-# SCCS: $Id: Makefile,v 3.6 1996/10/03 10:54:11 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: Makefile,v 3.7 1996/11/21 23:11:56 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 
 NROFF=nroff
@@ -26,12 +26,12 @@ MAN_FMT_PRG=$(NROFF) -man
 
 all:
 
-doc-all: mgetty.asc mgetty.info mgetty.dvi mgetty.ps fmt-manpages
+doc-all: mgetty.asc mgetty.info mgetty.dvi mgetty.ps fmt-manpages $(MANSRC) 
 
 manpages: $(MANSRC)
 
 fmt-manpages:
-	$(MAKE) `for i in $(MANSRC) ; do echo \`expr $$i : "\([^.]*\)"\`.man ; done `
+	-$(MAKE) `for i in $(MANSRC) ; do echo \`expr $$i : "\([^.]*\)"\`.man ; done `
 
 mgetty.asc: mgetty.ms
 	-$(NROFF) -ms mgetty.ms >mgetty.asc
