@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.52 1993/10/19 22:24:33 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.53 1993/10/22 11:13:55 gert Exp $ Copyright (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -85,7 +85,6 @@ char *	init_chat_seq[] = { "", "\\d\\d\\d+++\\d\\d\\d\r\\dATQ0H0", "OK",
 #endif
                             NULL };
 
-char *	init_chat_abort[] = { "ERROR", "BUSY", NULL };
 int	init_chat_timeout = 60;
 
 chat_action_t	init_chat_actions[] = { { "ERROR", A_FAIL },
@@ -93,17 +92,24 @@ chat_action_t	init_chat_actions[] = { { "ERROR", A_FAIL },
 					{ "NO CARRIER", A_FAIL },
 					{ NULL,	A_FAIL } };
 
-char *	call_chat_seq[] = { "RING", "ATA", "CONNECT", "\\c", "\n", NULL };
-char *	call_chat_abort[] = { "NO CARRIER", "BUSY", "ERROR", NULL };
-int	call_chat_timeout = 60;
-
-chat_action_t	call_chat_actions[] = { { "NO CARRIER", A_FAIL },
+int	rings_wanted = 1;		/* default: one "RING" */
+char *	ring_chat_seq[] = { "RING", NULL };
+chat_action_t	ring_chat_actions[] = { { "CONNECT",	A_CONN },
+					{ "NO CARRIER", A_FAIL },
 					{ "BUSY",	A_FAIL },
-					{ "ERROR", A_FAIL },
+					{ "ERROR",	A_FAIL },
 #ifndef NO_FAX
-					{ "+FCON", A_FAX },
+					{ "+FCON",	A_FAX  },
 #endif
-					{ NULL, A_FAIL } };
+					{ NULL,		A_FAIL } };
+
+char *	answer_chat_seq[] = { "", "ATA", "CONNECT", "\\c", "\n", NULL };
+int	answer_chat_timeout = 80;
+
+/* the same actions are recognized while answering as are */
+/* when waiting for RING, except for "CONNECT" */
+
+chat_action_t	* answer_chat_actions = &ring_chat_actions[1];
 
 
 /* private functions */
@@ -145,7 +151,7 @@ static void sig_pick_phone()		/* "simulated RING" handler */
 
 int main _P2((argc, argv), int argc, char ** argv)
 {
-	register int c, fd;
+        register int c, fd;
 	char devname[MAXLINE+1];
 	char buf[MAXLINE+1];
 	TIO	tio;
@@ -155,6 +161,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 	int cspeed;
 
 	action_t	what_action;
+	int		rings;
 
 #ifdef _3B1_
 	typedef ushort uid_t;
@@ -187,7 +194,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 	/* process the command line
 	 */
 
-	while ((c = getopt(argc, argv, "x:s:rp:")) != EOF) {
+	while ((c = getopt(argc, argv, "x:s:rp:n:")) != EOF) {
 		switch (c) {
 		case 'x':
 			log_level = atoi(optarg);
@@ -213,6 +220,10 @@ int main _P2((argc, argv), int argc, char ** argv)
 			break;
 		case 'p':
 			login_prompt = optarg;
+			break;
+		case 'n':
+			rings_wanted = atoi( optarg );
+			if ( rings_wanted == 0 ) rings_wanted = 1;
 			break;
 		case '?':
 			exit_usage(2);
@@ -366,7 +377,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 	 */
 	if ( ! direct_line )
 	  if ( do_chat( STDIN, init_chat_seq, init_chat_actions, &what_action,
-                        init_chat_timeout, TRUE, FALSE, FALSE ) == FAIL )
+                        init_chat_timeout, TRUE ) == FAIL )
 	{
 	    lprintf( L_MESG, "init chat failed, exiting..." );
 	    rmlocks();
@@ -451,24 +462,43 @@ int main _P2((argc, argv), int argc, char ** argv)
 	/* wait for "RING", if found, send manual answer string (ATA)
 	   to the modem */
 
-	log_level++; /*FIXME: remove this - for debugging only !!!!!!!!!!!*/
 	if ( ! direct_line )
-	  if ( do_chat( STDIN, call_chat_seq, call_chat_actions, &what_action,
-                        call_chat_timeout, TRUE, FALSE, virtual_ring ) == FAIL)
 	{
-	    if ( what_action == A_FAX )
+	    rings = 0;
+	    while ( rings < rings_wanted )
 	    {
-		lprintf( L_MESG, "action is A_FAX, start fax receiver...");
-		faxrec( FAX_SPOOL_IN );
-		lprintf( L_MESG, "fax receiver finished, exiting...");
-		exit(1);
+		if ( do_chat( STDIN, ring_chat_seq, ring_chat_actions,
+			      &what_action, answer_chat_timeout,
+			      TRUE ) == FAIL ) break;
+		rings++;
 	    }
 
-	    lprintf( L_MESG, "action != A_FAX; chat failed, exiting..." );
-	    rmlocks();
-	    exit(1);
+	    /* answer phone only, if we got all "RING"s (otherwise, the */
+	    /* modem may have auto-answered (urk), the user may have */
+	    /* pressed a "data/voice" button, ..., and we fall right */
+	    /* through) */
+
+	    log_level++; /*FIXME!!: remove this - for debugging only */
+	    
+	    if ( what_action != A_CONN &&
+		 ( rings < rings_wanted ||
+	           do_chat( STDIN, answer_chat_seq, answer_chat_actions,
+			    &what_action, answer_chat_timeout, TRUE) == FAIL))
+	    {
+		if ( what_action == A_FAX )
+		{
+		    lprintf( L_MESG, "action is A_FAX, start fax receiver...");
+		    faxrec( FAX_SPOOL_IN );
+		    lprintf( L_MESG, "fax receiver finished, exiting...");
+		    exit(1);
+		}
+
+		lprintf( L_MESG, "chat failed (timeout or A_FAIL), exiting..." );
+		rmlocks();
+		exit(1);
+	    }
+	    log_level--;
 	}
-	log_level--;
 
 	/* wait for line to clear (after "CONNECT" a baud rate may
            be sent by the modem, on a non-MNP-Modem the MNP-request
