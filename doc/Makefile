@@ -1,6 +1,6 @@
 # doc/Makefile
 #
-# SCCS: $Id: Makefile,v 3.3 1996/07/01 22:24:51 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: Makefile,v 3.4 1996/07/29 18:40:45 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 
 NROFF=nroff
@@ -111,6 +111,7 @@ mgetty.8: mgetty.8in ../sedscript
 mgettydefs.4: mgettydefs.4in ../sedscript
 pbmtog3.1: pbmtog3.1in ../sedscript
 sendfax.8: sendfax.8in ../sedscript
+callback.8: callback.8in ../secscript
 
 ../sedscript: ../policy.h ../Makefile ../mksed.c
 	@cd .. ; $(MAKE) sedscript
@@ -118,7 +119,7 @@ sendfax.8: sendfax.8in ../sedscript
 #
 # inference rules for creating manpages from .in pages
 #
-.SUFFIXES: .1in .4in .5in .8in
+.SUFFIXES: .1in .4in .5in .8in .1 .4 .5 .8
 
 .1in.1:
 	../sedscript <$< >$*.1
