@@ -2,7 +2,7 @@
 # Sample voice configuration file
 # -------------------------------
 #
-# $Id: voice.conf-dist,v 1.7 2000/06/11 16:14:51 marcs Exp $
+# $Id: voice.conf-dist,v 1.8 2000/09/06 21:18:16 gert Exp $
 #
 # This file is read twice: First the program configuration is read and
 # second the port configuration. This means that generic values at the
@@ -94,6 +94,10 @@ backup_message standard.rmd
 # mode used. Note that this is an integer, not one of the Bxxxx defines.
 # Basically you should select the highest possible speed your modem and
 # computer support. The default value is 38400.
+#
+# WARNING: if you use vgetty, this MUST be the same value as the
+#          setting of "speed <n>" in mgetty.config.  If you change one,
+#          change the other one as well!
 #
 
 port_speed 38400
