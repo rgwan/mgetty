@@ -1,4 +1,4 @@
-#ident "@(#)getdisk.c $Id: getdisk.c,v 2.1 1994/11/30 23:20:40 gert Exp $ Copyright (c) 1994 Elegant Communications Inc."
+#ident "@(#)getdisk.c $Id: getdisk.c,v 2.2 1995/03/14 09:20:24 gert Exp $ Copyright (c) 1994 Elegant Communications Inc."
 
 /*
 
@@ -57,8 +57,8 @@
    our jargon for a 3b2.
  */
 #if defined(vmiti) || defined(vtandem) || defined(vmips) || defined(ISC) || \
-	defined(M_UNIX) || \
-	defined(vm68k) || defined(vm88k) || defined(vu3b2) || \
+	defined(M_UNIX) || defined(m88k) || \
+	defined(vm68k) || defined(vu3b2) || \
 	defined(vxps) || defined(vu6050) || defined(vs5k80) || \
 	defined(vs5k50) || defined(vdpx2) || defined(vdynptx) || \
 	defined(venc)
@@ -248,7 +248,7 @@ getdiskstats _P2 ((path, mi), char *path, mntinf *mi)
     /* Systems that don't define f_frsize at all 
      * OR give a meaningless value.
      */
-#  if defined(BSDSTATFS) || defined(vm88k)
+#  if defined(BSDSTATFS) || defined(m88k)
     mi->mi_bsize = info.f_bsize;
 #  else
     /* if frag size is given, it is the units for blocks
