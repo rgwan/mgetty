@@ -1,4 +1,4 @@
-#ident "$Id: do_chat.c,v 4.1 1997/01/12 14:53:37 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: do_chat.c,v 4.2 2003/10/05 11:58:57 gert Exp $ Copyright (c) Gert Doering"
 
 /* do_chat.c
  *
@@ -251,7 +251,7 @@ int clean_line _P2 ((fd, waittime), int fd, int waittime )
     /* on some systems, the VMIN/VTIME mechanism is obviously totally
      * broken. So, use a select()/flush queue loop instead.
      */
-    lprintf( L_NOISE, "waiting for line to clear (select), read: " );
+    lprintf( L_NOISE, "waiting for line to clear (select/%d ms), read: ", waittime * 100 );
 
     while( wait_for_input( fd, waittime * 100 ) &&
 	   read( fd, buffer, 1 ) > 0 &&
@@ -262,7 +262,7 @@ int clean_line _P2 ((fd, waittime), int fd, int waittime )
 #else
 TIO	tio, save_tio;
 
-    lprintf( L_NOISE, "waiting for line to clear (VTIME), read: " );
+    lprintf( L_NOISE, "waiting for line to clear (VTIME=%d), read: ", waittime);
 
     /* set terminal timeout to "waittime" tenth of a second */
     tio_get( fd, &tio );
