@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 4.8 1998/06/13 11:27:20 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 4.9 1998/07/05 20:31:04 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration defaults for mgetty / sendfax
  * are specified.
@@ -531,21 +531,6 @@
  * set it from the sendfax.config file, though)!
  */
 #define FAX_MODEM_TTYS	"tty4c:tty4d"
-
-/* some modems, notably some GVC modems, all USR models, and the german
- * telecom approved ZyXEL EG+ have the annoying behaviour of lowering
- * and raising the DCD line during the pre- and post-page handshake
- * (when sending faxes).
- *
- * If your modem does this, sendfax will terminate immediately after
- * starting to send the first page, or between the first and second
- * page, and the fax log file will show something like
- * "read failed, I/O error".
- *
- * If you define this, sendfax will (try to) ignore that line
- */
-
-/* #define FAX_SEND_IGNORE_CARRIER */
 
 /* Xon or not?
  *
