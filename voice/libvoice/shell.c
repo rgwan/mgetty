@@ -4,7 +4,7 @@
  * Executes the shell script given as the argument. If the argument is
  * empty, commands are read from standard input.
  *
- * $Id: shell.c,v 1.14 2001/03/11 12:37:59 marcs Exp $
+ * $Id: shell.c,v 1.15 2001/03/11 12:50:13 marcs Exp $
  *
  */
 
@@ -362,7 +362,7 @@ int voice_shell_handle_event(int event, event_data data)
                else if (strncmp(buffer, "DEVICE", 6) == 0)
                     {
                     char device[VOICE_BUF_LEN] = "";
-                    int ResultCode;
+                    int ResultCode = FAIL;
 
                     sscanf(buffer, "%*s %s", device);
 
