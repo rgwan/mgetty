@@ -1,3 +1,18 @@
+2001-12-22  Marc SCHAEFER  <schaefer@defian.alphanet.ch>
+
+	* All of below is 0.9.32
+
+	* Enhancements to doc/Readme.voice_shell.
+
+	* Fix to libvoice/shell.c
+
+	* New modem detections: Zoom V.90 (Ulises Vega <uvega@technitrade.com>)
+
+	* Man page for vgetty.8 by by Barry Stewart <bstewart@smyrnacable.net>
+
+	* Support of the ISA Multitech from
+	Miles Lott <milos@speakeasy.net> (id 132).
+
 2001-10-28  Marc SCHAEFER  <schaefer@defian.alphanet.ch>
 
 	* All of below is 0.9.31
