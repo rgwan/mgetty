@@ -1,5 +1,5 @@
-#ident "$Id: g32pbm.c,v 1.15 1994/05/20 09:07:23 gert Exp $ (c) Gert Doering"
-;
+#ident "$Id: g32pbm.c,v 1.16 1994/08/08 12:37:57 gert Exp $ (c) Gert Doering"
+
 #include <stdio.h>
 #include <unistd.h>
 #include "syslibs.h"
@@ -9,6 +9,12 @@
 #include "ugly.h"
 
 #include "g3.h"
+
+int pixblock _PROTO((char *start, char *end));
+void emitlj _PROTO((int resolution, int numx, int numy, char *image));
+int nullscan _PROTO((char *start, char *end));
+int emitpbm _PROTO((int hcol, int row, char *bitmap, int bperrow ));
+
 
 #ifdef DEBUG
 void putbin _P1( (d), unsigned long d )
@@ -26,6 +32,8 @@ unsigned long i = 0x80000000;
 
 static int byte_tab[ 256 ];
 static int o_stretch;			/* -stretch: double each line */
+static int o_lj;			/* -l: LJ output */
+static int o_turn;			/* -t: turn 90 degrees right */
 
 struct g3_tree * black, * white;
 
@@ -36,6 +44,149 @@ static	int  rs;		/* read buffer size */
 
 #define MAX_ROWS 4300
 #define MAX_COLS 1728		/* !! FIXME - command line parameter */
+
+#define BASERES 200		/* resolution of G3 */
+
+#define MVTYPE	int
+
+/* scale the bitmap */
+
+char *scalebm _P5( (res, cols, rows, map, bperrow),
+		    int res, int *cols, int *rows, char *map, int *bperrow)
+{
+    int nc, nr, i, newbperrow;
+    register char *orp, *nrp;
+    char *newmap;
+    MVTYPE *mulvec;
+
+    int k;
+
+    if ( res == BASERES ) 		/* don't do anything of not scaled */
+    {
+	return map;
+    }
+
+    /* do scaling, from "BASERES" to "res" dpi */
+
+    nr = (*rows * res) / BASERES;
+    nc = (((*cols * res) / BASERES) + 7) & ~7;
+    newbperrow = (nc + 7) >> 3;
+    
+
+    newmap = malloc(nr * newbperrow );
+    if (!newmap)
+    {
+	fprintf (stderr, "g3topbm: cannot allocate %d bytes for scale raster\n",
+	                 nr * newbperrow );
+	exit(1);
+    }
+    memset( newmap, 0, nr * newbperrow );
+
+    {
+	int max = *cols > *rows ? *cols: *rows;
+	MVTYPE *mv;
+
+	mulvec = (MVTYPE *) malloc(max * sizeof(MVTYPE));
+	if (!mulvec)
+	{
+	    fprintf (stderr, "g3topbm: cannot allocate multiplier vector\n");
+	    exit(1);
+	}
+	for (mv = mulvec, i = 0; i < max; i++)
+	{
+	    *mv++ = (i * res) / BASERES;
+	}
+    }
+
+    orp = map;
+
+    for (i = 0; i < *rows; i++)
+    {
+	register MVTYPE *mv;
+	register int j;
+	nrp = newmap + (mulvec[i] * newbperrow);
+
+	for (j = 0, mv = mulvec; j < *cols; j++, mv++)
+	{
+	    if (!(j & 0x7) && !orp[j >> 3])
+	    {
+		j += 8;
+		mv += 8;
+		continue;
+	    }
+
+	    if (orp[j >> 3] & (0x80 >> (j & 0x7)))
+		    nrp[(*mv) >> 3] |= (0x80 >> ((*mv) & 0x7));
+	}
+    
+	orp += *bperrow;
+    }
+
+    free (map);
+    *rows = nr;
+    *cols = nc;
+    *bperrow = newbperrow;
+    return (newmap);
+}
+
+/* turn the bitmap */
+
+char * turnbm _P4 (( cols, rows, map, bperrow ),
+		     int * cols, int * rows, char * map, int * bperrow )
+{
+char * newmap;
+int newbperrow, nr, nc, nx, ny;
+
+register int obit;
+register char * newbp, * obyte;
+
+char * oldbp;
+int byte, bit;
+
+    o_turn &= 3;
+    if ( o_turn == 0 ) return map;
+
+    /* turn right */
+    nc = *rows;		/* new columns */
+    nr = *cols;		/* new rows */
+    newbperrow = ( nc+7 ) / 8;
+
+    newmap = malloc( nr * newbperrow );
+
+    if ( newmap == NULL )
+    {
+	fprintf( stderr, "g3topbm: cannot allocate %d bytes for turn bitmap",
+			 nr * newbperrow );
+	exit(1);
+    }
+
+    memset( newmap, 0, nr * newbperrow );
+
+    for( nx = 0; nx<nc; nx++ )			/* new X coordinate */
+    {
+	bit  = 0x80 >> (nx&7);
+	byte = nx >> 3;
+
+	oldbp = &map[ (*rows - nx - 1) * *bperrow ];
+
+	for ( ny = nr, newbp= &newmap[byte],	/* new y */
+	      obyte = oldbp, obit=0x80;
+	      ny>0; ny--, newbp += newbperrow )
+	{
+	    if ( (*obyte) & obit ) 
+	    {
+		*newbp |= bit;
+	    }
+	    obit >>= 1; if ( obit == 0 ) { obit=0x80; obyte++; }
+	}
+    }
+
+    free( map );
+    *rows = nr;
+    *cols = nc;
+    *bperrow = newbperrow;
+    return newmap;
+}
 
 int main _P2( (argc, argv), int argc, char ** argv )
 {
@@ -48,11 +199,15 @@ int color;
 int i;
 int cons_eol;
 
-char *	bitmap;			/* MAX_ROWS by MAX_COLS/8 bytes */
+int	bperrow = MAX_COLS/8;	/* bytes per bit row */
+char *	bitmap;			/* MAX_ROWS by (bperrow) bytes */
 char *	bp;			/* bitmap pointer */
 int	row;
 int	max_rows;		/* max. rows allocated */
-int	col, hcol;
+int	col, hcol;		/* column, highest column ever used */
+extern  int optind;
+extern  char *optarg;
+int	resolution = BASERES;
 
     /* initialize lookup trees */
     build_tree( &white, t_white );
@@ -62,25 +217,45 @@ int	col, hcol;
 
     init_byte_tab( 0, byte_tab );
 
-    i = 1;
-    while ( i<argc && argv[i][0] == '-' )/* option processing */
+    while((i = getopt(argc, argv, "rsld:t")) != EOF)
     {
-	if ( argv[i][1] == 'r' )	/* -reversebits */
+	switch (i)
 	{
-	    init_byte_tab( 1, byte_tab );
+	    case 'r':
+		init_byte_tab( 1, byte_tab );
+		break;
+	    case 's':
+		o_stretch=1;
+		break;
+	    case 'l':
+		o_lj=1;
+		break;
+	    case 'd':
+		resolution = atoi(optarg);
+		if ( resolution != 75 && resolution != 150 &&
+		     resolution != 300 )
+		{
+		    fprintf( stderr, "g3topbm: only supports 75, 150, or 300 dpi\n");
+		    exit(1);
+		}
+		break;
+	    case 't':
+		o_turn++;
+		break;
+	    case '?':
+		fprintf( stderr, "usage: g3topbm [-l|-r|-s|-d <dpi>|-t] [g3 file]\n");
+		exit(1);
 	}
-	else if (argv[i][1] == 's')
-	{
-	    o_stretch++;		/* -stretch this normal-res g3 */
-	}
-	i++;
     }
 
-    if ( i < argc ) 			/* read from file */
+    if (o_lj && resolution == BASERES)
+	resolution = 150;
+
+    if ( optind < argc ) 			/* read from file */
     {
-	fd = open( argv[i], O_RDONLY );
+	fd = open( argv[optind], O_RDONLY );
 	if ( fd == -1 )
-	{    perror( argv[i] ); exit( 1 ); }
+	{    perror( argv[optind] ); exit( 1 ); }
     }
     else
 	fd = 0;
@@ -104,7 +279,7 @@ int	col, hcol;
     bitmap = (char *) malloc( ( max_rows = MAX_ROWS ) * MAX_COLS / 8 );
     if ( bitmap == NULL )
     {
-	fprintf( stderr, "cannot allocate %d bytes",
+	fprintf( stderr, "cannot allocate %d bytes for bitmap",
 		 max_rows * MAX_COLS/8 );
 	close( fd );
 	exit(9);
@@ -128,7 +303,7 @@ int	col, hcol;
 		rs = read( fd, rbuf, sizeof( rbuf ) );
 		if ( rs < 0 ) { perror( "read2"); break; }
 		rp = 0;
-		if ( rs == 0 ) { fprintf( stderr, "EOF!" ); goto do_write; }
+		if ( rs == 0 ) { goto do_write; }
 	    }
 #ifdef DEBUG
 	    fprintf( stderr, "hibit=%2d, data=", hibit );
@@ -280,25 +455,121 @@ do_write:      	/* write pbm (or whatever) file */
     fprintf( stderr, "consecutive EOLs: %d, max columns: %d\n", cons_eol, hcol );
 #endif
 
+    bitmap = scalebm(resolution, &hcol, &row, bitmap, &bperrow );
+
+    bitmap = turnbm( &hcol, &row, bitmap, &bperrow );
+
+    if (o_lj)
+	emitlj(resolution, hcol, row, bitmap);
+    else
+	emitpbm(hcol, row, bitmap, bperrow );
+
+
+    return 0;
+}
+
+/* hcol is the number of columns, row the number of rows
+ * bperrow is the number of bytes actually used by hcol, which may
+ * be greater than (hcol+7)/8 [in case of an unscaled g3 image less
+ * than 1728 pixels wide]
+ */
+
+int emitpbm _P4(( hcol, row, bitmap, bperrow),
+		  int hcol, int row, char *bitmap, int bperrow )
+{
+    register int i;
+
     sprintf( rbuf, "P4\n%d %d\n", hcol, ( o_stretch? row*2 : row ) );
     write( 1, rbuf, strlen( rbuf ));
 
-    if ( hcol == MAX_COLS && !o_stretch )
-        write( 1, bitmap, (MAX_COLS/8) * row );
+    if ( hcol == (bperrow*8) && !o_stretch )
+        write( 1, bitmap, row * bperrow );
     else
     {
 	if ( !o_stretch )
 	  for ( i=0; i<row; i++ )
 	{
-	    write( 1, &bitmap[ i*(MAX_COLS/8) ], (hcol+7)/8 );
+	    write( 1, &bitmap[ i*bperrow ], (hcol+7)/8 );
 	}
 	else				/* Double each row */
 	  for ( i=0; i<row; i++ )
         {
-	    write( 1, &bitmap[ i*(MAX_COLS/8) ], (hcol+7)/8 );
-	    write( 1, &bitmap[ i*(MAX_COLS/8) ], (hcol+7)/8 );
+	    write( 1, &bitmap[ i*bperrow ], (hcol+7)/8 );
+	    write( 1, &bitmap[ i*bperrow ], (hcol+7)/8 );
 	}
     }
+}
 
-    return 0;
+/* The following code is copyright 1994, Chris Lewis.  Permission is hereby
+   permanently granted to Gert Doering to include this software in his
+   g3topbm program, whether distributed as freeware or commercially.
+ */
+
+#define ESCLEN	25	/* avg # bytes in raster escape prolog/epilog */
+
+int nullscan _P2((start, end), char *start, char *end)
+{
+    register char *cur;
+    for (cur = start; cur < end && !*cur; cur++);
+    return(cur - start);
+}
+
+int pixblock _P2((start, end), char *start, char *end)
+{
+    register char *cur;
+    register int numnulls;
+    if (end - start <= ESCLEN * 2)	/* no point optimizing */
+	return(end - start);
+    cur = start;
+
+    while(cur < end) {
+
+	for(; *cur && cur < end; cur++);
+
+	numnulls = nullscan(cur, end);
+
+	if (numnulls > ESCLEN)
+	    return(cur - start);
+	else
+	    cur += numnulls;
+    }
+    return(end - start);
+}
+
+void emitlj _P4((resolution, numx, numy, image),
+		int resolution, int numx, int numy, char *image)
+{
+    int bperline;
+    int resmult = 300/resolution;
+    register char *ip, *lineanch, *nip;
+    register currow, bcount;
+    bperline = ((numx + 7) / 8);
+
+    /* some spoolers use a "cut" to do printer-type selection
+       (eg: "%!" processing).  The newline is to prevent cut
+       (or other line-length-limited UNIX utilities) dying. */
+    printf("\033*t%dR\n", resolution);
+
+    for(currow = 0; currow < numy; currow++)
+    {
+	lineanch = ip = &image[bperline * currow];
+	nip = ip + bperline;
+	while (ip < nip && !*ip) ip++;
+	if (ip >= nip)
+	    continue;	/* line has no pixels */
+	while (!*(nip - 1)) nip--;	/* truncate trailing nulls */
+	while (ip < nip) {	/* inv: !*ip && !*nip */
+	    bcount = pixblock(ip, nip);
+	    printf("\033*p%dx%dY\033*r1A\033*b%dW",
+		(ip - lineanch) * 8 * resmult, (currow * resmult) << o_stretch, bcount);
+	    fwrite(ip, 1, bcount, stdout);
+	    if (o_stretch) {
+		printf("\033*b%dW", bcount);
+		fwrite(ip, 1, bcount, stdout);
+	    }
+	    fputs("\033*rB", stdout);
+	    for(ip += bcount; ip < nip && !*ip; ip++);
+	}
+    }
+    putchar('\f');
 }
