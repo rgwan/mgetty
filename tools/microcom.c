@@ -1,4 +1,4 @@
-#ident "$Id: microcom.c,v 1.4 2004/12/12 16:40:06 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: microcom.c,v 1.5 2004/12/22 15:42:27 gert Exp $ Copyright (c) Gert Doering"
 
 /* microcom.c
  *
@@ -28,20 +28,38 @@ int lprintf(int level, const char *format, ...) { return 0; }
 #endif
 int lputs( int level, char * string ) { return 0; }
 
+void exit_usage( char * prog )
+{
+    fprintf( stderr, "usage: %s [-s speed] tty-name\n", prog ); 
+    exit(1);
+}
+
 int main( int argc, char ** argv )
 {
     int fd, len;
     TIO tio, save_tio;
-    char buf[100], *device;
+    char buf[100], *device = NULL;
     int speed = 9600;
+    int opt;
 
-    if ( argc != 2 ) 
-    { 
-	fprintf( stderr, "usage: %s tty-name\n", argv[0] ); 
-	exit(1);
+    while( (opt = getopt( argc, argv, "s:l:" )) != EOF )
+    {
+	switch (opt)
+	{
+	    case 's': speed = atoi(optarg); break;
+	    case 'l': device = optarg; break;
+	    default: exit_usage(argv[0]);
+	}
     }
 
-    device = argv[1];
+    if ( device == NULL )		/* no "-l device" seen */
+    {
+        if ( optind != argc-1 ) exit_usage(argv[0]);
+	device = argv[optind];
+    }
+    else
+	if ( optind != argc ) exit_usage(argv[0]);
+
 
     /* lock device */
     if ( makelock( device ) == FAIL )
