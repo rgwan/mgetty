@@ -1,4 +1,4 @@
-#ident "$Id: mg_m_init.c,v 1.19 1994/11/19 01:18:44 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_m_init.c,v 1.20 1994/11/22 14:12:36 gert Exp $ Copyright (c) Gert Doering"
 
 /* mg_m_init.c - part of mgetty+sendfax
  *
@@ -195,9 +195,13 @@ int mg_open_device _P2 ( (devname, blocking),
     }
     else		/* blocking open */
     {
+      again:
 	fd = open( devname, O_RDWR | O_NOCTTY );
+	    
 	if ( fd < 0)
 	{
+	    if ( errno == EAGAIN ) goto again;
+	    
 	    lprintf( L_FATAL, "cannot open line" );
 	    return ERROR;
 	}
