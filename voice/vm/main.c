@@ -5,7 +5,7 @@
  * supports the shell script execution function to test vgetty scripts
  * and to build special standalone scripts.
  *
- * $Id: main.c,v 1.6 1999/10/09 15:54:00 marcs Exp $
+ * $Id: main.c,v 1.7 2000/06/11 15:58:18 marcs Exp $
  *
  */
 
@@ -241,7 +241,7 @@ int main(int argc, char *argv[])
 
           if (verbose)
                fprintf(stderr,
-                "%s: beep of frequency %d and length %d (in 0.1sec)\n",
+                "%s: beep of frequency %d and length %d (in 0.001sec)\n",
                 program_name, frequency, length);
 
           voice_beep(frequency, length);

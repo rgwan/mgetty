@@ -3,7 +3,7 @@
  * VoiceModem is the program for handling the voice modem functionality
  * from shell scripts.
  *
- * $Id: usage.c,v 1.5 1999/10/09 15:54:01 marcs Exp $
+ * $Id: usage.c,v 1.6 2000/06/11 15:58:18 marcs Exp $
  *
  */
 
@@ -14,7 +14,7 @@ void usage(void)
      fprintf(stderr, "\n%s %s\n\n", program_name, vgetty_version);
      fprintf(stderr, "usage:\n");
      fprintf(stderr,
-      "\t%s beep   [options] [<frequency> [<length in 0.1sec>]]\n",
+      "\t%s beep   [options] [<frequency> [<length in 0.001sec>]]\n",
       program_name);
      fprintf(stderr, "\t%s diagnostics <device name (e.g. ttyS2)>\n",
       program_name);
