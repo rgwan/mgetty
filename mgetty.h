@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.h,v 1.48 1994/03/01 00:55:06 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 1.49 1994/03/01 01:08:16 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.h
  *
@@ -47,7 +47,8 @@ int lprintf _PROTO(());
 /* various defines */
 
 /* bsd stuff */
-#if defined(__BSD_NET2__) || defined(__386BSD__) || defined(__NetBSD__)
+#if defined(__BSD_NET2__) || defined(__386BSD__) || \
+    defined(__NetBSD__)   || defined(__FreeBSD__)
 # define BSD
 #endif
 
@@ -146,7 +147,7 @@ int getdiskstats _PROTO ((char *path, mntinf *mi));
 extern char * mktemp _PROTO(( char * template ));
 
 #if  !defined(linux) && !defined(SVR4) && !defined(__hpux) && \
-     !defined(__386BSD__) && !defined(M_UNIX)
+     !defined(BSD) && !defined(M_UNIX)
 extern int	getopt _PROTO(( int, char **, char * ));
 #endif
 extern int	optind;
