@@ -1,6 +1,6 @@
-#ident "$Id: pbm2g3.c,v 3.1 1995/08/30 12:39:11 gert Exp $ Copyright (C) 1994 Gert Doering"
+#ident "$Id: pbm2g3.c,v 3.2 1997/01/02 15:34:55 gert Exp $ Copyright (C) 1994 Gert Doering"
 
-/* pbmtog3
+/* pbm2g3
  *
  * convert a "portable bitmap" file into CCITT T.4 fax format
  * the output can directly be sent with mgetty+sendfax
