@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 4.12 1997/12/20 17:14:27 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 4.13 1998/01/01 20:26:27 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -174,14 +174,6 @@ int fax_open_device _P2( (fax_tty, use_stdin),
     
     if ( verbose ) printf( "OK.\n" );
 
-    /* some modems send an "OK" after DTR is raised - catch it
-     */
-    if ( c_isset(open_delay) )
-    {
-	lprintf( L_NOISE, "pausing %d ms", c_int(open_delay));
-	delay(c_int(open_delay));		/* give modem time to settle */
-	tio_flush_queue(fd, TIO_Q_BOTH);	/* clear junk */
-    }
     return fd;
 }
 
@@ -380,6 +372,15 @@ int main _P2( (argc, argv),
 		     Device, c_string(acct_handle));
 	exit(2);
     }
+
+    /* some modems send an "OK" after DTR is raised - catch it
+     */
+    if ( c_isset(open_delay) )
+    {
+	lprintf( L_NOISE, "pausing %d ms", c_int(open_delay));
+	delay(c_int(open_delay));		/* give modem time to settle */
+    }
+    tio_flush_queue(fd, TIO_Q_BOTH);		/* clear junk */
 
     /* Is there a modem...? */
     if ( mdm_command( "ATV1Q0", fd ) == ERROR )
