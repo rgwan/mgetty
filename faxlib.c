@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 1.25 1994/09/29 06:27:29 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 1.26 1994/10/14 00:13:29 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -28,6 +28,8 @@ int	fax_page_tx_status = 0;		/* +FPTS:<ppm> */
 boolean	fax_to_poll = FALSE;		/* there's something to poll */
 boolean fax_poll_req = FALSE;		/* poll requested */
 
+boolean	fhs_details = FALSE;		/* +FHS:xxx with detail info */
+int	fhs_lc, fhs_blc, fhs_cblc, fhs_lbc;
 
 /* get one line from the modem, only printable characters, terminated
  * by \r or \n. The termination charcter is *not* included
@@ -175,7 +177,17 @@ int  ix;
 	     */
 	    lprintf( L_MESG, "page status: %s", line );
 	    sscanf( &line[ix], "%d", &fax_page_tx_status );
-	    /* FIXME: evaluate line count, blc, ... for reception */
+
+	    /* evaluate line count, bad line count, ... for reception */
+	    fhs_lc = 9999; fhs_blc = fhs_cblc = fhs_lbc = 0;
+	    fhs_details = FALSE;
+	    
+	    if ( sscanf( &line[ix+2], "%x,%x,%x,%x",
+		         &fhs_lc, &fhs_blc, &fhs_cblc, &fhs_lbc ) >= 2 )
+	    {
+		lprintf( L_NOISE, "%d lines received, %d lines bad, %d bytes lost", fhs_lc, fhs_blc, fhs_lbc );
+		fhs_details = TRUE;
+	    }
 	}
 
 	else if ( strcmp( line, "+FPOLL" ) == 0 ||
