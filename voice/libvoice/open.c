@@ -4,7 +4,7 @@
  * Try all available voice devices and open the first one that
  * suceeds and initialize it.
  *
- * $Id: open.c,v 1.5 2002/02/25 11:27:17 gert Exp $
+ * $Id: open.c,v 1.6 2002/02/25 12:19:25 gert Exp $
  *
  */
 
@@ -61,8 +61,13 @@ int voice_open_device(void)
 
      if (voice_fd != NO_VOICE_FD)
           {
-          DevID = malloc(strlen(voice_tty) + 1);
-          strcpy(DevID, voice_tty);
+	  char * p = voice_tty;
+	  if ( strcmp( p, "/dev/", 5 ) == 0 ) p+=5;
+
+          DevID = malloc(strlen(p) + 1);
+          strcpy(DevID, p);
+	  for( p=DevID; *p; p++) if (*p == '/') *p='-';
+
           lprintf(L_MESG, "reading port %s configuration from config file %s",
            &voice_tty[5], voice_config_file);
           get_config(voice_config_file, (conf_data *) &cvd, "port",
