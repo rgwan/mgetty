@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 4.30 2004/11/14 13:14:08 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 4.31 2005/02/24 16:28:26 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -26,6 +26,12 @@
 #  3.10.93: use "hp2hig3" for hp-pcl4-files (cl)
 # 19.10.93: phone directories (caz)
 # $Log: faxspool.in,v $
+# Revision 4.31  2005/02/24 16:28:26  gert
+# fix whole user/USER mess
+#   - drop $USER.  $user is only used for fax header substitution now.
+#   - mail (-f) is in $mail_to
+#   - only forced user name (-u/$force_user) is put into $JOB.q
+#
 # Revision 4.30  2004/11/14 13:14:08  gert
 # change test -x to -r for $HOME/.make.coverpg (mode r-- = no coverpage)
 #
@@ -393,9 +399,8 @@ fs_cvt_pdf()
 # setup defaults / get values
 #
 
-# user name (for authentification)
+# user name (for fax header only! auth is done by faxq-helper via getuid())
 ##########
-
 if user=`logname 2>/dev/null`
 then :
 else
@@ -404,18 +409,7 @@ else
 fi
 test -z "$user" && user=$LOGNAME
 test -z "$user" && user=$USER
-
-if [ -z "$user" ]
-then
-    $echo "cannot determine user id. fix program." >&2
-    exit 1
-fi
-
-# email (for return mail)
-##########
-
-test -z "$USER" && USER=$LOGNAME
-test -z "$USER" && USER=$user
+test -z "$user" && user="nobody"
 
 # fax ID (from sendfax.config)
 ##########
@@ -425,6 +419,8 @@ eval ` $AWK '$1=="fax-id" { printf "FAX_STATION_ID=\"%s", $2; \
 
 # everything else is initialized empty
 ##########
+force_user=""
+mail_to=""
 poll_req=""
 verbose_to=""
 normal_res=""
@@ -510,21 +506,14 @@ do
 	-f) case "$2" in
 	    '') $echo "$usage" >&2 ; exit 2 ;;
             esac
-	    USER="$2"
+	    mail_to="$2"
 	    shift ; shift
 	    ;;
-# set user name for authorization purposes (only allowed for ``trusted'' users
+# force user name (faxq-helper will verify "trusted" users)
 	-u) case "$2" in
 	    '') $echo "$usage" >&2 ; exit 2 ;;
             esac
-	    if [ "$user" = "root" -o "$user" = "fax" -o \
-	         "$user" = "lp" -o "$user" = "daemon" ]
-	    then
-		user="$2"
-	    else
-		$echo "not authorized to use \`\`-u $2'' switch." >&2
-		exit 3
-	    fi
+	    force_user="$2"
 	    shift ; shift
 	    ;;
 # set first time to send fax
@@ -907,7 +896,7 @@ do
     if [ -n "$FAX_HEADER" ]
     then
 	cat $FAX_HEADER | sed -e "s;@T@;$phone;g" -e "s;@P@;$nr;g" \
-			      -e "s;@M@;$maxnr;g" -e "s;@U@;$USER;g" \
+			      -e "s;@M@;$maxnr;g" -e "s;@U@;$user;g" \
 			      -e "s;@N@;$FULLNAME;g" \
 			      -e "s;@D@;$verbose_to;g" \
 			      -e "s;@ID@;$FAX_STATION_ID;g" \
@@ -936,9 +925,12 @@ fi
 # final step: create JOB file
 #
 $echo "phone $phone" >$job.q
-$echo "user $user" >>$job.q
-[ "$user" != "$USER" ] &&
-    $echo "mail $USER" >>$job.q
+
+[ -z "$force_user" ] || \
+    $echo "user $force_user" >>$job.q
+
+[ -z "$mail_to" ] || \
+    $echo "mail $mail_to" >>$job.q
 
 $echo "input $input_data" >>$job.q
 $echo "pages " $finalpg >>$job.q
