@@ -1,4 +1,4 @@
-#ident "$Id: mg_m_init.c,v 1.13 1994/08/22 01:28:00 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_m_init.c,v 1.14 1994/08/22 01:39:24 gert Exp $ Copyright (c) Gert Doering"
 
 /* mg_m_init.c - part of mgetty+sendfax
  *
@@ -79,8 +79,6 @@ int mg_init_fax _P3( (fd, mclass, fax_id),
     
     if ( modem_type == Mt_class2_0 )
     {
-	lprintf( L_WARN, "WARNING: using preliminary class 2.0 code");
-
 	/* set adaptive answering, bit order, receiver on */
 	
 	if ( mdm_command( "AT+FAA=1;+FCR=1", fd ) == FAIL )
