@@ -1,4 +1,4 @@
-#ident "$Id: mid.c,v 1.7 1999/03/26 12:56:40 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mid.c,v 1.8 2000/09/02 18:18:19 gert Exp $ Copyright (c) Gert Doering"
 
 /* mid.c
  *
@@ -21,7 +21,8 @@
 #include "policy.h"
 #include "tio.h"
 
-char * query_strings[] = { "ATI",  "ATI0", "ATI1", "ATI2", "ATI3", "ATI4",
+char * query_strings[] = { "ATE1Q0V1", 
+			   "ATI",  "ATI0", "ATI1", "ATI2", "ATI3", "ATI4",
                            "ATI5", "ATI6", "ATI7", "ATI8", "ATI9", "ATI10",
                            "ATI11","ATI12","ATI13","ATI14","ATI15",
 			   "AT+FCLASS=?",
