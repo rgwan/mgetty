@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 1.18 1993/11/12 21:38:07 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: logname.c,v 1.19 1993/11/23 17:47:23 gert Exp $ Copyright (c) Gert Doering";
 #include <stdio.h>
 #ifndef _NOSTDLIB_H
 #include <stdlib.h>
@@ -40,6 +40,7 @@ char * ln_escape_prompt _P1( (ep), char * ep )
 #define MAX_PROMPT_LENGTH 140
     char * p;
     int    i;
+    extern char * Device;		/* mgetty.c */
 
     p = malloc( MAX_PROMPT_LENGTH );
     if ( p == NULL ) return NULL;
@@ -73,6 +74,10 @@ char * ln_escape_prompt _P1( (ep), char * ep )
 	      case 'v': p[i++] = '\013'; break;
 	      case 'f': p[i++] = '\f'; break;
 	      case 't': p[i++] = '\t'; break;
+	      case 'L':
+		if ( i + strlen(Device) +1 > MAX_PROMPT_LENGTH ) break;
+		i += sprintf( &p[i], "%s", Device );
+		break;
 	      case 'C':
 		{
 		    time_t ti = time(NULL);
