@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.78 1995/07/05 17:49:25 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.79 1995/08/09 16:35:27 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration defaults for mgetty / sendfax
  * are specified.
@@ -203,6 +203,7 @@
  * locking!
  */
 
+/* for a few systems, you can just take those defaults and be happy */
 #if defined (SVR4) || defined(sunos4)
 # define LOCK_PATH "/var/spool/locks"
 # define LOCK      "/var/spool/locks/LCK..%s"
@@ -213,8 +214,12 @@
 # ifdef _AIX
 #  define LOCK	"/etc/locks/LCK..%s"
 # endif
+# ifdef NeXT
+#  define LOCK "/usr/spool/uucp/LCK/LCK..%s"
+# endif
 #endif
 
+/* if your system isn't listed above, change that line here */
 #ifndef LOCK
 #define LOCK "/usr/spool/uucp/LCK..%s"
 #endif
@@ -225,6 +230,7 @@
  * 10 byte ascii, with a trailing newline
  * (Just check "LOCK" while uucico or pcomm or ... are running to find
  * out what lock files are used on your system)
+ * On NeXT systems, you must set this to "1".
  */
 #define LOCKS_BINARY 0
 
