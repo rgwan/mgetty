@@ -1,4 +1,4 @@
-#ident "$Id: mksed.c,v 4.8 2001/01/28 14:54:36 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mksed.c,v 4.9 2002/11/23 18:45:59 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 
@@ -16,6 +16,7 @@ int main _P0( void )
     printf( "      -e 's;@FAX_SPOOL@;%s;g'\\\n", FAX_SPOOL );
     printf( "      -e 's;@FAX_SPOOL_IN@;%s;g'\\\n", FAX_SPOOL_IN );
     printf( "      -e 's;@FAX_SPOOL_OUT@;%s;g'\\\n", FAX_SPOOL_OUT );
+    printf( "      -e 's;@FAX_OUT_USER@;%s;g'\\\n", FAX_OUT_USER );
     printf( "      -e 's;@VARRUNDIR@;%s;g'\\\n", VARRUNDIR );
     printf( "      -e 's;@FAX_MODEM_TTYS@;%s;g'\\\n", FAX_MODEM_TTYS );
     printf( "      -e 's;@FAX_STATION_ID@;%s;g'\\\n", FAX_STATION_ID );
