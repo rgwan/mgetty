@@ -53,7 +53,7 @@ struct conf_data_mgetty c = {
 
 void exit_usage _P1((code), int code )
 {
-    fprintf( stderr, "Usage: callback [-V] [-x debug] [-s speed] [-l tty] [phone number(s)...]" );
+    fprintf( stderr, "Usage: callback [-x <debug level>] [-V] [-l <modem lines>] [-m <initstring>]\n       [-s <speed>] [-d] [-S] [phone number(s)...]\n");
     exit(code);
 }
 
@@ -124,6 +124,9 @@ conf_data c_a[2];
 	  case 'V':	/* show version number */
 	    printf("\nmgetty+sendfax by Gert Doering\n%s\n\n",
 		    mgetty_version);
+	    printf("log file written to '");
+	    printf(LOG_PATH, "callback" );
+	    printf("'\n\n");
 	    exit(0);
 	  case '?':
 	    exit_usage(2);
