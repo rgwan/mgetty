@@ -1,4 +1,4 @@
-#ident "$Id: login.c,v 4.13 2001/12/02 16:13:04 gert Exp $ Copyright (C) 1993 Gert Doering"
+#ident "$Id: login.c,v 4.14 2002/02/20 17:28:33 gert Exp $ Copyright (C) 1993 Gert Doering"
 
 
 /* login.c
@@ -146,7 +146,7 @@ void login_dispatch _P3( (user, is_callback, cfg_file ),
     if ( st.st_uid != 0 || ( ( st.st_mode & 0077 ) != 0 ) )
     {
 	errno=EINVAL;
-	lprintf( L_FATAL, "login: '%s' must be root/0600", cfg_file );
+	lprintf( L_FATAL, "login: '%s' ignored, wrong permissions. Must be owned by 'root' and have mode '0600'", cfg_file );
 	goto fallthrough;
     }
 
