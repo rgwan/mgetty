@@ -1,4 +1,4 @@
-#ident "$Id: ring.c,v 4.11 1999/05/13 21:43:00 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: ring.c,v 4.12 1999/06/07 20:41:15 gert Exp $ Copyright (c) Gert Doering"
 
 /* ring.c
  *
@@ -43,9 +43,9 @@ int i, len, len2;
 char * p;
 
     lprintf( L_NOISE, "MSN: '%s'", string );
-    if ( msn_list == NULL ) return 0;
-
     CalledNr = safedup(string);			/* save away */
+
+    if ( msn_list == NULL ) return 0;		/* nothing to match against */
 
     len=strlen(string);
 
