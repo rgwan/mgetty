@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 3.1 1995/08/30 12:40:35 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 3.2 1995/10/25 18:55:39 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -241,6 +241,12 @@ int  ix;
 	    
 	    lprintf( L_MESG, "ABORTING: line='%s'", line );
 	    fax_hangup = 1;
+	    
+	    if ( strcmp(line, "BUSY") == 0 ) fax_hangup_code = FHUP_BUSY;
+	    else if (strcmp(line, "NO DIALTONE") == 0)
+	                                     fax_hangup_code = FHUP_NODIAL;
+	    else                             fax_hangup_code = FHUP_ERROR;
+	    
 	    fax_hangup_code = (strcmp( line, "BUSY" ) == 0) ? FHUP_BUSY:
 							      FHUP_ERROR;
 	    alarm( 0 ); signal( SIGALRM, SIG_DFL );
