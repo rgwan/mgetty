@@ -4,7 +4,7 @@
  * This is the main header file for vgetty, vm and the pvf tools.
  * It includes other header files and defines some global variables.
  *
- * $Id: voice.h,v 1.8 1999/06/27 14:28:59 marcs Exp $
+ * $Id: voice.h,v 1.9 1999/07/20 07:41:11 marcs Exp $
  *
  */
 
@@ -81,6 +81,7 @@ extern char *program_name;
 extern int voice_fd;
 extern int voice_shell_state;
 extern int voice_shell_signal;
+extern int voice_shell_linger;
 extern char voice_config_file[VOICE_BUF_LEN];
 extern char *DevID;
 extern TIO tio_save;

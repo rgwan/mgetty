@@ -5,7 +5,7 @@
  * follow the IS-101 interim standard for voice modems. Since the commands
  * are set in the modem structure, it should be quite generic.
  *
- * $Id: IS_101.c,v 1.8 1999/06/15 12:38:29 marcs Exp $
+ * $Id: IS_101.c,v 1.9 1999/07/20 07:41:09 marcs Exp $
  *
  */
 
@@ -502,6 +502,9 @@ int IS_101_stop_play_file(void)
           {
           tio_flush_queue(voice_fd, TIO_Q_OUT);
 
+          if( voice_shell_linger > 0 )
+               voice_wait( voice_shell_linger );
+
           if (voice_write_char(0x00) != OK)
                return(FAIL);
 
@@ -517,6 +520,9 @@ int IS_101_stop_play_file(void)
           }
      else
           {
+
+          if( voice_shell_linger > 0 )
+               voice_wait( voice_shell_linger );
 
           if (voice_write_raw(voice_modem->stop_play_cmnd, strlen(
            voice_modem->stop_play_cmnd)) != OK)

@@ -4,7 +4,7 @@
  * Executes the shell script given as the argument. If the argument is
  * empty, commands are read from standard input.
  *
- * $Id: shell.c,v 1.7 1999/07/20 07:34:32 marcs Exp $
+ * $Id: shell.c,v 1.8 1999/07/20 07:41:08 marcs Exp $
  *
  */
 
@@ -12,6 +12,7 @@
 
 static int events_to_shell = FALSE;
 int voice_shell_state = OFF_LINE;
+int voice_shell_linger = 0;
 static int voice_shell_input_fd = NO_VOICE_FD;
 static int voice_shell_output_fd = NO_VOICE_FD;
 static int child_pid = 0;
@@ -200,6 +201,7 @@ int voice_shell_handle_event(int event, event_data data)
      if (event == SIGNAL_SIGCHLD)
           {
           voice_shell_state = OFF_LINE;
+          voice_shell_linger = 0;
           voice_stop_current_action();
           return(OK);
           };
@@ -241,6 +243,7 @@ int voice_shell_handle_event(int event, event_data data)
                          case PLAYING:
                          case RECORDING:
                          case WAITING:
+                              voice_shell_linger = 0;
                               voice_stop_current_action();
                               break;
                          case IDLE:
@@ -451,7 +454,8 @@ int voice_shell_handle_event(int event, event_data data)
                     {
                     char name[VOICE_BUF_LEN] = "";
 
-                    sscanf(buffer, "%*s %s", name);
+                    voice_shell_linger = 0; /* -- alborchers@steinerpoint.com */
+                    sscanf(buffer, "%*s %s %d", name, &voice_shell_linger);
 
                     if (strlen(name) != 0)
                          {
@@ -472,6 +476,8 @@ int voice_shell_handle_event(int event, event_data data)
                               return(FAIL);
 
                          }
+
+                    voice_shell_linger = 0;
 
                     if (voice_write_shell("READY") != OK)
                          return(FAIL);
@@ -562,9 +568,11 @@ int voice_shell_handle_event(int event, event_data data)
 
           switch (voice_modem_state)
                {
+               case WAITING:
+                    if( voice_shell_linger > 0 )
+                        break;
                case PLAYING:
                case RECORDING:
-               case WAITING:
                     lprintf(L_JUNK, "%s: stopping current action", program_name);
                     voice_stop_current_action();
                     break;
