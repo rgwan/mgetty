@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.52 2002/11/17 20:31:07 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.53 2002/11/23 18:46:38 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -429,6 +429,7 @@ mksed: mksed.c policy.h Makefile
 		-DFAX_SPOOL=\"$(FAX_SPOOL)\" \
 		-DFAX_SPOOL_IN=\"$(FAX_SPOOL_IN)\" \
 		-DFAX_SPOOL_OUT=\"$(FAX_SPOOL_OUT)\" \
+		-DFAX_OUT_USER=\"$(FAX_OUT_USER)\" \
 		-DVARRUNDIR=\"$(VARRUNDIR)\" \
 		-DAWK=\"$(AWK)\" \
 		-DPERL=\"$(PERL)\" -DTKPERL=\"$(TKPERL)\" \
@@ -596,7 +597,7 @@ install.bin: mgetty sendfax newslock \
 	-mv -f $(SBINDIR)/mgetty $(SBINDIR)/mgetty.old
 	-mv -f $(SBINDIR)/sendfax $(SBINDIR)/sendfax.old
 	$(INSTALL) -s -m 700 mgetty $(SBINDIR)
-	$(INSTALL) -s -m 700 sendfax $(SBINDIR)
+	$(INSTALL) -s -m 755 sendfax $(SBINDIR)
 #
 # data files + directories
 #
@@ -613,7 +614,7 @@ install.bin: mgetty sendfax newslock \
 	test -f $(CONFDIR)/dialin.config || \
 		$(INSTALL) -o root -m 600 dialin.config $(CONFDIR)/
 	test -f $(CONFDIR)/faxrunq.config || \
-		$(INSTALL) -o root -m 600 faxrunq.config $(CONFDIR)/
+		$(INSTALL) -o root -m 644 faxrunq.config $(CONFDIR)/
 #
 # test for outdated stuff
 #
@@ -647,6 +648,7 @@ install.bin: mgetty sendfax newslock \
 # fax programs / scripts / font file
 #
 	cd fax ; $(MAKE) install INSTALL="$(INSTALL)" \
+				FAX_OUT_USER=$(FAX_OUT_USER)" \
 				BINDIR=$(BINDIR) SBINDIR=$(SBINDIR) \
 				LIBDIR=$(LIBDIR) CONFDIR=$(CONFDIR)
 #
