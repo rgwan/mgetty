@@ -1,6 +1,6 @@
-  4) Option to read and analyse the raw caller ID data from the modem.
-
-  6) Run the vgetty scripts under a specified user-/group-id
+  6) Run the vgetty scripts under a specified user-/group-id. Also
+     temporarily run vgetty under that uid. Or even drop all root privs
+     as soon as file open/immediately.
 
   9) Update the documentation.
 
@@ -27,4 +27,27 @@
  40) Check that mgetty and vgetty speeds do match. If not use mgettys
      speed and log a warning.
 
-$Id: ToDo,v 1.5 1998/11/17 11:48:33 marc Exp $
+ 41) Implement new voice shell command HANGUP (to be coupled with
+     DIALOUT) so people can e.g. write notification script which don't
+     need vgetty to terminate.
+     (requested by: "Mark A. Haun" <haunma@angwin.ece.uiuc.edu>)
+
+ 42) play file, if not a RMD file, return FILE INVALID to voice shell, do
+     not return ERROR. Similarly could also return FILE ACCESS ERROR and
+     possibly the errno. ERROR should be for fatal only.
+
+ 43) Implement EXECUTE_PROGRAM shell command, which would allow execution
+     of listed programs (e.g. an array of programs or scripts/symlinks
+     so to not defeat security if there is any). Idea would be to be
+     able to do fax polling from voicemail.
+
+ 44) Verify that without the CID patch, faxes received by *vgetty* have
+     the fax number in their names.
+
+ 45) When in answering machine mode, record the messages with the
+     caller-ID if available and if configured to do so.
+
+ 46) Merge all the voice/libvoice/Multitech_* instances
+ 
+
+$Id: ToDo,v 1.6 1999/05/15 19:52:10 marcs Exp $
