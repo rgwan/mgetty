@@ -2,7 +2,7 @@
 # Sample voice configuration file
 # -------------------------------
 #
-# $Id: voice.conf-dist,v 1.12 2005/03/13 17:27:29 gert Exp $
+# $Id: voice.conf-dist,v 1.13 2005/03/19 16:10:20 gert Exp $
 #
 # This file is read twice: First the program configuration is read and
 # second the port configuration. This means that generic values at the
@@ -220,6 +220,16 @@ rec_silence_len 70
 # if you have a noisy phone line and the silence detection doesn't work
 # reliably. The default is 40%.
 #
+# An exception for this are the V253modems (because the value which should be
+# mapped to 100% differs to much for all the V253 modem variants):
+# The rec_silence_threshold value is unchanged used as first parameter
+# of the V 253 command AT+VSD, where a value of 128 sets manufacturer default,
+# values below 128 means less agressive silence detection (more sensitive,
+# lower noise levels considered to be silence).
+# Values above 128 means more aggressive silence detection (less sensitive,
+# higher noise levels considered to be silence).
+# A values of 0 disables silence detection.
+
 
 rec_silence_threshold 40
 
