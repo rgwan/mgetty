@@ -4,9 +4,14 @@
 # 
 # Copyright 1998 Simone Demmel simone@greenie.net
 #
-# CVS: $Id: faxq.in,v 1.14 2001/07/16 09:21:49 neko Exp $
+# CVS: $Id: faxq.in,v 1.15 2001/08/07 20:44:46 neko Exp $
 #
 # $Log: faxq.in,v $
+# Revision 1.15  2001/08/07 20:44:46  neko
+# * File fuer Fax-Q zuletzte bearbeitet nach Vorbild faxspool gesetzt,
+# * kleine Korektur in der Repraesentation des Datums (das 101-Problem
+#   hatte ich an einer Stelle uebersehen)
+#
 # Revision 1.14  2001/07/16 09:21:49  neko
 # correctly display sent jobs (JOB.done).
 #
@@ -90,6 +95,8 @@ if ($indexpage eq "")
 # set names for months
 @monthnames = (Jan,Feb,Mar,Apr,Mai,Jun,Jul,Aug,Sep,Okt,Nov,Dez);
 
+# last_run
+$last_run = "@VARRUNDIR@/faxqueue_done";
 
 #
 # End of Variables
@@ -103,11 +110,16 @@ if ($indexpage eq "")
 chdir $fax_outgoing;
 
 # when did we have the last run of faxrunq(d)?
-@lastrun = stat ".last_run";
+if (-f $last_run)
+{
+@lastrun = stat $last_run;
 @lastrun = localtime($lastrun[9]);
 $lastrun[4] = $monthnames[$lastrun[4]];
 $lastrun[5] += 1900;
 $lastrun = $lastrun[3].".".$lastrun[4]." ".$lastrun[5]." ".$lastrun[2].":".$lastrun[1].":".$lastrun[0];
+}
+elsif (!defined $last_run) { $lastrun = "$last_run not defined"; }
+else { $lastrun = "no such file $last_run"; }
 
 
 #
@@ -209,6 +221,7 @@ $mail = "&nbsp;";		# mail
   $_ = (stat $fax_outgoing."/".$DATEI) [10];
   @_ = localtime($_);
   $_[4] = $monthnames[$_[4]];
+  $_[5] += 1900;
   $zeit = sprintf "$_[3]. $_[4] $_[5] %02d:%02d:%02d", $_[2], $_[1], $_[0];
 
   if (open (DAT, "$target"))
