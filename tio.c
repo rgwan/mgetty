@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 1.22 1994/04/29 09:55:50 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 1.23 1994/05/01 01:28:11 gert Exp $ Copyright (c) 1993 Gert Doering"
 ;
 /* tio.c
  *
@@ -334,8 +334,8 @@ void tio_map_cr _P2( (t, perform_mapping), TIO * t, int
 void tio_map_uclc _P2( (t, perform_mapping), TIO * t, int
 		    perform_mapping )
 {
-#ifdef __bsdi__
-    lprintf( L_WARN, "uclc mapping not available on BSDI" );
+#if defined(__bsdi__) || !defined(OLCUC) || !defined(XCASE)
+    lprintf( L_WARN, "uclc mapping not available" );
 #else
 # if defined(SYSV_TERMIO) || defined(POSIX_TERMIOS)
     if ( perform_mapping )
