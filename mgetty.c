@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 3.18 1996/09/15 23:55:13 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 3.19 1996/09/16 21:49:29 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -189,7 +189,7 @@ enum mgetty_States st_sig_callback _P2( (pid, devname),
     {
 	lprintf( L_FATAL, "stsc: can't get TIO" ); exit(0);
     }
-    tio_mode_sane( &tio, FALSE );
+    tio_mode_sane( &tio, c_bool( ignore_carrier ) );
     tio_default_cc( &tio );
     tio_mode_raw( &tio );
     tio_set_flow_control( STDIN, &tio, DATA_FLOW );
@@ -1031,7 +1031,7 @@ gettermio _P3 ((id, first, tio), char *id, boolean first, TIO *tio )
 #endif
 
     /* default setting */
-    if ( tio != NULL ) tio_mode_sane( tio, FALSE );
+    if ( tio != NULL ) tio_mode_sane( tio, c_bool( ignore_carrier ) );
     rp = NULL;
 
 #ifdef USE_GETTYDEFS
