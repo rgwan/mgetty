@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.25 1993/10/18 20:21:51 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.26 1993/10/26 21:56:23 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -8,7 +8,7 @@
  * program
  * NOT USED YET.
  */
-#define CONFIG_FILE "/u/gert/mgetty/config"
+#define CONFIG_FILE "/usr/local/lib/mgetty-config"
 
 /* Name of the "gettydefs" file (used only if USE_GETTYDEFS is set)
  */
@@ -85,6 +85,10 @@
 #ifdef SVR4
 #define LOCK_PATH "/var/spool/locks"
 #define LOCK      "/var/spool/locks/LCK..%s"
+#else
+# ifdef sgi
+# define LOCK	"/usr/spool/locks/LCK..%s"
+# endif
 #endif
 
 #ifndef LOCK
