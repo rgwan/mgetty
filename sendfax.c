@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.15 1993/06/04 20:48:41 gert Exp $ (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.16 1993/06/05 11:08:22 gert Exp $ (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -211,10 +211,6 @@ char wbuf[ sizeof(buf) * 2 ];
     ioctl( fd, TCSETAW, &fax_termio );
 #endif
 
-    /* enable polling */
-    fax_termio.c_cc[VMIN] = 0;
-    ioctl( fd, TCSETAW, &fax_termio );
-
     /* send one page */
     lprintf( L_MESG, "sending %s...", g3_file );
 
@@ -268,28 +264,27 @@ char wbuf[ sizeof(buf) * 2 ];
 	    ioctl( fd, TCSETAW, &fax_termio );
 #endif
 
-	    /* look if there's an XOFF to read - most of the time, this
-	     * means total failure on my ZyXEL, but who knows.
-	     * (this should not happen anyway! Modem is set to use
-	     * hardware handshake!)
+	    /* look if there's something to read
+	     *
+	     * normally there shouldn't be anything, but I have
+	     * seen very old ZyXEL releases sending junk and then
+	     * failing completely... so this may help when debugging
+	     *
+	     * Also, if you don't have defined FAX_SEND_USE_IXON,
+	     * and your modem insists on xon/xoff flow control, you'll
+	     * see these characters [0x11/0x13] here.
 	     */
-	    if ( read( fd, &ch, 1 ) == 1 )
+
+	    while ( check_for_input( fd ) )
 	    {
-		lprintf( L_NOISE, "input: read" );
-		lputc( L_NOISE, ch );
-		if ( ch == XOFF )
-		{
-		    lprintf( L_NOISE, "got XOFF, wait 2 seconds" );
-		    sleep(2);
-		}
+		lprintf( L_NOISE, "input: got" );
+		if ( read( fd, &ch, 1 ) != 1 )
+		    lprintf( L_ERROR, "read failed" );
+		else
+		    lputc( L_NOISE, ch );
 	    }
-	}
-
-	/* disable polling */
-	fax_termio.c_cc[VMIN] = 1;
-	ioctl( fd, TCSETAW, &fax_termio );
-
-    }	/* end if (open file succeeded) */
+	}		/* end while (more g3 data to read) */
+    }			/* end if (open file succeeded) */
 
     /* transmit end of page */
     lprintf( L_NOISE, "sending DLE ETX..." );
