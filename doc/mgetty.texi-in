@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 1.6 1993/10/07 02:33:53 gert Exp $ (c) 1993 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 1.7 1993/10/07 16:35:04 gert Exp $ (c) 1993 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -189,21 +189,25 @@ Compiling of the package should be quite straightforward. You have to
 copy @file{policy.h-dist} to @file{policy.h} and edit it to set some
 local policy options, see the comments in that file. Also, you have to
 edit @file{mgetty.h} to tell the package if you have select(S) or
-poll(S).
+poll(S). Further, edit the @file{Makefile}, to specify installation
+paths and some system defines (explained there).
 
-After that, a @samp{make} should build the programs.
+After that, a @samp{make} should build the programs, and @samp{make
+install} should install them.
   
 If your system has neither the select(S) call nor the poll(S) call,
 mgetty is not fully operational---these functions are the only way to
 prevent mgetty from eating up characters when some other process is
 trying to dial out.
 
-You can use mgetty anyway, by using the mechanism provided in
-@code{do_chat()}, setting @code{timeout_first=FALSE} and
-@code{locks=TRUE} and commenting out all the @code{select()} and
-@code{poll()} and @code{lock()} stuff in @file{mgetty.c}, but that will
-make mgetty eat up characters. (You should be sure of what you're
-doing if you try this!)
+You can use mgetty anyway, by specifying @code{-DUSE_READ} in the
+Makefile, but beware: with this, mgetty will eat up at least one
+character of the modem response when another program is dialing out.
+That may lead to disastrous results if e.g. the @samp{CONNECT} string
+is thus corrupted, but most of the time, the character that @file{mgetty}
+eats away will be an @code{cr} or @code{nl} or part of the command
+that the modem echoes back.
+
 
 If you have any problems compiling mgetty and sendfax (on a Unix-like
 system---I do not support MS-DOS or Windows!), please contact me.
@@ -401,7 +405,7 @@ mode.
 * Sending::         Basic @code{sendfax} usage
 * Polling::         Fax polling using @code{sendfax}
 * Queuing::         Automated fax queuing 
-* Fax-Tools::       
+* Fax-Tools::       Additional tools provided for handling g3 files
 * Scanner::         Using an external fax as a scanner
 @end menu
 
@@ -415,6 +419,7 @@ include a graphical front end.
 
 If you want to view the images using X11, you should get one of the many
 image viewers, like @samp{xview}, @samp{xloadimage} or @samp{xv}.
+@xref{Fax-Tools}
 
 Here are some examples for viewing fax files using @code{g3topbm}:
 
@@ -494,6 +499,11 @@ can use Metafont to create a set of 204x196 dpi fonts, which will look a
 lot better than scaled 300 dpi fonts. You can use the @code{epsf} macros
 to include encapsulated PostScript files, e.g. a scanned signature.
 
+@item
+HP-Laserjet files can be translated with Chris Lewis' @file{hp2pbm}
+package. It contains a program @code{hp2hig3} that will read
+HP-Laserjet @file{PCL4} files and produce G3 output.
+
 @end itemize
 
 A rather crude sample conversion program (@code{faxcvt}) is provided in
@@ -570,8 +580,8 @@ find or open one of the named files.
 properly, putting a header on a page does not work with them - because
 of that, I had to disable the fax header code. It will output a
 warning message and ignore the @var{header} file. @code{faxspool}
-works around this problem by using @code{g3cat} to ``paste'' a header
-line on top of each page)
+works around this problem by using @code{g3cat} @xref{Fax-Tools} to
+``paste'' a header line on top of each page)
 
 If you specify @samp{-v}, it will output more verbose progress messages.
 
@@ -580,7 +590,7 @@ resolution, default is fine resolution. (No conversion is done, so make
 sure that your input data is already in the proper format.)
 
 Detailed reports can be found in the log file (usually
-@file{/usr/spool/fax/Faxlog} --- but they may be of little more than
+@file{/usr/spool/fax/Faxlog}) --- but they may be of little more than
 technical interest since virtually all converstaion with the fax modem is
 logged.
 
@@ -689,17 +699,17 @@ from @file{stdin}.
 with a thin black line, and @code{-a} to byte-align the end-of-line
 codes in the file (Warning: some modems do not like this).
 
-The currently provided version of @code{g3cat} has a severe bug that
-makes it nearly unusable. It will be fixed soon.
-
 @item
 To convert an incoming fax to Jef Poskanzers @file{portable bitmap}
-(@code{pbm}) format, you can use the @code{g3topbm} program that's
-also provided in @file{tools}. It's advantages over Jef's
+(@code{pbm}) format, you can use the @code{g3topbm} program that is
+also provided in @file{tools/}. It's advantages over Jef's
 @code{g3topbm} program are that it's approximately five times faster
-and takes only one eight as much virtual memory. It's disadvantage is
+and takes only one eigth as much virtual memory. It's disadvantage is
 that it produces only ``raw'' (i.e., binary) @file{pbm} files; and
-it's not as stable when handling erroneous @file{g3} data.
+it's not as stable when handling erroneous @file{g3} data (means that
+if one line is severly corrupted, it can happen that the next line
+will not be decoded properly. The rest of the file will then be OK
+again).
 
 Syntax: g3topbm [-reversebits] [g3-file]
 
@@ -805,7 +815,9 @@ Some modems do not like the @samp{+FDCC=1,5,...} command.
 Most likely, these modems support only up to 9600 bps fax mode. Just
 change the second digit (@samp{5}) to the maximum rate your modem
 supports, that's @samp{3} for 9600 bps and @samp{1} for 4800. You can
-find out what values your modem supports with the @code{AT+FDCC=?} command.
+find out what values your modem supports with the @code{AT+FDCC=?}
+command. In a later version of mgetty+sendfax, this will be detected
+automatically.
 
 @item
 Sometimes mgetty cannot initialize the modem, it times out waiting for
@@ -962,6 +974,9 @@ ats0=0
 at&w
 @end example
 
+Then just initialize the modem with @code{MODEM_INIT_STRING} set to
+@code{ATZ}.
+
 @node MultiTech, Class 1, Tornado, Modems
 @subsection MultiTech modems
 
@@ -1063,10 +1078,6 @@ sure that your modem enables the DSR line!
 
 Compilation issues:
 
-If you want to use the gcc 2.3 compiler, make sure that it defines
-@code{__STDC__=0} or has its includes changed by ``fixincludes''. For gcc
-2.4, this is no longer necessary.
-
 Ignore warnings about @samp{struct utimbuf}.
 
 @node Linux, ISC, SCO-324, Systems
@@ -1074,7 +1085,7 @@ Ignore warnings about @samp{struct utimbuf}.
 
 First of all: HARDWARE HANDSHAKE DOES NOT WORK YET! To be precise: using
 the system V termio structures, it's not possible under linux up to
-99pl12 to set the @code{CRTSCTS} flag. So, either they change their
+99pl13 to set the @code{CRTSCTS} flag. So, either they change their
 flag, or I have to change mgetty to use POSIX termios.  For now, if you
 want to use hardware handshake (strongly recommended), you have to
 enable rts/cts handshake manually. This can be done with the command
@@ -1095,9 +1106,10 @@ like ``alarm clock'' or something similar. Upgrade your libraries.
 Linux has no poll(S), so, #define @code{USE_SELECT}
 
 Use the @file{/dev/ttyS*} devices for getty and for dial-out - forget
-about @file{/dev/cua*}. Dialing out on @file{/dev/cua*} will result in the error
-message ``device busy''. (No, I'm not going to discuss the topic ``why not
-use the @file{ttyS*} vs. @file{cua*} kernel locking mechanism'')
+about @file{/dev/cua*}. Dialing out on @file{/dev/cua*} will result in
+the error message ``device busy''. (No, I'm not going to discuss the
+topic ``why not use the @file{ttyS*} vs. @file{cua*} kernel locking
+mechanism'')
 
 There are various different @code{init} and @code{last} programs out
 there, some work with mgetty, some don't. If you get some strange output
@@ -1108,13 +1120,6 @@ around line 380, and tell me if that corrected that behaviour.
 
 I've been told that it's necessary to do that if you use the
 @code{SysV-Init}.
-
-@ignore
-I have gotten one report (root@@umibox.hanse.de) that you have to remove
-@code{CLOCAL} in @file{mgetty.c} / line 350 (@code{termio.c_cflag =
-@dots{}}), otherwise the port will not do hardware handshake. (Most
-likely, this is somewhat related to the other hw handshake problem)
-@end ignore
 
 @node ISC, SVR4, Linux, Systems
 @subsection ISC
@@ -1187,14 +1192,19 @@ mgetty has been ported to SVR4 now (many thanks to Bodo Bauer,
 
 As far as I know, it's sufficient to add @samp{-DSVR4} to the CFLAGS in
 Makefile. If you have any problems or suggestions, please report them
-also to Bodo, since I do not have a SVR4-System to run tests.
+also to Bodo, since I do not have a SVR4-System to run tests on.
 
 @node BSD, 3b1, SVR4, Systems
 @subsection BSD-like flavours of Unix
 
 Uuuh, I'm afraid that porting to BSD will be @emph{horrible}. Why? BSD
 does not have @file{terminfo.h}, you have to use @file{terminfos.h} (or
-even @file{sgtty.h}) and all terminal handling will have to be rewritten.
+even @file{sgtty.h}) and all terminal handling will have to be
+rewritten.
+
+But... work is in progress, most likely, mgetty+sendfax 0.16 will
+include full support for @code{termios.h} (I've already got some
+patches, just have to work them in)
 
 @node 3b1,  , BSD, Systems
 @subsection AT&T 3b1
@@ -1221,11 +1231,9 @@ reports @samp{+FHNG:40} or @samp{+FHNG:54} (``unspecified error'') at the
 end of the page.
 
 A fix for this problem @emph{is} available. I have included a patch for
-pbmtog3, called ``pbmtog3.p1'', that will change its behaviour to
-resemble that of GhostScript more closely. I've been told that faxing
-these images works now. If you have problems faxing images created by
-pbmtog3, please give this patch a try and tell me if it improved
-something.
+pbmtog3, called ``pbmtog3.p1'', that will fix the problems. (Oh, by
+the way, if you try to send a fax generated with an unpatched pbmtog3,
+sendfax may complain that it doesn't like the file header).
 
 @node Locks,  , pbmtog3, General
 @subsection Lock files
@@ -1302,7 +1310,7 @@ lower CD too soon.
 John C. Peterson, for correcting a similar problem in mgetty / faxrec.
 
 @item
-Chel van Gennip, for the @code{pnmscale}, @code{g3toxwd} and
+Chel van Gennip, for the @code{pbmscale}, @code{g3toxwd} and
 @code{g3tolj} programs.
 
 @item
@@ -1316,7 +1324,7 @@ Glenn Thobe and Chris Lewis, for doing the 3B1 port(s).
 @bye
 
 @c Local Variables:
-@c fill-column: 70
+@c fill-column: 75
 @c texinfo-column-for-description: 20
 @c End:
 
