@@ -1,7 +1,7 @@
 # Makefile for the "g3 tools" subtree
 # of mgetty+sendfax
 #
-# SCCS: $Id: Makefile,v 1.3 1994/03/01 01:53:15 gert Exp $ Copyright (c) Gert Doering
+# SCCS: $Id: Makefile,v 1.4 1994/11/06 00:25:08 gert Exp $ Copyright (c) Gert Doering
 #
 
 CC=gcc
@@ -50,5 +50,5 @@ install: all
 # install programs
 #
 	for f in $(G3_PROGRAMS) ; do \
-		$(INSTALL) -m 755 $$f $(BINDIR) ; \
+		$(INSTALL) -s -m 755 $$f $(BINDIR) ; \
 	done
