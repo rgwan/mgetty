@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 3.10 1996/07/09 11:27:16 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 3.11 1996/08/22 22:17:51 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -129,6 +129,13 @@ typedef	char	boolean;
  */
 #if defined(linux) || defined(BSD)
 # define HAVE_MMAP
+#endif
+
+/* On a ALPHA, the config routines won't work, unless we change the
+ * union to use "void *" and "long", instead of "int" (see config.h). 
+ */
+#if defined(__alpha__)
+# define PTR_IS_LONG
 #endif
 
 #define MAXLINE 1024		/* max. # chars in a line */
