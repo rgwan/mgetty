@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 4.22 2001/09/28 21:09:39 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 4.23 2001/12/17 21:48:17 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -62,7 +62,8 @@ int lprintf _PROTO(());
 
 /* bsd stuff */
 #if defined(__BSD_NET2__) || defined(__386BSD__) || \
-    defined(__NetBSD__)   || defined(__FreeBSD__) || defined(__OpenBSD__)
+    defined(__NetBSD__)   || defined(__FreeBSD__) || defined(__OpenBSD__) || \
+    defined(__MACH__)
 # include <sys/param.h>	/* defines BSD, BSD4_3 and BSD4_4 */
 # ifndef BSD
 #  define BSD		/* just in case... */
