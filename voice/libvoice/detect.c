@@ -3,7 +3,7 @@
  *
  * autodetect the modemtype we are connected to.
  *
- * $Id: detect.c,v 1.12 1999/10/09 16:06:26 marcs Exp $
+ * $Id: detect.c,v 1.13 1999/10/09 16:57:31 marcs Exp $
  *
  */
 
@@ -87,7 +87,9 @@ static const struct modem_type_struct modem_database[] =
      {ati6, "OK",      NULL, &Dr_Neuhaus},
      {ati6, "RCV288*", NULL, &Rockwell},
 
+#if 0 /* Please read libvoice/README.lucent */
      {ati0, "ZOOM*", NULL, &Lucent},
+#endif
 
      {NULL, NULL, NULL, NULL}
      };

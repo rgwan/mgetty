@@ -7,7 +7,9 @@ Sat Oct  9 15:01:32 MEST 1999  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 
 	* Modified libvoice/detect.c and libvoice/README.lucent for supporting
 	some Lucent variant. jsrockford@my-Deja.com is presumably testing it.
-	Also cleanuped detect.c (using variables).
+	Also cleanuped detect.c (using variables). Note that Lucent is
+        not implemented yet: read libvoice/README.lucent for guidelines
+        if you have this modem's documentation.
 
 	* libvoice/signal.c: added child pid in log file. Also, now
 	capturing the exit status instead of ignoring it, and logging
