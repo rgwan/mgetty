@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.75 1994/09/29 15:19:41 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.76 1994/10/04 10:35:20 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -78,7 +78,8 @@ int fax_open_device _P2( (fax_tty, use_stdin),
 	    }
 	    else
 	    {
-	        if ( verbose ) printf( "locked, give up!\n" );
+	        if ( verbose ) { printf( "locked, give up!\n" );
+				 fflush( stdout ); }
 		lprintf( L_MESG, "cannot lock %s", fax_tty );
 		return -1;
 	    }
