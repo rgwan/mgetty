@@ -4,9 +4,14 @@
 # 
 # Copyright 1998 Simone Demmel simone@greenie.net
 #
-# CVS: $Id: faxq.in,v 1.4 1998/10/13 15:53:36 gert Exp $
+# CVS: $Id: faxq.in,v 1.5 1998/10/27 14:18:02 gert Exp $
 #
 # $Log: faxq.in,v $
+# Revision 1.5  1998/10/27 14:18:02  gert
+# change comments to English
+# use wwwsub.pl for error reporting
+# check directory settings
+#
 # Revision 1.4  1998/10/13 15:53:36  gert
 # logo/<h1> header adjusted
 #
@@ -21,35 +26,61 @@
 #
 
 #
-# Script zur Generierung eines Statusueberblicks ueber Faxq
+# Script to generate an overview of faxq state
 #
 
-#
+# sorry, no translation possible
 # Aufgabe:
 # - 1. zusammenfassender Grobueberblick ueber die Stati -> fax.html
 #
 
 #
-# damit wirs nicht vergessen....
+# not to forget...
 #
 print "Content-type: text/html\n\n";
 
 # read configuration file
 require "@CONFDIR@/wwwgui.conf";
 
+# read common subroutine file
+require "@LIBDIR@/wwwsub.pl";
+
 #
-# Ende der Variablen
+# check, if all necessary variables are available
+#
+
+# check, if fax-outgoing is defined
+if ($fax_outgoing eq "")
+{
+    errormessage("\$fax_outgoing : not configured - please look at the configuration-Files and configure the Directory where you store your outgoing faxes (\$fax_outgoing)");
+}
+if (! -d $fax_outgoing)
+    { errormessage ("\$fax_outgoing : no such directory $fax_outgoing");}
+if (! -r $fax_outgoing)
+    { errormessage( "\$fax_outgoing : no read-permission for $fax_outgoing");}
+
+
+# check, if $indexpage is not empty
+if ($indexpage eq "")
+{
+    errormessage( "\$indexpage : not configured - please look at the configuration-Files and configure the URL for my main-index-page (\$indexpage)");
+}
+
+
+
+#
+# End of Variables
 #
 
 #
-# jetzt gehts los
+# start it
 #
 
 
 chdir $fax_outgoing;
 
 #
-# HTML-Drumherum oberer Teil
+# HTML top part
 #
 
 print <<EOF;
@@ -77,7 +108,7 @@ $www_logo
 EOF
 
 
-# generieren:
+# generate:
 # <tr>
 # 	<td>9:00</td>
 # 	<td><a href="tmp.html" target="_new">408978645678</a></td>
@@ -96,13 +127,13 @@ closedir DIRECTORY;
 foreach $DATEI (sort(@datein))
 {
 
-# div Variablen
-$status = "unknown";
-$von = "unknown";
-$an = "unknown";
-$zeit = "unknown";
-$fehlversuche = "&nbsp;";
-$mail = "&nbsp;";
+# init various Variables
+$status = "unknown";		# state
+$von = "unknown";		# from
+$an = "unknown";		# to
+$zeit = "unknown";		# time
+$fehlversuche = "&nbsp;";	# unsuccessful tries
+$mail = "&nbsp;";		# mail
 
   if ($DATEI eq "") {next;}
 # DEBUGGING
@@ -181,12 +212,8 @@ print <<EOF;
 
 <p>
 <hr size="5">
-<a href="/~sd/index.html">^Hauptmenue</a>
+<a href="$indexpage">^Hauptmenue</a>
 </body>
 EOF
 
 exit 0
-
-# ***********************************************************************
-# Das war's
-# ***********************************************************************
