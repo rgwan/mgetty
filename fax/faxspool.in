@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 2.5 1994/09/28 16:09:31 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 2.6 1994/10/02 18:17:48 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -242,12 +242,22 @@ test -z "$USER" && USER=$user
 poll_req=""
 verbose_to=""
 normal_res=""
+TIME=""
 
 #
 # get command line arguments (overriding some of the values above)
 ##########
 #
-usage="Usage: $0 [-p] [-f mailaddr] [-u user] [-q] [-D dest] phone file ..."
+usage="Usage: $0 [options] [faxphone] [page data]
+Options:
+\t-p\t\tpoll request
+\t-n\t\tnormal resolution
+\t-C <pgm>\tset cover page program (\"-\" for none)
+\t-D <dest>\tset verbose destination name
+\t-F <full name>\tset full name of sender
+\t-f <email>\tset address for status mail
+\t-t <hh:mm>\tset earliest possible send time
+\t-q\t\tshut up"
 
 while :
 do
@@ -300,6 +310,21 @@ do
 	    else
 		$echo "not authorized to use \`\`-u $2'' switch." >&2
 		exit 3
+	    fi
+	    shift ; shift
+	    ;;
+# set first time to send fax
+	-t) if expr "$2" : "[0-2][0-9]:[0-9][0-9]$" >/dev/null
+	    then
+		h=`expr "$2" : "\(..\)"`
+		m=`expr "$2" : "..:\(..\)"`
+		if [ "$h" -gt 23 -o "$m" -gt 60 ]
+		then
+		    $echo "Invalid time specified: $h:$m" >&2; exit 2
+		fi
+		TIME="$h$m"
+	    else
+		$echo "Time must be in <hh:mm> format." >&2; exit 2
 	    fi
 	    shift ; shift
 	    ;;
@@ -680,6 +705,9 @@ $echo "pages " $finalpg >>$job.q
 
 [ -z "$poll_req" ] || \
     $echo "poll" >>$job.q
+
+[ -z "$TIME" ] || \
+    $echo "time $TIME" >>$job.q
 
 mv $job.q $job
 
