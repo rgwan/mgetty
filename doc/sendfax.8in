@@ -114,7 +114,28 @@ If everything went OK,
 returns 0. If ``harmless'' errors (didn't cost money) occured, an error
 code below 10 is returned. If a dial attempt failed after the remote end
 picked up (it will cost money), a return code of 10 or higher is returned.
-See mgetty.info for more details.
+
+In Detail, the return codes are as follows:
+.RS
+.IP 0
+all pages have been transmitted successfully
+.IP 1
+error on the sendfax command line
+.IP 2
+cannot open fax device (e.g. due to locked modem)
+.IP 3
+cannot initialize modem (e.g. modem switched off)
+.IP 4
+dialup failed with BUSY
+.IP 5
+dialup failed with NO DIALTONE
+.IP 10
+dialup failed with ERROR or NO CARRIER (modem handshake failed)
+.IP 11
+waiting for XON failed (rarely seen)
+.IP 12
+transmitting or polling page(s) failed (connection dropped)
+.RE
 
 Very detailed debug information is written to the log file.  It can be
 found in "@FAX_LOG@". If it doesn't contain enough details, enhance the 
