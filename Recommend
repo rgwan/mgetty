@@ -1,0 +1,23 @@
+MODEM Recommendations for use with mgetty/vgetty
+------------------------------------------------
+
+What modem to recommend depends on your needs.  There are very few modems
+that handle fax + data + voice perfectly, but quite a number that are
+well suited for two of the categories, and less good (or sometimes not
+at all) for the third.
+
+For Fax+Data:  
+    * USR Courier V.34/X.2 (no voice)
+
+For FAX+Voice: 
+    * ZyXEL 1496 (data only up to 19200, but best fax implementation)
+
+For Data+Voice:
+    * USR Sportster VI series (fax implementation is VERY bad)
+ 
+For FAX+DATA+Voice
+    * ZyXEL 2864
+    * MultiTech MT2864ZDXv
+    * ELSA MicroLink TQV series (fax is not perfect, but works ok)
+
+Last updated: February 1998
