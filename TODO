@@ -349,8 +349,6 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
 
 245) open anon CVS for mgetty
 
-246) fix "RING/<msn>" handling for i4l
-
 248) include script to rotate/move log files on a regular basis
 
 250) move prototype for time() to mgetty.h, remove everywhere else
