@@ -91,5 +91,10 @@ From this release on the new maintainer and developer of vgetty is
 
 and I wish him good luck and all the best!
 
-$Id: Readme,v 1.6 1999/01/23 11:53:06 marcs Exp $
+Alternative projects to vgetty:
+   http://search.cpan.org/search?mode=module&query=ivrs
+      Doesn't used vgetty, but uses the pvftools. Seems to support only
+      some USRobotics.
+
+$Id: Readme,v 1.7 2001/02/24 10:24:29 marcs Exp $
 
