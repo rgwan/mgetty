@@ -13,6 +13,8 @@ all the documentation and the FAQ nicely formatted there.
 
 For voice stuff, look into voice/doc/readme.Beginners.
 
+Brief installation instructions can be found below.
+
 
 My license policy boils down to this:
 --------------------------------------------------------------------------
@@ -32,16 +34,22 @@ out.
 
 
 To make the programs, copy "policy.h-dist" to "policy.h", edit it according
-to your needs. Then edit "Makefile" to set CC=, CCFLAGS= and the various
-xxxDIR= (LIB/MAN/BIN/SBINDIR) to fit your system. After that, running "make" 
-should do. "Make" will also create the "mgetty.texi"-File in "doc/". 
+to your needs.   The defaults are reasonable, though.
 
-If you upgrade from a previous version, it may be a good idea to make
-a "diff" from the original policy.h-dist and the policy.h used later, and
-use that as a base for configuring policy.h of this release.
+Then edit "Makefile" to set CC=, CCFLAGS=, INSTALL= and the various 
+xxxDIR= (LIB/MAN/BIN/SBINDIR/CONFDIR) to fit your system. After that, 
+running "make" should do. "Make" will also create the "mgetty.texi"-File 
+in "doc/" if you have the "texinfo" package installed.
+
+If the user name that you have specified as FAX_OUT_USER=... in the
+Makefile ("fax" or similar) does not exist in your system, you have
+to create it now.  Don't forget to set a good password.  If you want
+to run faxrun or faxrunqd under this user ID (which is recommended),
+it must have access to your modem devices (/dev/tty...).
 
 Most of the options set in "policy.h" can be changed at run-time from the
-"mgetty.config" configuration file. Policy.h controls where that will be.
+"mgetty.config" configuration file.  CONFDIR= (in Makefile) plus the
+file name specified in policy.h controls where that will be.
 
 With C-Compilers that do not understand the "#ident" directive, give the
 "make noident" command before using the "make" command for the first
