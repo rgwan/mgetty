@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 3.1 1995/08/30 12:40:57 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 3.2 1995/09/06 19:05:50 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -38,13 +38,16 @@ extern time_t	call_start;			/* for accounting */
 /* seems to missing nearly everywhere */
 time_t	time _PROTO(( long * tloc ));
 
-void exit_usage _P1( (program),
-		     char * program )
+void exit_usage _P2( (program, msg ),
+		     char * program, char * msg )
 {
+    if ( msg != NULL )
+        fprintf( stderr, "%s: %s\n", program, msg );
+    
     fprintf( stderr,
 	     "usage: %s [options] <fax-number> <page(s) in g3-format>\n", program);
     fprintf( stderr,
-	     "\tvalid options: -p, -h, -v, -l <device(s)>, -x <debug>, -n, -S\n");
+	     "\tvalid options: -p, -h, -v, -l <device(s)>, -x <debug>, -n, -S, -r\n");
     exit(1);
 }
 
@@ -254,7 +257,7 @@ int main _P2( (argc, argv),
     /* parse switches (-> conf_sf.c) and read global config file */
     if ( sendfax_parse_args( argc, argv ) == ERROR )
     {
-	exit_usage(argv[0]);
+	exit_usage( argv[0], NULL );
     }
 
     /* read config file (defaults) */
@@ -265,18 +268,14 @@ int main _P2( (argc, argv),
 
     argidx = optind;
 
+    /* fax number given? */
     if ( argidx == argc )
     {
-	exit_usage(argv[0]);
+	exit_usage( argv[0], "no fax number specified" );
     }
     fac_tel_no = argv[ argidx++ ];
 
     lprintf( L_MESG, "sending fax to %s", fac_tel_no );
-
-    if ( ! c_bool(fax_poll_wanted) && argidx == argc )
-    {
-	exit_usage(argv[0]);
-    }
 
     /* check, if all the arguments passed are normal files and
      * readable
@@ -286,10 +285,22 @@ int main _P2( (argc, argv),
 	lprintf( L_MESG, "checking %s", argv[i] );
 	if ( access( argv[i], R_OK ) == -1 )
 	{
+	    if ( errno == ENOENT && i == argidx 	/* first file */
+		 && c_bool( rename_files ) )		/* and '-r' set */
+	    {
+		argidx++; continue;    			/* just skip */
+	    }
+	    
 	    lprintf( L_ERROR, "cannot access %s", argv[i] );
 	    fprintf( stderr, "%s: cannot access %s\n", argv[0], argv[i]);
 	    exit(1);
 	}
+    }
+
+    /* check if any files specified / left */
+    if ( ! c_bool(fax_poll_wanted) && argidx == argc )
+    {
+	exit_usage( argv[0], "no files to send" );
     }
 
     /* if modem on stdin, shut off blurb */
@@ -568,6 +579,20 @@ int main _P2( (argc, argv),
 	}
 
 	if ( fax_hangup && fax_hangup_code != 0 ) break;
+
+	/* page transmitted successfully, rename file to ".done" */
+	if ( c_bool( rename_files ) )
+	{
+	    char done[MAXPATH+6];
+	    if ( strlen( argv[argidx] ) > sizeof(done)-6 )
+	        fprintf( stderr, "file name %s too long\n", argv[argidx] );
+	    else
+	    {
+		sprintf( done, "%s.done", argv[argidx] );
+		if ( rename( argv[argidx], done ) == -1 )
+		    lprintf( L_ERROR, "can't rename work file to %s", done );
+	    }
+	}
 	
 	argidx++;		/* next page */
 	tries=0;		/* no tries yet */
