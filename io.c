@@ -1,4 +1,4 @@
-#ident "$Id: io.c,v 1.20 1994/07/11 19:15:58 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: io.c,v 1.21 1994/08/04 17:20:20 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* io.c
  *
@@ -9,6 +9,8 @@
 #include <stdio.h>
 #include <unistd.h>
 #include "syslibs.h"
+#include <signal.h>
+#include <errno.h>
 
 #include "mgetty.h"
 
@@ -110,17 +112,25 @@ boolean	check_for_input _P1( (filedes),
     return ( ret > 0 );
 }
 
+#if !defined( USE_SELECT) && !defined( USE_POLL )
+static RETSIGTYPE wfi_timeout() {}
+#endif
+    
 /* wait until a character is available
  * where select() or poll() exists, no characters will be read,
  * if only read() can be used, at least one character will be dropped
+ *
+ * return TRUE if data is found, FALSE if "msecs" milliseconds have passed
  */
-void wait_for_input _P1( (fd), int fd )
+boolean wait_for_input _P2( (fd, msecs), int fd, int msecs )
 {
 #ifdef USE_SELECT
     fd_set	readfds;
+    struct timeval timeout, *tptr;
 #endif
 #ifdef USE_POLL
     struct	pollfd fds;
+    int		timeout;
 #endif
     int slct;
 
@@ -128,23 +138,60 @@ void wait_for_input _P1( (fd), int fd )
     
     FD_ZERO( &readfds );
     FD_SET( fd, &readfds );
-    slct = select( FD_SETSIZE, &readfds, NULL, NULL, NULL );
-    lprintf( L_NOISE, "select returned %d", slct );
+    if ( msecs >= 0 )
+    {
+	timeout.tv_sec = msecs / 1000;
+	timeout.tv_usec = (msecs % 1000) * 1000;	/* microsecs! */
+	tptr = &timeout;
+    }
+    else
+        tptr = NULL;
+    
+    slct = select( FD_SETSIZE, &readfds, NULL, NULL, tptr );
+    lprintf( L_JUNK, "select returned %d", slct );
 
 #else	/* use poll */
 # ifdef USE_POLL
 
+    if ( msecs < 0 ) timeout = -1;
+                else timeout = msecs;
+    
     fds.fd = fd;
     fds.events = POLLIN;
     fds.revents= 0;
-    slct = poll( &fds, 1, -1 );
-    lprintf( L_NOISE, "poll returned %d", slct );
+    slct = poll( &fds, 1, timeout );
+    lprintf( L_JUNK, "poll returned %d", slct );
+
 # else
     {
 	char t;
-	read(1, &t, 1);
-	lprintf(L_NOISE, "read returned: "); lputc(L_NOISE, t );
+	int oerrno;
+	
+	if ( msecs > 0 )
+	{
+	    signal( SIGALRM, wfi_timeout );
+	    alarm( (msecs+999)/1000 );
+	}
+
+	slct = read( fd, &t, 1 );
+
+	oerrno = errno;
+	alarm(0); signal( SIGALRM, SIG_DFL );
+	errno = oerrno;
+	
+	if ( slct < 0 )
+	{
+	    if ( errno == EINTR )
+	         lprintf( L_JUNK, "read: timeout" );
+	    else
+	         lprintf( L_ERROR, "read: error" );
+	}
+	else
+	{
+	    lprintf(L_JUNK, "read returned: "); lputc(L_JUNK, t );
+	}
     }
 # endif
 #endif
+    return ( slct>0 );
 }
