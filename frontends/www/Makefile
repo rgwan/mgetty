@@ -1,8 +1,11 @@
 # frontends/www/Makefile
 #
-# RCS: $Id: Makefile,v 1.5 1998/10/07 13:08:01 gert Exp $
+# RCS: $Id: Makefile,v 1.6 1998/10/13 15:41:20 gert Exp $
 #
 # $Log: Makefile,v $
+# Revision 1.6  1998/10/13 15:41:20  gert
+# vf-faxov added
+#
 # Revision 1.5  1998/10/07 13:08:01  gert
 # remove wwwgui.conf on "make clean"
 #
@@ -19,7 +22,7 @@
 # initial release
 #
 
-CGI=faxq.cgi faxq-v.cgi faxhist.cgi viewfax.cgi nph-vf-gif.cgi
+CGI=faxq.cgi faxq-v.cgi faxhist.cgi viewfax.cgi nph-vf-gif.cgi vf-faxov.cgi
 HTML=index-d.html
 
 CGI_HREF=/cgi-bin/
@@ -44,6 +47,7 @@ index-d.html: index-d.in ../../sedscript Makefile
 faxhist.cgi: faxhist.in ../../sedscript
 viewfax.cgi: viewfax.in ../../sedscript
 nph-vf-gif.cgi: nph-vf-gif.in ../../sedscript
+vf-faxov.cgi: vf-faxov.in ../../sedscript
 
 wwwgui.conf: wwwgui.cfg.in ../../sedscript
 	../../sedscript <wwwgui.cfg.in >wwwgui.conf
