@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 3.16 1996/10/21 11:49:26 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 3.17 1996/12/15 16:45:42 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -149,7 +149,7 @@ extern  char * Device;
     mdm_command( "ATH0", STDIN );
 }
 
-RETSIGTYPE fax_sig_hangup( )
+RETSIGTYPE fax_sig_hangup(SIG_HDLR_ARGS)
 {
     signal( SIGHUP, fax_sig_hangup );
     /* exit if we have not read "+FHNG:xxx" yet (unexpected hangup) */
@@ -162,7 +162,7 @@ RETSIGTYPE fax_sig_hangup( )
 
 static boolean fax_timeout = FALSE;
 
-RETSIGTYPE fax_sig_alarm( )
+RETSIGTYPE fax_sig_alarm(SIG_HDLR_ARGS)
 {
     signal( SIGALRM, fax_sig_alarm );
     lprintf( L_MESG, "timeout..." );

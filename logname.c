@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 3.15 1996/11/10 21:44:27 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 3.16 1996/12/15 16:45:44 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include "syslibs.h"
@@ -211,7 +211,7 @@ void set_env_var _P2( (var,string), char * var, char * string )
 
 static int timeouts = 0;
 #ifdef MAX_LOGIN_TIME
-static RETSIGTYPE getlog_timeout()
+static RETSIGTYPE getlog_timeout(SIG_HDLR_ARGS)
 {
     signal( SIGALRM, getlog_timeout );
 

@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 3.6 1996/05/26 11:30:32 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 3.7 1996/12/15 16:45:41 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -51,7 +51,7 @@ int w = 0;
 
 static boolean fwf_timeout = FALSE;
 
-static RETSIGTYPE fwf_sig_alarm()      	/* SIGALRM handler */
+static RETSIGTYPE fwf_sig_alarm(SIG_HDLR_ARGS)      	/* SIGALRM handler */
 {
     signal( SIGALRM, fwf_sig_alarm );
     lprintf( L_WARN, "Warning: got alarm signal!" );

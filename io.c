@@ -1,4 +1,4 @@
-#ident "$Id: io.c,v 3.1 1995/08/30 12:40:43 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: io.c,v 3.2 1996/12/15 16:45:43 gert Exp $ Copyright (c) Gert Doering"
 
 /* io.c
  *
@@ -122,7 +122,7 @@ boolean	check_for_input _P1( (filedes),
 }
 
 #if !defined( USE_SELECT) && !defined( USE_POLL )
-static RETSIGTYPE wfi_timeout() {}
+static RETSIGTYPE wfi_timeout(SIG_HDLR_ARGS) {}
 #endif
     
 /* wait until a character is available

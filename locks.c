@@ -1,4 +1,4 @@
-#ident "$Id: locks.c,v 3.6 1996/06/18 22:53:04 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
+#ident "$Id: locks.c,v 3.7 1996/12/15 16:45:44 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
 
 /* large parts of the code in this module are taken from the
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us,
@@ -326,7 +326,7 @@ static int lock_write_pid _P1((fd), int fd)
  *	rmlocks() - remove lockfile
  */
 
-RETSIGTYPE rmlocks()
+RETSIGTYPE rmlocks(SIG_HDLR_ARGS)
 {
     if ( lock[0] != 0 )
     {

@@ -1,4 +1,4 @@
-#ident "$Id: modem.c,v 1.1 1996/01/03 22:08:45 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: modem.c,v 1.2 1996/12/15 16:45:46 gert Exp $ Copyright (c) Gert Doering"
 
 /* modem.c
  *
@@ -61,7 +61,7 @@ char * mdm_get_line _P1( (fd), int fd )
 
 static boolean fwf_timeout = FALSE;
 
-static RETSIGTYPE fwf_sig_alarm()      	/* SIGALRM handler */
+static RETSIGTYPE fwf_sig_alarm(SIG_HDLR_ARGS)      	/* SIGALRM handler */
 {
     signal( SIGALRM, fwf_sig_alarm );
     lprintf( L_WARN, "Warning: got alarm signal!" );

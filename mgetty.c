@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 3.27 1996/11/26 22:21:35 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 3.28 1996/12/15 16:45:45 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -105,12 +105,14 @@ extern time_t	call_start;		/* time when we sent ATA */
 
 void gettermio _PROTO((char * tag, boolean first, TIO * tio));
 
+/* "simulated RING" handler */
 boolean virtual_ring = FALSE;
-static RETSIGTYPE sig_pick_phone()		/* "simulated RING" handler */
+static RETSIGTYPE sig_pick_phone(SIG_HDLR_ARGS)
 {
     signal( SIGUSR1, sig_pick_phone );
     virtual_ring = TRUE;
 }
+/* handle other signals: log them, and say goodbye... */
 static RETSIGTYPE sig_goodbye _P1 ( (signo), int signo )
 {
     lprintf( L_AUDIT, "failed dev=%s, pid=%d, got signal %d, exiting",
@@ -159,7 +161,7 @@ enum mgetty_States
    } mgetty_state = St_unknown;
 
 /* called on SIGUSR2. Exit, if no user online, ignore otherwise */
-static RETSIGTYPE sig_new_config()
+static RETSIGTYPE sig_new_config(SIG_HDLR_ARGS)
 {
     signal( SIGUSR2, sig_new_config );
     if ( mgetty_state != St_answer_phone &&

@@ -1,4 +1,4 @@
-#ident "$Id: do_chat.c,v 3.3 1996/03/03 16:20:52 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: do_chat.c,v 3.4 1996/12/15 16:45:40 gert Exp $ Copyright (c) Gert Doering"
 
 /* do_chat.c
  *
@@ -23,7 +23,7 @@
 #include "tio.h"
 
 boolean chat_has_timeout;
-static RETSIGTYPE chat_timeout()
+static RETSIGTYPE chat_timeout(SIG_HDLR_ARGS)
 {
     chat_has_timeout = TRUE;
 }

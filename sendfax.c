@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 3.14 1996/11/21 23:09:03 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 3.15 1996/12/15 16:45:46 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *

@@ -1,4 +1,4 @@
-#ident "$Id: do_stat.c,v 3.3 1995/11/24 21:29:39 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: do_stat.c,v 3.4 1996/12/15 16:45:41 gert Exp $ Copyright (c) Gert Doering"
 
 /* do_stat.c
  *
@@ -28,7 +28,7 @@
 
 
 static boolean has_timeout;
-static RETSIGTYPE timeout()
+static RETSIGTYPE timeout(SIG_HDLR_ARGS)
 {
     has_timeout = TRUE;
 }

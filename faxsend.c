@@ -1,4 +1,4 @@
-#ident "$Id: faxsend.c,v 3.4 1996/01/03 21:31:27 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: faxsend.c,v 3.5 1996/12/15 16:45:43 gert Exp $ Copyright (c) 1994 Gert Doering"
 
 /* faxsend.c
  *
@@ -30,7 +30,7 @@
 
 static boolean fax_sendpg_timeout = FALSE;
 
-static RETSIGTYPE fax_send_timeout()
+static RETSIGTYPE fax_send_timeout(SIG_HDLR_ARGS)
 {
     signal( SIGALRM, fax_send_timeout );	/* reactivate handler */
     
