@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 2.18 1995/08/04 09:24:48 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 2.19 1995/08/06 18:27:37 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -267,9 +267,9 @@ int main _P2((argc, argv), int argc, char ** argv)
 
 #ifdef USE_GETTYDEFS
     if (optind < argc)
-        conf_set_string( &c.gettydefs_tag, argv[optind++] )
-    else
-	lprintf( L_MESG, "no gettydef tag given");
+        conf_set_string( &c.gettydefs_tag, argv[optind++] );
+    
+    lprintf( L_MESG, "gettydefs tag used: %s", c_string(gettydefs_tag) );
 #endif
 
 #ifdef MGETTY_PID_FILE
