@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.17 1997/06/22 14:58:08 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.18 1997/06/22 14:59:26 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -628,7 +628,7 @@ int mdm_identify _P1( (fd), int fd )
 	      if ( mid == 28800 && strncmp( mis, "Version", 7 ) == 0 )
 	    {
 		lprintf( L_MESG, "Could be a Hayes Optima/Accura modem" );
-	        mis = mdm_get_idstring( "ATI7", 1, fd );
+	        mis = mdm_get_idstring( "ATI7", 2, fd );
 		modem_quirks |= MQ_NEED2;
 		break;
 	    }
