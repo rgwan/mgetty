@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.48 2001/05/23 20:30:22 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.49 2001/06/29 07:12:56 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -2101,6 +2101,7 @@ enough feedback from config file users yet.
 * ELSA::            ELSA analog/ISDN faxmodems
 * USR::             US Robotics Courier/Sportster Data/Faxmodems
 * Elink-ISDN::      Elink ISDN Terminal Adaptors (``ISDN Modems'')
+* i4l::             ISDN 4 Linux support
 * Class 1::         Class 1 Faxmodems
 @end menu
 
@@ -2915,7 +2916,7 @@ me a detailed log file...
 Firmware upgrades and documentation are available on @code{ftp.usr.de}
 in the directory @file{/pub/USRobotics/modem/...}.
 
-@node Elink-ISDN, Class 1, USR, Modems
+@node Elink-ISDN, i4l, USR, Modems
 @subsection Elink ISDN Terminal Adaptors 293, 310, 393 with X.75 and V.110
 
 The TA's are connected to national German ISDN (1TR6) or Euro-ISDN. The
@@ -2960,7 +2961,49 @@ analog modem built in, which should work nicely with the fax part of
 (Thanks to Ulrich Tieman, lord@@olis.north.de, for this section. Don't ask
 me, ask him if you use an ELINK)
 
-@node Class 1,  , Elink-ISDN, Modems
+@node i4l, Class 1, Elink-ISDN, Modems
+@subsection ISDN 4 Linux support
+
+@code{mgetty} and @code{sendfax} work with isdn4linux (i4l), but there
+are a number if things to point out.
+
+For data calls via ISDN V.110 or X.75 async modem emulation, you can put
+mgetty on a @file{/dev/ttyI*} device and mgetty will handle so-called
+"asynchronous ISDN" connections fine.  To make sure that mgetty will 
+pick up the phone, set your local ISDN number with @code{AT&E<number>}
+from @code{init-chat} (otherwise isdn4linux will just ignore incoming
+calls).
+
+As far as I can see, i4l will always signal the caller ID for incoming
+calls as "CALLER NUMBER = ..." to mgetty.  Mgetty can handle this
+just fine.
+
+If you want to see the destination number for incoming calls, add
+@code{ATS23.0=1} to the @code{init-chat}.  This will make i4l signal
+the dialed MSN number as @code{RING/12345}, and mgetty will then pass
+it on as $CALLED_ID to fax scripts and so on.
+
+For the full list of available AT commands, consult the i4l docs
+(for example in @file{/usr/src/linux/Documentation/isdn/README}.
+
+For ISDN PPP calls with synchronous PPP (which is the "normal" way to do
+PPP over ISDN), you do @strong{not} need @code{mgetty}.  PPPoISDN calls
+are handled by @code{ipppd}, which is part of isdn4linux.  Mgetty can
+only handle PPP-over-X.75 or PPP-over-V110, which is something that is 
+only used for WAP connections or with old terminal adaptors.
+
+Fax support with isdn4linux is a tricky issue.  For most ISDN cards,
+this will @strong{NOT WORK}.  It only works for cards that have a fax
+chip (or separate CPU) on board, and can be accessed with the fax 
+class 2/2.0 command set.  It will work fine with the Diehl Server BRI
+ISDN card (active), and that's the only card I know that will work as of
+June 2001.  Accessing ISDN fax via CAPI is NOT supported.
+
+Voice support with @code{vgetty} should work (use your ttyI device 
+as an answering machine, etc.).  I have not tried it yet - talk to the
+mgetty or i4l mailing lists if it doesn't work.
+
+@node Class 1,  , i4l, Modems
 @subsection Class 1 Faxmodems
 
 These do not work. They are not going to be supported (class 1 faxing is
