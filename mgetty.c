@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.94 1994/03/07 18:01:17 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.95 1994/03/07 18:47:49 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -162,7 +162,8 @@ static RETSIGTYPE sig_pick_phone()		/* "simulated RING" handler */
 }
 static RETSIGTYPE sig_goodbye _P1 ( (signo), int signo )
 {
-    lprintf( L_AUDIT, "failed, pid=%d, got signal %d, exiting", getpid(), signo );
+    lprintf( L_AUDIT, "failed dev=%s, pid=%d, got signal %d, exiting",
+	              Device, getpid(), signo );
     rmlocks();
     exit(10);
 }
