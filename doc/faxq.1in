@@ -35,9 +35,13 @@ Show suspended jobs (stopped because of too many fatal errors during sending). Y
 Show all jobs (active, old, suspended).
 .TP
 .B -r
-Restart suspended jobs. For every job that you have still in the queue,
-you will be asked whether you want to retry sending that job (NOT
-IMPLEMENTED YET).
+Restart suspended jobs. Every suspended job in the queue (that you have
+write permissions for) will be requeued.  Use
+.I faxrm
+to delete jobs that you do not want to be sent!
+.TP
+.B -P <job> <prio>
+Change the priority of fax job <job> to <prio>. Example: "faxq -P F000247 3".
 
 .SH BUGS
 .I faxq
