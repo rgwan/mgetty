@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.23 1997/11/06 10:29:51 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.24 1997/11/18 14:54:40 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -329,15 +329,23 @@ int fax_set_fdcc _P4( (fd, fine, max, min),
 {
     char buf[50];
 
-#ifndef FAX_USRobotics
-    sprintf( buf, "AT%s=%d,%d,0,2,0,0,0,0",
-	     (modem_type == Mt_class2_0) ? "+FCC" : "+FDCC",
-	     fine, (max/2400) -1 );
-#else /* FAX_USRobotics */
-    /* some versions of the USR firmware got this wrong, so don't set speed
-     */
-    sprintf( buf, "AT+FCC=%d", fine );
+#ifdef FAX_USRobotics			/* will go away...! */
+    modem_quirks |= MQ_USR_FMINSP;
 #endif
+
+    if ( modem_quirks & MQ_USR_FMINSP )
+    {
+	/* some early versions of the USR fax firmware got this wrong, (put 
+	 * "max" speed into register for "min" speed!!) so don't set speed
+	 */
+	sprintf( buf, "AT+FCC=%d", fine );
+    }
+    else				/* standard case, working modem */
+    {
+	sprintf( buf, "AT%s=%d,%d,0,2,0,0,0,0",
+		 (modem_type == Mt_class2_0) ? "+FCC" : "+FDCC",
+		 fine, (max/2400) -1 );
+    }
     
     if ( mdm_command( buf, fd ) == ERROR )
     {
