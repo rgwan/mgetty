@@ -1,12 +1,13 @@
-#ident "$Id: logfile.c,v 1.1 1993/03/09 22:23:44 gert Exp $ (c) Gert Doering"
+#ident "$Id: logfile.c,v 1.2 1993/03/09 23:00:15 gert Exp $ (c) Gert Doering"
 
 #include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
 #include <varargs.h>
 #include <sys/types.h>
 #include <time.h>
 #include <errno.h>
 #include <ctype.h>
-#include <fcntl.h>
 
 #include "mgetty.h"
 
@@ -18,13 +19,49 @@ char log_path[ MAXPATH ];
 
 void logmail( void )
 {
-char ws[MAXPATH+100];
+char	ws[MAXPATH+100];
+char	buf[512];
+int	l;
+FILE *	pipe_fp;
+int	log_fd;
+
     if ( mail_logfile )
     {
-	sprintf( ws, "cat %s | mail -s \"BBS:fatal error!\" %s",
-		 log_path, ADMIN );
 	lprintf( L_MESG, "mailing logfile to %s...", ADMIN );
-	system( ws );
+
+	sprintf( ws, "%s %s", MAILER, ADMIN );
+	pipe_fp = popen( ws, "w" );
+	if ( pipe_fp == NULL )
+	{
+	    lprintf( L_ERROR, "cannot open pipe to %s", MAILER );
+	    /* FIXME: write to console - last resort */
+	    fprintf( stderr, "cannot open pipe to %s", MAILER );
+	    return;
+	}
+
+	fprintf( pipe_fp, "Subject: fatal error in logfile\n" );
+	fprintf( pipe_fp, "To: %s\n", ADMIN );
+	fprintf( pipe_fp, "From: root (Fax Getty)\n" );
+	fprintf( pipe_fp, "\n"
+	                  "A fatal error has occured! The logfile follows\n" );
+	log_fd = open( log_path, O_RDONLY );
+	if ( log_fd == -1 )
+	{
+	    fprintf( pipe_fp, "The logfile '%s' cannot be opened (errno=%d)\n",
+		     log_path, errno );
+	}
+	else
+	{
+	    do
+	    {
+	        l = read( log_fd, buf, sizeof( buf ) );
+		fwrite( buf, l, 1, pipe_fp );
+	    }
+	    while( l == sizeof( buf ) );
+	    fprintf( pipe_fp, "\n------ logfile ends here -----\n" );
+	}
+	close( log_fd );
+	pclose( pipe_fp );
     }
 }
 
@@ -77,6 +114,8 @@ int     errnr;
 	    perror(ws);
 	    exit(10);
 	}
+	/* make sure that the logfile is not accidently stdin, -out or -err
+	 */
 	if ( fileno( log_fp ) < 3 )
 	{
 	int fd;
