@@ -4,9 +4,12 @@
 #
 # send fax to a GIVEN phone number (on the command line). Everybody may send.
 #
-# $Id: mail2fax.space,v 1.4 2002/01/11 14:12:40 gert Exp $
+# $Id: mail2fax.space,v 1.5 2002/04/23 14:08:42 gert Exp $
 #
 # $Log: mail2fax.space,v $
+# Revision 1.5  2002/04/23 14:08:42  gert
+# use .txs suffix for "short"
+#
 # Revision 1.4  2002/01/11 14:12:40  gert
 # add -s (short)
 #
@@ -67,6 +70,10 @@ body=/tmp/mf$$.body
 fax=/tmp/mf$$.txt
 tmp=/tmp/mf$$.tmp
 LOG=/tmp/mf.log
+
+# mega hack value :-) - if "short" is requested, change file name so
+# that it matches a "faxspool.rules" entry, cutting of whitespace at EOP
+test "$short" = "yes" && fax=/tmp/mf$$.txs 
 
 #
 eval `awk ' function getaddr(line) {
