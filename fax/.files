@@ -1,0 +1,12 @@
+Makefile
+faxq.in
+faxrm.in
+faxrunq.in
+faxrunqd.in
+faxspool.in
+cour25.pbm
+cour25n.pbm
+faxheader.in
+etc-magic
+faxcvt
+printfax
