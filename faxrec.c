@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.33 1993/12/18 18:49:52 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 1.34 1993/12/18 19:10:46 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -373,6 +373,7 @@ time_t	ti;
     {
 	fprintf( pipe_fp, "\nThe fax receive was *not* fully successful\n" );
 	fprintf( pipe_fp, "The Modem returned +FHNG:%3d\n", fax_hangup_code );
+	fprintf( pipe_fp, "\t\t   (%s)\n", ferror( fax_hangup_code ) );
     }
 
     /* list the spooled fax files (jcp/gd) */
