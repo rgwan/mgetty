@@ -1,4 +1,4 @@
-#ident "$Id: faxq-helper.c,v 4.5 2002/11/16 22:07:45 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxq-helper.c,v 4.6 2002/11/16 22:21:35 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxq-helper.c
  *
@@ -333,13 +333,9 @@ struct dirent * de;
 struct stat stb;
 int rc = 0;
 
-    if ( getuid() != fax_out_uid )
+    if ( geteuid() != fax_out_uid )
     {
-	if ( setuid(fax_out_uid) < 0 )
-	{
-	    eout( "can't setuid(%d): %s\n", fax_out_uid, strerror(errno));
-	    return -1;
-	}
+	if ( setup_uid_gid() < 0 ) return -1;
     }
 
     if ( ( dirp = opendir( dir ) ) == NULL )
