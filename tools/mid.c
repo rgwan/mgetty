@@ -1,4 +1,4 @@
-#ident "$Id: mid.c,v 1.2 1998/07/07 14:34:33 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mid.c,v 1.3 1998/07/07 15:20:50 gert Exp $ Copyright (c) Gert Doering"
 
 /* mid.c
  *
@@ -37,7 +37,7 @@ boolean got_interrupt;
 RETSIGTYPE oops(SIG_HDLR_ARGS)
 		{ got_interrupt=TRUE; }
 
-int test_modem( char * device, int speed, FILE * cc_fp )
+int test_modem( char * device, int speed, FILE * fp )
 {
 int fd;
 TIO tio, save_tio;
@@ -46,7 +46,7 @@ char **query = query_strings;
 char buf[100];
 int l;
 
-    printf( "testing for modem on %s with %d bps...\n", device, speed );
+    fprintf( fp, "testing for modem on %s with %d bps...\n", device, speed );
 
     /* lock device */
     if ( makelock( device ) == FAIL )
@@ -87,7 +87,9 @@ int l;
 
     while( *query != NULL )
     {
-	printf( ">>> %s\n", *query );
+	fprintf( fp, ">>> %s\n", *query );
+	if ( fp != stdout ) printf( "%s...\n", *query );
+
 	signal( SIGALRM, oops );
 	alarm(3);
 	got_interrupt = FALSE;
@@ -99,7 +101,9 @@ int l;
 	{
 	    l = read( fd, buf, sizeof(buf) );
 	    if ( l>0 ) 
-	       { fwrite( buf, 1, l, stdout ); } 
+	    {
+		fwrite( buf, 1, l, fp );
+	    } 
 	}
 	while( l>0 && ! got_interrupt );
 
@@ -147,7 +151,7 @@ int speed = 38400;				/* port speed */
 
 TIO tio, save_tio;			/* for stdin */
 
-FILE * cc_fp = NULL;				/* output is CC'ed there */
+FILE * out_fp = stdout;
 
     while ((opt = getopt(argc, argv, "mM:f:s:")) != EOF)
     {
@@ -155,21 +159,36 @@ FILE * cc_fp = NULL;				/* output is CC'ed there */
 	{
 	    case 'm': send_mail = TRUE; break;
 	    case 'M': send_mail = TRUE; mailaddr = optarg; break;
-	    case 'f': filename = optarg; break;
 	    case 's': speed = atoi(optarg); break;
 	    default:
 		exit_usage( argv[0], NULL );
 	}
     }
 
-    if ( send_mail && filename != NULL )
-		exit_usage( argv[0], "can't send both to e-mail and to file" );
-
     if ( optind == argc )		/* no ttys specified */
 		exit_usage( argv[0], "no tty device specified" );
     
     /* prepare file descriptors, etc.
      */
+
+    if ( send_mail )
+    {
+	char mailer[MAXPATH];
+
+	sprintf( mailer, "%s %.*s", MAILER, 
+		 sizeof(mailer)-sizeof(MAILER)-10, mailaddr );
+	out_fp = popen( mailer, "w" );
+
+	if ( out_fp == NULL )
+	{
+	    fprintf( stderr, "%s: can't open pipe to '%s': %s", 
+			argv[0], mailer, strerror(errno));
+	    exit(1);
+	}
+
+	fprintf( out_fp, "To: %s\nSubject: mid run\n\n", mailaddr );
+	printf( "Working... - output is mailed to %s\n", mailaddr );
+    }
 
 #ifdef HAVE_SIGINTERRUPT
     /* some systems, notable BSD 4.3, have to be told that system
@@ -194,10 +213,13 @@ FILE * cc_fp = NULL;				/* output is CC'ed there */
 	else
 	    sprintf( device, "/dev/%s", argv[optind]);
 
-	test_modem( device, speed, cc_fp );
+	test_modem( device, speed, out_fp );
 
 	optind++;
     }
+
+    if ( out_fp != stdout ) 
+	pclose(out_fp);
 	
     return 0;
 }
