@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.51 2002/11/17 18:58:18 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.52 2002/11/17 20:31:07 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -365,7 +365,7 @@ sendfax.sen: $(SFAXOBJ)
 subdirs:
 	cd g3 ;    $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" "LIBS=$(LIBS)" all
 	cd tools ; $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" "LIBS=$(LIBS)" all
-	cd fax ;   $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" "LIBS=$(LIBS)" "FAX_SPOOL_OUT=$(FAX_SPOOL_OUT)" "FAX_OUT_USER=$(FAX_OUT_USER)" all
+	cd fax ;   $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" "LIBS=$(LIBS)" "FAX_SPOOL_OUT=$(FAX_SPOOL_OUT)" "FAX_OUT_USER=$(FAX_OUT_USER)" "CONFDIR=$(CONFDIR)" all
 
 call-back:
 	@$(MAKE) mgetty
