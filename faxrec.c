@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.37 1994/01/05 04:48:53 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 1.38 1994/01/16 23:54:30 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -20,7 +20,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <signal.h>
-#include <time.h>
+#include <sys/times.h>
 #include <malloc.h>
 
 #ifndef sun
@@ -31,6 +31,11 @@
 #include "tio.h"
 #include "policy.h"
 #include "fax_lib.h"
+
+       time_t call_start;		/* set in mgetty.c */
+static time_t call_done;
+
+time_t		time _PROTO(( long * tloc ));
 
 /* all stuff in here was programmed according to a description of the
  * class 2 standard as implemented in the SupraFAX Faxmodem
@@ -43,7 +48,7 @@ void fax_notify_program _PROTO(( int number_of_pages ));
 
 static char * faxpoll_server_file = NULL;
 
-void faxpoll_server_init( char * f )
+void faxpoll_server_init _P1( (f), char * f )
 {
     faxpoll_server_file = NULL;
     if ( access( f, R_OK ) != 0 )
@@ -66,6 +71,7 @@ void faxrec _P1((spool_in), char * spool_in )
 {
 int pagenum = 0;
 TIO tio;
+extern  char * Device;
 
     lprintf( L_NOISE, "fax receiver: entry" );
 
@@ -102,6 +108,8 @@ TIO tio;
 	/* no more pages */
 	fax_command( "AT+FET=2", "OK", 0 );
     }
+
+    call_done = time(NULL);
 	
     lprintf( L_NOISE, "fax receiver: hangup & end" );
 
@@ -113,9 +121,12 @@ TIO tio;
     fax_notify_program( pagenum );
 #endif
 
+    call_done = call_done - call_start;
     /* write audit information and return (caller will exit() then) */
-    lprintf( L_AUDIT, "fax received: id='%s', +FHNG:%03d",
-	    fax_remote_id, fax_hangup_code );
+    lprintf( L_AUDIT,
+"fax dev=%s, pid=%d, caller=%s, name='%s', id='%s', +FHNG=%03d, pages=%d, time=%02d:%02d:%02d\n",
+	Device, getpid(), CallerId, CallName, fax_remote_id, fax_hangup_code, pagenum,
+	call_done / 3600, (call_done / 60) % 60, call_done % 60);
 
 }
 
@@ -141,7 +152,6 @@ RETSIGTYPE fax_sig_alarm( )
 
 static	char *	fax_file_names = NULL;
 static	int	fax_fn_size = 0;
-static	time_t	faxrec_s_time = 0;
 
 int fax_get_page_data _P3((fd, pagenum, directory), int fd,
 			  int pagenum, char * directory )
@@ -168,13 +178,13 @@ extern  char * Device;
 #ifdef SHORT_FILENAMES
     sprintf(temp, "%s/f%c%07x%s.%02d", directory,
 		 fax_par_d.vr == 0? 'n': 'f',
-	         (int) faxrec_s_time & 0xfffffff,
+	         (int) call_start & 0xfffffff,
 	         &Device[strlen(Device)-2], pagenum );
 #else
     /* include sender's fax id - if present - into filename */
     sprintf(temp, "%s/f%c%07x%s-", directory,
 		fax_par_d.vr == 0? 'n': 'f',
-		(int) faxrec_s_time & 0xfffffff,
+		(int) call_start & 0xfffffff,
 		&Device[strlen(Device)]-2 );
     i = strlen(temp);
 		
@@ -190,18 +200,32 @@ extern  char * Device;
     sprintf( &temp[i], ".%02d", pagenum );
 #endif
 
-    fax_fp = fopen( temp, "w" );
+    if ( checkspace(directory) )
+	fax_fp = fopen( temp, "w" );
+    else
+    {
+	lprintf( L_ERROR, "Not enough space on %s for fax reception", directory);
+	fax_fp = NULL;
+    }
 
     if ( fax_fp == NULL )
     {
 	lprintf( L_ERROR, "opening %s failed", temp );
 	sprintf( temp, "/tmp/FAX%c%04x.%02d",
 		       fax_par_d.vr == 0? 'n': 'f',
-		       (int) faxrec_s_time & 0xffff, pagenum );
-	fax_fp = fopen( temp, "w" );
+		       (int) call_start & 0xffff, pagenum );
+
+	if ( checkspace("/tmp") )
+	    fax_fp = fopen( temp, "w" );
+	else
+	{
+	    lprintf( L_ERROR, "Not enough space on /tmp for fax reception - dropping line");
+	    return ERROR;
+	}
+	    
 	if ( fax_fp == NULL )
 	{
-	    lprintf( L_ERROR, "opening of %s *also* failed", temp );
+	    lprintf( L_ERROR, "opening of %s *also* failed - giving up", temp );
 	    return ERROR;
 	}
     }
@@ -300,10 +324,6 @@ static const char start_rcv = DC2;
 
     fax_file_names = malloc( fax_fn_size = MAXPATH * 4 );
     if ( fax_file_names != NULL ) fax_file_names[0] = 0;
-
-    /* remember start time (for fax_notify_mail)
-     */
-    faxrec_s_time = time(NULL);
 
     if ( fax_poll_req || fax_hangup )
     {
@@ -407,7 +427,8 @@ time_t	ti;
     fprintf( pipe_fp, "    Error Corr.: %s\n", fax_par_d.ec? "ECM":"none" );
     fprintf( pipe_fp, "    Scan Time  : %d\n\n", fax_par_d.st );
 
-    ti = time(NULL) - faxrec_s_time;
+    ti = call_done - call_start;	/* time spent */
+
     fprintf( pipe_fp, "Reception Time : %d:%d\n\n", (int) ti/60, (int) ti%60 );
 
     if ( fax_hangup_code != 0 )
