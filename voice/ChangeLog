@@ -1,3 +1,15 @@
+Sat Oct 14 11:06:01 2000  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* All of below is 0.9.21
+
+	* Completely reworked the way the special case Supra56ePRO
+	works, since it was causing timeouts/delay at initialization
+	time for both the TP560 Data/Fax/Voice 56K Modem and
+	the good ol' 1496. (BTW mine just broke, so I hope that
+	others will test it. Symptoms: switch on with CD/OH/DSR/CTS
+	light. TXD blinks when typing on keyboard (e.g. with cu
+	with DTR/RTS/etc set), global fw reset doesn't work anymore).
+
 Sat Sep 16 18:38:14 2000  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 
 	* All of below is 0.9.19
@@ -6,7 +18,8 @@ Sat Sep 16 18:38:14 2000  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 	with friendly testing from Zsolt KOZAK <kozakzs@webigen.com>.
 	Note that that modem has buggy ATI3 handling, and this will
 	cause a timeout, which will be recovered. The test was done
-	at speed 115200.
+	at speed 115200. [ well infact this was not a buggy firmware,
+	see above ]
 
 Tue Sep 12 23:09:42 2000  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 

@@ -3,7 +3,7 @@
  *
  * autodetect the modemtype we are connected to.
  *
- * $Id: detect.c,v 1.27 2000/09/18 16:34:17 marcs Exp $
+ * $Id: detect.c,v 1.28 2000/11/16 10:40:39 marcs Exp $
  *
  */
 
@@ -45,20 +45,6 @@ static const struct pnp_modem_type_struct pnp_modem_database[] =
      {NULL, NULL, NULL}
      };
      
-struct modem_id_struct
-     {
-     const char *idline1;
-     const char *idline2;
-     voice_modem_struct *modem_type;
-     };
-     
-static const struct modem_id_struct modem_id_database[] =
-     {
-     {NULL, "SupraExpress 56e PRO", &Supra56ePRO},
-     {NULL, NULL, NULL}
-     }; 
- 
-
 const char ati[] = "ATI";
 const char ati3[] = "ATI3";
 const char ati6[] = "ATI6";
@@ -262,6 +248,17 @@ int voice_detect_modemtype(void)
           /* Detection using identification strings. Seems that it
            * is required for some very specific modem types.
            * -- (Rojhalat Ibrahim, roschi@ribrahim.de)
+           * IMPLEMENTATION NOTES
+           *    - We used to have a complicated ATI3 scheme with a table
+           *      which was wrong (every added entry to the table would have
+           *      consumed more lines of the modem output when a second
+           *      line was required; would cause timeouts on modems returning
+           *      less than 3 lines). We have simplified that.
+           * BUGS
+           *    - This implementation, although less likely to cause problems,
+           *      will make detection longer (timeout) on modems returning
+           *      something different than OK or ERROR, when they return
+           *      less than 2 lines (case significative).
            */
 	  
 	  cmnd = (char *) ati3;
@@ -275,30 +272,26 @@ int voice_detect_modemtype(void)
              exit(FAIL);
           }
 
-          i = 0;
-          while (voice_modem == &no_modem
-                 && (modem_id_database[i].idline1
-                     || modem_id_database[i].idline2)) {
-             if (modem_id_database[i].idline1 == NULL) {
-		if (voice_read(buffer) != OK) {
-		   break;
-		}
-		else if (strstr(buffer, modem_id_database[i].idline2)) {
-		   voice_modem = modem_id_database[i].modem_type;
-		}
+          if ((strstr(buffer, "OK") == NULL)
+              && (strstr(buffer, "ERROR") == NULL)) {
+             /* The non-empty string wasn't OK/ERROR, so let's ignore it and
+              * go to the next line (that we assume exists -- else will
+              * timeout but recover).
+              */
+             if (voice_read(buffer) == OK) {
+                if (strstr(buffer, "SupraExpress 56e PRO")) {
+                   voice_modem = &Supra56ePRO;
+                }
              }
-             else if (strstr(buffer, modem_id_database[i].idline1)) {
-                voice_modem = modem_id_database[i].modem_type;
-                break;
-             }
-
-             i++;
           }
-          
-          /* eat the OK... */
-          voice_read(buffer);
+          /* else the modem already returned OK/ERROR, so no need to create
+           * a timeout.
+           */
 
-          voice_flush(3);
+          /* Flush remaining data. We can't read, might not be there,
+           * and that would timeout, too.
+           */
+          voice_flush(1); /* wait until no chars and 100 ms have passed */
 
           if (voice_modem != &no_modem) {
              lprintf(L_MESG, "%s detected", voice_modem->name);
