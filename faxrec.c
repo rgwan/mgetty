@@ -1,6 +1,6 @@
-#ident "$Id: faxrec.c,v 1.11 1993/08/25 12:51:37 gert Exp $ Gert Doering"
+#ident "$Id: faxrec.c,v 1.12 1993/08/31 19:49:45 gert Exp $ Gert Doering"
 
-/* faxrec.c - part of the ZyXEL getty
+/* faxrec.c - part of mgetty+sendfax
  *
  * this module is used when the modem sends a string that triggers the
  * action "A_FAX" - typically this should be "+FCON".
@@ -43,9 +43,16 @@ struct termio termio;
     /* Setup tty interface
      * Do not set c_cflag, assume that caller has set bit rate,
      * hardware handshake, ... properly
+     * For some modems, it's necessary to switch to 19200 bps.
      */
 
     ioctl( STDIN, TCGETA, &termio );
+
+#ifdef FAX_RECEIVE_USE_B19200
+    termio.c_cflag &= ~CBAUD;		/* switch baud rate to 19200 */
+    termio.c_cflag |= B19200;		/* (tornado and supra modems) */
+#endif
+
 #ifdef FAX_RECEIVE_USE_IXOFF
     termio.c_iflag = IXOFF;		/* xon/xoff flow control */
 #else
