@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.38 1994/01/16 23:54:30 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 1.39 1994/01/17 13:36:55 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -164,6 +164,13 @@ int	ErrorCount = 0;
 int	ByteCount = 0;
 int i,j;
 extern  char * Device;
+
+    /* call_start is only initialized if we're called from mgetty, not
+     * when fax polling (sendfax) or from another getty (contrib/faxin).
+     * So, eventually set it here
+     */
+
+    if ( call_start == 0L ) call_start = time( NULL );
 
     /* generate spool file name
      *
