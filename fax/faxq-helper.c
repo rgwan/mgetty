@@ -1,4 +1,4 @@
-#ident "$Id: faxq-helper.c,v 4.3 2002/11/15 09:32:05 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxq-helper.c,v 4.4 2002/11/15 23:06:58 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxq-helper.c
  *
@@ -47,6 +47,7 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <time.h>
 
 #include <stdarg.h>
 
@@ -230,8 +231,10 @@ char dirbuf[100];
  * (this is used if "activate" fails due to weird files, or for the
  * "remove" command).
  * The actual "rm -rf" is done by the caller script with user permissions
+ *
+ * TODO: geht nicht, caller hat kein Schreibrecht!
  */
-int rollback_dir( char * directory )
+void rollback_dir( char * directory )
 {
 char jobbuf[MAXJIDLEN+30];
 
@@ -301,6 +304,10 @@ struct stat stb;
 char dir1[MAXJIDLEN+10];
 char buf[1000], *p;
 int fd;
+
+    /* note: there is no race condition between stat() and chmod(), because 
+     * the parent directory is not world-writeable -> no user change possible
+     */
 
     sprintf( dir1, ".in%s", JID );
     if ( lstat( dir1, &stb ) < 0 )
@@ -396,14 +403,178 @@ int fd;
     return 0;
 }
 
+/* helper function for do_remove and do_requeue
+ *  - check whether /$JID/ exists at all (and is a directory)
+ *  - lock JOB, if present
+ *  - check JOB/JOB.error/JOB.suspended for "user xxx" and compare with uid
+ */
+int check_user_perms( char * JID, char * jobfile )
+{
+struct stat stb;
+char buf[1000], *p;
+FILE * fp;
+char jfile[MAXJIDLEN+30], lfile[MAXJIDLEN+30];
+
+    if ( lstat( JID, &stb ) < 0 ||
+	 !S_ISDIR( stb.st_mode ) ||
+	 stb.st_uid != fax_out_uid )
+    {
+	eout( "'%s' is not a directory or has wrong owner\n", JID );
+	return -1;
+    }
+
+    sprintf( jfile, "%s/%s", JID, jobfile );
+    sprintf( lfile, "%s/%s", JID, "JOB.locked" );
+
+    if ( link( jfile, lfile ) < 0 )
+    {
+	if ( errno == EEXIST )
+	{
+	    eout( "%s already locked\n", jfile ); return -1;
+	}
+	if ( errno == ENOENT )
+	{
+	    return -2;		/* different code, no message! */
+	}
+
+	eout( "can't lock JOB file: %s\n", strerror(errno) ); return -1;
+    }
+
+    if ( ( fp = fopen( jfile, "r" ) ) == NULL )
+    {
+	eout( "can't open '%s' for reading: %s\n", jfile, strerror(errno) );
+	unlink( lfile );
+	return -1;
+    }
+
+    while( ( p = fgets( buf, sizeof(buf)-1, fp ) ) != NULL )
+    {
+	int l = strlen(buf);
+
+	if ( l >= sizeof(buf)-2 )
+	{
+	    eout( "input line too long\n" ); 
+	    unlink( lfile );
+	    fclose(fp);
+	    return -1;
+	}
+
+	if ( l>0 && buf[l-1] == '\n' ) buf[--l]='\0';
+
+	if ( strncmp(buf, "user ", 5) == 0 )
+	{
+	    if ( strcmp( buf+5, real_user_name ) != 0 )
+	    {
+		eout( "user name mismatch: %s <-> %s\n", buf+5, real_user_name );
+		unlink( lfile );
+		fclose(fp);
+		return -1;
+	    }
+	}
+    }
+
+    fclose(fp);
+    return 0;		/* lock file purposely kept in place! */
+}
+
+int setup_uid_gid(void)
+{
+    if ( setuid( fax_out_uid ) < 0 )
+    {
+	eout( "can't setuid(%d): %s\n", fax_out_uid, strerror(errno) );
+	return -1;
+    }
+    /* TODO: setup gid to something useful */
+    return 0;
+}
 
 int do_remove( char * JID )
 {
+int rc;
+
+    if ( setup_uid_gid() < 0 ) return -1;
+
+    rc = check_user_perms( JID, "JOB" );
+    if ( rc == -2 )				/* not found */
+	rc = check_user_perms( JID, "JOB.error" );
+    if ( rc == -2 )				/* not found */
+	rc = check_user_perms( JID, "JOB.suspended" );
+
+    if ( rc == -2 )				/* still not found */
+    {
+	eout( "no JOB file in %s/ - can't verify permissions\n", JID );
+	return -1;
+    }
+
     error_and_exit( "not implemented" );
 }
+
 int do_requeue( char * JID )
 {
-    error_and_exit( "not implemented" );
+int rc, fd; 
+char file1[MAXJIDLEN+30], file2[MAXJIDLEN+30];
+char buf[100];
+time_t ti;
+
+    if ( setup_uid_gid() < 0 ) return -1;
+
+    rc = check_user_perms( JID, "JOB.suspended" );
+    if ( rc == -2 )
+    {
+	eout( "no %s/JOB.suspended found, do nothing\n", JID );
+	return -1;
+    }
+    if ( rc < 0 ) { return -1; }
+
+    /* JOB.suspended found, and user permissions OK */
+
+    sprintf( file1, "%s/JOB.suspended", JID );
+    sprintf( file2, "%s/JOB", JID );
+
+    if ( ( fd = open( file1, O_WRONLY | O_APPEND ) ) < 0 )
+    {
+	eout( "can't open '%s' to append status line: %s\n", 
+	      file1, strerror(errno));
+	return -1;
+    }
+
+    time(&ti);
+    sprintf( buf, "Status %.40s", ctime(&ti) );
+    sprintf( &buf[strlen(buf)-1], " - reactivated by %.16s\n", real_user_name);
+
+    rc = strlen(buf);
+    if ( write( fd, buf, rc ) != rc )
+    {
+	eout( "can't write all %d bytes to '%s': %s\n",
+	       rc, file1, strerror(errno) );
+	close( fd );
+	return -1;
+    }
+    close( fd );
+
+    if ( rename( file1, file2 ) < 0 )
+    {
+	eout( "can't rename '%s' to '%s': %s\n", 
+	      file1, file2, strerror(errno) );
+	return -1;
+    }
+
+    sprintf( file1, "%s/JOB.locked", JID );
+
+    if ( unlink( file1 ) < 0 )
+    {
+	eout( "can't unlink '%s': %s\n", file1, strerror(errno) );
+    }
+
+    /* signal to faxrunqd that queue needs re-reading */
+    if ( ( fd = open( ".queue-changed", O_WRONLY | O_CREAT, 0644 ) ) < 0 )
+    {
+	eout( "can't create '.queue-changed' file: %s\n", strerror(errno));
+    }
+    else 
+	close(fd);
+
+    return 0;
 }
 
 int main( int argc, char ** argv )
