@@ -1,7 +1,7 @@
 #ifndef ___CONFIG_H
 #define ___CONFIG_H
 
-#ident "$Id: config.h,v 4.1 1997/01/12 14:53:36 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: config.h,v 4.2 1999/02/16 19:56:42 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* type definitions, prototypes, defines needed for configuration stuff
  */
@@ -54,7 +54,8 @@ void * conf_get_chat _PROTO(( char * line ));
 #ifdef __STDC__
 #define makepath( file, base ) ((file)[0] == '/'? (file) : (base"/"file))
 #else
-extern char * makepath _PROTO(( char * file, char * base ));
+#define makepath( file, base ) _makepath( file, base );
 #endif
+extern char * _makepath _PROTO(( char * file, char * base ));
 
 #endif			/* ___CONFIG_H */
