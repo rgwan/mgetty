@@ -1,4 +1,4 @@
-#ident "$Id: io.c,v 1.15 1994/03/01 01:11:41 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: io.c,v 1.16 1994/04/29 11:36:45 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* io.c
  *
@@ -18,8 +18,10 @@
 
 #ifdef USE_POLL
 # include <poll.h>
+# ifndef AIX
 int poll _PROTO(( struct pollfd fds[], unsigned long nfds, int timeout ));
-#endif
+# endif		/* AIX */
+#endif		/* USE_POLL */
 
 #ifdef USE_SELECT
 # include <string.h>
