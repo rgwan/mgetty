@@ -1,4 +1,4 @@
-#ident "$Id: utmp.c,v 1.22 1994/10/31 11:11:24 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: utmp.c,v 1.23 1994/11/01 20:56:59 gert Exp $ Copyright (c) Gert Doering"
 
 /* some parts of the code (writing of the utmp entry)
  * is based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
@@ -7,7 +7,11 @@
 
 #include "mgetty.h"
 
-#if !defined(sunos4) && !defined(BSD)
+#if defined(sunos4) || defined(BSD)
+
+#include <stdio.h>
+
+#else		/* !BSD */
 
 #include <stdio.h>
 #include <unistd.h>
@@ -28,6 +32,15 @@ typedef short pid_t;
 
 #include "mg_utmp.h"
 
+#ifndef UTMP_FILE
+# ifdef _PATH_UTMP
+#  define UTMP_FILE _PATH_UTMP		/* FreeBSD and NetBSD */
+# else
+#  define UTMP_FILE "/etc/utmp"		/* SunOS and NeXT */
+# endif
+#endif
+
+
 #if defined(sunos4) || defined(BSD) || defined(ultrix)
 /* on SunOS (and other BSD-derived systems), the getty process does *
  * not have to care for the utmp entries, login and init do all the work
@@ -46,24 +59,24 @@ void make_utmp_wtmp _P4( (line, ut_type, ut_user, ut_host),
 
 int get_current_users _P0(void)
 {
-struct utmp utmp;
-FILE *f;
-int Nusers;
+    struct utmp utmp;
+    FILE *fp;
+    int Nusers = 0;
 
-    Nusers = 0;
-    f = fopen(_PATH_UTMP, "r");
-    if (!f)
+    fp = fopen( UTMP_FILE, "r");
+    if ( fp == NULL )
     {
-    	lprintf(L_ERROR, "%s: %s", _PATH_UTMP, strerror(errno));
+    	lprintf(L_ERROR, "get_cu: %s", UTMP_FILE );
 	return 0;
     }
-    while (1) 
+
+    while ( fread( &utmp, sizeof(utmp), 1, fp ) == 1 )
     {
-    	if (fread(&utmp, sizeof utmp, 1, f) < 1) break;
-	if (utmp.ut_name[0] && utmp.ut_line[0])
+	if ( utmp.ut_name[0] != 0 && utmp.ut_line[0] != 0 )
 	    Nusers++;
     }
-    fclose(f);
+    fclose(fp);
+    
     return Nusers;
 }
 
@@ -140,10 +153,9 @@ FILE *	fp;
 
 int get_current_users _P0(void)
 {
-struct utmp * utmp;
-int Nusers;
+    struct utmp * utmp;
+    int Nusers = 0;
 
-    Nusers = 0;
     setutent();
     while ((utmp = getutent()) != (struct utmp *) NULL)
     {
@@ -154,6 +166,7 @@ int Nusers;
 	}
     }
     endutent();
+
     return Nusers;
 }
 #endif		/* !sunos4, !BSD, !ultrix */
