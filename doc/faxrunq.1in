@@ -43,6 +43,25 @@ Tells
 to be quiet, that is, suppress all status messages.  Error messages will
 still be printed.
 
+.SH FILES
+.TP
+.B @FAX_SPOOL_OUT@/stop
+if this file exists, 
+.I faxrunq 
+(and faxrunqd) will do nothing.  You can use this to stop queue processing
+while testing something, or if you know that the modem(s) are unavailable
+and do not want to run into oany error messages, etc.
+
+.TP
+.B @VARRUNDIR@/faxqueue_done
+Every time
+.I faxrunq
+(or faxrunqd) run the fax queue, a time stamp is written into that file.
+It is used by
+.I faxspool
+to display a warning if the queue hasn't been run recently (so faxes may
+get stuck).
+
 .SH CONFIGURATION FILE
 
 Some aspects of the behaviour of 
