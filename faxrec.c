@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 2.7 1995/04/26 16:06:14 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 2.8 1995/08/04 09:23:08 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -40,7 +40,7 @@ time_t	time _PROTO(( long * tloc ));
  * class 2 standard as implemented in the SupraFAX Faxmodem
  */
 
-void fax_notify_mail _PROTO(( int number_of_pages ));
+void fax_notify_mail _PROTO(( int number_of_pages, char * mail_to ));
 #ifdef FAX_NOTIFY_PROGRAM
 void fax_notify_program _PROTO(( int number_of_pages ));
 #endif
@@ -48,9 +48,9 @@ void faxpoll_send_pages _PROTO(( int fd, TIO * tio, char * pollfile));
 
 char * faxpoll_server_file = NULL;
 
-void faxrec _P5((spool_in, switchbd, uid, gid, mode),
+void faxrec _P6((spool_in, switchbd, uid, gid, mode, mail_to),
 		char * spool_in, unsigned int switchbd,
-		int uid, int gid, int mode )
+		int uid, int gid, int mode, char * mail_to)
 {
 int pagenum = 0;
 TIO tio;
@@ -109,7 +109,8 @@ extern  char * Device;
     lprintf( L_NOISE, "fax receiver: hangup & end" );
 
     /* send mail to MAIL_TO */
-    fax_notify_mail( pagenum );
+    if ( mail_to != NULL )
+        fax_notify_mail( pagenum, mail_to );
 
 #ifdef FAX_NOTIFY_PROGRAM
     /* notify program */
@@ -445,8 +446,8 @@ static const char start_rcv = DC2;
     return NOERROR;
 }
 
-void fax_notify_mail _P1( (pagenum),
-			  int pagenum )
+void fax_notify_mail _P2( (pagenum, mail_to),
+			  int pagenum, char * mail_to )
 {
 FILE  * pipe_fp;
 char  * file_name, * p;
@@ -454,9 +455,9 @@ char	buf[256];
 int	r;
 time_t	ti;
 
-    lprintf( L_NOISE, "fax_notify_mail: sending mail to: %s", MAIL_TO );
+    lprintf( L_NOISE, "fax_notify_mail: sending mail to: %s", mail_to );
 
-    sprintf( buf, "%s %s >/dev/null 2>&1", MAILER, MAIL_TO );
+    sprintf( buf, "%s %s >/dev/null 2>&1", MAILER, mail_to );
 
     pipe_fp = popen( buf, "w" );
     if ( pipe_fp == NULL )
@@ -468,7 +469,7 @@ time_t	ti;
 #ifdef NEED_MAIL_HEADERS
     fprintf( pipe_fp, "Subject: fax from %s\n", fax_remote_id[0] ?
 	               fax_remote_id: "(anonymous sender)" );
-    fprintf( pipe_fp, "To: %s\n", MAIL_TO );
+    fprintf( pipe_fp, "To: %s\n", mail_to );
     fprintf( pipe_fp, "From: root (Fax Getty)\n" );
     fprintf( pipe_fp, "\n" );
 #endif
