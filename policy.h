@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.64 1994/09/26 10:31:57 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.65 1994/10/24 18:27:27 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -534,5 +534,8 @@
 
 /* if this file exists, it can be used to control what callers
  * are allowed in.  If undefined, the functionality is omitted.
+ * It will work only if your modem supports it. Check the modem manual.
+ * For Rockwell-Based modems, add #CID=1 to MODEM_INIT_STRING, for
+ * ZyXELs use S40.2=1.
  */
 /* #define CNDFILE "/usr/local/lib/mgetty+sendfax/dialin.config" */
