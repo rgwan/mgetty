@@ -1,4 +1,4 @@
-#ident "$Id: mg_utmp.h,v 1.1 1994/03/08 15:46:51 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_utmp.h,v 1.2 1994/04/29 01:15:27 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* definitions for utmp reading / writing routines,
  * highly SysV / BSD dependent
@@ -14,6 +14,7 @@
 
 #else						 /* SunOS or generic BSD */
 
+#include <sys/types.h>
 #include <utmp.h>
 
 /* BSDish /etc/utmp files do not have the "ut_type" field */
