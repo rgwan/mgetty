@@ -4,9 +4,12 @@
 # 
 # Copyright 1998 Simone Demmel simone@greenie.net
 #
-# CVS: $Id: faxq-v.in,v 1.2 1998/09/04 15:17:50 gert Exp $
+# CVS: $Id: faxq-v.in,v 1.3 1998/10/07 13:06:49 gert Exp $
 #
 # $Log: faxq-v.in,v $
+# Revision 1.3  1998/10/07 13:06:49  gert
+# added (preliminary) config file
+#
 # Revision 1.2  1998/09/04 15:17:50  gert
 # scripts are now called .cgi
 #
@@ -19,8 +22,10 @@ print "Content-type: text/html\n\n";
 #
 # Variablen 
 #
-$outgoing = "@FAX_SPOOL_OUT@";
 $target = "";
+
+# read configuration file
+require "@CONFDIR@/wwwgui.conf";
 
 #
 # starting
@@ -62,7 +67,7 @@ $name = $args{name};
 # $name hat unsere Datei - sanity check first!!
 #
 
-if ( $name !~ /^F\d+$/ || ! chdir "$outgoing/$name" )
+if ( $name !~ /^F\d+$/ || ! chdir "$fax_outgoing/$name" )
 {
     print "<body><html><B>can't chdir to '$name': $!</B></body></html>";
     exit 0;
@@ -104,6 +109,9 @@ print <<EOF;
 <html><head><title>Details zu $name</title></head>
 <body bgcolor="white">
 
+$www_logo
+<h1 align="center">Faxmanager - Details zu Job $name</h1>
+<hr>
 <h2>Fax-Nummer: $phone</h2>
 
 <table>
