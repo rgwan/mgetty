@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.28 1998/07/16 09:26:26 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.29 1998/08/02 20:55:52 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -3865,6 +3865,8 @@ linux.nrao.edu:@file{/pub/src/mgetty/*}
 ftp.chem.tue.nl:@file{/pub/mgetty/*}
 
 http://linux.mit-lab.co.kr/mgetty/*
+
+ftp.uvt.ro:@file{/pub/mgetty/*}
 
 ... and on all sites that mirror SunSITE.unc.edu or tsx-11.
 
