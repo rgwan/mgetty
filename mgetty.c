@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.12 1993/03/11 17:23:38 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.13 1993/03/13 22:40:17 gert Exp $ (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -17,8 +17,8 @@
 #endif
 #ifdef linux
 #include <sys/time.h>
-#include <sys/ioctl.h>
 #endif
+#include <sys/ioctl.h>
 
 #include <sys/stat.h>
 #include <signal.h>
@@ -128,6 +128,8 @@ int main( int argc, char ** argv)
 	struct utmp *utmp;
 	struct stat st;
 	int Nusers;
+	int i;
+	short cspeed;
 
 	action_t	what_action;
 
@@ -163,10 +165,26 @@ int main( int argc, char ** argv)
 	/* process the command line
 	 */
 
-	while ((c = getopt(argc, argv, "x:")) != EOF) {
+	while ((c = getopt(argc, argv, "x:s:")) != EOF) {
 		switch (c) {
 		case 'x':
 			log_level = atoi(optarg);
+			break;
+		case 's':
+			cspeed = atoi(optarg);
+			for ( i = 0; speedtab[i].cbaud != 0; i++ )
+			{
+			    if ( speedtab[i].nspeed == cspeed )
+			    {
+				portspeed = speedtab[i].cbaud;
+				break;
+			    }
+			}
+			if ( speedtab[i].cbaud == 0 )
+			{
+			    lprintf( L_FATAL, "invalid port speed: %s", optarg);
+			    exit_usage(2);
+			}
 			break;
 		case '?':
 			exit_usage(2);
@@ -184,6 +202,9 @@ int main( int argc, char ** argv)
 		exit_usage(2);
 	}
 
+	/* remove leading /dev/ prefix */
+	if ( strcmp( Device, "/dev/" ) == 0 ) Device += 5;
+
 	/* need full name of the device */
 	sprintf(devname, "/dev/%s", Device);
 
@@ -193,7 +214,7 @@ int main( int argc, char ** argv)
 	lprintf(L_MESG, "check for lockfiles");
 
 	/* deal with the lockfiles; we don't want to charge
-	 * ahead if uucp, kermit or something is already
+	 * ahead if uucp, kermit or whatever else is already
 	 * using the line.
 	 */
 
@@ -294,7 +315,7 @@ int main( int argc, char ** argv)
 	termio.c_cflag = portspeed | CS8 | CREAD | HUPCL | CLOCAL |
                          RTSFLOW | CTSFLOW;
 #endif
-	termio.c_lflag = ISIG;		/* no echo for chat with modem! */
+	termio.c_lflag = 0;		/* echo off, signals off! */
 	termio.c_line = 0;
 	termio.c_cc[VMIN] = 1;
 	termio.c_cc[VTIME]= 0;
@@ -351,9 +372,9 @@ int main( int argc, char ** argv)
 	    close(2);
 
 	    /* this is kind of tricky: sometimes uucico dial-outs do still
-	       collide with mgetty. So, when uucico times out, I do
+	       collide with mgetty. So, when my uucico times out, I do
 	       *immediately* restart it. The double look makes sure that
-	       mgetty gives me *at least* 5 seconds to restart uucico */
+	       mgetty gives me at least 5 seconds to restart uucico */
 
 	    do {
 		    /* wait for lock to disappear */
@@ -376,7 +397,7 @@ int main( int argc, char ** argv)
 	if ( access( buf, F_OK ) == 0 )
 	{
 	    lprintf( L_MESG, "%s exists - do not accept call!", buf );
-	    clean_line( 80 );		/* wait for last ring */
+	    clean_line( 80 );		/* wait for ringing to stop */
 	    exit(1);
 	}
 
@@ -407,7 +428,7 @@ int main( int argc, char ** argv)
 
 	/* wait for line to clear (after "CONNECT" a baud rate may
            be sent by the modem, on a non-MNP-Modem the MNP-request
-           string sent by a calling MNP-Modem is discarded here, too */
+           string sent by a calling MNP-Modem is discarded here, too) */
 
 	clean_line(3);
 
@@ -417,6 +438,9 @@ int main( int argc, char ** argv)
 	(void) signal(SIGINT, rmlocks);
 	(void) signal(SIGQUIT, rmlocks);
 	(void) signal(SIGTERM, rmlocks);
+
+	/* make utmp entry (otherwise login won't work)
+	 */
 
 	pid = getpid();
 	while ((utmp = getutent()) != (struct utmp *) NULL) {
@@ -564,16 +588,9 @@ timeout()
 **	exit_usage() - exit with usage display
 */
 
-void
-exit_usage(code)
-int code;
+void exit_usage( int code )
 {
-	FILE *fp;
-
-	if ((fp = fopen(CONSOLE, "w")) != (FILE *) NULL) {
-		(void) fprintf(fp, "Usage: mgetty [-x debug] line\n");
-		(void) fclose(fp);
-	}
-	exit(code);
+    lprintf( L_FATAL, "Usage: mgetty [-x debug] [-s speed] line" );
+    exit(code);
 }
 
