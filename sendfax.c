@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.58 1994/05/14 16:50:27 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.59 1994/05/14 16:51:27 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* sendfax.c
  *
@@ -494,7 +494,7 @@ int	tries;
 	      fprintf( stderr, "WARNING: page bad (+FTPS:2), ignoring\n" );
 	      lprintf( L_WARN, "WARNING: +FPTS:2 ignored\n" );
 #else	      
-	      fprintf( stderr, "ERROR: page bad - retrain requested\n" );
+	      fprintf( stderr, "ERROR: RTN: page bad - retrain requested\n" );
 	      tries ++;	
 	      if ( tries >= FAX_SEND_MAX_TRIES )
 	      {
@@ -510,7 +510,7 @@ int	tries;
 	      }
 #endif	/* FAX_SEND_MAX_TRIES > 0 */
 	      break;
-	    case 3: fprintf( stderr, "WARNING: page good, but retrain requested\n" );
+	    case 3: fprintf( stderr, "WARNING: RTP: page good, but retrain requested\n" );
 		    break;
 	    case 4:
 	    case 5: fprintf( stderr, "WARNING: procedure interrupt requested - don't know how to handle it\n" );
