@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 1.15 1993/12/18 19:06:59 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 1.16 1994/01/03 02:52:56 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* faxlib.c
  *
@@ -13,6 +13,7 @@
 #include <signal.h>
 
 #include "mgetty.h"
+#include "policy.h"
 #include "fax_lib.h"
 
 char	fax_remote_id[1000];		/* remote FAX id +FTSI */
@@ -22,6 +23,7 @@ char	fax_hangup = 0;
 int	fax_hangup_code = 0;		/* hangup cause +FHNG:<xxx> */
 int	fax_page_tx_status = 0;		/* +FPTS:<ppm> */
 boolean	fax_to_poll = FALSE;		/* there's something to poll */
+boolean fax_poll_req = FALSE;		/* poll requested */
 
 static boolean fwf_timeout = FALSE;
 
@@ -117,7 +119,7 @@ int bufferp;
 	    lprintf( L_MESG, "connection hangup: '%s'", buffer );
 	    sscanf( &buffer[6], "%d", &fax_hangup_code );
 
-	    lprintf( L_NOISE,"(%s)", ferror( fax_hangup_code ));
+	    lprintf( L_NOISE,"(%s)", fax_strerror( fax_hangup_code ));
 
 	    if ( strcmp( s, "OK" ) != 0 ) break;
 	}
@@ -140,6 +142,22 @@ int bufferp;
 	    fax_to_poll = TRUE;
 	}
 
+	else if ( strncmp( buffer, "+FDTC:", 6 ) == 0 )
+	{
+	    /* we sent a +FLPL=1, and the other side wants to poll
+	     * that document now (send it with AT+FDT)
+	     */
+	    lprintf( L_MESG, "got +FLPL -> will send polled document" );
+	    fax_poll_req = TRUE;
+	    
+	    /* we're waiting for a CONNECT here, in response to a
+	     * AT+FDR command, but only an OK will come. So, change
+	     * expect string to "OK"
+	     */
+	    lprintf( L_MESG, "fax_wait_for('OK')" );
+	    s = "OK";
+	}
+	
 	else
 	if ( strcmp( buffer, "ERROR" ) == 0 ||
 	     strcmp( buffer, "NO CARRIER" ) == 0 ||
@@ -180,8 +198,10 @@ int fax_command _P3( (send, expect, fd),
     delay(FAX_COMMAND_DELAY);
 #endif
     lprintf( L_MESG, "fax_command: send '%s'", send );
+    
     if ( write( fd, send, strlen( send ) ) != strlen( send ) ||
-	 write( fd, "\r\n", 2 ) != 2 )
+	 write( fd, MODEM_CMD_SUFFIX, sizeof(MODEM_CMD_SUFFIX)-1 ) !=
+	        ( sizeof(MODEM_CMD_SUFFIX)-1 ) )
     {
 	lprintf( L_ERROR, "fax_command: cannot write" );
 	return ERROR;
