@@ -351,8 +351,6 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
 
 246) fix "RING/<msn>" handling for i4l
 
-247) change success-program/fail-program handling (pass sendfax exit code)
-
 248) include script to rotate/move log files on a regular basis
 
-250)
+250) move prototype for time() to mgetty.h, remove everywhere else
