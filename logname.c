@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 1.38 1994/05/14 16:52:50 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 1.39 1994/05/24 13:39:50 gert Exp $ Copyright (c) Gert Doering"
 ;
 #include <stdio.h>
 #include "syslibs.h"
@@ -324,8 +324,9 @@ int getlogname _P4( (prompt, tio, buf, maxsize),
 	}
 	else
 	{
-	    if ( i >= maxsize ||			/* buffer full */
-		 ( ch == ' ' && i == 0 ) )		/* or leading ' ' */
+	    if ( i >= maxsize ||			/* buffer full, */
+		 ( ch == ' ' && i == 0 ) || 		/* leading ' ' */
+		 ( ch == '-' && i == 0 ) )		/* or '-' */
 		fputs( "\b \b", stdout );		/* -> ignore */
 	    else
 		buf[i++] = ch;
