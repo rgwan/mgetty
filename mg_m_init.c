@@ -1,4 +1,4 @@
-#ident "$Id: mg_m_init.c,v 1.1 1994/04/27 00:26:13 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_m_init.c,v 1.2 1994/05/14 16:39:04 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mg_m_init.c - part of mgetty+sendfax
  *
@@ -6,12 +6,15 @@
  */
 
 #include <stdio.h>
-#ifndef _NOSTDLIB_H
-#include <stdlib.h>
-#endif
+#include "syslibs.h"
 #include <unistd.h>
+#include <fcntl.h>
 #include <string.h>
 #include <signal.h>
+
+#ifndef sun
+#include <sys/ioctl.h>
+#endif
 
 #include "mgetty.h"
 #include "tio.h"
@@ -48,24 +51,6 @@ static char *	init_chat_seq[] = { "",
 
 static int init_chat_timeout = 20;
 
-
-/* mini-chat: send command, wait for OK, return ERROR/NOERROR */
-
-int mi_command _P2( (fd, cmd), int fd, char * cmd )
-{
-    action_t what_action;
-    static char * chat[] = { "", NULL, "OK", NULL };
-    
-    chat[1] = cmd;
-    
-    if ( do_chat( fd, chat, init_chat_actions,
-		  &what_action, init_chat_timeout, TRUE ) == SUCCESS )
-    {
-	return SUCCESS;
-    }
-    return FAIL;
-}
-
 /* initialize data section */
 
 int mg_init_data _P1( (fd), int fd )
@@ -81,59 +66,79 @@ int mg_init_data _P1( (fd), int fd )
     return SUCCESS;
 }
 
+
+/* initialization stuff for fax */
+
 /* initialize fax section */
 
-int mg_init_fax _P2( (fd, fax_id), int fd, char * fax_id )
+int mg_init_fax _P3( (fd, mclass, fax_id),
+		      int fd, char * mclass, char * fax_id )
 {
-    static char flid[60];
-
     /* find out whether this beast is a fax modem... */
 
-    if ( mi_command( fd, "AT+FCLASS=2.0" ) == SUCCESS )
+    modem_type = fax_get_modem_type( fd, mclass );
+    
+    if ( modem_type == Mt_data )
     {
-	lprintf( L_MESG, "great! The modem can do Class 2.0 - but it's not yet supported :-( ");
-    }
-
-    if ( mi_command( fd, "AT+FCLASS=2" ) == FAIL )
-    {
-	lprintf( L_NOISE, "no class 2 faxmodem, no faxing available" );
+	lprintf( L_NOISE, "no class 2/2.0 faxmodem, no faxing available" );
 	return FAIL;
     }
-    else
+    
+    if ( modem_type == Mt_class2_0 )
+    {
+	lprintf( L_WARN, "WARNING: using preliminary class 2.0 code");
+
+	/* set adaptive answering, bit order, receiver on */
+	
+	if ( mdm_command( "AT+FAA=1;+FCR=1", fd ) == FAIL )
+	{
+	    lprintf( L_MESG, "cannot set reception flags" );
+	}
+	if ( fax_set_bor( fd, 1 ) == FAIL )
+	{
+	    lprintf( L_MESG, "cannot set bit order, trying +BOR=0" );
+	    fax_set_bor( fd, 0 );
+	}
+
+	/* report everything except NSF */
+	mdm_command( "AT+FNR=1,1,1,0", fd );
+    }
+
+    if ( modem_type == Mt_class2 )
     {
 	/* even if we know that it's a class 2 modem, set it to
 	 * +FCLASS=0: there are some weird modems out there that won't
 	 * properly auto-detect fax/data when in +FCLASS=2 mode...
 	 */
-	if ( mi_command( fd, "AT+FCLASS=0" ) == FAIL )
+	if ( mdm_command( "AT+FCLASS=0", fd ) == FAIL )
 	{
 	    lprintf( L_MESG, "weird: cannot set class 0" );
 	}
-    }
 
-    /* now, set various flags and modem settings. Failures are logged,
-       but ignored - after all, either the modem works or not, we'll see it
-       when answering the phone ... */
+	/* now, set various flags and modem settings. Failures are logged,
+	   but ignored - after all, either the modem works or not, we'll
+	   see it when answering the phone ... */
     
-    /* set adaptive answering, bit order, receiver on */
+	/* set adaptive answering, bit order, receiver on */
 
-    if ( mi_command( fd, "AT+FAA=1;+FBOR=0;+FCR=1" ) == FAIL )
-    {
-	lprintf( L_MESG, "cannot set reception flags" );
+	if ( mdm_command( "AT+FAA=1;+FCR=1", fd ) == FAIL )
+	{
+	    lprintf( L_MESG, "cannot set reception flags" );
+	}
+	if ( fax_set_bor( fd, 0 ) == FAIL )
+	{
+	    lprintf( L_MESG, "cannot set bit order. Huh?" );
+	}
     }
+
+    /* common part for class 2 and class 2.0 */
 
     /* local fax station id */
-
-    sprintf( flid, "AT+FLID=\"%.40s\"", fax_id );
-    if ( mi_command( fd, flid ) == FAIL )
-    {
-	lprintf( L_MESG, "cannot set local fax id. Huh?" );
-    }
+    fax_set_l_id( fd, fax_id );
 
     /* capabilities */
 
-    if ( mi_command( fd, "AT+FDCC=1,5,0,2,0,0,0,0" ) == FAIL &&
-	 mi_command( fd, "AT+FDCC=1,3,0,2,0,0,0,0" ) == FAIL )
+    if ( fax_set_fdcc( fd, 1, 14400, 0 ) == FAIL )
     {
 	lprintf( L_MESG, "huh? Cannot set +FDCC parameters" );
     }
@@ -154,13 +159,134 @@ void faxpoll_server_init _P2( (fd,f), int fd, char * f )
     {
 	lprintf( L_ERROR, "cannot access/read '%s'", f );
     }
-    else if ( mi_command( fd, "AT+FLPL=1" ) == FAIL )
+    else if ( mdm_command( modem_type == Mt_class2_0? "AT+FLP=1":"AT+FLPL=1",
+			   fd ) == FAIL)
     {
 	lprintf( L_WARN, "faxpoll_server_init: no polling available" );
     }
     else
     {
-	lprintf( L_NOISE, "faxpoll_server_init: waiting for poll" );
 	faxpoll_server_file = f;
+	lprintf( L_NOISE, "faxpoll_server_init: OK, waiting for poll" );
     }
 }
+
+
+/* open device (non-blocking / blocking) */
+int mg_open_device _P2 ( (devname, blocking),
+		         char * devname, boolean blocking )
+{
+    int fd;
+
+    if ( ! blocking )
+    {
+	fd = open(devname, O_RDWR | O_NDELAY);
+	if ( fd < 0 )
+	{
+	    lprintf( L_FATAL, "cannot open line" );
+	    return ERROR;
+	}
+
+	/* unset O_NDELAY (otherwise waiting for characters */
+	/* would be "busy waiting", eating up all cpu) */
+	
+	fcntl( fd, F_SETFL, O_RDWR);
+    }
+    else		/* blocking open */
+    {
+	fd = open( devname, O_RDWR );
+	if ( fd < 0)
+	{
+	    lprintf( L_FATAL, "cannot open line" );
+	    return ERROR;
+	}
+    }
+
+    /* make new fd == stdin if it isn't already */
+
+    if (fd > 0)
+    {
+	(void) close(0);
+	if (dup(fd) != 0)
+	{
+	    lprintf( L_FATAL, "cannot open stdin" );
+	    return ERROR;
+	}
+    }
+
+    /* make stdout and stderr, too */
+
+    (void) close(1);
+    (void) close(2);
+    
+    if (dup(0) != 1)
+    {
+	lprintf( L_FATAL, "cannot open stdout"); return ERROR;
+    }
+    if (dup(0) != 2)
+    {
+	lprintf( L_FATAL, "cannot open stderr"); return ERROR;
+    }
+
+    if ( fd > 2 ) (void) close(fd);
+
+    /* switch off stdio buffering */
+
+    setbuf(stdin, (char *) NULL);
+    setbuf(stdout, (char *) NULL);
+    setbuf(stderr, (char *) NULL);
+
+    return NOERROR;
+}
+
+/* init device: toggle DTR (if requested), set TIO values */
+
+int mg_init_device _P4( (fd, toggle_dtr, toggle_dtr_waittime, speed ),
+		       int fd,
+		       boolean toggle_dtr, int toggle_dtr_waittime,
+		       unsigned short portspeed )
+{
+    TIO tio;
+    
+    if (toggle_dtr)
+    {
+	lprintf( L_MESG, "lowering DTR to reset Modem" );
+	tio_toggle_dtr( fd, toggle_dtr_waittime );
+    }
+
+#if ( defined(__bsdi__) || defined(BSD) ) && defined( TIOCSCTTY )
+    /* get it as controlling tty - only on BSD systems */
+
+    if ( setsid() == -1 ||
+	 ioctl( fd, TIOCSCTTY, NULL ) != 0 )
+	     lprintf( L_ERROR, "cannot set controlling tty!" );
+#endif
+
+    /* initialize port */
+	
+    if ( tio_get( fd, &tio ) == ERROR )
+    {
+	lprintf( L_FATAL, "cannot get TIO" );
+	return ERROR;
+    }
+    
+    tio_mode_sane( &tio, TRUE );	/* initialize all flags */
+    tio_set_speed( &tio, portspeed );	/* set bit rate */
+    tio_default_cc( &tio );		/* init c_cc[] array */
+    tio_mode_raw( &tio );
+
+#ifdef sun
+    /* SunOS does not rx with RTSCTS unless carrier present */
+    tio_set_flow_control( STDIN, &tio, (DATA_FLOW) & (FLOW_SOFT) );
+#else
+    tio_set_flow_control( STDIN, &tio, DATA_FLOW );
+#endif
+    
+    if ( tio_set( STDIN, &tio ) == ERROR )
+    {
+	lprintf( L_FATAL, "cannot set TIO" );
+	return ERROR;
+    }
+    return NOERROR;
+}
+    
