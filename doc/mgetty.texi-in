@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.22 1998/06/09 21:44:43 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.23 1998/06/17 13:39:17 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -3246,11 +3246,12 @@ original getty on the corresponding @file{/dev/tty*} line.
 @subsection IBM's AIX Operating System
 
 Chris Lewis, Harald Milz and Michael Staats have done excellent work on
-porting @code{mgetty} to AIX. I think that some problems may still remain,
-but as far as I know, it works now.
+porting @code{mgetty} to AIX.   Since then, I have taken over and actively 
+use mgetty+sendfax on AIX for customer systems, and everything is very
+well tested now.
 
-On AIX it's not allowed to manipulate @file{/etc/inittab} directly,
-instead, you've got to use some system administration tools. To ease
+On AIX, many people do not want to manipulate @file{/etc/inittab} directly,
+instead,  use some system administration tools (like 'smit'). To ease
 @code{mgetty} installation on AIX, Michael Staats has provided a small
 shell script, @code{inittab.aix}, that will help you setup your
 @file{inittab} after you've run @code{make install}. Just call it with the
@@ -3264,7 +3265,7 @@ messages. If that happens to you, set @code{toggle-dtr no} in
 @file{mgetty.config}. AIX 4.1 doesn't seem to like programs that fiddle
 with the modem control lines.
 
-Christoph Brinck (100743.3537@@CompuServe.COM) has also reported that it's
+Christoph Brinck (cb@@medat.de) has also reported that it's
 necessary to enable the ``dtropen line discipline'' for the serial line
 you're using (whatever that may mean). This is done with the command:
 
@@ -3273,7 +3274,10 @@ chdev -l 'tty1' -a flow_disp='rts'
 chdev -l 'tty1' -a open_disp='dtropen'
 @end example
 
-or via the @samp{chgtty} part of @code{SMIT}.
+or via the @samp{chgtty} part of @code{SMIT} (but I think that's the
+default setting for new ttys anyway).
+
+Hardware and Software flow control work fine on AIX 3.x and AIX 4.x now.
 
 @node SunOS, Solaris2, AIX, Systems
 @subsection SunOS 4.1.1 and up
