@@ -1,4 +1,4 @@
-#ident "$Id: faxq-helper.c,v 4.1 2002/11/14 16:14:31 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxq-helper.c,v 4.2 2002/11/14 22:51:24 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxq-helper.c
  *
@@ -10,6 +10,8 @@
  *
  * faxq-helper new
  *       return a new job ID (F000123) and create "$OUT/.inF000123/" directory
+ *       TODO: user permission check
+ *       TODO: check for existance of $FAX_SPOOL_OUT
  *
  * faxq-helper activate $ID
  *       chown/chmod $OUT/.inF000134/ directory to user "fax"
@@ -29,6 +31,9 @@
  *       check that $OUT/$ID/ exists and belongs to the calling user
  *       move $JOB.error to $JOB to reactivate job
  *       touch $queue_changed
+ *
+ * Note: right now, this needs an ANSI C compiler, and might not be 
+ *       as portable as the remaining mgetty code.  Send diffs :-)
  */
 
 #include <stdio.h>
@@ -39,19 +44,38 @@
 #include <string.h>
 #include <pwd.h>
 #include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
+#include <stdarg.h>
 
 /* globals used by all the routines */
 char * program_name;
 int    real_user_id;		/* numeric user ID of caller */
 char * real_user_name;		/* user name of caller */
 
+int    fax_out_uid = 5;		/* TODO!!! */
+
 #define FAX_SEQ_FILE	".Sequence"
 #define FAX_SEQ_LOCK	"LCK..seq"
 
-void error_out( char * string )
+#define MAXJIDLEN	20	/* maximum length of acceptable job ID */
+
+void error_and_exit( char * string )
 {
     fprintf( stderr, "%s: %s\n", program_name, string );
     exit(1);
+}
+
+/* generic error messager - just to increase readability of the code below
+ */
+void eout(const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    fprintf( stderr, "%s: ", program_name );
+    vfprintf( stderr, fmt, ap);
+    va_end(ap);
 }
 
 /* validate format of job id: "Fnnnnnnn" 
@@ -67,8 +91,9 @@ int validate_job_id( char * JobID )
 	if ( ! isdigit( *p ) ) ok = 0;
 	p++;
     }
-    if ( ! ok )
-	fprintf( stderr, "%s: invalid JobID: '%s'\n", program_name, JobID );
+    if ( strlen( JobID ) > MAXJIDLEN ) ok = 0;
+
+    if ( ! ok ) eout( "invalid JobID: '%s'\n", JobID );
 
     return ok;
 }
@@ -94,25 +119,22 @@ again:
 	{
 	    if ( ++try < 3 )
 	    {
-		fprintf( stderr, "%s: sequence file locked (try %d)...\n",
-			    program_name, try );
+		eout( "sequence file locked (try %d)...\n", try );
 		sleep( rand()%3 +1 );
 		goto again;
 	    }
-	    fprintf( stderr, "%s: can't lock sequence file, give up\n",
-			program_name );
+	    eout( "can't lock sequence file, give up\n" );
 	    return -1;
 	}
 
 	if ( errno == ENOENT )		/* sequence file does not exist */
 	{
-	    fprintf( stderr, "%s: sequence file does not exist, creating...\n",
-	    		program_name );
+	    eout( "sequence file does not exist, creating...\n" );
 	    fd = creat( FAX_SEQ_FILE, 0644 );
 	    if ( fd < 0 )
 	    {
-		fprintf( stderr, "%s: can't create sequence file '%s': %s\n",
-			program_name, FAX_SEQ_FILE, strerror(errno) );
+		eout( "can't create sequence file '%s': %s\n",
+		      FAX_SEQ_FILE, strerror(errno) );
 		return -1;
 	    }
 	    write( fd, "000000\n", 7 );
@@ -120,8 +142,7 @@ again:
 	    goto again;
 	}
 
-	fprintf( stderr, "%s: can't lock sequence file: %s\n",
-			program_name, strerror(errno) );
+	eout( "can't lock sequence file: %s\n", strerror(errno) );
 	return -1;
     }
 
@@ -129,8 +150,8 @@ again:
     fd = open( FAX_SEQ_FILE, O_RDWR );
     if ( fd < 0 )
     {
-	fprintf( stderr, "%s: can't open '%s' read/write: %s\n",
-			program_name, FAX_SEQ_FILE, strerror(errno) );
+	eout( "can't open '%s' read/write: %s\n", 
+              FAX_SEQ_FILE, strerror(errno) );
 	goto unlock_and_out;
     }
 
@@ -139,8 +160,7 @@ again:
 
     if ( l < 0 || l >= sizeof(buf)-1 || ! isdigit( buf[0] ) )
     {
-	fprintf( stderr, "%s: sequence file '%s' corrupt\n",
-			program_name, FAX_SEQ_FILE );
+	eout( "sequence file '%s' corrupt\n", FAX_SEQ_FILE );
 	goto close_and_out;
     }
 
@@ -149,16 +169,15 @@ again:
 
     if ( lseek( fd, 0, SEEK_SET ) != 0 )
     {
-	fprintf( stderr, "%s: can't rewind sequence file: %s\n",
-			program_name, strerror(errno) );
+	eout( "can't rewind sequence file: %s\n", strerror(errno) );
 	goto close_and_out;
     }
 
     l = strlen(buf);
     if ( write( fd, buf, l ) != l )
     {
-	fprintf( stderr, "%s: can't write all %d bytes to %s: %s\n",
-			program_name, l, FAX_SEQ_FILE, strerror(errno) );
+	eout( "can't write all %d bytes to %s: %s\n", 
+              l, FAX_SEQ_FILE, strerror(errno) );
     }
 
 close_and_out:
@@ -170,7 +189,7 @@ unlock_and_out:
 }
 
 /* create a new job
- *   - get sequence number, write new sequence number file
+ *   - get next sequence number
  *   - create directory (prefixed with ".in")
  *   - chown directory to real user (euid)
  *   - print job ID to stdout
@@ -189,15 +208,14 @@ char dirbuf[100];
 
     if ( mkdir(dirbuf, 0700) < 0 )
     {
-	fprintf( stderr, "%s: can't create directory '%s': %s\n", 
-		    program_name, dirbuf, strerror(errno) );
+	eout( "can't create directory '%s': %s\n", dirbuf, strerror(errno) );
 	return -1;
     }
 
     if ( chown(dirbuf, real_user_id, 0) < 0 )
     {
-	fprintf( stderr, "%s: can't chown '%s' to uid %d: %s\n",
-		    program_name, dirbuf, real_user_id, strerror(errno) );
+	eout( "can't chown '%s' to uid %d: %s\n", 
+              dirbuf, real_user_id, strerror(errno) );
 	rmdir( dirbuf );
 	return -1;
     }
@@ -207,48 +225,197 @@ char dirbuf[100];
     return 0;
 }
 
+/* remove a complete directory hierarchy
+ */
+void remove_broken_dir( char * directory )
+{
+    error_and_exit( "not implemented" );
+}
+
+/* make sure that all path names in the following list (separated by
+ * whitespace) are local to this directory, exist, and are regular files
+ */
+int do_sanitize_page_files( char * dir, char * filelist )
+{
+char * p, tmp[300];
+struct stat stb;
+int n=0;
+
+    p = strtok( filelist, " \t\n" );
+
+    while( p != NULL )
+    {
+	if ( strchr( p, '/' ) != NULL )
+	{
+	    eout( "non-local file name: '%s', abort\n", p ); return -1;
+	}
+
+	if ( strlen( dir ) + strlen( p ) + 3 >= sizeof(tmp) )
+	{
+	    eout( "file name '%s' too long, abort\n", p );
+	}
+	sprintf( tmp, "%s/%s", dir, p );
+
+	if ( lstat( tmp, &stb ) < 0 )
+	{
+	    eout( "can't stat file '%s': %s\n", tmp, strerror(errno) );
+	    return -1;
+	}
+
+	if ( !S_ISREG( stb.st_mode ) )
+	{
+	    eout( "'%s' is not a regular file, abort\n", tmp ); return -1;
+	}
+
+	n++;
+	p = strtok( NULL, " \t\n" );
+    }
+
+    return n;
+}
+
+/* Activate "pending" fax job
+ *
+ */
 int do_activate( char * JID )
 {
-    error_out( "not implemented" );
+struct stat stb;
+char dir1[MAXJIDLEN+10];
+char buf[1000], *p;
+int fd;
+
+    sprintf( dir1, ".in%s", JID );
+    if ( stat( dir1, &stb ) < 0 )
+    {
+	eout( "can't stat '%s': %s\n", dir1, strerror(errno) );
+	return -1;
+    }
+    if ( !S_ISDIR( stb.st_mode ) )
+    {
+	eout( "%s is no directory!\n", dir1 );
+	return -1;
+    }
+    if ( stb.st_uid != real_user_id )
+    {
+	eout( "job directory '%s' belongs to user %d\n", dir1, stb.st_uid );
+	return -1;
+    }
+
+    if ( chown( dir1, fax_out_uid, 0 ) < 0 ||
+         chmod( dir1, 0755 ) < 0 )
+    {
+	eout( "chown/chmod '%s' failed: %s\n", dir1, strerror(errno) );
+	return -1;
+    }
+
+    sprintf( buf, "%s/JOB", dir1 );
+
+/* TODO: check if this catches symlinks to non-existant files! */
+    if ( ( fd = open( buf, O_WRONLY | O_CREAT | O_EXCL, 0644 ) ) < 0 )
+    {
+	eout( "can't create JOB file '%s': %s\n", buf, strerror(errno) );
+	remove_broken_dir(dir1);
+	return -1;
+    }
+
+    /* new JOB file has to belong to fax user, too */
+    if ( chown( buf, fax_out_uid, 0 ) < 0 )
+    {
+	eout( "can't chown '%s' to uid %d: %s\n", 
+	      buf, fax_out_uid, strerror(errno) );
+	close(fd);
+	remove_broken_dir(dir1);
+	return -1;
+    }
+
+    /* read queue metadata from stdin, sanitize, write to JOB fd */
+    while( ( p = fgets( buf, sizeof(buf)-1, stdin ) ) != NULL )
+    {
+	int l = strlen(buf);
+
+	if ( l >= sizeof(buf)-2 )
+	{
+	    eout( "input line too long\n" ); break;
+	}
+
+	if ( write( fd, buf, l ) != l )
+	{
+	    eout( "can't write line to JOB file: %s\n", strerror(errno) );
+	    break;
+	}
+
+	if ( l>0 && buf[l-1] == '\n' ) buf[--l]='\0';
+
+	if ( strncmp(buf, "user ", 5) == 0 )
+	{
+	    if ( strcmp( buf+5, real_user_name ) != 0 )
+	    {
+		eout( "user name mismatch: %s <-> %s\n", buf+5, real_user_name );
+		break;
+	    }
+	}
+	if ( strncmp(buf, "pages", 5 ) == 0 &&
+	     do_sanitize_page_files( dir1, buf+5 ) < 0 )
+	{
+	    eout( "bad input files specified\n" );
+	    break;
+	}
+    }
+
+    close(fd);
+    if ( p != NULL )	/* loop aborted */
+    {
+	remove_broken_dir(dir1); return -1;
+    }
+
+    /* now move directory in final place */
+    if ( rename( dir1, JID ) < 0 )
+    {
+	eout( "can't rename '%s' to '%s': %s\n", dir1, JID, strerror(errno));
+	remove_broken_dir(dir1); return -1;
+    }
+
+    return 0;
 }
+
+
 int do_remove( char * JID )
 {
-    error_out( "not implemented" );
+    error_and_exit( "not implemented" );
 }
 int do_requeue( char * JID )
 {
-    error_out( "not implemented" );
+    error_and_exit( "not implemented" );
 }
 
 int main( int argc, char ** argv )
 {
     struct passwd * pw; 		/* for user name */
 
-    program_name = argv[0];
+    program_name = strrchr( argv[0], '/' );
+    if ( program_name == NULL ) program_name = argv[0];
 
     if ( argc < 2 )
-	{ error_out( "keyword missing" ); }
+	{ error_and_exit( "keyword missing" ); }
 
     /* common things to check and prepare */
     if ( chdir( FAX_SPOOL_OUT ) < 0 )
     {   
-	fprintf( stderr, "%s: can't chdir to %s: %s\n",
-		 program_name, FAX_SPOOL_OUT, strerror(errno) );
+	eout( "can't chdir to %s: %s\n", FAX_SPOOL_OUT, strerror(errno) );
 	exit(2);
     }
 
     /* effective user ID is root, real user ID is still the caller's */
     if ( geteuid() != 0 )
     {
-	fprintf( stderr, "%s: must be set-uid root\n", program_name );
+	eout( "must be set-uid root\n" );
 	exit(3);
     }
     real_user_id = getuid();
     pw = getpwuid( real_user_id );
     if ( pw == NULL || pw->pw_name == NULL )
     {
-	fprintf( stderr, "%s: you don't exist, go away (uid=%d)!\n",
-		 program_name, real_user_id );
+	eout( "you don't exist, go away (uid=%d)!\n", real_user_id );
 	exit(3);
     }
     real_user_name = pw->pw_name;
@@ -278,6 +445,6 @@ int main( int argc, char ** argv )
 	}
     }
 
-    error_out( "invalid keyword or wrong number of parameters" );
+    error_and_exit( "invalid keyword or wrong number of parameters" );
     return 0;
 }
