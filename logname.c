@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 1.19 1993/11/23 17:47:23 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: logname.c,v 1.20 1993/11/26 22:19:37 gert Exp $ Copyright (c) Gert Doering";
 #include <stdio.h>
 #ifndef _NOSTDLIB_H
 #include <stdlib.h>
@@ -218,6 +218,10 @@ char * final_prompt;
 #endif
 
 newlogin:
+#ifdef FIDO
+    printf( "**EMSI_REQA77E\r              \r" );
+#endif
+
     printf( "\r\n%s ", final_prompt );
 
     i = 0;
@@ -229,6 +233,17 @@ newlogin:
 	     if ( errno != EINTR || timeouts != 1 ) exit(0);	/* HUP / ctrl-D */
 	     ch = CKILL;		/* timeout (1) -> clear input */
 	}
+
+#ifdef FIDO
+	if ( ch == (char) TSYNC )
+	{
+	    strcpy( buf, "\377tsync" ); i=6; ch='\r'; 
+	}
+	else if ( ch == (char) YOOHOO )
+	{
+	    strcpy( buf, "\377yoohoo" ); i=7; ch='\r';
+	}
+#endif
 
 	ch = ch & 0x7f;					/* strip to 7 bit */
 	lputc( L_NOISE, ch );				/* logging */
@@ -259,10 +274,31 @@ newlogin:
 		buf[i++] = ch;
 	    else
 		fputs( "\b \b", stdout );
+#ifdef FIDO
+	    if ( i >= 10 && strncmp( &buf[i-10], "**EMSI_INQ", 10 ) == 0 )
+	    {
+		strcpy( buf, "\377**EMSI_INQ" ); i=11; break;
+	    }
+#endif
 	}
     }
     while ( ch != '\n' && ch != '\r' );
 
+#ifdef FIDO
+    if ( strncmp( buf, "\377**EMSI_INQ", 11 ) == 0 )
+    {				/* read up to final \r */
+	while ( ch != '\r' )
+	{
+	    if ( read( STDIN, &ch, 1 ) != 1 )
+	    {
+		lprintf( L_ERROR, "logname/FIDO: read error" );
+		exit(0);
+	    }
+	    if ( i < maxsize) buf[i++] = ch;
+	}
+    }
+#endif
+	
     alarm(0);
     free( final_prompt );
 
