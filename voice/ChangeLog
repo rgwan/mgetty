@@ -1,7 +1,10 @@
 Sat Jul 22 11:17:13 2000  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 
-	* All of below is 0.9.11
+	* All of below is 0.9.12 (there was no 0.9.11).
 
+	* Added hints in contrib/K_C_Yuen-Zoom-2949L-Hints for
+        the 2949L modem setup.
+ 
 	* Implemented ringback in Elsa.c, requested by Martin
  	Haefele <mhaefe@correo.e-technik.uni-ulm.de>.
 
@@ -38,7 +41,11 @@ Sun Jun 11 12:56:41 2000  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 
 	* Added support for ZyXEL Omni 56k, submitted by 
 	<const@ce.cctpu.edu.ru>. Also patch for libvoice/write.c
-	from same author I haven't yet understood the reason for.
+	from same author with this explanation:
+	    We add small delays if we cannot write to the modem when
+	    its input buffer is full, also when the OS returns EAGAIN.
+	    This will fix some buffer underruns reported by the voice
+	    modem.
         I haven't applied the faxlib patch (this is for gert to
 	apply). This however includes Russian Caller-ID for ZyXEL Omni 56k.
 
