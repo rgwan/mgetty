@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 3.15 1996/10/21 11:05:57 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 3.16 1996/10/21 11:49:26 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -541,17 +541,20 @@ extern  char * Device;
 
     /* list the spooled fax files (jcp/gd) */
 
-    fprintf( pipe_fp, "\nSpooled G3 fax files:\n\n" );
-
-    p = file_name = fax_file_names;
-    
-    while ( p != NULL )
+    if ( pagenum != 0 )
     {
-	p = strchr( file_name, ' ' );
-	if ( p != NULL ) *p = 0;
-	fprintf( pipe_fp, "  %s\n", file_name );
-	if ( p != NULL ) *p = ' ';
-	file_name = p+1;
+	fprintf( pipe_fp, "\nSpooled G3 fax files:\n\n" );
+
+	p = file_name = fax_file_names;
+    
+	while ( p != NULL )
+	{
+	    p = strchr( file_name, ' ' );
+	    if ( p != NULL ) *p = 0;
+	    fprintf( pipe_fp, "  %s\n", file_name );
+	    if ( p != NULL ) *p = ' ';
+	    file_name = p+1;
+	}
     }
 
     fprintf( pipe_fp, "\n\nregards, your modem subsystem.\n" );
