@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.14 1993/06/02 14:11:13 gert Exp $ (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.15 1993/06/04 20:48:41 gert Exp $ (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -45,7 +45,14 @@ int	fd;
 
     if ( verbose ) printf( "Trying fax device '/dev/%s'... ", fax_tty );
 
-    sprintf( lock = lockname, LOCK, fax_tty );
+#ifdef SVR4
+    if(!(lock=get_lock_name( lockname, fax_tty))){
+      return -1;
+    }
+#else
+      sprintf( lock = lockname, LOCK, fax_tty );
+#endif
+
     if ( makelock( lock ) != SUCCESS )
     {
 	if ( verbose ) printf( "locked!\n" );
@@ -59,6 +66,7 @@ int	fd;
     {
 	lprintf( L_ERROR, "error opening %s", device );
 	if ( verbose ) printf( "cannot open!\n" );
+	rmlocks();
 	return fd;
     }
 
@@ -70,6 +78,7 @@ int	fd;
 	lprintf( L_ERROR, "error in fcntl" );
 	close( fd );
 	if ( verbose ) printf( "cannot fcntl!\n" );
+	rmlocks();
 	return -1;
     }
 
@@ -96,6 +105,7 @@ int	fd;
 	lprintf( L_ERROR, "error in ioctl" );
 	close( fd );
 	if ( verbose ) printf( "cannot ioctl!\n" );
+	rmlocks();
 	return -1;
     }
 
@@ -129,8 +139,6 @@ int fd;
 	fd = fax_open_device( fax_tty );
 	if ( p != NULL ) *p = ':';
 	fax_tty = p+1;
-
-	if ( fd == -1 ) rmlocks();
     }
     while ( p != NULL && fd == -1 );
     return fd;
@@ -395,7 +403,7 @@ char	poll_directory[MAXPATH] = ".";		/* FIXME: parameter */
 
     /* set modem to hardware handshake (AT&H3), dial out
      */
-    if ( verbose ) printf( "Dialing %s... ", fac_tel_no );
+    if ( verbose ) { printf( "Dialing %s... ", fac_tel_no ); fflush(stdout); }
 
     sprintf( buf, "AT&H3D%s", fac_tel_no );
     if ( fax_command( buf, "OK", fd ) == ERROR )
