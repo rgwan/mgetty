@@ -3,7 +3,7 @@
  *
  * autodetect the modemtype we are connected to.
  *
- * $Id: detect.c,v 1.22 2000/08/14 13:57:26 gert Exp $
+ * $Id: detect.c,v 1.23 2000/08/14 14:34:49 gert Exp $
  *
  */
 
@@ -252,14 +252,11 @@ int voice_detect_modemtype(void)
 
                s = buffer + strlen(buffer) - 1;
 
-               while ((s >= buffer) && ((*s == ' ') || (*s == '\t')))
+               while ((s >= buffer) && isspace(*s) )
                     *s-- = '\0';
 
                s = buffer;
-
-               for (s = buffer; ((s <= buffer + strlen(buffer) - 1) &&
-                ((*s == ' ') || (*s == '\t'))); s++)
-                    ;
+	       while( isspace(*s) ) s++;
 
                for (i = 0; ((modem_database[i].at_cmnd != NULL) &&
                 (voice_modem == &no_modem)); i++)
