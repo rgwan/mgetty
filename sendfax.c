@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.7 1993/04/05 01:19:55 gert Exp $ (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.8 1993/04/19 20:45:19 gert Exp $ (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -407,20 +407,19 @@ char	poll_directory[MAXPATH] = ".";		/* FIXME: parameter */
 
     if ( fax_poll_req )
     {
-    int pagenum;
+    int pagenum = 0;
 
 	if ( ! fax_to_poll )
 	{
 	    printf( "remote does not have document to poll!\n" );
 	}
-
-	/* FIXME: this should go to an else branch */
-	/* try anyway - The ZyXEL seems to never send a +FPOLL */
-
-	if ( fax_get_pages( fd, &pagenum, poll_directory ) == ERROR )
+	else
 	{
-	    fprintf( stderr, "warning: polling failed!" );
-	    lprintf( L_WARN, "warning: polling failed!" );
+	    if ( fax_get_pages( fd, &pagenum, poll_directory ) == ERROR )
+	    {
+		fprintf( stderr, "warning: polling failed\n" );
+		lprintf( L_WARN, "warning: polling failed!" );
+	    }
 	}
 	printf( "%d pages successfully polled!\n", pagenum );
     }
