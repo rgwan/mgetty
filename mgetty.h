@@ -1,4 +1,7 @@
-#ident "$Id: mgetty.h,v 2.5 1995/04/06 12:54:05 gert Exp $ Copyright (c) Gert Doering"
+#ifndef ___MGETTY_H
+#define ___MGETTY_H
+
+#ident "$Id: mgetty.h,v 2.6 1995/04/16 22:55:35 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -221,3 +224,5 @@ extern char *	optarg;
     typedef ushort uid_t;
     typedef ushort gid_t;
 #endif
+
+#endif			/* ___MGETTY_H */
