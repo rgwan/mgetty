@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 2.2 1994/09/21 22:25:23 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 2.3 1994/09/22 00:04:21 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -259,6 +259,15 @@ do
         -n) normal_res=true ; shift
             $echo "warning: normal resolution not implemented yet" >&2 
             ;;
+# set cover page program to use
+	-C) case "$2" in
+	    '') $echo "$usage" >&2 ; exit 2 ;;
+	    "-") MAKE_COVER_PG="" ;;
+	    /*) MAKE_COVER_PG="$2" ;;
+	    *) MAKE_COVER_PG=`pwd`/"$2" ;;
+	    esac
+	    shift ; shift
+	    ;;
 # set verbose destination address
         -D) case "$2" in
 	    '') $echo "$usage" >&2 ; exit 2 ;;
@@ -618,9 +627,9 @@ maxnr=`ls | wc -l | tr -d " "`
 #
 # generate cover page
 #
-if [ -x $MAKE_COVER_PG ]
+if [ -x "$MAKE_COVER_PG" ]
 then
-    $echo "Generating cover page..."
+    $echo "\nGenerating cover page..."
     maxnr=`expr $maxnr + 1`
     $MAKE_COVER_PG $maxnr "$FAX_STATION_ID" "$FULLNAME" \
 	"$phone" "$verbose_to" "`date +%D`" "`date +%T`" >cover.g3
@@ -670,4 +679,16 @@ $echo "pages " $finalpg >>$job.q
 
 mv $job.q $job
 
-$echo "\nFax queued successfully. It will be sent the next time ``faxrunq'' runs.\n"
+if [ -z "`find $FAX_SPOOL_OUT/.last_run -ctime -1 -print 2>/dev/null`" ]
+then
+    cat <<HERE
+
+Fax queued successfully.
+
+WARNING: faxrunq hasn't been run in the last 24 hours.
+         Faxes only get sent out when faxrunq runs! Contact Fax administrator.
+
+HERE
+else
+    $echo "\nFax queued successfully. Will be sent at next \`\`faxrunq'' run.\n"
+fi
