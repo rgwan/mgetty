@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 3.5 1996/04/05 19:12:21 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 3.6 1996/05/26 11:30:32 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -84,6 +84,7 @@ int  ix;
 	if ( line == NULL )
 	{
 	    alarm( 0 ); signal( SIGALRM, SIG_DFL );
+	    if ( fwf_timeout ) fax_hangup_code = FHUP_TIMEOUT;
 	    return ERROR;
 	}
 	
