@@ -1,4 +1,4 @@
-#ident "$Id: tio.h,v 1.15 1994/03/13 00:40:31 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.h,v 1.16 1994/04/18 15:56:07 gert Exp $ Copyright (c) 1993 Gert Doering"
 ;
 #ifndef __TIO_H__
 #define __TIO_H__
@@ -143,6 +143,7 @@ void tio_mode_cbreak _PROTO (( TIO *t ));
 void tio_mode_sane   _PROTO (( TIO *t, int set_clocal_flag ));
 void tio_default_cc  _PROTO (( TIO *t ));
 void tio_map_cr      _PROTO (( TIO *t, int perform_crnl_mapping ));
+void tio_map_uclc    _PROTO (( TIO *t, int perform_case_mapping ));
 int  tio_set_flow_control  _PROTO(( int fd, TIO *t, int flowctrl_type ));
 int  tio_set_flow_control2 _PROTO(( int fd, int flowctrl_type ));
 void tio_carrier     _PROTO (( TIO *t, int carrier_sensitive ));
