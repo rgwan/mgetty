@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 3.7 1996/01/25 19:15:42 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 3.8 1996/02/03 22:19:01 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -19,12 +19,7 @@
 #include <sys/stat.h>
 #include <signal.h>
 
-#ifdef VOICE
- extern char * mgetty_version;		/* voice_config.c */
-#else
-# include "version.h"
-#endif
-
+#include "version.h"
 #include "mgetty.h"
 #include "policy.h"
 #include "tio.h"
@@ -35,7 +30,7 @@
 #include "conf_mg.h"
 
 #ifdef VOICE
-#include "voice/voice.h"
+#include "voice/include/voice.h"
 #endif
 
 #ifdef DIST_RING
