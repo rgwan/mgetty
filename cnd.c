@@ -1,4 +1,4 @@
-#ident "@(#)cnd.c	$Id: cnd.c,v 1.2 1994/02/01 16:23:26 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "@(#)cnd.c	$Id: cnd.c,v 1.3 1994/02/16 14:03:40 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 ;
 #include <stdio.h>
 #include <string.h>
@@ -49,7 +49,7 @@ cndfind _P1((str), char *str)
     while(p >= str && isspace(*p))
 	*p-- = '\0';
 
-    lprintf(L_NOISE, "CND: %s", str);
+    lprintf(L_JUNK, "CND: %s", str);
 
     for (cp = cndtable; cp->string; cp++)
     {
@@ -60,7 +60,7 @@ cndfind _P1((str), char *str)
 		return;
 	    *(cp->variable) = malloc(strlen(str) - len + 1);
 	    (void) strcpy(*(cp->variable), str+len);
-	    lprintf(L_NOISE, "found: %s", *(cp->variable));
+	    lprintf(L_JUNK, "CND: found: %s", *(cp->variable));
 	    return;
 	}
     }
@@ -91,7 +91,7 @@ cndlookup _P0 (void)
 	    if (strncmp(p2, CallerId, strlen(p2)) == 0)
 		goto leave;
 
-	    lprintf(L_NOISE, "number: %s", p2);
+	    lprintf(L_JUNK, "CND: number: %s", p2);
 	    p = NULL;
 	}
     }
