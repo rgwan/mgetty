@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 4.11 1998/07/02 09:45:28 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 4.12 1998/09/01 10:57:00 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -53,6 +53,7 @@
 
 void log_init_paths _PROTO(( char * program, char * path, char * infix ));
 void log_set_llevel _PROTO(( int level ));
+void log_close _PROTO((void));
 int lputc _PROTO(( int level, char ch ));
 int lputs _PROTO(( int level, char * s ));
 int lprintf _PROTO(());
