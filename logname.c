@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 3.12 1996/06/28 23:57:44 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 3.13 1996/07/16 17:03:03 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include "syslibs.h"
@@ -282,8 +282,23 @@ int getlogname _P5( (prompt, tio, buf, maxsize, do_timeout),
 	lprintf( L_ERROR, "getlogname: error writing prompt" );
     }
 
+    /* print logfile msg, showing all compiled-in options */
+#ifdef FIDO
+# ifdef AUTO_PPP
+    lprintf( L_NOISE, "getlogname (FIDO AUTO_PPP), read:" );
+# else
+    lprintf( L_NOISE, "getlogname (FIDO), read:" );
+# endif
+#else /* !FIDO */
+# ifdef AUTO_PPP
+    lprintf( L_NOISE, "getlogname (AUTO_PPP), read:" );
+# else
+    lprintf( L_NOISE, "getlogname (no opts), read:" );
+# endif
+#endif
+
     i = 0;
-    lprintf( L_NOISE, "getlogname, read:" );
+	    
     do
     {
 	if ( ( r = read( STDIN, &ch, 1 ) ) != 1 )
