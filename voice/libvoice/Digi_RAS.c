@@ -3,7 +3,7 @@
  *
  * This file contains the Digi International RAS specific hardware stuff.
  *
- * $Id: Digi_RAS.c,v 1.3 1999/06/15 12:38:25 marcs Exp $
+ * $Id: Digi_RAS.c,v 1.4 1999/12/02 09:51:28 marcs Exp $
  *
  */
 
@@ -184,5 +184,6 @@ voice_modem_struct Digi_RAS =
      &IS_101_voice_mode_on,
      &IS_101_wait,
      &IS_101_play_dtmf,
+     &IS_101_check_rmd_adequation,
      0
      };

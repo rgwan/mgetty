@@ -9,11 +9,13 @@
  * This version is a complete rewrite to use the IS 101 mode of the
  * Elite 2864.
  *
- * $Id: ZyXEL_2864.c,v 1.6 1999/06/15 12:38:36 marcs Exp $
+ * $Id: ZyXEL_2864.c,v 1.7 1999/12/02 09:51:31 marcs Exp $
  *
  */
 
 #include "../include/voice.h"
+
+extern int ZyXEL_1496_check_rmd_adequation(char *rmd_name);
 
 static int ZyXEL_2864_answer_phone (void)
      {
@@ -288,5 +290,6 @@ voice_modem_struct ZyXEL_2864 =
      &IS_101_voice_mode_on,
      &IS_101_wait,
      &IS_101_play_dtmf,
+     &ZyXEL_1496_check_rmd_adequation, /* inheritance */
      0
      };

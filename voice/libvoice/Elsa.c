@@ -9,7 +9,7 @@
  * You have set port_timeout in voice.conf to a minimum of 15
  * if you use 38400 Baud
  *
- * $Id: Elsa.c,v 1.7 1999/09/16 09:58:00 marcs Exp $
+ * $Id: Elsa.c,v 1.8 1999/12/02 09:51:28 marcs Exp $
  *
  */
 
@@ -254,5 +254,6 @@ voice_modem_struct Elsa =
     &IS_101_voice_mode_on,
     &IS_101_wait,
     &IS_101_play_dtmf,
+    &IS_101_check_rmd_adequation,
     0
     };

@@ -14,7 +14,7 @@
  * TODO: implement other voice compression modes supported by modem
  *       add other IS-101 analog source/destination configurations (?)
  *
- * $Id: Compaq_VS.c,v 1.2 1999/06/15 12:38:25 marcs Exp $
+ * $Id: Compaq_VS.c,v 1.3 1999/12/02 09:51:28 marcs Exp $
  *
  */
 
@@ -227,5 +227,6 @@ voice_modem_struct Compaq_VS =
 	&IS_101_voice_mode_on,
 	&IS_101_wait,
         &IS_101_play_dtmf,
+        &IS_101_check_rmd_adequation,
         0
      };

@@ -6,7 +6,7 @@
  * A first version was written by Russell King <rmk@ecs.soton.ac.uk>,
  * based on the ZyXEL 2864 driver.
  *
- * $Id: Multitech_2834.c,v 1.7 1999/06/15 12:38:29 marcs Exp $
+ * $Id: Multitech_2834.c,v 1.8 1999/12/02 09:51:29 marcs Exp $
  *
  */
 
@@ -341,6 +341,7 @@ voice_modem_struct Multitech_2834ZDXv =
      &Multitech_2834_voice_mode_on,
      &IS_101_wait,
      &IS_101_play_dtmf,
+     &IS_101_check_rmd_adequation,
      0
      };
 

@@ -5,7 +5,7 @@
  * follow the IS-101 interim standard for voice modems. Since the commands
  * are set in the modem structure, it should be quite generic.
  *
- * $Id: IS_101.c,v 1.9 1999/07/20 07:41:09 marcs Exp $
+ * $Id: IS_101.c,v 1.10 1999/12/02 09:51:29 marcs Exp $
  *
  */
 
@@ -933,6 +933,11 @@ int IS_101_play_dtmf(char* number)
      return(OK);
      }
 
+int IS_101_check_rmd_adequation(char *rmd_name) {
+   return !strncmp(rmd_name,
+                   voice_modem_rmd_name,
+                   strlen(voice_modem_rmd_name));
+}
 
 const char IS_101_pick_phone_cmnd[] = "AT+VLS=2";
 const char IS_101_pick_phone_answr[] = "OK";
@@ -1018,5 +1023,6 @@ voice_modem_struct IS_101 =
      &IS_101_voice_mode_on,
      &IS_101_wait,
      &IS_101_play_dtmf,
+     &IS_101_check_rmd_adequation,
      0
      };

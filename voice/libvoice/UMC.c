@@ -11,7 +11,7 @@
  *
  * New updated driver by Jens Adner <Jens.Adner@Wirtschaft.TU-Ilmenau.DE>.
  *
- * $Id: UMC.c,v 1.8 1999/08/11 21:02:14 marcs Exp $
+ * $Id: UMC.c,v 1.9 1999/12/02 09:51:30 marcs Exp $
  *
  */
 
@@ -304,6 +304,7 @@ voice_modem_struct UMC =
      &IS_101_voice_mode_on,
      &IS_101_wait,
      &IS_101_play_dtmf,
+     &IS_101_check_rmd_adequation,
      VMQ_NEEDS_SET_DEVICE_BEFORE_ANSWER /* steffen@informatik.tu-darmstadt.de */
      };
 

@@ -3,7 +3,7 @@
  *
  * This file contains the ZyXEL 1496 specific hardware stuff.
  *
- * $Id: ZyXEL_1496.c,v 1.7 1999/07/20 07:26:01 marcs Exp $
+ * $Id: ZyXEL_1496.c,v 1.8 1999/12/02 09:51:30 marcs Exp $
  *
  */
 
@@ -206,6 +206,21 @@ static int ZyXEL_1496_set_device (int device)
      return(FAIL);
      }
 
+/* Only verifies the RMD name */
+#define ZYXEL_1496_RMD_NAME "ZyXEL 1496"
+#define ZYXEL_2864_RMD_NAME "ZyXEL 2864"
+int ZyXEL_1496_check_rmd_adequation(char *rmd_name) {
+   /* We use hardware values so that this function can be
+    * inherited from 2864 too.
+    */
+   return !strncmp(rmd_name,
+                   ZYXEL_1496_RMD_NAME,
+                   sizeof(ZYXEL_1496_RMD_NAME))
+          || !strncmp(rmd_name,
+                      ZYXEL_2864_RMD_NAME,
+                      sizeof(ZYXEL_2864_RMD_NAME));
+}
+
 static char ZyXEL_1496_pick_phone_answr[] = "VCON";
 #define     ZyXEL_1496_beep_timeunit 100
 static char ZyXEL_1496_intr_play_cmnd[] = {DLE, DC4, 0x00};
@@ -216,7 +231,7 @@ static char ZyXEL_1496_stop_rec_answr[] = "VCON";
 voice_modem_struct ZyXEL_1496 =
      {
      "ZyXEL 1496",
-     "ZyXEL 1496",
+     ZYXEL_1496_RMD_NAME,
      (char *) IS_101_pick_phone_cmnd,
      (char *) ZyXEL_1496_pick_phone_answr,
      (char *) IS_101_beep_cmnd,
@@ -268,5 +283,6 @@ voice_modem_struct ZyXEL_1496 =
      &IS_101_voice_mode_on,
      &IS_101_wait,
      &IS_101_play_dtmf,
+     &ZyXEL_1496_check_rmd_adequation,
      0
      };

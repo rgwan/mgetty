@@ -3,7 +3,7 @@
  *
  * Defines the functions implemented in the generic IS 101 driver.
  *
- * $Id: IS_101.h,v 1.5 1999/01/30 14:31:00 marcs Exp $
+ * $Id: IS_101.h,v 1.6 1999/12/02 09:51:26 marcs Exp $
  *
  */
 
@@ -61,4 +61,5 @@ extern int IS_101_voice_mode_off (void);
 extern int IS_101_voice_mode_on (void);
 extern int IS_101_wait (int timeout);
 extern int IS_101_play_dtmf (char* number);
+extern int IS_101_check_rmd_adequation(char *rmd_name);
 

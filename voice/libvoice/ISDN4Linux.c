@@ -37,7 +37,7 @@
  *   ATS18=1 OK
  * there your isdn-tty won't pick up data calls.
  *
- * $Id: ISDN4Linux.c,v 1.6 1999/06/15 12:38:28 marcs Exp $
+ * $Id: ISDN4Linux.c,v 1.7 1999/12/02 09:51:29 marcs Exp $
  * 
  */
 
@@ -379,6 +379,7 @@ voice_modem_struct ISDN4Linux =
      &IS_101_voice_mode_on,
      &IS_101_wait,
      &IS_101_play_dtmf,
+     &IS_101_check_rmd_adequation,
      0
      };
 

@@ -10,7 +10,7 @@
  * You have set port_timeout in voice.conf to a minimum of 15
  * if you use 38400 Baud
  *
- * $Id: Supra.c,v 1.3 1999/06/15 12:38:33 marcs Exp $
+ * $Id: Supra.c,v 1.4 1999/12/02 09:51:30 marcs Exp $
  *
  */
 
@@ -239,5 +239,6 @@ voice_modem_struct Supra =
     &IS_101_voice_mode_on,
     &IS_101_wait,
     &IS_101_play_dtmf,
+    &IS_101_check_rmd_adequation,
     0
     };

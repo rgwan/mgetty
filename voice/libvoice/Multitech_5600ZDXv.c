@@ -17,7 +17,7 @@
  * This file then adapted for the Multitec MT5600ZDXv by
  * Bill Nugent <whn@lopi.com>
  *
- * $Id: Multitech_5600ZDXv.c,v 1.3 1999/06/15 12:38:30 marcs Exp $
+ * $Id: Multitech_5600ZDXv.c,v 1.4 1999/12/02 09:51:29 marcs Exp $
  *
  */
 
@@ -244,6 +244,7 @@ voice_modem_struct Multitech_5600ZDXv =
      &IS_101_voice_mode_on,
      &IS_101_wait,
      &IS_101_play_dtmf,
+     &IS_101_check_rmd_adequation,
      0
      };
 

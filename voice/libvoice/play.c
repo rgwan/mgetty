@@ -3,7 +3,7 @@
  *
  * This command plays the given file.
  *
- * $Id: play.c,v 1.5 1999/06/27 14:29:01 marcs Exp $
+ * $Id: play.c,v 1.6 1999/12/02 09:51:31 marcs Exp $
  *
  */
 
@@ -57,8 +57,7 @@ int voice_play_file (char *name)
                lprintf(L_NOISE, "%s: raw modem data header found",
                 program_name);
 
-          if (strncmp(header.voice_modem_type, voice_modem_rmd_name,
-           strlen(voice_modem_rmd_name)) != 0)
+          if (!voice_modem->check_rmd_adequation(header.voice_modem_type))
                {
                lprintf(L_WARN, "%s: Wrong modem type found", program_name);
                return(FAIL);

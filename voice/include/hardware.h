@@ -3,7 +3,7 @@
  *
  * Defines the structure with data and routines for the hardware drivers.
  *
- * $Id: hardware.h,v 1.11 1999/06/15 12:38:22 marcs Exp $
+ * $Id: hardware.h,v 1.12 1999/12/02 09:51:27 marcs Exp $
  *
  */
 
@@ -70,6 +70,7 @@ typedef struct
      int (*voice_mode_on) (void);
      int (*wait) (int timeout);
      int (*play_dtmf) (char* number);
+     int (*check_rmd_adequation) (char *rmd_name); /* not NUL terminated */
      vmq_t voice_modem_quirks;
      } voice_modem_struct;
 
