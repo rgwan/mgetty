@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 3.4 1996/01/03 21:31:44 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 3.5 1996/01/03 23:35:47 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -547,6 +547,15 @@ void fax_notify_program _P1( (pagenum),
 {
 int	r;
 char *	line;
+
+    if ( fax_file_names == NULL )
+    {
+	if ( pagenum > 0 )
+	    lprintf( L_MESG, "notify_program: no file names available" );
+	else
+	    lprintf( L_MESG, "notify_program: no pages received" );
+	return;
+    }
 
     line = malloc( fax_fn_size + sizeof( FAX_NOTIFY_PROGRAM) + 100 );
     if ( line == NULL )
