@@ -1,5 +1,54 @@
+Thu Sep 16 11:06:43 MEST 1999  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* Added detection support for ZyXEL Omni 56k. Some issues
+	still remaining, such as DTMF preference setting command.
+
+	* Adding ability to use either the new AT+IFC or the old AT\Q3
+	in Elsa, with dynamic adjustment in case of error. We now
+	try AT+IFC first. Reported by Steffen Klupsch, and fix
+	suggested by Gert. Simplified Elsa's internals. Yet untested.
+	
+	* Fixed bug with libvoice/signal.c regarding child termination.
+	The fix works on HPUX (says boban@zaslon.si), and maybe also
+	fixes the Solaris coredump problems. At this time, this fix
+	is untested on other plateforms, but presumably should do
+	something nice anyway.
+
+Wed Sep  8 16:10:46 MEST 1999  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* Fixed bug with libvoice/US_Robotics.c: wrong command
+	introduced in 1.1.21 (ringback). Would cause the modem
+ 	[Sportster Voice 33.6] to report an error and stop responding
+ 	to any further commands. Fix by <alborchers@steinerpoint.com>
+
+	* Added comment of John Lowry <jlowry@netcom.com> about fixing
+	some problems with dial out and NO_DIAL_TONE with vm in
+	voice/contrib/John_Lowry.
+	
+Sat Aug 21 14:12:09 MEST 1999  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* Fixed perl module Perl/Vgetty.pm (undefined reference).
+
+	* Work-around for ATH0 in Rockwell_set_device() breakimg
+	  the RC32ACL (zukerman@math-hat.com).
+
+	* Added a few problems to fix to Todo, some being fixed, some not.
+
+Wed Aug 11 22:57:55 MEST 1999  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* Had a nice eclipse :)
+
+	* Fixed libvoice/UMC.c's use of C++ style comment (one define
+	commented with ANSI C). This shows up e.g. with plain ANSI
+	C compilers, or old versions of gcc.
+
+	* Changed version to 0.9.6 / 11Aug99 so to make it a little
+	different.
+
 Sat Jul 24 14:26:46 MEST 1999  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 
+	* gert released 1.1.21
+	
 	* doc/Readme.voice_shell: updated with the new commands.
 	
 Tue Jul 20 08:49:10 MEST 1999  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>

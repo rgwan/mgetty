@@ -1,3 +1,6 @@
+  1) Integrate more voice-shell scripts examples, such as for example
+     Al Borcher's perl voicemail script, or mvm.
+
   6) Run the vgetty scripts under a specified user-/group-id. Also
      temporarily run vgetty under that uid. Or even drop all root privs
      as soon as file open/immediately.
@@ -47,7 +50,30 @@
  45) When in answering machine mode, record the messages with the
      caller-ID if available and if configured to do so.
 
- 46) Merge all the voice/libvoice/Multitech_* instances
+ 46) Merge all the voice/libvoice/Multitech_* instances if similar.
+
+ 47) Understand why vm needs do_hard_flow true on ZyXEL 2864I, but
+     vgetty needs (or works, at least) with do_hard_flow false.
+     See thread ``Getting Junk out of Modem Speaker/Local Handset'' in
+     mgetty-ml OR my answer in Mails/VGETTY.
+
+ 48) Check that the the Solaris-coredump on child exit bugfix
+     (see Mails/VGETTY, ``Bugfix for vgetty'') works as it does on HPUX.
+
+ 49) Ensure Omni56k works (see Mails/VGETTY, ``vgetty + Omni56k'')
+
+ 50) Determine + fix the problem with Rockwell chipset and RMD
+     conversion utilities, especially with RC32ACL chipset,
+     see mgetty-ml ``Rockwell ``RC32ACL'' RMD problems'' thread and
+     many mails.
+
+ 48) Ensure that libvoice/signal.c has no problems with no-reentrant
+     functions (see BUGS there).
+
+ 49) Investigate the speed conversion problems.
+
+ 50) Omni 56k ZyXEL problems with AT+VDD=6,6. Investigate with IS-101 standard.
+     (DTMF preferences).
  
 
-$Id: ToDo,v 1.6 1999/05/15 19:52:10 marcs Exp $
+$Id: ToDo,v 1.7 1999/09/16 10:00:33 marcs Exp $
