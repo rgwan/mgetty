@@ -1,7 +1,7 @@
 /*
  * answer.c
  *
- * $Id: answer.c,v 1.20 2001/03/11 12:40:11 marcs Exp $
+ * $Id: answer.c,v 1.21 2002/12/05 16:48:32 gert Exp $
  *
  */
 
@@ -208,7 +208,7 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
      char receive_dir[VOICE_BUF_LEN];
      char message[VOICE_BUF_LEN];
      char message_name[VOICE_BUF_LEN];
-     char *ring_type = "ring";
+     char ring_type[20] = "ring";
      int i, j;
      int result;
      char c;
@@ -221,31 +221,10 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
       */
 
      if (virtual_ring)
-          ring_type = "virtual";
+          strcpy( ring_type, "virtual" );
 
-     switch (dist_ring)
-          {
-	  case 0: 
-	       break;
-	  case 1:
-	       ring_type = "ring1";
-	       break;
-	  case 2:
-	       ring_type = "ring2";
-	       break;
-	  case 3:
-	       ring_type = "ring3";
-	       break;
-	  case 4:
-	       ring_type = "ring4";
-	       break;
-	  case 5:
-	       ring_type = "ring5";
-	       break;
-          default:
-	       lprintf( L_WARN, "%s: yet unknown dist_ring_type %d, accept as RING 0", program_name, dist_ring );
-               break;
-          };
+     if (dist_ring > 0 && dist_ring < 100000 )
+	  sprintf( ring_type, "ring%d", dist_ring );
 
      answer_mode = get_answer_mode(ring_type);
 
