@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 3.13 1996/07/09 11:27:15 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 3.14 1996/07/23 09:18:16 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -488,7 +488,6 @@ int main _P2((argc, argv), int argc, char ** argv)
 	 * to show a status flag. vgetty uses this to indicate
 	 * that new messages have arrived.
 	 */
-     voice_mode_on(FALSE);
 	vgetty_message_light();
     }
 #endif /* VOICE */
