@@ -1,5 +1,8 @@
-#ident "$Id: tio.h,v 1.9 1994/01/03 23:49:32 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.h,v 1.10 1994/01/05 03:40:57 gert Exp $ Copyright (c) 1993 Gert Doering"
 ;
+#ifndef __TIO_H__
+#define __TIO_H__
+
 /* tio.h
  *
  * contains definitions / prototypes needed for tio.c
@@ -138,4 +141,5 @@ typedef struct {
 
 int	loadgettydefs _PROTO((char *s));
 GDE	*getgettydef _PROTO((char *s));
-#endif
+#endif		/* USE_GETTYDEFS */
+#endif		/* __TIO_H__ */
