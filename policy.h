@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.29 1993/11/05 22:33:37 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.30 1993/11/06 00:11:09 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -68,7 +68,7 @@
  * current date and time, respectively.
  * override with "-p <prompt>" switch
  */
-#define LOGIN_PROMPT	"%s!login:"
+#define LOGIN_PROMPT	"@!login:"
 
 /* On SVR4, maybe on other systems too, you can cause the 'login' program
  * to prompt with the same string as mgetty did, instead of the standard
