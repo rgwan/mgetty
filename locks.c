@@ -1,4 +1,9 @@
-#ident "$Id: locks.c,v 1.4 1993/03/09 21:53:45 gert Exp $ Gert Doering / Paul Sutcliffe Jr."
+#ident "$Id: locks.c,v 1.5 1993/03/10 23:38:13 gert Exp $ Gert Doering / Paul Sutcliffe Jr."
+
+/* large parts of the code in this module are taken from the
+ * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us,
+ * and are used with permission here.
+ */
 
 #include <stdio.h>
 #include <unistd.h>
