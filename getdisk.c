@@ -1,4 +1,4 @@
-#ident "@(#)getdisk.c $Id: getdisk.c,v 1.6 1994/05/01 01:24:31 gert Exp $ Copyright (c) 1994 Elegant Communications Inc."
+#ident "@(#)getdisk.c $Id: getdisk.c,v 1.7 1994/05/29 22:32:22 gert Exp $ Copyright (c) 1994 Elegant Communications Inc."
 ;
 /*
 
@@ -102,6 +102,10 @@
 /* this is the beginning of getdiskstats() proper
  */
 
+#ifdef ULTRIXSTATFS
+#  include <sys/param.h>
+#endif
+
 #ifdef HASDISKSTAT
 # if !defined(vsnxdyn) && !defined(vdomain)
 #  include <sys/types.h>
@@ -127,11 +131,16 @@
 # else		/* !BSDSTATFS */
 
 #  ifdef ULTRIXSTATFS	/* oh grotty, oh stupid, oh-nonstandard one */
-#   include "ERROR: needs some more fixing for Ultrix ULTRIXSTATFS getdiskstats"
 #   define MYSTATFS(a,b) statfs(a,b)
 #   define STATFSS fs_data
 #   define f_bavail fd_req.bfreen
 #   define f_ffree fd_req.gfree
+#   define f_bfree fd_req.bfree
+#   define f_frsize fd_req.bsize
+#   define f_bsize fd_req.bsize
+#   define f_blocks fd_req.btot
+#   define f_files  fd_req.gtot
+
 
 #  else
 #   ifdef USTAT
