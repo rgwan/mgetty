@@ -1,4 +1,12 @@
-#ident "$Id: logname.c,v 4.6 1998/08/04 13:27:23 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 4.7 1998/09/01 09:48:25 gert Exp $ Copyright (c) Gert Doering"
+
+/* logname.c
+ *
+ * print 'login:' prompt, handling eventual escape sequence substitutions
+ *
+ * read login name, detect incoming PPP frames and FIDO startup sequences
+ */
+
 
 #include <stdio.h>
 #include "syslibs.h"
@@ -21,9 +29,7 @@
 #include "tio.h"
 #include "mg_utmp.h"
 
-#ifndef SYSTEM
 #include <sys/utsname.h>
-#endif
 
 extern char * Device;				/* mgetty.c */
 
@@ -48,9 +54,17 @@ char * ln_escape_prompt _P1( (ep), char * ep )
 #define MAX_PROMPT_LENGTH 140
     static char * p = NULL;
     int    i;
+    static struct utsname un;
+    static boolean un_cached = FALSE;
 
     if ( p == NULL ) p = malloc( MAX_PROMPT_LENGTH );
     if ( p == NULL ) return ep;
+
+    if ( ! un_cached )
+    {
+	uname( &un );
+	un_cached = TRUE;
+    }
 
     i = 0;
     
@@ -62,17 +76,8 @@ char * ln_escape_prompt _P1( (ep), char * ep )
 	    if ( sizeof( SYSTEM ) + i > MAX_PROMPT_LENGTH ) break;
 	    i += strappnd( &p[i], SYSTEM );
 #else
-# ifdef NEXTSGTTY
-	    char nodename[256];
-	    gethostname( nodename, sizeof(nodename) );
-	    if ( strlen( nodename ) +1 + i > MAX_PROMPT_LENGTH ) break;
-	    i += strappnd( &p[i], nodename );
-# else
-	    struct utsname un;
-	    uname( &un );
 	    if ( strlen( un.nodename ) +1 +i > MAX_PROMPT_LENGTH ) break;
 	    i += strappnd( &p[i], un.nodename );
-# endif
 #endif		/* !SYSTEM */
 	}
 	else if ( *ep != '\\' ) p[i++] = *ep;
@@ -88,6 +93,22 @@ char * ln_escape_prompt _P1( (ep), char * ep )
 	      case 'v': p[i++] = '\013'; break;
 	      case 'f': p[i++] = '\f'; break;
 	      case 't': p[i++] = '\t'; break;
+	      case 's':					/* Operating System */
+		    if ( i + strlen(un.sysname) +1 > MAX_PROMPT_LENGTH ) break;
+		    i += strappnd( &p[i], un.sysname );
+		    break;
+	      case 'm':					/* machine arch. */
+		    if ( i + strlen(un.machine) +1 > MAX_PROMPT_LENGTH ) break;
+		    i += strappnd( &p[i], un.machine );
+		    break;
+	      case 'R':					/* OS release */
+		    if ( i + strlen(un.release) +1 > MAX_PROMPT_LENGTH ) break;
+		    i += strappnd( &p[i], un.release );
+		    break;
+	      case 'V':					/* OS version */
+		    if ( i + strlen(un.version) +1 > MAX_PROMPT_LENGTH ) break;
+		    i += strappnd( &p[i], un.version );
+		    break;
 	      case 'Y':					/* Caller ID */
 		{
 		extern char * CallerId;
