@@ -365,3 +365,8 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
 
 254) in vgetty, "voice_log_level" overrides "-x<n>" - cli args should have
      precedence!  Tricky problem (voice/libutil/config.c).
+
+255) if faxrunq(d) can't read config file due to permission problems, don't
+     ignore error but print some informative message
+
+256) add easy way to create/remove $FAX_SPOOL_OUT/stop (fax-helper?)
