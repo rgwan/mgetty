@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 1.27 1994/08/08 12:34:37 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 1.28 1994/08/10 12:56:56 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* tio.c
  *
@@ -452,8 +452,8 @@ int tio_set_flow_control _P3( (fd, t, type), int fd, TIO * t, int type )
 #include "not yet implemented"
 #endif
     /* SVR4 came up with a new method of setting h/w flow control */
-    /* unfortunately, it's broken in 4.2! */
-#if defined(SVR4) && !defined(SVR42)
+    /* unfortunately, it's broken in 4.2 and Solaris2! */
+#if defined(SVR4) && !defined(SVR42) &&!defined(solaris2)
     if (ioctl(fd, TCGETX, &tix) < 0)
     {
 	lprintf( L_ERROR, "ioctl TCGETX" ); return ERROR;
