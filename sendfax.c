@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.63 1994/07/11 19:16:03 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.64 1994/07/12 22:50:47 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* sendfax.c
  *
@@ -56,6 +56,9 @@ int fax_open_device _P2( (fax_tty, use_stdin),
     }
     else
     {
+	/* ignore leading "/dev/" prefix */
+	if ( strncp( fax_tty, "/dev/", 5 ) == 0 ) fax_tty += 5;
+	
 	if ( verbose ) printf( "Trying fax device '/dev/%s'... ", fax_tty );
 
 	if ( makelock( fax_tty ) != SUCCESS )
@@ -256,9 +259,10 @@ int	tries;
 	    break;
 	case 'l':	/* set device(s) to use */
 	    fax_devices = optarg;
-	    if ( strchr( optarg, '/' ) != NULL )
+	    if ( optarg[0] == '/' &&
+		 strncmp( optarg, "/dev/", 5 ) == 0 )
 	    {
-		fprintf( stderr, "%s: -l: use device name without path\n",
+		fprintf( stderr, "%s: -l: device must be located in /dev!\n",
 		                 argv[0]);
 		exit(1);
 	    }
