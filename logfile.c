@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 1.5 1993/04/19 21:43:47 gert Exp $ (c) Gert Doering"
+#ident "$Id: logfile.c,v 1.6 1993/05/27 19:37:34 gert Exp $ (c) Gert Doering"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -18,6 +18,16 @@ static boolean mail_logfile = FALSE;
 char log_path[ MAXPATH ];
 
 extern int atexit( void (*)(void) );
+
+/* Interactive Unix is a little bit braindead - does not have atexit(),
+ * and does not define externals for sys_nerr and sys_errlist,
+ * nevertheless I've been told that they exist - so I declare them myself.
+ */
+#ifdef ISC
+#define atexit( dummy )
+extern int sys_nerr;
+extern char *sys_errlist[];
+#endif
 
 void logmail( void )
 {
