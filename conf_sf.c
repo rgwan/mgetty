@@ -1,4 +1,4 @@
-#ident "$Id: conf_sf.c,v 3.2 1995/09/06 18:30:54 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_sf.c,v 3.3 1995/11/27 19:04:49 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_sf.c
  *
@@ -12,6 +12,7 @@
 #include "mgetty.h"
 #include "policy.h"
 #include "syslibs.h"
+#include "version.h"
 
 #include "config.h"
 #include "conf_sf.h"
@@ -79,7 +80,7 @@ conf_data c_a[2];
     }
 
     /* get command line arguments */
-    while ((opt = getopt(argc, argv, "d:vx:ph:l:nm:SC:I:r")) != EOF)
+    while ((opt = getopt(argc, argv, "d:vx:ph:l:nm:SC:I:rV")) != EOF)
     {
 	switch (opt) {
 	  case 'd':	/* set target directory for polling */
@@ -126,6 +127,10 @@ conf_data c_a[2];
 	  case 'r':
 	    conf_set_bool( &c.rename_files, TRUE );
 	    break;
+	  case 'V':
+	    printf("\nmgetty+sendfax by Gert Doering\n%s\n\n",
+		    mgetty_version);
+	    exit(0);
 	  case '?':	/* unrecognized parameter */
 	    return ERROR;
 	    break;
