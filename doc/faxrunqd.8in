@@ -138,11 +138,6 @@ or
 option.
 
 .TP
-.B acct-log [filename]
-Specifies where the accounting records (success, failure, etc.) should be
-written to.
-
-.TP
 .B policy-config [filename]
 Specifies a file containing rules for "policy routing", see below.
 Default is "no file".
