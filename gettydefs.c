@@ -1,4 +1,4 @@
-#ident "$Id: gettydefs.c,v 2.3 1995/03/21 22:46:30 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "$Id: gettydefs.c,v 2.4 1995/04/22 00:19:55 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 
 /* gettydefs.c
  *
@@ -17,7 +17,7 @@
 #include "mgetty.h"
 #include "policy.h"
 
-extern boolean verbose;
+boolean verbose;
 
 char * mydup _P1 ((s), register char *s)
 {
