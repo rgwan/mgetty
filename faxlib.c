@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.50 2001/09/04 11:22:23 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.51 2001/10/01 18:47:18 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -810,6 +810,13 @@ int mdm_identify _P1( (fd), int fd )
 	{
 	    lprintf( L_MESG, "Multitech MT5600ZDXV detected" );
 	    modem_type=Mt_class2;
+	}
+	/* and yet another one :-( - Nokia, sigh */
+	else if ( strncmp( l, "Nokia ", 6 ) == 0 )
+	{
+	    lprintf( L_MESG, "Nokia GSM telephone detected" );
+	    modem_type=Mt_class2_0;
+	    mis = mdm_get_idstring( "ATI3", 1, fd );
 	}
 	/* and yet another one - will they never end? Xavier Roche */
 	else if ( strncmp( l, "LT V.90", 7 ) == 0 )
