@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 3.14 1996/11/28 22:06:22 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 3.15 1996/12/23 19:13:16 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -29,6 +29,8 @@
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
 FAX_SEQ=$FAX_SPOOL_OUT/.Sequence
+FAX_SEQ_LOCKDIR=$FAX_SPOOL_OUT/locks
+FAX_SEQ_LOCK=$FAX_SEQ_LOCKDIR/LCK..seq
 
 # fax phone directories - format: <alias> <fax phone number>
 GLOBAL_PHONE_DIR=@CONFDIR@/faxaliases
@@ -54,6 +56,13 @@ PBMFONT_HEADER_N=@LIBDIR@/cour25n.pbm
 # if you want to use pbmtext for converting ASCII texts, use these fonts:
 PBMFONT_BODY_F=@LIBDIR@/cour25.pbm
 PBMFONT_BODY_N=@LIBDIR@/cour25n.pbm
+
+#
+# these are the drivers used in Ghostscript - choose dfaxhig/low or faxg3
+GS_DRIVER_HI="-sDEVICE=dfaxhigh"
+GS_DRIVER_LO="-sDEVICE=dfaxlow"
+#GS_DRIVER_HI="-sDEVICE=faxg3 -r204x196"
+#GS_DRIVER_LO="-sDEVICE=faxg3 -r204x98"
 
 #
 # program that will generate fax coverpage (see "man coverpg")
@@ -188,16 +197,16 @@ fs_cvt_lj()
 
 #
 # convert postscript data
-# needs GNU GhostScript installed, with the "dfaxhigh" driver compiled in
-# (for normal resolution, the "dfaxlow" driver is used)
+# needs GNU GhostScript installed. 
+# For driver selection, see definition of GS_DRIVER_{HI,LO} above.
 #
 fs_cvt_ps()
 {
-    driver=dfaxhigh
-    test X$3 = X-n && driver=dfaxlow
+    driver="$GS_DRIVER_HI"
+    test X$3 = X-n && driver="$GS_DRIVER_LO"
 
     cat $1 |
-	gs -sDEVICE=$driver -sOutputFile=$2%03d -dNOPAUSE -q -dSAFER -
+	gs $driver -sOutputFile=$2%03d -dNOPAUSE -q -dSAFER -
 }
        
 #
@@ -210,11 +219,11 @@ fs_cvt_ascii()
 #####
 # via Ghostscript:
 
-    driver=dfaxhigh
-    test X$3 = X-n && driver=dfaxlow
+    driver="$GS_DRIVER_HI"
+    test X$3 = X-n && driver="$GS_DRIVER_LO"
 
-    gs -sDEVICE=$driver -sOutputFile=$2%03d -dNOPAUSE \
-        -- gslp.ps -fCourier-Bold10 -B $1
+    gs $driver -sOutputFile=$2%03d -dNOPAUSE \
+			-- gslp.ps -fCourier-Bold10 -B $1
 
 #####
 # via hp2pbm:
@@ -251,25 +260,26 @@ fs_cvt_dvi()
 {
     if [ X$3 = X-n ]
     then 
-	driver=dfaxlow ; dvipscfg="-P dfaxlo"
+	driver="$GS_DRIVER_LO" ; dvipscfg="-P dfaxlo"
     else
-	driver=dfaxhigh ; dvipscfg="-P dfaxhigh"
+	driver="$GS_DRIVER_HI" ; dvipscfg="-P dfaxhigh"
     fi
 
-# if you have the dfaxlo(w)/dfaxhigh dvips modes configured, call
-# dvips as "dvips $dvipscfg $1 ..." instead.
+# if you do not have the dfaxlo(w)/dfaxhigh dvips modes configured, 
+# remove "$dvipscfg" from the dvips command line below [or configure them!]
 
-    dvips $1 -o \
-        !"gs -sDEVICE=$driver -sOutputFile=$2%03d -dNOPAUSE -dSAFER -q -"
+    dvips $dvipscfg $1 -o \
+        !"gs $driver -sOutputFile=$2%03d -dNOPAUSE -dSAFER -q -"
+
+# for those that only have the old "dvialw":
 #
 #	dvialw <$file |
-#	    gs -sDEVICE=$driver -sOutputFile=$2%03d -dNOPAUSE \
-#               -dSAFER -
+#	    gs $driver -sOutputFile=$2%03d -dNOPAUSE -dSAFER -q -
 
-# for those that have dvi2ps and not dvips
+# for those that have dvi2ps and not dvips:
 #
 #	dvi2ps -r -q $q |
-#	    gs -sDEVICE=$driver -sOutputFile=$2%03d -dNOPAUSE -dSAFER -q -
+#	    gs $driver -sOutputFile=$2%03d -dNOPAUSE -dSAFER -q -
 
 }
 	
@@ -566,24 +576,30 @@ if [ ! -f $FAX_SEQ ] ; then $echo 000000 > $FAX_SEQ ; chmod 666 $FAX_SEQ ; fi
 if [ -f $FAX_SEQ -a ! -w $FAX_SEQ ] ; then
     $echo "cannot write to $FAX_SEQ!" >&2 ; exit 6 ; fi
 
-if newslock $FAX_SEQ $FAX_SPOOL_OUT/.Seq.lock ; then :
+if [ ! -d $FAX_SEQ_LOCKDIR ] ; then
+    if mkdir $FAX_SEQ_LOCKDIR ; then :
+    else $echo "can't create $FAX_SEQ_LOCKDIR!" >&2 ; exit 6 ; fi
+    chmod 777 $FAX_SEQ_LOCKDIR
+fi
+
+if newslock $FAX_SEQ $FAX_SEQ_LOCK ; then :
 else
     $echo "$0: sequence file locked, waiting 5 seconds..."
     sleep 5
-    if newslock $FAX_SEQ $FAX_SPOOL_OUT/.Seq.lock ; then :
+    if newslock $FAX_SEQ $FAX_SEQ_LOCK ; then :
     else
 	$echo "$0: can't lock sequence number file. (Try again later)."
 	exit 6
     fi
 fi
 
-trap "rm -f $FAX_SPOOL_OUT/.Seq.lock" 0 1 2 3 15
+trap "rm -f $FAX_SEQ_LOCK" 0 1 2 3 15
 
 new_seq=`$AWK '{ printf "%06d", $1 + 1 }' $FAX_SEQ`
 test -z "$new_seq" && new_seq="000800"
 echo $new_seq >$FAX_SEQ
 
-rm -f $FAX_SPOOL_OUT/.Seq.lock
+rm -f $FAX_SEQ_LOCK
 trap 0 1 2 3 15
 
 
