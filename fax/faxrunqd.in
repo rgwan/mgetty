@@ -9,10 +9,15 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.21 1998/02/06 16:28:43 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.22 1998/02/11 09:00:16 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.22  1998/02/11 09:00:16  gert
+# Finish per-modem queues
+# implement priority on per-modem queues
+# tweak implementation details regarding delayed faxes / pausing
+#
 # Revision 1.21  1998/02/06 16:28:43  gert
 # move reading of jobs from disk to %queue up into readdir loop
 #
@@ -291,12 +296,17 @@ $queue_flush_interval = 3600;		# ... once per hour
 #
 # child processes
 #
-$childs = 0; %pid2job = (); %phones = ();
+$childs = 0; %pid2job = (); %phones = (); %pid2tty = ();
 
 #
 # ttys available (-l tty1:tty2:... option or default)
 #
 @standard_ttys = split( /:/, $opt_l );
+
+#
+# statistics about tty usage / success / error rates
+#
+%tty_statistics = ();
 
 # ###
 # ### MAIN LOOP -- rescan spool directory in certain intervals, send stuff
@@ -311,8 +321,7 @@ while( 1 )
 
     foreach $f ( readdir( FSO ) )
     {
-	next if $f =~ /^\./;
-	next if $f eq 'locks';
+	next unless $f =~ /^F[0-9]/;
 
 	print LOG "got: $f\n" if $opt_d; 
 
@@ -329,22 +338,6 @@ while( 1 )
 		{ push @{$queue{$f}->{'flags'}}, '-v'; }
 
 	    &read_job_to_queue( $f );
-	}
-    }
-
-    # now, make sure all delayed jobs are rescheduled
-    print LOG localtime() . ": checking internal queue for delayed jobs...\n" if $opt_v;
-    foreach $job ( keys %queue )
-    {
-	if ( $queue{$job}->{'status'} eq 'delayed' )
-	{
-	    my $s = $queue{$job}->{'delayed_until'} - time();
-	    if ( $s> 0 )
-		{ print LOG "$job: delayed, $s seconds to wait\n" if $opt_d; }
-	    else
-		{ print LOG "$job: was delayed, is active again\n" if $opt_d;
-		  $queue{$job}->{'status'} = 'active'; 
-		  &put_job_to_modem_queue($job); }
 	}
     }
 
@@ -447,6 +440,7 @@ while( 1 )
     # flush all queues, etc.
     if ( $roll_log_file_requested )
     {
+	&dump_statistics;
 	print LOG localtime(). ": -- log file ends here --\n";
 	close LOG;
 
@@ -474,13 +468,32 @@ while( 1 )
 	&signal_handler(USR2);
     }
 
+    # now, make sure all delayed jobs are rescheduled
+    print LOG localtime() . ": checking internal queue for delayed jobs...\n" if $opt_v;
+    $sleep_time=60;
+
+    foreach $job ( keys %queue )
+    {
+	if ( $queue{$job}->{'status'} eq 'delayed' )
+	{
+	    my $s = $queue{$job}->{'delayed_until'} - time();
+	    if ( $s> 0 )
+		{ print LOG "$job: delayed, $s seconds to wait\n" if $opt_d; }
+	    else
+		{ print LOG "$job: was delayed, is active again\n" if $opt_d;
+		  $queue{$job}->{'status'} = 'active'; 
+		  &put_job_to_modem_queue($job); }
+	    if ( $s < $sleep_time ) 
+		{ $sleep_time = $s; }
+	}
+    }
+
     # there's really, really nothing left to do - so fall asleep!
-    # TODO: sleep only if no delayed jobs pending
-    if ( $childs == 0 )
+    if ( $childs == 0 && $sleep_time > 0 )
     {
 	# not even child processes to wait for... sleep.
-	print LOG "Pausing...\n" if $opt_v;
-	sleep 60;
+	print LOG "Pausing $sleep_time seconds...\n" if $opt_v;
+	sleep $sleep_time;
     }
 }
 
@@ -523,13 +536,20 @@ sub put_job_to_modem_queue
 	}
     }
 
-    #!!!!!!!!! AAALERT! sorting by priority has to be done *HERE*
     # add job to the end of the queue, then "bubble" it up if it
     # has a higher priority than the preceding job.
     push @{$modem_queue{$min_t}}, $j;
 
-    # while( $n>0 && $queue{$j}->{'prio'} > $... }
-    #  { $modem_queue[$n+1] = $modem_queue[$n]; $modem_queue[$n] = $j; $n--; }
+    my $pri = $queue{$j}->{'priority'};		# priority of new job
+    my $n = $#{$modem_queue{$min_t}}-1;		# previous job
+
+    while( $n>=0 && $pri > $queue{ $modem_queue{$min_t}[$n] }->{'priority'} )
+    {
+	print LOG "  * pri $pri, $min_t -> bubble up to pos. $n\n"  if $opt_d;
+
+	$modem_queue{$min_t}[$n+1] = $modem_queue{$min_t}[$n]; 
+        $modem_queue{$min_t}[$n] = $j; $n--; 
+    }
 
     # each job adds one (for dialup) plus the number of pages to the
     # total queue length.  This should give a fairly balanced load,
@@ -890,6 +910,14 @@ my ($r, $s, $ex, $j, $t);
 	return $t;
     }
 
+    # save result for per-tty statistics
+    if ( ! defined( $tty_statistics{$t} ) )
+				{ $tty_statistics{$t} = {'total'=>0, '0'=>0}; }
+    if ( ! defined( $tty_statistics{$t}{$ex} ) ) 
+				{ $tty_statistics{$t}{$ex} = 0; }
+    $tty_statistics{$t}{total}++;
+    $tty_statistics{$t}{$ex}++;
+
     if ( $ex == 0 )		# job successfully sent
     {
 	print LOG "$j: Job successfully sent\n" if $opt_v;
@@ -1122,6 +1150,9 @@ my $sig = shift;
     print "\nfaxrunqd: signal handler: got signal $sig, goodbye...\n";
     print LOG "\nfaxrunqd: signal handler: got signal $sig, goodbye...\n";
 
+    # save tty statistics
+    &dump_statistics;
+
     # remove JOB locks of all currently-active jobs
     foreach $pi ( keys %pid2job )
     {
@@ -1166,4 +1197,31 @@ my $sig = shift;
     print LOG "\nfaxrunqd: signal handler: got signal $sig, will exit as soon as possible...\n";
 
     $graceful_exit_requested = 1;
+}
+##########################################################################
+#
+# dump_statistics
+#
+# write tty statistics to LOG
+# called before exiting, and in regular intervals
+#
+##########################################################################
+sub dump_statistics
+{
+    print LOG "--------------------------------------------------\n";
+    foreach $t (keys %tty_statistics)
+    {
+	print LOG "modem statistics for tty '$t'\n";
+	print LOG "    total faxes sent: ${tty_statistics{$t}{'total'}}\n";
+	print LOG "    total success   : ${tty_statistics{$t}{'0'}}\n";
+	foreach (sort(keys %{$tty_statistics{$t}}))
+	{
+	    next if ($_ eq '0') || ($_ eq 'total');
+            printf LOG "    error code %-2d   : %d (%1.1f%%) [%s]\n",
+		$_, $tty_statistics{$t}{$_}, 
+		100*$tty_statistics{$t}{$_}/$tty_statistics{$t}{total},
+		$exitcodes[$_];
+	}
+    }
+    print LOG "--------------------------------------------------\n";
 }
