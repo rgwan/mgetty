@@ -3,7 +3,7 @@
  *
  * autodetect the modemtype we are connected to.
  *
- * $Id: detect.c,v 1.13 1999/10/09 16:57:31 marcs Exp $
+ * $Id: detect.c,v 1.14 1999/11/13 11:10:34 marcs Exp $
  *
  */
 
@@ -33,6 +33,7 @@ static const struct pnp_modem_type_struct pnp_modem_database[] =
 
 const char ati[] = "ATI";
 const char ati6[] = "ATI6";
+const char ati4[] = "ATI4";
 const char ati9[] = "ATI9";
 const char ati0[] = "ATI0";
 
@@ -79,6 +80,10 @@ static const struct modem_type_struct modem_database[] =
      {ati, "MT5600ZDXV",           NULL,   &Multitech_5600ZDXv},
      {ati, "LT V.90 1.0 MT5634ZBAV Serial Data/Fax/Voice Modem Version 4.09a",
                                    NULL,   &Multitech_5634ZBAV},
+     {ati4, "33600bps Voice Modem For Italy",
+                                   NULL, &Rockwell},
+     {ati6, "RCV336DPFSP Rev 44BC",
+                                  "ATI4", NULL},
      {ati, "ERROR", ati0, NULL}, /* it also shows up as North America,
                                   *  then OK in ATI9. Please also read
                                   * libvoice/README.lucent.
