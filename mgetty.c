@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.88 1994/01/23 17:36:12 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.89 1994/02/08 21:21:50 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -446,7 +446,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 
 	signal( SIGUSR1, sig_pick_phone );
 
-#if defined(linux) && !defined(NO_SYSVINIT)
+#if defined(linux) && defined(NO_SYSVINIT)
 	/* on linux, "simple init" does not make a wtmp entry when you
 	 * log so we have to do it here (otherwise, "who" won't work)
 	 */
