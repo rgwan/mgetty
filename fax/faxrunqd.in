@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.42 1999/04/27 10:21:43 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.43 1999/04/30 12:21:05 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.43  1999/04/30 12:21:05  gert
+# typo ($ex/$eq)
+#
 # Revision 1.42  1999/04/27 10:21:43  gert
 # if locking a job (before sending) fails, set it to status 'error'.
 # the job will then be retried about an hour later.
@@ -1107,7 +1110,7 @@ my ($r, $s, $ex, $j, $t);
 		$queue{$j}->{'delayed_until'}=time()+300;
 	    }
 	    elsif ( $ex == 2 || $ex == 3 ||	# Hardware unavailable?
-		    $ex == 5 || $eq == 10 )	# (Modem broken or unplugged)
+		    $ex == 5 || $ex == 10 )	# (Modem broken or unplugged)
 	    {
 		$queue{$j}->{'status'}='delayed';
 		$queue{$j}->{'delayed_until'}=time()+20;
