@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 3.3 1996/03/10 12:44:03 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logfile.c,v 3.4 1996/04/18 19:50:47 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -177,7 +177,7 @@ int lputs _P2((level, s), int level, char * s )
 int retcode = 0;
     if ( log_fp != NULL && level <= log_level )
     {
-	retcode = fputs( s, log_fp );
+	retcode = fputs( s!=NULL? s : "(NULL)", log_fp );
 	fflush( log_fp );
     }
     return retcode;
