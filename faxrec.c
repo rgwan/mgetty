@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 2.5 1995/02/23 15:02:29 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 2.6 1995/04/07 01:14:20 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -44,6 +44,7 @@ void fax_notify_mail _PROTO(( int number_of_pages ));
 #ifdef FAX_NOTIFY_PROGRAM
 void fax_notify_program _PROTO(( int number_of_pages ));
 #endif
+void faxpoll_send_pages _PROTO(( int fd, TIO * tio, char * pollfile));
 
 char * faxpoll_server_file = NULL;
 
@@ -98,9 +99,9 @@ extern  char * Device;
     /* send polled documents (very simple yet) */
     if ( faxpoll_server_file != NULL && fax_poll_req )
     {
-	lprintf( L_AUDIT, "fax poll: send %s...", faxpoll_server_file );
-	/* send page, no mor pages to follow */
-	fax_send_page( faxpoll_server_file, &tio, pp_eop, 0 );
+	lprintf( L_MESG, "starting fax poll send..." );
+	
+	faxpoll_send_pages( 0, &tio, faxpoll_server_file );
     }
 
     call_done = time(NULL);
@@ -589,3 +590,76 @@ char *	line;
     free( line );
 }
 #endif
+
+void faxpoll_send_pages _P3( (fd, tio, pollfile),
+			     int fd, TIO * tio, char * pollfile )
+{
+    FILE * fp;
+    char buf[MAXPATH];
+    char * file;
+    char * fgetline _PROTO(( FILE * fp ));
+    int    tries;
+
+    fp = fopen( pollfile, "r" );
+    if ( fp == NULL )
+    {
+	lprintf( L_ERROR, "can't open %s", pollfile ); return;
+    }
+
+    /* for historical reasons: if the file starts with "0x00",
+       assume it's not a text file but a G3 file
+     */
+
+    if ( fread( buf, 1, 1, fp ) != 1 || buf[0] == 0 )
+    {
+	fclose( fp );
+	
+	lprintf( L_MESG, "fax poll: %s is (likely) G3 file", pollfile );
+
+	/* send page, no more pages to follow */
+	fax_send_page( faxpoll_server_file, tio, pp_eop, fd );
+
+	return;
+    }
+
+    /* read line by line, send as separate pages.
+     * comments and continuation lines allowed
+     */
+    rewind( fp );
+
+    file = fgetline( fp );
+
+    while ( file != NULL )
+    {
+	/* copy filename (we need to know *before* sending the file
+	   whether it's the last one, and fgetline() uses a static buffer)
+	 */
+	
+	strncpy( buf, file, sizeof(buf)-1 );
+	buf[sizeof(buf)] = 0;
+
+	file = fgetline( fp );
+
+	lprintf( L_MESG, "fax poll: send %s...", buf );
+
+	fax_page_tx_status = -1;
+	tries = 0;
+
+	/* send file, retransmit (once) if RTN received */
+	do
+	{
+	    if ( file == NULL )		/* last page */
+	        fax_send_page( buf, tio, pp_eop, fd );
+	    else			/* not the very last */
+	        fax_send_page( buf, tio, pp_mps, fd );
+	    tries++;
+
+	    if ( fax_page_tx_status != 1 )
+	        lprintf( L_WARN, "fax poll: +FPS: %d", fax_page_tx_status );
+	}
+	while( fax_page_tx_status == 2 && tries < 2 );
+
+
+    }
+    fclose( fp );
+}
