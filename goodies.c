@@ -1,4 +1,4 @@
-#ident "$Id: goodies.c,v 3.5 1996/03/06 20:48:01 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: goodies.c,v 3.6 1996/03/10 22:00:22 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /*
  * goodies.c
@@ -205,10 +205,63 @@ char * get_ps_args _P1 ((pid), int pid )
 #endif
 }
 
-#ifdef NeXT
-  /* provide dummy putenv() function */
-  int putenv( char * s ) { return 0; }
+#if defined(NeXT) || defined(NEED_PUTENV)
 
+/* provide strdup() for NEXTSTEP */
+char * strdup _P1( (src), char *src)
+{
+char * dest;
+
+    if (!src) return(NULL);
+    dest = (char *)malloc(strlen(src) + 1);
+    if (!dest) return(NULL);
+    strcpy(dest,src);
+    return(dest);
+}
+
+
+/* provide putenv() for NEXTSTEP:
+ * original code by Terrence W. Holm (tholm@uvicctr.UUCP),
+ * slightly modified by Karl Berry (karl@cs.umb.edu)
+ * contributed to mgetty by Georg Hoffleit (flight@mathi.uni-heidelberg.DE)
+ */
+
+#define  PSIZE  sizeof(char *)
+
+int putenv _P1( (entry), char *entry)
+{
+unsigned length, size;
+char * temp;
+char ** p;
+char ** new_environ;
+
+    temp = strchr(entry,'=');
+    if ( temp == 0 ) return( -1 );
+
+    length = (unsigned) (temp - entry + 1);
+
+    for ( p=environ; *p != 0 ; p++ )
+	if ( strncmp( entry, *p, length ) == 0 ) {
+	    *p = entry;
+	    return( 0 );
+	}
+
+    size = p - environ;
+    new_environ = (char **) malloc( (size+2)*PSIZE );
+
+    if ( new_environ == (char **) NULL )
+	return( -1 );
+
+    memcpy ((char *) new_environ, (const char *) environ, size*PSIZE );
+    new_environ[size]   = entry;
+    new_environ[size+1] = NULL;
+    environ = new_environ;
+
+    return(0);
+}
+#endif /* NEED_PUTENV */
+
+#ifdef NeXT
   /* provide function to repair broken tty settings
    * mega-ugly, but it seems to work
    * code provided by Christian Starkjohann <cs@ecs.co.at>
