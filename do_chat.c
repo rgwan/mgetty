@@ -1,4 +1,4 @@
-#ident "$Id: do_chat.c,v 1.38 1994/08/04 17:20:42 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: do_chat.c,v 1.39 1994/08/07 11:21:11 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* do_chat.c
  *
@@ -225,22 +225,34 @@ static	char	*lptr = lbuf;
     return retcode;
 }
 
+/* clean_line()
+ *
+ * wait for the line "fd" to be silent for "waittime" tenths of a second
+ * if more than 500 bytes are read, stop logging them. We don't want to
+ * have the log files fill up all of the hard disk.
+ */
+
 int clean_line _P2 ((fd, waittime), int fd, int waittime )
 {
-char	buffer[2];
+    char buffer[2];
+    int	 bytes = 0;				/* bytes read */
+
 #if defined(MEIBE) || defined(BROKEN_VTIME)
     /* on some systems, the VMIN/VTIME mechanism is obviously totally
      * broken. So, use a select()/flush queue loop instead.
      */
-    lprintf( L_NOISE, "waiting for line to clear" );
-    while( wait_for_input( fd, waittime * 100 ) )
+    lprintf( L_NOISE, "waiting for line to clear (select), read: " );
+
+    while( wait_for_input( fd, waittime * 100 ) &&
+	   read( fd, buffer, 1 ) > 0 &&
+	   bytes < 10000 )
     {
-	read( fd, buffer, 1); lputc( L_NOISE, buffer[0] );
+	if ( ++bytes < 500 ) lputc( L_NOISE, buffer[0] );
     }
 #else
 TIO	tio, save_tio;
 
-    lprintf( L_NOISE, "waiting for line to clear, read: " );
+    lprintf( L_NOISE, "waiting for line to clear (VTIME), read: " );
 
     /* set terminal timeout to "waittime" tenth of a second */
     tio_get( fd, &tio );
@@ -251,12 +263,21 @@ TIO	tio, save_tio;
     tio_set( fd, &tio );
 
     /* read everything that comes from modem until a timeout occurs */
-    while ( read( fd, buffer, 1 ) > 0 ) 
-        lputc( L_NOISE, buffer[0] );
+    while ( read( fd, buffer, 1 ) > 0 &&
+	    bytes < 10000 )
+    {
+        if ( ++bytes < 500 ) lputc( L_NOISE, buffer[0] );
+    }
 
     /* reset terminal settings */
     tio_set( fd, &save_tio );
     
-#endif	/* MEIBE */
+#endif
+
+    if ( bytes > 500 )
+        lprintf( L_WARN, "clean_line: only 500 of %d bytes logged", bytes );
+    if ( bytes >= 10000 )
+        lprintf( L_FATAL, "clean_line: got too many junk." );
+    
     return 0;
 }
