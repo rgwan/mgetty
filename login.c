@@ -1,4 +1,4 @@
-#ident "$Id: login.c,v 4.10 1999/05/24 13:35:31 gert Exp $ Copyright (C) 1993 Gert Doering"
+#ident "$Id: login.c,v 4.11 1999/11/02 14:23:39 gert Exp $ Copyright (C) 1993 Gert Doering"
 
 
 /* login.c
@@ -298,6 +298,10 @@ void login_dispatch _P3( (user, is_callback, cfg_file ),
 		else if ( strcmp( p, "\\I" ) == 0 )	/* Connect */
 		{
 		    argv[argc++] = Connect[0]? Connect: "??";
+		}
+		else if ( strcmp( p, "\\Y" ) == 0 )	/* CallerID */
+		{
+		    argv[argc++] = CallerId;
 		}
 		else
 		    argv[argc++] = p;
