@@ -3,7 +3,7 @@
  *
  * autodetect the modemtype we are connected to.
  *
- * $Id: detect.c,v 1.40 2002/12/12 06:44:37 gert Exp $
+ * $Id: detect.c,v 1.41 2004/07/03 11:36:33 gert Exp $
  *
  */
 
@@ -85,6 +85,8 @@ static const struct modem_type_struct modem_database[] =
      {ati, "28643",                NULL,   &ZyXEL_2864},
      {ati, "Venus V.90 USB U052099a", NULL, &Lucent},
      {ati, "AEIGPM560LKTF1  Voice V2 V92cap", NULL, &V253modem},
+     /* Hans Fugal <hans@fugal.net>, debian bug#254404 */
+     {ati, "AEIGPM560LKTF1",       NULL,   &Lucent},
      {ati, "Zoom V.90 PCI I030100gV -H Z207",NULL, &Lucent},
      {ati, "28800",                ati6, NULL},
      {ati, "2886",                 NULL,   &US_Robotics},
