@@ -40,6 +40,14 @@ that are to be sent with sendfax(8). The files have to exist, and be
 readable by the user that runs faxrunq(1). Required, except if "poll" is
 used, then it's optional.
 .TP
+.B priority <0-9>
+This can be used to set the priority for this job in the fax queue (higher
+priority jobs get sent before all lower-pri jobs). So far, only
+.I faxrunqd
+uses this field, 
+.I faxrunq
+does NOT. 9 is the highest, 0 the lowest priority. 5 is the default.
+.TP
 .B Status <message>
 Automatically appended by faxrunq(1) after each run, tells the reader
 about successful and unsuccessful tries to send this job. If more than
