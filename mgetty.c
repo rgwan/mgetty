@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.69 1993/11/29 21:58:39 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.70 1993/12/01 20:07:01 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -531,9 +531,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 	    log_level++; /*FIXME!!: remove this - for debugging only */
 	    
 	    if ( what_action != A_CONN &&
-#ifdef VOICE
-		 what_action != A_VCON &&
-#endif
+		 what_action != A_VCON &&	/* vgetty extensions */
 		 ( rings < rings_wanted ||
 	           do_chat( STDIN, answer_chat_seq, answer_chat_actions,
 			    &what_action, answer_chat_timeout, TRUE) == FAIL))
