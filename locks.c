@@ -1,4 +1,4 @@
-#ident "$Id: locks.c,v 2.4 1995/06/27 21:53:38 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
+#ident "$Id: locks.c,v 2.5 1995/08/09 10:07:57 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
 
 /* large parts of the code in this module are taken from the
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us,
@@ -117,7 +117,12 @@ int do_makelock _P0( void )
 		    {
 			/* pid that created lockfile is gone */
 			lprintf( L_NOISE, "stale lockfile, created by process %d, ignoring", pid );
-			(void) unlink(lock);
+			if ( unlink(lock) < 0 &&
+			         errno != EINTR && errno != ENOENT )
+			{
+			    lprintf( L_ERROR, "unlink() failed, giving up" );
+			    return FAIL;
+			}
 			continue;
 		    }
 		    
