@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 1.33 1994/04/09 14:10:58 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 1.34 1994/04/18 16:06:04 gert Exp $ Copyright (c) Gert Doering"
 ;
 #include <stdio.h>
 #ifndef _NOSTDLIB_H
@@ -164,6 +164,25 @@ char * ln_escape_prompt _P1( (ep), char * ep )
     return p;
 }
 
+/* return TRUE if all letters found in the string are uppercase
+ */
+
+boolean ln_all_upper _P1( (string), char * string )
+{
+    int i;
+    boolean uc = FALSE;
+
+    for ( i=0; string[i] != 0; i++ )
+    {
+	if ( islower( string[i] ) ) return FALSE;
+	if ( isupper( string[i] ) ) uc = TRUE;
+    }
+    if ( ! uc )		/* no letters at all */
+ 	return FALSE;	/* -> counted as lowercase */
+
+    return TRUE;
+}
+	
 
 /* set_env_var( var, string )
  *
@@ -219,10 +238,12 @@ int getlogname _P4( (prompt, tio, buf, maxsize),
 		    char * prompt, TIO * tio, char * buf,
 		    int maxsize )
 {
-int i;
-char ch;
-TIO tio_save;
-char * final_prompt;
+    int	 i;
+    char ch;
+    TIO  tio_save;
+    char *  final_prompt;
+
+    static boolean was_all_uc = FALSE;
 
     /* read character by character! */
     tio_save = *tio;
@@ -246,10 +267,10 @@ char * final_prompt;
     alarm( MAX_LOGIN_TIME );
 #endif
 
-newlogin:
+  newlogin:
 #ifdef FIDO
     printf( "**EMSI_REQA77E\r\021              \r" );
- newlogin_noemsi:
+  newlogin_noemsi:
 #endif
 
     printf( "\r\n%s", final_prompt );
@@ -352,6 +373,33 @@ newlogin:
     buf[--i] = 0;
 
     *tio = tio_save;
+
+    /* check whether all letters entered were uppercase, if yes, tell
+       user to try again with l/c, if it's all uppercase again on the
+       second try, enable UC<->LC mapping
+       */
+
+    if ( ln_all_upper( buf ) )
+    {
+	if ( !was_all_uc )	/* first time */
+	{
+	    printf("\r\n\nIf your terminal supports lower case letter, please\r\n");
+	    printf("use them. Login again, using lower case if possible\r\n\n");
+	    was_all_uc = TRUE;
+	    return -1;
+	}
+	else			/* second time */
+	{
+	    for ( i=0; buf[i] != 0; i++ )
+	        if ( isupper( buf[i] ) ) buf[i] = tolower(buf[i]);
+	    tio_map_uclc( tio, TRUE );
+	}
+    }
+
+    /* set CR/LF mapping according to the caracter the input was
+       ended with
+       */
+    
     if ( ch == '\n' )
     {
 	tio_map_cr( tio, FALSE );
