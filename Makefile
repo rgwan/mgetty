@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.12 1997/11/04 15:16:01 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.13 1997/11/04 15:16:40 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -243,6 +243,7 @@ AWK=awk
 # tells them where to find it. You can use everything except "faxrunqd"
 # and the "tkperl" frontends without PERL, so don't worry if you don't
 # have it.
+# If you specify command line arguments (-w), don't forget the quotes!
 PERL="/usr/bin/perl -w"
 #
 # If you have Perl with TK extentions, define it here. This may be the
