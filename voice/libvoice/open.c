@@ -8,7 +8,7 @@
 
 #include "../include/voice.h"
 
-char *libvoice_open_c = "$Id: open.c,v 1.1 1997/12/16 12:21:11 marc Exp $";
+char *libvoice_open_c = "$Id: open.c,v 1.2 1998/01/21 10:24:59 marc Exp $";
 
 int voice_open_device _P0(void)
      {
@@ -44,33 +44,14 @@ int voice_open_device _P0(void)
           if (makelock(&voice_tty[5]) == OK)
                {
 
-               if ((voice_fd = open(voice_tty, O_RDWR | O_NDELAY | O_NOCTTY))
-                == FAIL)
+               if ((voice_fd = open(voice_tty, O_RDWR | O_NDELAY | O_NOCTTY)) == FAIL)
                     {
                     lprintf(L_ERROR, "error opening %s", voice_tty);
                     rmlocks();
                     voice_fd = NO_VOICE_FD;
                     }
                else
-                    {
-
-                    /*
-                     * unset O_NDELAY (otherwise waiting for characters
-                     * would be "busy waiting", eating up all cpu)
-                     */
-
-                    if (fcntl(voice_fd, F_SETFL, O_RDWR) == FAIL)
-                         {
-                         lprintf(L_ERROR, "error in fcntl");
-                         close(voice_fd);
-                         rmlocks();
-                         voice_fd = NO_VOICE_FD;
-                         }
-                    else
-                         lprintf(L_MESG, "opened voice modem device %s",
-                          voice_tty);
-
-                    };
+                    lprintf(L_MESG, "opened voice modem device %s", voice_tty);
 
                };
 

@@ -7,7 +7,7 @@
 
 #include "../include/voice.h"
 
-char *libpvf_fft_c = "$Id: fft.c,v 1.1 1997/12/16 12:20:44 marc Exp $";
+char *libpvf_fft_c = "$Id: fft.c,v 1.2 1998/01/21 10:24:30 marc Exp $";
 
 static void fft (float *real, float *imag, int n)
      {

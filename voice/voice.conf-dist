@@ -2,7 +2,7 @@
 # Sample voice configuration file
 # -------------------------------
 #
-# $Id: voice.conf-dist,v 1.1 1997/12/16 10:48:10 marc Exp $
+# $Id: voice.conf-dist,v 1.2 1998/01/21 10:24:01 marc Exp $
 #
 # This file is read twice: First the program configuration is read and
 # second the port configuration. This means that generic values at the
@@ -42,6 +42,14 @@ voice_log_level 4
 voice_dir /var/spool/voice
 
 #
+# incoming messages are owned by "root.phone" and mode "rw-rw----" (0660)
+#
+
+phone_owner root
+phone_group phone
+phone_mode 0660
+
+#
 # Location of the flag file for new incoming messages relative to the
 # primary voice directory.
 #
@@ -79,7 +87,8 @@ backup_message standard.rmd
 #
 # Default port speed. The bps rate must be high enough for the compression
 # mode used. Note that this is an integer, not one of the Bxxxx defines.
-# This must be set to 38400 for Rockell modems. The default value is 38400.
+# Basically you should select the highest possible speed your modem and
+# computer support. The default value is 38400.
 #
 
 port_speed 38400
@@ -234,11 +243,11 @@ do_hard_flow true
 beep_frequency 933
 
 #
-# Length for the beep command in 0.01sec. The default is 1.5 seconds
-# (150 * 0.01 seconds).
+# Length for the beep command in msec. The default is 1.5 seconds
+# (1500 * 0.001 seconds).
 #
 
-beep_length 150
+beep_length 1500
 
 #
 # Number of tries to open a voice modem device. The default is 3.
@@ -255,7 +264,7 @@ retry_delay 5
 
 #
 # Default timeout for the voice watchdog. If this timer expires, the
-# running program will be terminated. The default is 30 seconds.
+# running program will be terminated. The default is 60 seconds.
 #
 
 watchdog_timeout 60
@@ -277,15 +286,21 @@ receive_gain -1
 transmit_gain -1
 
 #
-# Usually vgetty will enable the command echo from the modem. Since some
-# modems sometimes forget this echo, vgetty complains about it. With this
-# option you can turn the command echo off, which might make things more
-# reliable, but bugs are much harder to trace. So don't ever think about
-# mailing me a bug report with command echo turned off. I will simply ignore
-# it. The default is to enable command echo.
+# Usually command echo from the modem should be enabled. Since some modems
+# sometimes forget this echo, it is disabled by default. Turning this option
+# off makes things more reliable, but bugs are much harder to trace. So
+# don't ever think about mailing me a bug report with command echo turned
+# off. I will simply ignore it. The default is to disable command echo.
 #
 
-enable_command_echo true
+enable_command_echo false
+
+#
+# Time in msec for the delay, when no new data are received from the modem. A higher value will decrease
+# machine load by increasing vgettys reaction time. The default is 10 msec.
+#
+
+poll_interval 10
 
 #
 # Program specific initializations
@@ -310,6 +325,11 @@ program vgetty
 # lead to the file name "/etc/rings.ttyS0". If this file doesn't
 # exist, vgetty will check for a file without the modem device name
 # appended. In this example, vgetty would check for /etc/rings.
+#
+# Please note, that vgetty forces the number of rings to be at least 2.
+# This is, because the caller ID information (if available from your
+# provider) is sent between the first and the second ring. Since we don't
+# know in advance, if you get CID or not, we stay on the save side.
 #
 # The default is 3
 #

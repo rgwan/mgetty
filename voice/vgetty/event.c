@@ -7,7 +7,7 @@
 
 #include "../include/voice.h"
 
-char *vgetty_event_c = "$Id: event.c,v 1.1 1997/12/16 12:21:48 marc Exp $";
+char *vgetty_event_c = "$Id: event.c,v 1.2 1998/01/21 10:25:31 marc Exp $";
 
 int vgetty_handle_event _P2((event, data), int event, event_data data)
      {

@@ -1,4 +1,3 @@
-
  Credits for vgetty
  ------------------
 
@@ -30,6 +29,11 @@ complete yet, so don't hesitate to write me, who's missing.
  * Ard van Breemen <ard@cstmel.hobby.nl>
 
    Hardwaredriver for Rockwell modems and various patches.
+
+ * Danny Brigance <dbrig@fastlane.net>
+
+   Added config file option to set user, group and permission for recorded
+   voice files.
 
  * Lupe Christoph <lupe@alanya.m.isar.de>
 
@@ -178,4 +182,9 @@ complete yet, so don't hesitate to write me, who's missing.
 
    Many suggestions and bug fixes including ANSI C compatibility.
 
-$Id: Credits,v 1.1 1997/12/16 10:48:05 marc Exp $
+ * Thomas Ziegler <zie@lte.e-technik.uni-erlangen.de>
+
+   Button.sh script for handling the DATA/VOICE button on ZyXEL 1496
+   modems.
+
+$Id: Credits,v 1.2 1998/01/21 10:23:57 marc Exp $

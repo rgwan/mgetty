@@ -7,7 +7,7 @@
 
 #include "../include/voice.h"
 
-char *libpvf_au_c = "$Id: au.c,v 1.1 1997/12/16 12:20:43 marc Exp $";
+char *libpvf_au_c = "$Id: au.c,v 1.2 1998/01/21 10:24:29 marc Exp $";
 
 typedef long Word; /* must be 32 bits */
 

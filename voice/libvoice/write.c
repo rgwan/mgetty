@@ -7,7 +7,7 @@
 
 #include "../include/voice.h"
 
-char *libvoice_write_c = "$Id: write.c,v 1.1 1997/12/16 12:21:21 marc Exp $";
+char *libvoice_write_c = "$Id: write.c,v 1.2 1998/01/21 10:25:05 marc Exp $";
 
 #if !defined(NeXT) || defined(NEXTSGTTY)
 # ifdef USE_VARARGS
@@ -67,6 +67,7 @@ int voice_write_char(char charout)
 
           if ((result < 0) && (errno != 0) && (errno != EINTR))
                {
+               errno = 0;
                lprintf(L_ERROR, "%s: could not write character to voice modem",
                 program_name);
                return(FAIL);
@@ -74,6 +75,7 @@ int voice_write_char(char charout)
 
           };
 
+     errno = 0;
      lprintf(L_ERROR, "%s: timeout while writing character to voice modem",
       program_name);
      return(FAIL);
@@ -93,6 +95,7 @@ int voice_write_raw(char *buffer, int count)
 
           if ((result < 0) && (errno != 0) && (errno != EINTR))
                {
+               errno = 0;
                lprintf(L_ERROR, "%s: could not write buffer to voice modem",
                 program_name);
                return(FAIL);
@@ -109,6 +112,7 @@ int voice_write_raw(char *buffer, int count)
      if (count == 0)
           return(OK);
 
+     errno = 0;
      lprintf(L_ERROR, "%s: timeout while writing buffer to voice modem",
       program_name);
      return(FAIL);

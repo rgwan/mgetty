@@ -8,36 +8,37 @@
 
 #include "../include/voice.h"
 
-char *libvocice_flush_c = "$Id: flush.c,v 1.1 1997/12/16 12:21:09 marc Exp $";
+char *libvocice_flush_c = "$Id: flush.c,v 1.2 1998/01/21 10:24:58 marc Exp $";
 
-int voice_flush _P1((timeout), int timeout)
+void voice_flush(int timeout)
      {
-     TIO tio;
-     TIO save_tio;
+     int modem_byte;
      int first_char = TRUE;
-     char char_read;
 
-     tio_get(voice_fd, &tio);
-     save_tio = tio;
-     tio.c_lflag &= ~ICANON;
-     tio.c_cc[VMIN] = 0;
-     tio.c_cc[VTIME] = timeout;
-     tio_set(voice_fd, &tio);
+     do
+          {
 
-     while (read(voice_fd, &char_read, 1) == 1)
+          while ((modem_byte = voice_read_byte()) >= 0)
+               {
 
-          if ((char_read == 0x0a) || (char_read == 0x0d))
-               first_char = TRUE;
-          else
-
-               if (first_char)
-                    {
-                    first_char = FALSE;
-                    lprintf(L_JUNK, "%s: %c", voice_modem_name, char_read);
-                    }
+               if ((modem_byte == 0x0a) || (modem_byte == 0x0d))
+                    first_char = TRUE;
                else
-                    lputc(L_JUNK, char_read);
 
-     tio_set(voice_fd, &save_tio);
-     return(OK);
+                    if (first_char)
+                         {
+                         first_char = FALSE;
+                         lprintf(L_JUNK, "%s: %c", voice_modem_name, modem_byte);
+                         }
+                    else
+                         lputc(L_JUNK, modem_byte);
+
+               }
+
+          if (timeout > 0)
+               delay(100 * timeout);
+
+          }
+     while (voice_check_for_input());
+
      }

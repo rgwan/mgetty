@@ -10,7 +10,7 @@
 
 #include "../include/voice.h"
 
-char *basictopvf_c = "$Id: basictopvf.c,v 1.1 1997/12/16 12:21:27 marc Exp $";
+char *basictopvf_c = "$Id: basictopvf.c,v 1.2 1998/01/21 10:25:07 marc Exp $";
 char *program_name;
 
 static void usage (void)

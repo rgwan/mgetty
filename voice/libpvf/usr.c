@@ -129,6 +129,24 @@ static int usrgsmtopvf (FILE *fd_in, FILE *fd_out, pvf_header *header_out)
          return(ERROR);
        }
 
+       /* --- MNI_p/JoSch --->
+        *   I don'n know how this (now redundant to leave libmgsm untouched
+        *   -> see ../libmgsm/decode.c line 20) control for GSM_MAGIC
+        *   works with other USR- modems. Do they realy produce wrong
+        *   bytes so that it is necessary to control it?
+        *   For my US Robotics Vi 28.8 Faxmodem (gr) with Personal Voice
+        *   Mail (speed 33600) this seems to work.
+        *   May be there is a modem-setting I don't know (I don't know
+        *   any voice-settig-switches for this modem) that switches the
+        *   modem to a workable compression. At this time this patch works
+        *   for me until I get informations from the USR-Support.
+        */
+
+       if (((*s >> 4) & 0x0F) != GSM_MAGIC)
+         *s |= (GSM_MAGIC << 4);
+
+       /* <--- MNI_p/JoSch --- */
+
        if (gsm_decode(r, s, d)) {
          fprintf(stderr, "%s: bad frame in input\n", program_name);
          gsm_destroy(r);

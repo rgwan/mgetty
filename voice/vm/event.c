@@ -6,7 +6,7 @@
 
 #include "vm.h"
 
-char *vm_event_c = "$Id: event.c,v 1.1 1997/12/16 12:21:51 marc Exp $";
+char *vm_event_c = "$Id: event.c,v 1.2 1998/01/21 10:25:34 marc Exp $";
 
 int handle_event _P2((event, data), int event, event_data data)
      {

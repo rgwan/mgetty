@@ -9,7 +9,7 @@
 
 #include "vm.h"
 
-char *vm_main_c = "$Id: main.c,v 1.1 1997/12/16 12:21:51 marc Exp $";
+char *vm_main_c = "$Id: main.c,v 1.2 1998/01/21 10:25:35 marc Exp $";
 
 /*
  * Global variables definition

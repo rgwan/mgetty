@@ -6,7 +6,7 @@
  */
 
 #ifdef MAIN
-char *voice_header_h = "$Id: header.h,v 1.1 1997/12/16 11:49:18 marc Exp $";
+char *voice_header_h = "$Id: header.h,v 1.2 1998/01/21 10:24:09 marc Exp $";
 #endif
 
 typedef struct

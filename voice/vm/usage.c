@@ -7,7 +7,7 @@
 
 #include "vm.h"
 
-char *vm_usage_c = "$Id: usage.c,v 1.1 1997/12/16 12:21:52 marc Exp $";
+char *vm_usage_c = "$Id: usage.c,v 1.2 1998/01/21 10:25:36 marc Exp $";
 
 void usage _P0(void)
      {

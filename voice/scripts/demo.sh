@@ -4,7 +4,7 @@
 # This is a demo script for the new interface between shell scripts and
 # the voice library
 #
-# $Id: demo.sh,v 1.1 1997/12/16 12:21:40 marc Exp $
+# $Id: demo.sh,v 1.2 1998/01/21 10:25:21 marc Exp $
 #
 
 #

@@ -4,7 +4,7 @@
 
               The voice extensions for the mgetty+sendfax package
 
-                    Copyright (C) 1995, 1997 Marc Eberhard.
+                    Copyright (C) 1995-1998 Marc Eberhard.
 
 
   The legal stuff
@@ -33,10 +33,10 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  --------------
 
 WARNING: * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-         *                                                             *
-         *   T H I S   I S   A   B E T A   T E S T   R E L E A S E !   *
-         *                                                             *
-         * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+WARNING: *                                                             *
+WARNING: *   T H I S   I S   A   B E T A   T E S T   R E L E A S E !   *
+WARNING: *                                                             *
+WARNING: * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 
   Hints
@@ -81,4 +81,4 @@ Vgetty is currently developed and maintained by
 
 with help from many other people. See the Credits file for details.
 
-$Id: Readme,v 1.1 1997/12/16 10:48:06 marc Exp $
+$Id: Readme,v 1.2 1998/01/21 10:23:59 marc Exp $

@@ -4,7 +4,7 @@
  * details.  THERE IS ABSOLUTELY NO WARRANTY FOR THIS SOFTWARE.
  */
 
-/*$Header: /u2/cvs/mgetty/voice/libmgsm/private.h,v 1.1 1997/12/16 11:49:43 marc Exp $*/
+/*$Header: /u2/cvs/mgetty/voice/libmgsm/private.h,v 1.2 1998/01/21 10:24:23 marc Exp $*/
 
 #ifndef   PRIVATE_H
 #define   PRIVATE_H

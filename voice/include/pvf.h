@@ -5,7 +5,7 @@
  */
 
 #ifdef MAIN
-char *pvf_h = "$Id: pvf.h,v 1.1 1997/12/16 11:49:20 marc Exp $";
+char *pvf_h = "$Id: pvf.h,v 1.2 1998/01/21 10:24:10 marc Exp $";
 #endif
 
 #include "wav.h"
@@ -89,6 +89,9 @@ extern int pvftousr (FILE *fd_in, FILE *fd_out, int compression,
  pvf_header *header_in);
 extern int usrtopvf (FILE *fd_in, FILE *fd_out, int compression,
  pvf_header *header_out);
+
+extern int pvftoimaadpcm (FILE *fd_in, FILE *fd_out, pvf_header *header_in);
+extern int imaadpcmtopvf (FILE *fd_in, FILE *fd_out, pvf_header *header_out);
 
 extern int pvftovoc (FILE *fd_in, FILE *fd_out, pvf_header *header_in);
 extern int voctopvf (FILE *fd_in, FILE *fd_out, pvf_header *header_out);

@@ -6,7 +6,7 @@
  */
 
 #ifdef MAIN
-char *wav_h = "$Id: wav.h,v 1.1 1997/12/16 11:49:24 marc Exp $";
+char *wav_h = "$Id: wav.h,v 1.2 1998/01/21 10:24:12 marc Exp $";
 #endif
 
 #define   WAVE_FORMAT_UNKNOWN      (0x0000)

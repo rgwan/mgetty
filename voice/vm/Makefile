@@ -3,7 +3,7 @@
 #
 # This is the Makefile for libvoice.
 #
-# $Id: Makefile,v 1.1 1997/12/16 12:21:50 marc Exp $
+# $Id: Makefile,v 1.2 1998/01/21 10:25:34 marc Exp $
 #
 
 MGETTYOBJS=../../cnd.o ../../faxhng.o ../../faxlib.o ../../faxrecp.o \

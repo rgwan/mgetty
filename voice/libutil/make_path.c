@@ -7,7 +7,7 @@
 
 #include "../include/voice.h"
 
-char *libutil_make_path_c = "$Id: make_path.c,v 1.1 1997/12/16 12:20:54 marc Exp $";
+char *libutil_make_path_c = "$Id: make_path.c,v 1.2 1998/01/21 10:24:40 marc Exp $";
 
 void make_path _P3((result, path, name), char *result, char *path,
  char *name)

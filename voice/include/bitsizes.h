@@ -5,7 +5,7 @@
  */
 
 #ifdef MAIN
-char *bitsizes_h = "$Id: bitsizes.h,v 1.1 1997/12/16 11:49:13 marc Exp $";
+char *bitsizes_h = "$Id: bitsizes.h,v 1.2 1998/01/21 10:24:05 marc Exp $";
 #endif
 
 typedef short              vgetty_s_int16;

@@ -8,7 +8,7 @@
 
 #include "../include/voice.h"
 
-char *pvftovoc_c = "$Id: pvftolin.c,v 1.1 1997/12/16 12:21:34 marc Exp $";
+char *pvftovoc_c = "$Id: pvftolin.c,v 1.2 1998/01/21 10:25:15 marc Exp $";
 char *program_name;
 
 static void usage (void)

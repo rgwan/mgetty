@@ -8,7 +8,7 @@
 
 #include "../include/voice.h"
 
-char *libvoice_event_c = "$Id: event.c,v 1.1 1997/12/16 12:21:09 marc Exp $";
+char *libvoice_event_c = "$Id: event.c,v 1.2 1998/01/21 10:24:57 marc Exp $";
 
 static volatile int event_count = 0;
 static volatile int first_event = 0;
@@ -24,7 +24,61 @@ static volatile struct
      event_type* event;
      } event_queue[MAX_EVENTS];
 
-void reset_watchdog (int count)
+static struct
+     {
+     char *name;
+     int number;
+     } event_names[] =
+     {
+     {"BONG_TONE",                BONG_TONE},
+     {"BUSY_TONE",                BUSY_TONE},
+     {"CALL_WAITING",             CALL_WAITING},
+     {"DIAL_TONE",                DIAL_TONE},
+     {"DATA_CALLING_TONE",        DATA_CALLING_TONE},
+     {"DATA_OR_FAX_DETECTED",     DATA_OR_FAX_DETECTED},
+     {"FAX_CALLING_TONE",         FAX_CALLING_TONE},
+     {"HANDSET_ON_HOOK",          HANDSET_ON_HOOK},
+     {"HANDSET_OFF_HOOK",         HANDSET_OFF_HOOK},
+     {"LOOP_BREAK",               LOOP_BREAK},
+     {"LOOP_POLARITY_CHANGE",     LOOP_POLARITY_CHANGE},
+     {"NO_ANSWER",                NO_ANSWER},
+     {"NO_CARRIER",               NO_CARRIER},
+     {"NO_DIAL_TONE",             NO_DIAL_TONE},
+     {"NO_VOICE_ENERGY",          NO_VOICE_ENERGY},
+     {"RING_DETECTED",            RING_DETECTED},
+     {"RINGBACK_DETECTED",        RINGBACK_DETECTED},
+     {"RECEIVED_DTMF",            RECEIVED_DTMF},
+     {"SILENCE_DETECTED",         SILENCE_DETECTED},
+     {"SIT_TONE",                 SIT_TONE},
+     {"TDD_DETECTED",             TDD_DETECTED},
+     {"VOICE_DETECTED",           VOICE_DETECTED},
+     {"RESET_WATCHDOG",           RESET_WATCHDOG},
+     {"SIGNAL_SIGCHLD",           SIGNAL_SIGCHLD},
+     {"SIGNAL_SIGHUP",            SIGNAL_SIGHUP},
+     {"SIGNAL_SIGINT",            SIGNAL_SIGINT},
+     {"SIGNAL_SIGPIPE",           SIGNAL_SIGPIPE},
+     {"SIGNAL_SIGQUIT",           SIGNAL_SIGQUIT},
+     {"SIGNAL_SIGTERM",           SIGNAL_SIGTERM},
+     {"SIGNAL_SIGUSR1",           SIGNAL_SIGUSR1},
+     {"SIGNAL_SIGUSR2",           SIGNAL_SIGUSR2},
+     {"", 0}
+     };
+
+char *event_name(int event)
+     {
+     static int i = 0;
+     static char tmp_string[10];
+
+     for (i = 0; (event_names[i].number != 0); i++)
+
+          if (event_names[i].number == event)
+               return(event_names[i].name);
+
+     sprintf(tmp_string, "0x%04x", event);
+     return(tmp_string);
+     }
+
+void reset_watchdog(int count)
      {
      static int skip_count = 0;
 
@@ -40,8 +94,8 @@ int voice_handle_event(int event, event_data data)
      {
      int result;
 
-     lprintf(L_JUNK, "%s: voice_handle_event got event 0x%x with data <%c>",
-      program_name, event, data.c);
+     lprintf(L_JUNK, "%s: voice_handle_event got event %s with data <%c>", program_name, event_name(event),
+      data.c);
 
      if ((event == FAX_CALLING_TONE) && (cvd.ignore_fax_dle.d.i))
           return(OK);
@@ -133,9 +187,8 @@ int voice_handle_event(int event, event_data data)
           return(OK);
           }
 
-     lprintf(L_WARN,
-      "%s: voice_handle_event got unknown event 0x%x with data <%c>",
-      program_name, event, data.c);
+     lprintf(L_WARN, "%s: voice_handle_event got unknown event %s with data <%c>", program_name,
+      event_name(event), data.c);
      return(UNKNOWN_EVENT);
      }
 
@@ -149,8 +202,7 @@ void voice_check_events _P0(void)
           if (voice_handle_event(event->event, event->data) == FAIL)
                {
                errno = 0;
-               lprintf(L_ERROR, "%s: Could not handle event, something failed",
-                program_name);
+               lprintf(L_ERROR, "%s: Could not handle event, something failed", program_name);
                exit(99);
                };
 
@@ -199,8 +251,7 @@ event_type* create_event(int event)
      if (new_event != NULL)
           new_event->event = event;
      else
-          lprintf(L_ERROR, "%s: Could not allocate memory for event record",
-           program_name);
+          lprintf(L_ERROR, "%s: Could not allocate memory for event record", program_name);
 
      return(new_event);
      }
@@ -223,8 +274,7 @@ int queue_event(event_type* event)
 
      if (event_count >= MAX_EVENTS)
           {
-          lprintf(L_ERROR, "%s: event queue full, ignoring event",
-           program_name);
+          lprintf(L_ERROR, "%s: event queue full, ignoring event", program_name);
           event_queue[event_number].write_lock--;
           event_count--;
           return(FAIL);
@@ -240,8 +290,8 @@ int queue_event(event_type* event)
      last_event = (last_event + 1) % MAX_EVENTS;
      event_queue[event_number].event = event;
      event_queue[event_number].write_lock--;
-     lprintf(L_JUNK, "%s: queued event 0x%04x at position %04d",
-      program_name, event->event, event_number);
+     lprintf(L_JUNK, "%s: queued event %s at position %04d", program_name, event_name(event->event),
+      event_number);
      return(OK);
      }
 
@@ -275,7 +325,7 @@ event_type* unqueue_event(void)
 
      first_event = (first_event + 1) % MAX_EVENTS;
      event_queue[event_number].read_lock--;
-     lprintf(L_JUNK, "%s: unqueued event 0x%04x at position %04d",
-      program_name, event_queue[event_number].event->event, event_number);
+     lprintf(L_JUNK, "%s: unqueued event %s at position %04d", program_name,
+      event_name(event_queue[event_number].event->event), event_number);
      return(event_queue[event_number].event);
      }

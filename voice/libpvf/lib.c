@@ -7,7 +7,7 @@
 
 #include "../include/voice.h"
 
-char *libpvf_lib_c = "$Id: lib.c,v 1.1 1997/12/16 12:20:45 marc Exp $";
+char *libpvf_lib_c = "$Id: lib.c,v 1.2 1998/01/21 10:24:31 marc Exp $";
 
 rmd_header init_rmd_header = {"RMD1", "", 0x0000, 0, 0, {0x00, 0x00, 0x00,
  0x00, 0x00, 0x00, 0x00}};

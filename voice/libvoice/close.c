@@ -7,7 +7,7 @@
 
 #include "../include/voice.h"
 
-char *libvoice_close_c = "$Id: close.c,v 1.1 1997/12/16 12:21:07 marc Exp $";
+char *libvoice_close_c = "$Id: close.c,v 1.2 1998/01/21 10:24:55 marc Exp $";
 
 int voice_close_device _P0(void)
      {

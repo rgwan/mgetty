@@ -3,10 +3,10 @@
 #
 # This is the Makefile for libutil.
 #
-# $Id: Makefile,v 1.1 1997/12/16 12:20:51 marc Exp $
+# $Id: Makefile,v 1.2 1998/01/21 10:24:37 marc Exp $
 #
 
-UTILOBJS=check_system.o config.o no_modem.o make_path.o ../../config.o ../../logfile.o strsep.o
+UTILOBJS=check_system.o config.o no_modem.o make_path.o strsep.o ../../config.o ../../logfile.o
 
 .c.o:
 	$(CC) $(CFLAGS) -c $*.c

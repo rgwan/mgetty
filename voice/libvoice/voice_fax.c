@@ -4,7 +4,7 @@
  *
  */
 
-char *voice_fax_c = "$Id: voice_fax.c,v 1.1 1997/12/16 12:21:20 marc Exp $";
+char *voice_fax_c = "$Id: voice_fax.c,v 1.2 1998/01/21 10:25:04 marc Exp $";
 
 #include <stdio.h>
 #include <string.h>

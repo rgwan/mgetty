@@ -4,7 +4,7 @@
  * details.  THERE IS ABSOLUTELY NO WARRANTY FOR THIS SOFTWARE.
  */
 
-/* $Header: /u2/cvs/mgetty/voice/libmgsm/code.c,v 1.1 1997/12/16 11:49:30 marc Exp $ */
+/* $Header: /u2/cvs/mgetty/voice/libmgsm/code.c,v 1.2 1998/01/21 10:24:15 marc Exp $ */
 
 #include  "config.h"
 

@@ -1,24 +1,32 @@
 /*
  * IS_101.c
  *
- * This file contains generic hardware driver functions for modems
- * that follow the IS-101 interim standard for voice modems.
+ * This file contains generic hardware driver functions for modems that
+ * follow the IS-101 interim standard for voice modems. Since the commands
+ * are set in the modem structure, it should be quite generic.
  *
  */
 
 #include "../include/voice.h"
 
-char *libvoice_IS_101_c = "$Id: IS_101.c,v 1.1 1997/12/16 12:21:00 marc Exp $";
+char *libvoice_IS_101_c = "$Id: IS_101.c,v 1.2 1998/01/21 10:24:47 marc Exp $";
 
 /*
  * Here we save the current mode of operation of the voice modem when
  * switching to voice mode, so that we can restore it afterwards.
  */
 
-static char mode_save[VOICE_BUF_LEN] = "";
+static char mode_save[16] = "";
 
 /*
- * Internal status variables for aborting some voice modem actions.
+ * This variable holds the original tio settings during playback and
+ * recording, so that they can be restored afterwards.
+ */
+
+TIO tio_save;
+
+/*
+ * Internal status variables for stoping voice modem actions.
  */
 
 static int stop_dialing;
@@ -26,49 +34,36 @@ static int stop_playing;
 static int stop_recording;
 static int stop_waiting;
 
-/*
- * We expect a maximum of 8 bit with 44100 samples per second, thus we need
- * a buffer size of 4410 bytes
- */
-
-#define IS_101_BUFFER_SIZE 4410
-static int buffer_size = IS_101_BUFFER_SIZE;
-
-int IS_101_answer_phone (void)
+int IS_101_answer_phone(void)
      {
-     reset_watchdog(0);
 
-     if (voice_command("AT+VLS=2", "OK") != VMA_USER_1)
+     if ((voice_command(voice_modem->pick_phone_cmnd,
+      voice_modem->pick_phone_answr) & VMA_USER) != VMA_USER)
           return(VMA_ERROR);
 
      return(VMA_OK);
      }
 
-int IS_101_beep (int frequency, int length)
+int IS_101_beep(int frequency, int length)
      {
      char buffer[VOICE_BUF_LEN];
-     time_t timeout;
+     int true_length = length / voice_modem->beep_timeunit;
 
      reset_watchdog(0);
-     timeout = time(NULL) + length / 100 + cvd.port_timeout.d.i;
-     sprintf(buffer, "AT+VTS=[%d,0,%d]", frequency, length);
+     sprintf(buffer, voice_modem->beep_cmnd, frequency, true_length);
 
      if (voice_command(buffer, "") != OK)
           return(FAIL);
 
-     while ((!check_for_input(voice_fd)) && (timeout > time(NULL)))
-          {
-          reset_watchdog(100);
-          delay(10);
-          };
+     delay(((length - 1000) > 0) ? (length - 1000) : 0);
 
-     if (voice_command("", "OK") != VMA_USER_1)
+     if ((voice_command("", voice_modem->beep_answr) & VMA_USER) != VMA_USER)
           return(FAIL);
 
      return(OK);
      }
 
-int IS_101_dial (char *number)
+int IS_101_dial(char *number)
      {
      char command[VOICE_BUF_LEN];
      char buffer[VOICE_BUF_LEN];
@@ -84,6 +79,13 @@ int IS_101_dial (char *number)
 
      if (voice_write(command) != OK)
           return(FAIL);
+
+     /*
+      * Hack to read the ATD... echo that is send by the modem
+      * without the final CR
+      */
+
+     voice_flush(1);
 
      while ((!stop_dialing) && (timeout >= time(NULL)))
           {
@@ -135,13 +137,13 @@ int IS_101_dial (char *number)
                delay(100);
 
           voice_check_events();
-          };
+          }
 
      voice_modem_state = IDLE;
      return(result);
      }
 
-int IS_101_handle_dle (char data)
+int IS_101_handle_dle(char data)
      {
 
      switch (data)
@@ -420,16 +422,15 @@ int IS_101_handle_dle (char data)
      return(FAIL);
      }
 
-int IS_101_init (void)
+int IS_101_init(void)
      {
      errno = ENOSYS;
-     lprintf(L_ERROR, "%s: init called", voice_modem_name);
+     LPRINTF(L_ERROR, "%s: init called", voice_modem_name);
      return(FAIL);
      }
 
-int IS_101_message_light_off (void)
+int IS_101_message_light_off(void)
      {
-     reset_watchdog(0);
 
      if (voice_command("ATS0=0", "OK") != VMA_USER_1)
           return(FAIL);
@@ -437,9 +438,8 @@ int IS_101_message_light_off (void)
      return(OK);
      }
 
-int IS_101_message_light_on (void)
+int IS_101_message_light_on(void)
      {
-     reset_watchdog(0);
 
      if (voice_command("ATS0=254", "OK") != VMA_USER_1)
           return(FAIL);
@@ -447,15 +447,9 @@ int IS_101_message_light_on (void)
      return(OK);
      }
 
-int IS_101_play_file (int fd)
+int IS_101_start_play_file(void)
      {
-     TIO tio_save;
      TIO tio;
-     char input_buffer[IS_101_BUFFER_SIZE];
-     char output_buffer[2 * IS_101_BUFFER_SIZE];
-     int i;
-     int bytes_in;
-     int bytes_out;
 
      reset_watchdog(0);
      stop_playing = FALSE;
@@ -467,7 +461,8 @@ int IS_101_play_file (int fd)
      if (cvd.do_hard_flow.d.i)
           {
 
-          if (voice_command("AT+FLO=2", "OK") != VMA_USER_1)
+          if ((voice_command(voice_modem->hardflow_cmnd,
+           voice_modem->hardflow_answr) & VMA_USER) != VMA_USER)
                return(FAIL);
 
           tio_set_flow_control(voice_fd, &tio, FLOW_HARD | FLOW_XON_OUT);
@@ -475,7 +470,8 @@ int IS_101_play_file (int fd)
      else
           {
 
-          if (voice_command("AT+FLO=1", "OK") != VMA_USER_1)
+          if ((voice_command(voice_modem->softflow_cmnd,
+           voice_modem->softflow_answr) & VMA_USER) != VMA_USER)
                return(FAIL);
 
           tio_set_flow_control(voice_fd, &tio, FLOW_XON_OUT);
@@ -483,43 +479,114 @@ int IS_101_play_file (int fd)
 
      tio_set(voice_fd, &tio);
 
-     if (voice_command("AT+VTX", "CONNECT") != VMA_USER_1)
+     if ((voice_command(voice_modem->start_play_cmnd,
+      voice_modem->start_play_answr) & VMA_USER) != VMA_USER)
           return(FAIL);
 
-     while (!stop_playing)
-          {
-          reset_watchdog(10);
+     return(OK);
+     }
 
-          if ((bytes_in = read(fd, input_buffer, buffer_size)) <= 0)
-               break;
+int IS_101_reset_play_file(void)
+     {
+
+     if (voice_write_raw(voice_modem->reset_play_cmnd, strlen(
+      voice_modem->reset_play_cmnd)) != OK)
+          return(FAIL);
+
+     lprintf(L_JUNK, "%s: <RESET PLAY>", program_name);
+     return(OK);
+     }
+
+int IS_101_stop_play_file(void)
+     {
+
+     if (stop_playing)
+          {
+          tio_flush_queue(voice_fd, TIO_Q_OUT);
+
+          if (voice_write_raw("", 1) != OK)
+               return(FAIL);
+
+          if (voice_write_raw(voice_modem->intr_play_cmnd, strlen(
+           voice_modem->intr_play_cmnd)) != OK)
+               return(FAIL);
+
+          lprintf(L_JUNK, "%s: <INTERRUPT PLAY>", program_name);
+
+          if ((voice_command("", voice_modem->intr_play_answr) & VMA_USER) !=
+           VMA_USER)
+               return(FAIL);
+          }
+     else
+          {
+
+          if (voice_write_raw(voice_modem->stop_play_cmnd, strlen(
+           voice_modem->stop_play_cmnd)) != OK)
+               return(FAIL);
+
+          lprintf(L_JUNK, "%s: <STOP PLAY>", program_name);
+
+          if ((voice_command("", voice_modem->stop_play_answr) & VMA_USER) !=
+           VMA_USER)
+               return(FAIL);
+          }
+
+     tio_set(voice_fd, &tio_save);
+     voice_check_events();
+     voice_modem_state = IDLE;
+     return(OK);
+     }
+
+int IS_101_play_file(FILE *fd, int bps)
+     {
+     static char output_buffer[1025];
+     int bytes_out;
+     int count = 0;
+     int count_limit = bps / 8 * cvd.watchdog_timeout.d.i / 2;
+     int play_complete = FALSE;
+
+     while ((!stop_playing) && (!play_complete))
+          {
+          static int modem_byte;
+          static int data_byte;
 
           bytes_out = 0;
 
-          for(i = 0; i < bytes_in; i++)
+          while (bytes_out < 1024)
                {
-               output_buffer[bytes_out] = input_buffer[i];
+
+               if ((data_byte = fgetc(fd)) == EOF)
+                    {
+                    play_complete = TRUE;
+                    break;
+                    }
+
+               output_buffer[bytes_out] = data_byte;
 
                if (output_buffer[bytes_out++] == DLE)
                     output_buffer[bytes_out++] = DLE;
 
                };
 
-          lprintf(L_JUNK, "%s: <DATA %d bytes>", program_name, bytes_out);
-
           if (voice_write_raw(output_buffer, bytes_out) != OK)
                return(FAIL);
 
-          while (check_for_input(voice_fd))
-               {
-               char modem_byte;
+          count += bytes_out;
 
-               if ((modem_byte = voice_read_char()) == FAIL)
-                    return(FAIL);
+          if (count > count_limit)
+               {
+               lprintf(L_JUNK, "%s: <VOICE DATA %d bytes>", program_name, count);
+               reset_watchdog(0);
+               count = 0;
+               }
+
+          while ((modem_byte = voice_read_byte()) >= 0)
+               {
 
                if (modem_byte == DLE)
                     {
 
-                    if ((modem_byte = voice_read_char()) == FAIL)
+                    if ((modem_byte = voice_read_byte()) < 0)
                          return(FAIL);
 
                     lprintf(L_JUNK, "%s: <DLE> <%c>", voice_modem_name,
@@ -535,59 +602,26 @@ int IS_101_play_file (int fd)
           voice_check_events();
           };
 
-     if (stop_playing)
+     if (count > 0)
           {
-
-          if (voice_modem == &ZyXEL_1496)
-               {
-               sprintf(output_buffer, "%c%c", DLE, DC4);
-               lprintf(L_JUNK, "%s: <DLE> <DC4>", program_name);
-               }
-          else
-               {
-               sprintf(output_buffer, "%c%c%c%c", DLE, CAN, DLE, ETX);
-               lprintf(L_JUNK, "%s: <DLE> <CAN> <DLE> <ETX>", program_name);
-               };
-
+          lprintf(L_JUNK, "%s: <VOICE DATA %d bytes>", program_name, count);
+          reset_watchdog(0);
           }
-     else
-          {
-          sprintf(output_buffer, "%c%c", DLE, ETX);
-          lprintf(L_JUNK, "%s: <DLE> <ETX>", program_name);
-          };
-
-     if (voice_write_raw(output_buffer, strlen(output_buffer)) != OK)
-          return(FAIL);
-
-     if ((voice_command("", "OK|VCON") & VMA_USER) != VMA_USER)
-          return(FAIL);
-
-     tio_set(voice_fd, &tio_save);
-
-     if (voice_command("AT", "OK") != VMA_USER_1)
-          return(FAIL);
-
-     voice_check_events();
-     voice_modem_state = IDLE;
-
-     if (stop_playing)
-          return(INTERRUPTED);
 
      return(OK);
      }
 
-int IS_101_record_file (int fd)
+int IS_101_record_file(FILE *fd, int bps)
      {
      TIO tio_save;
      TIO tio;
      time_t timeout;
-     char input_buffer[IS_101_BUFFER_SIZE];
-     char output_buffer[IS_101_BUFFER_SIZE];
-     int i = 0;
-     int bytes_in = 0;
-     int bytes_out;
+     int input_byte;
      int got_DLE_ETX = FALSE;
      int was_DLE = FALSE;
+     int tcount = 0;
+     int count = 0;
+     int count_limit = bps / 8 * cvd.watchdog_timeout.d.i / 2;
 
      reset_watchdog(0);
      timeout = time(NULL) + cvd.rec_max_len.d.i;
@@ -600,7 +634,8 @@ int IS_101_record_file (int fd)
      if (cvd.do_hard_flow.d.i)
           {
 
-          if (voice_command("AT+FLO=2", "OK") != VMA_USER_1)
+          if ((voice_command(voice_modem->hardflow_cmnd,
+           voice_modem->hardflow_answr) & VMA_USER) != VMA_USER)
                return(FAIL);
 
           tio_set_flow_control(voice_fd, &tio, FLOW_HARD | FLOW_XON_IN);
@@ -608,109 +643,100 @@ int IS_101_record_file (int fd)
      else
           {
 
-          if (voice_command("AT+FLO=1", "OK") != VMA_USER_1)
+          if ((voice_command(voice_modem->softflow_cmnd,
+           voice_modem->softflow_answr) & VMA_USER) != VMA_USER)
                return(FAIL);
 
           tio_set_flow_control(voice_fd, &tio, FLOW_XON_IN);
           };
 
-     tio.c_cc[VMIN] = (buffer_size > 0xff) ? 0xff : buffer_size;
-     tio.c_cc[VTIME] = 1;
      tio_set(voice_fd, &tio);
 
-     if (voice_command("AT+VRX", "CONNECT") != VMA_USER_1)
+     if ((voice_command(voice_modem->start_rec_cmnd,
+      voice_modem->start_rec_answr) & VMA_USER) != VMA_USER)
           return(FAIL);
 
      while (!got_DLE_ETX)
           {
-          reset_watchdog(10);
+          input_byte = voice_read_byte();
 
-          if (timeout < time(NULL))
-               voice_stop_recording();
-
-          if ((bytes_in = voice_read_raw(input_buffer, buffer_size)) < 0)
+          if ((input_byte < 0) && (input_byte != -EINTR) && (input_byte != -EAGAIN))
                return(FAIL);
 
-          bytes_out = 0;
-
-          for (i = 0; (i < bytes_in) && !got_DLE_ETX; i++)
+          if (input_byte >= 0)
                {
 
                if (was_DLE)
                     {
                     was_DLE = FALSE;
 
-                    switch (input_buffer[i])
+                    switch (input_byte)
                          {
                          case DLE:
-                              output_buffer[bytes_out++] = DLE;
+                              fputc(DLE, fd);
                               break;
                          case ETX:
                               got_DLE_ETX = TRUE;
-                              lprintf(L_JUNK, "%s: <DATA %d bytes>",
-                               voice_modem_name, bytes_out);
+                              lprintf(L_JUNK, "%s: <VOICE DATA %d bytes>",
+                               voice_modem_name, count);
                               lprintf(L_JUNK, "%s: <DLE> <ETX>",
                                voice_modem_name);
                               break;
                          case SUB:
-                              output_buffer[bytes_out++] = DLE;
-                              output_buffer[bytes_out++] = DLE;
+                              fputc(DLE, fd);
+                              fputc(DLE, fd);
                               break;
                          default:
                               lprintf(L_JUNK, "%s: <DLE> <%c>",
-                               voice_modem_name, input_buffer[i]);
-                              voice_modem->handle_dle(input_buffer[i]);
-                         };
+                               voice_modem_name, input_byte);
+                              voice_modem->handle_dle(input_byte);
+                         }
 
                     }
                else
                     {
 
-                    if (input_buffer[i] == DLE)
+                    if (input_byte == DLE)
                          was_DLE = TRUE;
                     else
-                         output_buffer[bytes_out++] = input_buffer[i];
+                         fputc(input_byte, fd);
 
-                    };
+                    }
 
-               };
+               tcount++;
 
-          write(fd, output_buffer, bytes_out);
+               if (tcount > (bps / 8 / 10))
+                    {
+                    tcount = 0;
 
-          if (!got_DLE_ETX)
-               lprintf(L_JUNK, "%s: <DATA %d bytes>", voice_modem_name,
-                bytes_out);
+                    if (timeout < time(NULL))
+                         voice_stop_recording();
+
+                    }
+
+               count++;
+
+               if (count > count_limit)
+                    {
+                    lprintf(L_JUNK, "%s: <VOICE DATA %d bytes>", voice_modem_name,
+                     count);
+                    reset_watchdog(0);
+                    count = 0;
+                    }
+
+               }
 
           voice_check_events();
-          };
+
+          if (input_byte == -EAGAIN)
+               delay(cvd.poll_interval.d.i);
+
+          }
 
      tio_set(voice_fd, &tio_save);
 
-     if ((voice_analyze(&input_buffer[i], "\r\nOK|\r\nVCON") & VMA_USER) ==
+     if ((voice_command("", voice_modem->stop_rec_answr) & VMA_USER) !=
       VMA_USER)
-          lprintf(L_JUNK, "%s: OK|VCON", voice_modem_name);
-     else
-          {
-
-          /*
-           * Fixme: The datas in the buffer should be checked
-           * for DLE shielded codes
-           */
-
-          int j;
-
-          lprintf(L_JUNK, "%s: data left in buffer: ",
-           voice_modem_name);
-
-          for (j = i; j < bytes_in ; j++)
-               lputc(L_JUNK, input_buffer[j]);
-
-          if (voice_command("AT", "OK") != VMA_USER_1)
-               return(FAIL);
-
-          };
-
-     if (voice_command("AT", "OK") != VMA_USER_1)
           return(FAIL);
 
      voice_check_events();
@@ -718,93 +744,81 @@ int IS_101_record_file (int fd)
      return(OK);
      }
 
-int IS_101_set_buffer_size (int size)
-     {
-
-     if (size > IS_101_BUFFER_SIZE)
-          return(FAIL);
-
-     buffer_size = size;
-     return(OK);
-     }
-
-int IS_101_set_compression (int *compression, int *speed)
+int IS_101_set_compression(int *compression, int *speed, int *bits)
      {
      errno = ENOSYS;
-     lprintf(L_ERROR, "%s: set_compression called", voice_modem_name);
+     LPRINTF(L_ERROR, "%s: set_compression called", voice_modem_name);
      return(FAIL);
      }
 
-int IS_101_set_device (int device)
+int IS_101_set_device(int device)
      {
      errno = ENOSYS;
-     lprintf(L_ERROR, "%s: set_device called", voice_modem_name);
+     LPRINTF(L_ERROR, "%s: set_device called", voice_modem_name);
      return(FAIL);
      }
 
-int IS_101_stop_dialing (void)
+int IS_101_stop_dialing(void)
      {
      stop_dialing = TRUE;
      return(OK);
      }
 
-int IS_101_stop_playing (void)
+int IS_101_stop_playing(void)
      {
      stop_playing = TRUE;
      return(OK);
      }
 
-int IS_101_stop_recording (void)
+int IS_101_stop_recording(void)
      {
-     char buffer[VOICE_BUF_LEN];
-
      stop_recording = TRUE;
-     sprintf(buffer, "%c!", DLE);
-     lprintf(L_JUNK, "%s: <DLE> <!>", program_name);
 
-     if (voice_write_raw(buffer, strlen(buffer)) != OK)
+     if (voice_write_raw(voice_modem->stop_rec_cmnd, strlen(
+      voice_modem->stop_rec_cmnd)) != OK)
           return(FAIL);
 
+     lprintf(L_JUNK, "%s: <STOP RECORDING>", program_name);
      return(OK);
      }
 
-int IS_101_stop_waiting (void)
+int IS_101_stop_waiting(void)
      {
      stop_waiting = TRUE;
      return(OK);
      }
 
-int IS_101_switch_to_data_fax (char *mode)
+int IS_101_switch_to_data_fax(char *mode)
      {
      char buffer[VOICE_BUF_LEN];
 
-     reset_watchdog(0);
-     sprintf(buffer, "AT+FCLASS=%s", mode);
+     sprintf(buffer, "%s%s", voice_modem->switch_mode_cmnd, mode);
 
-     if (voice_command(buffer, "OK") != VMA_USER_1)
+     if ((voice_command(buffer, voice_modem->switch_mode_answr) & VMA_USER) !=
+      VMA_USER)
           return(FAIL);
 
      return(OK);
      }
 
-int IS_101_voice_mode_off (void)
+int IS_101_voice_mode_off(void)
      {
      char buffer[VOICE_BUF_LEN];
 
-     reset_watchdog(0);
-     sprintf(buffer, "AT+FCLASS=%s", mode_save);
+     sprintf(buffer, "%s%s", voice_modem->switch_mode_cmnd, mode_save);
 
-     if (voice_command(buffer, "OK") != VMA_USER_1)
+     if ((voice_command(buffer, voice_modem->switch_mode_answr) & VMA_USER) !=
+      VMA_USER)
           return(FAIL);
 
      return(OK);
      }
 
-int IS_101_voice_mode_on (void)
+int IS_101_voice_mode_on(void)
      {
-     reset_watchdog(0);
+     char buffer[VOICE_BUF_LEN];
 
-     if (voice_command("AT+FCLASS?", "") != OK)
+     if (voice_command(voice_modem->ask_mode_cmnd, "") != OK)
           return(FAIL);
 
      do
@@ -816,16 +830,21 @@ int IS_101_voice_mode_on (void)
           }
      while (strlen(mode_save) == 0);
 
-     if (voice_command("", "OK") != VMA_USER_1)
+     if ((voice_command("", voice_modem->ask_mode_answr) & VMA_USER) !=
+      VMA_USER)
           return(FAIL);
 
-     if (voice_command("AT+FCLASS=8", "OK") != VMA_USER_1)
+     sprintf(buffer, "%s%s", voice_modem->switch_mode_cmnd,
+      voice_modem->voice_mode_id);
+
+     if ((voice_command(buffer, voice_modem->switch_mode_answr) & VMA_USER) !=
+      VMA_USER)
           return(FAIL);
 
      return(OK);
      }
 
-int IS_101_wait (int wait_timeout)
+int IS_101_wait(int wait_timeout)
      {
      time_t timeout;
 
@@ -837,19 +856,17 @@ int IS_101_wait (int wait_timeout)
 
      while ((!stop_waiting) && (timeout >= time(NULL)))
           {
-          reset_watchdog(10);
+          static int char_read;
 
-          while (check_for_input(voice_fd))
+          reset_watchdog(100);
+
+          while ((char_read = voice_read_byte()) >= 0)
                {
-               int char_read;
-
-               if ((char_read = voice_read_char()) == FAIL)
-                    return(FAIL);
 
                if (char_read == DLE)
                     {
 
-                    if ((char_read = voice_read_char()) == FAIL)
+                    if ((char_read = voice_read_byte()) <= 0)
                          return(FAIL);
 
                     lprintf(L_JUNK, "%s: <DLE> <%c>", voice_modem_name,
@@ -864,10 +881,89 @@ int IS_101_wait (int wait_timeout)
                };
 
           voice_check_events();
-          delay(100);
+          delay(cvd.poll_interval.d.i);
           };
 
      voice_check_events();
      voice_modem_state = IDLE;
      return(OK);
      }
+
+const char IS_101_pick_phone_cmnd[] = "AT+VLS=2";
+const char IS_101_pick_phone_answr[] = "OK";
+const char IS_101_beep_cmnd[] = "AT+VTS=[%d,0,%d]";
+const char IS_101_beep_answr[] = "OK";
+/*         IS_101_beep_timeunit is defined in include/IS_101.h */
+const char IS_101_hardflow_cmnd[] = "AT+FLO=2";
+const char IS_101_hardflow_answr[] = "OK";
+const char IS_101_softflow_cmnd[] = "AT+FLO=1";
+const char IS_101_softflow_answr[] = "OK";
+const char IS_101_start_play_cmnd[] = "AT+VTX";
+const char IS_101_start_play_answer[] = "CONNECT";
+const char IS_101_reset_play_cmnd[] = {DLE, FS, 0x00};
+const char IS_101_intr_play_cmnd[] = {DLE, CAN, DLE, ETX, 0x00};
+const char IS_101_intr_play_answr[] = "OK";
+const char IS_101_stop_play_cmnd[] = {DLE, ETX, 0x00};
+const char IS_101_stop_play_answr[] = "OK";
+const char IS_101_start_rec_cmnd[] = "AT+VRX";
+const char IS_101_start_rec_answr[] = "CONNECT";
+const char IS_101_stop_rec_cmnd[] = {DLE, '!', 0x00};
+const char IS_101_stop_rec_answr[] = "OK";
+const char IS_101_switch_mode_cmnd[] = "AT+FCLASS=";
+const char IS_101_switch_mode_answr[] = "OK";
+const char IS_101_ask_mode_cmnd[] = "AT+FCLASS?";
+const char IS_101_ask_mode_answr[] = "OK";
+const char IS_101_voice_mode_id[] = "8";
+
+voice_modem_struct IS_101 =
+     {
+     "IS-101 compatible modem",
+     "IS-101",
+     (char *) IS_101_pick_phone_cmnd,
+     (char *) IS_101_pick_phone_answr,
+     (char *) IS_101_beep_cmnd,
+     (char *) IS_101_beep_answr,
+              IS_101_beep_timeunit,
+     (char *) IS_101_hardflow_cmnd,
+     (char *) IS_101_hardflow_answr,
+     (char *) IS_101_softflow_cmnd,
+     (char *) IS_101_softflow_answr,
+     (char *) IS_101_start_play_cmnd,
+     (char *) IS_101_start_play_answer,
+     (char *) IS_101_reset_play_cmnd,
+     (char *) IS_101_intr_play_cmnd,
+     (char *) IS_101_intr_play_answr,
+     (char *) IS_101_stop_play_cmnd,
+     (char *) IS_101_stop_play_answr,
+     (char *) IS_101_start_rec_cmnd,
+     (char *) IS_101_start_rec_answr,
+     (char *) IS_101_stop_rec_cmnd,
+     (char *) IS_101_stop_rec_answr,
+     (char *) IS_101_switch_mode_cmnd,
+     (char *) IS_101_switch_mode_answr,
+     (char *) IS_101_ask_mode_cmnd,
+     (char *) IS_101_ask_mode_answr,
+     (char *) IS_101_voice_mode_id,
+     &IS_101_answer_phone,
+     &IS_101_beep,
+     &IS_101_dial,
+     &IS_101_handle_dle,
+     &IS_101_init,
+     &IS_101_message_light_off,
+     &IS_101_message_light_on,
+     &IS_101_start_play_file,
+     &IS_101_reset_play_file,
+     &IS_101_stop_play_file,
+     &IS_101_play_file,
+     &IS_101_record_file,
+     &IS_101_set_compression,
+     &IS_101_set_device,
+     &IS_101_stop_dialing,
+     &IS_101_stop_playing,
+     &IS_101_stop_recording,
+     &IS_101_stop_waiting,
+     &IS_101_switch_to_data_fax,
+     &IS_101_voice_mode_off,
+     &IS_101_voice_mode_on,
+     &IS_101_wait
+     };

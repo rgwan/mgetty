@@ -6,7 +6,7 @@
  */
 
 #ifdef MAIN
-char *util_h = "$Id: util.h,v 1.1 1997/12/16 11:49:21 marc Exp $";
+char *util_h = "$Id: util.h,v 1.2 1998/01/21 10:24:10 marc Exp $";
 #endif
 
 /*
@@ -44,6 +44,7 @@ char *util_h = "$Id: util.h,v 1.1 1997/12/16 11:49:21 marc Exp $";
 #undef XOFF
 #undef DC4
 #undef CAN
+#undef FS
 
 #define ETX  (0x03)
 #define NL   (0x0a)
@@ -53,6 +54,7 @@ char *util_h = "$Id: util.h,v 1.1 1997/12/16 11:49:21 marc Exp $";
 #define XOFF (0x13)
 #define DC4  (0x14)
 #define CAN  (0x18)
+#define FS   (0x1c)
 
 /*
  * Check, that the system we are running on has proper bit sizes and

@@ -12,7 +12,7 @@
 
 #include "../include/voice.h"
 
-char *vgetty_button_c = "$Id: button.c,v 1.1 1997/12/16 12:21:47 marc Exp $";
+char *vgetty_button_c = "$Id: button.c,v 1.2 1998/01/21 10:25:30 marc Exp $";
 
 void vgetty_button _P1((rings), int rings)
      {

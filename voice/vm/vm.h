@@ -8,7 +8,7 @@
 #include "../include/voice.h"
 
 #ifdef MAIN
-char *vm_h = "$Id: vm.h,v 1.1 1997/12/16 12:21:53 marc Exp $";
+char *vm_h = "$Id: vm.h,v 1.2 1998/01/21 10:25:36 marc Exp $";
 #endif
 
 /*

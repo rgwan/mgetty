@@ -12,7 +12,7 @@
 
 #include "../include/voice.h"
 
-char *vgetty_message_c = "$Id: message.c,v 1.1 1997/12/16 12:21:48 marc Exp $";
+char *vgetty_message_c = "$Id: message.c,v 1.2 1998/01/21 10:25:32 marc Exp $";
 
 void vgetty_message_light _P0(void)
      {

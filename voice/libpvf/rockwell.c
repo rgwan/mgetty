@@ -60,7 +60,7 @@
 
 #include "../include/voice.h"
 
-const char *rockwell_c = "$Id: rockwell.c,v 1.1 1997/12/16 12:20:47 marc Exp $";
+const char *rockwell_c = "$Id: rockwell.c,v 1.2 1998/01/21 10:24:32 marc Exp $";
 
 /*
    PJ:

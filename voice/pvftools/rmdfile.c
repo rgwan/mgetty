@@ -7,7 +7,7 @@
 
 #include "../include/voice.h"
 
-char *rmdfile_c = "$Id: rmdfile.c,v 1.1 1997/12/16 12:21:37 marc Exp $";
+char *rmdfile_c = "$Id: rmdfile.c,v 1.2 1998/01/21 10:25:18 marc Exp $";
 char *program_name;
 
 static void usage (void)

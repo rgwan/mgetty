@@ -7,7 +7,7 @@
  */
 
 #ifdef MAIN
-char *voice_paths_h = "$Id: paths.h,v 1.1 1997/12/16 11:49:19 marc Exp $";
+char *voice_paths_h = "$Id: paths.h,v 1.2 1998/01/21 10:24:09 marc Exp $";
 #endif
 
 /*

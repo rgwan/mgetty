@@ -5,7 +5,7 @@
 
 #include "../include/voice.h"
 
-char *vgetty_answer_c = "$Id: answer.c,v 1.1 1997/12/16 12:21:46 marc Exp $";
+char *vgetty_answer_c = "$Id: answer.c,v 1.2 1998/01/21 10:25:29 marc Exp $";
 
 int answer_mode;
 char dtmf_code[VOICE_BUF_LEN];
@@ -66,6 +66,7 @@ static int enter_data_fax_mode _P1((answer_mode), int answer_mode)
                if (voice_command("AT+FAA=1", "OK") != VMA_USER_1)
                     return(FAIL);
 
+               tio_set(voice_fd, &tio_save);
                fax_set_bor(voice_fd, bit_order);
                break;
           case ANSWER_DATA:
@@ -77,6 +78,7 @@ static int enter_data_fax_mode _P1((answer_mode), int answer_mode)
                if (voice_command("AT+FAA=0", "OK") != VMA_USER_1)
                     return(FAIL);
 
+               tio_set(voice_fd, &tio_save);
                break;
           case ANSWER_FAX:
                lprintf(L_JUNK, "%s: trying fax connection", program_name);
@@ -87,6 +89,7 @@ static int enter_data_fax_mode _P1((answer_mode), int answer_mode)
                if (voice_command("AT+FAA=0", "OK") != VMA_USER_1)
                     return(FAIL);
 
+               tio_set(voice_fd, &tio_save);
                fax_set_bor(voice_fd, bit_order);
                break;
           };
@@ -269,12 +272,16 @@ int vgetty_answer _P3((rings, rings_wanted, ring_action), int rings,
      time_t call_start;
      time_t call_end;
      time_t call_length;
+     uid_t uid;
+     gid_t gid;
      char greeting_message[VOICE_BUF_LEN];
      char receive_dir[VOICE_BUF_LEN];
      char message[VOICE_BUF_LEN];
      char message_name[VOICE_BUF_LEN] = "vXXXXXX";
      char *ring_type = "ring";
      int result;
+
+     tio_set(voice_fd, &voice_tio);
 
      /*
       * Mapping from mgetty's answer mode detection to the new vgetty way
@@ -311,6 +318,7 @@ int vgetty_answer _P3((rings, rings_wanted, ring_action), int rings,
 
           if (enter_data_fax_mode(answer_mode) == FAIL)
                {
+               errno = 0;
                lprintf(L_ERROR, "%s: Could not switch to data or fax mode",
                 program_name);
                exit(99);
@@ -332,6 +340,7 @@ int vgetty_answer _P3((rings, rings_wanted, ring_action), int rings,
 
      if (voice_mode_on() == FAIL)
           {
+          errno = 0;
           lprintf(L_ERROR, "%s: Could not switch to voice mode",
            program_name);
           exit(99);
@@ -345,6 +354,7 @@ int vgetty_answer _P3((rings, rings_wanted, ring_action), int rings,
 
      if (result == VMA_ERROR)
           {
+          errno = 0;
           lprintf(L_ERROR, "%s: Could not answer the phone. Strange...",
            program_name);
           exit(99);
@@ -362,7 +372,10 @@ int vgetty_answer _P3((rings, rings_wanted, ring_action), int rings,
           result = voice_execute_shell_script(call_program, arguments);
 
           if (result == FAIL)
+               {
+               errno = 0;
                lprintf(L_ERROR, "%s: shell script %s exited unnormally");
+               }
           else
 
                switch (result)
@@ -372,6 +385,7 @@ int vgetty_answer _P3((rings, rings_wanted, ring_action), int rings,
                          if (enter_data_fax_mode(answer_mode & ANSWER_DATA) ==
                           FAIL)
                               {
+                              errno = 0;
                               lprintf(L_ERROR,
                                "%s: Could not switch to data mode",
                                program_name);
@@ -384,6 +398,7 @@ int vgetty_answer _P3((rings, rings_wanted, ring_action), int rings,
                          if (enter_data_fax_mode(answer_mode & ANSWER_FAX) ==
                           FAIL)
                               {
+                              errno = 0;
                               lprintf(L_ERROR,
                                "%s: Could not switch to fax mode",
                                program_name);
@@ -396,6 +411,7 @@ int vgetty_answer _P3((rings, rings_wanted, ring_action), int rings,
                          if (enter_data_fax_mode(answer_mode & (ANSWER_DATA |
                           ANSWER_FAX)) == FAIL)
                               {
+                              errno = 0;
                               lprintf(L_ERROR,
                                "%s: Could not switch to data/fax mode",
                                program_name);
@@ -407,6 +423,7 @@ int vgetty_answer _P3((rings, rings_wanted, ring_action), int rings,
 
                          if (voice_set_device(NO_DEVICE) == FAIL)
                               {
+                              errno = 0;
                               lprintf(L_ERROR,
                                "%s: Could not hang up the line",
                                program_name);
@@ -415,6 +432,7 @@ int vgetty_answer _P3((rings, rings_wanted, ring_action), int rings,
 
                          if (voice_mode_off() == FAIL)
                               {
+                              errno = 0;
                               lprintf(L_ERROR,
                                "%s: Could not turn off voice mode",
                                program_name);
@@ -423,6 +441,7 @@ int vgetty_answer _P3((rings, rings_wanted, ring_action), int rings,
 
                          if (voice_close_device() == FAIL)
                               {
+                              errno = 0;
                               lprintf(L_ERROR,
                                "%s: Could not close the voice device",
                                program_name);
@@ -435,8 +454,11 @@ int vgetty_answer _P3((rings, rings_wanted, ring_action), int rings,
           };
 
      if (voice_play_file(greeting_message) == FAIL)
+          {
+          errno = 0;
           lprintf(L_ERROR, "%s: Could not play greeting message",
            program_name);
+          }
 
      if ((execute_dtmf_script) && (strlen(cvd.dtmf_program.d.p) != 0))
           {
@@ -454,6 +476,7 @@ int vgetty_answer _P3((rings, rings_wanted, ring_action), int rings,
 
           if (voice_set_device(NO_DEVICE) == FAIL)
                {
+               errno = 0;
                lprintf(L_ERROR, "%s: Could not hang up the line",
                 program_name);
                exit(99);
@@ -461,6 +484,7 @@ int vgetty_answer _P3((rings, rings_wanted, ring_action), int rings,
 
           if (voice_mode_off() == FAIL)
                {
+               errno = 0;
                lprintf(L_ERROR, "%s: Could not turn off voice mode",
                 program_name);
                exit(99);
@@ -468,6 +492,7 @@ int vgetty_answer _P3((rings, rings_wanted, ring_action), int rings,
 
           if (voice_close_device() == FAIL)
                {
+               errno = 0;
                lprintf(L_ERROR, "%s: Could not close the voice device",
                 program_name);
                exit(99);
@@ -484,6 +509,7 @@ int vgetty_answer _P3((rings, rings_wanted, ring_action), int rings,
 
           if (voice_set_device(NO_DEVICE) == FAIL)
                {
+               errno = 0;
                lprintf(L_ERROR, "%s: Could not hang up the line",
                 program_name);
                exit(99);
@@ -491,6 +517,7 @@ int vgetty_answer _P3((rings, rings_wanted, ring_action), int rings,
 
           if (voice_mode_off() == FAIL)
                {
+               errno = 0;
                lprintf(L_ERROR, "%s: Could not turn off voice mode",
                 program_name);
                exit(99);
@@ -498,6 +525,7 @@ int vgetty_answer _P3((rings, rings_wanted, ring_action), int rings,
 
           if (voice_close_device() == FAIL)
                {
+               errno = 0;
                lprintf(L_ERROR, "%s: Could not close the voice device",
                 program_name);
                exit(99);
@@ -511,6 +539,7 @@ int vgetty_answer _P3((rings, rings_wanted, ring_action), int rings,
 
           if (enter_data_fax_mode(answer_mode) == FAIL)
                {
+               errno = 0;
                lprintf(L_ERROR, "%s: Could not switch to data/fax mode",
                 program_name);
                exit(99);
@@ -520,7 +549,10 @@ int vgetty_answer _P3((rings, rings_wanted, ring_action), int rings,
           };
 
      if (voice_beep(cvd.beep_frequency.d.i, cvd.beep_length.d.i) == FAIL)
+          {
+          errno = 0;
           lprintf(L_ERROR, "%s: Beep command failed");
+          }
 
      if ((execute_dtmf_script) && (strlen(cvd.dtmf_program.d.p) != 0))
           {
@@ -538,6 +570,7 @@ int vgetty_answer _P3((rings, rings_wanted, ring_action), int rings,
 
           if (voice_set_device(NO_DEVICE) == FAIL)
                {
+               errno = 0;
                lprintf(L_ERROR, "%s: Could not hang up the line",
                 program_name);
                exit(99);
@@ -545,6 +578,7 @@ int vgetty_answer _P3((rings, rings_wanted, ring_action), int rings,
 
           if (voice_mode_off() == FAIL)
                {
+               errno = 0;
                lprintf(L_ERROR, "%s: Could not turn off voice mode",
                 program_name);
                exit(99);
@@ -552,6 +586,7 @@ int vgetty_answer _P3((rings, rings_wanted, ring_action), int rings,
 
           if (voice_close_device() == FAIL)
                {
+               errno = 0;
                lprintf(L_ERROR, "%s: Could not close the voice device",
                 program_name);
                exit(99);
@@ -568,6 +603,7 @@ int vgetty_answer _P3((rings, rings_wanted, ring_action), int rings,
 
           if (voice_set_device(NO_DEVICE) == FAIL)
                {
+               errno = 0;
                lprintf(L_ERROR, "%s: Could not hang up the line",
                 program_name);
                exit(99);
@@ -575,6 +611,7 @@ int vgetty_answer _P3((rings, rings_wanted, ring_action), int rings,
 
           if (voice_mode_off() == FAIL)
                {
+               errno = 0;
                lprintf(L_ERROR, "%s: Could not turn off voice mode",
                 program_name);
                exit(99);
@@ -582,6 +619,7 @@ int vgetty_answer _P3((rings, rings_wanted, ring_action), int rings,
 
           if (voice_close_device() == FAIL)
                {
+               errno = 0;
                lprintf(L_ERROR, "%s: Could not close the voice device",
                 program_name);
                exit(99);
@@ -595,6 +633,7 @@ int vgetty_answer _P3((rings, rings_wanted, ring_action), int rings,
 
           if (enter_data_fax_mode(answer_mode) == FAIL)
                {
+               errno = 0;
                lprintf(L_ERROR, "%s: Could not switch to data/fax mode",
                 program_name);
                exit(99);
@@ -607,9 +646,31 @@ int vgetty_answer _P3((rings, rings_wanted, ring_action), int rings,
 
      if (voice_record_file(message) == FAIL)
           {
+          errno = 0;
           lprintf(L_ERROR, "%s: Could not record a message",
            program_name);
           exit(99);
+          }
+
+     get_ugid((char *) &cvd.phone_owner, (char *) &cvd.phone_group, &uid,
+      &gid);
+
+     /* change file mode */
+
+     if ((cvd.phone_mode.d.i != -1) && (chmod(message, cvd.phone_mode.d.i) !=
+      0))
+          {
+          errno = 0;
+          LPRINTF(L_ERROR, "%s: cannont change file mode", program_name);
+          }
+
+     /* change file owner and group */
+
+     if (chown(message, (uid_t) uid, (gid_t) gid) != 0)
+          {
+          errno = 0;
+          LPRINTF(L_ERROR, "%s: cannot change owner and/or group",
+           program_name);
           }
 
      time(&call_end);
@@ -635,6 +696,7 @@ int vgetty_answer _P3((rings, rings_wanted, ring_action), int rings,
 
           if (voice_set_device(NO_DEVICE) == FAIL)
                {
+               errno = 0;
                lprintf(L_ERROR, "%s: Could not hang up the line",
                 program_name);
                exit(99);
@@ -642,6 +704,7 @@ int vgetty_answer _P3((rings, rings_wanted, ring_action), int rings,
 
           if (voice_mode_off() == FAIL)
                {
+               errno = 0;
                lprintf(L_ERROR, "%s: Could not turn off voice mode",
                 program_name);
                exit(99);
@@ -649,6 +712,7 @@ int vgetty_answer _P3((rings, rings_wanted, ring_action), int rings,
 
           if (voice_close_device() == FAIL)
                {
+               errno = 0;
                lprintf(L_ERROR, "%s: Could not close the voice device",
                 program_name);
                exit(99);
@@ -663,6 +727,7 @@ int vgetty_answer _P3((rings, rings_wanted, ring_action), int rings,
 
           if (enter_data_fax_mode(answer_mode) == FAIL)
                {
+               errno = 0;
                lprintf(L_ERROR, "%s: Could not switch to data/fax mode",
                 program_name);
                exit(99);
@@ -678,6 +743,7 @@ int vgetty_answer _P3((rings, rings_wanted, ring_action), int rings,
 
      if (voice_set_device(NO_DEVICE) == FAIL)
           {
+          errno = 0;
           lprintf(L_ERROR, "%s: Could not hang up the line",
            program_name);
           exit(99);
@@ -685,6 +751,7 @@ int vgetty_answer _P3((rings, rings_wanted, ring_action), int rings,
 
      if (voice_mode_off() == FAIL)
           {
+          errno = 0;
           lprintf(L_ERROR, "%s: Could not turn off voice mode",
            program_name);
           exit(99);
@@ -692,6 +759,7 @@ int vgetty_answer _P3((rings, rings_wanted, ring_action), int rings,
 
      if (voice_close_device() == FAIL)
           {
+          errno = 0;
           lprintf(L_ERROR, "%s: Could not close the voice device",
            program_name);
           exit(99);

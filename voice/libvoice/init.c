@@ -8,22 +8,25 @@
 
 #include "../include/voice.h"
 
-char *libvoice_init_c = "$Id: init.c,v 1.1 1997/12/16 12:21:10 marc Exp $";
+char *libvoice_init_c = "$Id: init.c,v 1.2 1998/01/21 10:24:58 marc Exp $";
+
+TIO tio_save;
+TIO voice_tio;
 
 int voice_init _P0(void)
      {
-     TIO vtio;
 
      /*
       * initialize baud rate, software or hardware handshake, etc...
       */
 
-     tio_get(voice_fd, &vtio);
-     tio_mode_sane(&vtio, TRUE);
+     tio_get(voice_fd, &tio_save);
+     tio_get(voice_fd, &voice_tio);
+     tio_mode_sane(&voice_tio, TRUE);
 
      if (tio_check_speed(cvd.port_speed.d.i) >= 0)
           {
-          tio_set_speed(&vtio, cvd.port_speed.d.i);
+          tio_set_speed(&voice_tio, cvd.port_speed.d.i);
           }
      else
           {
@@ -33,13 +36,13 @@ int voice_init _P0(void)
           exit(FAIL);
           }
 
-     tio_default_cc(&vtio);
-     tio_mode_raw(&vtio);
-     tio_set_flow_control(voice_fd, &vtio, DATA_FLOW);
-     vtio.c_cc[VMIN] = 0;
-     vtio.c_cc[VTIME] = 5;
+     tio_default_cc(&voice_tio);
+     tio_mode_raw(&voice_tio);
+     tio_set_flow_control(voice_fd, &voice_tio, DATA_FLOW);
+     voice_tio.c_cc[VMIN] = 0;
+     voice_tio.c_cc[VTIME] = 0;
 
-     if (tio_set(voice_fd, &vtio) == FAIL)
+     if (tio_set(voice_fd, &voice_tio) == FAIL)
           {
           lprintf(L_FATAL, "error in tio_set");
           close(voice_fd);

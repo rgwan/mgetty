@@ -7,7 +7,7 @@
 
 #include "../include/voice.h"
 
-char *libpvf_linear_c = "$Id: linear.c,v 1.1 1997/12/16 12:20:46 marc Exp $";
+char *libpvf_linear_c = "$Id: linear.c,v 1.2 1998/01/21 10:24:32 marc Exp $";
 
 int pvftolin (FILE *fd_in, FILE *fd_out, pvf_header *header_in, int is_signed,
  int bits16, int intel)

@@ -6,7 +6,7 @@
  */
 
 #ifdef MAIN
-char *voice_hardware_h = "$Id: hardware.h,v 1.1 1997/12/16 11:49:17 marc Exp $";
+char *voice_hardware_h = "$Id: hardware.h,v 1.2 1998/01/21 10:24:08 marc Exp $";
 #endif
 
 /*
@@ -17,6 +17,31 @@ typedef struct
      {
      char *name;
      char *rmd_name;
+     char *pick_phone_cmnd;
+     char *pick_phone_answr;
+     char *beep_cmnd;
+     char *beep_answr;
+     int   beep_timeunit;
+     char *hardflow_cmnd;
+     char *hardflow_answr;
+     char *softflow_cmnd;
+     char *softflow_answr;
+     char *start_play_cmnd;
+     char *start_play_answr;
+     char *reset_play_cmnd;
+     char *intr_play_cmnd;
+     char *intr_play_answr;
+     char *stop_play_cmnd;
+     char *stop_play_answr;
+     char *start_rec_cmnd;
+     char *start_rec_answr;
+     char *stop_rec_cmnd;
+     char *stop_rec_answr;
+     char *switch_mode_cmnd;
+     char *switch_mode_answr;
+     char *ask_mode_cmnd;
+     char *ask_mode_answr;
+     char *voice_mode_id;
      int (*answer_phone) (void);
      int (*beep) (int frequency, int duration);
      int (*dial) (char* number);
@@ -24,8 +49,11 @@ typedef struct
      int (*init) (void);
      int (*message_light_off) (void);
      int (*message_light_on) (void);
-     int (*play_file) (int fd);
-     int (*record_file) (int fd);
+     int (*start_play_file) (void);
+     int (*reset_play_file) (void);
+     int (*stop_play_file) (void);
+     int (*play_file) (FILE *fd, int bps);
+     int (*record_file) (FILE *fd, int bps);
      int (*set_compression) (int *compression, int *speed, int *bits);
      int (*set_device) (int device);
      int (*stop_dialing) (void);
@@ -57,7 +85,9 @@ extern voice_modem_struct Cirrus_Logic;
 extern voice_modem_struct Dolphin;
 extern voice_modem_struct Dr_Neuhaus;
 extern voice_modem_struct Elsa;
+extern voice_modem_struct IS_101;
 extern voice_modem_struct ISDN4Linux;
+extern voice_modem_struct Multitech_2834ZDXv;
 extern voice_modem_struct Rockwell;
 extern voice_modem_struct Sierra;
 extern voice_modem_struct UMC;

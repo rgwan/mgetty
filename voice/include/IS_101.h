@@ -6,8 +6,34 @@
  */
 
 #ifdef MAIN
-char *voice_IS_101_h = "$Id: IS_101.h,v 1.1 1997/12/16 11:49:10 marc Exp $";
+char *voice_IS_101_h = "$Id: IS_101.h,v 1.2 1998/01/21 10:24:04 marc Exp $";
 #endif
+
+extern const char IS_101_pick_phone_cmnd[];
+extern const char IS_101_pick_phone_answr[];
+extern const char IS_101_beep_cmnd[];
+extern const char IS_101_beep_answr[];
+#define           IS_101_beep_timeunit 10
+extern const char IS_101_hardflow_cmnd[];
+extern const char IS_101_hardflow_answr[];
+extern const char IS_101_softflow_cmnd[];
+extern const char IS_101_softflow_answr[];
+extern const char IS_101_start_play_cmnd[];
+extern const char IS_101_start_play_answer[];
+extern const char IS_101_reset_play_cmnd[];
+extern const char IS_101_intr_play_cmnd[];
+extern const char IS_101_intr_play_answr[];
+extern const char IS_101_stop_play_cmnd[];
+extern const char IS_101_stop_play_answr[];
+extern const char IS_101_start_rec_cmnd[];
+extern const char IS_101_start_rec_answr[];
+extern const char IS_101_stop_rec_cmnd[];
+extern const char IS_101_stop_rec_answr[];
+extern const char IS_101_switch_mode_cmnd[];
+extern const char IS_101_switch_mode_answr[];
+extern const char IS_101_ask_mode_cmnd[];
+extern const char IS_101_ask_mode_answr[];
+extern const char IS_101_voice_mode_id[];
 
 extern int IS_101_answer_phone (void);
 extern int IS_101_beep (int frequency, int duration);
@@ -16,10 +42,13 @@ extern int IS_101_handle_dle (char code);
 extern int IS_101_init (void);
 extern int IS_101_message_light_off (void);
 extern int IS_101_message_light_on (void);
-extern int IS_101_play_file (int fd);
-extern int IS_101_record_file (int fd);
+extern int IS_101_start_play_file(void);
+extern int IS_101_reset_play_file(void);
+extern int IS_101_stop_play_file(void);
+extern int IS_101_play_file (FILE *fd, int bps);
+extern int IS_101_record_file (FILE *fd, int bps);
 extern int IS_101_set_buffer_size (int size);
-extern int IS_101_set_compression (int *compression, int *speed);
+extern int IS_101_set_compression (int *compression, int *speed, int *bits);
 extern int IS_101_set_device (int device);
 extern int IS_101_stop_dialing (void);
 extern int IS_101_stop_playing (void);

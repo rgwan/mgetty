@@ -8,7 +8,7 @@
 
 #include "../include/voice.h"
 
-char *pvftormd_c = "$Id: pvftormd.c,v 1.1 1997/12/16 12:21:35 marc Exp $";
+char *pvftormd_c = "$Id: pvftormd.c,v 1.2 1998/01/21 10:25:16 marc Exp $";
 char *program_name;
 
 static void usage (void)
@@ -31,6 +31,7 @@ static void supported_formats (void)
      fprintf(stderr, "supported raw modem data formats:\n\n");
      fprintf(stderr, " - Elsa        2, 3 and 4 bit Rockwell ADPCM\n");
      fprintf(stderr, " - ISDN4Linux  2, 3 and 4 bit ZyXEL ADPCM\n");
+     fprintf(stderr, " - MT_2834     4 bit IMA ADPCM\n");
      fprintf(stderr, " - Rockwell    2, 3 and 4 bit Rockwell ADPCM\n");
      fprintf(stderr, " - US_Robotics 1 and 4 (GSM and G.721 ADPCM)\n");
      fprintf(stderr, " - ZyXEL_1496  2, 3 and 4 bit ZyXEL ADPCM\n");
@@ -82,6 +83,9 @@ int main (int argc, char *argv[])
 
           };
 
+     if (strcmp(modem_type, "MT_2834") == 0)
+          modem_type = "Multitech2834";
+
      if (strcmp(modem_type, "US_Robotics") == 0)
           modem_type = "US Robotics";
 
@@ -93,6 +97,7 @@ int main (int argc, char *argv[])
 
      if ((strcmp(modem_type, "Elsa") == 0) ||
       (strcmp(modem_type, "ISDN4Linux") == 0) ||
+      (strcmp(modem_type, "Multitech2834") == 0) ||
       (strcmp(modem_type, "Rockwell") == 0) ||
       (strcmp(modem_type, "US Robotics") == 0) ||
       (strcmp(modem_type, "ZyXEL 1496") == 0) ||
@@ -192,6 +197,25 @@ int main (int argc, char *argv[])
                exit(OK);
 
           };
+
+     if ((strcmp(modem_type, "Multitech2834") == 0) && (compression == 4))
+          {
+          header_out.bits = compression;
+
+          if (write_rmd_header(fd_out, &header_out) != OK)
+               {
+               fclose(fd_out);
+
+               if (fd_out != stdout)
+                    unlink(name_out);
+
+               exit(ERROR);
+               }
+
+          if (pvftoimaadpcm(fd_in, fd_out, &header_in) == OK)
+               exit(OK);
+
+          }
 
      if ((strcmp(modem_type, "ZyXEL 1496") == 0) &&
       ((compression == 2) || (compression == 3) || (compression == 4)))

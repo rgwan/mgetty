@@ -6,7 +6,7 @@
  */
 
 #ifdef MAIN
-char *voice_config_h = "$Id: config.h,v 1.1 1997/12/16 11:49:14 marc Exp $";
+char *voice_config_h = "$Id: config.h,v 1.2 1998/01/21 10:24:06 marc Exp $";
 #endif
 
 extern struct conf_voice_data
@@ -35,6 +35,9 @@ extern struct conf_voice_data
      struct conf_data toll_saver_rings;
      struct conf_data rec_always_keep;
      struct conf_data voice_dir;
+     struct conf_data phone_owner;
+     struct conf_data phone_group;
+     struct conf_data phone_mode;
      struct conf_data message_flag_file;
      struct conf_data receive_dir;
      struct conf_data message_dir;
@@ -60,5 +63,6 @@ extern struct conf_voice_data
      struct conf_data ignore_fax_dle;
      struct conf_data dial_timeout;
      struct conf_data enable_command_echo;
+     struct conf_data poll_interval;
      struct conf_data end_of_config;
      } cvd;

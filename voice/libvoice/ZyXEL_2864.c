@@ -13,7 +13,7 @@
 
 #include "../include/voice.h"
 
-char *libvoice_ZyXEL_2864_c = "$Id: ZyXEL_2864.c,v 1.1 1997/12/16 12:21:06 marc Exp $";
+char *libvoice_ZyXEL_2864_c = "$Id: ZyXEL_2864.c,v 1.2 1998/01/21 10:24:54 marc Exp $";
 
 static int ZyXEL_2864_answer_phone (void)
      {
@@ -199,7 +199,6 @@ static int ZyXEL_2864_set_compression (int *compression, int *speed, int *bits)
           };
 
 
-     IS_101_set_buffer_size((*speed) * (*bits) / 10 / 8);
      return(OK);
      }
 
@@ -235,6 +234,31 @@ voice_modem_struct ZyXEL_2864 =
      {
      "ZyXEL 2864",
      "ZyXEL 2864",
+     (char *) IS_101_pick_phone_cmnd,
+     (char *) IS_101_pick_phone_answr,
+     (char *) IS_101_beep_cmnd,
+     (char *) IS_101_beep_answr,
+              IS_101_beep_timeunit,
+     (char *) IS_101_hardflow_cmnd,
+     (char *) IS_101_hardflow_answr,
+     (char *) IS_101_softflow_cmnd,
+     (char *) IS_101_softflow_answr,
+     (char *) IS_101_start_play_cmnd,
+     (char *) IS_101_start_play_answer,
+     (char *) IS_101_reset_play_cmnd,
+     (char *) IS_101_intr_play_cmnd,
+     (char *) IS_101_intr_play_answr,
+     (char *) IS_101_stop_play_cmnd,
+     (char *) IS_101_stop_play_answr,
+     (char *) IS_101_start_rec_cmnd,
+     (char *) IS_101_start_rec_answr,
+     (char *) IS_101_stop_rec_cmnd,
+     (char *) IS_101_stop_rec_answr,
+     (char *) IS_101_switch_mode_cmnd,
+     (char *) IS_101_switch_mode_answr,
+     (char *) IS_101_ask_mode_cmnd,
+     (char *) IS_101_ask_mode_answr,
+     (char *) IS_101_voice_mode_id,
      &ZyXEL_2864_answer_phone,
      &IS_101_beep,
      &IS_101_dial,
@@ -242,6 +266,9 @@ voice_modem_struct ZyXEL_2864 =
      &ZyXEL_2864_init,
      &IS_101_message_light_off,
      &IS_101_message_light_on,
+     &IS_101_start_play_file,
+     &IS_101_reset_play_file,
+     &IS_101_stop_play_file,
      &IS_101_play_file,
      &IS_101_record_file,
      &ZyXEL_2864_set_compression,

@@ -9,16 +9,9 @@
 
 #include "../include/voice.h"
 
-char *libvoice_Multitech_2834_c = "$Id: Multitech_2834.c,v 1.1 1997/12/16 12:21:01 marc Exp $";
+char *libvoice_Multitech_2834_c = "$Id: Multitech_2834.c,v 1.2 1998/01/21 10:24:48 marc Exp $";
 
-/*
- * Here we save the current mode of operation of the voice modem when
- * switching to voice mode, so that we can restore it afterwards.
- */
-
-static char mode_save[VOICE_BUF_LEN] = "";
-
-static int Multitech_2834_answer_phone (void)
+static int Multitech_2834_answer_phone(void)
      {
      int result;
 
@@ -34,7 +27,7 @@ static int Multitech_2834_answer_phone (void)
      return(VMA_OK);
      }
 
-static int Multitech_2834_init (void)
+static int Multitech_2834_init(void)
      {
      char buffer[VOICE_BUF_LEN];
 
@@ -99,7 +92,8 @@ static int Multitech_2834_init (void)
      return(OK);
      }
 
-static int Multitech_2834_set_compression (int *compression, int *speed, int *bits)
+static int Multitech_2834_set_compression(int *compression, int *speed,
+ int *bits)
      {
      char buffer[VOICE_BUF_LEN];
 
@@ -116,7 +110,7 @@ static int Multitech_2834_set_compression (int *compression, int *speed, int *bi
           lprintf(L_WARN, "%s: Illeagal sample rate (%d)", voice_modem_name,
            *speed);
           return(FAIL);
-          };
+          }
 
      switch (*compression)
           {
@@ -140,14 +134,12 @@ static int Multitech_2834_set_compression (int *compression, int *speed, int *bi
                lprintf(L_WARN, "%s: Illeagal voice compression method (%d)",
                 voice_modem_name, *compression);
                return(FAIL);
-          };
+          }
 
-
-     IS_101_set_buffer_size((*speed) * (*bits) / 10 / 8);
      return(OK);
      }
 
-static int Multitech_2834_set_device (int device)
+static int Multitech_2834_set_device(int device)
      {
      reset_watchdog(0);
 
@@ -175,51 +167,35 @@ static int Multitech_2834_set_device (int device)
      return(FAIL);
      }
 
-int Multitech_2834_voice_mode_off (void)
-     {
-     char buffer[VOICE_BUF_LEN];
-
-     reset_watchdog(0);
-     if (!strncmp (mode_save, "+FCLASS=", 8))
-     sprintf(buffer, "AT+FCLASS=%s", mode_save + 8);
-     else
-     sprintf(buffer, "AT+FCLASS=%s", mode_save);
-
-     if (voice_command(buffer, "OK") != VMA_USER_1)
-     return(FAIL);
-
-     return(OK);
-     }
-
-int Multitech_2834_voice_mode_on (void)
-     {
-     reset_watchdog(0);
-
-     if (voice_command("AT+FCLASS?", "") != OK)
-     return(FAIL);
-
-     do
-     {
-
-         if (voice_read(mode_save) != OK)
-          return(FAIL);
-
-     }
-     while (strlen(mode_save) == 0);
-
-     if (voice_command("", "OK") != VMA_USER_1)
-     return(FAIL);
-
-     if (voice_command("AT+FCLASS=8", "OK") != VMA_USER_1)
-     return(FAIL);
-
-     return(OK);
-     }
-
 voice_modem_struct Multitech_2834ZDXv =
      {
      "Multitech 2834ZDXv",
      "Multitech2834",
+     (char *) IS_101_pick_phone_cmnd,
+     (char *) IS_101_pick_phone_answr,
+     (char *) IS_101_beep_cmnd,
+     (char *) IS_101_beep_answr,
+              IS_101_beep_timeunit,
+     (char *) IS_101_hardflow_cmnd,
+     (char *) IS_101_hardflow_answr,
+     (char *) IS_101_softflow_cmnd,
+     (char *) IS_101_softflow_answr,
+     (char *) IS_101_start_play_cmnd,
+     (char *) IS_101_start_play_answer,
+     (char *) IS_101_reset_play_cmnd,
+     (char *) IS_101_intr_play_cmnd,
+     (char *) IS_101_intr_play_answr,
+     (char *) IS_101_stop_play_cmnd,
+     (char *) IS_101_stop_play_answr,
+     (char *) IS_101_start_rec_cmnd,
+     (char *) IS_101_start_rec_answr,
+     (char *) IS_101_stop_rec_cmnd,
+     (char *) IS_101_stop_rec_answr,
+     (char *) IS_101_switch_mode_cmnd,
+     (char *) IS_101_switch_mode_answr,
+     (char *) IS_101_ask_mode_cmnd,
+     (char *) IS_101_ask_mode_answr,
+     (char *) IS_101_voice_mode_id,
      &Multitech_2834_answer_phone,
      &IS_101_beep,
      &IS_101_dial,
@@ -227,6 +203,9 @@ voice_modem_struct Multitech_2834ZDXv =
      &Multitech_2834_init,
      &IS_101_message_light_off,
      &IS_101_message_light_on,
+     &IS_101_start_play_file,
+     &IS_101_reset_play_file,
+     &IS_101_stop_play_file,
      &IS_101_play_file,
      &IS_101_record_file,
      &Multitech_2834_set_compression,
@@ -236,7 +215,7 @@ voice_modem_struct Multitech_2834ZDXv =
      &IS_101_stop_recording,
      &IS_101_stop_waiting,
      &IS_101_switch_to_data_fax,
-     &Multitech_2834_voice_mode_off,
-     &Multitech_2834_voice_mode_on,
+     &IS_101_voice_mode_off,
+     &IS_101_voice_mode_on,
      &IS_101_wait
      };

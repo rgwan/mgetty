@@ -8,7 +8,7 @@
 
 #include "../include/voice.h"
 
-char *rmdtopvf_c = "$Id: rmdtopvf.c,v 1.1 1997/12/16 12:21:37 marc Exp $";
+char *rmdtopvf_c = "$Id: rmdtopvf.c,v 1.2 1998/01/21 10:25:18 marc Exp $";
 char *program_name;
 
 static void usage (void)
@@ -31,12 +31,13 @@ static void supported_formats (void)
      {
      fprintf(stderr, "\n%s %s\n\n", program_name, vgetty_version);
      fprintf(stderr, "supported raw modem data formats:\n\n");
-     fprintf(stderr, " - Elsa        2, 3 and 4 bit Rockwell ADPCM\n");
-     fprintf(stderr, " - ISDN4Linux  2, 3 and 4 bit ZyXEL ADPCM\n");
-     fprintf(stderr, " - Rockwell    2, 3 and 4 bit Rockwell ADPCM\n");
-     fprintf(stderr, " - US Robotics 1 and 4 (GSM and G.721 ADPCM)\n");
-     fprintf(stderr, " - ZyXEL 1496  2, 3 and 4 bit ZyXEL ADPCM\n");
-     fprintf(stderr, " - ZyXEL 2864  2, 3 and 4 bit ZyXEL ADPCM\n\n");
+     fprintf(stderr, " - Elsa           2, 3 and 4 bit Rockwell ADPCM\n");
+     fprintf(stderr, " - ISDN4Linux     2, 3 and 4 bit ZyXEL ADPCM\n");
+     fprintf(stderr, " - Multitech 2834 4 bit IMA ADPCM\n");
+     fprintf(stderr, " - Rockwell       2, 3 and 4 bit Rockwell ADPCM\n");
+     fprintf(stderr, " - US Robotics    1 and 4 (GSM and G.721 ADPCM)\n");
+     fprintf(stderr, " - ZyXEL 1496     2, 3 and 4 bit ZyXEL ADPCM\n");
+     fprintf(stderr, " - ZyXEL 2864     2, 3 and 4 bit ZyXEL ADPCM\n\n");
      exit(ERROR);
      }
 
@@ -140,6 +141,14 @@ int main (int argc, char *argv[])
                unlink(name_out);
 
           exit(ERROR);
+          }
+
+     if ((strcmp(modem_type, "Multitech2834") == 0) && (compression == 4))
+          {
+
+          if (imaadpcmtopvf(fd_in, fd_out, &header_out) == OK)
+               exit(OK);
+
           }
 
      if (((strcmp(modem_type, "ZyXEL 1496") == 0) ||

@@ -9,7 +9,7 @@
 #include "../include/voice.h"
 #include <assert.h>
 
-char *libutil_check_system_c = "$Id: check_system.c,v 1.1 1997/12/16 12:20:52 marc Exp $";
+char *libutil_check_system_c = "$Id: check_system.c,v 1.2 1998/01/21 10:24:38 marc Exp $";
 
 void check_system (void)
      {

@@ -7,7 +7,7 @@
 
 #include "../include/voice.h"
 
-char *libvoice_mode_c = "$Id: mode.c,v 1.1 1997/12/16 12:21:10 marc Exp $";
+char *libvoice_mode_c = "$Id: mode.c,v 1.2 1998/01/21 10:24:59 marc Exp $";
 
 int voice_mode_on _P0(void)
      {
@@ -48,6 +48,7 @@ int enter_fax_mode() {
   if (voice_command("AT+FAA=0", "OK") != VMA_USER_1)
                     return(FAIL);
 
+  tio_set(voice_fd, &tio_save);
   fax_set_bor(voice_fd, bit_order);
 
   voice_restore_signal_handler();

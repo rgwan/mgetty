@@ -1,18 +1,17 @@
 Hi all,
 
-sorry, that it took so long to release this new version. I had nearly no
-time and always something stupid happened, when I finally wanted to sit down
-and work on vgetty. Let's hope this won't continue in the future, but I see
-again many dark clouds approaching... :-(
+this is a new experimental vgetty release. I tried to integrate vgetty and
+mgetty parts more closely. Since this included some modifications to some
+vgetty low level parts, quite a few things and drivers might be broken in
+this release. But I'm sure, it will be easy to fix them soon.
 
 As always this is yet another vgetty test release. I incorporated many
 changes and I probably forgot some of the patches, that you mail me. Please
-feel free to resubmit them to me. Things have been so chaotic, that I
-probably simply missed them by accident. If you plan to submit changes,
+feel free to resubmit them. If you plan to submit buxfixes or changes to me,
 please keep in mind: I only accept a unified diff against the latest
 released mgetty/vgetty version. Everything else is more work for me and I
 don't have the time for that. You can produce a unified diff by first
-copying the original uncahnged file to something like file.c.orig and then
+copying the original unchanged file to something like file.c.orig and then
 use the command "diff -u file.c.orig file.c > patch_for_marc". Thanks a lot!
 
 Please have a look at the voice/ToDo file. If there is something missing,
@@ -26,20 +25,14 @@ already.
 
 Now the good things:
 
-* Bug fixes for some hardware drivers.
+* Tighter integration of mgetty and vgetty low level parts.
 
-* Included fax commands from within a voice shell
+* Some USR modems produced gsm data, that were not accepted by the gsm
+  library.
 
-* Included the mvm voicemail system
+* Changed the base unit for the beep command to milliseconds.
 
-* Included new hardware driver for Multitech modems. Since I don't know the
-  ATI code for these modems, I could not include them in detect.c. I'll post
-  a patch for that, as soon as I know the code. In the meantime, the driver
-  is there, but the modem won't be detected. Same for the pvf conversion
-  tools.
-
-* Documentation for the voice shell commands and the vgetty beginners guide
-  in voice/doc
+* Quite a lot other minor changes, I forgot...
 
 The new release is included in the latest mgetty-beta on ftp.leo.org as
 always.
@@ -47,4 +40,4 @@ always.
 Enjoy,
 Marc
 
-$Id: Announce,v 1.2 1997/12/16 10:47:58 marc Exp $
+$Id: Announce,v 1.3 1998/01/21 10:23:55 marc Exp $

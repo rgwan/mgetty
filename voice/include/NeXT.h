@@ -6,7 +6,7 @@
  */
 
 #ifdef MAIN
-char *NeXT_args_h = "$Id: NeXT.h,v 1.1 1997/12/16 11:49:11 marc Exp $";
+char *NeXT_args_h = "$Id: NeXT.h,v 1.2 1998/01/21 10:24:04 marc Exp $";
 #endif
 
 /*

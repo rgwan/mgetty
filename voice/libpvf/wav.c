@@ -9,7 +9,7 @@
  *
  */
 
-char *libpvf_wav_c = "$Id: wav.c,v 1.1 1997/12/16 12:20:49 marc Exp $";
+char *libpvf_wav_c = "$Id: wav.c,v 1.2 1998/01/21 10:24:35 marc Exp $";
 
 #include "../include/voice.h"
 

@@ -8,7 +8,7 @@
 
 #include "../include/voice.h"
 
-char *libvoice_shell_c = "$Id: shell.c,v 1.1 1997/12/16 12:21:14 marc Exp $";
+char *libvoice_shell_c = "$Id: shell.c,v 1.2 1998/01/21 10:25:03 marc Exp $";
 
 static int events_to_shell = FALSE;
 int voice_shell_state = OFF_LINE;
@@ -18,19 +18,17 @@ static int child_pid = 0;
 static int level = 0;
 static int autostop = FALSE;
 
-int voice_execute_shell_script _P2((shell_script, shell_options),
- char *shell_script, char **shell_options)
+int voice_execute_shell_script(char *shell_script, char **shell_options)
      {
      int arg_index = 0;
      int start_index;
      char **shell_arguments;
 
      if (strlen(shell_script) == 0)
-          lprintf(L_MESG, "%s: Executing shell %s", program_name,
-           shell_script, cvd.voice_shell.d.p);
+          lprintf(L_MESG, "%s: Executing shell %s", program_name, shell_script, cvd.voice_shell.d.p);
      else
-          lprintf(L_MESG, "%s: Executing shell script %s with shell %s",
-           program_name, shell_script, cvd.voice_shell.d.p);
+          lprintf(L_MESG, "%s: Executing shell script %s with shell %s", program_name, shell_script,
+           cvd.voice_shell.d.p);
 
      if (getenv("VOICE_PID") == NULL)
           {
@@ -156,8 +154,9 @@ int voice_execute_shell_script _P2((shell_script, shell_options),
      }
 
 /*
-  variables to set by voice_fax.c
-*/
+ *  variables to set by voice_fax.c
+ */
+
 int voice_fax_hangup_code;
 char *voice_fax_remote_id;
 int voice_fax_pages;
@@ -173,7 +172,7 @@ int voice_shell_notify()
       char *cp = voice_fax_files;
       int i, n;
 
-         for (ap = av, n = 0; (*ap = strsep(&cp, " \t")) != NULL;)
+         for (ap = av, n = 0; (*ap = voice_strsep(&cp, " \t")) != NULL;)
               if (**ap != '\0') {
                    ++ap;
              ++n;
@@ -219,8 +218,7 @@ int voice_shell_handle_event _P2((event, data), int event, event_data data)
 
                if (strcmp(buffer, "HELLO VOICE PROGRAM") != 0)
                     {
-                    lprintf(L_ERROR,
-                     "%s: cannot initialize communication!", program_name);
+                    lprintf(L_ERROR, "%s: cannot initialize communication!", program_name);
                     voice_shell_state = OFF_LINE;
                     return(FAIL);
                     };
@@ -246,8 +244,7 @@ int voice_shell_handle_event _P2((event, data), int event, event_data data)
                               voice_stop_current_action();
                               break;
                          case IDLE:
-                              lprintf(L_NOISE, "%s: STOP during IDLE",
-                               program_name);
+                              lprintf(L_NOISE, "%s: STOP during IDLE", program_name);
 
                               if (voice_write_shell("READY") != OK)
                                    return(FAIL);
@@ -263,8 +260,7 @@ int voice_shell_handle_event _P2((event, data), int event, event_data data)
                     }
                else if (level != 1)
                     {
-                    lprintf(L_MESG, "%s: Nested command in shell script",
-                     program_name);
+                    lprintf(L_MESG, "%s: Nested command in shell script", program_name);
 
                     if (voice_write_shell("ERROR") != OK)
                          return(FAIL);
@@ -356,17 +352,17 @@ int voice_shell_handle_event _P2((event, data), int event, event_data data)
                          return(FAIL);
 
                     }
-               else if (strncmp(buffer, "AUTOSTOP", 8) == 0)
+               else if (strcmp(buffer, "AUTOSTOP ON") == 0)
                     {
-                    char buf[VOICE_BUF_LEN] = "";
-                    sscanf(buffer, "%*s %s", buf);
+                    autostop = TRUE;
 
-                    if (strcmp(buf, "ON") == 0)
-                         autostop = 1;
-                    else if (strcmp(buf, "OFF") == 0)
-                         autostop = 0;
-                    else if (voice_write_shell("ERROR") != OK)
+                    if (voice_write_shell("READY") != OK)
                          return(FAIL);
+
+                    }
+               else if (strcmp(buffer, "AUTOSTOP OFF") == 0)
+                    {
+                    autostop = FALSE;
 
                     if (voice_write_shell("READY") != OK)
                          return(FAIL);
@@ -382,16 +378,18 @@ int voice_shell_handle_event _P2((event, data), int event, event_data data)
                else if (strncmp(buffer, "GETFAX", 6) == 0)
                     {
                     char path[VOICE_BUF_LEN] = "/tmp";
+
 /*
                     if (voice_device != DIALUP_LINE)
 
                          if (voice_write_shell("ERROR") != OK)
                               return(FAIL);
 */
+
                     sscanf(buffer, "%*s %s", path);
 
-/*                  if (voice_write_shell("RECEIVING") != OK)
-                         return(FAIL);*/
+                    if (voice_write_shell("RECEIVING") != OK)
+                         return(FAIL);
 
                     enter_fax_mode();
                     voice_write("ATA"); /* faxrec will eat the rest */
@@ -410,7 +408,7 @@ int voice_shell_handle_event _P2((event, data), int event, event_data data)
                     char *cp = &buffer[7];
                     char **ap, *av[100];
 
-                    for (ap = av; (*ap = strsep(&cp, " \t")) != NULL;)
+                    for (ap = av; (*ap = voice_strsep(&cp, " \t")) != NULL;)
 
                          if (**ap != '\0')
                               ++ap;
@@ -529,28 +527,23 @@ int voice_shell_handle_event _P2((event, data), int event, event_data data)
           };
 
 
-     if ((voice_shell_state == ON_LINE) && (event == RECEIVED_DTMF) &&
-      ((event & VOICE_MODEM_EVENT) != 0) && autostop)
+     if ((voice_shell_state == ON_LINE) && (event == RECEIVED_DTMF) && autostop)
 
           switch (voice_modem_state)
                {
                case PLAYING:
                case RECORDING:
-                    lprintf(L_JUNK, "%s: stopping current action",
-                     program_name);
+               case WAITING:
+                    lprintf(L_JUNK, "%s: stopping current action", program_name);
                     voice_stop_current_action();
                     break;
                }
 
-     if ((voice_shell_state == ON_LINE) && (event == RECEIVED_DTMF) &&
-      (!events_to_shell))
+     if ((voice_shell_state == ON_LINE) && (!events_to_shell) && ((event & VOICE_MODEM_EVENT) != 0))
           return(OK);
 
-     if ((voice_shell_state == ON_LINE) && events_to_shell &&
-      ((event & VOICE_MODEM_EVENT) != 0))
+     if ((voice_shell_state == ON_LINE) && events_to_shell && ((event & VOICE_MODEM_EVENT) != 0))
           {
-          lprintf(L_JUNK, "voice_shell_handle_event: event 0x%04x",
-           event);
 
           switch (event)
                {
@@ -690,7 +683,7 @@ int voice_shell_handle_event _P2((event, data), int event, event_data data)
      return(UNKNOWN_EVENT);
      }
 
-int voice_read_shell _P1((buffer), char *buffer)
+int voice_read_shell(char *buffer)
      {
      char char_read;
      int number_chars = 0;

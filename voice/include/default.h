@@ -8,7 +8,7 @@
  */
 
 #ifdef MAIN
-char *voice_default_h = "$Id: default.h,v 1.1 1997/12/16 11:49:15 marc Exp $";
+char *voice_default_h = "$Id: default.h,v 1.2 1998/01/21 10:24:07 marc Exp $";
 #endif
 
 /*
@@ -204,16 +204,23 @@ char *voice_default_h = "$Id: default.h,v 1.1 1997/12/16 11:49:15 marc Exp $";
 #define TRANSMIT_GAIN -1
 
 /*
- * Usually vgetty will enable the command echo from the modem. Since some
- * modems sometimes forget this echo, vgetty complains about it. With this
- * option you can turn the command echo off, which might make things more
- * reliable, but bugs are much harder to trace. So don't ever think about
- * mailing me a bug report with command echo turned off. I will simply ignore
- * it. The default is to enable command echo.
+ * Usually command echo from the modem should be enabled. Since some modems
+ * sometimes forget this echo, it is disabled by default. Turning this
+ * option off makes things more reliable, but bugs are much harder to trace.
+ * So don't ever think about mailing me a bug report with command echo
+ * turned off. I will simply ignore it. The default is to disable command
+ * echo.
  *
  */
 
-#define ENABLE_COMMAND_ECHO TRUE
+#define ENABLE_COMMAND_ECHO FALSE
+
+/*
+ * Time in msec for the delay, when no new data are received from the modem. A higher value will decrease
+ * machine load by increasing vgettys reaction time. The default is 10 msec.
+ */
+
+#define POLL_INTERVAL 10
 
 /*
  * Default values for vgetty
@@ -294,6 +301,14 @@ char *voice_default_h = "$Id: default.h,v 1.1 1997/12/16 11:49:15 marc Exp $";
  */
 
 #define VOICE_DIR "/var/spool/voice"
+
+/*
+ * Default owner, group, and file mode for incoming voice messages
+ */
+
+#define PHONE_OWNER "root"
+#define PHONE_GROUP "phone"
+#define PHONE_MODE 0660
 
 /*
  * Location of the flag file for new incoming messages relative to the
@@ -401,11 +416,11 @@ char *voice_default_h = "$Id: default.h,v 1.1 1997/12/16 11:49:15 marc Exp $";
 #define BEEP_FREQUENCY 933
 
 /*
- * Length for the beep command in 0.01sec. The default is 1.5 seconds
- * (150 * 0.01 seconds).
+ * Length for the beep command in msec. The default is 1.5 seconds
+ * (1500 * 0.001 seconds).
  */
 
-#define BEEP_LENGTH 150
+#define BEEP_LENGTH 1500
 
 /*
  * Number of tries to open a voice modem device. The default is 3.

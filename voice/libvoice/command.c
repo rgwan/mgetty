@@ -7,7 +7,7 @@
 
 #include "../include/voice.h"
 
-char *libvoice_command_c = "$Id: command.c,v 1.1 1997/12/16 12:21:07 marc Exp $";
+char *libvoice_command_c = "$Id: command.c,v 1.2 1998/01/21 10:24:55 marc Exp $";
 
 int voice_command _P2((command, expected_answer), char *command,
  char *expected_answer)
@@ -45,6 +45,7 @@ int voice_command _P2((command, expected_answer), char *command,
 
                     if (result == VMA_FAIL)
                          {
+                         errno = 0;
                          lprintf(L_ERROR,
                           "%s: Modem did not echo the command", program_name);
                          voice_flush(1);
@@ -53,6 +54,7 @@ int voice_command _P2((command, expected_answer), char *command,
 
                     if (result == VMA_ERROR)
                          {
+                         errno = 0;
                          lprintf(L_ERROR, "%s: Modem returned ERROR",
                           program_name);
                          voice_flush(1);
@@ -81,6 +83,7 @@ int voice_command _P2((command, expected_answer), char *command,
 
                if (result == VMA_FAIL)
                     {
+                    errno = 0;
                     lprintf(L_ERROR, "%s: Invalid modem answer",
                      program_name);
                     voice_flush(1);
@@ -89,6 +92,7 @@ int voice_command _P2((command, expected_answer), char *command,
 
                if (result == VMA_ERROR)
                     {
+                    errno = 0;
                     lprintf(L_ERROR, "%s: Modem returned ERROR",
                      program_name);
                     voice_flush(1);

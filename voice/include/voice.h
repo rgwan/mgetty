@@ -13,7 +13,7 @@
 #  include "../../version.h"
 # endif
 
-char *voice_h = "$Id: voice.h,v 1.1 1997/12/16 11:49:23 marc Exp $";
+char *voice_h = "$Id: voice.h,v 1.2 1998/01/21 10:24:12 marc Exp $";
 #endif
 
 #ifndef _NOSTDLIB_H
@@ -36,6 +36,7 @@ char *voice_h = "$Id: voice.h,v 1.1 1997/12/16 11:49:23 marc Exp $";
 #include <string.h>
 #include <time.h>
 
+#include <sys/stat.h>
 #include <sys/times.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -62,6 +63,19 @@ char *voice_h = "$Id: voice.h,v 1.1 1997/12/16 11:49:23 marc Exp $";
 #include "pvf.h"
 
 /*
+ * Debugging info
+ */
+
+#ifdef MAIN
+char POS[80];
+#else
+extern char POS[80];
+#endif
+
+#define LPRINTF sprintf(POS, "%s%s%03d%s%s%s", \
+ __FILE__, " [", __LINE__, "] ", __FUNCTION__, ":"); lprintf
+
+/*
  * Buffer length for commands, voice modem answers and so on
  */
 
@@ -84,6 +98,8 @@ extern int voice_shell_state;
 extern int voice_shell_signal;
 extern char voice_config_file[VOICE_BUF_LEN];
 extern char *DevID;
+extern TIO tio_save;
+extern TIO voice_tio;
 
 /*
  * Vgetty global variables
@@ -98,63 +114,73 @@ extern int hangup_requested;
 extern int switch_to_data_fax_mode;
 
 /*
+ * mgetty functions
+ */
+
+#ifndef VOICE
+extern void get_ugid(char* user, char* group, uid_t* uid, gid_t* gid);
+#endif
+
+/*
  * The voice library functions
  */
 
-extern int voice_analyze _PROTO((char *buffer, char *expected_answers));
+extern int voice_analyze(char *buffer, char *expected_answers);
 #define voice_answer_phone() voice_modem->answer_phone()
 #define voice_beep(a,b) voice_modem->beep(a,b)
-extern int voice_close_device _PROTO((void));
-extern int voice_command _PROTO((char *command, char *expected_answers));
-extern int voice_config _PROTO((char *new_program_name, char *DevID));
-extern int voice_detect_modemtype _PROTO((void));
+extern int voice_check_for_input(void);
+extern int voice_close_device(void);
+extern int voice_command(char *command, char *expected_answers);
+extern int voice_config(char *new_program_name, char *DevID);
+extern int voice_detect_modemtype(void);
 #define voice_dial(a) voice_modem->dial(a)
-extern int voice_execute_shell_script _PROTO((char *shell_script,
- char **shell_options));
-extern int voice_flush _PROTO((int timeout));
+extern int voice_execute_shell_script(char *shell_script,
+ char **shell_options);
+extern void voice_flush(int timeout);
 #define voice_handle_dle(a) voice_modem->handle_dle(a)
-extern int voice_handle_event _PROTO((int event, event_data data));
-extern int voice_init _PROTO((void));
+extern int voice_handle_event(int event, event_data data);
+extern int voice_init(void);
 #define voice_message_light_off() voice_modem->message_light_off()
 #define voice_message_light_on() voice_modem->message_light_on()
-extern int voice_mode_on _PROTO((void));
-extern int voice_mode_off _PROTO((void));
-extern int voice_open_device _PROTO((void));
-extern int voice_play_file _PROTO((char *name));
-extern int voice_read _PROTO((char *buffer));
-extern int voice_read_char _PROTO((void));
-extern int voice_read_raw _PROTO((char *buffer, int count));
-extern int voice_read_shell _PROTO((char *buffer));
-extern int voice_register_event_handler _PROTO((int
- (*new_program_handle_event) (int event, event_data data)));
-extern int voice_record_file _PROTO((char *name));
-extern int voice_shell_handle_event _PROTO((int event, event_data data));
+extern int voice_mode_on(void);
+extern int voice_mode_off(void);
+extern int voice_open_device(void);
+extern int voice_play_file(char *name);
+extern int voice_read(char *buffer);
+extern int voice_read_byte(void);
+extern int voice_read_char(void);
+extern int voice_read_shell(char *buffer);
+extern int voice_register_event_handler(int (*new_program_handle_event)
+ (int event, event_data data));
+extern int voice_record_file(char *name);
+extern int voice_shell_handle_event(int event, event_data data);
 #define voice_set_device(a) voice_modem->set_device(a)
-extern int voice_stop_current_action _PROTO((void));
+extern int voice_stop_current_action(void);
 #define voice_stop_dialing() voice_modem->stop_dialing()
 #define voice_stop_playing() voice_modem->stop_playing()
 #define voice_stop_recording() voice_modem->stop_recording()
 #define voice_stop_waiting() voice_modem->stop_waiting()
+extern char *voice_strsep(char **stringp, const char *delim);
 #define voice_switch_to_data_fax(a) voice_modem->switch_to_data_fax(a)
-extern int voice_unregister_event_handler _PROTO((void));
+extern int voice_unregister_event_handler(void);
 #define voice_wait(a) voice_modem->wait(a)
-extern void reset_watchdog _PROTO((int count));
-extern int voice_faxsnd _PROTO((char **name, int switchbd, int max_tries));
-extern void voice_faxrec _PROTO(( char * spool_in, unsigned int switchbd));
-extern int enter_fax_mode _PROTO((void));
+extern void reset_watchdog(int count);
+extern int voice_faxsnd(char **name, int switchbd, int max_tries);
+extern void voice_faxrec(char * spool_in, unsigned int switchbd);
+extern int enter_fax_mode(void);
 
 
 #ifdef USE_VARARGS
-extern int voice_write _PROTO(());
+extern int voice_write();
 #else
 extern int voice_write(const char *format, ...);
 #endif
 
-extern int voice_write_char _PROTO((char charout));
-extern int voice_write_raw _PROTO((char *buffer, int count));
+extern int voice_write_char(char charout);
+extern int voice_write_raw(char *buffer, int count);
 
 #ifdef USE_VARARGS
-extern int voice_write_shell _PROTO(());
+extern int voice_write_shell();
 #else
 extern int voice_write_shell(const char *format, ...);
 #endif
@@ -163,19 +189,18 @@ extern int voice_write_shell(const char *format, ...);
  * Internal functions
  */
 
-extern void voice_check_events _PROTO((void));
+extern void voice_check_events(void);
 
 /*
  * The vgetty functions
  */
 
-extern int vgetty_answer _PROTO((int rings, int rings_wanted,
- action_t what_action));
-extern void vgetty_button _PROTO((int rings));
-extern void vgetty_create_message_flag_file _PROTO((void));
-extern int vgetty_handle_event _PROTO((int event, event_data data));
-extern void vgetty_message_light _PROTO((void));
-extern void vgetty_rings _PROTO((int *rings_wanted));
+extern int vgetty_answer(int rings, int rings_wanted, action_t what_action);
+extern void vgetty_button(int rings);
+extern void vgetty_create_message_flag_file(void);
+extern int vgetty_handle_event(int event, event_data data);
+extern void vgetty_message_light(void);
+extern void vgetty_rings(int *rings_wanted);
 
 /*
  * Value for voice_fd if the port isn't open

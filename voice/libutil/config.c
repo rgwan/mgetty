@@ -9,7 +9,7 @@
 
 #include "../include/voice.h"
 
-char *libvoice_config_c = "$Id: config.c,v 1.1 1997/12/16 12:20:52 marc Exp $";
+char *libvoice_config_c = "$Id: config.c,v 1.2 1998/01/21 10:24:39 marc Exp $";
 
 /*
  * Define the global voice variables.
@@ -41,6 +41,9 @@ struct conf_voice_data cvd =
      {"toll_saver_rings", {TOLL_SAVER_RINGS}, CT_INT, C_PRESET},
      {"rec_always_keep", {REC_ALWAYS_KEEP}, CT_BOOL, C_PRESET},
      {"voice_dir", {(p_int) VOICE_DIR}, CT_STRING, C_PRESET},
+     {"phone_owner", {(p_int) PHONE_OWNER}, CT_STRING, C_PRESET},
+     {"phone_group", {(p_int) PHONE_GROUP}, CT_STRING, C_PRESET},
+     {"phone_mode", {PHONE_MODE}, CT_INT, C_PRESET},
      {"message_flag_file", {(p_int) MESSAGE_FLAG_FILE}, CT_STRING, C_PRESET},
      {"receive_dir", {(p_int) RECEIVE_DIR}, CT_STRING, C_PRESET},
      {"message_dir", {(p_int) MESSAGE_DIR}, CT_STRING, C_PRESET},
@@ -66,6 +69,7 @@ struct conf_voice_data cvd =
      {"ignore_fax_dle", {IGNORE_FAX_DLE}, CT_BOOL, C_PRESET},
      {"dial_timeout", {DIAL_TIMEOUT}, CT_INT, C_PRESET},
      {"enable_command_echo", {ENABLE_COMMAND_ECHO}, CT_BOOL, C_PRESET},
+     {"poll_interval", {POLL_INTERVAL}, CT_INT, C_PRESET},
      {NULL, {(p_int) ""}, CT_STRING, C_EMPTY}
      };
 

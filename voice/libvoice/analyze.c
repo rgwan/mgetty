@@ -9,7 +9,7 @@
 
 #include "../include/voice.h"
 
-char *libvoice_analyze_c = "$Id: analyze.c,v 1.1 1997/12/16 12:21:06 marc Exp $";
+char *libvoice_analyze_c = "$Id: analyze.c,v 1.2 1998/01/21 10:24:54 marc Exp $";
 
 typedef struct
      {

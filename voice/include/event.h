@@ -7,7 +7,7 @@
  */
 
 #ifdef MAIN
-char *voice_event_h = "$Id: event.h,v 1.1 1997/12/16 11:49:16 marc Exp $";
+char *voice_event_h = "$Id: event.h,v 1.2 1998/01/21 10:24:07 marc Exp $";
 #endif
 
 /*

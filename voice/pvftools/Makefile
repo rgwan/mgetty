@@ -3,7 +3,7 @@
 #
 # This is the Makefile for the pvftools.
 #
-# $Id: Makefile,v 1.1 1997/12/16 12:21:26 marc Exp $
+# $Id: Makefile,v 1.2 1998/01/21 10:25:06 marc Exp $
 #
 
 VOICELIBS=$(LIBPVF) $(LIBUTIL)

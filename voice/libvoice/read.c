@@ -7,9 +7,13 @@
 
 #include "../include/voice.h"
 
-char *libvoice_read_c = "$Id: read.c,v 1.1 1997/12/16 12:21:12 marc Exp $";
+char *libvoice_read_c = "$Id: read.c,v 1.2 1998/01/21 10:25:01 marc Exp $";
 
-int voice_read _P1((buffer), char *buffer)
+static unsigned char input_buffer[1024];
+static int input_pos = 0;
+static int input_count = 0;
+
+int voice_read(char *buffer)
      {
      int char_read;
      int number_chars = 0;
@@ -38,8 +42,7 @@ int voice_read _P1((buffer), char *buffer)
                }
           else
 
-               if ((char_read != NL) && (char_read != CR) &&
-                (char_read != XON) && (char_read != XOFF))
+               if ((char_read != NL) && (char_read != CR) && (char_read != XON) && (char_read != XOFF))
                     {
                     *buffer = char_read;
                     buffer++;
@@ -48,8 +51,7 @@ int voice_read _P1((buffer), char *buffer)
                     };
 
           }
-     while (((char_read != NL) || (number_chars == 0)) &&
-      (number_chars < (VOICE_BUF_LEN - 1)));
+     while (((char_read != NL) || (number_chars == 0)) && (number_chars < (VOICE_BUF_LEN - 1)));
 
      *buffer = 0x00;
      return(OK);
@@ -63,44 +65,56 @@ int voice_read_char(void)
 
      while (timeout >= time(NULL))
           {
-          char char_read;
           int result;
 
-          result = read(voice_fd, &char_read, 1);
+          result = voice_read_byte();
 
-          if (result == 1)
-               return(char_read);
+          if (result >= 0)
+               return(result);
 
-          if ((result < 0) && (errno != 0) && (errno != EINTR))
+          if ((result < 0) && ((result != -EINTR) && (result != -EAGAIN)))
                {
-               lprintf(L_ERROR,
-                "%s: could not read character from voice modem",
-                program_name);
+               lprintf(L_ERROR, "%s: could not read character from voice modem", program_name);
                return(FAIL);
                };
 
+          delay(cvd.poll_interval.d.i);
           };
 
-     lprintf(L_ERROR, "%s: timeout while reading character from voice modem",
-      program_name);
+     lprintf(L_ERROR, "%s: timeout while reading character from voice modem", program_name);
      return(FAIL);
      }
 
-int voice_read_raw(char* buffer, int count)
+int voice_read_byte(void)
      {
-     int result;
 
-     result = read(voice_fd, buffer, count);
-
-     if ((result < 0) && (errno != 0) && (errno != EINTR))
+     if (input_pos >= input_count)
           {
-          lprintf(L_ERROR, "%s: could not read buffer from voice modem",
-           program_name);
-          return(FAIL);
-          };
+          input_count = read(voice_fd, input_buffer, sizeof(input_buffer));
 
-     if (result > 0)
-          return(result);
+          if (input_count < 0)
+               return(-errno);
 
-     return(0);
+          if (input_count == 0)
+               return(-EAGAIN);
+
+          input_pos = 0;
+          }
+
+     return(input_buffer[input_pos++]);
+     }
+
+int voice_check_for_input(void)
+     {
+
+     if (input_pos < input_count)
+          return(TRUE);
+
+     input_count = read(voice_fd, input_buffer, sizeof(input_buffer));
+
+     if (input_count <= 0)
+          return(FALSE);
+
+     input_pos = 0;
+     return(TRUE);
      }

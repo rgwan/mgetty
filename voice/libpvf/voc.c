@@ -7,7 +7,7 @@
 
 #include "../include/voice.h"
 
-char *libpvf_voc_c = "$Id: voc.c,v 1.1 1997/12/16 12:20:48 marc Exp $";
+char *libpvf_voc_c = "$Id: voc.c,v 1.2 1998/01/21 10:24:34 marc Exp $";
 
 static char voc_hdr[32] =
      {

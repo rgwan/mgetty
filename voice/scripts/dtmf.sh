@@ -7,7 +7,7 @@
 # $1 - received DTMF code
 # $2 - name of the recorded voice file
 #
-# $Id: dtmf.sh,v 1.1 1997/12/16 12:21:40 marc Exp $
+# $Id: dtmf.sh,v 1.2 1998/01/21 10:25:22 marc Exp $
 #
 
 VOICE_DIR=/var/spool/voice
@@ -147,9 +147,9 @@ function messages
                rm $LOCK) &
           fi
 
-          beep 1320 10
+          beep 1320 100
           play $i
-          beep 1320 10
+          beep 1320 100
 
           if [ $TIME = yes ]; then
 
@@ -168,7 +168,7 @@ function messages
           play "$NO_NEW_MESSAGES"
      fi
 
-     beep 880 100
+     beep 880 1000
      rm -f $FLAG $TIMESTAMP
      mv $TIMESTAMP-n $TIMESTAMP
      #
@@ -306,13 +306,13 @@ do
           break
      else
           logger -t "dtmf.sh[$$]" "Incorrect DTMF code on try $TRIES"
-          beep 1320 10
+          beep 1320 100
           play "$INCORRECT"
      fi
 
      if [ $TRIES -lt $MAXTRIES ]; then
           play "$GET_CODE"
-          beep 1320 10
+          beep 1320 100
           DTMF=`getcode`
      else
           play "$GOODBYE"

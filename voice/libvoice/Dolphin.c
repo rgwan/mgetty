@@ -14,17 +14,7 @@
 
 #include "../include/voice.h"
 
-char *libvoice_Dolphin_c = "$Id: Dolphin.c,v 1.1 1997/12/16 12:20:57 marc Exp $";
-
-int Dolphin_answer_phone (void)
-     {
-     reset_watchdog(0);
-
-     if ((voice_command("ATA", "VCON") & VMA_USER) != VMA_USER)
-          return(VMA_ERROR);
-
-     return(VMA_OK);
-     }
+char *libvoice_Dolphin_c = "$Id: Dolphin.c,v 1.2 1998/01/21 10:24:43 marc Exp $";
 
 static int Dolphin_init (void)
      {
@@ -84,7 +74,6 @@ static int Dolphin_set_compression (int *compression, int *speed, int *bits)
      if (voice_command("AT+VSM=2", "OK") != VMA_USER_1)
           return(FAIL);
 
-     IS_101_set_buffer_size((*speed) * (*bits) / 10 / 8);
      return(OK);
      }
 
@@ -116,17 +105,48 @@ static int Dolphin_set_device (int device)
      return(FAIL);
      }
 
+const char Dolphin_pick_phone_cmnd[] = "ATA";
+const char Dolphin_pick_phone_answr[] = "VCON";
+
 voice_modem_struct Dolphin =
      {
      "Dolphin",
      "Dolphin",
-     &Dolphin_answer_phone,
+     (char *) Dolphin_pick_phone_cmnd,
+     (char *) Dolphin_pick_phone_answr,
+     (char *) IS_101_beep_cmnd,
+     (char *) IS_101_beep_answr,
+              IS_101_beep_timeunit,
+     (char *) IS_101_hardflow_cmnd,
+     (char *) IS_101_hardflow_answr,
+     (char *) IS_101_softflow_cmnd,
+     (char *) IS_101_softflow_answr,
+     (char *) IS_101_start_play_cmnd,
+     (char *) IS_101_start_play_answer,
+     (char *) IS_101_reset_play_cmnd,
+     (char *) IS_101_intr_play_cmnd,
+     (char *) IS_101_intr_play_answr,
+     (char *) IS_101_stop_play_cmnd,
+     (char *) IS_101_stop_play_answr,
+     (char *) IS_101_start_rec_cmnd,
+     (char *) IS_101_start_rec_answr,
+     (char *) IS_101_stop_rec_cmnd,
+     (char *) IS_101_stop_rec_answr,
+     (char *) IS_101_switch_mode_cmnd,
+     (char *) IS_101_switch_mode_answr,
+     (char *) IS_101_ask_mode_cmnd,
+     (char *) IS_101_ask_mode_answr,
+     (char *) IS_101_voice_mode_id,
+     &IS_101_answer_phone,
      &IS_101_beep,
      &IS_101_dial,
      &IS_101_handle_dle,
      &Dolphin_init,
      &IS_101_message_light_off,
      &IS_101_message_light_on,
+     &IS_101_start_play_file,
+     &IS_101_reset_play_file,
+     &IS_101_stop_play_file,
      &IS_101_play_file,
      &IS_101_record_file,
      &Dolphin_set_compression,

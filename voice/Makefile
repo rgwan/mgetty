@@ -3,7 +3,7 @@
 #
 # This is the Makefile for the whole vgetty stuff.
 #
-# $Id: Makefile,v 1.1 1997/12/16 10:48:06 marc Exp $
+# $Id: Makefile,v 1.2 1998/01/21 10:23:57 marc Exp $
 #
 
 AR=ar

@@ -7,44 +7,58 @@
 
 #include "../include/voice.h"
 
-char *libvoice_detect_c = "$Id: detect.c,v 1.1 1997/12/16 12:21:08 marc Exp $";
+char *libvoice_detect_c = "$Id: detect.c,v 1.2 1998/01/21 10:24:56 marc Exp $";
 
 struct modem_type_struct
      {
-     char *ati_code;
+     const char *at_cmnd;
+     const char *at_answr;
+     const char *next_cmnd;
      voice_modem_struct *modem_type;
      };
 
+const char ati[] = "ATI";
+const char ati6[] = "ATI6";
+
 static const struct modem_type_struct modem_database[] =
      {
-     {"1.04", &Cirrus_Logic},
-     {"144", &UMC},
-     {"144 VOICE", &Rockwell},
-     {"14400", &Rockwell},
-     {"1443", &Dolphin},
-     {"1445", &US_Robotics},
-     {"1496", &ZyXEL_1496},
-     {"248", &Sierra},
-     {"249", &Rockwell},
-     {"282", &Elsa},
-     {"288", &ZyXEL_2864},
-     {"2864", &ZyXEL_2864},
-     {"28641", &ZyXEL_2864},
-     {"28642", &ZyXEL_2864},
-     {"28643", &ZyXEL_2864},
-     {"28800", &Dr_Neuhaus},
-     {"2886", &US_Robotics},
-     {"3361", &US_Robotics},
-     {"3366", &US_Robotics},
-     {"33600", &Rockwell},
-     {"3X WYSIWYF 628DBX", &Rockwell},
-     {"Linux ISDN", &ISDN4Linux},
-     {NULL, NULL}
+     {ati, "1.04",              NULL,   &Cirrus_Logic},
+     {ati, "144",               NULL,   &UMC},
+     {ati, "144 VOICE",         NULL,   &Rockwell},
+     {ati, "14400",             NULL,   &Rockwell},
+     {ati, "1443",              NULL,   &Dolphin},
+     {ati, "1445",              NULL,   &US_Robotics},
+     {ati, "1496",              NULL,   &ZyXEL_1496},
+     {ati, "247",               NULL,   &Multitech_2834ZDXv},
+     {ati, "248",               NULL,   &Sierra},
+     {ati, "249",               NULL,   &Rockwell},
+     {ati, "282",               NULL,   &Elsa},
+     {ati, "288",               NULL,   &ZyXEL_2864},
+     {ati, "2864",              NULL,   &ZyXEL_2864},
+     {ati, "28641",             NULL,   &ZyXEL_2864},
+     {ati, "28642",             NULL,   &ZyXEL_2864},
+     {ati, "28643",             NULL,   &ZyXEL_2864},
+     {ati, "28800",             "ATI6", NULL},
+     {ati, "2886",              NULL,   &US_Robotics},
+     {ati, "336",               NULL,   &Rockwell},
+     {ati, "3361",              NULL,   &US_Robotics},
+     {ati, "3366",              NULL,   &US_Robotics},
+     {ati, "33600",             NULL,   &Rockwell},
+     {ati, "3X WYSIWYF 628DBX", NULL,   &Rockwell},
+     {ati, "56000",             NULL,   &Rockwell},
+     {ati, "5601",              NULL,   &US_Robotics},
+     {ati, "Linux ISDN",        NULL,   &ISDN4Linux},
+
+     {ati6, "OK",     NULL, &Dr_Neuhaus},
+     {ati6, "RCV288", NULL, &Rockwell},
+
+     {NULL, NULL, NULL, NULL}
      };
 
 int voice_detect_modemtype _P0(void)
      {
      char buffer[VOICE_BUF_LEN];
+     char *cmnd;
 
      lprintf(L_MESG, "detecting voice modem type");
 
@@ -59,7 +73,6 @@ int voice_detect_modemtype _P0(void)
           }
      else
           {
-          int i;
 
           /*
            * First of all, let's see if a modem is connected and answering
@@ -73,7 +86,7 @@ int voice_detect_modemtype _P0(void)
                     {
                     lprintf(L_FATAL, "modem detection failed");
                     exit(FAIL);
-                    };
+                    }
 
                if ((voice_command("", "OK|ATE1") & VMA_USER) == VMA_USER)
                     voice_flush(1);
@@ -81,7 +94,7 @@ int voice_detect_modemtype _P0(void)
                     {
                     lprintf(L_FATAL, "modem detection failed");
                     exit(FAIL);
-                    };
+                    }
 
                }
           else
@@ -91,26 +104,33 @@ int voice_detect_modemtype _P0(void)
                     {
                     lprintf(L_FATAL, "modem detection failed");
                     exit(FAIL);
-                    };
+                    }
 
                voice_flush(1);
                }
 
           /*
-           * What does the modem answer to the ATI command?
+           * Let's detect the voice modem type.
            */
 
-          voice_command("ATI", "");
+          cmnd = (char *) ati;
+
+          if (voice_command(cmnd, "") != OK)
+               {
+               lprintf(L_FATAL, "modem detection failed");
+               exit(FAIL);
+               }
 
           do
                {
                char *s;
+               int i;
 
                if (voice_read(buffer) != OK)
                     {
                     lprintf(L_FATAL, "modem detection failed");
                     exit(FAIL);
-                    };
+                    }
 
                /*
                 * Strip off leading and trailing whitespaces and tabs
@@ -127,35 +147,46 @@ int voice_detect_modemtype _P0(void)
                 ((*s == ' ') || (*s == '\t'))); s++)
                     ;
 
-               for (i = 0; ((modem_database[i].ati_code != NULL) &&
+               for (i = 0; ((modem_database[i].at_cmnd != NULL) &&
                 (voice_modem == &no_modem)); i++)
+                    {
 
-                    if (strcmp(s, modem_database[i].ati_code) == 0)
-                         voice_modem = modem_database[i].modem_type;
+                    if ((strcmp(modem_database[i].at_cmnd, cmnd) == 0) &&
+                     (strcmp(modem_database[i].at_answr, s) == 0))
+                         {
+
+                         if (modem_database[i].next_cmnd != NULL)
+                              {
+                              voice_flush(1);
+                              cmnd = (char *) modem_database[i].next_cmnd;
+
+                              if (voice_command(cmnd, "") != OK)
+                                   {
+                                   lprintf(L_FATAL, "modem detection failed");
+                                   exit(FAIL);
+                                   }
+
+                              sprintf(buffer, "OK");
+                              break;
+                              }
+                         else
+                              voice_modem = modem_database[i].modem_type;
+
+                         }
+
+                    }
 
                }
-          while ((voice_modem == &no_modem) && (voice_analyze(buffer,
-           "") != VMA_FAIL));
+          while ((voice_modem == &no_modem) && (voice_analyze(buffer, "") !=
+           VMA_FAIL));
 
           voice_flush(1);
-          };
-
-     /*
-      * Fix me! Ugly hack to distinguish between Dr. Neuhaus and
-      * Rockwell modems reporting both 28800 on ATI
-      */
-
-     if ((voice_modem == &Dr_Neuhaus) &&
-      (voice_command("ATI6", "OK|RCV288") == VMA_USER_2))
-          {
-          voice_flush(1);
-          voice_modem = &Rockwell;
-          };
+          }
 
      if (voice_modem->init == NULL)
           {
           errno = ENOSYS;
-          lprintf(L_ERROR, "%s detected, but driver is not updated",
+          lprintf(L_ERROR, "%s detected, but driver is not available",
            voice_modem->name);
           voice_modem = &no_modem;
           exit(FAIL);

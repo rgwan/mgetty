@@ -11,7 +11,7 @@
 
 #include "../include/voice.h"
 
-char *libpvf_zyxel_c = "$Id: zyxel.c,v 1.1 1997/12/16 12:20:50 marc Exp $";
+char *libpvf_zyxel_c = "$Id: zyxel.c,v 1.2 1998/01/21 10:24:36 marc Exp $";
 
 static int Mx[3][8] =
      {

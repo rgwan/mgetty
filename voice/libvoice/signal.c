@@ -8,7 +8,7 @@
 
 #include "../include/voice.h"
 
-char *libvoice_signal_c = "$Id: signal.c,v 1.1 1997/12/16 12:21:16 marc Exp $";
+char *libvoice_signal_c = "$Id: signal.c,v 1.2 1998/01/21 10:25:04 marc Exp $";
 
 static int signals_initialized = FALSE;
 
