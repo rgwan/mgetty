@@ -3,7 +3,7 @@
 .SH NAME
 faxrunqd \- daemon to send fax jobs queued by faxspool(1)
 .SH SYNOPSIS
-.B faxrunqd [-v] [-d]
+.B faxrunqd [-v] [-d] [-l <ttys>] [-V]
 .SH DESCRIPTION
 Runs in the background, and regularily checks the fax queue set up by
 faxspool(1).  Sends all jobs that are due, records results, and takes
