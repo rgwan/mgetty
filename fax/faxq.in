@@ -4,7 +4,7 @@
 #
 # like "lpq" or "mailq", show jobs waiting in the output queue
 #
-# SCCS: $Id: faxq.in,v 3.3 1996/03/12 22:13:50 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxq.in,v 3.4 1996/07/10 23:12:28 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -26,15 +26,24 @@ else
     exit 1
 fi
 
-jobs=*/JOB
+jobs="*/JOB"
 
 for flag
 do
     case $flag in
 	-v) verbose="true" ;;
-	-o) jobs="*/JOB*" ;;
-	*) $echo "$0: invalid option: $flag" >&2
-	   $echo "valid options: -o: show old jobs, -v: verbose output" >&2
+	-o) jobs="*/JOB.done" ;;
+	-s) jobs="*/JOB.s*" ;;
+	-a) jobs="*/JOB*" ;;
+	*) cat <<EOF_MSG >&2
+$0: invalid option: $flag
+valid options:
+  -o: show old jobs
+  -s: show suspended jobs
+  -a: show all jobs
+  -v: verbose output
+  -r: restart suspended jobs
+EOF_MSG
 	   exit 1 ;;
     esac
 done
@@ -88,9 +97,14 @@ do
 	$echo "\tSend time: $TIME"
        test ! -z "$ACCT" && \
 	$echo "\tAcct info: $ACCT"
+
 	sed -e '/Status/!d' -e 's/Status/           Status:/' $i
+       if [ -f "$i.locked" ] ; then
+        $echo "\t   Status: LOCKED (being sent right now)"
+       else
 	expr $i : ".*done$" >/dev/null ||
 	$echo "\t   Status: not sent yet"
+       fi
     fi
 done
 
