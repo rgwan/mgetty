@@ -11,14 +11,14 @@
  *
  * New updated driver by Jens Adner <Jens.Adner@Wirtschaft.TU-Ilmenau.DE>.
  *
- * $Id: UMC.c,v 1.7 1999/06/15 13:04:01 marcs Exp $
+ * $Id: UMC.c,v 1.8 1999/08/11 21:02:14 marcs Exp $
  *
  */
 
 #include "../include/voice.h"
 
 #define UMC_RELEASE "0.02"
-// #define UMC_VTS_WORKAROUND yes
+/* #define UMC_VTS_WORKAROUND yes */
 /* #define UMC_EXTENDED_DETECTION yes */
 #define UMC_SPEAKER_ON yes
 /* workaround: it should set by vgetty
