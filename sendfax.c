@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 3.7 1996/04/05 19:12:39 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 3.8 1996/05/27 19:46:46 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -22,6 +22,7 @@
 # include <errno.h>
 #endif
 
+#include "version.h"
 #include "mgetty.h"
 #include "tio.h"
 #include "policy.h"
@@ -261,6 +262,8 @@ int main _P2( (argc, argv),
 
     /* initialize logging */
     log_init_paths( argv[0], FAX_LOG, NULL );
+
+    lprintf( L_MESG, "sendfax: %s", mgetty_version );
 
     /* parse switches (-> conf_sf.c) and read global config file */
     if ( sendfax_parse_args( argc, argv ) == ERROR )
