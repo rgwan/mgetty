@@ -1,4 +1,4 @@
-#ident "$Id: g32pbm.c,v 1.4 1993/10/03 15:19:35 gert Exp $ (c) Gert Doering";
+#ident "$Id: g32pbm.c,v 1.5 1993/10/05 14:09:11 gert Exp $ (c) Gert Doering";
 
 #include <stdio.h>
 #include <unistd.h>
@@ -588,7 +588,9 @@ write:		/* write pbm (or whatever) file */
 
     if( fd != 0 ) close(fd);	/* close input file */
 
-fprintf( stderr, "consecutive EOLs: %d\n", cons_eol );
+#ifdef DEBUG
+    fprintf( stderr, "consecutive EOLs: %d\n", cons_eol );
+#endif
 
     sprintf( rbuf, "P4\n%d %d\n", MAX_COLS, row );
     write( 1, rbuf, strlen( rbuf ));
