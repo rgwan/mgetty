@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.136 1994/10/15 12:49:10 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.137 1994/10/22 15:40:13 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -37,7 +37,7 @@
 # define MODEM_CHECK_TIME -1	/* no check */
 #endif
 
-unsigned short portspeed = B0;	/* indicates has not yet been set */
+unsigned int portspeed = B0;	/* indicates has not yet been set */
 
 int	rings_wanted = 1;		/* default: one "RING" */
 
@@ -439,12 +439,14 @@ int main _P2((argc, argv), int argc, char ** argv)
     if ( ( i = system( buf ) ) != 0 )
         lprintf( L_WARN, "%s: return code %d", buf, i );
 #endif
-    
-    /* open the device; don't wait around for carrier-detect */
-    if ( mg_open_device( devname, blocking_open ) == ERROR ) /* mg_m_init.c */
+
+    /* open + initialize device (mg_m_init.c) */
+    if ( mg_get_device( devname, blocking_open,
+		        toggle_dtr, toggle_dtr_waittime,
+		        portspeed ) ==	ERROR )
     {
-	lprintf( L_FATAL, "open device %s failed, exiting", devname );
-	exit( FAIL );
+	lprintf( L_FATAL, "cannot get terminal line, exiting" );
+	exit( 30 );
     }
     
     /* setup terminal */
@@ -457,13 +459,6 @@ int main _P2((argc, argv), int argc, char ** argv)
 
     tio = *gettermio(GettyID, TRUE, &login_prompt);
 
-    if ( mg_init_device( STDIN, toggle_dtr, toggle_dtr_waittime,
-			 portspeed ) == ERROR )
-    {
-	lprintf( L_FATAL, "cannot initialize device, exiting" );
-	exit( 20 );
-    }
-    
     /* drain input - make sure there are no leftover "NO CARRIER"s
      * or "ERROR"s lying around from some previous dial-out
      */
