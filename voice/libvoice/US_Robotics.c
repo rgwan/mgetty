@@ -24,7 +24,7 @@
  * A very good US Robotics technical reference manual is available
  * at: http://www.alliancedatacom.com/us-robotics-manuals.htm (not a typo).
  *
- * $Id: US_Robotics.c,v 1.16 2000/08/10 06:32:25 marcs Exp $
+ * $Id: US_Robotics.c,v 1.17 2000/09/11 11:38:26 marcs Exp $
  *
  */
 
@@ -68,8 +68,8 @@ static int USR_beep(int frequency, int length)
       * 
       */
       
-     if (IS_101_beep(frequency, length) != OK)
-          return(FAIL);
+     if (IS_101_beep(frequency, length) != VMA_OK)
+          return(VMA_ERROR);
 
      /*  --- "Luca Olivetti" <luca@olivetti.dhis.org>
       *     A long time ago I introduced a workaround in US_Robotics.c to a
@@ -84,12 +84,12 @@ static int USR_beep(int frequency, int length)
       *     hook -- it beeps with the *external* speaker though). 
       */ 
 
-     if (internal_speaker_used) return(OK);
+     if (internal_speaker_used) return(VMA_OK);
           
      if (IS_101_answer_phone() != VMA_OK)
-          return(FAIL);
+          return(VMA_ERROR);
      
-     return(OK);
+     return(VMA_OK);
 } 
 
 static int USR_init(void)
