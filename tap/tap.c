@@ -1,3 +1,11 @@
+/* tap.c
+ *
+ * TAP/UCP support for calling up paging servers (experimental)
+ *
+ * Copyright (c) 1997 Gert Doering
+ */
+#ident "$Id: tap.c,v 1.2 1997/10/31 10:58:32 gert Exp $"
+
 #include <stdio.h>
 #include <fcntl.h>
 #include <string.h>
