@@ -5,7 +5,7 @@
  * supports the shell script execution function to test vgetty scripts
  * and to build special standalone scripts.
  *
- * $Id: main.c,v 1.8 2001/02/24 10:59:37 marcs Exp $
+ * $Id: main.c,v 1.9 2001/04/01 08:18:44 marcs Exp $
  *
  */
 
@@ -342,7 +342,7 @@ int main(int argc, char *argv[])
           char **shell_arguments;
 
           if (optind == argc)
-               voice_execute_shell_script("", NULL);
+               result = voice_execute_shell_script("", NULL);
           else
                {
                shell_arguments = (char**) malloc((argc - optind + 1) *
@@ -352,7 +352,7 @@ int main(int argc, char *argv[])
                     shell_arguments[i] = argv[optind + i + 1];
 
                shell_arguments[i] = NULL;
-               voice_execute_shell_script(argv[optind], shell_arguments);
+               result = voice_execute_shell_script(argv[optind], shell_arguments);
                };
 
           };

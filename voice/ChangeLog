@@ -1,5 +1,8 @@
 Sun Mar 11 13:08:29 2001  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 
+	* Added fix for vm voice shell execution result in vm/main.c,
+	submitted by Diomidis Spinellis <dspin@aegean.gr>.
+
 	* All of below is 0.9.27
 
 	* Fix to vgetty/answer.c (incomplete arguments), submitted
