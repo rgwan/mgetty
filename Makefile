@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.49 2002/01/14 09:58:09 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.50 2002/11/17 18:50:18 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -214,6 +214,16 @@ FAX_SPOOL=$(spool)/fax
 FAX_SPOOL_IN=$(FAX_SPOOL)/incoming
 FAX_SPOOL_OUT=$(FAX_SPOOL)/outgoing
 #
+# the user that owns the "outgoing fax queue" (FAX_SPOOL_OUT)
+#
+# faxrunq and faxrunqd should run under this user ID, and nothing else.  
+# This user needs access to the modems of course.  
+#
+# (it's possible to run faxrunq(d) as root, but the FAX_OUT_USER 
+#  MUST NOT BE root or any other privileged account).
+#
+FAX_OUT_USER=fax
+#
 #
 # Where section 1 manual pages should be placed
 MAN1DIR=$(prefix)/man/man1
@@ -292,8 +302,8 @@ MV=mv
 # Nothing to change below this line ---------------------------------!
 #
 MR=1.1
-SR=28
-DIFFR=1.1.27
+SR=29
+DIFFR=1.1.28
 #
 #
 OBJS=mgetty.o logfile.o do_chat.o locks.o utmp.o logname.o login.o \
@@ -355,7 +365,7 @@ sendfax.sen: $(SFAXOBJ)
 subdirs:
 	cd g3 ;    $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" "LIBS=$(LIBS)" all
 	cd tools ; $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" "LIBS=$(LIBS)" all
-	cd fax ;   $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" "LIBS=$(LIBS)" all
+	cd fax ;   $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" "LIBS=$(LIBS)" "FAX_SPOOL_OUT=$(FAX_SPOOL_OUT)" "FAX_OUT_USER=$(FAX_OUT_USER)" all
 
 call-back:
 	@$(MAKE) mgetty
