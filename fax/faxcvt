@@ -8,7 +8,7 @@
 # - PostScript: gs -sDEVICE=dfaxhigh
 # - ASCII-Files: pbmtext -fount cour25.pbm
 #
-# SCCSID: $Id: faxcvt,v 3.1 1995/08/30 12:38:49 gert Exp $ (c) 1993 Gert Doering
+# SCCSID: $Id: faxcvt,v 3.2 1997/01/02 15:24:29 gert Exp $ (c) 1993 Gert Doering
 #
 if [ $# -lt 2 ]
 then
@@ -25,7 +25,7 @@ do
     tgt=/tmp/$file.g3
     case "$format" in
 	-ascii)	tgt=/tmp/$file
-		pbmtext -font cour25.pbm <$file | pbmtog3 >$tgt-1.g3
+		pbmtext -font cour25.pbm <$file | pbm2g3 >$tgt-1.g3
 		;;
 	-ps)	tgt=/tmp/`basename $file .ps`
 	        cat $file |
@@ -36,7 +36,7 @@ do
 	        gs -dNOPAUSE -sDEVICE=dfaxhigh -sOutputFile=$tgt-%d.g3 - 
 		;;
 	-pbm)	tgt=/tmp/`basename $file .pbm`
-		pbmtog3 $file >$tgt-1.g3
+		pbm2g3 $file >$tgt-1.g3
 		;;
 	*) echo "$0: unknown format: $format!" ;;
     esac &&

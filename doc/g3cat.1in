@@ -50,7 +50,7 @@ width is transparently fixed.
 The following example will put a header line on a given g3 page, 'page1'
 and put the result into 'page2':
 
-echo '$header' | pbmtext | pbmtog3 | g3cat \- page1 >page2
+echo '$header' | pbmtext | pbm2g3 | g3cat \- page1 >page2
 
 .SH FILES
 .ta
@@ -61,7 +61,7 @@ echo '$header' | pbmtext | pbmtog3 | g3cat \- page1 >page2
 Hopefully none :-).
 
 .SH "SEE ALSO"
-g3topbm(1), sendfax(8), faxspool(1)
+g32pbm(1), sendfax(8), faxspool(1)
 
 .SH AUTHORS
 .I g3cat
