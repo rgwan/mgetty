@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.38 1993/11/26 20:39:44 gert Exp $ Copyright (c) Gert Doering */
+/* $Id: mgetty.h,v 1.39 1993/12/01 20:11:31 gert Exp $ Copyright (c) Gert Doering */
 
 /* ANSI vs. non-ANSI support */
 #ifdef __STDC__
@@ -48,10 +48,11 @@
 
 #define L_FATAL 0
 #define L_ERROR 1
-#define L_WARN 2
-#define L_MESG 3
-#define L_NOISE 4
-#define L_JUNK 5
+#define L_AUDIT 2
+#define L_WARN 3
+#define L_MESG 4
+#define L_NOISE 5
+#define L_JUNK 6
 
 extern	int	log_level;
 extern	char	log_path[];
