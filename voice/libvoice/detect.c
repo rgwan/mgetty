@@ -3,7 +3,7 @@
  *
  * autodetect the modemtype we are connected to.
  *
- * $Id: detect.c,v 1.17 2000/07/28 10:28:30 marcs Exp $
+ * $Id: detect.c,v 1.18 2000/07/28 10:40:01 marcs Exp $
  *
  */
 
@@ -196,9 +196,9 @@ int voice_detect_modemtype(void)
                 lprintf(L_NOISE, "%s", s);
 	  	i = 0;
 	  	while (voice_modem == &no_modem &&
-                       pnp_modem_database[i].pnpip)
+                       pnp_modem_database[i].pnpid)
 	  		{
-                        if (pnp_modem_database[i].pnpip) {
+                        if (pnp_modem_database[i].pnpid) {
 			   lprintf(L_JUNK, "checking pnpipd %s",
 					   pnp_modem_database[i].pnpid);
                         }
