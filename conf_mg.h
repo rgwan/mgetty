@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.h,v 4.3 1998/04/18 21:33:22 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: conf_mg.h,v 4.4 1998/06/01 16:19:19 gert Exp $ Copyright (c) 1994 Gert Doering"
 
 /* all (dynamic) mgetty configuration is contained in this structure.
  * It is initialized and loaded in conf_mg.c and accessed from mgetty.c
@@ -28,6 +28,7 @@ extern struct conf_data_mgetty {
 	rings_wanted,				/* number of RINGs */
 	msn_list,				/* ISDN MSNs (dist.ring) */
 	getcnd_chat,				/* get caller ID (for ELINK)*/
+	cnd_program,				/* accept caller? */
 	answer_chat,				/* ATA...CONNECT...""...\n */
 	answer_chat_timeout,			/* longer as S7! */
 	autobauding,
