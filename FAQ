@@ -1,12 +1,15 @@
 Subject: Mgetty+Sendfax with Vgetty Extensions (FAQ)
 Newsgroups: comp.dcom.fax,comp.dcom.modems,comp.answers,news.answers
 Followup-To: poster
-Reply-To: Lichtenwalder@ACM.org
+From: Lichtenwalder@ACM.org
 Summary: Information about mgetty+sendfax, a Unix getty replacement
 Keywords: class2 fax mgetty sendfax modem digifax
+Approved: news-answers-request@mit.edu
 
 Archive-name: fax-faq/mgetty+sendfax+vgetty
-Last-modified: 05 December 1996
+Last-modified: 1998/03/12
+URL: http://www.webforum.de/mgetty-faq.txt
+Maintainer: Klaus Lichtenwalder <Lichtenwalder@ACM.org>
 
 			  ``mgetty+sendfax''
 		Answers to Frequently-Asked Questions
@@ -16,6 +19,8 @@ Last-modified: 05 December 1996
 			 Klaus Lichtenwalder
 		        Lichtenwalder@ACM.org
 
+        Posted by: Chris Lewis, clewis@ferret.ocunix.on.ca
+
 ------------------------------
 
 Subject: Introduction
@@ -24,6 +29,24 @@ This document attempts to answer the most frequently asked questions
 about mgetty+sendfax/vgetty, Gert Doering's fax-enabled getty
 replacement with Klaus Weidner's and Marc Eberhard's voice processing
 extensions.
+The official release of mgetty is now (at least) 1.0. Gert adopted
+the numbering scheme of the Linux kernel, with even release numbers (1.0,
+1.2,...) being production version and uneven numbers being development
+versions. Pls note that in 1.0 there's no vgetty support as that is
+being revamped. If you need voice, you have to go for older versions or,
+far better, for the newer development tree.
+
+Subject: Japanese Version
+
+I'm glad I can announce a Japanese Version made by chie nakatani
+<jeanne@mbox.kyoto-inet.or.jp>. You can find it at
+<URL:http://epsenewsc.gee.kyoto-u.ac.jp/JF/JF-ftp/euc/mgetty_j.euc>
+
+Subject: Legalese
+
+This document is copyrighted by the FAQ Maintainer,
+K.Lichtenwalder. It may not be reproduced in part or in full without
+the written consent of the FAQ Maintainer.
 
 ------------------------------
 
@@ -37,6 +60,9 @@ Part I: "Deciding whether to use it" questions
  What terms cover my use of mgetty+sendfax/vgetty?
  Where can I get mgetty+sendfax?
  How can I integrate it into an office environment?
+ What's going on with those Class 1 modems?
+ What modems are recommended?
+ Where is the list archived?
 Part 2: Other questions
  How can I contact mgetty/vgetty users and developers?
  What image file formats can sendfax send?
@@ -49,10 +75,13 @@ Part 2: Other questions
  My ZyXEL doesn't work right after a ROM upgrade: What's wrong?
  When is mgetty actually running? (i.e. what can mgetty control?)
  The user's shell doesn't get killed after the line drops
+ AutoPPP appears in "who" listing
+ Things to think of if using AutoPPP, or, as you might call it, ppp connections
 Part 3: Compatibility Issues
  Suspicious fax machines
 Part 4: Compiling, installing and using vgetty
  Compiling vgetty
+ US Robotics voice format converter
 
 ---------------------------
 
@@ -408,10 +437,10 @@ The home page is at http://www.leo.org/~doering/mgetty/
 
 The official release sites are these URLs:
 
-  ftp://ftp.leo.org/pub/comp/communication/networking/modem/mgetty
+  ftp://ftp.leo.org/pub/comp/networking/communication/modem/mgetty
   ftp://sunsite.unc.edu/pub/Linux/system/Serial/mgetty+sendfax*
   ftp://tsx-11.mit.edu/pub/linux/sources/usr.bin/... (or so)
-  ftp://linux.nrao.edu/pub/src/mgetty+sendfax/
+  ftp://linux.nrao.edu/pub/packages/mgetty+sendfax/
 
 ------------------------------
 
@@ -425,24 +454,94 @@ different programs.
 	
 ------------------------------
 
+Subject: What's going on with those Class 1 modems?
+From: Klaus Lichtenwalder <Lichtenwalder@ACM.org>, modifying comments
+	from Gert Doering
+	
+While Class 2 and Class 2.0 modems do most of the dirty work
+themselves, clever modem manufacturers seem to drift toward implementing
+only class 1 fax modes. Probably so they can use smaller proms while
+also integrating voice functionality. Well, they want to see $$$,
+too..
+The bad thing with Class 1 is, the modem expects all the dirty work to
+be done by the host computer. After all, why did you buy a Pentium II
+300MHz? Just for hitting on a few keys from time to time? So you have
+a very fast cpu and there should be no problem to do something every n
+ms? Right? Wrong! Most of the Unix systems out there don't have
+realtime extensions (this *is* a real time job, after all), and if
+they have, there's no real standard to these extensions, so generally
+it's not possible to maintain that strain. Windows knows how to use
+class 1 modems? Yeah, sure, the multitasking is quite different, you
+can quite easily exclude other processes from running, because you
+just want to have that high priority process. And if you insist in
+doing some other time consuming tasks, your fax might no be very
+readable... So, so much prosa for this situation, you still might see
+some class 1 support in the near future. Just hang on and in the
+meantime, boycott modem manufacturers who only support class 1 modes.
+
+------------------------------
+
+Subject: What modems are recommended?
+From: Gert Doering <gert@greenie.muc.de> and the List
+
+----------------------------------------------------
+MODEM Recommendations for use with mgetty/vgetty
+------------------------------------------------
+
+What modem to recommend depends on your needs.  There are very few modems
+that handle fax + data + voice perfectly, but quite a number that are
+well suited for two of the categories, and less good (or sometimes not
+at all) for the third.
+
+For Fax+Data:  
+    * USR Courier V.34/X.2 (no voice)
+
+For FAX+Voice: 
+    * ZyXEL 1496 (data only up to 19200, but best fax implementation)
+
+For Data+Voice:
+    * USR Sportster VI series (fax implementation is VERY bad)
+ 
+For FAX+DATA+Voice
+    * ZyXEL 2864
+    * MultiTech MT2834ZDXv
+    * ELSA MicroLink TQV series (fax is not perfect, but works ok)
+
+Last updated: February 1998
+
+------------------------------
+
+Subject: Where is the list archived?
+From: Gert Doering <gert@greenie.muc.de>
+
+A pointer to the archive as well as lots of other documentation can be
+found at <URL:http://www.leo.org/~doering/mgetty>. The archive itself
+can be found at <URL:http://eli.wariat.org/mgarc/index.html>
+
+------------------------------
+
 Subject: Part 2: Other questions
 
 ------------------------------
 
 Subject:  How can I contact mgetty/vgetty users and developers?
-From: steve@work.bellingham.wa.us
-
-(Suggested by Steve Wampler)
+From: ezmlm at crynwr
 
 A mailing list exists. Due to its international character, the only
 supported language on this list is *English*, though it's gated to
 some local newsgroups, de.alt.comm.mgetty for example. To subscribe to
-the list, send mail to mgetty-request@muc.de (I believe the list is
-maintained by hand, so you'll need to ask to join.)  To send mail to
-every one of the dozens of people on the list, send to mgetty@muc.de.
-DON'T send subscription requests to mgetty@muc.de -- many people will
-write back telling you to use mgetty-request for administrative
-messages.
+the list, send mail to mgetty-subscribe@crynwr.com, to unsubscribe, 
+send a mail to mgetty-unsubscribe@crynwr.com, NOT to mgetty@muc.de.
+If you want to specify a different e-mail address for your subscribtion
+than the address you send your subscribe request, send it to
+mgetty-subscribe-<your e-mail address with @ replaced by =>@crynwr.com.
+This address gets checked by sending a confirmation message.
+
+Example (from mgetty-help@crynwr.com): to specify God@heaven.af.mil as
+your subscription address, send mail to
+<mgetty-subscribe-God=heaven.af.mil@crynwr.com>.  I'll send a
+confirmation message to that address; when you receive that message,
+simply reply to it to complete your subscription.
 
 The volume on mgetty@muc.de varies from one or two messages a week to
 ten or so a day, depending on development activity.
@@ -765,6 +864,16 @@ A: When you see something like this in your log:
   pages. Alternatively, you can define ''ignore-carrier true'' in your
   config file.
 
+Q: The message "WARING: DSR off - modem turned off or bad cable?" keeps
+   showing up in the mgetty logfile.
+
+A: If you see this message, it basically means that mgetty can't get
+   the status of dsr (data set ready). This can be because the cable
+   is bad or because you are using mgetty on solaris. Solaris doesn't
+   give you the status of dsr. If you are running mgetty on a different
+   platform, you might consider checking your cable or the modem
+   setting.
+
 ------------------------------
 
 Subject: Programs generating "invalid" Postscript that can't converted
@@ -889,6 +998,54 @@ that the modem raises and lowers the DCD line properly (check with the
 modem manual) and that your serial cable is OK (swap it with another
 one for testing).
 
+
+------------------------------
+
+Subject: AutoPPP appears in the "who" listing
+From: Gert Doering <gert@greenie.muc.de>
+
+If you use the /AutoPPP/ option for automatically creating a ppp 
+connection, the user name does not appear in the who list. Instead,
+something like AutoPPP or ppp is displayed. Solution: you have to
+patch pppd, that's not mgetty's issue and thus can't resolved patching
+mgetty. 
+If you have the patched pppd, this is how it works. You have
+to add the option "login" to pppd in login.config and change the third
+column to "-" (in the example it's a_ppp or ppp).
+
+------------------------------
+
+Subject: Things to think of if using AutoPPP, or, as you might call it,
+	ppp connections
+From: Gert Doering <gert@greenie.muc.de>
+
+You can't get a ppp connection going. So, what should you check before
+calling for help in the list.
+
+Run mgetty with a debug level high enough to see what login it will
+try. It might not be wrong to just use level 9 to see everything
+happening.
+
+Scenario 1: mgetty recognizes AutoPPP:
+  03/11 12:06:31 yS1   match: user='/AutoPPP/', key='/AutoPPP/'*** hit!
+  03/11 12:06:31 yS1   login: utmp entry: ppp
+  03/11 12:06:31 yS1    looking for utmp entry... (my PID: 5313)
+  03/11 12:06:31 yS1   utmp + wtmp entry made
+  03/11 12:06:31 yS1   calling login: cmd='/usr/sbin/pppd', argv[]='pppd...
+  03/11 12:06:31 ##### data dev=ttyS1, pid=5313, caller=none, conn='LAPM', name=''
+At this point, mgetty executes pppd and has nothing to do with
+connection failures, failing authorization, the police banging at your
+door or anything else. Check pppd's logs for any trouble.
+
+If you use "who" and the only thing you can see is "a_ppp", go check
+your pppd sources. It's pppd's job to forge a utmp entry
+
+It looks like some unix clients should explicitely send the string
+"/AutoPPP/" as there seems to be a problem in connecting. Mgetty
+doesn't seem to get ppp-frames and waits for something it can decide
+what to do. As you are most probably using a script for the
+connection, there should be no problem to send that string.
+
 ------------------------------
 
 Subject: Part 3: Compatibility Issues
@@ -980,3 +1137,29 @@ make. For installation (make install) be sure to copy voice.conf-dist
 to the mgetty configuration directory (usually
 /usr/local/etc/mgetty+sendfax) as voice.conf and edit it, using the
 comments in that file.
+
+------------------------------
+
+Subject: US Robotics voice format converter
+From: Scott Hutton <shutton@indiana.edu>
+
+There's a script I wrote in voice/pvftools called "extract_gsm" that
+extracts the GSM data from a US Robotics "rmd" file.  Once you have
+that, and you have a version of "sox" that can convert .gsm files in
+to .au (or other format) files, you're in business.
+
+I found the necessary patches for sox after a bit of digging:
+
+  http://kbs.cs.tu-berlin.de/~jutta/toast.html
+
+You'll need the GSM library before you try to apply the sox patches.
+It's too bad sox doesn't come with GSM support--it seems to have
+about everything else...
+
+Also, Thomas Hellstroem (thomas@vtd.volvo.se) had some C programs to
+extract GSM data and to "pack" GSM data into rmd files off of his page.
+Unforutnately, I didn't save the URL.
+
+ -Scott Hutton, UCS Messaging Team, Indiana Univeristy
+
+
