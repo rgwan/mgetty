@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.32 1993/09/28 16:53:55 gert Exp $ (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.33 1993/10/03 14:24:06 gert Exp $ (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -250,6 +250,23 @@ static	char	fax_end_of_page[] = { DLE, ETX };
 				 buf[29]     ? "fine" : "normal" );
 			lprintf( L_WARN, "resolution mismatch" );
 		    }
+		}
+                else
+		/* it's incredible how stupid users are - check for */
+		/* "tiffg3" files and issue a warning if the file is */
+		/* suspect */
+                if ( r >= 2 && ( ( buf[0] == 0x49 && buf[1] == 0x49 ) ||
+                                 ( buf[0] == 0x4d && buf[1] == 0x4d ) ) )
+		{
+		    lprintf( L_WARN, "may be TIFF file" );
+		    fprintf( stderr, "WARNING: file may be 'tiffg3' - TIFF file format is *not* supported!\n" );
+		    fprintf( stderr, "         Thus, fax transmission will most propably fail\n" );
+		}   
+                else
+                if ( r < 10 || buf[0] != 0 )
+		{
+		    lprintf( L_WARN, "file looks 'suspicious'" );
+                    fprintf( stderr, "WARNING: are you sure that this is a G3 fax file? Doesn't seem to be...\n" );
 		}
 	    }
 
