@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.4 1993/02/25 12:07:44 gert Exp $ (c) Gert Doering */
+/* $Id: mgetty.h,v 1.5 1993/02/26 17:55:05 gert Exp $ (c) Gert Doering */
 
 /* stuff in logfile.c */
 
@@ -65,12 +65,17 @@ extern	char	*lock;
 
 /* fax stuff */
 
+void faxrec( void );
+
 #define FAX_SPOOL	"/usr/spool/fax"
 #define FAX_SPOOL_IN	FAX_SPOOL"/incoming"
 #define FAX_RECEIVER	"/u/softadm/zfax2/recfax"
 #define MAILER		"/usr/lib/sendmail"
 #define MAIL_TO		"gert"
-
+/* how long should I wait for a string from modem */
+#define FAX_RESPONSE_TIMEOUT	60
+/* how much time may pass while receiving a fax without getting data */
+#define	FAX_PAGE_TIMEOUT	60
 
 /********* system prototypes **************/
 char * mktemp( char * template );
