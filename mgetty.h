@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.h,v 1.58 1994/07/12 23:09:45 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 1.59 1994/07/21 21:33:04 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.h
  *
@@ -137,6 +137,8 @@ int	mg_open_device _PROTO(( char * devname, boolean blocking ));
 int	mg_init_device _PROTO(( int fd, boolean toggle_dtr,
 			        int toggle_dtr_waittime,
 			        unsigned short portspeed ));
+int	mg_get_ctty _PROTO(( int fd, char * devname ));
+int	mg_drop_ctty _PROTO(( int fd ));
 
 /* logname.c */
 char *	ln_escape_prompt _PROTO(( char * prompt ));
