@@ -112,6 +112,13 @@ should delete jobs after sending, or leave them in the fax queue (while
 moving the "JOB" file to "JOB.done") so that they can be seen at by
 "faxq -o". The default value is "do not delete sent faxes".
 
+.TP
+.B acct-log <path>
+Specifies where
+.I faxrunqd
+should protocol success and failure of each try to send a fax job.
+The default location is @FAX_SPOOL_OUT@/acct.log.
+
 .LP
 The options that are specific to
 .I faxrunqd
