@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 1.44 1994/10/21 21:47:48 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 1.45 1994/10/31 12:09:54 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include "syslibs.h"
@@ -232,9 +232,9 @@ static RETSIGTYPE getlog_timeout()
  * If ENV_TTYPROMPT is set, do not read anything
  */
 
-int getlogname _P4( (prompt, tio, buf, maxsize),
+int getlogname _P5( (prompt, tio, buf, maxsize, timeout),
 		    char * prompt, TIO * tio, char * buf,
-		    int maxsize )
+		    int maxsize, boolean do_timeout )
 {
     int	 i;
     char ch;
@@ -261,8 +261,11 @@ int getlogname _P4( (prompt, tio, buf, maxsize),
 #else			/* !ENV_TTYPROMPT */
 
 #ifdef MAX_LOGIN_TIME
-    signal( SIGALRM, getlog_timeout );
-    alarm( MAX_LOGIN_TIME );
+    if ( do_timeout )
+    {
+	signal( SIGALRM, getlog_timeout );
+	alarm( MAX_LOGIN_TIME );
+    }
 #endif
 
   newlogin:
