@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 1.35 1994/04/18 16:09:59 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 1.36 1994/04/20 15:32:15 gert Exp $ Copyright (c) Gert Doering"
 ;
 #include <stdio.h>
 #ifndef _NOSTDLIB_H
@@ -174,6 +174,7 @@ boolean ln_all_upper _P1( (string), char * string )
 
     for ( i=0; string[i] != 0; i++ )
     {
+	if ( string[i] == '\377' ) return FALSE;	/* **EMSI_INQ */
 	if ( islower( string[i] ) ) return FALSE;
 	if ( isupper( string[i] ) ) uc = TRUE;
     }
@@ -357,8 +358,9 @@ int getlogname _P4( (prompt, tio, buf, maxsize),
 	/* log EMSI packets that are not EMSI_INQ (e.g. EMSI_DAT) */
 	if ( strncmp( buf, "\377**EMSI_INQ", 11 ) != 0 )
 	{
+	    buf[i-1] = 0;
 	    lprintf( L_MESG, "non-INQ EMSI packet: '%.15s...', length %d",
-		              buf, i-1 );
+		              buf+1, i-1 );
 	    if ( strncmp( buf, "\377**EMSI_CLI", 11 ) == 0 )
 	    {
 		lprintf( L_MESG, "got EMSI_CLI packet, re-read login name" );
