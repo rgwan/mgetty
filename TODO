@@ -436,10 +436,6 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
      then setsid()'ing, and then getting a new controlling tty?  
      (Things are likely to fail anyway due to missing utmp slots...)
 
-278) update-call-program for faxrunqd
-
-279) update-call-program for faxrunq
-
 280) add tools/microcomm  (talk to modem at "-s xxx", end, send BREAK)
 
 281) make faxrunqd work with "use strict" (declare all variables etc.)
