@@ -1,4 +1,4 @@
-#ident "$Id: faxq-helper.c,v 4.9 2002/11/19 11:03:12 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxq-helper.c,v 4.10 2002/11/23 11:54:51 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxq-helper.c
  *
@@ -144,6 +144,9 @@ struct stat stb;
  * it wouldn't match anyway
  *
  * return values: -1 = no such file / error, 0 = not found in file, 1 = found
+ *
+ * TODO: "man faxspool" claims that "user<blank>otherstuff" is fine
+ *       -> either adapt code, or rework documentation
  */
 
 int find_user_in_file( char * file, char * u )
@@ -343,9 +346,7 @@ char pathbuf[200], buf[4096];
 int fd, r, w;
 
     if ( isatty(fileno(stdin)) )
-    {
-	eout( "input must not come from a tty, abort\n" ); return -1;
-    }
+	fprintf(stderr, "NOTICE: reading input from stdin, end with ctrl-D\n");
 
     sprintf( dir1, ".in%s.%d", JID, real_user_id );
     if ( validate_dir( dir1 ) < 0 ) return -1;
@@ -443,7 +444,7 @@ int rc = 0;
 	}
 	sprintf( pathbuf, "%s/%s", dir, de->d_name );
 
-	fprintf( stderr, "debug2: '%s'\n", pathbuf );
+	/* fprintf( stderr, "debug2: '%s'\n", pathbuf ); */
 
 	if ( lstat( pathbuf, &stb ) < 0 )
 	{
@@ -528,6 +529,9 @@ int do_activate( char * JID )
 char dir1[MAXJIDLEN+20];
 char buf[1000], *p, *q;
 int fd;
+
+    if ( isatty(fileno(stdin)) )
+	fprintf(stderr, "NOTICE: reading input from stdin, end with ctrl-D\n");
 
     sprintf( dir1, ".in%s.%d", JID, real_user_id );
     if ( validate_dir( dir1 ) < 0 ) return -1;
@@ -671,7 +675,7 @@ char jfile[MAXJIDLEN+30], lfile[MAXJIDLEN+30];
 	{
 	    if ( strcmp( buf+5, real_user_name ) != 0 )
 	    {
-		eout( "not your job! (%s <-> %s)\n", buf+5, real_user_name );
+		fprintf( stderr, "%s: not your job, can't do anything (%s <-> %s)\n", jfile, buf+5, real_user_name );
 		unlink( lfile );
 		fclose(fp);
 		return -1;
