@@ -17,18 +17,23 @@ else
     DST=mgetty+sendfax-$VS.tar.gz
 fi
 
+scp $SRC $HOST:$DIR/$DST
+scp $SRC.asc $HOST:$DIR/$DST.asc
+
 # find diff's, if any...
 DIFF=`ls -rt mgetty*-$VS.diff.gz 2>/dev/null |tail -1`
-test -n "$DIFF" && DIFF="put $DIFF"
+#test -n "$DIFF" && DIFF="put $DIFF"
+test -n "$DIFF" && \
+	scp $DIFF $HOST:$DIR/$DIFF
 
 # normal FTP upload
-ftp -v $HOST <<EOF
-cd $DIR
-bin
-hash
-umask 022
-put $SRC $DST
-put $SRC.asc $DST.asc
-$DIFF
-quit
-EOF
+#ftp -v $HOST <<EOF
+#cd $DIR
+#bin
+#hash
+#umask 022
+#put $SRC $DST
+#put $SRC.asc $DST.asc
+#$DIFF
+#quit
+#EOF
