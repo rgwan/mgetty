@@ -1,4 +1,4 @@
-#ident "@(#)getdisk.c $Id: getdisk.c,v 1.1 1994/01/14 18:57:38 gert Exp $ Copyright (c) 1994 Elegant Communications Inc."
+#ident "@(#)getdisk.c $Id: getdisk.c,v 1.2 1994/01/16 23:53:10 gert Exp $ Copyright (c) 1994 Elegant Communications Inc."
 /*
 
 	This software is graciously provided by Elegant Communications Inc.,
@@ -55,6 +55,7 @@
    our jargon for a 3b2.
  */
 #if defined(vmiti) || defined(vtandem) || defined(vmips) || defined(ISC) || \
+	defined(M_UNIX) || \
 	defined(vm68k) || defined(vm88k) || defined(vu3b2) || \
 	defined(vxps) || defined(vu6050) || defined(vs5k80) || \
 	defined(vs5k50) || defined(vdpx2) || defined(vdynptx) || \
@@ -101,6 +102,7 @@
 
 #ifdef HASDISKSTAT
 # if !defined(vsnxdyn) && !defined(vdomain)
+#  include <sys/types.h>
 #  include <sys/mount.h>
 # endif
 
@@ -146,6 +148,7 @@
 #    if defined(SVR3) || defined(vdomain)	/* eg: Apollo/88k */
 
 #     include <sys/statfs.h>
+#     include <sys/param.h>
 #     define f_bavail f_bfree
 #     define STATFSS statfs
 #     define MYSTATFS(a,b) statfs(a,b,sizeof(struct STATFSS),0)
@@ -154,7 +157,7 @@
 #   endif /* SVR4 */
 #  endif /* ULTRIXSTATFS */
 # endif /* BSDSTATFS */
-#endif /* STATFS */
+#endif /* HASDISKSTAT */
 
 long minfreespace = MINFREESPACE;
 
@@ -165,9 +168,9 @@ long minfreespace = MINFREESPACE;
  */
 
 #ifndef TESTDISK
-checkspace _P1 ((path), char *path)
+int checkspace _P1 ((path), char *path)
 {
-#ifdef STATFS
+#ifdef HASDISKSTATS
     struct mountinfo mi;
     if (getdiskstats(path, &mi))
 	return(1);
@@ -209,7 +212,7 @@ getdiskstats _P2 ((path, mi), char *path, mntinf *mi)
      * (FsTYPE == 2), both in the kernel, and out, in which case BSIZE is
      * 1024 too!  (Smarter systems define FsTYPE to 3 outside of the kernel.)
      *
-	 * SCO Unix 3.2.2 also lies.
+     * SCO Unix 3.2.2 also lies.
      */
     mi->mi_bsize = (info.f_frsize > 0) ? info.f_frsize : NBPSCTR;
 #else
@@ -265,7 +268,12 @@ getdiskstats _P2 ((path, mi), char *path, mntinf *mi)
 /* Test program */
 
 #ifdef TESTDISK
-main(argc, argv) int argc; char **argv; {
+
+#if ! defined(HASDISKSTAT)
+#include "ERROR: don't know how to get fs info - see Makefile for defines"
+#endif
+
+int main(argc, argv) int argc; char **argv; {
     struct mountinfo mi;
     argv++;
 
