@@ -1,3 +1,46 @@
+Sat Dec 06 00:45:17 1997  Gert Doering  (gert@greenie.muc.de)
+
+	* conf_mg.c, conf_mg.h, conf_sf.c, conf_sf.h: add "modem-quirks"
+
+	* conf_mg.c: fix accident "fallthrough" for "-b"
+
+	* modem.c (mdm_get_idstring): never return NULL, use "<ERROR>"
+
+	* faxlib.c,sendfax.c: add new modem type (auto1), start playing 
+	with modem capability identification via AT+FCLASS=?
+
+Thu Dec 04 12:48:22 1997  Gert Doering  (gert@greenie.muc.de)
+
+	* faxlib.c: add auto-detection for USR V.32terbo/fax bugs
+
+	* fax/faxrunqd.in: add "policy routing" feature
+
+Tue Dec 02 17:21:48 1997  Gert Doering  (gert@greenie.muc.de)
+
+	* sendfax.c, mgetty.c: be more paranoid about queue flushing
+	  when exit()ing after modem initialization failure
+
+Fri Nov 28 11:31:10 1997  Gert Doering  (gd@medat.de)
+
+	* faxlib.c: prepare for class 2.1/V.34 speeds
+
+	* mgetty.c: write user ID and parent PID to log file (diagnosis)
+
+Wed Nov 26 18:05:20 1997  Gert Doering  (gert@greenie.muc.de)
+
+	* conf_sf.c: implement '-D' as command-line option to set 'dial-prefix'
+
+Tue Nov 18 11:57:46 1997  Gert Doering  (gd@medat.de)
+
+	* fax_lib.h, faxlib.c: make FAX_USRobotics a "modem quirks" flag
+
+	* mgetty.h: on GLIBC 2.x systems, use HAVE_SIGINTERRUPT, otherwise
+	    timeout handling breaks (glibc restarts system functions)
+
+Sat Nov 15 21:15:36 1997  Gert Doering  (gert@greenie.muc.de)
+
+	* fax/faxrunqd.in: scheduler tweaks, SIGUSR2, logging, config
+
 Tue Nov 11 21:24:46 1997  Gert Doering  (gd@medat.de)
 
 	* fax/faxrunqd.in: smarter scheduling for many jobs on many modems
