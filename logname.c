@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 1.43 1994/08/08 12:34:30 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 1.44 1994/10/21 21:47:48 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include "syslibs.h"
@@ -304,7 +304,7 @@ int getlogname _P4( (prompt, tio, buf, maxsize),
             if ( i == 0 ) exit(0); else continue;
 	}
 
-	if ( ch == CKILL ) goto newlogin;
+	if ( ch == CKILL || ch == 03 /*^C*/ ) goto newlogin;
 
 	/* ignore XON/XOFF characters */
 	
@@ -312,8 +312,10 @@ int getlogname _P4( (prompt, tio, buf, maxsize),
 
 	/* since some OSes use backspace and others DEL -> accept both */
 
-	if ( ch == CERASE || ch == CINTR )
+	if ( ch == 0x7f /*DEL*/ || ch == 0x08 /*BS*/ || ch == CERASE )
 	{
+	    if ( ch != 0x08 ) fputs( "\b \b\b", stdout );
+	    
 	    if ( i > 0 )
 	    {
 		fputs( " \b", stdout );
