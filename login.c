@@ -1,4 +1,4 @@
-#ident "$Id: login.c,v 1.1 1993/12/15 11:52:02 gert Exp $ Copyright (C) 1993 Gert Doering"
+#ident "$Id: login.c,v 1.2 1994/01/14 19:55:31 gert Exp $ Copyright (C) 1993 Gert Doering"
 ;
 
 /* login.c
@@ -73,7 +73,7 @@ boolean match _P2( (user,key), char * user, char * key )
 		     ( strcmp( user, key ) == 0 ) );
 	}
     }
-    return FALSE;
+    return FALSE;	/*NOTREACHED*/
 }
 
 /* execute login
@@ -96,6 +96,7 @@ void login _P1( (user), char * user )
     FILE * fp;
     char * line, * key, *p;
     struct passwd * pw;
+    extern struct passwd * getpwnam();
 
     fp = fopen( LOGIN_CFG_FILE, "r" );
     if ( fp == NULL )
@@ -198,8 +199,10 @@ void login _P1( (user), char * user )
 			      lputs( L_NOISE, (i<argc-1)?",":"'" ); }
 
     /* audit record */
-    lprintf( L_AUDIT, "data device=%s, pid=%d, program='%s', user='%s'\n",
-		      Device, getpid(), cmd, user );
+    lprintf( L_AUDIT, 
+       "data dev=%s, pid=%d, caller=%s, conn='%s', name='%s', cmd='%s', user='%s'",
+	Device, getpid(), CallerId, Connect, CallName,
+	cmd, user );
 
     /* execute login */
     execv( cmd, argv );
