@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.81 1994/01/03 23:49:48 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.82 1994/01/04 17:35:21 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -176,7 +176,9 @@ int main _P2((argc, argv), int argc, char ** argv)
 
 	char *issue = "/etc/issue";		/* default issue file */
 
-	char * login_prompt = NULL;	/* default login prompt */
+	char * login_prompt = NULL;		/* login prompt */
+
+	char * fax_server_file = NULL;		
 
 #ifndef NO_FAX
 	sprintf(init_flid_cmd, FLID_CMD, FAX_STATION_ID);
@@ -193,9 +195,9 @@ int main _P2((argc, argv), int argc, char ** argv)
 	/* process the command line
 	 */
 
-	while ((c = getopt(argc, argv, "c:x:s:rp:n:i:")) != EOF) {
+	while ((c = getopt(argc, argv, "c:x:s:rp:n:i:S:")) != EOF) {
 		switch (c) {
-		case 'c':
+		case 'c':			/* check */
 #ifdef USE_GETTYDEFS
 			verbose = TRUE;
 			dumpgettydefs(optarg);
@@ -204,10 +206,10 @@ int main _P2((argc, argv), int argc, char ** argv)
 			lprintf( L_FATAL, "gettydefs not supported\n");
 			exit_usage(2);
 #endif
-		case 'x':
+		case 'x':			/* log level */
 			log_level = atoi(optarg);
 			break;
-		case 's':
+		case 's':			/* port speed */
 			cspeed = atoi(optarg);
 			for ( i = 0; speedtab[i].cbaud != 0; i++ )
 			{
@@ -229,12 +231,15 @@ int main _P2((argc, argv), int argc, char ** argv)
 		case 'p':
 			login_prompt = optarg;
 			break;
-		case 'n':
+		case 'n':			/* ring counter */
 			rings_wanted = atoi( optarg );
 			if ( rings_wanted == 0 ) rings_wanted = 1;
 			break;
 		case 'i':
 			issue = optarg;		/* use different issue file */
+			break;
+		case 'S':
+			fax_server_file = optarg;
 			break;
 		case '?':
 			exit_usage(2);
@@ -400,12 +405,19 @@ int main _P2((argc, argv), int argc, char ** argv)
 	/* handle init chat if requested
 	 */
 	if ( ! direct_line )
-	  if ( do_chat( STDIN, init_chat_seq, init_chat_actions, &what_action,
-                        init_chat_timeout, TRUE ) == FAIL )
 	{
-	    lprintf( L_MESG, "init chat failed, exiting..." );
-	    rmlocks();
-	    exit(1);
+	    if ( do_chat( STDIN, init_chat_seq, init_chat_actions,
+			  &what_action, init_chat_timeout, TRUE ) == FAIL )
+	    {
+		lprintf( L_MESG, "init chat failed, exiting..." );
+		rmlocks();
+		exit(1);
+	    }
+	    /* initialize fax polling server */
+	    if ( fax_server_file )
+	    {
+		faxpoll_server_init( fax_server_file );
+	    }
 	}
 
 	/* wait .3s for line to clear (some modems send a \n after "OK",
