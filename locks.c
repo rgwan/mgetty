@@ -1,4 +1,4 @@
-#ident "$Id: locks.c,v 3.4 1996/01/15 00:17:18 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
+#ident "$Id: locks.c,v 3.5 1996/01/22 01:12:59 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
 
 /* large parts of the code in this module are taken from the
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us,
@@ -35,6 +35,7 @@
 
 static int readlock _PROTO(( char * name ));
 static char *  get_lock_name _PROTO(( char * lock_name, char * device ));
+static int lock_write_pid _PROTO(( int fd ));
 
 /*
  *	do_makelock() - attempt to create a lockfile
@@ -46,11 +47,6 @@ int do_makelock _P0( void )
 {
 	int fd, pid;
 	char *temp, buf[MAXLINE+1];
-#if LOCKS_BINARY
-	int  bpid;		/* must be 4 byte long! */
-#else
-	char apid[16];
-#endif
 
 	lprintf( L_NOISE, "do_makelock: lock='%s'", lock );
 
@@ -66,22 +62,8 @@ int do_makelock _P0( void )
 	chmod( temp, 0644 );
 
 	/* put my pid in it */
-
-#if LOCKS_BINARY
-	bpid = getpid();
-	if ( write(fd, &bpid, sizeof(bpid) ) != sizeof(bpid) )
-#else
-	sprintf( apid, "%10d\n", getpid() );
-	if ( write(fd, apid, strlen(apid)) != strlen(apid) )
-#endif
-	{
-	    lprintf( L_FATAL, "cannot write PID to (temp) lock file" );
-	    close(fd);
-	    unlink(temp);
-	    return(FAIL);
-	}
-	
-	close(fd);
+	if ( lock_write_pid( fd ) == FAIL)
+	                        { unlink(temp); return FAIL; }
 
 	/* link it to the lock file */
 
@@ -162,6 +144,45 @@ int makelock _P1( (device),
 
     if ( retcode == FAIL ) lock[0] = 0;		/* rmlock(): don't touch! */
 
+    return retcode;
+}
+
+/* steal_lock( device, process id )
+ *
+ * steal a lock file from process "id", used for callback handover
+ */
+int steal_lock _P2((device, pid), char * device, int pid )
+{
+    int retcode, is_pid, fd;
+    
+    lprintf(L_NOISE, "steal_lock(%s) called", device);
+
+    if ( get_lock_name( lock, device ) == NULL )
+    {
+	lprintf( L_ERROR, "cannot get lock name" );
+	return FAIL;
+    }
+
+    is_pid = readlock(lock);
+
+    if ( is_pid != pid )
+    {
+	lprintf( L_ERROR, "PIDs do not match, lock process is %d, should be %d", is_pid, pid );
+	return FAIL;
+    }
+
+    /*!!! FIXME: there is a race condition here (is it?) */
+    fd = open( lock, O_RDWR );
+
+    if ( fd < 0 )
+    {
+	lprintf( L_ERROR, "can't open %d for read/write" );
+	return FAIL;
+    }
+
+    retcode = lock_write_pid( fd );
+
+    if ( retcode == FAIL ) lock[0] = 0;		/* rmlock(): don't touch! */
     return retcode;
 }
 
@@ -275,6 +296,32 @@ static int readlock _P1( (name),
 	return(pid);
 }
 
+/* lock_write_pid()
+ *
+ * write contents of lock file: my process ID in specified format
+ *
+ * private function
+ */
+static int lock_write_pid _P1((fd), int fd)
+{
+#if LOCKS_BINARY
+    int bpid;			/* must be 4 bytes wide! */
+    bpid = getpid();
+    if ( write(fd, &bpid, sizeof(bpid) ) != sizeof(bpid) )
+#else
+    char apid[16];
+    sprintf( apid, "%10d\n", getpid() );
+    if ( write(fd, apid, strlen(apid)) != strlen(apid) )
+#endif
+    {
+	lprintf( L_FATAL, "cannot write PID to (temp) lock file" );
+	close(fd);
+	return(FAIL);
+    }
+    close(fd);
+    return SUCCESS;
+}
+	
 /*
  *	rmlocks() - remove lockfile
  */
