@@ -1,4 +1,4 @@
-#ident "$Id: tio.h,v 3.8 1996/09/15 23:13:36 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.h,v 3.9 1996/10/05 17:36:46 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 #ifndef __TIO_H__
 #define __TIO_H__
@@ -41,6 +41,13 @@ typedef struct termios TIO;
 #ifdef BSD_SGTTY
 #include <sgtty.h>
 typedef struct sgttyb TIO;
+#endif
+
+/* on SCO and other SVR3 systems, the TIOCMGET calls are only available
+ * with special drivers, like the digiboard drivers, or my hacked "FAS"
+ */
+#ifdef USE_FAS_TIOCMGET
+# include <sys/fas.h>
 #endif
 
 /* define some types for gettydefs.c */
