@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.91 1994/03/01 00:58:02 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.92 1994/03/01 16:05:26 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -282,7 +282,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 	sprintf(devname, "/dev/%s", Device);
 
 	/* name of the logfile is device-dependant */
-	sprintf( log_path, LOG_PATH, Device );
+	sprintf( log_path, LOG_PATH, strrchr( devname, '/' ) + 1 );
 
 #ifdef USE_GETTYDEFS
 	if (optind < argc)
@@ -505,7 +505,7 @@ waiting:
 		    /* wait a moment, then check for reappearing locks */
 		    sleep(5);
 	    }
-	    while ( checklock(Device) == TRUE );	
+ 	    while ( checklock(Device) == TRUE );	
 
 	    /* OK, leave & get restarted by init */
 	    exit(0);
@@ -521,7 +521,7 @@ waiting:
 #ifdef NOLOGIN_FILE
 	/* check for a "nologin" file (/etc/nologin.<device>) */
 	
-	sprintf( buf, NOLOGIN_FILE, Device );
+	sprintf( buf, NOLOGIN_FILE, strrchr( devname, '/' )+1 );
 
 	if ( access( buf, F_OK ) == 0 )
 	{
