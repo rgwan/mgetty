@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 3.8 1996/02/03 22:19:01 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 3.9 1996/02/15 16:19:26 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -289,7 +289,7 @@ int main _P2((argc, argv), int argc, char ** argv)
     boolean	use_voice_mode = TRUE;
 #endif
 	
-    /* startup
+    /* startup: initialize all signal handlers *NOW*
      */
     (void) signal(SIGHUP, SIG_IGN);
 
@@ -299,10 +299,24 @@ int main _P2((argc, argv), int argc, char ** argv)
     (void) signal(SIGQUIT, sig_goodbye);
     (void) signal(SIGTERM, sig_goodbye);
 
+    /* sometimes it may be desired to have mgetty pick up the phone even
+       if it didn't RING often enough (because you accidently picked it up
+       manually...) or if it didn't RING at all (because you have a fax
+       machine directly attached to the modem...), so send mgetty a signal
+       SIGUSR1 and it will behave as if a RING was seen
+       In addition, this is used by the "callback" module.
+       */
+    signal( SIGUSR1, sig_pick_phone );
+
+    /* for reloading the configuration file, we need a way to tell mgetty
+       "restart, but only if no user is online". Use SIGUSR2 for that
+       */
+    signal( SIGUSR2, sig_new_config );
+
+#ifdef HAVE_SIGINTERRUPT
     /* some systems, notable BSD 4.3, have to be told that system
      * calls are not to be automatically restarted after those signals.
      */
-#ifdef HAVE_SIGINTERRUPT
     siginterrupt( SIGINT,  TRUE );
     siginterrupt( SIGALRM, TRUE );
     siginterrupt( SIGHUP,  TRUE );
@@ -490,19 +504,6 @@ int main _P2((argc, argv), int argc, char ** argv)
        give up the line - otherwise we lock it again */
 
     rmlocks();	
-
-    /* sometimes it may be desired to have mgetty pick up the phone even
-       if it didn't RING often enough (because you accidently picked it up
-       manually...) or if it didn't RING at all (because you have a fax
-       machine directly attached to the modem...), so send mgetty a signal
-       SIGUSR1 and it will behave as if a RING was seen
-       */
-    signal( SIGUSR1, sig_pick_phone );
-
-    /* for reloading the configuration file, we need a way to tell mgetty
-       "restart, but only if no user is online". Use SIGUSR2 for that
-       */
-    signal( SIGUSR2, sig_new_config );
 
 #if ( defined(linux) && defined(NO_SYSVINIT) ) || defined(sysV68)
     /* on linux, "simple init" does not make a wtmp entry when you
