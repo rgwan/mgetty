@@ -1,10 +1,14 @@
-#ident "$Id: logfile.c,v 4.7 2001/12/17 21:51:38 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logfile.c,v 4.8 2002/11/25 13:08:26 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
-#if !defined(NeXT) || defined(NEXTSGTTY)
-# include <varargs.h>
+#ifdef USE_VARARGS
+# if !defined(NeXT) || defined(NEXTSGTTY)
+#  include <varargs.h>
+# endif
+#else
+# include <stdarg.h>
 #endif
 #include <sys/types.h>
 #include <time.h>
@@ -190,10 +194,14 @@ int retcode = 0;
     return retcode;
 }
 
+#ifdef USE_VARARGS
 int lprintf( level, format, va_alist )
 int level;
 const char * format;
 va_dcl
+#else
+int lprintf(int level, const char *format, ...)
+#endif
 {
 char    ws[2000];
 time_t  ti;
@@ -208,7 +216,11 @@ static int first_open = TRUE;
         return 0;		/* no -> return immediately */
     }
 
+#ifdef USE_VARARGS
     va_start( pvar );
+#else
+    va_start( pvar, format );
+#endif
 
     errnr = errno;
 

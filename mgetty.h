@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 4.24 2002/11/12 21:42:29 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 4.25 2002/11/25 13:08:25 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -56,7 +56,11 @@ void log_set_llevel _PROTO(( int level ));
 void log_close _PROTO((void));
 int lputc _PROTO(( int level, char ch ));
 int lputs _PROTO(( int level, char * s ));
+#ifdef USE_VARARGS
 int lprintf _PROTO(());
+#else
+int lprintf _PROTO((int level, const char *format, ...));
+#endif
 
 /* various defines */
 
