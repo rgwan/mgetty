@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.59 1994/08/08 12:34:35 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.60 1994/08/28 15:43:58 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -33,8 +33,8 @@
  *
  * If LOGIN_CFG_FILE is not defined, or does not exist, or doesn't
  * have a default entry, this program is called for user logins.
- * Normally, this is "/bin/login", just a few (STUPID!) systems put
- * "login" it elsewhere.
+ * Normally, this is "/bin/login", just a few systems put "login"
+ * elsewhere (e.g. Free/NetBSD in "/usr/bin/login").
  */
 #define DEFAULT_LOGIN_PROGRAM "/bin/login"
 
