@@ -1,4 +1,4 @@
-#ident "$Id: utmp.c,v 1.23 1994/11/01 20:56:59 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: utmp.c,v 1.24 1994/11/02 11:44:19 gert Exp $ Copyright (c) Gert Doering"
 
 /* some parts of the code (writing of the utmp entry)
  * is based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
@@ -50,11 +50,29 @@ void make_utmp_wtmp _P4( (line, ut_type, ut_user, ut_host),
 			 char * line, short ut_type,
 			 char * ut_user, char * ut_host )
 {
-    /* On BSD systems, everything works a bit differently. For
-     * UT_INIT entries, we have to write one with empty ut_name and
-     * empty ut_host, UT_LOGIN is ignored, and UT_USER is set with
-     * the login() function
+    /* On BSD systems, everything works a bit differently.
+     * UT_INIT and UT_LOGIN entries are ignored (init and login do all
+     * the work), UT_USER is set via the login() function (in libutil.a).
+     * [NB: If we wanted to set UT_INIT, it would have to be an entry with
+     * empty ut_name and ut_host]
      */
+#ifdef __FreeBSD__
+    struct utmp utmp;
+
+    bzero( (void*) &utmp, sizeof(utmp) );
+    if ( ut_type == UT_USER )
+    {
+	utmp.ut_time = time(NULL);
+	strncpy( utmp.ut_name, ut_user, sizeof(utmp.ut_name) );
+	strncpy( utmp.ut_line, line, sizeof(utmp.ut_line) );
+	if ( ut_host != NULL )
+	    strncpy( utmp.ut_host, ut_host, sizeof(utmp.ut_host) );
+
+	login( &utmp );
+    }
+
+    lprintf(L_NOISE, "utmp + wtmp entry made");
+#endif	/* __FreeBSD__ */
 }
 
 int get_current_users _P0(void)
