@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.56 1994/04/12 21:54:20 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.57 1994/04/13 16:03:03 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* sendfax.c
  *
@@ -37,40 +37,49 @@ void exit_usage _P1( (program),
     fprintf( stderr,
 	     "usage: %s [options] <fax-number> <page(s) in g3-format>\n", program);
     fprintf( stderr,
-	     "\tvalid options: -p, -h <header>, -v, -l <device(s)>, -x <debug>, -n\n");
+	     "\tvalid options: -p, -h, -v, -l <device(s)>, -x <debug>, -n, -S\n");
     exit(1);
 }
 
 TIO fax_tio;
 char * Device;
 
-int fax_open_device _P1( (fax_tty),
-			 char * fax_tty )
+int fax_open_device _P2( (fax_tty, use_stdin),
+			 char * fax_tty, boolean use_stdin )
 {
-char	device[MAXPATH];
-int	fd;
+    char	device[MAXPATH];
+    int	fd;
 
-    if ( verbose ) printf( "Trying fax device '/dev/%s'... ", fax_tty );
-
-    if ( makelock( fax_tty ) != SUCCESS )
+    if ( use_stdin )			/* fax modem on stdin */
     {
-	if ( verbose ) printf( "locked!\n" );
-	lprintf( L_MESG, "cannot lock %s", fax_tty );
-	return -1;
+	fd = 0;
+	Device = ttyname(fd);		/* for faxrec() */
+	if ( Device == NULL || *Device == '\0' ) Device = "unknown";
     }
-
-    sprintf( device, "/dev/%s", fax_tty );
-
-    if ( ( fd = open( device, O_RDWR | O_NDELAY ) ) == -1 )
+    else
     {
-	lprintf( L_ERROR, "error opening %s", device );
-	if ( verbose ) printf( "cannot open!\n" );
-	rmlocks();
-	return fd;
-    }
+	if ( verbose ) printf( "Trying fax device '/dev/%s'... ", fax_tty );
 
-    /* make device name externally visible (faxrec()) */
-    Device = fax_tty;
+	if ( makelock( fax_tty ) != SUCCESS )
+	{
+	    if ( verbose ) printf( "locked!\n" );
+	    lprintf( L_MESG, "cannot lock %s", fax_tty );
+	    return -1;
+	}
+	
+	sprintf( device, "/dev/%s", fax_tty );
+
+	if ( ( fd = open( device, O_RDWR | O_NDELAY ) ) == -1 )
+	{
+	    lprintf( L_ERROR, "error opening %s", device );
+	    if ( verbose ) printf( "cannot open!\n" );
+	    rmlocks();
+	    return fd;
+	}
+
+	/* make device name externally visible (faxrec()) */
+	Device = fax_tty;
+    }
 
     /* unset O_NDELAY (otherwise waiting for characters */
     /* would be "busy waiting", eating up all cpu) */
@@ -116,9 +125,16 @@ int	fd;
     fax_remote_id[0] = 0;
     fax_param[0] = 0;
 
-    log_init_paths( NULL, NULL, &fax_tty[ strlen(fax_tty)-2 ] );
-    lprintf( L_NOISE, "fax_open_device succeeded, %s -> %d", fax_tty, fd );
-
+    if ( use_stdin )
+    {
+	lprintf( L_NOISE, "fax_open_device, fax on stdin" );
+    }
+    else
+    {
+	log_init_paths( NULL, NULL, &fax_tty[ strlen(fax_tty)-2 ] );
+	lprintf( L_NOISE, "fax_open_device succeeded, %s -> %d", fax_tty, fd );
+    }
+    
     if ( verbose ) printf( "OK.\n" );
     return fd;
 }
@@ -128,8 +144,8 @@ int	fd;
  * return "-1" of no open succeeded (all locked, permission denied, ...)
  */
 
-int fax_open _P1( (fax_ttys),
-	      char * fax_ttys )
+int fax_open _P2( (fax_ttys, use_stdin),
+	      char * fax_ttys, boolean use_stdin )
 {
 char * p, * fax_tty;
 int fd;
@@ -139,7 +155,7 @@ int fd;
     {
 	p = strchr( fax_tty, ':' );
 	if ( p != NULL ) *p = 0;
-	fd = fax_open_device( fax_tty );
+	fd = fax_open_device( fax_tty, use_stdin );
 	if ( p != NULL ) *p = ':';
 	fax_tty = p+1;
     }
@@ -185,13 +201,15 @@ static char 	fax_device_string[] = FAX_MODEM_TTYS;	/* writable! */
 char *	fax_devices = fax_device_string;	/* override with "-l" */
 int	fax_res_fine = 1;			/* override with "-n" */
 
+boolean	use_stdin = FALSE;			/* modem on stdin */
+
 int	tries;
 
     /* initialize logging */
     log_init_paths( argv[0], FAX_LOG, NULL );
     log_set_llevel( L_NOISE );
 
-    while ((opt = getopt(argc, argv, "d:vx:ph:l:nm:")) != EOF) {
+    while ((opt = getopt(argc, argv, "d:vx:ph:l:nm:S")) != EOF) {
 	switch (opt) {
 	case 'd':	/* set target directory for polling */
 	    poll_directory = optarg;
@@ -223,6 +241,9 @@ int	tries;
 	    break;
 	case 'm':
 	    extra_modem_init = optarg;
+	    break;
+        case 'S':	/* modem on stdin */
+	    use_stdin = TRUE;
 	    break;
 	case '?':	/* unrecognized parameter */
 	    exit_usage(argv[0]);
@@ -259,7 +280,9 @@ int	tries;
 	}
     }
 
-    fd = fax_open( fax_devices );
+    if ( use_stdin ) verbose = FALSE;		/* no blurb to modem! */
+    
+    fd = fax_open( fax_devices, use_stdin );
 
     if ( fd == -1 )
     {
@@ -450,7 +473,6 @@ int	tries;
 		  fprintf( stderr, "ERROR: too many retries - aborting send\n" );
 		  fax_hangup_code = -1;
 		  fax_hangup = 1;
-		  argidx--;
 	      }
 	      else
 	      {
