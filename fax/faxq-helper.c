@@ -1,4 +1,4 @@
-#ident "$Id: faxq-helper.c,v 4.8 2002/11/19 10:36:33 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxq-helper.c,v 4.9 2002/11/19 11:03:12 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxq-helper.c
  *
@@ -564,7 +564,7 @@ int fd;
 	{
 	    if ( strcmp( buf+5, real_user_name ) != 0 )
 	    {
-		eout( "user name mismatch: %s <-> %s\n", buf+5, real_user_name );
+		eout( "user name mismatch (%s <-> %s)\n", buf+5, real_user_name );
 		break;
 	    }
 	}
@@ -671,7 +671,7 @@ char jfile[MAXJIDLEN+30], lfile[MAXJIDLEN+30];
 	{
 	    if ( strcmp( buf+5, real_user_name ) != 0 )
 	    {
-		eout( "user name mismatch: %s <-> %s\n", buf+5, real_user_name );
+		eout( "not your job! (%s <-> %s)\n", buf+5, real_user_name );
 		unlink( lfile );
 		fclose(fp);
 		return -1;
@@ -795,6 +795,9 @@ int main( int argc, char ** argv )
 	eout( "can't chdir to %s: %s\n", FAX_SPOOL_OUT, strerror(errno) );
 	exit(2);
     }
+
+    /* directories and JOB files have to be readable */
+    umask(0022);
 
     /* get numeric uid/gid for fax user */
     pw = getpwnam( FAX_OUT_USER );
