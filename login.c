@@ -1,4 +1,4 @@
-#ident "$Id: login.c,v 4.8 1999/02/16 19:59:02 gert Exp $ Copyright (C) 1993 Gert Doering"
+#ident "$Id: login.c,v 4.9 1999/02/24 13:02:09 gert Exp $ Copyright (C) 1993 Gert Doering"
 
 
 /* login.c
@@ -103,7 +103,7 @@ boolean match _P2( (user,key), char * user, char * key )
  * does *NOT* return
  */
 
-void login_dispatch _P3( (user, is_callback, cf_file ),  
+void login_dispatch _P3( (user, is_callback, cfg_file ),  
 			 char * user, boolean is_callback, char * cfg_file )
 {
 #define MAX_LOGIN_ARGS 9
