@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 1.25 1993/12/28 01:26:19 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logfile.c,v 1.26 1994/01/17 18:27:19 gert Exp $ Copyright (c) Gert Doering"
 ;
 #include <stdio.h>
 #include <unistd.h>
@@ -171,7 +171,7 @@ int     errnr;
 
     if ( level == L_AUDIT )		/* some little auditing */
     {
-	fprintf(log_fp, "\n%02d/%02d %02d:%02d:%02d  #### %s",
+	fprintf(log_fp, "\n%02d/%02d %02d:%02d:%02d ##### %s\n",
 		             tm->tm_mon+1,  tm->tm_mday,
 			     tm->tm_hour, tm->tm_min, tm->tm_sec, ws );
 #ifdef SYSLOG
