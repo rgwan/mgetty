@@ -154,12 +154,16 @@ program at the appropriate time.
 
 
 .SH BUGS
+Not all of
 .I mgetty
-configuration is horrible. Dozens of switches, and compile-time stuff. It
-*really* should be fully run-time configurable.
+configuration can be done at run-time yet. Things like flow control and
+file paths (log file / lock file) have to be configured by changing the
+source and recompiling.
+
+Users never read manuals...
 
 .SH "SEE ALSO"
-g32pbm(1), sendfax(8), getty(8), mgettydefs(4)
+g32pbm(1), sendfax(8), getty(8), mgettydefs(4), mgetty.info
 .SH AUTHOR
 .I mgetty
 is Copyright (C) 1993 by Gert Doering, <gert@greenie.muc.de>.
