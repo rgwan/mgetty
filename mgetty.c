@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 2.10 1995/04/12 22:45:47 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 2.11 1995/04/16 23:11:05 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -19,13 +19,13 @@
 #include <sys/stat.h>
 #include <signal.h>
 
+#ifdef VOICE
+#include "voice.h"
+#endif
 #include "mgetty.h"
 #include "policy.h"
 #include "tio.h"
 #include "fax_lib.h"
-#ifdef VOICE
-#include "voclib.h"
-#endif
 #include "mg_utmp.h"
 
 #include "config.h"
@@ -222,7 +222,7 @@ int main _P2((argc, argv), int argc, char ** argv)
     siginterrupt( SIGALRM, TRUE );
     siginterrupt( SIGHUP,  TRUE );
     siginterrupt( SIGUSR1, TRUE );
-endif
+#endif
 
     Device = "unknown";
 
