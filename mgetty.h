@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.h,v 1.69 1994/10/31 12:01:11 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 1.70 1994/11/21 16:42:48 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -130,7 +130,7 @@ int		checklock _PROTO((char * device));
 RETSIGTYPE	rmlocks _PROTO (());
   
 /* fax stuff */
-void	faxrec _PROTO(( char * spool_dir ));
+void	faxrec _PROTO(( char * spool_dir, unsigned int switchbd ));
 char *	fax_strerror _PROTO(( int fax_hangup_code ));
 
 /* initialization stuff: mg_m_init.c */
