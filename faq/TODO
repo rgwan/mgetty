@@ -1,0 +1,3 @@
+- Check that SGML/HTML are in sync
+- Add scripts to recreate HTML and text from SGML; do not distribute
+  HTML
