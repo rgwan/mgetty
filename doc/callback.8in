@@ -126,6 +126,8 @@ is fairly dumb concerning retries.
 .I callback
 must be run as root.
 
+Most of the documentation consists of "reading the source".
+
 .SH "SEE ALSO"
 mgetty(8), ct(1)
 .SH AUTHOR
