@@ -5,7 +5,7 @@
  * tools. All of these values can be changed by the configuration
  * file.
  *
- * $Id: default.h,v 1.7 2001/02/24 10:59:35 marcs Exp $
+ * $Id: default.h,v 1.8 2002/12/15 19:44:18 gert Exp $
  *
  */
 
@@ -410,6 +410,17 @@ CONF(do_message_light, FALSE, CT_BOOL)
  * Default values for vm
  * ---------------------
  */
+
+/*
+ * If set, will be played prior to (and in addition to) any other
+ * greeting message.
+ */
+CONF(pre_message, STRING "", CT_STRING)
+
+/*
+ * If set, will be played instead of the standard "beep"
+ */
+CONF(beepsound, STRING "", CT_STRING)
 
 /*
  * Frequency for the beep command in Hz. The default is 933Hz.

@@ -1,7 +1,7 @@
 /*
  * answer.c
  *
- * $Id: answer.c,v 1.21 2002/12/05 16:48:32 gert Exp $
+ * $Id: answer.c,v 1.22 2002/12/15 19:43:35 gert Exp $
  *
  */
 
@@ -188,6 +188,40 @@ static void get_greeting_message(char *message)
      lprintf(L_JUNK, "%s: message name is %s", program_name, message);
      }
 
+static void get_beep_sound(char *beepsound)
+     {
+     char message_dir[VOICE_BUF_LEN];
+     char beep_sound_name[VOICE_BUF_LEN];
+
+     strcpy(beep_sound_name, cvd.beepsound.d.p);
+     if (!*beep_sound_name)
+        {
+        *beepsound = '\0';
+        return;
+        }
+     make_path(message_dir, cvd.voice_dir.d.p, cvd.message_dir.d.p);
+     make_path(beepsound, message_dir, beep_sound_name);
+     lprintf(L_JUNK, "%s: beepsound name is %s", program_name, beepsound);
+
+     }
+
+static void get_pre_message(char *pre_message)
+     {
+     char message_dir[VOICE_BUF_LEN];
+     char pre_message_name[VOICE_BUF_LEN];
+
+     strcpy(pre_message_name, cvd.pre_message.d.p);
+     if (!*pre_message_name)
+        {
+        *pre_message = '\0';
+        return;
+        }
+     make_path(message_dir, cvd.voice_dir.d.p, cvd.message_dir.d.p);
+     make_path(pre_message, message_dir, pre_message_name);
+     lprintf(L_JUNK, "%s: pre_message name is %s", program_name, pre_message);
+
+     }
+
 static void remove_message(char *message)
      {
 
@@ -205,6 +239,8 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
      time_t call_end;
      time_t call_length;
      char greeting_message[VOICE_BUF_LEN];
+     char beep_sound[VOICE_BUF_LEN];
+     char pre_message[VOICE_BUF_LEN];
      char receive_dir[VOICE_BUF_LEN];
      char message[VOICE_BUF_LEN];
      char message_name[VOICE_BUF_LEN];
@@ -242,7 +278,9 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
           return(VMA_OK);
           };
 
+     get_pre_message(pre_message);
      get_greeting_message(greeting_message);
+     get_beep_sound(beep_sound);
      strcpy(dtmf_code, "");
      execute_dtmf_script = FALSE;
      first_dtmf = TRUE;
@@ -427,6 +465,15 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
 
           };
 
+     if (*pre_message)
+          {
+          if (voice_play_file(pre_message) == FAIL)
+               {
+               lprintf(L_WARN, "%s: Could not play pre_message sound file",
+                program_name);
+               }
+          }
+
      if (voice_play_file(greeting_message) == FAIL)
           {
           lprintf(L_WARN, "%s: Could not play greeting message",
@@ -516,9 +563,20 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
           return(VMA_OK);
           };
 
-     if (voice_beep(cvd.beep_frequency.d.i, cvd.beep_length.d.i) == FAIL)
+     if (*beep_sound)
           {
-          lprintf(L_WARN, "%s: Beep command failed");
+          if (voice_play_file(beep_sound) == FAIL)
+               {
+               lprintf(L_WARN, "%s: Could not play beep sound file",
+                program_name);
+               }
+          }
+     else
+          {
+          if (voice_beep(cvd.beep_frequency.d.i, cvd.beep_length.d.i) == FAIL)
+               {
+               lprintf(L_WARN, "%s: Beep command failed");
+               }
           }
 
      if ((execute_dtmf_script) && (strlen(cvd.dtmf_program.d.p) != 0))
@@ -683,9 +741,23 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
           };
 
      if (!hangup_requested)
-
-          if (voice_beep(cvd.beep_frequency.d.i, cvd.beep_length.d.i) == FAIL)
-               lprintf(L_WARN, "%s: Beep command failed");
+          {
+          if (*beep_sound)
+               {
+               if (voice_play_file(beep_sound) == FAIL)
+                    {
+                    lprintf(L_WARN, "%s: Could not play beep sound file",
+                     program_name);
+                    }
+               }
+          else
+               {
+               if (voice_beep(cvd.beep_frequency.d.i, cvd.beep_length.d.i) == FAIL)
+                    {
+                    lprintf(L_WARN, "%s: Beep command failed");
+                    }
+               }
+          }
 
      if (voice_set_device(NO_DEVICE) != OK)
           {
