@@ -82,8 +82,11 @@ the fax job has failed more than the maximum number of times.
 .TP
 .B success-call-program <name>
 Here, you can specify a program that will be run when the fax has been
-successfully sent. It will be passed one command line parameter, and
-that's the full path to the fax JOB file (see faxq(5)).
+successfully sent. It will be passed two command line parameters. The
+first is the full path to the fax JOB file (see faxq(5)), the second
+is the last exit code from
+.I sendfax
+(for success-call-program, this is always "0").
 
 .TP
 .B failure-call-program <name>
@@ -148,6 +151,16 @@ option.
 .B policy-config [filename]
 Specifies a file containing rules for "policy routing", see below.
 Default is "no file".
+
+.TP
+.B faxrunqd-max-pages [n]
+If this is set to something greater 1 (default is 10), 
+.I faxrunqd
+will combine multiple jobs to the same receipient telephone number into
+one telephone call.  The maximum number of pages that the resulting job
+may have is specified here.  Usually it makes no sense to increase this,
+but in some surroundings it might make sense to turn off this feature by
+setting it to 1.
 
 .SH POLICY ROUTING
 .I faxrunqd
