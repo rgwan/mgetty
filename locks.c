@@ -1,4 +1,4 @@
-#ident "$Id: locks.c,v 1.9 1993/03/23 11:04:46 gert Exp $ Gert Doering / Paul Sutcliffe Jr."
+#ident "$Id: locks.c,v 1.10 1993/03/26 20:34:10 gert Exp $ Gert Doering / Paul Sutcliffe Jr."
 
 /* large parts of the code in this module are taken from the
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us,
@@ -54,7 +54,7 @@ makelock(char *name)
 
 #if LOCKS_BINARY
 	bpid = getpid();
-	(void) write(fd, bpid, sizeof( bpid ) );
+	(void) write(fd, &bpid, sizeof( bpid ) );
 #else
 	(void) sprintf(apid, "%10d\n", getpid());
 	(void) write(fd, apid, strlen(apid));
