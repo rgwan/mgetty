@@ -4,7 +4,7 @@
  * pvftormd converts from the pvf (portable voice format) format to the
  * rmd (raw modem data) format.
  *
- * $Id: pvftormd.c,v 1.13 2001/02/24 10:21:27 marcs Exp $
+ * $Id: pvftormd.c,v 1.14 2001/02/24 11:43:41 marcs Exp $
  *
  */
 
@@ -34,6 +34,10 @@ static void supported_formats (void)
      fprintf(stderr, " - Elsa          2, 3 and 4 bit Rockwell ADPCM\n");
      fprintf(stderr, " - V253modem     8 bit PCM\n");
      fprintf(stderr, " - ISDN4Linux    2, 3 and 4 bit ZyXEL ADPCM\n");
+     fprintf(stderr, " - Lucent        1  8 bit linear\n");
+     fprintf(stderr, " - Lucent        2  16 bit linear\n");
+     fprintf(stderr, " - Lucent        4  8 bit u-law\n");
+     fprintf(stderr, " - Lucent        5  4 bit IMA ADPCM\n");
      fprintf(stderr, " - MT_2834       4 bit IMA ADPCM\n");
      fprintf(stderr, " - MT_5634       4 bit IMA ADPCM\n");
      fprintf(stderr, " - Rockwell      2, 3 and 4 bit Rockwell ADPCM\n");
@@ -96,6 +100,9 @@ int main (int argc, char *argv[])
      if (strcmp(modem_type, "MT_5634") == 0)
           modem_type = "Multitech5634";
 
+     if (strcmp(modem_type, "Lucent") == 0)
+ 	  modem_type = "Lucent";
+
      if (strcmp(modem_type, "UMC") == 0)
           modem_type = "UMC";
 
@@ -122,6 +129,7 @@ int main (int argc, char *argv[])
       (strcmp(modem_type, "Multitech5634") == 0) ||
       (strcmp(modem_type, "Rockwell") == 0) ||
       (strcmp(modem_type, "US Robotics") == 0) ||
+      (strcmp(modem_type, "Lucent") == 0) ||
       (strcmp(modem_type, "UMC") == 0) ||
       (strcmp(modem_type, "ZyXEL 1496") == 0) ||
       (strcmp(modem_type, "ZyXEL 2864") == 0) ||
@@ -258,6 +266,218 @@ int main (int argc, char *argv[])
                exit(OK);
 
           }
+
+     if ((strcmp(modem_type, "Lucent") == 0) && (compression == 1))
+	  {
+          header_out.bits = 8;
+
+	  if ((header_in.speed != 7200) && (header_in.speed != 8000) &&
+	      (header_in.speed != 11025))
+	     {
+		fprintf(stderr, "%s: Unsupported sample speed (%d)\n",
+		 program_name, header_in.speed);
+	 	fprintf(stderr,
+	         "%s: The Lucent only supports 7.2k, 8k and 11.025k samples/second\n",
+	         program_name);
+	        fclose(fd_out);
+
+	 	if (fd_out != stdout)
+			unlink(name_out);
+
+		exit(FAIL);
+		};
+
+	if (write_rmd_header(fd_out, &header_out) != OK)
+	     {
+		fclose(fd_out);
+
+		if (fd_out != stdout)
+			unlink(name_out);
+
+		exit(ERROR);
+	     };
+
+          if (pvftolin(fd_in, fd_out, &header_in, 0, 8, 0) == OK)
+               exit(OK);
+
+          };
+
+     if ((strcmp(modem_type, "Lucent") == 0) && (compression == 2))
+          {
+          header_out.bits = 16;
+
+          if ((header_in.speed != 7200) && (header_in.speed != 8000) &&
+              (header_in.speed != 11025))
+             {
+                fprintf(stderr, "%s: Unsupported sample speed (%d)\n",
+                 program_name, header_in.speed);
+                fprintf(stderr,
+                 "%s: The Lucent only supports 7.2k, 8k and 11.025k samples/second\n",
+                 program_name);
+                fclose(fd_out);
+
+                if (fd_out != stdout)
+                        unlink(name_out);
+
+                exit(FAIL);
+                };
+
+        if (write_rmd_header(fd_out, &header_out) != OK)
+             {
+                fclose(fd_out);
+
+                if (fd_out != stdout)
+                        unlink(name_out);
+
+                exit(ERROR);
+             };
+
+          if (pvftolin(fd_in, fd_out, &header_in, 0, 16, 0) == OK)
+               exit(OK);
+
+          };
+     if ((strcmp(modem_type, "Lucent") == 0) && (compression == 3))
+          {
+          header_out.bits = 8;
+
+          if (header_in.speed != 8000) 
+             {
+                fprintf(stderr, "%s: Unsupported sample speed (%d)\n",
+                 program_name, header_in.speed);
+                fprintf(stderr,
+                 "%s: The Lucent only supports 8000 samples/second\n",
+                 program_name);
+                fclose(fd_out);
+
+                if (fd_out != stdout)
+                        unlink(name_out);
+
+                exit(FAIL);
+                };
+
+        if (write_rmd_header(fd_out, &header_out) != OK)
+             {
+                fclose(fd_out);
+
+                if (fd_out != stdout)
+                        unlink(name_out);
+
+                exit(ERROR);
+             };
+
+	/*          if (pvftoalaw(fd_in, fd_out, compression, &header_in) == OK)
+		    exit(OK); */
+	fprintf(stderr, "%s: A-law compression is not yet supported! \n",
+                 program_name);
+
+          };
+
+     if ((strcmp(modem_type, "Lucent") == 0) && (compression == 4))
+          {
+          header_out.bits = 8;
+
+          if (header_in.speed != 8000) 
+             {
+                fprintf(stderr, "%s: Unsupported sample speed (%d)\n",
+                 program_name, header_in.speed);
+                fprintf(stderr,
+                 "%s: The Lucent only supports 8000 samples/second\n",
+                 program_name);
+                fclose(fd_out);
+
+                if (fd_out != stdout)
+                        unlink(name_out);
+
+                exit(FAIL);
+                };
+
+        if (write_rmd_header(fd_out, &header_out) != OK)
+             {
+                fclose(fd_out);
+
+                if (fd_out != stdout)
+                        unlink(name_out);
+
+                exit(ERROR);
+             };
+
+  	if (pvftobasic(fd_in, fd_out, &header_in) == OK)
+	  exit(OK);
+
+          };
+
+     if ((strcmp(modem_type, "Lucent") == 0) && (compression == 5))
+          {
+          header_out.bits = 4;
+
+          if (header_in.speed != 8000) 
+             {
+                fprintf(stderr, "%s: Unsupported sample speed (%d)\n",
+                 program_name, header_in.speed);
+                fprintf(stderr,
+                 "%s: The Lucent only supports 8000 samples/second\n",
+                 program_name);
+                fclose(fd_out);
+
+                if (fd_out != stdout)
+                        unlink(name_out);
+
+                exit(FAIL);
+                };
+
+        if (write_rmd_header(fd_out, &header_out) != OK)
+             {
+                fclose(fd_out);
+
+                if (fd_out != stdout)
+                        unlink(name_out);
+
+                exit(ERROR);
+             };
+
+          
+	  if (pvftoimaadpcm(fd_in, fd_out, &header_in) == OK)
+               exit(OK);
+
+
+          };
+
+     if ((strcmp(modem_type, "Lucent") == 0) && (compression == 6))
+          {
+          header_out.bits = 8;
+
+          if (header_in.speed != 8000) 
+             {
+                fprintf(stderr, "%s: Unsupported sample speed (%d)\n",
+                 program_name, header_in.speed);
+                fprintf(stderr,
+                 "%s: The Lucent only supports 8000 samples/second\n",
+                 program_name);
+                fclose(fd_out);
+
+                if (fd_out != stdout)
+                        unlink(name_out);
+
+                exit(FAIL);
+                };
+
+        if (write_rmd_header(fd_out, &header_out) != OK)
+             {
+                fclose(fd_out);
+
+                if (fd_out != stdout)
+                        unlink(name_out);
+
+                exit(ERROR);
+             };
+
+	/*          if (pvftog728(fd_in, fd_out, compression, &header_in) == OK)
+		    exit(OK); */
+	fprintf(stderr, "%s: G.728 compression is not yet supported!\n",
+                 program_name);
+
+
+          };
 
      if ((strcmp(modem_type, "ISDN4Linux") == 0) &&
       ((compression == 2) || (compression == 3) || (compression == 4)))

@@ -3,7 +3,7 @@
  *
  * autodetect the modemtype we are connected to.
  *
- * $Id: detect.c,v 1.31 2001/02/24 10:59:36 marcs Exp $
+ * $Id: detect.c,v 1.32 2001/02/24 11:43:40 marcs Exp $
  *
  */
 
@@ -80,6 +80,7 @@ static const struct modem_type_struct modem_database[] =
      {ati, "28641",                NULL,   &ZyXEL_2864},
      {ati, "28642",                NULL,   &ZyXEL_2864},
      {ati, "28643",                NULL,   &ZyXEL_2864},
+     {ati, "Venus V.90 USB U052099a", NULL, &Lucent},
      {ati, "28800",                ati6, NULL},
      {ati, "2886",                 NULL,   &US_Robotics},
      {ati, "336",                  NULL,   &Rockwell},

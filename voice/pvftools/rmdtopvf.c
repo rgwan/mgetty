@@ -4,7 +4,7 @@
  * rmdtopvf converts from the rmd (raw modem data) format to the pvf
  * (portable voice format) format.
  *
- * $Id: rmdtopvf.c,v 1.13 2001/02/24 10:21:27 marcs Exp $
+ * $Id: rmdtopvf.c,v 1.14 2001/02/24 11:43:41 marcs Exp $
  *
  */
 
@@ -35,6 +35,10 @@ static void supported_formats (void)
      fprintf(stderr, " - Digi           4 (G.711U) and 5 (G.711A)\n");
      fprintf(stderr, " - Elsa           2, 3 and 4 bit Rockwell ADPCM\n");
      fprintf(stderr, " - ISDN4Linux     2, 3 and 4 bit ZyXEL ADPCM\n");
+     fprintf(stderr, " - Lucent     1   8 bit linear\n");
+     fprintf(stderr, " - Lucent     2   16 bit linear\n");
+     fprintf(stderr, " - Lucent     4   8 bit u-law\n");
+     fprintf(stderr, " - Lucent     5   4 bit IMA ADPCM\n");
      fprintf(stderr, " - Multitech 2834 4 bit IMA ADPCM\n");
      fprintf(stderr, " - Multitech 5634 4 bit IMA ADPCM\n");
      fprintf(stderr, " - Rockwell       2, 3 and 4 bit Rockwell ADPCM\n");
@@ -129,6 +133,9 @@ int main (int argc, char *argv[])
            (strcmp(modem_type, "Elsa") == 0))
                header_out.speed = 7200;
 
+	  if (strcmp(modem_type, "Lucent") == 0)
+	    header_out.speed = 8000;
+
           }
 
      if (optind < argc)
@@ -154,7 +161,8 @@ int main (int argc, char *argv[])
           exit(ERROR);
           }
 
-     if (strcmp(modem_type, "Multitech2834") == 0 && compression == 4)
+     if (((strcmp(modem_type, "Multitech2834") == 0 && compression == 4))  ||
+       ((strcmp(modem_type, "Lucent") == 0) && (compression == 5)))
           {
 
           if (imaadpcmtopvf(fd_in, fd_out, &header_out) == OK)
@@ -267,8 +275,8 @@ int main (int argc, char *argv[])
 
           };
 
-     if ((strcmp(modem_type, "Digi RAS") == 0) && ((compression == 4) ||
-      (compression == 5)))
+     if (((strcmp(modem_type, "Digi RAS") == 0) && ((compression == 4) ||
+      (compression == 5))) || ((strcmp(modem_type, "Lucent") == 0) && (compression == 4)))
           {
 	  /*
 	   * TODO: handle alaw
@@ -277,6 +285,18 @@ int main (int argc, char *argv[])
                exit(OK);
 
           };
+
+     if ((strcmp(modem_type, "Lucent") == 0) && (compression == 1))
+       {
+          if (pvftolin(fd_in, fd_out, &header_out, 0, 8, 0) == OK)
+               exit(OK);
+       }
+
+     if ((strcmp(modem_type, "Lucent") == 0) && (compression == 2))
+       {
+          if (pvftolin(fd_in, fd_out, &header_out, 0, 16, 0) == OK)
+               exit(OK);
+       }
 
      fclose(fd_out);
 
