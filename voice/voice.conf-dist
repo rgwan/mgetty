@@ -2,7 +2,7 @@
 # Sample voice configuration file
 # -------------------------------
 #
-# $Id: voice.conf-dist,v 1.4 1998/09/09 21:06:15 gert Exp $
+# $Id: voice.conf-dist,v 1.5 1999/01/23 20:06:22 marcs Exp $
 #
 # This file is read twice: First the program configuration is read and
 # second the port configuration. This means that generic values at the
@@ -217,6 +217,7 @@ rec_remove_silence false
 #
 # Maximum recording length in seconds. Hang up if somebody talks
 # longer than this. Default is 5 minutes (300 seconds).
+# If this is set to zero, disables recording.
 #
 
 rec_max_len 300
