@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.11 1993/05/26 00:30:26 gert Exp $ (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.12 1993/05/27 21:02:45 gert Exp $ (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -305,7 +305,7 @@ char	poll_directory[MAXPATH] = ".";		/* FIXME: parameter */
 
     /* initialize logging */
     strcpy( log_path, FAX_LOG );
-    log_level = L_NOISE;
+    log_level = L_MESG;
 
     while ((ch = getopt(argc, argv, "vx:ph:")) != EOF) {
 	switch (ch) {
