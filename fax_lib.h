@@ -1,4 +1,4 @@
-#ident "$Id: fax_lib.h,v 1.15 1994/08/08 12:34:22 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: fax_lib.h,v 1.16 1994/10/14 00:13:40 gert Exp $ Copyright (c) Gert Doering"
 
 
 /* fax_lib.h
@@ -55,6 +55,9 @@ extern	fax_param_t	fax_par_d;
 extern	boolean	fax_to_poll;			/* there's something */
 						/* to poll */
 extern	boolean	fax_poll_req;			/* caller wants to poll */
+
+extern	boolean	fhs_details;			/* +FHS:x,lc info avail.*/
+extern	int	fhs_lc, fhs_blc, fhs_cblc, fhs_lbc;	/* details */
 
 
 /* fax_hangup_code gives the reason for failure, normally it's a positive
