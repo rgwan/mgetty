@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.55 2003/06/12 07:47:23 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.56 2004/01/09 22:52:58 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -178,8 +178,10 @@ int  ix;
 
 	    if ( line[ix+1] == ',' &&		/* +FPS:s,lc,blc */
 		 sscanf( &line[ix+2],
-			 (modem_type==Mt_class2_0)?"%x,%x,%x,%x"
-			                          :"%d,%d,%d,%d",
+			 ( modem_type == Mt_class2 || 
+			  (modem_quirks & MQ_FPS_NOT_HEX) )
+			                          ?"%d,%d,%d,%d"
+						  :"%x,%x,%x,%x",
 		         &fhs_lc, &fhs_blc, &fhs_cblc, &fhs_lbc ) >= 2 )
 	    {
 		lprintf( L_NOISE, "%d lines received, %d lines bad, %d bytes lost", fhs_lc, fhs_blc, fhs_lbc );
@@ -629,6 +631,11 @@ int mdm_identify _P1( (fd), int fd )
 	    modem_type=Mt_class2_0;
 	    mis = mdm_get_idstring( "ATI1", 2, fd );
 	    break;
+	  case 1503:
+	    lprintf( L_MESG, "ZyXEL U-90E (?) detected" );
+	    modem_type=Mt_class2_0;
+	    mis = mdm_get_idstring( "ATI1", 2, fd );
+	    break;
 	  case 1444:
 	    lprintf( L_MESG, "USR Courier/Sportster v32bis detected (assuming non-fax capable)" );
 	    modem_type=Mt_data;
@@ -636,7 +643,7 @@ int mdm_identify _P1( (fd), int fd )
 	  case 1445:
 	    lprintf( L_MESG, "USR Courier/Sportster v32bis detected (buggy fax implementation)" );
 	    modem_type=Mt_class2_0;
-	    modem_quirks |= MQ_USR_FMINSP;
+	    modem_quirks |= MQ_USR_FMINSP | MQ_FPS_NOT_HEX;
 	    break;
 	  case 2886:
 	  case 3361:
@@ -645,17 +652,20 @@ int mdm_identify _P1( (fd), int fd )
 	  case 3367:
 	    lprintf( L_MESG, "USR Courier/Sportster V.34(+) detected" );
 	    modem_type=Mt_class2_0;
+	    modem_quirks |= MQ_FPS_NOT_HEX;
 	    mis = mdm_get_idstring( "ATI3", 1, fd );
 	    break;
 	  case 5601:
 	  case 5607:
 	    lprintf( L_MESG, "USR Courier/Sportster 56k detected" );
 	    modem_type=Mt_class2_0;
+	    modem_quirks |= MQ_FPS_NOT_HEX;
 	    mis = mdm_get_idstring( "ATI3", 1, fd );
 	    break;
 	  case 6401:
 	    lprintf( L_MESG, "USR I-Modem detected" );
 	    modem_type=Mt_class2_0;
+	    modem_quirks |= MQ_FPS_NOT_HEX;
 	    mis = mdm_get_idstring( "ATI3", 1, fd );
 	    break;
 	  case 62:	/* sure? */
@@ -813,6 +823,7 @@ int mdm_identify _P1( (fd), int fd )
 	{
 	    lprintf( L_MESG, "USR Courier/Sportster V90 (national variant?) detected" );
 	    modem_type=Mt_class2_0;
+	    modem_quirks |= MQ_FPS_NOT_HEX;
 	    mis = mdm_get_idstring( "ATI3", 1, fd );
 	}
 	/* grrr, another one of those - Bill Nugent <whn@topelo.lopi.com> */
@@ -839,6 +850,7 @@ int mdm_identify _P1( (fd), int fd )
 	{
 	    lprintf( L_MESG, "Multitech MT5634ZBA-V92 detected" );
 	    modem_type=Mt_class2_0;
+	    modem_quirks |= MQ_FPS_NOT_HEX;
 	}
     }
 
