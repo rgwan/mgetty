@@ -9,11 +9,14 @@
  * You have set port_timeout in voice.conf to a minimum of 15
  * if you use 38400 Baud
  *
- * $Id: Elsa.c,v 1.6 1999/06/15 12:38:27 marcs Exp $
+ * $Id: Elsa.c,v 1.7 1999/09/16 09:58:00 marcs Exp $
  *
  */
 
 #include "../include/voice.h"
+
+static char Elsa_hardflow_cmnd[] = "AT+IFC=2,2";
+static char Elsa_hardflow_cmnd_alternate[] = "AT\\Q3";
 
 static int Elsa_set_device (int device);
 
@@ -80,16 +83,33 @@ static int Elsa_init (void)
 
      voice_modem->set_device(DIALUP_LINE);
 
-     if ((cvd.do_hard_flow.d.i) && (voice_command("AT\\Q3", "OK") ==
-      VMA_USER_1) )
-          {
-          TIO tio;
-          tio_get(voice_fd, &tio);
-          tio_set_flow_control(voice_fd, &tio, FLOW_HARD);
-          tio_set(voice_fd, &tio);
-          }
-     else
-          lprintf(L_WARN, "can't turn on hardware flow control");
+     /* Try new Elsa command first, then old one if it fails.
+      * Update the structure.
+      */
+     if (cvd.do_hard_flow.d.i) {
+       int succeeded = 0;
+
+       if (voice_command(Elsa_hardflow_cmnd, "OK") == VMA_USER_1) {
+          succeeded = 1;
+       }
+       else {
+	 if (voice_command(Elsa_hardflow_cmnd_alternate, "OK") == VMA_USER_1) {
+ 	    /* Assuming it's ok to change it now */
+            Elsa.hardflow_cmnd = Elsa_hardflow_cmnd_alternate;
+            succeeded = 1;
+         }
+       }
+
+       if (succeeded) {
+	 TIO tio;
+	 tio_get(voice_fd, &tio);
+	 tio_set_flow_control(voice_fd, &tio, FLOW_HARD);
+	 tio_set(voice_fd, &tio);
+       }
+       else {
+	 lprintf(L_WARN, "can't turn on hardware flow control");
+       }
+     }
 
      voice_modem_state = IDLE;
      return(OK);
@@ -168,7 +188,6 @@ static char Elsa_pick_phone_cmnd[] = "ATA";
 static char Elsa_pick_phone_answr[] = "VCON|+VCON";
 static char Elsa_beep_cmnd[] = "AT#VTS=[%d,0,%d]";
 #define     Elsa_beep_timeunit 100
-static char Elsa_hardflow_cmnd[] = "AT\\Q3";
 static char Elsa_softflow_cmnd[] = "AT";
 static char Elsa_start_play_cmnd[] = "AT#VTX";
 static char Elsa_intr_play_cmnd[] = {DLE, CAN, 0x00};
