@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 4.2 1997/01/31 19:51:23 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logfile.c,v 4.3 1997/04/06 19:52:34 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -194,6 +194,7 @@ time_t  ti;
 struct tm *tm;
 va_list pvar;
 int     errnr;
+char * p;
 
     if ( level > log_level )	/* log level high enough? */
     {
@@ -271,6 +272,12 @@ int     errnr;
      vsprintf( &ws[0], format, pvar );
     
     va_end( pvar );
+
+    /* convert non-printable characters "in-place" to "_" */
+    for( p=ws; *p!='\0'; p++ )
+    {
+	if ( ! isprint(*p) ) *p='_';
+    }
 
     ti = time(NULL); tm = localtime(&ti);
 
