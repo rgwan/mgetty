@@ -1,13 +1,15 @@
 # Makefile for the "fax" subtree
 # of mgetty+sendfax
 #
-# SCCS: $Id: Makefile,v 1.7 1994/02/04 15:07:50 gert Exp $ Copyright (c) Gert Doering
+# SCCS: $Id: Makefile,v 1.8 1994/03/01 01:59:56 gert Exp $ Copyright (c) Gert Doering
 #
 
 CC=gcc
 CFLAGS=-O2 -I..
 
-all: faxspool faxrunq faxq faxrm
+FAX_SCRIPTS=faxspool faxrunq faxq faxrm
+
+all: $(FAX_SCRIPTS)
 
 faxspool: faxspool.in ../sedscript
 	../sedscript <faxspool.in >faxspool
@@ -25,27 +27,26 @@ faxrm: faxrm.in ../sedscript
 	@cd .. ; $(MAKE) sedscript
 
 clean:
-	-rm -f faxspool faxrunq faxq faxrm
+	-rm -f $(FAX_SCRIPTS)
 
 fullclean:
-	-rm -f faxspool faxrunq faxq faxrm
+	-rm -f $(FAX_SCRIPTS)
 
 install: all
-	-for i in faxrunq faxq faxspool faxrm; do mv $(BINDIR)/$$i $(BINDIR)/$$i.old ; done
 #
 # programs / scripts
 #
-	cp faxspool faxq faxrunq faxcvt faxrm $(BINDIR)/
+	-for i in $(FAX_SCRIPTS); do \
+		mv -f $(BINDIR)/$$i $(BINDIR)/$$i.old 2>/dev/null ; \
+		$(INSTALL) -m 775 $$i $(BINDIR) ; \
+	done
 	chmod 700 $(BINDIR)/faxrunq
-	chmod 755 $(BINDIR)/faxspool $(BINDIR)/faxq $(BINDIR)/faxrm
 #
 # data files
 #
-	cp cour24i.pbm $(LIBDIR)/cour24i.pbm
-	chmod 644 $(LIBDIR)/cour24i.pbm
+	$(INSTALL) -m 644 cour24i.pbm $(LIBDIR)
 	-test -f $(LIBDIR)/faxheader || \
-	    cp faxheader $(LIBDIR)
-	chmod 644 $(LIBDIR)/faxheader
+		$(INSTALL) -m 644 faxheader $(LIBDIR)
 #
 # /etc/magic
 #
