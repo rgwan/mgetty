@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.11 1997/05/19 22:32:42 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.12 1997/06/08 15:44:49 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -31,6 +31,8 @@ boolean fax_poll_req = FALSE;		/* poll requested */
 
 boolean	fhs_details = FALSE;		/* +FHS:xxx with detail info */
 int	fhs_lc, fhs_blc, fhs_cblc, fhs_lbc;
+
+int	modem_quirks = 0;		/* modem specials */
 
 
 /* wait for a given modem response string,
@@ -572,6 +574,7 @@ int mdm_identify _P1( (fd), int fd )
 	  case 962:
 	    lprintf( L_MESG, "Dr. Neuhaus Smarty detected (?)" );
 	    modem_type=Mt_class2;	/* now do ATI9! */
+	    modem_quirks |= MQ_NEED2;
 	    mis = mdm_get_idstring( "ATI9", 1, fd );
 	    break;
 	  case 184:	/* sure? */
@@ -586,6 +589,7 @@ int mdm_identify _P1( (fd), int fd )
 	    lprintf( L_MESG, "Multitech MT1432BA/MT1932ZDX/MT2834ZDX detected" );
 	    modem_type=Mt_class2_0;
 	    mis = mdm_get_idstring( "ATI2", 1, fd );
+	    modem_quirks |= MQ_FBOR_OK;
 	    break;
 	  case 251: /* sure? */
 	    lprintf( L_MESG, "Discovery 2400 AM detected" );
@@ -602,12 +606,17 @@ int mdm_identify _P1( (fd), int fd )
 	    mis = mdm_get_idstring( "ATI3", 1, fd );
 	    break;
 	  case 249:
-	  case 14400: /* further distinction necessary (ATI4)! */
+	  case 14400: /* further distinction necessary (ATI3,4,6)! */
 	  case 28800:
 	  case 33600:
 	    lprintf( L_MESG, "Generic Rockwell modem (%d)", mid );
 	    modem_type=Mt_class2;
 	    mis = mdm_get_idstring( "ATI3", 1, fd );
+	    if ( mid == 28800 && mis[0] == '\0' )	/* no ATI3 code */
+	    {
+		lprintf( L_MESG, "Sounds more like Dr.Neuhaus Cybermod" );
+		modem_quirks |= MQ_NEED2;
+	    }
 	    mis = mdm_get_idstring( "ATI4", 1, fd );
 	    break;
 	  default:

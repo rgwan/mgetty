@@ -1,4 +1,4 @@
-#ident "$Id: mg_m_init.c,v 4.1 1997/01/12 14:53:42 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_m_init.c,v 4.2 1997/06/08 15:44:50 gert Exp $ Copyright (c) Gert Doering"
 
 /* mg_m_init.c - part of mgetty+sendfax
  *
@@ -119,11 +119,16 @@ int mg_init_fax _P4( (fd, mclass, fax_id, fax_only),
 	/* even if we know that it's a class 2 modem, set it to
 	 * +FCLASS=0: there are some weird modems out there that won't
 	 * properly auto-detect fax/data when in +FCLASS=2 mode...
+	 *
+	 * Exception: Dr.Neuhaus modems do adaptive answering *only* if in
+	 *            +FCLASS=2 mode -> check flag set by auto-detection
 	 */
-	if ( !fax_only )
-	  if ( mdm_command( "AT+FCLASS=0", fd ) == FAIL )
+	if ( !fax_only && ! ( modem_quirks & MQ_NEED2 ) )
 	{
-	    lprintf( L_MESG, "weird: cannot set class 0" );
+	    if ( mdm_command( "AT+FCLASS=0", fd ) == FAIL )
+	    {
+		lprintf( L_MESG, "weird: cannot set class 0" );
+	    }
 	}
 
 	/* now, set various flags and modem settings. Failures are logged,

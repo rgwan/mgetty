@@ -1,4 +1,4 @@
-#ident "$Id: fax_lib.h,v 4.1 1997/01/12 14:53:37 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: fax_lib.h,v 4.2 1997/06/08 15:44:48 gert Exp $ Copyright (c) Gert Doering"
 
 
 /* fax_lib.h
@@ -58,6 +58,8 @@ extern	boolean	fax_poll_req;			/* caller wants to poll */
 extern	boolean	fhs_details;			/* +FHS:x,lc info avail.*/
 extern	int	fhs_lc, fhs_blc, fhs_cblc, fhs_lbc;	/* details */
 
+extern	int	modem_quirks;			/* modem specials */
+
 
 /* fax_hangup_code gives the reason for failure, normally it's a positive
  * number returned by the faxmodem in the "+FHNG:iii" response. If the
@@ -83,3 +85,9 @@ extern	int	fhs_lc, fhs_blc, fhs_cblc, fhs_lbc;	/* details */
 #define NOERROR	0
 #endif
 
+/* modem_quirks specifies some details in this modem's implementation
+ * that are just *different* from the usual...
+ */
+
+#define MQ_NEED2	0x01	/* must be in +FCLASS=2 for +FAA=1 to work */
+#define MQ_FBOR_OK	0x02	/* +FBOR implemented correctly (Multitech) */
