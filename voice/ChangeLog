@@ -1,3 +1,12 @@
+Wed Aug  9 09:04:25 2000  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* All of below is 0.9.14
+
+	* Fixed bug in modem detection (introduced in 0.9.13) (NULL
+	pointer dereference).
+
+	* Made Rockwell test on ATI6 broader.
+
 Fri Jul 28 12:12:12 2000  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 
 	* All of below is 0.9.13
