@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.6 1993/04/19 22:05:36 gert Exp $ (c) Gert Doering"
+#ident "$Id: policy.h,v 1.7 1993/05/22 16:39:44 gert Exp $ (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -87,10 +87,16 @@
  */
 #define FAX_SEND_BAUD B19200
 
-/* the device used for faxing (this will change in future releases)
+/* if your faxmodem insists on using XON/XOFF flow control in class 2 fax
+ * mode (even when told not to), define this (ZyXELs are know to do this).
+ */
+#define FAX_SEND_USE_IXON
+
+/* the device(s) used for faxing
+ * multiple devices can be separated by ":", e.g. "tty1a:tty2a"
  * (without (!) leading /dev/)
  */
-#define FAX_MODEM_TTY	"tty2a"
+#define FAX_MODEM_TTYS	"tty1a:tty2a"
 
 /* mailer that accepts destination on command line and mail text on stdin
  */
