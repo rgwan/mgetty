@@ -1,4 +1,4 @@
-#ident "$Id: faxq-helper.c,v 4.14 2003/06/28 20:43:40 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxq-helper.c,v 4.15 2005/02/24 16:23:51 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxq-helper.c
  *
@@ -536,6 +536,7 @@ int do_activate( char * JID )
 char dir1[MAXJIDLEN+20];
 char buf[1000], *p, *q;
 int fd;
+int user_seen = 0;
 
     if ( isatty(fileno(stdin)) )
 	fprintf(stderr, "NOTICE: reading input from stdin, end with ctrl-D\n");
@@ -566,16 +567,11 @@ int fd;
 	    eout( "input line too long\n" ); break;
 	}
 
-	if ( write( fd, buf, l ) != l )
-	{
-	    eout( "can't write line to JOB file: %s\n", strerror(errno) );
-	    break;
-	}
-
 	if ( l>0 && buf[l-1] == '\n' ) buf[--l]='\0';
 
 	if ( strncmp(buf, "user ", 5) == 0 )
 	{
+	    user_seen=1;
 	    if ( real_user_id != ROOT_UID &&
 		 strcmp( buf+5, real_user_name ) != 0 )
 	    {
@@ -597,13 +593,27 @@ int fd;
 		 *q == '\\' || *q == ';' )
 				    { *q = '_'; }
 	}
+
+        /* and write to JOB file... */
+	buf[l++] = '\n';
+	if ( write( fd, buf, l ) != l )
+	{
+	    eout( "can't write line to JOB file: %s\n", strerror(errno) );
+	    break;
+	}
     }
 
-    close(fd);
     if ( p != NULL )	/* loop aborted */
     {
-	recursive_rm(dir1); return -1;
+        close(fd); recursive_rm(dir1); return -1;
     }
+
+    if ( !user_seen )		/* no "user ..." line in JOB? */
+    {
+	sprintf( buf, "user %.100s\n", real_user_name );
+	write( fd, buf, strlen(buf) );
+    }
+    close(fd);
 
     /* now make directory world-readable & move to final place */
     if ( chmod( dir1, 0755 ) < 0 )
