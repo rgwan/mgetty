@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.22 1998/03/25 23:12:58 marc Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.23 1998/03/26 09:00:55 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -287,8 +287,8 @@ MV=mv
 # Nothing to change below this line ---------------------------------!
 #
 MR=1.1
-SR=12
-DIFFR=1.1.11
+SR=13
+DIFFR=1.1.12
 #
 #
 OBJS=mgetty.o logfile.o do_chat.o locks.o utmp.o logname.o login.o \
@@ -371,7 +371,8 @@ testdisk:	getdisk
 
 
 # README PROBLEMS
-DISTRIB=README.1st THANKS TODO BUGS FTP FAQ inittab.aix inst.sh version.h \
+DISTRIB=README.1st THANKS TODO BUGS FTP FAQ Recommend \
+	inittab.aix inst.sh version.h \
 	Makefile ChangeLog policy.h-dist ftp.sh mkidirs \
 	login.cfg.in mgetty.cfg.in sendfax.cfg.in \
 	dialin.config faxrunq.config \
@@ -406,7 +407,7 @@ sedscript: mksed
 	./mksed >sedscript
 	chmod 700 sedscript
 
-mksed: mksed.c policy.h Makefile voice-defs.h
+mksed: mksed.c policy.h Makefile 
 	$(CC) $(CFLAGS) -DBINDIR=\"$(BINDIR)\" -DSBINDIR=\"$(SBINDIR)\" \
 		-DLIBDIR=\"$(LIBDIR)\" \
 		-DCONFDIR=\"$(CONFDIR)\" \
@@ -418,10 +419,6 @@ mksed: mksed.c policy.h Makefile voice-defs.h
 		-DECHO=\"$(ECHO)\" \
 		-DSHELL=\"$(SHELL)\" \
 	-o mksed mksed.c
-
-voice-defs.h: voice/include/default.h
-	echo "/* auto-generated from voice/include/default.h */" >voice-defs.h
-	grep VOICE_DIR voice/include/default.h >>voice-defs.h
 
 policy.h-dist: policy.h
 	@rm -f policy.h-dist
@@ -482,7 +479,8 @@ uu2:	mg.uue
 beta:	mgetty$(MR).$(SR).tar.gz diff
 	test `hostname` = greenie.muc.de || exit 1
 # local
-	cp mgetty$(MR).$(SR).tar.gz /pub/uploads/
+	cp mgetty$(MR).$(SR).tar.gz /pub/mgetty-archive/
+	cp mgetty$(DIFFR)-$(MR).$(SR).diff /pub/mgetty-archive/
 
 # beta ftp site
 	-./ftp.sh $(MR).$(SR) hp2 \
@@ -555,7 +553,6 @@ bindist: all doc-all sedscript
 		spool=$$bd$(spool) FAX_SPOOL=$$bd$(FAX_SPOOL) \
 		FAX_SPOOL_IN=$$bd$(FAX_SPOOL_IN) \
 		FAX_SPOOL_OUT=$$bd$(FAX_SPOOL_OUT) \
-		VOICE_DIR=$$bd$(VOICE_DIR) \
 		MAN1DIR=$$bd$(MAN1DIR) MAN4DIR=$$bd$(MAN4DIR) \
 		MAN5DIR=$$bd$(MAN5DIR) MAN8DIR=$$bd$(MAN8DIR) \
 		INFODIR=$$bd$(INFODIR) install
