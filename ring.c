@@ -1,4 +1,4 @@
-#ident "$Id: ring.c,v 4.19 2002/12/05 20:29:10 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: ring.c,v 4.20 2005/03/23 09:56:57 gert Exp $ Copyright (c) Gert Doering"
 
 /* ring.c
  *
@@ -266,9 +266,11 @@ boolean	got_dle;		/* for <DLE><char> events (voice mode) */
 		case 'H':
 		case 'P':	/* handset off hook */
 		case 'r':	/* ringback detected */
-		    *dist_ring_number = - (int)ch; break;
+		    *dist_ring_number = - (int)ch; 
+		    goto have_ring; break;
 		case 'R':	/* RING detected */
-		    *dist_ring_number = 0; break;
+		    *dist_ring_number = 0;
+		    goto have_ring; break;
 		default:
 		    got_dle = FALSE;
 	    }
@@ -356,6 +358,7 @@ boolean	got_dle;		/* for <DLE><char> events (voice mode) */
 	    { *dist_ring_number = tolower(*p)-'a' +1; break; }
     }
 
+have_ring:
     alarm(0);
 
     if ( drox_count > 0 )
