@@ -4,7 +4,7 @@
  * Try all available voice devices and open the first one that
  * suceeds and initialize it.
  *
- * $Id: open.c,v 1.6 2002/02/25 12:19:25 gert Exp $
+ * $Id: open.c,v 1.7 2002/02/25 12:19:57 gert Exp $
  *
  */
 
@@ -62,7 +62,7 @@ int voice_open_device(void)
      if (voice_fd != NO_VOICE_FD)
           {
 	  char * p = voice_tty;
-	  if ( strcmp( p, "/dev/", 5 ) == 0 ) p+=5;
+	  if ( strncmp( p, "/dev/", 5 ) == 0 ) p+=5;
 
           DevID = malloc(strlen(p) + 1);
           strcpy(DevID, p);
