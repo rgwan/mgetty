@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 4.3 1997/02/20 11:17:04 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 4.4 1997/03/26 16:11:28 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -945,6 +945,10 @@ Ring_got_action:
      */
     for (;;)
     {
+	/* protect against blocked output (for whatever reason) */
+	signal( SIGALRM, sig_goodbye );
+	alarm( 60 );
+
 	/* set ttystate for /etc/issue ("before" setting) */
 	gettermio(c_string(gettydefs_tag), TRUE, &tio);
 
@@ -963,6 +967,8 @@ Ring_got_action:
 	{
 	    /* display ISSUE, if desired
 	     */
+	    lprintf( L_NOISE, "print welcome banner (%s)", c_string(issue_file));
+
 	    if (c_string(issue_file)[0] == '!')		/* exec */
             {
                 system( c_string(issue_file)+1 );
@@ -997,6 +1003,9 @@ Ring_got_action:
 		tio.c_iflag, tio.c_oflag, tio.c_cflag, tio.c_lflag,
 		c_string(login_prompt));
 #endif
+	/* turn off alarm (getlogname has its own timeout) */
+	alarm(0);
+
 	/* read a login name from tty
 	   (if just <cr> is pressed, re-print issue file)
 
