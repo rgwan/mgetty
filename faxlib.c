@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.29 1997/12/09 12:31:14 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.30 1997/12/10 18:55:59 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -594,6 +594,7 @@ int mdm_identify _P1( (fd), int fd )
 	    break;
 	  case 2886:
 	  case 3361:
+	  case 3362:
 	  case 3366:
 	  case 3367:
 	    lprintf( L_MESG, "USR Courier/Sportster V.34(+) detected" );
