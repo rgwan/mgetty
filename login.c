@@ -1,4 +1,4 @@
-#ident "$Id: login.c,v 4.7 1999/01/17 17:29:19 gert Exp $ Copyright (C) 1993 Gert Doering"
+#ident "$Id: login.c,v 4.8 1999/02/16 19:59:02 gert Exp $ Copyright (C) 1993 Gert Doering"
 
 
 /* login.c
@@ -103,8 +103,8 @@ boolean match _P2( (user,key), char * user, char * key )
  * does *NOT* return
  */
 
-void login_dispatch _P2( (user, is_callback ),  
-			 char * user, boolean is_callback )
+void login_dispatch _P3( (user, is_callback, cf_file ),  
+			 char * user, boolean is_callback, char * cfg_file )
 {
 #define MAX_LOGIN_ARGS 9
     char * argv[MAX_LOGIN_ARGS+1];
@@ -112,8 +112,7 @@ void login_dispatch _P2( (user, is_callback ),
     char * cmd = NULL;
     int i;
 
-    /* read "mgetty.login" config file */
-#ifdef LOGIN_CFG_FILE
+    /* read "mgetty.login" config file (if specified) */
     FILE * fp = NULL;
     int file_version = 1;		/* login.config format changed! */
     char * line, * key, *p;
@@ -122,7 +121,13 @@ void login_dispatch _P2( (user, is_callback ),
 
     struct stat st;
 
-    char * cfg_file = makepath( LOGIN_CFG_FILE, CONFDIR );
+    if ( cfg_file == NULL ) 
+    {
+	lprintf( L_JUNK, "login: no login cfg file defined" );
+	goto fallthrough;
+    }
+
+    cfg_file = _makepath( cfg_file, CONFDIR );
 
     lprintf( L_JUNK, "login: use login config file %s", cfg_file );
     
@@ -134,15 +139,19 @@ void login_dispatch _P2( (user, is_callback ),
     if ( stat( cfg_file, &st ) < 0 )
     {
 	lprintf( L_ERROR, "login: stat('%s') failed", cfg_file );
+	goto fallthrough;
     }
-    else	/* permission check */
-      if ( st.st_uid != 0 || ( ( st.st_mode & 0077 ) != 0 ) )
+
+    /* permission check */
+    if ( st.st_uid != 0 || ( ( st.st_mode & 0077 ) != 0 ) )
     {
 	errno=EINVAL;
 	lprintf( L_FATAL, "login: '%s' must be root/0600", cfg_file );
+	goto fallthrough;
     }
-    else
-      if ( (fp = fopen( cfg_file, "r" )) == NULL )
+
+    /* go for it! */
+    if ( (fp = fopen( cfg_file, "r" )) == NULL )
     {
 	lprintf( L_FATAL, "login: cannot open %s", cfg_file );
     }
@@ -305,9 +314,7 @@ void login_dispatch _P2( (user, is_callback ),
 
     if ( fp != NULL ) fclose( fp );
 
-#else	/* !LOGIN_CFG_FILE */
-    lprintf( L_JUNK, "login: no login cfg file defined" );
-#endif	/* LOGIN_CFG_FILE */
+fallthrough:
 
     /* default to "/bin/login <user>" */
     if ( argc == 0 )
