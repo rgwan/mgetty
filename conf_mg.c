@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.c,v 4.11 1999/02/24 13:07:02 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_mg.c,v 4.12 1999/02/24 16:10:23 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_mg.c
  *
@@ -79,6 +79,9 @@ struct conf_data_mgetty c = {
 	{ "init-chat", {0}, CT_CHAT, C_EMPTY },
 	{ "force-init-chat", {0}, CT_CHAT, C_EMPTY },
 	{ "post-init-chat", {0}, CT_CHAT, C_EMPTY },
+	{ "data-flow", {DATA_FLOW}, CT_FLOWL, C_PRESET },
+	{ "fax-send-flow", {FAXSEND_FLOW}, CT_FLOWL, C_PRESET },
+	{ "fax-rec-flow", {FAXREC_FLOW}, CT_FLOWL, C_PRESET },
 
 	{ "modem-check-time", {MODEM_CHECK_TIME}, CT_INT, C_PRESET },
 	{ "rings", {1}, CT_INT, C_PRESET },

@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.h,v 4.7 1999/02/16 20:00:09 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: conf_mg.h,v 4.8 1999/02/24 16:10:19 gert Exp $ Copyright (c) 1994 Gert Doering"
 
 /* all (dynamic) mgetty configuration is contained in this structure.
  * It is initialized and loaded in conf_mg.c and accessed from mgetty.c
@@ -24,6 +24,9 @@ extern struct conf_data_mgetty {
 	init_chat,				/* modem initialization */
 	force_init_chat,			/* for stubborn modems */
 	post_init_chat,				/* for forgetful modems */
+	data_flow,				/* flow ctl. in data mode */
+	fax_send_flow,				/*   '' in fax rec mode */
+	fax_rec_flow,				/*   '' in fax send mode */
 
 	modem_check_time,			/* modem still alive? */
 	rings_wanted,				/* number of RINGs */
