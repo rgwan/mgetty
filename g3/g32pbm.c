@@ -1,4 +1,4 @@
-#ident "$Id: g32pbm.c,v 1.8 1993/10/18 20:16:19 gert Exp $ (c) Gert Doering";
+#ident "$Id: g32pbm.c,v 1.9 1993/10/27 01:44:05 gert Exp $ (c) Gert Doering";
 
 #include <stdio.h>
 #include <unistd.h>
@@ -120,7 +120,7 @@ int	col, hcol;
 		rs = read( fd, rbuf, sizeof( rbuf ) );
 		if ( rs < 0 ) { perror( "read2"); break; }
 		rp = 0;
-		if ( rs == 0 ) { fprintf( stderr, "EOF!" ); goto write; }
+		if ( rs == 0 ) { fprintf( stderr, "EOF!" ); goto do_write; }
 	    }
 #ifdef DEBUG
 	    fprintf( stderr, "hibit=%2d, data=", hibit );
@@ -156,7 +156,7 @@ int	col, hcol;
 		    {   rs = read( fd, rbuf, sizeof( rbuf ) );
 			if ( rs < 0 ) { perror( "read4"); break; }
 			rp = 0;
-			if ( rs == 0 ) goto write;
+			if ( rs == 0 ) goto do_write;
 		    }
 		}
 	    }
@@ -201,7 +201,7 @@ int	col, hcol;
 		    {   rs = read( fd, rbuf, sizeof( rbuf ) );
 			if ( rs < 0 ) { perror( "read3"); break; }
 			rp = 0;
-			if ( rs == 0 ) goto write;
+			if ( rs == 0 ) goto do_write;
 		    }
 		}
 #ifdef DEBUG
@@ -244,7 +244,7 @@ int	col, hcol;
 	}
     }		/* end main loop */
 
-write:		/* write pbm (or whatever) file */
+do_write:      	/* write pbm (or whatever) file */
 
     if( fd != 0 ) close(fd);	/* close input file */
 

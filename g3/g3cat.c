@@ -1,4 +1,4 @@
-#ident "$Id: g3cat.c,v 1.3 1993/10/18 20:16:17 gert Exp $ (c) Gert Doering";
+#ident "$Id: g3cat.c,v 1.4 1993/10/27 01:44:01 gert Exp $ (c) Gert Doering";
 
 /* g3cat.c - concatenate multiple G3-Documents
  *
@@ -158,7 +158,7 @@ int first_file = 1;		/* "-a" flag has to appear before */
 		    rs = read( fd, rbuf, sizeof( rbuf ) );
 		    if ( rs < 0 ) { perror( "read2"); break; }
 		    rp = 0;
-		    if ( rs == 0 ) { fprintf( stderr, "EOF!" ); goto write; }
+		    if ( rs == 0 ) { fprintf( stderr, "EOF!" ); goto do_write;}
 		}
 #ifdef DEBUG
 		fprintf( stderr, "hibit=%2d, data=", hibit );
@@ -204,7 +204,7 @@ int first_file = 1;		/* "-a" flag has to appear before */
 			{   rs = read( fd, rbuf, sizeof( rbuf ) );
 			    if ( rs < 0 ) { perror( "read4"); break; }
 			    rp = 0;
-			    if ( rs == 0 ) goto write;
+			    if ( rs == 0 ) goto do_write;
 			}
 		    }
 		}
@@ -249,7 +249,7 @@ int first_file = 1;		/* "-a" flag has to appear before */
 			{   rs = read( fd, rbuf, sizeof( rbuf ) );
 			    if ( rs < 0 ) { perror( "read3"); break; }
 			    rp = 0;
-			    if ( rs == 0 ) goto write;
+			    if ( rs == 0 ) goto do_write;
 			}
 		    }
 #ifdef DEBUG
@@ -282,7 +282,7 @@ int first_file = 1;		/* "-a" flag has to appear before */
 		if ( nr_pels < 64 ) color = !color;		/* terminal code */
 	    }
 	}		/* end processing one file */
-write:			/* write eol, separating lines, next file */
+do_write:      		/* write eol, separating lines, next file */
 
 	if( fd != 0 ) close(fd);	/* close input file */
 
