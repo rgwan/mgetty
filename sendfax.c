@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 2.6 1995/02/27 16:43:45 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 2.7 1995/03/21 22:45:56 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -99,8 +99,10 @@ int fax_open_device _P2( (fax_tty, use_stdin),
 	    return fd;
 	}
 
-	/* make device name externally visible (faxrec()) */
-	Device = fax_tty;
+	/* make device name externally visible (faxrec())
+	 * we have to dup() it, because fax_tty will change
+	 */
+	Device = mydup(fax_tty);
     }
 
     /* unset O_NDELAY (otherwise waiting for characters */
