@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 3.4 1995/10/22 17:49:29 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 3.5 1995/11/12 18:05:05 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include "syslibs.h"
@@ -236,7 +236,7 @@ int getlogname _P5( (prompt, tio, buf, maxsize, do_timeout),
 
     /* read character by character! */
     tio_save = *tio;
-    tio_mode_cbreak( tio );
+    tio_mode_raw( tio );
     tio_set( STDIN, tio );
 
     final_prompt = ln_escape_prompt( prompt );
@@ -374,18 +374,17 @@ int getlogname _P5( (prompt, tio, buf, maxsize, do_timeout),
 
 	if ( ch == 0x7f /*DEL*/ || ch == 0x08 /*BS*/ || ch == CERASE )
 	{
-	    if ( ch != 0x08 ) fputs( "\b \b\b", stdout );
-	    
 	    if ( i > 0 )
 	    {
-		fputs( " \b", stdout );
+		fputs( "\b \b", stdout );
 		i--;
 	    }
-            else
-		fputc( ' ', stdout );
 	}
 	else
+	  if ( ch != 27 )				/* not <ESC> */
 	{
+	    putc( ch, stdout );
+	    
 	    if ( i >= maxsize ||			/* buffer full, */
 		 ( ch == ' ' && i == 0 ) || 		/* leading ' ' */
 		 ( ch == '-' && i == 0 ) )		/* or '-' */
