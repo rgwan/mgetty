@@ -4,7 +4,7 @@
 #
 # like "lpq" or "mailq", show jobs waiting in the output queue
 #
-# SCCS: $Id: faxq.in,v 2.1 1994/11/30 23:21:32 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxq.in,v 2.2 1995/03/26 19:25:06 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -40,7 +40,7 @@ jobs=`ls $jobs 2>/dev/null`
 [ -z "$jobs" ] && $echo "no jobs."
 for i in $jobs
 do
-    USER=""; PHONE=""; PAGES=""; MAILTO=""; VERBTO=""; INPUT=""
+    USER=""; PHONE=""; PAGES=""; MAILTO=""; VERBTO=""; INPUT=""; RE=""
 
     if [ -z "$verbose" ]
     then
@@ -57,6 +57,7 @@ do
 		   $1=="input" { printf "INPUT=\"%s\";", substr( $0, 7 ) }
 		   $1=="time"  { printf "TIME=\"%s:%s\";",
 				 substr( $0, 6, 2 ), substr( $0, 8,2 ) }
+		   $1=="subject"{ printf "RE=\"%s\";", substr( $0, 9 ) }
 		   $1=="pages" { if ( NF==2 ) printf "PAGES=\"%s\";", $2
 				 else if ( NF==3 )
                                      printf "PAGES=\"%s %s\";", $2, $3
@@ -71,6 +72,8 @@ do
        else
 	$echo "\t       to: $VERBTO ($PHONE)"
        fi
+       test ! -z "$RE" && \
+	$echo "\t       Re: $RE"
        test ! -z "$MAILTO" && \
 	$echo "\t   E-Mail: $MAILTO"
        test ! -z "$INPUT" && \
