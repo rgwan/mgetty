@@ -1,4 +1,4 @@
-#ident "$Id: locks.c,v 1.16 1993/10/06 00:35:43 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
+#ident "$Id: locks.c,v 1.17 1993/10/26 22:04:33 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
 
 /* large parts of the code in this module are taken from the
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us,
@@ -10,11 +10,11 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <sys/types.h>
 #include <sys/stat.h>
 
 /* SVR4 uses a different locking mechanism. This is why we need this... */
 #ifdef SVR4 
-#include <sys/types.h>
 #include <sys/mkdev.h>
  
 #define LCK_NODEV    -1
