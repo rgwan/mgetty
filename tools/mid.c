@@ -1,4 +1,4 @@
-#ident "$Id: mid.c,v 1.1 1998/07/07 14:28:33 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mid.c,v 1.2 1998/07/07 14:34:33 gert Exp $ Copyright (c) Gert Doering"
 
 /* mid.c
  *
@@ -13,6 +13,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <signal.h>
 #include <time.h>
 
 #include "mgetty.h"
