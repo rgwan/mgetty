@@ -1,4 +1,4 @@
-#ident "$Id: ring.c,v 4.17 2002/12/04 20:11:13 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: ring.c,v 4.18 2002/12/04 22:04:34 gert Exp $ Copyright (c) Gert Doering"
 
 /* ring.c
  *
@@ -325,7 +325,7 @@ boolean	got_dle;		/* for <DLE><char> events (voice mode) */
 	/* V.253 ring cadences */
 	if ( strncmp( buf, "DRON", 4 ) == 0 ||
 	     strncmp( buf, "DROF", 4 ) == 0 )
-		{ ring_handle_DROx( buf+4 ); continue; }
+		{ ring_handle_DROx( buf+4 ); w=0; continue; }
 
 	/* now check the different RING types 
 	 * if not "RING<whatever>", clear buffer and get next line
