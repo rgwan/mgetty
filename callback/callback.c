@@ -32,6 +32,7 @@
 #include "syslibs.h"
 #include <string.h>
 #include <unistd.h>
+#include <ctype.h>
 #include <sys/types.h>
 
 #include <signal.h>
