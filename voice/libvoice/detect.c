@@ -3,7 +3,7 @@
  *
  * autodetect the modemtype we are connected to.
  *
- * $Id: detect.c,v 1.20 2000/08/09 07:38:43 marcs Exp $
+ * $Id: detect.c,v 1.21 2000/08/14 13:57:04 gert Exp $
  *
  */
 
@@ -22,24 +22,25 @@ struct pnp_modem_type_struct
      const char *pnpid;
      const char *modelid;
      voice_modem_struct *modem_type;
+     const char *verbose;
      };
 
 static const struct pnp_modem_type_struct pnp_modem_database[] =
      {
-     {"SUP", NULL, &Supra},
-     {"ELS", "0687", &Elsa}, /* ML 56k DE */
-     {"ELS", "0566", &Elsa}, /* ML 56k CH */
-     {"ELS", "0707", &Elsa}, /* ML 56k AT */
-     {"ELS", "8318", &Elsa}, /* ML 56k pro */
-     {"ELS", "0853", &Elsa}, /* 1&1 Speedmaster pro */
-     {"ELS", "8548", &Elsa}, /* ML Office */
-     {"ELS", "0754", &Elsa}, /* ML 56k basic */
-     {"ELS", "0350", &Elsa}, /* ML 56k internet */
-     {"ELS", "0503", &Elsa}, /* ML 56k internet */
-     {"ELS", "0667", &Elsa}, /* ML 56k internet */
-     {"ELS", "0152", &Elsa}, /* ML 56k internet c */
-     {"ELS", "0363", &V253modem}, /* ML 56k fun */
-     {"ELS", "8550", &V253modem}, /* coming soon ... */
+     {"SUP", NULL, &Supra, "SupraFAX modem (generic)" },
+     {"ELS", "0687", &Elsa, "ELSA ML 56k DE" },
+     {"ELS", "0566", &Elsa, "ELSA ML 56k CH" },
+     {"ELS", "0707", &Elsa, "ELSA ML 56k AT" },
+     {"ELS", "8318", &Elsa, "ELSA ML 56k pro" },
+     {"ELS", "0853", &Elsa, "ELSA/1&1 Speedmaster pro" },
+     {"ELS", "8548", &Elsa, "ELSA ML Office" },
+     {"ELS", "0754", &Elsa, "ELSA ML 56k basic" },
+     {"ELS", "0350", &Elsa, "ELSA ML 56k internet" },
+     {"ELS", "0503", &Elsa, "ELSA ML 56k internet" },
+     {"ELS", "0667", &Elsa, "ELSA ML 56k internet" },
+     {"ELS", "0152", &Elsa, "ELSA ML 56k internet c" },
+     {"ELS", "0363", &V253modem, "ELSA ML 56k fun" },
+     {"ELS", "8550", &V253modem, "ELSA (coming soon...)" },
      {NULL, NULL, NULL}
      };
  
@@ -189,40 +190,37 @@ int voice_detect_modemtype(void)
                     lprintf(L_WARN, "modem detection failed");
                     exit(FAIL);
 	  }
+
 	  s = strchr(buffer, '(');
-	  if (s && s[1] > 0 )
-	  	{
-	  	s+=3;
-                lprintf(L_NOISE, "%s", s);
-	  	i = 0;
-	  	while (voice_modem == &no_modem &&
-                       pnp_modem_database[i].pnpid)
-	           {
-                        if (pnp_modem_database[i].pnpid) {
-			   lprintf(L_JUNK, "checking pnpipd %s",
-					   pnp_modem_database[i].pnpid);
-			   if (strncmp(pnp_modem_database[i].pnpid, s, 3)
-                               == 0) {
-                              if (pnp_modem_database[i].modelid) {
-			         lprintf(L_JUNK, "checking modelid %s",
-					         pnp_modem_database[i].modelid);
-                              }
-			      if (pnp_modem_database[i].modelid == NULL ||
-				  strncmp(pnp_modem_database[i].modelid,
-					  s+3,
-					  4) == 0)
-				   {
-				   voice_modem =
-					   pnp_modem_database[i].modem_type;
-				   break;
-				   }
-			   }
-                        }
-			i++;
-	      	   }
-	     	 /* eat the OK... */
-	         voice_read(buffer);
-	  	}
+	  if ( s && strlen(s) > 3 )
+	  {
+	      s+=3;
+	      lprintf(L_NOISE, "PNP String: '%s'", s);
+	      i = 0;
+	      while (voice_modem == &no_modem &&
+		     pnp_modem_database[i].pnpid)
+	      {
+		   lprintf(L_JUNK, "checking pnpid %s / modelid %s",
+			       pnp_modem_database[i].pnpid,
+			       pnp_modem_database[i].modelid ? 
+				   pnp_modem_database[i].modelid : "<none>");
+
+		   if (strncmp(pnp_modem_database[i].pnpid, s, 3) == 0)
+		   {
+		       if (pnp_modem_database[i].modelid == NULL ||
+			   strncmp(pnp_modem_database[i].modelid, s+3, 4) == 0)
+		       {
+			   lprintf( L_JUNK, "PNP: found modem: %s",
+					pnp_modem_database[i].verbose );
+			   voice_modem = pnp_modem_database[i].modem_type;
+			   break;
+		       }
+		   }
+		   i++;
+	       }
+	       /* eat the OK... */
+	       voice_read(buffer);
+	  }
 
 	  voice_flush(3);
 
