@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 4.10 1997/12/10 19:34:17 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 4.11 1997/12/19 16:06:39 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -337,7 +337,7 @@ int main _P2( (argc, argv),
 
     if ( fd == -1 )
     {
-	lprintf( L_WARN, "cannot open fax device(s)" );
+	lprintf( L_AUDIT, "failed: can't get modem (locked/permissions)");
 	fprintf( stderr, "%s: cannot access fax device(s) (locked?)\n", argv[0] );
 	exit(2);
     }
@@ -376,18 +376,26 @@ int main _P2( (argc, argv),
 			argv[0], c_int(speed), Device );
 	close(fd);
 	rmlocks();
+	lprintf( L_AUDIT, "failed: tio_set*, dev=%s, acct=\"%s\"", 
+		     Device, c_string(acct_handle));
 	exit(2);
     }
 
-
-    if ( fax_command( "ATV1Q0", "OK", fd ) == ERROR )
+    /* Is there a modem...? */
+    if ( mdm_command( "ATV1Q0", fd ) == ERROR )
     {
-	lprintf( L_ERROR, "modem doesn't talk to me" );
-	fprintf( stderr, "The modem doesn't respond!\n" );
-	tio_flush_queue( fd, TIO_Q_BOTH );	/* unlock flow ctl. */
-	close(fd);
-	rmlocks();
-	exit(3);
+	/* no??!? -- try again, maybe modem was just unwilling... */
+	if ( mdm_command( "ATV1Q0", fd ) == ERROR )
+	{
+	    lprintf( L_AUDIT, "failed initializing modem, dev=%s, acct=\"%s\"",
+		     Device, c_string(acct_handle) );
+	    fprintf( stderr, "The modem doesn't respond!\n" );
+	    tio_flush_queue( fd, TIO_Q_BOTH );	/* unlock flow ctl. */
+	    close(fd);
+	    rmlocks();
+	    exit(3);
+	}
+	lprintf( L_WARN, "retry succeded, dev=%s", Device );
     }
 
     /* extra initialization: -m / modem-init */
@@ -414,7 +422,7 @@ int main _P2( (argc, argv),
     if ( (modem_type = 
 	  fax_get_modem_type( fd, c_string(modem_type) ) ) == Mt_unknown )
     {
-	lprintf( L_ERROR, "cannot set modem to fax mode" );
+	lprintf( L_AUDIT, "failed: modem type unknown, dev=%s", Device);
 	fprintf( stderr, "%s: cannot set modem to fax mode\n", argv[0] );
 	fax_close( fd );
 	exit( 3 );
@@ -422,7 +430,7 @@ int main _P2( (argc, argv),
 
     if ( modem_type == Mt_data )
     {
-	lprintf( L_ERROR, "modem can't do class 2 or class 2.0" );
+	lprintf( L_AUDIT, "failed: no class 2/2.0 fax modem, dev=%s", Device);
 	fprintf( stderr, "%s: not a class 2/2.0 fax modem\n", argv[0] );
 	fax_close( fd );
 	exit( 3 );
@@ -441,7 +449,7 @@ int main _P2( (argc, argv),
 
     if ( fax_set_l_id( fd, c_string(station_id) ) == ERROR )
     {
-	lprintf( L_ERROR, "cannot set fax station ID" );
+	lprintf( L_AUDIT, "failed: cannot set fax station ID, dev=%s", Device);
 	fprintf( stderr, "%s: cannot set fax station ID\n", argv[0] );
 	fax_close( fd );
 	exit(3);
