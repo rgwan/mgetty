@@ -1,7 +1,7 @@
 # Makefile for the "g3 tools" subtree
 # of mgetty+sendfax
 #
-# SCCS: $Id: Makefile,v 3.2 1997/01/02 15:10:23 gert Exp $ Copyright (c) Gert Doering
+# SCCS: $Id: Makefile,v 3.3 1997/01/02 15:38:36 gert Exp $ Copyright (c) Gert Doering
 #
 
 CC=gcc
@@ -39,3 +39,8 @@ install: all
 	for f in $(G3_PROGRAMS) ; do \
 		$(INSTALL) -s -m 755 $$f $(BINDIR) ; \
 	done
+#
+# make symlink for "g3topbm" (so third-party fax viewers won't fail)
+#
+	-cd $(BINDIR) ; \
+	test -x g3topbm || ln -s g32pbm g3topbm
