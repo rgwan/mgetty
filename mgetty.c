@@ -1,5 +1,10 @@
-#ident "$Id: mgetty.c,v 1.67 1993/11/28 15:43:20 gert Exp $ Copyright (c) Gert Doering";
-/* some parts of the code (lock handling, writing of the utmp entry)
+#ident "$Id: mgetty.c,v 1.68 1993/11/29 11:46:50 gert Exp $ Copyright (c) Gert Doering"
+;
+/* mgetty.c
+ *
+ * mgetty main module - initialize modem, lock, get log name, call login
+ *
+ * some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
  */
