@@ -1,10 +1,10 @@
-#!/bin/sh
+#!@SHELL@
 #
 # faxq program 
 #
 # like "lpq" or "mailq", show jobs waiting in the output queue
 #
-# SCCS: $Id: faxq.in,v 1.7 1994/04/09 13:57:47 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxq.in,v 1.8 1994/07/09 17:03:15 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
