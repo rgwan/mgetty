@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.76 1994/10/04 10:35:20 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.77 1994/11/16 19:48:06 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -149,7 +149,7 @@ int fax_open_device _P2( (fax_tty, use_stdin),
     }
     else
     {
-	log_init_paths( NULL, NULL, &fax_tty[ strlen(fax_tty)-2 ] );
+	log_init_paths( NULL, NULL, &fax_tty[ strlen(fax_tty)-3 ] );
 	lprintf( L_NOISE, "fax_open_device succeeded, %s -> %d", fax_tty, fd );
     }
     
