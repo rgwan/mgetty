@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 1.7 1993/08/22 23:38:34 gert Exp $ Gert Doering"
+#ident "$Id: faxlib.c,v 1.8 1993/09/01 20:57:29 gert Exp $ Gert Doering"
 
 /* faxlib.c
  *
@@ -224,12 +224,14 @@ int fax_read_byte( int fd, char * c )
 static char frb_buf[512];
 static int  frb_rp = 0;
 static int  frb_len = 0;
+extern int  errno;			/* don't want to include errno.h */
 
     if ( frb_rp >= frb_len )
     {
 	frb_len = read( fd, frb_buf, sizeof( frb_buf ) );
 	if ( frb_len <= 0 )
 	{
+	    if ( frb_len == 0 ) errno = 0;	/* undefined otherwise */
 	    lprintf( L_ERROR, "fax_read_byte: read returned %d", frb_len );
 	    return frb_len;
 	}
