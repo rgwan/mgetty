@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 4.2 1997/01/13 22:28:40 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 4.3 1997/02/20 11:17:04 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -383,6 +383,7 @@ int main _P2((argc, argv), int argc, char ** argv)
     mgetty_get_config( Device );
 
 #ifdef VOICE
+    check_system();
     voice_config("vgetty", DevID);
     voice_register_event_handler(vgetty_handle_event);
 #endif
