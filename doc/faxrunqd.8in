@@ -231,11 +231,9 @@ sent twice).
 .IX fax
 .SH BUGS
 .I faxrunqd
-isn't very smart about distributing jobs to modems (it relies on "sendfax
-will pick the proper one").
+does not report if a modem goes bad - instead it will just stop using it
+(which is good for reliable faxing, but bad for error recovery).
 
-.I faxrunq
-doesn't handle time scheduling yet
 .SH "SEE ALSO"
 faxspool(1), sendfax(8), faxq(1), faxrunq(1), faxqueue(5)
 .SH AUTHOR
