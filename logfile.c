@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 1.47 1994/10/22 16:27:00 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logfile.c,v 1.48 1994/11/05 18:17:27 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -59,7 +59,8 @@ extern char *sys_errlist[];
 /* Interactive Unix is a little bit braindead - does not have atexit(),
  */
 #if defined(ISC) || defined(SVR4) || defined(_3B1_) || \
-    defined(MEIBE) || defined(_SEQUENT_) || defined(_AIX) || defined(sysV68)
+    defined(MEIBE) || defined(_SEQUENT_) || defined(_AIX) || \
+    defined(sysV68) || defined(M_XENIX)
 # define atexit(dummy) 
 #endif
 
