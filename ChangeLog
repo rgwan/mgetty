@@ -1,3 +1,7 @@
+Sat Feb 24 12:47:19 2001  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* dialin.config: added V253 codes for OUT_OF_AREA and PRIVATE.
+
 Thu Feb  1 22:20:10 MET 2001  Gert Doering (gert@greenie.muc.de)
 
 	* release 1.1.25
