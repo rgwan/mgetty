@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 4.29 2000/08/14 19:36:20 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 4.30 2000/12/17 22:20:26 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -826,20 +826,23 @@ Ring_got_action:
 
 #ifdef VOICE
 	    if ( use_voice_mode ) {
+		int rc; 
 		/* Answer in voice mode. The function will return only if it
 		   detects a data call, otherwise it will call exit(). */
+		rc = vgetty_answer(rings, rings_wanted, dist_ring);
 		
 		/* The modem will be in voice mode when voice_answer is
-		   called. If the function returns, the modem is ready
-		   to be connected in DATA mode with ATA. */
-
-		if ( vgetty_answer(rings, rings_wanted, dist_ring) ==
-		 VMA_CONNECT )
-		{
-		/* unexpected "CONNECT" -> jump to reading of login name
+		 * called. If the function returns, the modem is ready
+		 * to be connected in DATA mode with ATA.
+		 *
+		 * Exception: a CONNECT has been seen (-> go to "login:")
+		 *   or a fax connection is established (go to fax receive)
 		 */
-		    mgetty_state = St_get_login; break;
-		};
+
+		if ( rc == VMA_CONNECT )
+		    { mgetty_state = St_get_login; break; }
+		if ( rc == VMA_FCO || rc == VMA_FCON || rc == VMA_FAX )
+		    { mgetty_state = St_incoming_fax; break; }
 	    }
 #endif /* VOICE */
 
