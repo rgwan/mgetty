@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.50 2001/10/21 14:45:29 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.51 2001/10/21 14:51:11 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -3006,6 +3006,11 @@ chip (or separate CPU) on board, and can be accessed with the fax
 class 2/2.0 command set.  It will work fine with the Diehl Server BRI
 ISDN card (active), and that's the only card I know that will work as of
 June 2001.  Accessing ISDN fax via CAPI is NOT supported.
+
+There's a small catch: modem autodetection will make mgetty think that
+your ttyI device doesn't support fax (because most cards can't do it).  So 
+you need to set @code{modem-type c2.0} in @file{mgetty.config} and/or
+@file{sendfax.config} to force class 2.0 mode.
 
 Voice support with @code{vgetty} should work (use your ttyI device 
 as an answering machine, etc.).  I have not tried it yet - talk to the
