@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.h,v 1.53 1994/04/09 14:17:34 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 1.54 1994/04/11 11:52:49 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.h
  *
@@ -38,8 +38,8 @@
 #define L_NOISE 5
 #define L_JUNK 6
 
-extern	int	log_level;
-extern	char	log_path[];
+void log_init_paths _PROTO(( char * program, char * path, char * infix ));
+void log_set_llevel _PROTO(( int level ));
 int lputc _PROTO(( int level, char ch ));
 int lputs _PROTO(( int level, char * s ));
 int lprintf _PROTO(());
