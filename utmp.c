@@ -1,4 +1,4 @@
-#ident "$Id: utmp.c,v 4.2 1997/01/31 19:51:26 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: utmp.c,v 4.3 1997/05/27 23:44:00 gert Exp $ Copyright (c) Gert Doering"
 
 /* some parts of the code (writing of the utmp entry)
  * is based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
@@ -154,6 +154,9 @@ FILE *	fp;
 #ifdef SVR4
 	    updwtmpx(WTMPX_FILE, utmp);
 #else
+# if defined(__GLIBC__) && __GLIBC__ >= 2
+	    updwtmp(WTMP_FILE, utmp);
+# else
 	    if (stat(WTMP_FILE, &st) && errno == ENOENT)
 		    break;
 	    if ((fp = fopen(WTMP_FILE, "a")) != (FILE *) NULL)
@@ -162,6 +165,7 @@ FILE *	fp;
 		(void) fwrite((char *)utmp,sizeof(*utmp),1,fp);
 		(void) fclose(fp);
 	    }
+# endif	/* GNU Libc 2.x */
 #endif	/* !SVR4 */
 
 	    lprintf(L_NOISE, "utmp + wtmp entry made");
