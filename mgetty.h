@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 4.12 1998/09/01 10:57:00 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 4.13 1998/09/11 10:45:07 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -91,6 +91,14 @@ int lprintf _PROTO(());
 
 #if !defined(USE_POLL) && !defined(USE_READ)
 #define USE_SELECT
+#endif
+
+/* SunOS4 does not have memmove, but bcopy handles overlapping copies
+ * as well. Watch out for src/dst argument order!
+ */
+
+#if defined(sunos4) || defined(NEED_MEMMOVE)
+# define memmove(dst, src, len) bcopy(src, dst, len)
 #endif
 
 /* these definitions specify the return value type and the arguments
