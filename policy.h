@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.12 1993/07/21 17:45:26 gert Exp $ (c) Gert Doering"
+#ident "$Id: policy.h,v 1.13 1993/07/22 20:17:44 gert Exp $ (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -112,7 +112,7 @@
 
 /* this is the command to set the modem to use the desired flow control
  * for hardware handshake, this could be &H3 for the ZyXEL, &K4 for
- * Rockwell-Based modems or \\Q3 for Exar-Based Modems (i.e. some GVC's)
+ * Rockwell-Based modems or \\Q3&S0 for Exar-Based Modems (i.e. some GVC's)
  */
 #define FAX_MODEM_HANDSHAKE "&H3"
 
