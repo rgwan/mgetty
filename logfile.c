@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 1.3 1993/03/13 22:37:43 gert Exp $ (c) Gert Doering"
+#ident "$Id: logfile.c,v 1.4 1993/03/16 09:54:27 gert Exp $ (c) Gert Doering"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -16,6 +16,8 @@ int log_level = L_MESG;        /* log all, changeable from main() */
 static FILE * log_fp;
 static boolean mail_logfile = FALSE;
 char log_path[ MAXPATH ];
+
+extern int atexit( void (*)(void) );
 
 void logmail( void )
 {
