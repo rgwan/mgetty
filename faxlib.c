@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.34 1998/02/12 08:25:32 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.35 1998/04/04 14:22:25 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -667,6 +667,11 @@ int mdm_identify _P1( (fd), int fd )
 	  case 251: /* sure? */
 	    lprintf( L_MESG, "Discovery 2400 AM detected" );
 	    modem_type=Mt_data;
+	    break;
+	  case 288: /* Fred Wendorf */
+	    lprintf( L_MESG, "Trust Communicator 28 K8 detected" );
+	    modem_type=Mt_class2;
+	    modem_quirks |= MQ_NEED2;
 	    break;
 	  case 641: /* sure? */
 	    lprintf( L_MESG, "ELSA MicroLink ISDN/TLpro detected" );
