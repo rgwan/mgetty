@@ -350,6 +350,8 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
 245) open anon CVS for mgetty
 
 248) include script to rotate/move log files on a regular basis
+     (base on contrib/mvlog, move to tools/, run through sedscript for
+     location and naming for the log files)
 
 250) move prototype for time() to mgetty.h, remove everywhere else
 
@@ -372,12 +374,6 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
 257) generalize calling $(MAKE) in subdirs - put all $(MAKE) arguments
      in one common variable
 
-258) faxspool chokes on filenames containing spaces
-
-259) faxrunqd: don't re-use same tty after send failure (if possible)
-
-260) faxrunqd: bump up priority of "exit 12" jobs
-
 261) faxrunqd: don't count "modem locked" as "failure" for a given job
      (but *do* delay by a certain time)
      (hmmm - maybe not.  If all modems are locked for a long period of
@@ -395,8 +391,39 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
 
 265) faxrunqd: write tty to acct.log (format change / WEB gui)
 
+260) faxrunqd: bump up priority of "exit 12" jobs
 266) faxunrqd: if a job fails half-way through (12), increase priority
      to re-send missing parts quickly
 
 267) faxrunqd: sort per-modem statistics numerically (watchout: "total")
-     faxrunqd: include success-count in per-phone statistics
+
+268) faxrunq+faxrunqd: have configurable counters for 
+        "send-a-warning after <x> tries, fail after <y>"
+     have separate counter for "modem-locked"
+              costing-failures    tries-except-modem-locked    total-tries
+       warning        -                     10                    10
+       failure        5                     30                   100
+
+269) faxrunqd: have configurable threshold for "everything is broken"
+     -> if that threshold is reached, generate STOP file, warning e-mail, 
+     and suspend itself  (like "the local in-house PABX is broken")
+
+270) Makefile: have all paths depend on $(root)/  (->Debian)
+     use $(root)/ for "make bindist"
+
+271) rethink whole concept of "blocking yes"
+	- when is this supposed to be used ("getty" replacement)
+	- how is it supposed to work
+     and then fix logging in mgetty.c ("waiting..." is not appropriate)
+
+272) have a configurable delay after each "sendfax" call in faxrunq(d)
+     (reason: long but not timing-critical out queue, don't starve
+     incoming calls. Wouter van Marle, wouter@squirrel-systems.com)
+
+273) update "ZyXEL" modem section in mgetty.texi-in - it's mainly specific
+     to the 1496s.  More recent ZyXELs need mentioning.
+     ksadil@bigpond.com reports that the U90e works well with vgetty.
+
+274) g32sff  (based on g3cat routines)
+
+275) sff2g3: duplicate previous line on 0xff/0x00 tag
