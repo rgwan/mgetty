@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 3.12 1996/09/15 23:14:43 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 3.13 1996/10/17 20:45:44 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -358,6 +358,7 @@ int main _P2( (argc, argv),
 	lprintf( L_ERROR, "modem doesn't talk to me" );
 	fprintf( stderr, "The modem doesn't respond!\n" );
 	close( fd );
+	rmlocks();
 	exit( 3 );
     }
 
