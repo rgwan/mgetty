@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 1.14 1993/11/05 22:36:52 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 1.15 1993/11/06 15:31:13 gert Exp $ Copyright (c) Gert Doering"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -31,6 +31,16 @@
 #define CERASE	010		/* BS,  ^H */
 #define CINTR	0177		/* DEL, ^? */
 #endif
+
+/* ln_escape_prompt()
+ *
+ * substitute all "known" escapes, e.g. "\n" and "\t", plus some
+ * private extentions (@, \D and \T for system name, date, and time)
+ *
+ * The caller has to free() the string returned
+ *
+ * If the resulting string would be too long, it's silently truncated.
+ */
 
 char * ln_escape_prompt _P1( (ep), char * ep )
 {
@@ -115,6 +125,25 @@ char * ln_escape_prompt _P1( (ep), char * ep )
 }
 
 
+/* set_env_var( var, string )
+ *
+ * create an environment entry "VAR=string"
+ */
+void set_env_var _P2( (var,string), char * var, char * string )
+{
+    char * v;
+    v = malloc( strlen(var) + strlen(string) + 2 );
+    if ( v == NULL )
+        lprintf( L_ERROR, "set_env_var: cannot malloc" );
+    else
+    {
+	sprintf( v, "%s=%s", var, string );
+	lprintf( L_NOISE, "setenv: '%s'", v );
+	if ( putenv( v ) != 0 )
+	    lprintf( L_ERROR, "putenv failed" );
+    }
+}
+
 static int timeouts = 0;
 #ifdef MAX_LOGIN_TIME
 static RETSIGTYPE getlog_timeout()
@@ -137,6 +166,15 @@ static RETSIGTYPE getlog_timeout()
 }
 #endif
 
+/* getlogname()
+ *
+ * read the login name into "char buf[]", maximum length "maxsize".
+ * depending on the key that the input was finished (\r vs. \n), mapping
+ * of cr->nl is set in "TIO * tio" (with tio_set_cr())
+ *
+ * If ENV_TTYPROMPT is set, do not read anything
+ */
+
 int getlogname _P4( (prompt, tio, buf, maxsize),
 		    char * prompt, TIO * tio, char * buf,
 		    int maxsize )
@@ -151,16 +189,26 @@ char * final_prompt;
     tio_mode_cbreak( tio );
     tio_set( STDIN, tio );
 
+    final_prompt = ln_escape_prompt( prompt );
+
+#ifdef ENV_TTYPROMPT
+    printf( "\r\n%s ", final_prompt );
+    tio_mode_sane( tio, FALSE );
+    tio_map_cr( tio, TRUE );
+    tio_set( STDIN, tio );
+    buf[0] = 0;
+    set_env_var( "TTYPROMPT", final_prompt );
+    free( final_prompt );
+    return 0;
+#else			/* !ENV_TTYPROMPT */
+
 #ifdef MAX_LOGIN_TIME
     signal( SIGALRM, getlog_timeout );
     alarm( MAX_LOGIN_TIME );
 #endif
 
-    final_prompt = ln_escape_prompt( prompt );
-
 newlogin:
-    printf( "\r\n" );
-    printf( "%s ", final_prompt );
+    printf( "\r\n%s ", final_prompt );
 
     i = 0;
     lprintf( L_NOISE, "getlogname, read:" );
@@ -227,4 +275,5 @@ newlogin:
 
     if ( i == 0 ) return -1;
     else return 0;
+#endif			/* !ENV_TTYPROMPT */
 }
