@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1997 Gert Doering
  */
-#ident "$Id: tap.c,v 1.3 1997/12/03 17:37:49 gert Exp $"
+#ident "$Id: tap.c,v 1.4 1997/12/19 11:58:45 gert Exp $"
 
 #include <stdio.h>
 #include <fcntl.h>
@@ -25,7 +25,7 @@ char * Device = "/dev/cuaa1";
 #define ACK 0x06
 #define NAK 0x15
 
-typedef enum { Ptap, Pucp1, Pucp52 } prot_type;
+typedef enum { Ptap, Pucp1, Pucp52, Pcityruf } prot_type;
 
 struct prov_t { char * name;
 		char * prefix;
@@ -38,6 +38,8 @@ struct prov_t { char * name;
     { "D1", "0171", Ptap, "01712092522", "ATZ", 160 }, /*!!! untested */
     { "D2", "0172", Pucp1, "01722278020", "AT+FCLASS=0;&N0S7=60", 160 },	/*!!! UCP52 */
     { "Quix", "quix-t", Pucp1, "016593", "ATZ", 80 }, /*!!! untested */
+    { "CR1", "cityruf", Pcityruf, "01691", "ATZ", 80 }, /*!!! untested */
+    { "CR2", "cityruf", Pcityruf, "01691", "ATZ", 80 }, /*!!! untested */
     { NULL, NULL, Ptap, NULL, NULL }};
 
 
@@ -247,6 +249,104 @@ int ucp_send_message( int fd, char * r, char * text )
     return NOERROR;
 }
 
+static int sm_timeout;
+RETSIGTYPE sm_sigalarm( SIG_HDLR_ARGS )
+{
+    lprintf( L_WARN, "sm_sigalarm: got timeout" );
+    sm_timeout = TRUE;
+}
+
+/* send data SLOW (with 1/10 sec. delay between each byte), for
+ * the SMSC of Deutsche Telekom, which can't take characters back-to-back
+ */
+void slowsend( int fd, char * buf, int len )
+{
+    lprintf( L_JUNK, "slowsend: " );
+    while( len > 0 )
+    {
+	delay(50);
+	lputc( L_JUNK, buf[0] );
+	write( fd, buf, 1 );
+	buf++; len--;
+    }
+}
+
+int cityruf_send_message( int fd, char * r, char * text )
+{
+    char buf[800], ibuf[800], ch;
+    int l, count, rx;
+
+    signal( SIGALRM, sm_sigalarm );
+#ifdef HAVE_SIGINTERRUPT
+    siginterrupt( SIGALRM, TRUE );
+#endif
+    sm_timeout = FALSE;
+    alarm(30);
+
+    /*!!! length checks */
+
+    printf( "\nphone number: \"%s\"\nmessage: \"%s\"\n", r, text );
+    lprintf( L_NOISE, "cityruf, got:" );
+
+    count=0;
+    rx=0;
+    while( ( l = read( fd, &ch, 1 ) ) == 1 && ! sm_timeout && rx<sizeof(ibuf) )
+    {
+	lputc( L_NOISE, ch );
+	ibuf[rx++] = ch;
+
+	if ( ch == ' ' && ibuf[rx-2] == '>' )
+	{
+	    switch( count++ )
+	    {
+		case 0:		/* phone number */
+		  sprintf( buf, "%s\r", r ); 
+		  lprintf( L_NOISE, "#0: send number '%s'", buf );
+		  slowsend( fd, buf, strlen(buf) );
+		  break;
+		case 1:		/* message */
+		  sprintf( buf, "%s\r", text ); 
+		  lprintf( L_NOISE, "#1: send messi (len=%d)", strlen(buf) );
+		  slowsend( fd, buf, strlen(buf) );
+		  break;
+		case 2:		/* "absenden?" */
+		  sprintf( buf, "ja\r" ); 
+		  lprintf( L_NOISE, "#2: sent ACK '%s'", buf );
+		  slowsend( fd, buf, strlen(buf) );
+		  break;
+	    }
+	    lprintf( L_NOISE, "got: " );
+	    rx=0;
+	}
+
+	if ( ch == '.' && rx > 6 && 
+	      strncmp( &ibuf[rx-6], "Anruf.", 6 ) == 0 )
+	{
+	    lprintf( L_MESG, "*success*, bye" );
+	    break;
+	}
+	if ( ch == 'R' && rx > 10 &&
+	      strncmp( &ibuf[rx-10], "NO CARRIER", 10 ) == 0 )
+	{
+	    lprintf( L_MESG, "missed end-of-message?!?" );
+	    l=0;
+	    break;
+	}
+    }
+    alarm(0);
+
+    if ( l < 1 || sm_timeout )				/* error? */
+    {
+	printf( "protocol error -> message most likely  not sent.\n");
+	lprintf( L_ERROR, "cityruf: read() returned error" );
+	return ERROR;
+    }
+
+    printf( "got ACK -> short message successfully sent.\n" );
+    return NOERROR;
+}
+
+
 int initial_handshake( int fd, prot_type proto )
 {
 int count, ack;
@@ -345,11 +445,16 @@ int i;
     tio_set_speed(&tio, 38400);
     tio_mode_raw(&tio);
 
-    tio.c_iflag |= ISTRIP | IXON | IXANY;
+    /* go to 7E1 for TAP and UCP */
 
-    tio.c_cflag &= ~(CSIZE | PARODD);
-    tio.c_cflag |= CS7 | PARENB;
+    if ( prov[pt].proto != Pcityruf )
+    {
+	tio.c_iflag |= ISTRIP | IXON | IXANY;
 
+	tio.c_cflag &= ~(CSIZE | PARODD);
+	tio.c_cflag |= CS7 | PARENB;
+
+    }
     if ( tio_set( fd, &tio ) == ERROR )
     {
 	perror( "tio_set" ); close(fd); return ERROR;
@@ -397,7 +502,8 @@ int i;
 
     /* initial handshake successful, send SMS */
     printf( "handshake with %s service successful, now sending...\n",
-	       prov[pt].proto == Ptap? "TAP": "UCP" );
+	       prov[pt].proto == Ptap? "TAP": 
+		 (prov[pt].proto == Pcityruf? "Cityruf" : "UCP") );
 
     for ( i=0; i<nummsg; i++)
     {
@@ -410,6 +516,9 @@ int i;
 		    break;
 		case Pucp1:
 		    ucp_send_message( fd, messi[i].number, messi[i].msg );
+		    break;
+		case Pcityruf:
+		    cityruf_send_message( fd, messi[i].number, messi[i].msg );
 		    break;
 		default:
 		    fprintf( stderr, "pt=%d, yet unsupported protocol %d\n",
