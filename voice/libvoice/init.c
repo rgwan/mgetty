@@ -4,7 +4,7 @@
  * Initialize the open port to some sane defaults, detect the
  * type of voice modem connected and initialize the voice modem.
  *
- * $Id: init.c,v 1.4 1998/09/09 21:07:31 gert Exp $
+ * $Id: init.c,v 1.5 2001/01/29 22:38:03 gert Exp $
  */
 
 #include "../include/voice.h"
@@ -26,6 +26,7 @@ int voice_init(void)
      if (tio_check_speed(cvd.port_speed.d.i) >= 0)
           {
           tio_set_speed(&voice_tio, cvd.port_speed.d.i);
+          tio_set_speed(&tio_save, cvd.port_speed.d.i);
           }
      else
           {
