@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.25 1998/02/20 12:38:15 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.26 1998/02/27 09:41:54 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.26  1998/02/27 09:41:54  gert
+# sort phone numbers for "per-number" statistics
+#
 # Revision 1.25  1998/02/20 12:38:15  gert
 # add logging 'by remote telephone number' (for error analysis)
 #
@@ -1201,7 +1204,7 @@ my $t;
 	}
     }
     print LOG "--------------------------------------------------\n";
-    foreach $t (keys %per_phone_statistics)
+    foreach $t (sort (keys %per_phone_statistics))
     {
 	print LOG "error statistics for remote number '$t'\n";
 	foreach (sort(keys %{$per_phone_statistics{$t}}))
