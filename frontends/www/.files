@@ -8,6 +8,7 @@ faxhist.in
 faxhists.in
 Makefile
 viewfax.in
+faxsend.in
 nph-vf-gif.in
 simplequant.pl
 wwwsub.pl

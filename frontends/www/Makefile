@@ -1,8 +1,11 @@
 # frontends/www/Makefile
 #
-# RCS: $Id: Makefile,v 1.12 1998/11/24 16:25:43 gert Exp $
+# RCS: $Id: Makefile,v 1.13 1998/12/04 15:56:44 gert Exp $
 #
 # $Log: Makefile,v $
+# Revision 1.13  1998/12/04 15:56:44  gert
+# faxsend added
+#
 # Revision 1.12  1998/11/24 16:25:43  gert
 # add faxhists.in/cgi
 #
@@ -24,12 +27,17 @@
 #
 
 CGI=faxq.cgi faxq-v.cgi faxhist.cgi faxhists.cgi \
-		viewfax.cgi nph-vf-gif.cgi 
+		viewfax.cgi nph-vf-gif.cgi faxsend.cgi
 HTML=index-d.html index-e.html
 
 # the directory for the HTML file(s)
 # leave empty if you do not want to install the HTML files
 HTMLDIR=/home/sd/.html-data
+
+# the directory for the sample image files (left/right arrows, logo, ...)
+# (whether this is the same as HTMLDIR or not depends on local preferences,
+#  but don't forget to adapt the http path name in wwwgui.conf accordingly)
+IMAGEDIR=/home/sd/.html-data
 
 # this is the directory the CGI binaries will be installed in
 # check with your local webmaster or the WWW server documentation!
@@ -83,6 +91,7 @@ viewfax.cgi: viewfax.in ../../sedscript
 nph-vf-gif.cgi: nph-vf-gif.in ../../sedscript
 vf-faxov.cgi: vf-faxov.in ../../sedscript
 service.cgi: service.in ../../sedscript
+faxsend.cgi: faxsend.in ../../sedscript
 
 wwwgui.conf: wwwgui.cfg.in ../../sedscript
 	../../sedscript <wwwgui.cfg.in >wwwgui.conf
