@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.17 1993/10/05 13:46:50 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 1.18 1993/10/05 14:07:48 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -128,7 +128,7 @@ int i,j;
 		 fax_par_d.vr == 0? 'n': 'f', pagenum );
 #else
     /* include sender's fax id - if present - into filename */
-    i = sprintf(temp, "%s/fax%c", directory, fax_par_d.vr == 0? 'n': 'f' );
+    i = sprintf(temp, "%s/fax%c-", directory, fax_par_d.vr == 0? 'n': 'f' );
     for ( j=0; fax_remote_id[j] != 0; j++ )
     {
          if ( fax_remote_id[j] == ' ' )
