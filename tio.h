@@ -1,4 +1,4 @@
-#ident "$Id: tio.h,v 3.10 1996/10/10 23:20:15 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.h,v 3.11 1996/12/21 17:24:24 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 #ifndef __TIO_H__
 #define __TIO_H__
@@ -49,6 +49,13 @@ typedef struct sgttyb TIO;
  */
 #ifdef USE_FAS_TIOCMGET
 # include <sys/fas.h>
+#endif
+
+/* make sure <sys/ioctl.h> gets included: contains TIOCM* definitions
+ * on AIX, and ioctl() prototype on NeXT and Linux
+ */
+#if defined(_AIX) || defined(NeXT) || defined(linux)
+# include <sys/ioctl.h>
 #endif
 
 /* define some types for gettydefs.c */
