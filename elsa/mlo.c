@@ -1,4 +1,4 @@
-#ident "$Id: mlo.c,v 1.2 1999/04/05 20:42:17 gert Exp $"
+#ident "$Id: mlo.c,v 1.3 1999/04/11 21:12:57 gert Exp $"
 
 /* mlo.c
  *
@@ -26,6 +26,12 @@
 #include <netinet/in.h>
 
 rmd_header elsa_rmd = { "RMD1", "Elsa", 0, 0, 0, { 0,0,0,0,0,0,0 }};
+
+/* for fax rec stuff */
+#define ETX     003
+#define DLE     020
+#define SUB     032
+#define DC2     022
 
 int verbose=1;
 
@@ -266,7 +272,7 @@ int total=0;
     return 0;
 }
 
-/* donwload voice file - basically "download raw, prepend RMD header"
+/* download voice file - basically "download raw, prepend RMD header"
  */
 int elsa_download_voice _P5((fd, nam1, nam2, bits, speed),
 			int fd, char * nam1, char * nam2, 
@@ -286,12 +292,12 @@ int elsa_download_voice _P5((fd, nam1, nam2, bits, speed),
 int elsa_download_fax _P3((fd, nam1, nam2),
 			int fd, char * nam1, char * nam2 )
 {
-char buf[1050], obuf[1050], line[200], ch;
+char buf[1050], line[200], ch;
 int outfd;
-int s,i,olen,			/* xmodem block size */
-    in_g3 = 0,			/* G3 mode (vs. "line mode") */
-    was_dle = 0;		/* last character seen was DLE */
+int s,i,l,			/* xmodem block size */
+    in_g3 = 0;			/* G3 mode (vs. "line mode") */
 int total=0;
+int pagenr=0;			/* current page number */
 
     sprintf( buf, "AT$JDNL=\"%s\"", nam1 );
     if ( mdm_send( buf, fd ) == ERROR )
@@ -313,8 +319,8 @@ int total=0;
 	return -1;
     }
 
-    /* nothing in output buffer yet */
-    olen = 0;
+    /* nothing in line buffer yet */
+    l = 0;
 
     do
     {
@@ -322,11 +328,50 @@ int total=0;
 	for ( i=0; i<s; i++ )
 	{
 	    ch = buf[i];
-	    lputc( L_JUNK, ch );
+
+	    if ( !in_g3 )		/* +F... responses */
+	    {
+		lputc( L_JUNK, ch );
+	    	if ( ch != 0x0a && ch != 0x0d )
+		{
+		    if ( l < sizeof(line)-1 )  line[l++]=ch;
+		}
+		else			/* line full */
+		{
+		    if ( l==0 ) continue;
+
+		    line[l]='\0';
+		    lprintf( L_NOISE, "line: '%s'", line );
+		    if ( strncmp( line, "CONNECT", 6 ) == 0 )
+		    {
+			pagenr++;
+			sprintf( line, "%s.%02d", nam2, pagenr );
+			if ( faxfile_write_g3( line, 0 ) < 0 )
+			{
+			    fprintf( stderr, "can't open '%s': %s\n", 
+			    	    line, strerror(errno) );
+			    return -1;
+			}
+		        in_g3 = 1;
+		    }
+		    l=0;
+		}
+	    }
+	    else			/* save data, until <DLE><ETX> */
+	    {
+	        int rc = faxfile_wbyte( ch );
+
+		if ( rc != 0 )
+		{
+		    if ( rc < 0 ) return -1;		/* error */
+		    in_g3 = 0;		/* file complete */
+		}
+	    }
 	}
 
 	total += s;
-	printf( "block #%d, bytes %d\r", xmodem_blk, total ); fflush( stdout );
+	printf( "page %d, block #%d, bytes %d\r", pagenr, xmodem_blk, total ); 
+	fflush( stdout );
 
 	/* get next block (or final EOT) */
         s = xmodem_rcv_block( buf );
