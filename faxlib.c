@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 2.1 1994/11/30 23:20:38 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 2.2 1995/07/29 17:36:50 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -114,6 +114,7 @@ int  ix;
 	/* find ":" character (or end-of-string) */
 	for ( ix=0; line[ix] != 0; ix++ )
 	    if ( line[ix] == ':' ) { ix++; break; }
+	if ( line[ix] == ' ' ) ix++;
 
 	if ( strncmp( line, "+FTSI:", 6 ) == 0 ||
 	     strncmp( line, "+FCSI:", 6 ) == 0 ||
@@ -181,9 +182,11 @@ int  ix;
 	    /* evaluate line count, bad line count, ... for reception */
 	    fhs_lc = 9999; fhs_blc = fhs_cblc = fhs_lbc = 0;
 	    fhs_details = FALSE;
-	    
-	    if ( line[ix+1] == ',' &&		/* +FHS:s,lc,blc */
-		 sscanf( &line[ix+2], "%x,%x,%x,%x",
+
+	    if ( line[ix+1] == ',' &&		/* +FPS:s,lc,blc */
+		 sscanf( &line[ix+2],
+			 (modem_type==Mt_class2_0)?"%x,%x,%x,%x"
+			                          :"%d,%d,%d,%d",
 		         &fhs_lc, &fhs_blc, &fhs_cblc, &fhs_lbc ) >= 2 )
 	    {
 		lprintf( L_NOISE, "%d lines received, %d lines bad, %d bytes lost", fhs_lc, fhs_blc, fhs_lbc );
