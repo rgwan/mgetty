@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 3.10 1996/10/14 20:07:16 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 3.11 1996/10/17 17:36:17 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -575,7 +575,7 @@ fi
 trap "rm -f $FAX_SPOOL_OUT/.Seq.lock" 0 1 2 3 15
 
 new_seq=`$AWK '{ printf "%06d", $1 + 1 }' $FAX_SEQ`
-test -z "$new_seq" ] && new_seq="000800"
+test -z "$new_seq" && new_seq="000800"
 echo $new_seq >$FAX_SEQ
 
 rm -f $FAX_SPOOL_OUT/.Seq.lock
