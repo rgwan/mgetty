@@ -1,4 +1,4 @@
-#ident "@(#)cnd.c	$Id: cnd.c,v 4.13 1998/10/05 08:37:49 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "@(#)cnd.c	$Id: cnd.c,v 4.14 1999/01/12 23:08:15 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 
 #include <stdio.h>
 #include <string.h>
@@ -53,6 +53,10 @@ struct cndtable cndtable[] =
        message "CARRIER ... / PROTOCOL ... / CONNECT" */
     {"CARRIER ",		&cnd_carrier},
     {"PROTOCOL: ",		&cnd_protocol},
+
+    /* ELSA does it similarily (if AT+MR=1 is set) */
+    {"+MCR: ",		&cnd_carrier},
+    {"+MRR: ",		&cnd_protocol},
 
     /* those are for Rockwell Caller ID */
     {"DATE = ",                 &CallDate},
