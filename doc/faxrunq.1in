@@ -71,6 +71,15 @@ should delete jobs after sending, or leave them in the fax queue (while
 moving the "JOB" file to "JOB.done") so that they can be seen at by
 "faxq -o". The default value is "do not delete sent faxes".
 
+There are some other options that are allowed, but ignored.  These are:
+.I max-modems,
+.I faxrunqd-log,
+and
+.I acct-log
+
+They are used by faxrunqd(8) (which reads the same config file, but has
+more options).
+
 .IX fax
 .SH BUGS
 .I faxrunq
