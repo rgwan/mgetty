@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 3.3 1995/12/18 22:33:29 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 3.4 1996/01/03 21:31:44 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -301,7 +301,7 @@ char	DevId[3];
 
     while ( !fax_timeout )
     {
-	if ( fax_read_byte( fd, &c ) != 1 )
+	if ( mdm_read_byte( fd, &c ) != 1 )
 	{
 	    lprintf( L_ERROR, "error waiting for page start" );
 	    return ERROR;
@@ -323,7 +323,7 @@ char	DevId[3];
 	    alarm(FAX_PAGE_TIMEOUT);
 	}
 
-	if ( fax_read_byte( fd, &c ) != 1 )
+	if ( mdm_read_byte( fd, &c ) != 1 )
 	{
 	    ErrorCount++;
 	    lprintf( L_ERROR, "fax_get_page_data: cannot read from port (%d)!",
