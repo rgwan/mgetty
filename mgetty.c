@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.102 1994/04/21 12:10:56 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.103 1994/04/25 12:00:22 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -518,8 +518,11 @@ waiting:
 	    close(2);
 
 	    /* write a note to utmp/wtmp about dialout
+	     * (don't do this on two-user-license systems!)
 	     */
+#ifndef USER_LIMIT
 	    make_utmp_wtmp( Device, UT_USER, "dialout" );
+#endif
 
 	    /* this is kind of tricky: sometimes uucico dial-outs do still
 	       collide with mgetty. So, when my uucico times out, I do
