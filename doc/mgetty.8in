@@ -143,6 +143,14 @@ is done is explained in this file.
 .B @CONFDIR@/dialin.config
 controls acceptance/denial of incoming calls based on the caller's number.
 Available only if you have "caller ID" and your modem supports it.
+.TP
+.B @NOLOGIN@
+controls whether mgetty should pick up the phone upon incoming calls. If
+the file exists, calls are completely ignored. You can use this, for
+example, to stop mgetty during day time, and let it pick up at night only,
+by creating and removing @NOLOGIN@ via the 
+.I cron
+program at the appropriate time.
 
 
 .SH BUGS
