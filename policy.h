@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 4.17 2001/12/17 22:46:17 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 4.18 2002/11/25 13:07:25 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration defaults for mgetty / sendfax
  * are specified.
@@ -459,6 +459,9 @@
 /* #define FAX_USRobotics */
 
 /* name of the logfile for outgoing faxes (e.g. /var/log/sendfax.log)
+ *
+ * watch out: if you run 'sendfax' as non-privileged user (user 'fax' etc.)
+ * you might need to create this file manually and chown it to 'fax'
  */
 #define FAX_LOG		"/var/log/sendfax.log"
 
