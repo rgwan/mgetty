@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 3.12 1996/04/05 19:11:58 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 3.13 1996/07/09 11:27:15 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -452,7 +452,8 @@ int main _P2((argc, argv), int argc, char ** argv)
     else
     {
 	/* initialize data part */
-	if ( mg_init_data( STDIN, c_chat(init_chat) ) == FAIL )
+	if ( mg_init_data( STDIN, c_chat(init_chat),
+	                          c_chat(force_init_chat) ) == FAIL )
 	{
 	    rmlocks();
 	    exit(1);
