@@ -1,12 +1,15 @@
-static char sccsid[]="$Id: do_chat.c,v 1.3 1993/03/11 11:09:58 gert Exp $ (c) Gert Doering";
+#ident "$Id: do_chat.c,v 1.4 1993/03/15 09:13:14 gert Exp $ (c) Gert Doering";
+/* do_chat.c
+ *
+ * This module handles all the talk with the modem
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <termio.h>
 #include <signal.h>
-#ifdef linux
 #include <sys/ioctl.h>
-#endif
 
 #include "mgetty.h"
 
