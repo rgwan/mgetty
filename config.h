@@ -1,4 +1,4 @@
-#ident "$Id: config.h,v 1.1 1994/12/05 20:54:43 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: config.h,v 1.2 1994/12/10 14:19:26 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* type definitions, prototypes, defines needed for configuration stuff
  */
@@ -46,6 +46,7 @@ void * conf_get_chat _PROTO(( char * line ));
 #define c_string( cp )	(char *) c.cp.d.p
 #define c_bool( cp )	c.cp.d.i
 #define c_int( cp )	c.cp.d.i
+#define c_chat( cp )	(char **) c.cp.d.p
 
 /* concatenate two paths (if second path doesn't start with "/") */
 /* two variants: ANSI w/ macro, K&R w/ C subroutine in config.c  */
