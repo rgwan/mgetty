@@ -5,7 +5,7 @@
 # to be valid Perl5 syntax.  If you don't know perl, just do not modify
 # things that are not between quotation marks!
 #
-# RCS: $Id: wwwgui.cfg.in,v 1.6 2001/11/20 20:55:35 gert Exp $
+# RCS: $Id: wwwgui.cfg.in,v 1.7 2004/11/17 15:06:50 gert Exp $
 #
 
 #
@@ -21,7 +21,7 @@ $fax_outgoing = '@FAX_SPOOL_OUT@';
 # Logo to put on top of each generated WWW page
 # (this can be arbitrary HTML code, but usually is just an image and link)
 #
-$www_logo = '<a href="http://www.medat.de/"><img align="left" src="/medat-mini.gif" width=100 height=40 border="0"></a>';
+$www_logo = '<a href="http://www.medat.de/"><img align="left" src="/quickfax-icons/medat-mini.gif" width=100 height=40 border="0"></a>';
 
 # do we want people to delete faxes?
 # 0 = no, 1 = yes
@@ -36,7 +36,7 @@ $allow_delete = 0;
 # All programs have a "back to main page" link at the bottom.  This is
 # where (in the WWW tree!) this page is located, used in "<a href=...>".
 #
-$indexpage="/~sd/index.html";
+$indexpage="/quickfax";
 
 #
 # ---- possible sizes and page# threshold for viewfax/givgif.cgi ---
@@ -86,14 +86,14 @@ $pnmflip='@BINDIR@/pnmflip';
 # WWW requests (so don't use "/tmp" etc.), also make sure that nobody
 # else uses this directory, for security reasons.
 #
-$webtmpabs="/home/sd/.html-data/tmp";
+$webtmpabs="/dtmp/html";
 
 # when accessing the images from inside the WWW pages, which path
 # name should be used in the HTML text (image references) for $webtempabs?
 #
 # Usually, this is something like "/fax/tmp" or "/images/tmp" or so.
 #
-$webtmprel="/~sd/tmp";
+$webtmprel="/dtmp/html";
 
 #
 # Navigation 'items'
@@ -102,10 +102,10 @@ $webtmprel="/~sd/tmp";
 # here, or text only versions if you don't like the images.
 #
 # image version - adapt the path names!
-$turn_left='<img src="/~sd/pfeill.gif" alt="turn left" border="0">';
-$turn_right='<img src="/~sd/pfeilr.gif" alt="turn right" border="0">';
-$turn_updown='<img src="/~sd/pfeild.gif" alt="upside down" border="0">';
-$delete='<img src="/projects/webfaxdemo/delete.gif" alt="delete" border="0">';
+$turn_left='<img src="/quickfax-icons/pfeill.gif" alt="turn left" border="0">';
+$turn_right='<img src="/quickfax-icons/pfeilr.gif" alt="turn right" border="0">';
+$turn_updown='<img src="/quickfax-icons/pfeild.gif" alt="upside down" border="0">';
+$delete='<img src="/quickfax-icons/delete.gif" alt="delete" border="0">';
 #
 #
 # text only version
