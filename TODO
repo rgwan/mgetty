@@ -232,8 +232,7 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
 
 188) init / DCD drop / I/O error: can we catch it with CLOCAL?
 
-189) sendfax: log "hint" if FAX_SEND_IGNORE_CARRIER is not defined
-     but "should be"
+189) sendfax: log "hint" if "ignore-carrier" is not set but "should be"
 
 191) watchit.pl: make "remail" smarter
 
