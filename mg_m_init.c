@@ -1,4 +1,4 @@
-#ident "$Id: mg_m_init.c,v 4.5 1998/09/07 06:57:11 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_m_init.c,v 4.6 1999/02/28 19:15:41 gert Exp $ Copyright (c) Gert Doering"
 
 /* mg_m_init.c - part of mgetty+sendfax
  *
@@ -39,8 +39,9 @@ static int init_chat_timeout = 20;
 
 /* initialize data section */
 
-int mg_init_data _P3( (fd, chat_seq, force_chat_seq), 
-		      int fd, char * chat_seq[], char * force_chat_seq[] )
+int mg_init_data _P4( (fd, chat_seq, need_dsr, force_chat_seq), 
+		      int fd, char * chat_seq[], 
+		      boolean need_dsr, char * force_chat_seq[] )
 {
     action_t what_action;
     
@@ -48,6 +49,27 @@ int mg_init_data _P3( (fd, chat_seq, force_chat_seq),
 		 &what_action, init_chat_timeout, TRUE ) == SUCCESS )
     {
 	return SUCCESS;
+    }
+
+    /* maybe the modem init failed, because the modem was switched
+     * off.  So, we check now that there is a DSR or a CTS signal
+     * coming from the modem - and if not, we sleep until it comes back.
+     * WARNING: this can fail on systems not allowing to read out the
+     * RS232 status lines, thus it is optional, and off by default!
+     */
+    if ( need_dsr )
+    {
+        int rs_lines = tio_get_rs232_lines(fd);
+
+	if ( rs_lines != -1 && 
+	      ( (rs_lines & (TIO_F_DSR|TIO_F_CTS) ) == 0 )
+	{
+	    lprintf( L_WARN, "No DSR/CTS signals, assuming modem is switched off, waiting..." );
+	    while( (tio_get_rs232_lines(fd) & (TIO_F_DSR|TIO_F_CTS) ) == 0)
+	    {
+		sleep(60);
+	    }
+	}
     }
 
     /* if init_chat failed because the modem didn't respond, and we have 
