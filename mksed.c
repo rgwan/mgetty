@@ -1,4 +1,4 @@
-#ident "$Id: mksed.c,v 4.1 1997/01/12 14:53:43 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mksed.c,v 4.2 1997/02/17 21:35:57 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 
@@ -22,6 +22,9 @@ int main _P0( void )
     printf( "      -e 's;@LOG_LEVEL@;%d;g'\\\n", LOG_LEVEL );
     printf( "      -e 's;@LOG_PATH@;");
         printf( LOG_PATH, "ttyxx" );
+        printf( ";g'\\\n" );
+    printf( "      -e 's;@NOLOGIN@;" );
+	printf( NOLOGIN_FILE, "ttyxx" );
         printf( ";g'\\\n" );
     printf( "      -e 's;@KVG_PID_FILE@;");
 #ifdef MGETTY_PID_FILE
