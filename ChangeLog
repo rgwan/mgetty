@@ -1,3 +1,17 @@
+Sun Jul 05 22:28:05 1998  Gert Doering (gert@greenie.muc.de)
+
+	* release 1.1.16 (this bug is just too embarassing)
+
+	* doc/mgetty.texi-in: rewrite US Robotics chapter
+
+	* policy.h, doc/mgetty.texi-in, doc/modems.db: remove all
+	    references to FAX_SEND_IGNORE_CARRIER, this is really 
+	    better done using sendfax.config.
+
+	* conf_sf.c: make "ignore-carrier yes" the default value
+
+	* ring.c: fix bug with standalone CallerID/RING (Florian La Roche)
+
 Thu Jul 02 11:42:54 1998  Gert Doering (gd@medat.de)
 
 	* release 1.1.15 (on time for the C't magazine article)
