@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 1.22 1993/11/29 11:50:36 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logfile.c,v 1.23 1993/12/02 19:58:34 gert Exp $ Copyright (c) Gert Doering"
 ;
 #include <stdio.h>
 #include <unistd.h>
@@ -154,12 +154,17 @@ int     errnr;
     ti = time(NULL); tm = localtime(&ti);
     if ( level <= log_level )
     {
-	if ( level != L_ERROR && level != L_FATAL )
+	if ( level == L_AUDIT )		/* some little auditing */
+	{
+	    fprintf(log_fp, "\n%02d/%02d %02d:%02d:%02d  #### %s",
+		             tm->tm_mon+1,  tm->tm_mday,
+			     tm->tm_hour, tm->tm_min, tm->tm_sec, ws );
+	}
+	else if ( level != L_ERROR && level != L_FATAL )
 	{
 	    fprintf(log_fp, "\n%02d/%02d %02d:%02d:%02d  %s",
 		             tm->tm_mon+1,  tm->tm_mday,
 			     tm->tm_hour, tm->tm_min, tm->tm_sec, ws );
-	    fflush(log_fp);
 	}
 	else
 	{
@@ -168,7 +173,6 @@ int     errnr;
 			     tm->tm_hour, tm->tm_min, tm->tm_sec, ws,
 			     ( errnr <= sys_nerr ) ? sys_errlist[errnr]:
 			     "<error not in list>" );
-	    fflush(log_fp);
 	    if ( level == L_FATAL )
 	    {
 	    FILE * cons_fp;
@@ -183,7 +187,8 @@ int     errnr;
 		    atexit( logmail );
 		}
 	    }
-	}
-    }
+	}	/* end if ( L_ERROR or L_FATAL ) */
+	fflush(log_fp);
+    }		/* end if ( write message? ) */
     return 0;
 }
