@@ -1,3 +1,7 @@
+2002-01-02  Marc SCHAEFER  <schaefer@defian.alphanet.ch>
+
+	* Added Tcl/Tk frontend by Peter Bruley <pbruley@highstream.net>
+
 2001-12-22  Marc SCHAEFER  <schaefer@defian.alphanet.ch>
 
 	* All of below is 0.9.32
