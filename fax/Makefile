@@ -1,7 +1,7 @@
 # Makefile for the "fax" subtree
 # of mgetty+sendfax
 #
-# SCCS: $Id: Makefile,v 1.9 1994/10/08 22:20:51 gert Exp $ Copyright (c) Gert Doering
+# SCCS: $Id: Makefile,v 1.10 1994/10/26 12:42:24 gert Exp $ Copyright (c) Gert Doering
 #
 
 CC=gcc
@@ -45,6 +45,7 @@ install: all
 # data files
 #
 	$(INSTALL) -m 644 cour25.pbm $(LIBDIR)
+	$(INSTALL) -m 644 cour25n.pbm $(LIBDIR)
 	-test -f $(LIBDIR)/faxheader || \
 		$(INSTALL) -m 644 faxheader $(LIBDIR)
 #
