@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.9 1998/01/04 13:24:49 gert Exp $ (c) 1993-1997 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.10 1998/01/11 15:41:48 gert Exp $ (c) 1993-1997 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -3886,10 +3886,10 @@ the last section can also be found on the following UUCP sites:
 
 @itemize @bullet
 @item
-GREENIE (my system): ++49-89-3545988, V32bis/V.34, get greenie!~/green.files.gz
+GREENIE (my system): ++49-89-35663089, V32bis/V.34, get greenie!~/green.files.gz
 
 @item
-Nasim (Frank Bartels): ++49-89-5469594, ZyXEL, get /pub/ls-lR.nasim.gz
+CameloT (Frank Bartels): ++49-89-8948040, V34+, get /pub/ls-lR.gz
 
 @end itemize
 
