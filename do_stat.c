@@ -1,4 +1,4 @@
-#ident "$Id: do_stat.c,v 1.1 1995/04/20 01:06:15 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: do_stat.c,v 1.2 1995/06/15 09:23:48 gert Exp $ Copyright (c) Gert Doering"
 
 /* do_stat.c
  *
@@ -12,6 +12,8 @@
 #include <unistd.h>
 #include <signal.h>
 #include <string.h>
+#include <time.h>
+#include <sys/types.h>
 #ifndef sunos4
 #include <sys/ioctl.h>
 #endif
@@ -43,6 +45,11 @@ FILE * fp = NULL;			/* target file */
 	fp = fopen( tgt_file, "a" );
 	if ( fp == NULL )
 	    lprintf( L_ERROR, "do_stat: can't open %s", tgt_file );
+	else				/* open ok, log time */
+	{
+	    time_t now = time(NULL);
+	    fprintf( fp, "--- %s ---\n", ctime( &now ));
+	}
     }
 
     while ( *expect_send != NULL )
