@@ -303,3 +303,11 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
 218) check whether "ATI1" always returns version number info on the
      *first* line on ZyXEL 2864I models, instead of "checksum first"
      (like all other models) --> faxlib.c, "case 28642:"
+
+219) handle sendfax->tty distribution in faxrunqd itself (to avoid
+     tty collisions when using policy fax routing).
+
+220) have faxrunqd create statistics - which modem sent how many 
+     faxes, how many succeeded / failed / failed costly, ...
+     (not hard, but needs 219)
+
