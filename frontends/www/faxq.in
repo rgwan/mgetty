@@ -4,9 +4,12 @@
 # 
 # Copyright 1998 Simone Demmel simone@greenie.net
 #
-# CVS: $Id: faxq.in,v 1.10 1998/12/11 14:41:06 gert Exp $
+# CVS: $Id: faxq.in,v 1.11 1999/03/12 13:13:41 gert Exp $
 #
 # $Log: faxq.in,v $
+# Revision 1.11  1999/03/12 13:13:41  gert
+# clean up ctime display and @tmp
+#
 # Revision 1.10  1998/12/11 14:41:06  gert
 # show page numbers
 #
@@ -187,10 +190,10 @@ $mail = "&nbsp;";		# mail
     $target = "";
   }
   # $zeit = -M $fax_outgoing."/".$DATEI."/JOB";
-  @tmp = stat $fax_outgoing."/".$DATEI;
-  @tmp = localtime($tmp[10]);
-  $tmp[4] = $monthnames[$tmp[4]];
-  $zeit = $tmp[3].".".$tmp[4]." ".$tmp[5]." ".$tmp[2].":".$tmp[1].":".$tmp[0];
+  $_ = (stat $fax_outgoing."/".$DATEI) [10];
+  @_ = localtime($_);
+  $_[4] = $monthnames[$_[4]];
+  $zeit = sprintf "$_[3]. $_[4] $_[5] %02d:%02d:%02d", $_[2], $_[1], $_[0];
 
   if (open (DAT, "$target"))
   {
@@ -208,7 +211,7 @@ $mail = "&nbsp;";		# mail
 print <<EOF;
 
 <tr>
-	<td>$DATEI</td>
+	<td><a href="nph-vf-gif.cgi?source=outgoing&size=10&file=$DATEI">$DATEI</a></td>
 	<td>$status</td>
 	<td>$zeit</td>
 	<td>$von</td>
