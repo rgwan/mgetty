@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.10 1998/01/11 15:41:48 gert Exp $ (c) 1993-1997 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.11 1998/01/18 11:52:32 gert Exp $ (c) 1993-1997 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -1795,7 +1795,7 @@ about 1500 ms cured the problem.
 Some misbehaving modems lower the DCD (carrier detect) line briefly
 between sending multiple pages.  Depending on the operating system used,
 this may cause all subsequent port accesses on this serial port to fail.
-You'll recognize it if you get a ``weird-looking'' log file that works
+You'll recognize it if you get a ``weird-looking'' sendfax log file that works
 fine up to the end of the first page, and then aborts with @samp{I/O
 error} or so.
 
@@ -1803,6 +1803,8 @@ In earlier versions, you could achieve this by setting
 @code{FAX_SEND_IGNORE_CARRIER} in @file{policy.h}, but I recommend using
 the config file instead.
 
+Modems where this is known to be necessary include all USR modems
+(Courier and Sportsters), some ZyXEL 1496 EG(+), and some GVC models.
 
 @item @code{dial-prefix} @var{command}
 
@@ -2675,8 +2677,11 @@ port <whatever2>
 
 After long wait, the USR Faxmodems finally have a faxmode. It's class 2.0,
 which is quite good for compatibility/standardization reasons.
-Unfortunately, their tech guys aren't very clever, so their implementation
-has bad bugs, depending on the ROM release.
+Unfortunately, their tech guys aren't very clever, so early implementations
+have had bad bugs, depending on the ROM release.  If you want to use USR
+modems for faxing, get an upgrade to the very latest available firmware
+versions (for Courier V.34+, this is the "X.2" firmware released in
+mid-1997), because they have fixed many fax bugs in earlier versions.
 
 Very old USR modems had the nasty habit of interpreting the "maximum
 connection speed" setting as "minimum speed", thus failing to connect to
@@ -2702,10 +2707,15 @@ FAX_REC_FLOW FLOW_SOFT} in @file{policy.h}).
 
 Some day in the future, I'll make those "quirks" configurable from the
 config file, but until then, you'll have to live with recompiling. Sorry.
-(Buy a decent modem!).
+(Upgrade your firmware!).
 
 Fax polling with the USRs is @emph{not} working, even though the modem
 claims so. It will work half-way through, but fail miserably later.
+
+
+When sending faxes with an USR faxmodem, set @code{ignore-carrier yes} in
+@file{sendfax.config}.  Otherwise it will fail after the first page with a
+read error and error code -5.
 
 @node Elink-ISDN, Class 1, USR, Modems
 @subsection Elink ISDN Terminal Adaptors 293, 310, 393 with X.75 and V.110
