@@ -15,6 +15,7 @@ faxqueue.5in
 mgetty.8in
 sendfax.8in
 callback.8in
+faxrunqd.8in
 modems.db
 scanner.txt
 ttyS-cua.txt
