@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 2.14 1995/01/27 20:30:25 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 2.15 1995/03/26 19:46:43 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -365,7 +365,7 @@ do
 	    *) FAX_HEADER=`pwd`/"$2" ;;
 	    esac
 	    if [ ! -f "$FAX_HEADER" ] ; then
-		echo "$0: no such file: '$2'" >&2
+		$echo "$0: no such file: '$2'" >&2
 		exit 2;
 	    fi
 	    shift ; shift
@@ -741,7 +741,7 @@ if [ ! -z "$PGM" ]
     then
 	pages="cover.g3 $pages"
     else
-	echo "generating cover page failed!" >&2
+	$echo "generating cover page failed!" >&2
 	maxnr=`expr $maxnr - 1`
     fi
   fi
