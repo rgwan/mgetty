@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.9 1997/05/04 13:09:18 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.10 1997/05/09 11:35:09 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -41,6 +41,9 @@ int	fhs_lc, fhs_blc, fhs_cblc, fhs_lbc;
 static void fwf_copy_remote_id _P1( (id), char * id )
 {
 int w = 0;
+
+    while ( isspace(*id) ) id++;	/* skip leading whitespace */
+
     while ( *id && w < sizeof(fax_remote_id)-1 )
     {
         if ( *id == '"' || *id == '\'' ) fax_remote_id[w++] = '_';
