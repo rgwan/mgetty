@@ -1,8 +1,9 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 1.2 1993/09/01 20:27:54 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 1.3 1993/09/01 23:00:27 gert Exp $ (c) Gert Doering
 #
-# this is the C compiler to use
+# this is the C compiler to use (on SunOS, the standard "cc" does not
+# grok my code, so please use gcc there).
 CC=gcc
 #CC=cc
 #
@@ -16,6 +17,9 @@ CC=gcc
 # Add "-DSVR4" to compile on System V Release 4 unix
 #
 # For Linux, you don't have to define anything
+#
+# For SunOS, you don't have to define anything either - but I'm not sure
+# if my preliminary port works.
 #
 # Add "-DISC" to compile on Interactive Unix
 #
