@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 1.5 1993/07/03 15:10:42 gert Exp $ Gert Doering"
+#ident "$Id: faxlib.c,v 1.6 1993/07/25 16:52:58 gert Exp $ Gert Doering"
 
 /* faxlib.c
  *
@@ -59,7 +59,7 @@ int bufferp;
 	/* get one string, not empty, printable chars only, ended by '\n' */
 	do
 	{
-	    if( read( fd, &c, 1 ) != 1 )
+	    if( fax_read_byte( fd, &c ) != 1 )
 	    {
 		lprintf( L_ERROR, "fax_wait_for: cannot read byte, return" );
 		alarm( 0 ); signal( SIGALRM, SIG_DFL );
@@ -204,4 +204,31 @@ unsigned char swap_bits(unsigned char c)
     }
 
     return(swaptable[c]);
+}
+
+/* fax_read_byte
+ * read one byte from "fd", with buffering
+ * caveat: only one fd allowed (only one buffer), no way to flush buffers
+ */
+
+int fax_read_byte( int fd, char * c )
+{
+static char frb_buf[512];
+static int  frb_rp = 0;
+static int  frb_len = 0;
+
+    if ( frb_rp >= frb_len )
+    {
+	frb_len = read( fd, frb_buf, sizeof( frb_buf ) );
+	if ( frb_len <= 0 )
+	{
+	    lprintf( L_ERROR, "fax_read_byte: read returned %d", frb_len );
+	    return frb_len;
+	}
+/*!!	lprintf( L_JUNK, "fax_read_byte: read %d bytes", frb_len );*/
+	frb_rp = 0;
+    }
+
+    *c = frb_buf[ frb_rp++ ];
+    return 1;
 }

@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.7 1993/07/25 16:24:40 gert Exp $ Gert Doering"
+#ident "$Id: faxrec.c,v 1.8 1993/07/25 16:53:00 gert Exp $ Gert Doering"
 
 /* faxrec.c - part of the ZyXEL getty
  *
@@ -37,8 +37,6 @@ void faxrec( char * spool_in )
 {
 int pagenum = 0;
 struct termio termio;
-
-    log_level = L_NOISE;	/* log all */
 
     lprintf( L_NOISE, "fax receiver: entry" );
 
@@ -159,7 +157,7 @@ int ByteCount = 0;
 	    alarm(FAX_PAGE_TIMEOUT);
 	}
 
-	if ( read( fd, &c, 1 ) != 1 )
+	if ( fax_read_byte( fd, &c ) != 1 )
 	{
 	    ErrorCount++;
 	    lprintf( L_ERROR, "fax_get_page_data: cannot read from port (%d)!",
