@@ -1,0 +1,155 @@
+#!@PERL@
+#
+# givgif.cgi - sends a required gif in required size
+# 
+# Copyright 1998 Simone Demmel simone@greenie.net
+#
+# RCS: $Id: nph-vf-gif.in,v 1.1 1998/09/11 13:56:12 gert Exp $
+#
+# $Log: nph-vf-gif.in,v $
+# Revision 1.1  1998/09/11 13:56:12  gert
+# display HTML page with GIF images (scaled down) on it
+#
+#
+
+#
+# Script zur Generierung der div. Fax-Bilder und senden derselben
+#
+
+#
+# Aufgabe:
+# - feststellen, ob das benoetigte Bild schon im tmp-Verzeichnis liegt
+# - falls dem nicht so ist, neues Bild generieren und speichern
+# - gewuenschtes Bild schicken
+#
+
+#
+# Variablen 
+#
+
+# Incoming-Verzeichnis
+$incoming="@FAX_SPOOL_IN@";
+
+# $g3="/usr/bin/g3topbm";
+# g3topbm
+$g3="@BINDIR@/g3topbm";
+
+# $togif="/usr/local/bin/ppmtogif";
+# ppmtogif
+$togif="@BINDIR@/ppmtogif";
+
+# $tmppath="/home/www/teddy/mgetty+sendfax/webviewer/";
+# webtmpabs tmp-File fuer die Bilder relativ zum Rechner root.
+#$webtmpabs="@WEB_TMP_ABS@";
+$webtmpabs="/home/sd/.html-data/tmp";
+
+# $tmpdir="tmp/";
+# webtmprel tmp-File fuer die Bilder relativ zum Web-Server-root
+#$webtmprel="@WEB_TMP_REL@";
+$webtmprel="~sd/tmp";
+
+# $webpath="/mgetty+sendfax/webviewer/";
+# $webpath Web-webviewer-root
+#$webpath="@WEB_PATH@";
+$webpath="~sd";
+
+#
+# Ende Variablen
+#
+
+#
+# Pufferungen unterbinden
+#
+$|=1;
+
+#
+# det isn nph-Teil, also muessmer alle Header selber erfinden...
+# aber nur das Noetigste.
+#
+print "HTTP/1.1 200 Document follows.\n";
+print "Server: Nekobil/1.1\n";
+print "Connection: close\n";
+print "Content-type: text/html\n\n";
+
+$query_string=$ENV{'QUERY_STRING'};
+
+# Auswerten der Argumentzeilen
+%args=();
+foreach (split(/\&/,$query_string))
+{
+	if ( /^(\w+)=/ && ($key=$1) && ($value=$') )
+	{
+		$value =~ s/\+/ /go;
+		$value =~ s/\%([0-9a-f]{2})/pack(C,hex($1))/eig;
+		$args{"$key"}=$args{"$key"} . " " . $value if ($value!~/^\s*$/);
+		$args{"$key"} =~ s/^\s*//o;
+	}
+}
+
+#
+# jetzt haben wir $args{file} und $args{size}
+# und vielleicht ein $args{page} fuer eine gezielte Seite
+# 
+$file = $args{file};
+$size = $args{size};
+$page = $args{page};
+
+#
+# in $file ist nur der eindeutige Teil des Files
+# $size ist eine bel. Zahl zwischen 0 und 100
+#
+
+print <<EOF;
+<html>
+<head><title></title></head>
+<body>
+Filename: $file<br>
+Groesse: $size<br>
+Seite: $page
+</body>
+</html>
+EOF
+
+
+
+
+
+
+
+# #
+# # a gif-file is asked!
+# #
+# $ofile = $incoming . $file;
+# $test = $tmppath . $tmpdir . $file . "." . gif;
+# $size = ((stat($file)) [8]);
+# 
+# # create the file only, if it isn't already done! or if it went wrong last
+# # time
+# if ((!(-r $test)) || ($size eq "0"))
+   # {
+     # system "$g3 $ofile 2>/dev/null | $togif > $tmppath$tmpdir$file.gif 2>/dev/null";
+   # }
+# 
+# $target = $webpath . $tmpdir . $file . "." . "gif";
+# print "Location: $target \n\n";
+# 
+exit 0;
+
+
+# 
+# $incoming="/usr/spool/fax/incoming/";
+# $g3="/usr/bin/g3topbm";
+# $togif="/usr/local/bin/ppmtogif";
+# $quant="/usr/local/bin/ppmquant 6";
+# $scale="/usr/local/bin/pnmscale";
+# $x="0.25";
+# $y="0.25";
+# $tmppath="/home/www/teddy/mgetty+sendfax/webviewer/";
+# $webpath="/mgetty+sendfax/webviewer/";
+# $tmpdir="tmp/";
+# 
+# {
+# system "$g3 $ofile 2>/dev/null | $scale -xscale $x -yscale $y 2>/dev/null | $quant 2>/dev/null | $togif > $tmppath$tmpdir$file-small.gif 2>/dev/null";
+# }
+
+# exit 0;
