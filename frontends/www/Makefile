@@ -1,8 +1,11 @@
 # frontends/www/Makefile
 #
-# RCS: $Id: Makefile,v 1.3 1998/09/11 13:56:57 gert Exp $
+# RCS: $Id: Makefile,v 1.4 1998/10/07 13:05:31 gert Exp $
 #
 # $Log: Makefile,v $
+# Revision 1.4  1998/10/07 13:05:31  gert
+# added wwwgui.cfg.in/wwwgui.conf
+#
 # Revision 1.3  1998/09/11 13:56:57  gert
 # renamed "givgif" to "nph-vf-gif" (name too long, nph- needed)
 #
@@ -18,7 +21,7 @@ HTML=index-d.html
 
 CGI_HREF=/cgi-bin/
 
-all: $(CGI) $(HTML)
+all: $(CGI) $(HTML) wwwgui.conf
 
 clean:
 	rm -f $(CGI)
@@ -37,6 +40,9 @@ index-d.html: index-d.in ../../sedscript Makefile
 faxhist.cgi: faxhist.in ../../sedscript
 viewfax.cgi: viewfax.in ../../sedscript
 nph-vf-gif.cgi: nph-vf-gif.in ../../sedscript
+
+wwwgui.conf: wwwgui.cfg.in ../../sedscript
+	../../sedscript <wwwgui.cfg.in >wwwgui.conf
 
 ../../sedscript: ../../policy.h ../../Makefile ../../mksed.c
 	@cd ../.. ; $(MAKE) sedscript
