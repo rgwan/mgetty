@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 3.6 1996/01/22 01:13:15 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 3.7 1996/01/25 19:15:42 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -228,11 +228,6 @@ enum mgetty_States st_dialout _P1( (devname), char * devname )
 
     virtual_ring = FALSE;			/* used to signal callback */
 
-    /* close all file descriptors -> other processes can read port */
-    close(0);
-    close(1);
-    close(2);
-
     /* write a note to utmp/wtmp about dialout, including process args
      * (don't do this on two-user-license systems!)
      */
@@ -240,6 +235,11 @@ enum mgetty_States st_dialout _P1( (devname), char * devname )
     pid = checklock( Device );		/* !! FIXME, ugly */
     make_utmp_wtmp( Device, UT_USER, "dialout", get_ps_args(pid) );
 #endif
+
+    /* close all file descriptors -> other processes can read port */
+    close(0);
+    close(1);
+    close(2);
 
     /* this is kind of tricky: sometimes uucico dial-outs do still
        collide with mgetty. So, when my uucico times out, I do
