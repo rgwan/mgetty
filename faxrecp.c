@@ -1,4 +1,4 @@
-#ident "$Id: faxrecp.c,v 1.5 2001/01/05 18:18:54 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrecp.c,v 1.6 2001/01/06 23:29:30 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrecp.c - part of mgetty+sendfax
  *
@@ -279,16 +279,16 @@ static const char start_rcv = DC2;
 	directory[l] = '\0';
 	p += strlen(directory);
 
-        if ( checkspace(directory) < 2 ) 
+	if ( access( directory, W_OK ) < 0 )
 	{
-	    lprintf( L_WARN, "fax_get_pages: not enough disk space in '%s'",
-		     directory);
+	    lprintf( L_ERROR, "fax_get_pages: can't write to '%s'", directory);
 	    continue;
 	}
 
-	if ( access( directory, W_OK ) == 0 ) { break; }
+        if ( checkspace(directory) > 1 )  { break; }
 
-	lprintf( L_ERROR, "fax_get_pages: can't write to '%s'", directory);
+	lprintf( L_WARN, "fax_get_pages: not enough disk space in '%s'",
+		 directory);
     }
     while( *p != '\0' );
 
