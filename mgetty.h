@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 4.18 2000/09/23 14:50:03 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 4.19 2000/12/19 17:20:58 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -66,6 +66,9 @@ int lprintf _PROTO(());
 # include <sys/param.h>	/* defines BSD, BSD4_3 and BSD4_4 */
 # ifndef BSD
 #  define BSD		/* just in case... */
+# endif
+# if defined(__FreeBSD__) && !defined(__FreeBSD_version)
+#  include <osreldate.h>		/* FreeBSD version */
 # endif
 #endif
 
