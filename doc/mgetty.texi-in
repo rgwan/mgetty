@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.43 2000/04/25 08:09:43 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.44 2000/07/23 18:58:00 gert Exp $ (c) 1993-1998 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -80,34 +80,15 @@ disk, damages your hardware, or kills your dog, that is entirely your
 problem. Anyway, the program works for me and quite a lot of other people.
 @end cartouche
 
-The @code{mgetty+sendfax} package is Copyright @copyright{} 1993-1997
-Gert Doering.
+The @code{mgetty+sendfax} package is Copyright @copyright{} 1993-2000
+Gert Doering, Klaus Weidner, Marc Eberhard, Marc Schaefer, and others.
 
-You are permitted to redistribute @code{mgetty+sendfax} freely, modify it,
-include it in other programs, @dots{}, as long as you don't make profit
-directly out of selling @code{mgetty} (see below), include the complete
-@code{mgetty} source, and do not remove my name. If you distribute a
-modified version, or include @code{mgetty} code in your projects, mark it
-clearly as such (``@dots{} @emph{derived} from @code{mgetty+sendfax} by
-Gert Doering'')!
+It is distributed on terms of the GNU General Public License, which you
+can find in the main mgetty directory in the file @file{COPYING}.
 
-If the program works for you, and you want to honour my efforts, you are
-invited to donate as much as you want@dots{}
-
-What I mean above with ``as long as you don't make profit directly out of
-selling @code{mgetty}'' is: it is perfectly OK if you get paid for
-@code{mgetty} support, or if you distribute @code{mgetty} among other
-goodies on a CD-ROM collection or whatever, but if you sell @code{mgetty}
-bundled with a faxmodem as ``unix fax package'' or ``with unix software!'',
-or if you start selling @code{mgetty} with only minor enhancements for lots
-of money, I want a share. If in doubt, just ask me.
-
-In any case, if you don't like the restrictions in this license, contact
-me, and we can work something out.
-
-This license expires, that is, five years after release date, a given
-@code{mgetty+sendfax} release falls into the public domain, and everybody
-is absolutely free to do with the code what he wants.
+If you want to redistribute @code{mgetty+sendfax} under a different 
+license (like in "selling it to your customers"), contact me, and we 
+will work something out.
 
 @node Overview, Supported, Copying, Intro
 @section Features of @code{mgetty} and @code{sendfax}
@@ -316,12 +297,12 @@ system---I do not support MS-DOS or Windows!), please contact me.
 If @code{mgetty} or @code{sendfax} are run "as is", they will use their
 compiled-in defaults from @file{policy.h}.
 
-If the configuration files @file{mgetty.config} (@xref{runtime-mgetty}) and
-@file{sendfax.config} (@xref{runtime-sendfax}) exist (and are readable),
-both programs will get their run-time configuration from there. Items not
-specified there will still be taken from the compiled-in defaults. Command
-line switches will always override those settings. The configuration files
-are usually located in @file{@CONFDIR@/}.
+If the configuration files @file{mgetty.config} (@pxref{runtime-mgetty})
+and @file{sendfax.config} (@pxref{runtime-sendfax}) exist (and are
+readable), both programs will get their run-time configuration from there.
+Items not specified there will still be taken from the compiled-in
+defaults. Command line switches will always override those settings. The
+configuration files are usually located in @file{@CONFDIR@/}.
 
 If you specify command line arguments (see the mgetty(1) and sendfax(8) man
 pages for details), this will override both compiled-in and config file
@@ -524,7 +505,7 @@ The same holds for ``smart'' serial boards, as specialix, digiboard,
 @item
 Linux:
 
-Use @file{/dev/ttyS*}, @emph{not} @file{/dev/cua*}. @xref{Linux}
+Use @file{/dev/ttyS*}, @emph{not} @file{/dev/cua*}. @xref{Linux}.
 
 @item
 SunOS, FreeBSD, NetBSD:
@@ -1012,7 +993,7 @@ This is known to work with ELSA and ZyXEL ISDN terminal adaptors.
 
 This is needed if you have a modem that supports ``caller ID'' detection,
 but needs a special command to get the CID information. Right now, this is
-only needed for some ELINK ISDN adaptors (@xref{Elink-ISDN}), most other
+only needed for some ELINK ISDN adaptors (@pxref{Elink-ISDN}), most other
 CID-capable modems send the CID on their own and don't need this.
 
 Don't forget to set @code{rings} to at least 2, otherwise the CID grabbing
@@ -1023,7 +1004,7 @@ code won't work.
 Specify a program to be run before answering an incoming call.  Use this
 if the static Caller ID selection in CNDFILE (policy.h) is not sufficient,
 or if you want to use the Caller ID data for other purposes (displaying,
-for example).  @xref{Caller-ID}
+for example).  @xref{Caller-ID}.
 
 @item @code{answer-chat} @var{chat sequence}
 
@@ -1300,8 +1281,7 @@ $ g32pbm $file | xv -
 
 There are three easy ways to create g3 fax files, either use @code{pbm2g3}
 (included in this package. Do not use @code{pbmtog3} from the pbmplus 
-toolkit. @strong{Note:}
-@xref{pbmtog3}), use GhostScript (GNU Software, can be found on
+toolkit. @xref{pbmtog3}.), use GhostScript (GNU Software, can be found on
 prep.ai.mit.edu) which contains a ``digifax'' driver that will produce the
 required format, or try Chris Lewis' @samp{hp2pbm} package which will
 convert HP Laserjet print files into g3 fax files (@code{hp2hig3}
@@ -1483,9 +1463,9 @@ find or open one of the named files, or if some transmission errors occur.
 (There are a few stubs in the code to put headers on the pages at run-time,
 but since most class 2 faxmodems do not implement the command set properly,
 putting a header on a page does not work with them - because of that, I had
-to disable the corresponding code.  @code{faxspool} works around this
-problem by using @code{g3cat} (@xref{Fax-Tools}) to ``paste'' a header line
-on top of each page)
+to disable the corresponding code. @code{faxspool} works around this
+problem by using @code{g3cat} (@pxref{Fax-Tools}) to ``paste'' a header
+line on top of each page)
 
 If you specify @samp{-v}, sendfax will output more verbose progress
 messages.
@@ -1838,12 +1818,12 @@ mode. Default is @code{FAX_MODEM_HANDSHAKE}.
 Force the modem command set to use. Default is @samp{auto} (auto-detect,
 which may not work on very cheap modems), possible other values are
 @samp{cls2}, for ``class 2 only'' modems, and @samp{c2.0} for ``class 2.0''
-faxmodems. Default is @code{DEFAULT_MODEMTYPE}. @xref{runtime-mgetty}
+faxmodems. Default is @code{DEFAULT_MODEMTYPE}. @xref{runtime-mgetty}.
 
 @item @code{modem-quirks} @var{bitmask}
 
 Same as in @code{mgetty}, this can be used to adapt @code{sendfax} to
-some peculiarities in certain modems. @xref{runtime-mgetty}
+some peculiarities in certain modems. @xref{runtime-mgetty}.
 
 @item @code{max-tries} @var{nnn}
 
@@ -2683,7 +2663,7 @@ initialization string in @file{mgetty.c}.
 @subsection Tornado / Lightspeed modems
 
 Here is a suggested setting for the default profile for these modems.
-@xref{Common}
+@xref{Common}.
 
 For Lightspeed store profile:
 @example
