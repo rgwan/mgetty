@@ -3,6 +3,8 @@
 # very quick-and-dirty downscaler from 2^16 to 2^8 grey levels
 # (because otherwise ppmtogif will complain "too many colours" and die)
 #
+# $Id: simplequant.pl,v 1.2 2001/11/20 20:48:14 gert Exp $
+#
 $format=<>;
 chomp $format;
 if ( $format ne 'P2' ) 
@@ -36,9 +38,5 @@ $scale = 255/$max;
 
 while( <> )
 {
-   foreach $value ( split( /\s+/, $_ ) )
-   {
-       printf "%d ", $value * $scale;
-   }
-   print "\n";
+   print join( " ", map $_ * $scale, split ),  "\n";
 }
