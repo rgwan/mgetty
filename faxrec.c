@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 4.6 1999/01/12 13:20:34 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 4.7 1999/05/24 13:39:04 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -303,6 +303,7 @@ char *	line;
 #else
 	    setpgrp();
 #endif
+	    setup_environment();
 	    r = system( line );
 
 	    if ( r != 0 )
