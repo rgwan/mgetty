@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.48 1993/10/02 15:57:00 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.49 1993/10/05 13:47:00 gert Exp $ Copyright (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.

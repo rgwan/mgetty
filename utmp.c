@@ -1,4 +1,4 @@
-#ident "$Id: utmp.c,v 1.4 1993/09/29 20:24:30 gert Exp $ (c) Gert Doering";
+#ident "$Id: utmp.c,v 1.5 1993/10/05 13:47:08 gert Exp $ Copyright (c) Gert Doering";
 /* some parts of the code (writing of the utmp entry)
  * is based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.

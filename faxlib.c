@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 1.9 1993/09/13 21:02:59 gert Exp $ Gert Doering"
+#ident "$Id: faxlib.c,v 1.10 1993/10/05 13:46:49 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *

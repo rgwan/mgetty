@@ -1,9 +1,9 @@
-#ident "$Id: locks.c,v 1.14 1993/10/05 01:00:56 gert Exp $ Gert Doering / Paul Sutcliffe Jr."
+#ident "$Id: locks.c,v 1.15 1993/10/05 13:46:55 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
 
 /* large parts of the code in this module are taken from the
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us,
  * and are used with permission here.
- * SVR4 style locking by Bodo Bauer.
+ * SVR4 style locking by Bodo Bauer, bodo@hal.nbg.sub.org.
  */
 
 #include <stdio.h>
