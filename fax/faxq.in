@@ -4,7 +4,7 @@
 #
 # like "lpq" or "mailq", show jobs waiting in the output queue
 #
-# SCCS: $Id: faxq.in,v 3.4 1996/07/10 23:12:28 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxq.in,v 3.5 1996/09/29 17:01:51 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -27,6 +27,7 @@ else
 fi
 
 jobs="*/JOB"
+requeue=""
 
 for flag
 do
@@ -35,6 +36,7 @@ do
 	-o) jobs="*/JOB.done" ;;
 	-s) jobs="*/JOB.s*" ;;
 	-a) jobs="*/JOB*" ;;
+	-r) jobs="*/JOB.s*"; requeue="true" ;;
 	*) cat <<EOF_MSG >&2
 $0: invalid option: $flag
 valid options:
@@ -106,5 +108,17 @@ do
 	$echo "\t   Status: not sent yet"
        fi
     fi
+
+# if "requeue", requeue *.suspended-Jobs
+    if [ -n "$requeue" ] && expr "$i" : ".*JOB.s" >/dev/null
+    then
+	d=`dirname $i`
+	if [ ! -w $d ] ; then
+	    $echo "$i: not owner, can't restart"
+	else
+	    mv $i $d/JOB
+	fi
+    fi
+
 done
 
