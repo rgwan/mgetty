@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.20 1993/07/03 15:10:38 gert Exp $ (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.21 1993/07/03 17:44:14 gert Exp $ (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -442,7 +442,7 @@ int	tries;
 
 	fax_page_tx_status = -1;
 
-	if ( argidx == argc )		/* was this the last page to send? */
+	if ( argidx == argc-1 )		/* was this the last page to send? */
 	  if ( fax_poll_req && fax_to_poll )
 	    fax_command( "AT+FET=1", "OK", fd );	/* end document */
 	  else
