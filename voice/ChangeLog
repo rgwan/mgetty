@@ -15,6 +15,19 @@ Tue Jun 15 14:28:20 MEST DST   Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 
 	* Modified vgetty/answer.c to support the above modem quirk bit.
 
+	* libvoice/UMC.c: fixed the 'beep' command, the UMC_VTS_WORKAROUND
+ 	produced a horrible and loud scream, the modem command at#vts
+ 	sounds better :-) (steffen@informatik.tu-darmstadt.de).
+
+	* libvoice/UMC.c: setting default compression to 4 bit ADPCM,
+ 	because only this is supported by the pvftools.
+
+	* Changed the faxmode command from 'AT+FCLASS=' to 'AT#CLS='
+	-- this is said to be better regarding call discrimination.
+ 	(At least for UMC modems.)
+
+	* voice/pvftools/pvftormd.c and voice/pvftools/rmdtopvf.c:
+	added support for UMC's 4 Bit ADPCM.
 	
 Sat May 15 21:53:52 MEST 1999  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 
