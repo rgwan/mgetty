@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.37 1993/07/22 20:56:46 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.38 1993/07/23 21:38:18 gert Exp $ (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -126,7 +126,8 @@ void		endutent(void);
 time_t		time( long * tloc );
 
 /* logname.c */
-int getlogname( struct termio * termio, char * buf, int maxsize );
+int getlogname( char * prompt, struct termio * termio,
+		char * buf, int maxsize );
 
 char	* Device;			/* device to use */
 
@@ -180,6 +181,8 @@ int main( int argc, char ** argv)
 
 	char *login = "/bin/login";		/* default login program */
 
+	char * login_prompt = LOGIN_PROMPT;	/* default login prompt */
+
 	/* startup
 	 */
 	(void) signal(SIGINT, SIG_IGN);
@@ -192,7 +195,7 @@ int main( int argc, char ** argv)
 	/* process the command line
 	 */
 
-	while ((c = getopt(argc, argv, "x:s:r")) != EOF) {
+	while ((c = getopt(argc, argv, "x:s:rp:")) != EOF) {
 		switch (c) {
 		case 'x':
 			log_level = atoi(optarg);
@@ -215,6 +218,9 @@ int main( int argc, char ** argv)
 			break;
 		case 'r':
 			direct_line = TRUE;
+			break;
+		case 'p':
+			login_prompt = optarg;
 			break;
 		case '?':
 			exit_usage(2);
@@ -583,7 +589,8 @@ int main( int argc, char ** argv)
 		/* end of line: cr+nl -> IGNCR, cr -> ICRNL, NL -> 0 */
 		/* and: cr -> ONLCR, nl -> 0 for c_oflag */
 
-                if ( getlogname(&termio, buf, sizeof(buf) ) == -1 ) continue;
+                if ( getlogname( login_prompt, &termio,
+				 buf, sizeof(buf) ) == -1 ) continue;
 
 		/* set sane state for login */
 		termio.c_lflag = ECHOK | ECHOE | ECHO | ISIG | ICANON;

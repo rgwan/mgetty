@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 1.4 1993/03/11 11:12:17 gert Exp $ (c) Gert Doering"
+#ident "$Id: logname.c,v 1.5 1993/07/23 21:38:23 gert Exp $ (c) Gert Doering"
 #include <stdio.h>
 #include <termio.h>
 #include <unistd.h>
@@ -15,7 +15,7 @@
 #define CINTR	0177		/* DEL, ^? */
 #endif
 
-int getlogname( struct termio * termio, char * buf, int maxsize )
+int getlogname( char * prompt, struct termio * termio, char * buf, int maxsize )
 {
 int i;
 char ch;
@@ -27,7 +27,10 @@ char ch;
     ioctl(STDIN, TCSETAW, termio);
 
 newlogin:
-    printf( "\r\n%s!login: ", SYSTEM );
+    printf( "\r\n" );
+    printf( prompt, SYSTEM );
+    printf( " " );
+
     i = 0;
     lprintf( L_NOISE, "getlogname, read:" );
     do

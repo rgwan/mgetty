@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.14 1993/07/22 20:56:50 gert Exp $ (c) Gert Doering"
+#ident "$Id: policy.h,v 1.15 1993/07/23 21:38:21 gert Exp $ (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -38,6 +38,11 @@
 /* System name - printed at login prompt
  */
 #define SYSTEM	"greenie"
+
+/* Login prompt - "%s" will be replaced by SYSTEM
+ * override with "-p <prompt>" switch
+ */
+#define LOGIN_PROMPT	"%s!login:"
 
 /* Name of the mgetty log file
  * e.g. "/usr/spool/log/mgetty.log.%s"
