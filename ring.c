@@ -1,4 +1,4 @@
-#ident "$Id: ring.c,v 4.14 1999/07/22 20:32:56 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: ring.c,v 4.15 2001/01/19 19:52:11 gert Exp $ Copyright (c) Gert Doering"
 
 /* ring.c
  *
@@ -74,7 +74,14 @@ static int ring_handle_ELSA _P2((string, msn_list),
 				 char * string, char ** msn_list )
 {
 char * p;
+char ch;
+
     lprintf( L_MESG, "ELSA: '%s'", string );
+
+    /* remember first character, for differenciation between
+     * ELSA-style ("RING;from") and ISDN4Linux ("RING/to") [grrr]
+     */
+    ch = *string;
 
     /* skip over leading "garbage" */
     while( *string != '\0' && !isdigit(*string) ) string++;
@@ -83,8 +90,12 @@ char * p;
     p=string;
     while( isdigit(*p) ) p++;
 
-    if ( *p == '\0' )		/* no MSN listed */
+    if ( *p == '\0' )		/* only one number listed */
     {
+	if ( ch == '/' )	/* isdn4linux -> number is MSN */
+	    return find_msn( string, msn_list );
+
+				/* not -> it's caller ID, and no MSN */
 	CallerId = safedup( string );
 	return 0;
     }
