@@ -1,4 +1,4 @@
-#ident "$Id: faxhng.c,v 1.3 1994/01/30 00:53:35 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: faxhng.c,v 1.4 1994/06/03 08:10:59 gert Exp $ Copyright (c) 1993 Gert Doering"
 ;
 /* faxhng.c - mainly table, translate +FHNG:xxx codes to english text
  */
@@ -15,6 +15,8 @@ struct t_fhng_table { int i ; char * string; } fhng_table[] = {
 	{       1, "Ring Detect without successful handshake" },
 	{       2, "Call aborted, from +FK or AN" },
 	{       3, "No Loop Current" },
+	{	4, "Ringback detected, no answer (timeout)" },
+	{	5, "Ringback detected, answer without CED" },
 /*	{   10-19, "TRANSMIT PHASE A & MISCELLANEOUS ERRORS" },	*/
 	{      10, "Unspecified Phase A error" },
 	{      11, "No Answer (T.30 T1 timeout)" },
@@ -30,7 +32,13 @@ struct t_fhng_table { int i ; char * string; } fhng_table[] = {
 	{      28, "RSPREC invalid response received" },
 /*	{   40-49, "TRANSMIT PHASE C HANGUP CODES" },	*/
 	{      40, "Unspecified Transmit Phase C error" },
+	{      41, "Unspecified Image format error" },
+	{      42, "Image conversion error" },
 	{      43, "DTE to DCE data underflow" },
+	{      44, "Unrecognized Transparent data command" },
+	{      45, "Image error, line length wrong" },
+	{      46, "Image error, page length wrong" },
+	{      57, "Image error, wrong compression code" },
 /*	{   50-69, "TRANSMIT PHASE D HANGUP CODES" },	*/
 	{      50, "Unspecified Transmit Phase D error" },
 	{      51, "RSPREC error" },
@@ -50,7 +58,7 @@ struct t_fhng_table { int i ; char * string; } fhng_table[] = {
 /*	{   90-99, "RECEIVE PHASE C HANGUP CODES" },	*/
 	{      90, "Unspecified Receive Phase C error" },
 	{      91, "Missing EOL after 5 seconds" },
-	{      92, "Unused code" },
+	{      92, "Bad CRC or frame (ECM mode)" },
 	{      93, "DCE to DTE buffer overflow" },
 	{      94, "Bad CRC or frame (ECM or BFT modes)" },
 /*	{ 100-119, "RECEIVE PHASE D HANGUP CODES" },	*/
