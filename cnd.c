@@ -1,4 +1,4 @@
-#ident "@(#)cnd.c	$Id: cnd.c,v 4.8 1998/04/20 21:31:57 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "@(#)cnd.c	$Id: cnd.c,v 4.9 1998/05/02 18:58:01 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 
 #include <stdio.h>
 #include <string.h>
@@ -15,6 +15,7 @@ char *Connect = "";
 char *CallerId = "none";
 char *CallTime = "";
 char *CallName = "";
+char *CalledNr = "";			/* dialed number [ISDN MSN] */
 /* the next few are for Rockwell */
 char *CallDate = "";
 char *CallMsg1 = "";
