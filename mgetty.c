@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.4 1993/02/17 12:04:26 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.5 1993/02/24 17:19:13 gert Exp $ (c) Gert Doering";
 /* some parts of the code are loosely based on the 
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us
  */
@@ -19,8 +19,6 @@
 
 #include "mgetty.h"
 int getlogname( struct termio * termio, char * buf, int maxsize );
-
-#define LOCK "/usr/spool/uucp/LCK..%s"
 
 struct	speedtab {
 	ushort	cbaud;		/* baud rate */
@@ -61,7 +59,7 @@ char *	init_chat_seq[] = { "", "\r\\d\\d\\d+++\\d\\d\\d\r\\dATQ0H0", "OK",
 			    /*"\\dAT&V", "OK\n", !!!weg*/
 			    "ATS0=0E1&K4&D3&N0", "OK",
 #ifndef NO_FAX
-                            "AT+FAA=1;+FBOR=0;+FCR=1;+FLID=\"+49-89-3243328 Gert Doering\"", "OK",
+                            "AT+FAA=1;+FBOR=0;+FCR=1;+FLID=\" +49-89-3243328 Doering\"", "OK",
 			    "AT+FDCC=1,5,0,2,0,0,0", "OK",
 #endif
                             NULL };
@@ -71,9 +69,10 @@ int	init_chat_timeout = 60;
 
 chat_action_t	init_chat_actions[] = { { "ERROR", A_FAIL },
 					{ "BUSY", A_FAIL },
+					{ "NO CARRIER", A_FAIL },
 					{ NULL,	A_FAIL } };
 
-char *	call_chat_seq[] = { "RING", "\\dATA", "CONNECT", "\\c", "\n", NULL };
+char *	call_chat_seq[] = { "RING", "ATA", "CONNECT", "\\c", "\n", NULL };
 char *	call_chat_abort[] = { "NO CARRIER", "BUSY", "ERROR", NULL };
 int	call_chat_timeout = 60;
 
@@ -100,10 +99,6 @@ void		endutent(void);
 int		getopt( int, char **, char * );
 
 time_t		time( long * tloc );
-
-char	*lock;				/* name of the lockfile */
-
-sig_t	rmlocks();
 
 char	* Device;			/* device to use */
 
@@ -272,6 +267,7 @@ int main( int argc, char ** argv)
 	/* setup terminal */
 
 	if (toggle_dtr) {
+		lprintf( L_MESG, "lowering DTR to reset Modem" );
 		(void) ioctl(STDIN, TCGETA, &termio);
 		termio.c_cflag &= ~CBAUD;	/* keep all but CBAUD bits */
 		termio.c_cflag |= B0;		/* set speed == 0 */
@@ -358,6 +354,17 @@ int main( int argc, char ** argv)
 	    exit(0);
 	}
 
+	/* check for a "nologin" file (/etc/nologin.<device>) */
+
+	sprintf( buf, "/etc/nologin.%s", Device );
+
+	if ( access( buf, F_OK ) == 0 )
+	{
+	    lprintf( L_MESG, "%s exists - do not accept call!", buf );
+	    clean_line( 50 );		/* wait for last ring */
+	    exit(1);
+	}
+
 	/* wait for "RING" (and check for LOCK-Files while reading the
            first string), if "RING" found and no lock-file, lock the line
            and send manual answer string to the modem */
@@ -369,6 +376,8 @@ int main( int argc, char ** argv)
 	    if ( what_action == A_FAX )
 	    {
 		lprintf( L_MESG, "action is A_FAX, start fax receiver...");
+		termio.c_lflag &= ~ISIG;	/* disable signals! */
+		ioctl (STDIN, TCSETAF, &termio);
 		faxrec();
 		lprintf( L_MESG, "fax receiver finished, exiting...");
 		exit(1);
@@ -567,130 +576,9 @@ int code;
 	FILE *fp;
 
 	if ((fp = fopen(CONSOLE, "w")) != (FILE *) NULL) {
-		(void) fprintf(fp, "Usage: uugetty [-x debug] line\n");
+		(void) fprintf(fp, "Usage: mgetty [-x debug] line\n");
 		(void) fclose(fp);
 	}
 	exit(code);
 }
 
-
-/*
-**	makelock() - attempt to create a lockfile
-**
-**	Returns FAIL if lock could not be made (line in use).
-*/
-
-int
-makelock(char *name)
-{
-	int fd, pid;
-	char *temp, buf[MAXLINE+1];
-	char apid[16];
-
-	lprintf(L_NOISE, "makelock(%s) called", name);
-
-	/* first make a temp file */
-
-	(void) sprintf(buf, LOCK, "TM.XXXXXX");
-	if ((fd = creat((temp=mktemp(buf)), 0444)) == FAIL) {
-		lprintf(L_ERROR, "cannot create tempfile (%s)", temp);
-		return(FAIL);
-	}
-
-	/* put my pid in it */
-
-	(void) sprintf(apid, "%10d\n", getpid());
-	(void) write(fd, apid, strlen(apid));
-	(void) close(fd);
-
-	/* link it to the lock file */
-
-	while (link(temp, name) == FAIL) {
-		lprintf(L_ERROR, "link(temp,name) failed" );
-
-		if (errno == EEXIST) {		/* lock file already there */
-			if ((pid = readlock(name)) == FAIL)
-				continue;
-			if (pid == getpid())	/* huh? WE locked the line!*/
-			{
-				lprintf( L_WARN, "we *have* the line!" );
-				unlink(temp);
-				return SUCCESS;
-			}
-
-			if ((kill(pid, 0) == FAIL) && errno == ESRCH) {
-				/* pid that created lockfile is gone */
-				(void) unlink(name);
-				continue;
-			}
-		}
-		lprintf(L_MESG, "lock NOT made");
-		(void) unlink(temp);
-		return(FAIL);
-	}
-	lprintf(L_NOISE, "lock made");
-	(void) unlink(temp);
-	return(SUCCESS);
-}
-
-/*
-**	checklock() - test for presense of valid lock file
-**
-**	Returns TRUE if lockfile found, FALSE if not.
-*/
-
-boolean
-checklock(char * name)
-{
-	int pid;
-	struct stat st;
-
-	if ((stat(name, &st) == FAIL) && errno == ENOENT) {
-		lprintf(L_NOISE, "checklock: stat failed, no file");
-		return(FALSE);
-	}
-
-	if ((pid = readlock(name)) == FAIL) {
-		lprintf(L_MESG, "checklock: couldn't read lockfile");
-		return(FALSE);
-	}
-
-	if ((kill(pid, 0) == FAIL) && errno == ESRCH) {
-		lprintf(L_NOISE, "checklock: no active process has lock, will remove");
-		(void) unlink(name);
-		return(FALSE);
-	}
-
-	return(TRUE);
-}
-
-/*
-**	readlock() - read contents of lockfile
-**
-**	Returns pid read or FAIL on error.
-*/
-
-int readlock( char * name )
-{
-	int fd, pid;
-	char apid[16];
-
-	if ((fd = open(name, O_RDONLY)) == FAIL)
-		return(FAIL);
-
-	(void) read(fd, apid, sizeof(apid));
-	(void) sscanf(apid, "%d", &pid);
-
-	(void) close(fd);
-	return(pid);
-}
-
-/*
-**	rmlocks() - remove lockfile(s)
-*/
-
-sig_t
-rmlocks()
-{
-	(void) unlink(lock);
-}
