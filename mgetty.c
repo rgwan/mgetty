@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.96 1994/03/08 15:45:19 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.97 1994/03/13 00:23:31 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -420,6 +420,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 	}
 	tio_mode_sane( &tio, TRUE );
 	tio_set_speed( &tio, portspeed );
+	tio_default_cc( &tio );
 	tio_mode_raw( &tio );
 #ifdef sun
 	/* sunos does not rx with RTSCTS unless carrier present */
