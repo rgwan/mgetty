@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.39 2000/08/06 14:23:09 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.40 2000/08/14 19:35:32 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -314,7 +314,8 @@ bin-all: mgetty sendfax newslock subdirs call-back
 
 mgetty.o : mgetty.c syslibs.h mgetty.h ugly.h policy.h tio.h fax_lib.h \
 	config.h mg_utmp.h Makefile
-	$(CC) $(CFLAGS) -DFAX_SPOOL_IN=\"$(FAX_SPOOL_IN)\" -c mgetty.c
+	$(CC) $(CFLAGS) -DFAX_SPOOL_IN=\"$(FAX_SPOOL_IN)\" \
+		-DVARRUNDIR=\"$(VARRUNDIR)\" -c mgetty.c
 
 conf_mg.o : conf_mg.c mgetty.h ugly.h policy.h syslibs.h \
 	config.h conf_mg.h Makefile
@@ -358,7 +359,7 @@ subdirs:
 
 call-back:
 	@$(MAKE) mgetty
-	cd callback ; $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" "CONFDIR=$(CONFDIR)" "LIBS=$(LIBS)" all
+	cd callback ; $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" "CONFDIR=$(CONFDIR)" "VARRUNDIR=$(VARRUNDIR)" "LIBS=$(LIBS)" all
 
 contrib-all: 
 	cd contrib ; $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" "LIBS=$(LIBS)" all
