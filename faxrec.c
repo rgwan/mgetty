@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.52 1994/08/08 12:34:24 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 1.53 1994/08/11 23:57:26 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -197,14 +197,17 @@ char	DevId[3];
 		(int) call_start & 0xfffffff,
 		DevId );
     i = strlen(temp);
-		
+
+    /* filter out characters that will give problems in the shell */
     for ( j=0; fax_remote_id[j] != 0; j++ )
     {
-         if ( fax_remote_id[j] == ' ' || fax_remote_id[j] == '/' )
+	char c = fax_remote_id[j];
+         if ( c == ' ' || c == '/' || c == '\\'|| c == '&' ||
+	      c == '(' || c == ')' || c == '>' || c == '<' )
 	 {
 	     if ( temp[i-1] != '-' ) temp[i++] = '-' ;
 	 }
-         else if ( fax_remote_id[j] != '"' ) temp[i++] = fax_remote_id[j];
+         else if ( c != '"' ) temp[i++] = c;
     }
     if ( temp[i-1] == '-' ) i--;
     sprintf( &temp[i], ".%02d", pagenum );
