@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 2.8 1994/10/09 17:28:33 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 2.9 1994/10/26 13:59:35 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -47,8 +47,13 @@ FAX_DENY=@LIBDIR@/fax.deny
 FAX_HEADER=@LIBDIR@/faxheader
 #
 # for creating the fax page header, pbmtext is used, and this specifies
-# the font file to use
-PBMFONT=@LIBDIR@/cour25.pbm
+# the font file to use (fine/normal res.)
+PBMFONT_HEADER_F=@LIBDIR@/cour25.pbm
+PBMFONT_HEADER_N=@LIBDIR@/cour25n.pbm
+#
+# if you want to use pbmtext for converting ASCII texts, use these fonts:
+PBMFONT_BODY_F=@LIBDIR@/cour25.pbm
+PBMFONT_BODY_N=@LIBDIR@/cour25n.pbm
 
 #
 # program that will generate fax coverpage (see "man coverpg")
@@ -74,8 +79,9 @@ AWK=@AWK@
 #
 
 # naming scheme: fs_cvt_$type()
-# converts a $type file ($1) to g3 file(s), named $2.$i,
-# where "i" is a decimal number
+# converts a $type file ($1) to g3 file(s), named $2.$i, where "i"
+# should be the page number. Can be omitted if $1 has only one page.
+# $3 can be a flag argument, "-n" for normal resolution
 
 #
 # convert portable bitmap (not scaled) - see pbm(5), pbmtog3(1)
@@ -108,7 +114,7 @@ fs_cvt_ppm()
 #
 fs_cvt_g3()
 {
-    cat $1 >$2.1
+    g3cat $1 >$2.1
 }
 
 #
@@ -119,8 +125,12 @@ fs_cvt_g3()
 
 fs_cvt_xwd()
 {
+    REDUCE="cat"
+    test X$3 = X-n && REDUCE="pnmscale -yscale 0.5"
+
     xwdtopnm $1 |\
-	pnmscale -xsize 1728 |\
+	pnmscale -xysize 1728 2000 |\
+	$REDUCE |\
 	ppmtopgm |\
 	pgmtopbm |\
 	pbmtog3 >$2.1
@@ -133,8 +143,12 @@ fs_cvt_xwd()
 
 fs_cvt_gif()
 {
+    REDUCE="cat"
+    test X$3 = X-n && REDUCE="pnmscale -yscale 0.5"
+
     giftoppm $1 |\
-	pnmscale -xsize 1728 |\
+	pnmscale -xysize 1728 2000 |\
+	$REDUCE |\
 	ppmtopgm |\
 	pgmtopbm |\
 	pbmtog3 >$2.1
@@ -147,8 +161,12 @@ fs_cvt_gif()
 #
 fs_cvt_tif()
 {
+    REDUCE="cat"
+    test X$3 = X-n && REDUCE="pnmscale -yscale 0.5"
+
     tifftopnm $1 |\
-	pnmscale -xsize 1728 |\
+	pnmscale -xysize 1728 2000 |\
+	$REDUCE |\
 	ppmtopgm |\
 	pgmtopbm |\
 	pbmtog3 >$2.1
@@ -156,21 +174,30 @@ fs_cvt_tif()
 
 #
 # convert HP laserjet input files
-# needs Chris Lewis' hp2pbm package
+# needs Chris Lewis' hp2pbm package (ftp.uunet.ca)
 #
 fs_cvt_lj()
 {
-     hp2hig3 -r$2 <$1
+    if [ X$3 = X-n ]
+    then
+        hp2log3 -r$2 <$1
+    else
+        hp2hig3 -r$2 <$1
+    fi
 }
 
 #
 # convert postscript data
 # needs GNU GhostScript installed, with the "dfaxhigh" driver compiled in
+# (for normal resolution, the "dfaxlow" driver is used)
 #
 fs_cvt_ps()
 {
-     cat $1 |
-	gs -sDEVICE=dfaxhigh -sOutputFile=$2%02d -dNOPAUSE -q -dSAFER -
+    driver=dfaxhigh
+    test X$3 = X-n && driver=dfaxlow
+
+    cat $1 |
+	gs -sDEVICE=$driver -sOutputFile=$2%02d -dNOPAUSE -q -dSAFER -
 }
        
 #
@@ -180,13 +207,39 @@ fs_cvt_ps()
 #
 fs_cvt_ascii()
 {
-    gs -sDEVICE=dfaxhigh -sOutputFile=$2%02d -dNOPAUSE \
-        -dSAFER -r204x196 -- gslp.ps $1
+#####
+# via Ghostscript:
+
+    driver=dfaxhigh
+    test X$3 = X-n && driver=dfaxlow
+
+    gs -sDEVICE=$driver -sOutputFile=$2%02d -dNOPAUSE \
+        -dSAFER -- gslp.ps $1
+
+#####
+# via hp2pbm:
+# (convert "LF" to "CR+LF" via awk)
+
+#    pgm=hp2hig3
+#    test X$3 = X-n && pgm=hp2log3
 #
-# hp2hig3 -r$2 <$1
-#
-# pbmtext $1 | pbmtog3 >$2
-#
+#    $AWK '{ printf "%s\r\n", $0 }' $1 | $pgm -r$2
+
+#####
+# via pbmtext (not really recommended):
+# use the "pgx" program in contrib/ to split pages
+
+## Select appropriate font
+#    font=$PBMFONT_BODY_F
+#    test X$3 = X-n && font=$PBMFONT_BODY_N
+# Determine how many pages text will be split in to.  Uses default pagelen.
+#    nr=`pgx < $1`
+# Convert each page into a separate G3 file.  Uses default pagelen (60).
+#    page=1
+#    while [ $page -le $nr ]; do
+#	pgx $page < $1 | pbmtext -font $font | pbmtog3 >$2.$page
+#	page=`expr $page + 1`
+#    done
 }
 
 #
@@ -196,11 +249,14 @@ fs_cvt_ascii()
 #
 fs_cvt_dvi()
 {
+    driver=dfaxhigh
+    test X$3 = X-n && driver=dfaxlow
+
     dvips $1 -o \
-        !"gs -sDEVICE=dfaxhigh -sOutputFile=$2%02d -dNOPAUSE -dSAFER -q -"
+        !"gs -sDEVICE=$driver -sOutputFile=$2%02d -dNOPAUSE -dSAFER -q -"
 #
 #	dvialw <$file |
-#	    gs -sDEVICE=dfaxhigh -sOutputFile=$target%02d -dNOPAUSE \
+#	    gs -sDEVICE=$driver -sOutputFile=$target%02d -dNOPAUSE \
 #               -dSAFER -
 
 }
@@ -255,6 +311,7 @@ Options:
 \t-C <pgm>\tset cover page program (\"-\" for none)
 \t-D <dest>\tset verbose destination name
 \t-F <full name>\tset full name of sender
+\t-h <file>\ttext file for page header
 \t-f <email>\tset address for status mail
 \t-t <hh:mm>\tset earliest possible send time
 \t-q\t\tshut up"
@@ -266,8 +323,7 @@ do
 	-p) poll_req=true ; shift
             ;;
 # use normal resolution (as opposed to fine resolution)
-        -n) normal_res=true ; shift
-            $echo "warning: normal resolution not implemented yet" >&2 
+        -n) normal_res="-n" ; shift
             ;;
 # set cover page program to use
 	-C) case "$2" in
@@ -290,6 +346,18 @@ do
 	    '') $echo "$usage" >&2 ; exit 2 ;;
             esac
             FULLNAME="$2"
+	    shift ; shift
+	    ;;
+# set page header text file
+	-h) case "$2" in
+	    '') $echo "$usage" >&2 ; exit 2 ;;
+	    /*) FAX_HEADER="$2" ;;
+	    *) FAX_HEADER=`pwd`/"$2" ;;
+	    esac
+	    if [ ! -f "$FAX_HEADER" ] ; then
+		echo "$0: no such file: '$2'" >&2
+		exit 2;
+	    fi
 	    shift ; shift
 	    ;;
 # set e-mail return address
@@ -609,21 +677,14 @@ do
 
     if
     case $format in
-	ps)     fs_cvt_ps $file $target ;;    
-	ascii)  fs_cvt_ascii $file $target ;;
-	pbm)	fs_cvt_pbm $file $target ;;
-	pgm)	fs_cvt_pgm $file $target ;;
-	ppm)	fs_cvt_ppm $file $target ;;
-        g3)	fs_cvt_g3  $file $target ;;
-        dvi)    fs_cvt_dvi $file $target ;;    
-	lj)	fs_cvt_lj  $file $target ;;
-	xwd)	fs_cvt_xwd $file $target ;;
-	gif)	fs_cvt_gif $file $target ;;
-	tif)	fs_cvt_tif $file $target ;;
+	ps | ascii | pbm | pgm | ppm |\
+	g3 | dvi   | lj  | xwd | gif | tif ) 
+		fs_cvt_$format $file $target $normal_res
+		;;    
 	*) $echo "$0: unknown format: $format!" >&2 ; exit 8 ;;
     esac 
     then : ; else
-	$echo "Error spooling $file - aborting!" >&2 ; exit 8
+	$echo "\n$0: error spooling \"$file\" - aborting!" >&2 ; exit 8
     fi
 
 done
@@ -660,6 +721,8 @@ if [ ! -z "$PGM" ]
   if [ -x "$PGM" ]
   then
     $echo "\nGenerating cover page..."
+    export normal_res
+
     maxnr=`expr $maxnr + 1`
     $MAKE_COVER_PG $maxnr "$FAX_STATION_ID" "$FULLNAME" \
 	"$phone" "$verbose_to" "`date +%D`" "`date +%T`" >cover.g3
@@ -678,6 +741,9 @@ fi
 #
 $echo "\nPutting Header lines on top of pages..."
 
+hdrfont=$PBMFONT_HEADER_F
+test -z "$normal_res" || hdrfont=$PBMFONT_HEADER_N
+
 finalpg=""
 for f in $pages
 do
@@ -689,7 +755,7 @@ do
 			  -e "s;@D@;$verbose_to;g" \
 			  -e "s;@ID@;$FAX_STATION_ID;g" \
 			  -e "s;@DATE@;`date`;g" \
-    | pbmtext -font $PBMFONT | pbmtog3 \
+    | pbmtext -font $hdrfont | pbmtog3 \
     | g3cat - $f > f$nr.g3 \
     && rm $f
     finalpg="$finalpg f$nr.g3"
@@ -708,6 +774,9 @@ $echo "pages " $finalpg >>$job.q
 
 [ -z "$poll_req" ] || \
     $echo "poll" >>$job.q
+
+[ -z "$normal_res" ] || \
+    $echo "normal_res" >>$job.q
 
 [ -z "$TIME" ] || \
     $echo "time $TIME" >>$job.q
