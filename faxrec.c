@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.15 1993/09/29 20:26:34 gert Exp $ Gert Doering"
+#ident "$Id: faxrec.c,v 1.16 1993/09/30 22:30:14 gert Exp $ Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -116,14 +116,29 @@ char c;
 char WasDLE;
 int ErrorCount = 0;
 int ByteCount = 0;
+int i,j;
 
     /* temp file is named: f-{n,f}iiiijjjjjj,
      * n/f means normal / fine, iiii is the current time, jjjjjj is
      * made by mktemp()
      */
 
+#ifdef SHORT_FILENAMES
     sprintf(temp, "%s/fax%c-%02d.XXXXXX", directory,
 		 fax_par_d.vr == 0? 'n': 'f', pagenum );
+#else
+    /* include sender's fax id - if present - into filename */
+    i = sprintf(temp, "%s/fax%c", directory, fax_par_d.vr == 0? 'n': 'f' );
+    for ( j=0; fax_remote_id[j] != 0; j++ )
+    {
+         if ( fax_remote_id[j] == ' ' )
+	 {
+	     if ( temp[i-1] != '-' ) temp[i++] = '-' ;
+	 }
+         else if ( fax_remote_id[j] != '"' ) temp[i++] = fax_remote_id[j];
+    }
+    sprintf( &temp[i], "%02d.XXXXX", pagenum );
+#endif
 
     fax_fp = fopen( mktemp(temp), "w" );
 
