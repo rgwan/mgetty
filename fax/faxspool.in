@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 4.28 2004/07/17 10:17:49 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 4.29 2004/11/13 22:35:54 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -26,6 +26,10 @@
 #  3.10.93: use "hp2hig3" for hp-pcl4-files (cl)
 # 19.10.93: phone directories (caz)
 # $Log: faxspool.in,v $
+# Revision 4.29  2004/11/13 22:35:54  gert
+# test for $HOME/.make.coverpg with "-x"
+# if spooling from stdin ("-"), don't test for "size > 0" (-s) - breaks stuff
+#
 # Revision 4.28  2004/07/17 10:17:49  gert
 # per-user coverpg and faxheader files (Andreas Barth)
 #
@@ -151,7 +155,7 @@ PATH=@BINDIR@:$PATH
 
 # change coverpage/header defaults to per-user files, if $HOME exists
 if [ -d "$HOME" ]; then
-  if [ -a $HOME/.make.coverpg ]; then
+  if [ -x $HOME/.make.coverpg ]; then
     MAKE_COVER_PG=$HOME/.make.coverpg
   fi
   if [ -r $HOME/.faxheader ]; then
@@ -618,7 +622,7 @@ do
     then
 	$echo "$0: cannot open '$file'!" >&2 ; exit 5
     fi
-    if [ ! -s $file ]
+    if [ ! -s $file -a x$file != x- ]
     then
 	$echo "$0: input file '$file' is empty (0 bytes)!" >&2 ; exit 5
     fi
