@@ -470,6 +470,8 @@ int main _P2((argc, argv), int argc, char ** argv)
     }
     else		/* read telephone number from stdin */
     {
+	lprintf( L_MESG, "reading telephone number from stdin" );
+
 	printf( "Telephone number for callback: " );
 	/*!!! FIXME: accept only proper telephone numbers */
 	fgets( phonebuf, 30, stdin );
