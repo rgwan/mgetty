@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 1.4 1993/10/05 13:14:34 gert Exp $ (c) 1993 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 1.5 1993/10/06 00:31:53 gert Exp $ (c) 1993 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -682,10 +682,15 @@ Some additional tools are provided for manipulating G3 fax files
 @code{g3cat} (in the @file{tools} directory) concatenates multiple G3
 fax files. It accepts ``raw'' g3 files and digifax files and outputs a
 ``raw'' g3 file without headers. Its syntax is analogous to
-@code{cat}.
+@code{cat}, except that you @emph{have} to specify @file{-} to read
+from @file{stdin}.
 
-@code{g3cat} recognizes one flag, @code{-l}, to separate the fax files
-with a thin black line.
+@code{g3cat} recognizes two flags: @code{-l}, to separate the fax files
+with a thin black line, and @code{-a} to byte-align the end-of-line
+codes in the file (Warning: some modems do not like this).
+
+The currently provided version of @code{g3cat} has a severe bug that
+makes it nearly unusable. It will be fixed soon.
 
 @item
 To convert an incoming fax to Jef Poskanzers @file{portable bitmap}
