@@ -4,7 +4,7 @@
  * This is the callback function for the modem to the higher level
  * routines.
  *
- * $Id: event.c,v 1.5 1999/01/23 15:17:06 marcs Exp $
+ * $Id: event.c,v 1.6 1999/01/23 20:34:12 marcs Exp $
  *
  */
 
@@ -187,8 +187,11 @@ int voice_handle_event(int event, event_data data)
           return(OK);
           }
 
-     lprintf(L_WARN, "%s: voice_handle_event got unknown event %s with data <%c>", program_name,
-      event_name(event), data.c);
+     buffer[0] = data.c;
+     lprintf(L_JUNK,
+             "%s: voice_handle_event got unknown event %s with data <%s>",
+             program_name, event_name(event), data.c ? buffer : "NUL");
+
      return(UNKNOWN_EVENT);
      }
 
