@@ -9,7 +9,7 @@
 # There are still a lot rough edges - but it works, and should give you an
 # idea how to improve it
 #
-# SCCS: $Id: faxrunq.in,v 2.4 1995/03/26 20:01:11 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxrunq.in,v 2.5 1995/04/04 12:49:28 gert Exp $ Copyright (C) 1994 Gert Doering
 
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -229,4 +229,5 @@ trap 0 1 2 3 15
 #
 # touch the time stamp, to make faxspool happy
 #
+rm -f $FAX_SPOOL_OUT/.last_run
 date >$FAX_SPOOL_OUT/.last_run
