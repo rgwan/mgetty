@@ -1,4 +1,4 @@
-[ $Id: README,v 1.3 1998/10/27 14:22:52 gert Exp $ ]
+[ $Id: README,v 1.4 1998/12/01 15:16:33 gert Exp $ ]
 
 This is a collection of tools to maintain mgetty using a WWW interface
 (CGI binaries and a couple of static pages).
@@ -54,6 +54,9 @@ The following HAVE to be set in the Makefile in this directory:
 
   * HTMLDIR - this is where the "index.html" file will go into.  It must
     be accessible from the WWW server daemon!
+
+  * IMAGEDIR - where you want the navigation and logo pictures to be
+    stored in ("turn left", "next page", ...), can be the same as HTMLDIR.
 
   * CGIBINDIR - this is where the CGI binaries go into.  If your WWW
     server can execute ".cgi" files from any directory (apache, roxen),
@@ -126,6 +129,15 @@ Currently, these tools do NOT enforce any kind of access permissions.
 
 Make sure your WWW server doesn't allow access to the CGI programs
 unless you want everybody to be able to read your incoming faxes...
+
+How this is done for your WWW server is documented in the WWW server's
+manual, e.g. for the apache http server on www.apache.org.  If your WWW
+server supports it, you could, for example, put an .htaccess file into
+the CGIBINDIR that contains the following lines:
+
+    order deny,allow
+    deny from all
+    allow from <hostname/domain>
 
 --------------------------------------------------------------------
 Please direct all questions concerning the WWW gui to Simone Demmel
