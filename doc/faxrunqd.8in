@@ -204,6 +204,27 @@ Examples:
 ^56789$		-		-	-x 8
 
 
+.SH FILES
+.TP
+.B @FAX_SPOOL_OUT@/stop
+if this file exists, 
+.I faxrunqd
+will stop whatever it's doing at the moment, wait for all outstanding
+jobs, and then fall asleep until the file is removed.  You can use this 
+to stop queue processing while testing something, or if you know that 
+the modem(s) are unavailable and do not want to run into any error 
+messages, etc.
+
+.TP
+.B @VARRUNDIR@/faxqueue_done
+Every time
+.I faxrunqd
+runs the fax queue, a time stamp is written into that file.
+It is used by
+.I faxspool
+to display a warning if the queue hasn't been run recently (so faxes may
+get stuck).
+
 .SH SIGNALS
 To control
 .I faxrunqd's 
