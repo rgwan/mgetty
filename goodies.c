@@ -1,4 +1,4 @@
-#ident "$Id: goodies.c,v 2.2 1994/12/23 13:00:20 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: goodies.c,v 2.3 1995/08/09 16:49:21 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /*
  * goodies.c
@@ -16,6 +16,13 @@
 
 #include <pwd.h>
 #include <grp.h>
+
+/* NeXTStep/86 has some byte order problems (Christian Starkjohann) */
+#if defined(NeXT) && defined(__LITTLE_ENDIAN__)
+# define pw_uid pw_short_pad1
+# define pw_gid pw_short_pad2
+# define gr_gid gr_short_pad
+#endif
 
 #include "mgetty.h"
 #include "config.h"
@@ -174,4 +181,23 @@ char * get_ps_args _P1 ((pid), int pid )
 #ifdef NeXT
   /* provide dummy putenv() function */
   int putenv( char * s ) { return 0; }
+
+  /* provide function to repair broken tty settings
+   * mega-ugly, but it seems to work
+   * code provided by Christian Starkjohann <cs@ecs.co.at>
+   */
+# include <libc.h>
+# include <sgtty.h>
+void    NeXT_repair_line(int fd)
+{
+    struct sgttyb   sg;
+    int             bitset = LPASS8 | LPASS8OUT;
+    int             bitclr = LNOHANG;
+    
+    ioctl(fd, TIOCGETP, &sg);
+    sg.sg_flags |= EVENP | ODDP;
+    ioctl(fd, TIOCSETP, &sg);
+    ioctl(fd, TIOCLBIS, &bitset);
+    ioctl(fd, TIOCLBIC, &bitclr);
+}
 #endif
