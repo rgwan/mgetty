@@ -1,3 +1,13 @@
+Sat Sep 16 18:38:14 2000  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* All of below is 0.9.19
+
+	* Added detection of modem ``TP560 Data/Fax/Voice 56K Modem'',
+	with friendly testing from Zsolt KOZAK <kozakzs@webigen.com>.
+	Note that that modem has buggy ATI3 handling, and this will
+	cause a timeout, which will be recovered. The test was done
+	at speed 115200.
+
 Tue Sep 12 23:09:42 2000  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 
 	* All of below is 0.9.18
