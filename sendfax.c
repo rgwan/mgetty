@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 4.3 1997/01/13 22:28:40 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 4.4 1997/03/31 20:51:26 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -403,6 +403,14 @@ int main _P2( (argc, argv),
     {
 	lprintf( L_ERROR, "cannot set modem to fax mode" );
 	fprintf( stderr, "%s: cannot set modem to fax mode\n", argv[0] );
+	fax_close( fd );
+	exit( 3 );
+    }
+
+    if ( modem_type == Mt_data )
+    {
+	lprintf( L_ERROR, "modem can't do class 2 or class 2.0" );
+	fprintf( stderr, "%s: not a class 2/2.0 fax modem\n", argv[0] );
 	fax_close( fd );
 	exit( 3 );
     }
