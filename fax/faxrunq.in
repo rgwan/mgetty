@@ -9,7 +9,7 @@
 # There are still a lot rough edges - but it works, and should give you an
 # idea how to improve it
 #
-# SCCS: $Id: faxrunq.in,v 4.11 2000/08/06 14:28:36 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxrunq.in,v 4.12 2001/12/16 13:56:13 gert Exp $ Copyright (C) 1994 Gert Doering
 
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -100,6 +100,12 @@ fi
 #
 
 cd $FAX_SPOOL_OUT || exit 1
+
+# stop flag?
+if [ -r stop ] ; then
+    $echo "faxrunq: $FAX_SPOOL_OUT/stop exists, not running queue."
+    exit 0
+fi
 
 status="0"
 jobs=`ls */JOB 2>/dev/null`
