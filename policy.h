@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.49 1994/03/01 02:13:08 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.50 1994/03/01 23:28:24 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -348,6 +348,22 @@
  */
 #define FAX_SEND_BAUD B38400
 
+/* switch baud rate after +FCLASS=2
+ *
+ * some weird modems require that you initialize the modem with one
+ * baud rate (e.g. 2400 or 9600 for cheap 2400+fax modems, or `smart'
+ * modems that insist on staying locked to 38400 (ELSA!)), but switch
+ * to another baud rate, typically 19200, immediately after receiving
+ * the "AT+FCLASS=2" command.
+ *
+ * If the following is defined, sendfax will switch to the speed given
+ * here after sending AT+FCLASS=2.
+ *
+ * Only try fiddling with this if sendfax times out during modem
+ * initialization, receiving junk instead of "OK" or "ERROR" (logfile!)
+ */
+/* #define FAX_SEND_SWITCHBD B19200 */
+
 /* this is the command to set the modem to use the desired flow control.
  * For hardware handshake, this could be &H3 for the ZyXEL, &K3 for
  * Rockwell-Based modems or \\Q3&S0 for Exar-Based Modems (i.e. some GVC's)
@@ -385,6 +401,16 @@
 
 /* #define FAX_SEND_IGNORE_CARRIER */
 
+/* Xon or not?
+ *
+ * the first issues of the class 2 drafts required that the program waits
+ * for an Xon character before sending the page data. Later versions
+ * removed that. Sendfax can do both, default is to wait for it.
+ *
+ * If you get an error message "... waiting for XON" when trying to
+ * send a fax, try this one. Some ELSA modems are know to need it.
+ */
+/* #define FAXSEND_NO_XON */
 
 
 /* define mailer that accepts destination on command line and mail text
