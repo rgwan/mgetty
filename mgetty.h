@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.h,v 2.2 1994/12/23 13:00:29 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 2.3 1995/03/15 00:34:31 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -91,6 +91,14 @@ typedef	char	boolean;
  */
 #if ( defined(BSD) || defined(sunos4) ) && !defined(NO_SIGINTERRUPT)
 #define HAVE_SIGINTERRUPT
+#endif
+
+/* assume that some systems do not have long filenames...
+ */
+#if ( defined(m88k) && !defined(SVR4) )
+# ifndef SHORT_FILENAMES
+#  define SHORT_FILENAMES
+# endif
 #endif
 
 #define MAXLINE 1024		/* max. # chars in a line */
