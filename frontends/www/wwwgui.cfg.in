@@ -5,7 +5,7 @@
 # to be valid Perl5 syntax.  If you don't know perl, just do not modify
 # things that are not between quotation marks!
 #
-# RCS: $Id: wwwgui.cfg.in,v 1.1 1998/10/13 15:58:13 gert Exp $
+# RCS: $Id: wwwgui.cfg.in,v 1.2 1998/10/20 14:28:56 gert Exp $
 #
 
 #
@@ -27,10 +27,19 @@ $www_logo = '<a href="http://www.medat.de/"><img align="left" src="/medat-mini.g
 # ---- Path names for the WWW stuff ----
 #
 
+# All programs have a "back to main page" link at the bottom.  This is
+# where (in the WWW tree!) this page is located, used in "<a href=...>".
+#
+$indexpage="/~sd/index.html";
+
 #
 # ---- possible sizes and page# threshold for viewfax/givgif.cgi ---
 #
 %maxpages = ( 10 => 20, 30 => 10, 60 => 5, 100 => 1 );
+
+# what should be the default size for images if nothing is specified? 
+# (percent values)
+$defaultsize=100;
 
 #
 # ---- Helper programs for viewfax/givgif.cgi ---
@@ -42,10 +51,39 @@ $g3topbm='@BINDIR@/g32pbm';
 # convert PBM image to GIF (could be "ppmtogif" or "pnmtogif")
 $ppmtogif='@BINDIR@/ppmtogif';
 
-# ppmquant: quantize the colors in a portable pixmap down to 6
+# ppmquant: reduce the colors in a portable pixmap down to 256
+#
+# unfortunately, "ppmquant" seems to be hopelessly broken, so either use
+# pgmtopbm here (b/w images) or simplequant.pl (256 grey levels).
+# you might try both to see which one gives better quality for you...
+#
 #$ppmquant='@BINDIR@/ppmquant 256';
-$ppmquant='/gnulocal/bin/pgmtopbm';
+#$ppmquant='@BINDIR@/pgmtoppm';
+$ppmquant='@LIBDIR@/simplequant.pl';
 
 # scale image to desired percentage
 $pnmscale='@BINDIR@/pnmscale';
+
+#
+# ---- paths for temporary image files for "nph-vf-gif.cgi"
+#
+
+# this is the "real" path for the temporary images in the Unix tree.
+#
+# Make sure the user ID used for CGI-Binaries on your system has 
+# write access to this directory.
+#
+# Make sure that the images stored in this path can be reached by normal
+# WWW requests (so don't use "/tmp" etc.), also make sure that nobody
+# else uses this directory, for security reasons.
+#
+$webtmpabs="/home/sd/.html-data/tmp";
+
+# when accessing the images from inside the WWW pages, which path
+# name should be used in the HTML text (image references) for $webtempabs?
+#
+# Usually, this is something like "/fax/tmp" or "/images/tmp" or so.
+#
+$webtmprel="/~sd/tmp";
+
 
