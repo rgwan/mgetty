@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.c,v 1.2 1995/02/11 22:49:58 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_mg.c,v 1.3 1995/04/04 00:31:01 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_mg.c
  *
@@ -107,6 +107,9 @@ struct conf_data_mgetty c = {
 	{ "fax-mode", FAX_FILE_MODE, CT_INT, C_PRESET },
 
 	{ "debug", LOG_LEVEL, CT_INT, C_PRESET },
+	
+	{ "statistics-chat", 0, CT_CHAT, C_EMPTY },
+	{ "statistics-file", 0, CT_STRING, C_EMPTY },
 	{ "gettydefs", (int)GETTYDEFS_DEFAULT_TAG, CT_STRING, C_PRESET },
 	{ "term", 0, CT_STRING, C_EMPTY },
 
