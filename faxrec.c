@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.41 1994/02/04 21:52:59 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 1.42 1994/03/01 23:01:46 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -261,13 +261,35 @@ extern  char * Device;
     signal( SIGHUP, fax_sig_hangup );
     fax_timeout = FALSE;
 
+    WasDLE = 0;
+
+    /* skip any leading garbage
+     * it's reasonable to assume that a fax will start with a zero
+     * byte (actually, T.4 requires it).
+     * This has the additional benefit that we'll see error messages
+     */
+
+    lprintf( L_NOISE, "fax_get_page_data: wait for EOL, got: " );
+    alarm( FAX_PAGE_TIMEOUT );
+
+    while ( !fax_timeout )
+    {
+	if ( fax_read_byte( fd, &c ) != 1 )
+	{
+	    lprintf( L_ERROR, "error waiting for page start" );
+	    return ERROR;
+	}
+	lputc( L_NOISE, c );
+	if ( c == 0 )   { fputc( c, fax_fp ); break; }
+	if ( c == DLE ) { WasDLE = 1; break; }
+    }
+
     lprintf( L_MESG, "fax_get_page_data: receiving %s...", temp );
 
-    WasDLE = 0;
-    do
+    while ( !fax_timeout )
     {
 	/* refresh alarm timer every 1024 bytes
-	 * (to refresh it for every byte is considered too expensive)
+	 * (to refresh it for every byte is far too expensive)
 	 */
 	if ( ( ByteCount & 0x3ff ) == 0 )
 	{
@@ -297,7 +319,6 @@ extern  char * Device;
 	    WasDLE = 0;
 	}
     }
-    while ( !fax_timeout );
 
     alarm(0);
 
