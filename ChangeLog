@@ -1,3 +1,34 @@
+Thu Jan 10 21:11:20 MET 2002   Gert Doering (gert@greenie.muc.de)
+
+	* release 1.1.28
+
+	* faxrec.c: replace "0"'s by "STDIN" (readability)
+
+Fri Jan  4 18:50:31 MET 2002   Gert Doering (gert@greenie.muc.de)
+
+	* doc/mgetty.texi-in: some updates
+
+	* doc/faxrunq.1in, doc/faxrunqd.8in: document calling convention
+	changes (as below)
+
+	* fax/faxrunq(d).in: pass (last) sendfax return code as 2nd
+	argument to success/failure program
+
+Mon Dec 17 22:55:56 MET 2001   Gert Doering (gert@greenie.muc.de)
+
+	* policy.h, utmp.c: incorporate some NetBSD changes
+
+	* various: change time() prototype to "time_t time(time_t *tloc)"
+
+	* mgetty.h, syslibs.h, logfile.c: some #ifdef fiddling for Darwin
+
+Sun Dec 16 14:56:18 MET 2001   Gert Doering (gert@greenie.muc.de)
+
+	* doc/faxrunq.1in, doc/faxrunqd.8in: document more stuff
+
+	* fax/faxrunq, fax/faxrunqd: don't run queue if a file
+	$FAX_SPOOL_OUT/stop exists.
+
 Sun Dec  2 14:23:34 CET 2001   Gert Doering (gert@greenie.muc.de)
 
 	* login.c: MAX_LOGIN_ARGS handling reworked (claimed N, but allowed 
@@ -11,7 +42,7 @@ Sun Oct 21 16:40:51 MEST 2001  Gert Doering (gert@greenie.muc.de)
 
 	* cnd.c (cndtable): add swedish ZyXEL caller ID format (T. Lundgren)
 
-	* cnd.c (cndtable): add "CALLERD NUMBER:" (Jan Oberlaender/i4l)
+	* cnd.c (cndtable): add "CALLED NUMBER:" (Jan Oberlaender/i4l)
 
 Fri Sep 28 23:06:24 MEST 2001  Gert Doering (gert@greenie.muc.de)
 
