@@ -1,4 +1,4 @@
-#ident "$Id: do_chat.c,v 1.10 1993/08/24 23:24:29 gert Exp $ (c) Gert Doering";
+#ident "$Id: do_chat.c,v 1.11 1993/09/01 22:49:06 gert Exp $ (c) Gert Doering";
 /* do_chat.c
  *
  * This module handles all the non-fax talk with the modem
@@ -9,7 +9,9 @@
 #include <unistd.h>
 #include <termio.h>
 #include <signal.h>
+#ifndef sun
 #include <sys/ioctl.h>
+#endif
 
 #include "mgetty.h"
 

@@ -1,20 +1,30 @@
-#ident "$Id: utmp.c,v 1.1 1993/09/01 00:43:35 gert Exp $ (c) Gert Doering";
+#ident "$Id: utmp.c,v 1.2 1993/09/01 22:49:26 gert Exp $ (c) Gert Doering";
 /* some parts of the code (writing of the utmp entry)
  * is based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
  */
 
+#ifndef sun
 #include <stdio.h>
 #include <unistd.h>
 #include <utmp.h>
 #include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#endif
 
 #include "mgetty.h"
 
-/* define some prototypes - not all supported systems have these */
+#ifdef sun
+/* on SunOS, the getty process does not have to care for the utmp
+ * entries, login and init do all the worko
+ * Anyway, we have to _read_ it to get the number of users logged in.
+ */
+void make_utmp_wtmp( char * line, boolean login_process ) {}
+int get_current_users( void ) { return 0; }	/*! FIXME */
+#else
 
+/* define some prototypes - not all supported systems have these */
 #if !defined(SVR4) && !defined(linux)
 struct	utmp	*getutent();
 struct	utmp	*pututline(struct utmp * utmp);
@@ -88,3 +98,4 @@ int Nusers;
     endutent();
     return Nusers;
 }
+#endif		/* !sun */

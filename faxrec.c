@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.12 1993/08/31 19:49:45 gert Exp $ Gert Doering"
+#ident "$Id: faxrec.c,v 1.13 1993/09/01 22:49:10 gert Exp $ Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -179,8 +179,13 @@ int ByteCount = 0;
 
 	if ( c == DLE )
 	{
-	    if ( WasDLE ) fputc( c, fax_fp );	/* DLE DLE -> DLE */
-	    WasDLE = 1;
+	    if ( WasDLE )
+	    {
+		fputc( c, fax_fp );	/* DLE DLE -> DLE */
+		WasDLE = 0;
+	    }
+	    else
+		WasDLE = 1;
 	}
 	else
 	{

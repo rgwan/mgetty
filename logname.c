@@ -1,8 +1,10 @@
-#ident "$Id: logname.c,v 1.6 1993/09/01 01:13:29 gert Exp $ (c) Gert Doering"
+#ident "$Id: logname.c,v 1.7 1993/09/01 22:49:16 gert Exp $ (c) Gert Doering"
 #include <stdio.h>
 #include <termio.h>
 #include <unistd.h>
+#ifndef sun
 #include <sys/ioctl.h>
+#endif
 #ifndef SYSTEM
 #include <sys/utsname.h>
 #endif

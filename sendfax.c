@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.29 1993/08/04 11:42:50 gert Exp $ (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.30 1993/09/01 22:49:21 gert Exp $ (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -14,7 +14,9 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <termio.h>
+#ifndef sun
 #include <sys/ioctl.h>
+#endif
 #include <signal.h>
 
 #include "mgetty.h"

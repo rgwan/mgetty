@@ -1,4 +1,4 @@
-#ident "$Id: io.c,v 1.2 1993/06/21 15:26:25 gert Exp $ (c) Gert Doering";
+#ident "$Id: io.c,v 1.3 1993/09/01 22:49:12 gert Exp $ (c) Gert Doering";
 /* io.c
  *
  * This module contains a few low-level I/O functions
@@ -18,10 +18,10 @@
 int poll( struct pollfd fds[], unsigned long nfds, int timeout );
 #else
 #ifdef USE_SELECT
-# ifndef linux
-# include <sys/select.h>
-# else
+# if defined (linux) || defined (sun)
 # include <sys/time.h>
+# else
+# include <sys/select.h>
 # endif
 #endif
 #endif
