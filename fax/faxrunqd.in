@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.55 2001/12/16 14:49:03 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.56 2002/01/04 17:52:42 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.56  2002/01/04 17:52:42  gert
+# pass sendfax exit code as 2nd argument to success/failure program
+#
 # Revision 1.55  2001/12/16 14:49:03  gert
 # move 'stop' processing to after sleep($sleep_time) - otherwise 'stop'
 # isn't honoured if created while sleeping and new jobs are also created.
@@ -1251,7 +1254,7 @@ sub handle_return_code
 	if ($program_success ne '')
 	{
 	    print LOG "    calling program $program_success for job $j...\n" if $opt_v;
-	    system( "$program_success $fax_spool_out/$j/JOB </dev/null" );
+	    system( "$program_success $fax_spool_out/$j/JOB $ex </dev/null" );
 	}
 
 	# remove JOB file
@@ -1306,7 +1309,7 @@ sub handle_return_code
 	    if ($program_failure ne '')
 	    {
 		print LOG "    calling f-program $program_failure for job $j...\n" if $opt_v;
-		system( "$program_failure $fax_spool_out/$j/JOB </dev/null" );
+		system( "$program_failure $fax_spool_out/$j/JOB $ex </dev/null" );
 	    }
 
 	    # remove from queue directory (suspend, but do not delete it)
