@@ -4,7 +4,7 @@
  * rmdtopvf converts from the rmd (raw modem data) format to the pvf
  * (portable voice format) format.
  *
- * $Id: rmdtopvf.c,v 1.16 2001/05/14 09:52:30 marcs Exp $
+ * $Id: rmdtopvf.c,v 1.17 2001/12/22 16:08:02 marcs Exp $
  *
  */
 
@@ -264,8 +264,7 @@ int main (int argc, char *argv[])
 
           };
 
-     if (((strcmp(modem_type, "Multitech2834") == 0) ||
-      (strcmp(modem_type, "Multitech5634") == 0)) && (compression == 4))
+     if (((strcmp(modem_type, "Multitech2834") == 0) || (strcmp(modem_type, "Multitech5634") == 0)) && ((compression == 4) || compression == 132))
           {
 
           if (imaadpcmtopvf(fd_in, fd_out, &header_out) == OK)

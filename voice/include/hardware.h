@@ -3,7 +3,7 @@
  *
  * Defines the structure with data and routines for the hardware drivers.
  *
- * $Id: hardware.h,v 1.18 2001/02/24 11:43:39 marcs Exp $
+ * $Id: hardware.h,v 1.19 2001/12/22 16:08:00 marcs Exp $
  *
  */
 
@@ -103,6 +103,7 @@ extern voice_modem_struct Multitech_2834ZDXv;
 extern voice_modem_struct Multitech_5634ZBAV;
 extern voice_modem_struct Multitech_5600ZDXv;
 extern voice_modem_struct Multitech_5634ZPX;
+extern voice_modem_struct Multitech_5634ZPX_ISA;
 extern voice_modem_struct Rockwell;
 extern voice_modem_struct Sierra;
 extern voice_modem_struct UMC;

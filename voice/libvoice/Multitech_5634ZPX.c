@@ -4,8 +4,9 @@
  * Hacked by <Harlan.Stenn@pfcs.com>. Maybe will be merged
  * with the other Multitech driver.
  *
- * $Id: Multitech_5634ZPX.c,v 1.1 2001/02/24 10:21:27 marcs Exp $
+ * $Id: Multitech_5634ZPX.c,v 1.2 2001/12/22 16:08:01 marcs Exp $
  *
+ * Some functions can't be static because inherited by Multitech_5634ZPX_ISA.
  * Copied by md 2000/12/14
  */
 
@@ -13,7 +14,7 @@
 
 static char mode_save[16] = "";
 
-static int Multitech_5634ZPX_answer_phone(void)
+int Multitech_5634ZPX_answer_phone(void)
      {
      int result;
 
@@ -29,13 +30,13 @@ static int Multitech_5634ZPX_answer_phone(void)
      return(VMA_OK);
      }
 
-static int Multitech_5634ZPX_init(void)
+int Multitech_5634ZPX_init(void)
      {
      char buffer[VOICE_BUF_LEN];
 
      reset_watchdog();
      voice_modem_state = INITIALIZING;
-     lprintf(L_MESG, "initializing Multitech 5634ZPX voice modem");
+     lprintf(L_MESG, "initializing %s voice modem", voice_modem->name);
 
      /*
       * AT+VIT=10 - Set inactivity timer to 10 seconds
@@ -94,7 +95,7 @@ static int Multitech_5634ZPX_init(void)
      return(OK);
      }
 
-static int Multitech_5634ZPX_set_compression(int *compression, int *speed,
+int Multitech_5634ZPX_set_compression(int *compression, int *speed,
  int *bits)
      {
      char buffer[VOICE_BUF_LEN];
@@ -252,7 +253,7 @@ void Multitech_5634ZPX_fix_modem(int expect_error)
         	lprintf(L_WARN, "%s: Modem answered incorrectly", program_name); 
 }
 
-static int Multitech_5634ZPX_switch_to_data_fax(char *mode)
+int Multitech_5634ZPX_switch_to_data_fax(char *mode)
 {
 	char buffer[VOICE_BUF_LEN];
 
@@ -267,7 +268,7 @@ static int Multitech_5634ZPX_switch_to_data_fax(char *mode)
 	return OK;
 }
 
-static int Multitech_5634ZPX_voice_mode_off(void)
+int Multitech_5634ZPX_voice_mode_off(void)
 {
 	char buffer[VOICE_BUF_LEN];
 
@@ -282,7 +283,7 @@ static int Multitech_5634ZPX_voice_mode_off(void)
 	return OK;
 }
 
-static int Multitech_5634ZPX_voice_mode_on(void)
+int Multitech_5634ZPX_voice_mode_on(void)
 {
 	char buffer[VOICE_BUF_LEN];
 
