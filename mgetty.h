@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.h,v 2.1 1994/11/30 23:20:47 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 2.2 1994/12/23 13:00:29 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -130,7 +130,8 @@ int		checklock _PROTO((char * device));
 RETSIGTYPE	rmlocks _PROTO (());
   
 /* fax stuff */
-void	faxrec _PROTO(( char * spool_dir, unsigned int switchbd ));
+void	faxrec _PROTO(( char * spool_dir, unsigned int switchbd,
+		        int uid, int gid, int mode ));
 char *	fax_strerror _PROTO(( int fax_hangup_code ));
 
 /* initialization stuff: mg_m_init.c */
@@ -203,4 +204,9 @@ extern char *	optarg;
 # ifndef O_NDELAY
 #  define O_NDELAY O_NONBLOCK
 # endif
+#endif
+
+#if defined(_3B1_) || defined(MEIBE)
+    typedef ushort uid_t;
+    typedef ushort gid_t;
 #endif
