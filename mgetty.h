@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 3.2 1995/10/22 16:05:01 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 3.3 1995/10/22 17:50:51 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -38,6 +38,8 @@
 #define PPP_ESCAPE          0x7d  /* Escape Character */ 
 #define PPP_CONTROL         0x03  /* PPP Control Field */
 #define PPP_CONTROL_ESCAPED 0x23  /* PPP Control Field, escaped */
+#define PPP_LCP_HI          0xc0  /* LCP protocol - high byte */
+#define PPP_LCP_LOW         0x21  /* LCP protocol - low byte */
 
 /* stuff in logfile.c */
 
