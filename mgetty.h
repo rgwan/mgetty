@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 3.1 1995/08/30 12:40:53 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 3.2 1995/10/22 16:05:01 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -30,6 +30,14 @@
 
 #define TSYNC	0xae
 #define YOOHOO	0xf1
+
+/* defines for auto detection of incoming PPP calls (->PAP/CHAP) */
+
+#define PPP_FRAME           0x7e  /* PPP Framing character */
+#define PPP_STATION         0xff  /* "All Station" character */
+#define PPP_ESCAPE          0x7d  /* Escape Character */ 
+#define PPP_CONTROL         0x03  /* PPP Control Field */
+#define PPP_CONTROL_ESCAPED 0x23  /* PPP Control Field, escaped */
 
 /* stuff in logfile.c */
 
