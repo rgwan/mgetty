@@ -4,7 +4,7 @@
 #
 # like "lpq" or "mailq", show jobs waiting in the output queue
 #
-# SCCS: $Id: faxq.in,v 1.3 1994/02/21 18:09:10 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxq.in,v 1.4 1994/03/02 14:30:03 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -49,13 +49,20 @@ do
     else
 	eval `$AWK '$1=="user" { printf "USER=%s;", $2 }
 		   $1=="phone" { printf "PHONE=%s;", $2 }
-		   $1=="input" { printf "INPUT=\"%s\"\n", substr( $0, 7 ) }
+		   $1=="verbose_to" \
+			       { printf "VERBTO=\"%s\";", substr( $0, 12 ) }
+		   $1=="input" { printf "INPUT=\"%s\";", substr( $0, 7 ) }
 		   $1=="pages" { printf "PAGES=\"";
 				 for (i=2; i<=NF; i++) printf "%s ", $i;
 				 printf "\";" }' $i `
 	$echo "$i:"
 	$echo "\tQueued by: $USER"
+       if [ -z "$VERBTO" ]
+       then
 	$echo "\t       to: $PHONE"
+       else
+	$echo "\t       to: $VERBTO ($PHONE)"
+       fi
 	test ! -z "$INPUT" && \
 	$echo "\t    Input: $INPUT"
 	$echo "\t    Pages: $PAGES"
