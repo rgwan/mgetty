@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/ksh
 #
 # rotate mgetty log files
 # (this needs manual adaption of all relevant paths, otherwise it won't work)
@@ -6,6 +6,9 @@
 # run this once per week from crontab
 #
 # $Log: mvlog,v $
+# Revision 1.3  2005/03/13 17:41:32  gert
+# change mgetty default logfile name (log.tty -> mgetty.tty)
+#
 # Revision 1.2  2004/11/13 09:16:48  gert
 # faxrunqd pid file lives in FAX_SPOOL_OUT (non-root user)
 #
@@ -36,8 +39,8 @@ do
 		mv mgetty.$d.$im1 mgetty.$d.$i
     done
     cd ..
-    cp log.$d OLD/mgetty.$d.1
-    > log.$d
+    cp mgetty.$d OLD/mgetty.$d.1
+    > mgetty.$d
 done
 
 cd OLD || exit 1
