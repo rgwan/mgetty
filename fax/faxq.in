@@ -4,7 +4,7 @@
 #
 # like "lpq" or "mailq", show jobs waiting in the output queue
 #
-# SCCS: $Id: faxq.in,v 2.2 1995/03/26 19:25:06 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxq.in,v 2.3 1995/03/26 20:05:53 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -33,6 +33,9 @@ do
     case $flag in
 	-v) verbose="true" ;;
 	-o) jobs="*/JOB*" ;;
+	*) $echo "$0: invalid option: $flag" >&2
+	   $echo "valid options: -o: show old jobs, -v: verbose output" >&2
+	   exit 1 ;;
     esac
 done
 
