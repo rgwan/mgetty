@@ -1,3 +1,10 @@
+2001-10-28  Marc SCHAEFER  <schaefer@defian.alphanet.ch>
+
+	* All of below is 0.9.31
+
+	* Fix from Juergen Kosel and Steffen Klupsch to Elsa.c, so to
+	accept VCON also when changing output devices.
+
 2001-07-23  Marc SCHAEFER  <schaefer@defian.alphanet.ch>
 
 	* All of below is 0.9.30
