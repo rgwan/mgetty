@@ -1,3 +1,8 @@
+Mon Jan 29 23:38:15 MET 2001  Gert Doering <gert@greenie.muc.de>
+
+	* voice/libvoice/init.c: make "mgetty" speed the same as 
+	"voice.conf" speed (avoid bug with "RING at wrong port speed").
+
 Wed Jan 17 12:34:35 2001  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 
 	* Reverted some changes in 1.16 to 1.17 of libvoice/US_Robotics.c
