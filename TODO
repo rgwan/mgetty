@@ -294,3 +294,7 @@ long, cut after 2050 (letter) or 2156 (A4) lines.
      requiring multiple baud rate switches
 
 214) implement setting of "modem quirks" from {sendfax,mgetty}.config
+
+215) implement e-mail to fax gateway using fax addressing as in IETF
+     draft "draft-ietf-fax-addressing-02.txt" (or similar)
+
