@@ -1,4 +1,4 @@
-#ident "$Id: gettydefs.c,v 1.1 1993/10/06 00:19:42 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "$Id: gettydefs.c,v 1.2 1993/11/24 14:05:52 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis";
 
 /* gettydefs.c
  *
@@ -15,24 +15,53 @@
 #ifndef _NOSTDLIB_H
 # include <stdlib.h>
 #endif
-#include <termio.h>
 
 #include "mgetty.h"
+#include "policy.h"
 
+extern boolean verbose;
+
+static char *
+mydup _P1 ((s), register char *s)
+{
+    register char *p = (char *) malloc(strlen(s) + 1);
+    if (!p) {
+	lprintf(L_ERROR, "mydup can't malloc");
+	exit(1);
+    }
+    strcpy(p, s);
+    return(p);
+}
 #ifdef USE_GETTYDEFS
 
-#ifdef _3B1_
-typedef unsigned short tcflag_t;
-#endif
+#include "tio.h"
 
 struct modeword {
     char *name;
-    tcflag_t turnon;
-    tcflag_t turnoff;
-    unsigned short meta;
+    tioflag_t turnon;
+    tioflag_t turnoff;
+    unsigned short metaon;
+    unsigned short metaoff;
 };
 
-#define SANE	0x01
+/*	Meta tokens */
+#define SANE	0x0001
+#define	ODDP	0x0002
+
+#define	PARITY	0x0004
+#define	NPARITY	0x0008
+
+#define RAW	0x0010
+#define	COOKED	0x0020
+
+#define NL	0x0040
+#define NNL	0x0080
+
+#define LCASE	0x0100
+#define NLCASE	0x0200
+
+#define TABS	0x0400
+#define	NTABS	0x0800
 
 /* input modes */
 
@@ -43,10 +72,10 @@ static struct modeword iflags[] = {
     { "PARMRK", PARMRK, PARMRK },
     { "INPCK", INPCK, INPCK },
     { "ISTRIP", ISTRIP, ISTRIP, SANE },
-    { "INLCR", INLCR, INLCR },
-    { "IGNCR", IGNCR, IGNCR },
-    { "ICRNL", ICRNL, ICRNL, SANE },
-    { "IUCLC", IUCLC, IUCLC },
+    { "INLCR", INLCR, INLCR, 0, NNL },
+    { "IGNCR", IGNCR, IGNCR, 0, NNL },
+    { "ICRNL", ICRNL, ICRNL, (SANE|NL), NNL },
+    { "IUCLC", IUCLC, IUCLC, LCASE, NLCASE },
     { "IXON", IXON, IXON, SANE },
     { "IXANY", IXANY, IXANY },
     { "IXOFF", IXOFF, IXOFF },
@@ -56,12 +85,12 @@ static struct modeword iflags[] = {
 /* output modes */
 
 static struct modeword oflags[] = {
-    { "OPOST", OPOST, OPOST, SANE },
-    { "OLCUC", OLCUC, OLCUC },
-    { "ONLCR", ONLCR, ONLCR },
-    { "OCRNL", OCRNL, OCRNL },
+    { "OPOST", OPOST, OPOST, (SANE|COOKED), RAW },
+    { "OLCUC", OLCUC, OLCUC, LCASE, NLCASE },
+    { "ONLCR", ONLCR, ONLCR, NL, NNL },
+    { "OCRNL", OCRNL, OCRNL, 0, NNL },
     { "ONOCR", ONOCR, ONOCR },
-    { "ONLRET", ONLRET, ONLRET },
+    { "ONLRET", ONLRET, ONLRET, NNL },
     { "OFILL", OFILL, OFILL },
     { "OFDEL", OFDEL, OFDEL },
     { "NLDLY", NLDLY, NLDLY },
@@ -71,10 +100,10 @@ static struct modeword oflags[] = {
     { "CR1", CR1, CRDLY },
     { "CR2", CR2, CRDLY },
     { "CR3", CR3, CRDLY },
-    { "TAB0", TAB0, TABDLY },
+    { "TAB0", TAB0, TABDLY, TABS },
     { "TAB1", TAB1, TABDLY },
     { "TAB2", TAB2, TABDLY },
-    { "TAB3", TAB3, TABDLY },
+    { "TAB3", TAB3, TABDLY, NTABS },
     { "BS0", BS0, BSDLY },
     { "BS1", BS1, BSDLY },
     { "VT0", VT0, VTDLY },
@@ -133,14 +162,14 @@ static struct modeword cflags[] = {
 #endif
     { "EXTA", EXTA, CBAUD },
     { "EXTB", EXTB, CBAUD },
-    { "CS5", CS5, CS5 },
-    { "CS6", CS6, CS6 },
-    { "CS7", CS7, CS7, SANE },
-    { "CS8", CS8, CS8 },
+    { "CS5", CS5, CSIZE },
+    { "CS6", CS6, CSIZE },
+    { "CS7", CS7, CSIZE, (ODDP|PARITY) },
+    { "CS8", CS8, CSIZE, (SANE|NPARITY) },
     { "CSTOPB", CSTOPB, CSTOPB },
     { "CREAD", CREAD, CREAD, SANE },
-    { "PARENB", PARENB, PARENB, SANE },
-    { "PARODD", PARODD, PARODD },
+    { "PARENB", PARENB, PARENB, (ODDP|PARITY), (NPARITY) },
+    { "PARODD", PARODD, PARODD, ODDP },
     { "HUPCL", HUPCL, HUPCL },
     { "CLOCAL", CLOCAL, CLOCAL },
 /* Various handshaking defines */
@@ -166,8 +195,8 @@ static struct modeword cflags[] = {
 /* line discipline */
 static struct modeword lflags[] =  {
     { "ISIG", ISIG, ISIG, SANE },
-    { "ICANON", ICANON, ICANON, SANE },
-    { "XCASE", XCASE, XCASE },
+    { "ICANON", ICANON, ICANON, (SANE|COOKED), RAW },
+    { "XCASE", XCASE, XCASE, LCASE, NLCASE },
     { "ECHO", ECHO, ECHO, SANE },
     { "ECHOE", ECHOE, ECHOE },
     { "ECHOK", ECHOK, ECHOK, SANE },
@@ -176,8 +205,68 @@ static struct modeword lflags[] =  {
     { NULL }
 };
 
-static struct gdentry *gdentries[GDENTRYMAX];
-static struct gdentry **cur = gdentries;
+/* c_cc special characters */
+static struct modeword ccchars[] = {
+    {"VINTR", VINTR, CINTR},
+    {"VQUIT", VQUIT, CQUIT},
+    {"VERASE", VERASE, CERASE},
+    {"VKILL", VKILL, CKILL},
+    {"VEOF", VEOF, CEOF},
+#if defined(VEOL) && VEOL < TIONCC
+    {"VEOL", VEOL, CEOL},
+#endif
+#if defined(CEOL2) && defined(VEOL2) && VEOL2 < TIONCC
+    {"VEOL2", VEOL2, CEOL2},
+#endif
+#if defined(VSUSP) && VSUSP < TIONCC
+    {"VSUSP", VSUSP, _POSIX_VDISABLE},
+#endif
+#if defined(VSTART) && VSTART < TIONCC
+    {"VSTART", VSTART, CSTART},
+#endif
+#if defined(VSTOP) && VSTOP < TIONCC
+    {"VSTOP", VSTOP, CSTOP},
+#endif
+#if defined(VSWTCH) && VSWTCH < TIONCC
+    {"VSWTCH", VSWTCH, CSWTCH},
+#endif
+    {"VMIN", VMIN, 0},
+    {"VTIME", VTIME, 0},
+    { NULL }
+};
+
+struct modeword metatokens[] = {
+    { "SANE", SANE },
+    { "ODDP", ODDP },
+
+    { "PARITY", PARITY },
+    { "EVENP", PARITY },
+    { "-ODDP", NPARITY },
+    { "-PARITY", NPARITY },
+    { "-EVENP", NPARITY },
+
+    { "RAW", RAW },
+    { "-RAW", COOKED },
+    { "COOKED", COOKED },
+
+    { "NL", NL },
+    { "-NL", NNL },
+
+    { "LCASE", LCASE },
+    { "-LCASE", NLCASE },
+
+    { "TABS", TABS },
+    { "-TABS", NTABS },
+    { "TAB3", NTABS },
+
+    { NULL }
+};
+
+#define GDCHUNK	5
+
+GDE *gdep = (GDE *) NULL;
+GDE *cur = (GDE *) NULL;
+static int cntalloc = 0;
 
 static struct modeword *
 findmode _P2 ((modes, tok), struct modeword *modes, register char *tok)
@@ -185,41 +274,87 @@ findmode _P2 ((modes, tok), struct modeword *modes, register char *tok)
     for( ; modes->name; modes++)
 	if (strcmp(modes->name, tok) == 0)
 	    return(modes);
-    return(0);
+    return((struct modeword *) NULL);
 }
 
 static void
-metaset _P3((tc, modes, key), tcflag_t *tc, struct modeword *modes, int key)
+metaset _P3((tc, modes, key), tioflag_t *tc, struct modeword *modes, int key)
 {
-    for ( ; modes->name; modes++)
-	if (modes->meta&key)
-	    *tc = (*tc &= ~ modes->turnoff) | modes->turnon;
+    for ( ; modes->name; modes++) {
+	if (modes->metaon&key)
+	    *tc = (*tc & ~ modes->turnoff) | modes->turnon;
+	if (modes->metaoff&key)
+	    *tc = (*tc & ~ modes->turnoff);
+    }
 }
 
 static void
-parsetermio _P2((ti, str), struct tio *ti, char *str)
+parsetermio _P2((ti, str), TIO *ti, char *str)
 {
     register char *p;
     struct modeword *m;
-    tcflag_t *flag;
+    tioflag_t *flag;
     int metakey;
 
-    while (p = strtok(str, " \t")) {
+    ti->c_cc[VINTR] = CINTR;
+    ti->c_cc[VQUIT] = CQUIT;
+    ti->c_cc[VERASE] = CERASE;
+    ti->c_cc[VKILL] = CKILL;
+    ti->c_cc[VEOF] = CEOF;
+#if defined(VEOL) && VEOL < TIONCC
+    ti->c_cc[VEOL] = CEOL;
+#endif
+#if defined(VSTART) && VSTART < TIONCC
+    ti->c_cc[VSTART] = CSTART;
+#endif
+#if defined(VSTOP) && VSTOP < TIONCC
+    ti->c_cc[VSTOP] = CSTOP;
+#endif
+#if defined(VSUSP) && VSUSP < TIONCC
+    ti->c_cc[VSUSP] = CSUSP;
+#endif
+#if defined(VSWTCH) && VSWTCH < TIONCC
+    ti->c_cc[VSWTCH] = CSWTCH;
+#endif
+
+#ifndef POSIX_TERMIOS
+    ti->c_line = 0;
+#endif
+
+    for (p = str; *p; p++)
+	if (islower(*p))
+	    *p = toupper(*p);
+
+    while ( (p = strtok(str, " \t")) != NULL ) {
+	int not = FALSE;
 
 	str = NULL;
 
 	metakey = 0;
 
-	if (strcmp(p, "SANE") == 0)
-	    metakey = SANE;
+	if (strcmp(p, "EK") == 0) {
+	    ti->c_cc[VERASE] = '#';
+	    ti->c_cc[VKILL] = CKILL;
+	    continue;
+	}
+
+	for (m = metatokens; m->name; m++)
+	    if (strcmp(p, m->name) == 0) {
+		metakey = m->turnon;
+		break;
+	    }
 	
 	if (metakey) {
-	    tcflag_t on, off;
 	    metaset(&ti->c_lflag, lflags, metakey);
 	    metaset(&ti->c_oflag, oflags, metakey);
 	    metaset(&ti->c_iflag, iflags, metakey);
 	    metaset(&ti->c_cflag, cflags, metakey);
 	    continue;
+	}
+
+	if (*p == '-') {
+	    not = TRUE;
+	    p++;
 	}
 
 	if      ((m = findmode(lflags, p)) != NULL)
@@ -230,24 +365,49 @@ parsetermio _P2((ti, str), struct tio *ti, char *str)
 	    flag = &ti->c_iflag;
 	else if ((m = findmode(cflags, p)) != NULL)
 	    flag = &ti->c_cflag;
-	if (m)
-	    *flag = (*flag & ~ m->turnoff) | m->turnon;
-	else
-	    lprintf(L_WARN, "Can't parse %s", p);
+	if (m) {
+	    if (not)
+		*flag = (*flag & ~ m->turnoff);
+	    else
+		*flag = (*flag & ~ m->turnoff) | m->turnon;
+	} else {
+	    if ((m = findmode(ccchars, p)) != NULL) {
+		char *p2;
+		p2 = strtok(str, " \t");
+		if (!p2) {
+		    if (verbose)
+			fprintf(stderr, "No value after %s\n", p);
+		    return;
+		}
+		if (*p2 == '\\')
+		    switch(*(p2+1)) {
+			case 'n': *p2 = '\n'; break;
+			case 'r': *p2 = '\r'; break;
+			case 'b': *p2 = '\010'; break;
+			case 'v': *p2 = '\013'; break;
+			case 'g': *p2 = '\007'; break;
+			case 'f': *p2 = '\f'; break;
+			case '0': case '1': case '2': case '3':
+			case '4': case '5': case '6': case '7': {
+			    char tbuf[4];
+			    strncpy(tbuf, p2+1, 3);
+			    tbuf[3] = '\0';
+			    *p2 = strtol(tbuf, (char **) NULL, 8);
+			    break;
+			}
+			default:
+			    *p2 = *(p2+1);
+		    }
+		else if (*p2 == '^')
+		    *p2 = *(p2+1) - '@';
+
+		ti->c_cc[m->turnon] = *p2;
+	    } else
+		if (verbose)
+		    fprintf(stderr, "Can't parse %s\n", p);
+	}
     }
 
-}
-
-static char *
-mydup _P1 ((s), register char *s)
-{
-    register char *p = (char *) malloc(strlen(s) + 1);
-    if (!p) {
-	lprintf(L_ERROR, "mydup can't malloc");
-	exit(1);
-    }
-    strcpy(p, s);
-    return(p);
 }
 
 static char *
@@ -293,7 +453,6 @@ getentry _P3((entry, elen, f), char *entry, int elen, FILE *f) {
 	strcat(entry, " ");
 	strcat(entry, p);
     }
-    fprintf(stderr, "entry is: %s\n", entry);
     return(1);
 }
 
@@ -302,16 +461,14 @@ getentry _P3((entry, elen, f), char *entry, int elen, FILE *f) {
  * returns 0 if it fails.
  */
 int
-loadgettydefs _P0(void) {
-    FILE *gd = fopen(GETTYDEFS, "r");
+loadgettydefs _P1((file), char *file ) {
+    FILE *gd = fopen(file, "r");
     char buf[GETTYBUFSIZE];
-    char tbuf[5];
-    int oct;
-    register char *p, *p2;
+    register char *p;
     char *tag, *prompt, *nexttag, *before, *after;
 
     if (!gd) {
-	lprintf(L_WARN, "Can't open %s\n", GETTYDEFS);
+	lprintf(L_WARN, "Can't open %s\n", file);
 	return(0);
     }
 
@@ -337,27 +494,9 @@ loadgettydefs _P0(void) {
 	if (!prompt)
 	    continue;
 
-	for (p = p2 = prompt; *p; p++,p2++)
-	    if (*p == '\\') {
-		switch (*(p+1)) {
-		    case 'n': *p2 = '\n'; break;
-		    case 'r': *p2 = '\r'; break;
-		    case 'g': *p2 = '\007'; break;
-		    case 'f': *p2 = '\f'; break;
-		    case '0': case '1': case '2': case '3':
-		    case '4': case '5': case '6': case '7':
-			strncpy(tbuf, p+1, 3);
-			tbuf[3] = '\0';
-			p += 2;
-			*p2 = strtol(tbuf, (char *) NULL, 0);
-			break;
-		    default: *p2 = *(p+1); break;
-		}
-		p++;
-	    } else
-		*p2 = *p;
-	*p2 = '\0';
-
+	/* do NOT escape prompt here - it may contain \D and \T, and
+	 * for that, the real time at login should be used
+	 */
 	prompt = mydup(prompt);
 
 	nexttag = strtok(NULL, "#");
@@ -371,58 +510,61 @@ loadgettydefs _P0(void) {
 	nexttag = stripblanks(nexttag);
 	nexttag = mydup(nexttag);
 
-#ifdef 0
+#ifdef NEVER
 	printf("tag: %s\nbefore: %s\nafter: %s\nprompt: %s\nnexttag: %s\n\n",
 	    tag, before, after, prompt, nexttag);
 #endif
 
-	if (cur - gdentries > GDENTRYMAX-1) {
-	    lprintf(L_WARN,
-		"Too many gettydefs entries, skipping extra - increase GDENTRYMAX");
-	    return(1);
-	}
-	
-	*cur = (struct gdentry *) malloc(sizeof(struct gdentry));
-	if (!*cur) {
-	    lprintf(L_ERROR, "Can't malloc a gdentry");
-	    exit(1);
+	if (cur - gdep >= cntalloc-2) {
+	    GDE *sav;
+	    sav = gdep;
+	    if (!gdep) {
+		gdep = (GDE *) malloc(sizeof(GDE) * GDCHUNK);
+		cur = gdep;
+	    } else {
+		gdep = (GDE *) realloc(gdep, sizeof(GDE) * (GDCHUNK + cntalloc));
+		cur = gdep + (cur - sav);
+	    }
+	    cntalloc += GDCHUNK;
 	}
 
-	(*cur)->tag = tag;
-	(*cur)->prompt = prompt;
-	(*cur)->nexttag = nexttag;
-	parsetermio(&(*cur)->before, before);
-	parsetermio(&(*cur)->after, after);
-	lprintf(L_NOISE, "Processed `%s' gettydefs entry", tag);
+	memset(cur, sizeof(*cur), '\0');
+	
+	cur->tag = tag;
+	cur->prompt = prompt;
+	cur->nexttag = nexttag;
+	parsetermio(&cur->before, before);
+	parsetermio(&cur->after, after);
+	if (verbose)
+	    printf("Processed `%s' gettydefs entry\n", tag);
 	cur++;
+	cur->tag = (char *) NULL;
     }
     fclose(gd);
     return(1);
 }
 
-struct gdentry *
+GDE *
 getgettydef _P1 ((s), register char *s)
 {
-    for (cur = gdentries; *cur; cur++)
-	if (strcmp((*cur)->tag, s) == 0)
-	    return(*cur);
-    if (gdentries[0]->tag) {
+    for (cur = gdep; cur && cur->tag; cur++)
+	if (strcmp(cur->tag, s) == 0)
+	    return(cur);
+    if (gdep && gdep->tag) {
 	lprintf(L_WARN, "getgettydef(%s) entry not found using %s",
-	    s, gdentries[0]->tag);
-	return(gdentries[0]);
+	    s, gdep->tag);
+	return(gdep);
     }
     lprintf(L_WARN, "getgettydef(%s) no entry found", s);
-    return((struct gdentry *) NULL);
+    return((GDE *) NULL);
 }
-
-#ifdef DEBUGGETTY
 
 void
 dumpflag _P3((type, modes, flag),
 	     char *type,
-	     struct modeword *modes, tcflag_t flag)
+	     struct modeword *modes, tioflag_t flag)
 {
-    printf("%s:", type);
+    printf("%s: %08lo", type, (unsigned long) flag);
     for(; modes->name; modes++)
 	if ((flag&modes->turnoff) == modes->turnon)
 	    printf(" %s", modes->name);
@@ -430,32 +572,43 @@ dumpflag _P3((type, modes, flag),
 }
 
 void
-dump _P2((ti, s), struct tio *ti, char *s)
+dump _P2((ti, s), TIO *ti, char *s)
 {
+    register int i;
+    register struct modeword *modes;
+
     printf("%s:", s);
-    dumpflag("iflags", iflags, ti->c_iflag);
-    dumpflag("oflags", oflags, ti->c_oflag);
-    dumpflag("cflags", cflags, ti->c_cflag);
-    dumpflag("lflags", lflags, ti->c_lflag);
-    putchar('\n');
+    dumpflag("\tiflags", iflags, ti->c_iflag);
+    dumpflag("\toflags", oflags, ti->c_oflag);
+    dumpflag("\tcflags", cflags, ti->c_cflag);
+    dumpflag("\tlflags", lflags, ti->c_lflag);
+    printf("\tc_cc:\t");
+    for (i = 0; i < TIONCC; i++) {
+	if (i == 6)
+	    printf("\n\t\t");
+	for (modes = ccchars; modes->name; modes++)
+	    if (modes->turnon == i) {
+		printf("%s(", modes->name);
+		break;
+	    }
+	if (!modes->name)	/* skip unallocated ones */
+	    continue;
+	/* Yeah, I know.  But who's ever heard of getty on a EBCDIC system ;-) */
+	if (ti->c_cc[i] < ' ')
+	    printf("^%c", ti->c_cc[i] + '@');
+	else if (ti->c_cc[i] == (0xff & _POSIX_VDISABLE))
+	    printf("disabled");
+	else if (ti->c_cc[i] >= 0x7f)
+	    printf("\\%03o", 0xff&ti->c_cc[i]);
+	else
+	    putchar(ti->c_cc[i]);
+	printf(") ");
+    }
+    printf("\n\n");
 }
 
-#include <varargs.h>
-int lprintf( level, format, va_alist )
-int level;
-const char * format;
-va_dcl
-{
-char    ws[200];
-va_list pvar;
-    va_start( pvar );
-    vsprintf( ws, format, pvar );
-    va_end( pvar );
-    fprintf(stderr, "%d: %s\n", level, ws);
-}
-
-void 
-spew _P1 ((gd), struct gdentry *gd)
+static void 
+spew _P1 ((gd), GDE *gd)
 {
     printf("tag: `%s'\nprompt: `%s'\nnexttag: `%s'\n",
 	gd->tag, gd->prompt, gd->nexttag);
@@ -464,17 +617,15 @@ spew _P1 ((gd), struct gdentry *gd)
     printf("\n");
 }
 
-int
-main _P2((argc, argv), int argc, char **argv) {
-    struct gdentry *p;
-    if (! loadgettydefs()) {
-	fprintf(stderr, "Couldn't read %s\n", GETTYDEFS);
+void
+dumpgettydefs _P1((file), char *file) {
+    if (! loadgettydefs(file)) {
+	fprintf(stderr, "Couldn't read %s\n", file);
 	exit(1);
     }
     printf("loaded entries:\n");
-    for (cur = gdentries; *cur; cur++)
-	spew(*cur);
+    for (cur = gdep; cur->tag; cur++)
+	spew(cur);
 
 }
-#endif
 #endif
