@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.74 1993/12/18 18:43:26 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 1.75 1993/12/19 23:08:43 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.c
  *
@@ -28,8 +28,8 @@
 #include <fcntl.h>
 
 #include "mgetty.h"
-#include "tio.h"
 #include "policy.h"
+#include "tio.h"
 #ifdef VOICE
 #include "voclib.h"
 #endif
