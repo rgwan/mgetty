@@ -1,4 +1,4 @@
-#ident "$Id: faxhng.c,v 1.1 1993/12/18 19:10:54 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: faxhng.c,v 1.2 1994/01/05 23:18:22 gert Exp $ Copyright (c) 1993 Gert Doering"
 ;
 /* faxhng.c - mainly table, translate +FHNG:xxx codes to english text
  */
@@ -60,7 +60,7 @@ struct t_fhng_table { int i ; char * string; } fhng_table[] = {
 /*	{ 120-255, "RESERVED CODES" },	*/
 	};
 
-char * ferror _P1( (fhng), int fhng )
+char * fax_strerror _P1( (fhng), int fhng )
 {
     int i;
     for ( i=0; i < sizeof( fhng_table ) / sizeof( fhng_table[0] ); i++ )
