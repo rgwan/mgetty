@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 3.11 1996/08/25 10:07:47 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 3.12 1996/09/15 23:14:43 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -500,6 +500,9 @@ int main _P2( (argc, argv),
 #endif	/* sun */
     tio_set( fd, &fax_tio );
 
+    lprintf( L_NOISE, "sendfax: honouring DCD (carrier) drops now" );
+#else
+    lprintf( L_NOISE, "sendfax: FAX_SEND_IGNORE_CARRIER active" );
 #endif	/* !FAX_SEND_IGNORE_CARRIER */
 
     total_pages = argc-argidx;		/* for statistics */
