@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 4.27 1999/06/01 14:52:11 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 4.28 2000/02/15 20:36:55 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -757,6 +757,7 @@ Ring_got_action:
 		     ! c_bool(ringback))/* and not "missed" ringback */
 		{
 		    lprintf( L_WARN, "huh? Junk on the line?" );
+		    lprintf( L_WARN, " >>> could be a dial-out program without proper locking - check this!" );
 		    rmlocks();		/* line is free again */
 		    exit(0);		/* let init restart mgetty */
 		}
