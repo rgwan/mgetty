@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.18 1993/08/31 19:49:21 gert Exp $ (c) Gert Doering"
+#ident "$Id: policy.h,v 1.19 1993/09/01 01:14:54 gert Exp $ (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -42,8 +42,9 @@
 #define ADMIN	"root"
 
 /* System name - printed at login prompt
+ * If you do not define this, the uname() call will be used
  */
-#define SYSTEM	"greenie"
+/* #define SYSTEM	"greenie" */
 
 /* Login prompt - "%s" will be replaced by SYSTEM
  * override with "-p <prompt>" switch
