@@ -1,4 +1,4 @@
-#ident "$Id: locks.c,v 1.7 1993/03/16 09:54:59 gert Exp $ Gert Doering / Paul Sutcliffe Jr."
+#ident "$Id: locks.c,v 1.8 1993/03/18 16:47:22 gert Exp $ Gert Doering / Paul Sutcliffe Jr."
 
 /* large parts of the code in this module are taken from the
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us,
@@ -31,10 +31,7 @@ makelock(char *name)
 	int fd, pid;
 	char *temp, buf[MAXLINE+1];
 #if LOCKS_BINARY
-	int  bpid;
-# if sizeof( bpid ) != 4
-# error please choose an integer type of size 4 for bpid
-# endif
+	int  bpid;		/* must be 4 byte long! */
 #else
 	char apid[16];
 #endif
@@ -142,23 +139,19 @@ checklock(char * name)
 int readlock( char * name )
 {
 	int fd, pid;
-#if LOCKS_BINARY
-# if sizeof( pid ) != 4
-# error please choose an integer type of size 4 for pid
-# endif
-#else
 	char apid[16];
-#endif
+	int  length;
 
 	if ((fd = open(name, O_RDONLY)) == FAIL)
 		return(FAIL);
 
-#if LOCKS_BINARY
-	(void) read(fd, &pid, sizeof(pid));
-#else
-	(void) read(fd, apid, sizeof(apid));
-	(void) sscanf(apid, "%d", &pid);
-#endif
+	length = read(fd, apid, sizeof(apid));
+
+	if ( length == sizeof( pid ) || sscanf(apid, "%d", &pid) != 1 )
+	{
+	    pid = * ( (int *) apid );
+	}
+
 	(void) close(fd);
 	return(pid);
 }
