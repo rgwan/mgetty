@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 3.10 1996/02/25 22:29:20 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 3.11 1996/03/06 12:23:29 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -919,6 +919,11 @@ Ring_got_action:
 	tio_set_flow_control( STDIN, &tio, DATA_FLOW | FLOW_XON_IXANY );
 	tio_set( STDIN, &tio );
 	
+#ifdef NeXT
+	/* work around NeXT's weird problems with POSIX termios vs. sgtty */
+	NeXT_repair_line(STDIN);
+#endif
+	
 	fputc('\r', stdout);	/* just in case */
 	
 	if (c_isset(issue_file))
@@ -982,11 +987,6 @@ Ring_got_action:
 	        { sprintf( t, "TERM=%s", c_string(termtype) ); putenv(t); }
 	}
 
-#ifdef NeXT
-	/* work around NeXT's weird problems with POSIX termios vs. sgtty */
-	NeXT_repair_line(STDIN);
-#endif
-	
 	/* hand off to login dispatcher (which will call /bin/login) */
 	login_dispatch( buf );
 
