@@ -1,4 +1,4 @@
-#ident "@(#)cnd.c	$Id: cnd.c,v 4.12 1998/06/19 20:29:48 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "@(#)cnd.c	$Id: cnd.c,v 4.13 1998/10/05 08:37:49 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 
 #include <stdio.h>
 #include <string.h>
@@ -204,7 +204,8 @@ int cndlookup _P0 (void)
 	while(isspace(*p)) p++;
 	if (*p == '#' || *p == '\n')
 	    continue;
-	while(p2 = strtok(p, " \t\n,")) {
+	while( (p2 = strtok(p, " \t\n,")) != NULL )
+	{
 	    match = (*p2 != '!');
 
 	    if (!match)
