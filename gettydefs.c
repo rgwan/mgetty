@@ -1,4 +1,4 @@
-#ident "$Id: gettydefs.c,v 2.2 1995/03/21 22:43:40 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "$Id: gettydefs.c,v 2.3 1995/03/21 22:46:30 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 
 /* gettydefs.c
  *
@@ -24,7 +24,6 @@ char * mydup _P1 ((s), register char *s)
     register char *p = (char *) malloc(strlen(s) + 1);
     if (!p) {
 	lprintf(L_ERROR, "mydup can't malloc");
-	fprintf(stderr,"can't allocate %d bytes, exiting\n", strlen(s)+1);
 	exit(1);
     }
     strcpy(p, s);
