@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 2.17 1995/05/18 23:04:47 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 2.18 1995/06/05 23:06:11 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -287,7 +287,7 @@ fs_cvt_dvi()
 # user name (for authentification)
 ##########
 
-if user=`logname`
+if user=`logname 2>/dev/null`
 then :
 else
     id=`id`
@@ -440,14 +440,14 @@ then
     if cut -d" " -f1 $FAX_ALLOW | grep "^$user$" >/dev/null
     then :
     else
-	$echo "You are not allowed to use the fax service. Sorry." >&2
+	$echo "Sorry $user, you are not allowed to use the fax service." >&2
 	exit 1
     fi
 elif [ -r $FAX_DENY ]
 then
     if grep "^$user$" $FAX_DENY >/dev/null
     then
-	$echo "You are not allowed to use the fax service. Sorry." >&2
+	$echo "Sorry $user, you are not allowed to use the fax service." >&2
 	exit 2
     fi
 elif [ "$user" != "root" ]
