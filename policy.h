@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.5 1993/04/19 22:02:54 gert Exp $ (c) Gert Doering"
+#ident "$Id: policy.h,v 1.6 1993/04/19 22:05:36 gert Exp $ (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -80,7 +80,7 @@
  * but some do only allow digits and blank
  * AT+FLID=? should tell you what's allowed and what not.
  */
-#define FAX_STATION_ID	" 49 89 3243228 "
+#define FAX_STATION_ID	" 49 89 3243328 "
 
 /* the baudrate used for *sending* faxes. ZyXELs should handle 38400,
  * SUPRAs (and other rockwell-based faxmodems) do not
