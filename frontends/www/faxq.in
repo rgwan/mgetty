@@ -4,9 +4,13 @@
 # 
 # Copyright 1998 Simone Demmel simone@greenie.net
 #
-# CVS: $Id: faxq.in,v 1.8 1998/11/20 10:06:44 gert Exp $
+# CVS: $Id: faxq.in,v 1.9 1998/11/20 16:36:05 gert Exp $
 #
 # $Log: faxq.in,v $
+# Revision 1.9  1998/11/20 16:36:05  gert
+# - show time of last 'faxrunq' run
+# - put month names into common array (will go to config file later)
+#
 # Revision 1.8  1998/11/20 10:06:44  gert
 # move check for $fax_spool_out to wwwsub.pl
 #
@@ -67,6 +71,8 @@ if ($indexpage eq "")
     errormessage( "\$indexpage : not configured - please look at the configuration-Files and configure the URL for my main-index-page (\$indexpage)");
 }
 
+# set names for months
+@monthnames = (Jan,Feb,Mar,Apr,Mai,Jun,Jul,Aug,Sep,Okt,Nov,Dez);
 
 
 #
@@ -79,6 +85,13 @@ if ($indexpage eq "")
 
 
 chdir $fax_outgoing;
+
+# when did we have the last run of faxrunq(d)?
+@lastrun = stat ".last_run";
+@lastrun = localtime($lastrun[9]);
+$lastrun[4] = $monthnames[$lastrun[4]];
+$lastrun = $lastrun[3].".".$lastrun[4]." ".$lastrun[5]." ".$lastrun[2].":".$lastrun[1].":".$lastrun[0];
+
 
 #
 # HTML top part
@@ -171,7 +184,7 @@ $mail = "&nbsp;";		# mail
   # $zeit = -M $fax_outgoing."/".$DATEI."/JOB";
   @tmp = stat $fax_outgoing."/".$DATEI;
   @tmp = localtime($tmp[10]);
-  $tmp[4] = (Jan,Feb,Mar,Apr,Mai,Jun,Jul,Aug,Sep,Okt,Nov,Dez) [$tmp[4]];
+  $tmp[4] = $monthnames[$tmp[4]];
   $zeit = $tmp[3].".".$tmp[4]." ".$tmp[5]." ".$tmp[2].":".$tmp[1].":".$tmp[0];
 
   if (open (DAT, "$target"))
@@ -213,6 +226,8 @@ EOF
 
 print <<EOF;
 </table>
+<p>
+Fax-Queue zuletzt bearbeitet: $lastrun
 </div>
 
 <p>
