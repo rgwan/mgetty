@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.3 1993/04/19 20:45:45 gert Exp $ Gert Doering"
+#ident "$Id: faxrec.c,v 1.4 1993/05/22 16:47:21 gert Exp $ Gert Doering"
 
 /* faxrec.c - part of the ZyXEL getty
  *
@@ -46,7 +46,7 @@ int pagenum = 0;
     fax_notify_mail( pagenum );
 }
 
-void fax_sig_hangup( void )
+void fax_sig_hangup( )
 {
     signal( SIGHUP, fax_sig_hangup );
     lprintf( L_ERROR, "got hangup! what's this? exiting..." );
@@ -55,7 +55,7 @@ void fax_sig_hangup( void )
 
 static boolean fax_timeout = FALSE;
 
-void fax_sig_alarm( void )
+void fax_sig_alarm( )
 {
     signal( SIGALRM, fax_sig_alarm );
     lprintf( L_MESG, "timeout..." );
