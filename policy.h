@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 1.67 1994/11/04 14:22:37 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 1.68 1994/11/04 14:29:53 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration for mgetty / sendfax is done
  */
@@ -379,15 +379,11 @@
  */
 /* #define FAX_USRobotics */
 
-/* name of the logfile for outgoing faxes
+/* name of the logfile for outgoing faxes (e.g. /var/log/sendfax.log)
  */
-#ifdef __STDC__
-# define FAX_LOG		FAX_SPOOL"/Faxlog"
-#else
-# define FAX_LOG		"/usr/spool/fax/Faxlog"
-#endif
+#define FAX_LOG		"/usr/spool/fax/Faxlog"
 
-/* local station ID
+/* local station ID (your fax number)
  * 20 character string, most faxmodem allow all ascii characters 32..127,
  * but some do only allow digits and blank
  * AT+FLID=? should tell you what's allowed and what not.
