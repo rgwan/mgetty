@@ -1,4 +1,4 @@
-#ident "$Id: do_chat.c,v 1.20 1993/11/06 14:26:03 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: do_chat.c,v 1.21 1993/11/12 15:16:03 gert Exp $ Copyright (c) Gert Doering";
 /* do_chat.c
  *
  * This module handles all the non-fax talk with the modem
@@ -52,7 +52,7 @@ TIO	tio, save_tio;
 
     signal( SIGALRM, chat_timeout );
 
-    if ( actions != NULL && action != NULL ) *action = 0;
+    if ( actions != NULL && action != NULL ) *action = A_FAIL;
 
     str=0;
     while ( expect_send[str] != NULL )
