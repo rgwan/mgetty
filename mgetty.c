@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.33 1993/06/15 20:41:15 gert Exp $ (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.34 1993/06/28 11:48:10 gert Exp $ (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -111,7 +111,6 @@ chat_action_t	call_chat_actions[] = { { "NO CARRIER", A_FAIL },
 
 
 /* private functions */
-sig_t		timeout();
 void		exit_usage();
 
 /* prototypes for system functions (that are missing in some 
@@ -243,33 +242,25 @@ int main( int argc, char ** argv)
 	/* deal with the lockfiles; we don't want to charge
 	 * ahead if uucp, kermit or whatever else is already
 	 * using the line.
+	 * (Well... if we reach this point, most propably init has
+	 * hung up anyway :-( )
 	 */
-
-	/* name the lock file(s)
-	 */
-
-#ifdef SVR4
-	if(!(lock=get_lock_name( strdup(buf), Device))){
-	  exit(0);
-	}
-#else	
-	(void) sprintf(buf, LOCK, Device);
-	lock = strdup(buf);
-#endif	
 
 	/* check for existing lock file(s)
 	 */
-	if (checklock(lock) == TRUE) {
-		while (checklock(lock) == TRUE)
+	if (checklock(Device) == TRUE) {
+		while (checklock(Device) == TRUE)
 			(void) sleep(10);
 		exit(0);
 	}
-	lprintf(L_MESG, "locking the line");
 
 	/* try to lock the line
 	 */
-	if (makelock(lock) == FAIL) {
-		while (checklock(lock) == TRUE)
+
+	lprintf(L_MESG, "locking the line");
+
+	if ( makelock(Device) == FAIL ) {
+		while( checklock(Device) == TRUE)
 			(void) sleep(10);
 		exit(0);
 	}
@@ -331,7 +322,8 @@ int main( int argc, char ** argv)
 
 	/* setup terminal */
 
-	if (toggle_dtr) {
+	if (toggle_dtr)
+	{
 		lprintf( L_MESG, "lowering DTR to reset Modem" );
 		(void) ioctl(STDIN, TCGETA, &termio);
 		termio.c_cflag &= ~CBAUD;	/* keep all but CBAUD bits */
@@ -414,7 +406,7 @@ int main( int argc, char ** argv)
 
 	lprintf( L_NOISE, "checking lockfiles, locking the line" );
 
-	if ( makelock(lock) == FAIL) {
+	if ( makelock(Device) == FAIL) {
 	    lprintf( L_NOISE, "lock file exists!" );
 
 	    /* close stdin -> other processes can read port */
@@ -424,18 +416,18 @@ int main( int argc, char ** argv)
 
 	    /* this is kind of tricky: sometimes uucico dial-outs do still
 	       collide with mgetty. So, when my uucico times out, I do
-	       *immediately* restart it. The double look makes sure that
+	       *immediately* restart it. The double check makes sure that
 	       mgetty gives me at least 5 seconds to restart uucico */
 
 	    do {
 		    /* wait for lock to disappear */
-		    while (checklock(lock) == TRUE)
+		    while (checklock(Device) == TRUE)
 			sleep(10);	/*!!!!! ?? wait that long? */
 
 		    /* wait a moment, then check for reappearing locks */
 		    sleep(5);
 	    }
-	    while ( checklock(lock) == TRUE );	
+	    while ( checklock(Device) == TRUE );	
 
 	    /* OK, leave & get restarted by init */
 	    exit(0);
@@ -452,9 +444,8 @@ int main( int argc, char ** argv)
 	    exit(1);
 	}
 
-	/* wait for "RING" (and check for LOCK-Files while reading the
-           first string), if "RING" found and no lock-file, lock the line
-           and send manual answer string to the modem */
+	/* wait for "RING", if found, send manual answer string (ATA)
+	   to the modem */
 
 	log_level++; /*FIXME: remove this - for debugging only !!!!!!!!!!!*/
 	if ( ! direct_line )
@@ -598,56 +589,25 @@ int main( int argc, char ** argv)
 
 		(void) ioctl(STDIN, TCSETAW, &termio);
 
-		lprintf( L_MESG, "pid=%d, calling 'login %s'...\n", pid, buf );
+		lprintf( L_MESG, "device=%s, pid=%d, calling 'login %s'...\n", Device, pid, buf );
 
 		/* hand off to login, (can be a shell script!) */
-
-		/* do NOT handle "login ZyXEL" as special case for
-		 * zyxel fax mode any more - since all fax stuff is
-		 * class 2 now, fax calles are handled differently
-		 */
 
 		(void) execl(login, "login", buf, (char *) NULL);
 		(void) execl("/bin/sh", "sh", "-c",
 				login, buf, (char *) NULL);
 		lprintf(L_FATAL, "cannot execute %s", login);
 		exit(FAIL);
-
 	}
 }
 
-
 /*
-**	timeout() - handles SIGALRM
-*/
-
-sig_t
-timeout()
-{
-	struct termio termio;
-
-	/* say bye-bye
-	 */
-	(void) fprintf(stdout, "\nTimed out after %d seconds.\n", -1);
-	(void) fputs("Bye Bye.\n", stdout);
-
-	/* force a hangup
-	 */
-	(void) ioctl(STDIN, TCGETA, &termio);
-	termio.c_cflag &= ~CBAUD;
-	termio.c_cflag |= B0;
-	(void) ioctl(STDIN, TCSETAF, &termio);
-
-	exit(1);
-}
-
-/*
-**	exit_usage() - exit with usage display
-*/
+ *	exit_usage() - exit with usage display
+ */
 
 void exit_usage( int code )
 {
-    lprintf( L_FATAL, "Usage: mgetty [-x debug] [-s speed] [-d] line" );
+    lprintf( L_FATAL, "Usage: mgetty [-x debug] [-s speed] [-r] line" );
     exit(code);
 }
 

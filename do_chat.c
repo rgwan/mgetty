@@ -1,4 +1,4 @@
-#ident "$Id: do_chat.c,v 1.7 1993/05/22 16:45:59 gert Exp $ (c) Gert Doering";
+#ident "$Id: do_chat.c,v 1.8 1993/06/28 11:48:02 gert Exp $ (c) Gert Doering";
 /* do_chat.c
  *
  * This module handles all the talk with the modem
@@ -58,6 +58,8 @@ void chat_timeout()
 {
     chat_has_timeout = TRUE;
 }
+
+extern char * Device;
 
 int do_chat( char * expect_send[],
 	     chat_action_t actions[], action_t * action,
@@ -128,17 +130,16 @@ struct termio	termio, save_termio;
 		    if ( locks )
 		    {
 			lprintf( L_NOISE, "checking lockfiles, locking the line" );
-			if ( makelock(lock) == FAIL) {
+			if ( makelock(Device) == FAIL) {
 			    lprintf( L_NOISE, "lock file exists!" );
 			    /* close stdin -> other processes can read port */
 			    close(0);
 			    close(1);
 			    close(2);
 check_further:
-			    while (checklock(lock) == TRUE)
-			        sleep(10);	/*!!!!! ?? wait that long? */
+			    while (checklock(Device) == TRUE) sleep(10);
 			    sleep(5);
-			    if ( checklock(lock) == TRUE )
+			    if ( checklock(Device) == TRUE )
 				goto check_further;
 
 			    exit(0);

@@ -1,4 +1,4 @@
-/* $Id: mgetty.h,v 1.19 1993/06/05 11:08:48 gert Exp $ (c) Gert Doering */
+/* $Id: mgetty.h,v 1.20 1993/06/28 11:48:13 gert Exp $ (c) Gert Doering */
 
 /* stuff in logfile.c */
 
@@ -66,18 +66,10 @@ int	clean_line( int tenths );
 boolean	check_for_input( int fd );
 
 /* locks.c */
-
-int	makelock(char * name);
-boolean	checklock(char * name);
-int	readlock(char * name);
+int	makelock(char * device);
+boolean	checklock(char * device);
 sig_t	rmlocks();
   
-#ifdef SVR4
-char *	get_lock_name(char*, char*);
-#endif
-
-extern	char	*lock;
-
 /* fax stuff */
 void faxrec( void );
 

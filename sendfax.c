@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 1.18 1993/06/21 15:30:46 gert Exp $ (c) Gert Doering"
+#ident "$Id: sendfax.c,v 1.19 1993/06/28 11:48:15 gert Exp $ (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -36,7 +36,6 @@ void exit_usage( char * program )
 
 struct termio fax_termio;
 
-char	lockname[MAXPATH];
 int fax_open_device( char * fax_tty )
 {
 char	device[MAXPATH];
@@ -44,18 +43,10 @@ int	fd;
 
     if ( verbose ) printf( "Trying fax device '/dev/%s'... ", fax_tty );
 
-#ifdef SVR4
-    if(!(lock=get_lock_name( lockname, fax_tty))){
-      return -1;
-    }
-#else
-      sprintf( lock = lockname, LOCK, fax_tty );
-#endif
-
-    if ( makelock( lock ) != SUCCESS )
+    if ( makelock( fax_tty ) != SUCCESS )
     {
 	if ( verbose ) printf( "locked!\n" );
-	lprintf( L_MESG, "cannot lock %s", lock );
+	lprintf( L_MESG, "cannot lock %s", fax_tty );
 	return -1;
     }
 

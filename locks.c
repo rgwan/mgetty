@@ -1,8 +1,9 @@
-#ident "$Id: locks.c,v 1.11 1993/06/04 20:48:52 gert Exp $ Gert Doering / Paul Sutcliffe Jr."
+#ident "$Id: locks.c,v 1.12 1993/06/28 11:48:07 gert Exp $ Gert Doering / Paul Sutcliffe Jr."
 
 /* large parts of the code in this module are taken from the
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us,
  * and are used with permission here.
+ * SVR4 style locking by Bodo Bauer.
  */
 
 #include <stdio.h>
@@ -27,16 +28,18 @@
 
 #include "mgetty.h"
 
-char	*lock;				/* name of the lockfile */
+static char	lock[MAXLINE+1];	/* name of the lockfile */
+
+static int readlock( char * name );
+static char *  get_lock_name( char * lock_name, char * device );
 
 /*
-**	makelock() - attempt to create a lockfile
-**
-**	Returns FAIL if lock could not be made (line in use).
-*/
+ *	makelock() - attempt to create a lockfile
+ *
+ *	Returns FAIL if lock could not be made (line in use).
+ */
 
-int
-makelock(char *name)
+int makelock(char *device)
 {
 	int fd, pid;
 	char *temp, buf[MAXLINE+1];
@@ -46,7 +49,14 @@ makelock(char *name)
 	char apid[16];
 #endif
 
-	lprintf(L_NOISE, "makelock(%s) called", name);
+	lprintf(L_NOISE, "makelock(%s) called", device);
+
+	if ( get_lock_name( lock, device ) == NULL )
+	{
+	    lprintf( L_ERROR, "cannot get lock name" );
+	    return FAIL;
+	}
+	lprintf( L_NOISE, "lock='%s'", lock );
 
 	/* first make a temp file */
 
@@ -72,11 +82,11 @@ makelock(char *name)
 
 	/* link it to the lock file */
 
-	while (link(temp, name) == FAIL) {
-		lprintf(L_ERROR, "link(temp,name) failed" );
+	while (link(temp, lock) == FAIL) {
+		lprintf(L_ERROR, "link(temp,lock) failed" );
 
 		if (errno == EEXIST) {		/* lock file already there */
-			if ((pid = readlock(name)) == FAIL)
+			if ((pid = readlock(lock)) == FAIL)
 			{
 			    lprintf( L_NOISE, "cannot read lockfile" );
 			    if ( errno == ENOENT )	/* disappeared */
@@ -95,7 +105,7 @@ makelock(char *name)
 			if ((kill(pid, 0) == FAIL) && errno == ESRCH) {
 				/* pid that created lockfile is gone */
 				lprintf( L_NOISE, "stale lockfile, created by process %d, ignoring", pid );
-				(void) unlink(name);
+				(void) unlink(lock);
 				continue;
 			}
 		}
@@ -109,16 +119,22 @@ makelock(char *name)
 }
 
 /*
-**	checklock() - test for presense of valid lock file
-**
-**	Returns TRUE if lockfile found, FALSE if not.
-*/
+ *	checklock() - test for presense of valid lock file
+ *
+ *	Returns TRUE if lockfile found, FALSE if not.
+ */
 
-boolean
-checklock(char * name)
+boolean checklock(char * device)
 {
 	int pid;
 	struct stat st;
+	char name[MAXLINE+1];
+
+	if ( get_lock_name( name, device ) == NULL )
+	{
+	    lprintf( L_ERROR, "cannot get lock name" );
+	    return FALSE;
+	}
 
 	if ((stat(name, &st) == FAIL) && errno == ENOENT) {
 		lprintf(L_NOISE, "checklock: stat failed, no file");
@@ -141,12 +157,14 @@ checklock(char * name)
 }
 
 /*
-**	readlock() - read contents of lockfile
-**
-**	Returns pid read or FAIL on error.
-*/
+ *	readlock() - read contents of lockfile
+ *
+ *	Returns pid read or FAIL on error.
+ *
+ *      private function
+ */
 
-int readlock( char * name )
+static int readlock( char * name )
 {
 	int fd, pid;
 	char apid[16];
@@ -167,8 +185,8 @@ int readlock( char * name )
 }
 
 /*
-**	rmlocks() - remove lockfile(s)
-*/
+ *	rmlocks() - remove lockfile
+ */
 
 sig_t
 rmlocks()
@@ -177,13 +195,17 @@ rmlocks()
 	(void) unlink(lock);
 }
 
-
+/* get_lock_name()
+ *
+ * determine full path + name of the lock file for a given device
+ */
 
 #ifdef SVR4
 
 /*
- * get_lock_name() - create SVR4 lock file name
+ * get_lock_name() - create SVR4 lock file name (Bodo Bauer)
  */
+
 char *get_lock_name( char* lock, char* fax_tty )
 {
   struct stat tbuf;
@@ -214,5 +236,13 @@ char *get_lock_name( char* lock, char* fax_tty )
   lprintf(L_NOISE, "lock file: %s", lock);
   return(lock);
 }
- 
+
+#else	/* not SVR4 */ 
+
+char * get_lock_name( char * lock_name, char * device )
+{
+    (void) sprintf(lock_name, LOCK, device);
+    return lock_name;
+}
+	
 #endif /* SVR4 */
