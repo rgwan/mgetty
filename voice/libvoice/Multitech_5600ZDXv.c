@@ -17,7 +17,7 @@
  * This file then adapted for the Multitec MT5600ZDXv by
  * Bill Nugent <whn@lopi.com>
  *
- * $Id: Multitech_5600ZDXv.c,v 1.1 1999/01/30 18:42:30 marcs Exp $
+ * $Id: Multitech_5600ZDXv.c,v 1.2 1999/05/13 13:43:42 gert Exp $
  *
  */
 
@@ -103,7 +103,7 @@ Multitech_5600ZDXv_set_compression (int *compression, int *speed, int *bits)
       lprintf(L_WARN, "%s: Illegal sample rate (%d)", voice_modem_name, *speed);
       return(FAIL);
   }
-  if (snprintf(buf, sizeof(buf), "AT#VSR=%d", *speed) == -1) {
+  if (sprintf(buf, "AT#VSR=%d", *speed) == -1) {
     lprintf(L_ERROR, "%s: Command too long", __FUNCTION__);
   }
   if (voice_command(buf, "OK") != VMA_USER_1) {
@@ -128,7 +128,7 @@ Multitech_5600ZDXv_set_compression (int *compression, int *speed, int *bits)
               *compression);
       return(FAIL);
   }
-  if (snprintf(buf, sizeof(buf), "AT#VBS=%d", *bits) == -1) {
+  if (sprintf(buf, "AT#VBS=%d", *bits) == -1) {
     lprintf(L_ERROR, "%s: Command too long", __FUNCTION__);
   }
   if (voice_command(buf, "OK") != VMA_USER_1) {
