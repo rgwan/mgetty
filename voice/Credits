@@ -1,0 +1,181 @@
+
+ Credits for vgetty
+ ------------------
+
+The following people helped me with vgetty. I'm sure this list isn't
+complete yet, so don't hesitate to write me, who's missing.
+
+ * Klaus Weidner <klaus@snarc.greenie.muc.de>
+
+   The whole vgetty project was started by Klaus. He developed and
+   maintained it until mid of February 1995. Then he had to stop
+   working on vgetty for time reasons.
+
+ * Jens Adner <Jens.Adner@Wirtschaft.TU-Ilmenau.DE>
+
+   Updated driver UMC modems.
+
+ * Franco Bellagamba <root@magnum.teletel.com.ar>
+
+   Suggestions and patches for the voice shell script code.
+
+ * Jose Carlos Benfati <benfati@objectview.com.br>
+
+   Porting the USR code to the modems that report 3366 to the ATI command.
+
+ * Luke Bowker <puke@suburbia.net>
+
+   Hardwaredriver for Sierra modems.
+
+ * Ard van Breemen <ard@cstmel.hobby.nl>
+
+   Hardwaredriver for Rockwell modems and various patches.
+
+ * Lupe Christoph <lupe@alanya.m.isar.de>
+
+   Fixes for the ZyXEL 2864 driver.
+
+ * Jutta Degener <jutta@cs.tu-berlin.de>
+
+   and the Communications and Operating Systems Research Group at the TU
+   Berlin for their public GSM library, that is used in vgetty.
+
+ * Mitch DSouza <Mitch.DSouza@netcomm.ie>
+
+   First version of a hardwaredriver for Cirrus Logic modems.
+
+ * Torsten Duwe <duwe@informatik.uni-erlangen.de>
+
+   Second converter version for the Rockwell voice format.
+
+ * Mark P. Edwards <medwards@greenside.demon.co.uk>
+
+   First version of USR GSM converters.
+
+ * Henk Elbers <elbers@bng.nl>
+
+   Dialog script to playback received messages.
+
+ * Fritz Elfert <fritz@wuemaus.franken.de>
+
+   The developer and author of the ISDN4Linux driver.
+
+ * Stefan Froehlich <Stefan.Froehlich@tuwien.ac.at>
+
+   The original author of the Elsa Microlink driver.
+
+ * Wolfram Gloger <Gloger@lrz.uni-muenchen.de>
+
+   Added do_hard_flow and do_message_light options to config file.
+   Fixed missing delay in voice_write.
+
+ * Karlo Gross <kg@orion.ddorf.rhein-ruhr.de>
+
+   The new developer of the Elsa Microlink driver and the .wav converter.
+
+ * Thomas Hellstroem <thomas@vtd.volvo.se>
+
+   The new developer of the US Robotics driver.
+
+ * Gregor Hoffleit <flight@mathi.uni-heidelberg.de>
+
+   Patches to compile vgetty under NeXTstep.
+
+ * Peter Hofmann <peterh@prz.tu-berlin.de>
+
+   Patches for USR Sportster and internal microphone support for vm.
+
+ * Ulrich Homann <ulho@uni-paderborn.de>
+
+   Hardwaredriver for the UMC Phonemaster and small fixes.
+
+ * Scott Hutton <shutton@indiana.edu>
+
+   Perlscript to convert GSM data to the Sun .au format.
+
+ * Peter Jaeckel <atmpj@ermine.ox.ac.uk>
+
+   Author of the current Rockwell voice format converter. This is the
+   first version, that produces identical output to the DOS executables
+   available from http://www.nb.rockwell.com/ref/adpcm.html for
+   Rockwell modems. Many suggestions and bug fixes for the pvf tools.
+
+ * Rob Johnson <rtjohnso@euler.uncg.edu>
+
+   Added 4bps decompression to rockwell.c and automatic compression method
+   detection for the first converter version from Torsten Duwe.
+
+ * Russell King <rmk@ecs.soton.ac.uk>
+
+   Hardware driver for Multitech modems.
+
+ * Mizser Krisztian <christo@dundi.sch.bme.hu>
+
+   Documentation for the voice shell commands.
+
+ * Francois Magnan <magnan@MATHCN.UMontreal.ca>
+
+   Compatibility patches to compile vgetty under NeXTSTEP.
+
+ * Russ Nelson <nelson@crynwr.com>
+
+   Many suggestions and bug fixes.
+
+ * Pascal <pern@ramoth.xs4all.nl>
+
+   For mailing me the dutch version of the voice command set of the
+   Dolphin modems and the information for my autodetection routines.
+
+ * Bjarne Pohlers <bjarne@math.uni-muenster.de>
+
+   New driver for Linux ISDN.
+
+ * Luigi Rizzo <luigi@iet.unipi.it>
+
+   First conversion program for the Rockwell voice format. Many suggestions
+   and bug fixes.
+
+ * Marc Schaefer <schaefer@alphanet.ch>
+
+   A couple of patches for vgetty at different places and the voicemail
+   system mvm.
+
+ * Eckehard Schulze <esc@neuhaus.de>
+
+   Mailed me a Dr. Neuhaus Cybermod modem to write and maintain a
+   hardware driver for it.
+
+ * Martin Seine <martin@erde.gun.de>
+
+   The first developer and author of the ZyXEL 2864 driver.
+
+ * Hitesh K. Soneji <hitesh.soneji@industry.net>
+
+   Updated the Cirrus Logic hardware driver to the new internal vgetty
+   interface.
+
+ * Paul Stewart <stewart@parc.xerox.com>
+
+   ADPCM and GSM converter for the US Robotics modems.
+
+ * F. Xavier Surbezy <fx@pyrenet.fr>
+
+   Wrote the vgetty beginners guide.
+
+ * Vladimir Turin <vova@mics.msu.su>
+
+   Bugfixes for the shell script code.
+
+ * Joshua D Wilmes <josh@makita.jpl.nasa.gov>
+
+   Great help in debugging the shell script code.
+
+ * Steve Wormley <wormley@step.mother.com>
+
+   Mailed me the first version of the US Robotics hardware driver.
+
+ * Jamie Zawinski <jwz@netscape.com>
+
+   Many suggestions and bug fixes including ANSI C compatibility.
+
+$Id: Credits,v 1.1 1997/12/16 10:48:05 marc Exp $

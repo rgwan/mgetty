@@ -1,0 +1,491 @@
+Sat Apr 12 16:48:31 1997  Marc Eberhard  (marc@athene)
+
+     * New vgetty release with many minor changes.
+
+Sat Jan 25 10:16:06 1997  Marc Eberhard  (marc@nepomuk)
+
+     * Many changes including complete rewrite of the pvftools.
+
+Tue Dec 10 20:08:57 1996  Marc Eberhard  (marc@nepomuk)
+
+     * Most hardware drivers are working again.
+
+Thu Nov 07 19:23:08 1996  Marc Eberhard  (marc@nepomuk)
+
+     * Changed lots of stuff and fixed many bugs. Most hardware
+       drivers are disabled, because they are broken.
+
+Tue Aug 06 21:53:01 1996  Marc Eberhard  (marc@nepomuk)
+
+     * Hopefully fixed the timeout problem.
+
+     * Added new hardwre driver event to switch to data or
+       fax mode.
+
+     * Added fully documented config file.
+
+     * Other minor changes.
+
+Fri Jul 19 07:54:56 1996  Marc Eberhard  (marc@nepomuk)
+
+     * Wrote new driver for the Dr. Neuhaus Cybermod.
+
+     * Many small changes and fixes.
+
+Tue Jun 25 22:24:52 1996  Marc Eberhard  (marc@nepomuk)
+
+     * Added Mitch DSouza driver for Cirrus modems.
+
+     * Added various patches.
+
+Sat Feb 03 11:16:53 1996  Marc Eberhard  (marc@nepomuk)
+
+     * Added Ard van Breemens driver for Rockwell modems.
+
+     * Added various compatibility patches.
+
+     * Added Ulrich Homanns driver for UMC Phonemaster modems.
+
+Mon Jan 29 06:55:54 1996  Marc Eberhard  (marc@nepomuk)
+
+     * Added Steve Wormleys US Robotics hardware driver.
+
+     * Added Torsten Duwes patch for the pvf tools and his new converter
+       for Rockwell voice data.
+
+     * Changed the directory layout, because some file names were too long
+       and caused trouble.
+
+Sat Dec 30 01:15:25 1995  Marc Eberhard  (marc@nepomuk)
+
+     * First public release of the new vgetty code. Probably many bugs,
+       because this release was produced under heavy time pressure.
+
+Thu Oct 05 22:34:51 1995  Marc Eberhard  (marc@nepomuk)
+
+     * Pre release of the new generation vgetty code.  Major changes to all
+       files, but not finished yet.
+
+Wed Apr 12 19:26:04 1995  Marc Eberhard  (marc@nepomuk)
+
+     * New beta release.
+
+     * Removed all static #ifdef's and replaced them by normal if's to
+       support runtime configuration in the future.
+
+Sun Apr 09 21:46:18 1995  Marc Eberhard  (marc@nepomuk)
+
+     * New beta release.
+
+     * Only minor cleanups.
+
+Thu Apr 06 08:41:08 1995  Marc Eberhard  (marc@nepomuk)
+
+     * Flowcontrol problem pointed out by Wolfgang Jung. Partial fix for
+       now.
+
+Wed Apr 05 18:10:36 1995  Marc Eberhard  (marc@nepomuk)
+
+     * Fixed the bug reported by Wolfram Gloger. Now voice_rings returns the
+       correct number for rings_wanted when invoked multiple times instead
+       of decrementing rings_wanted on each invokation until it's one.
+
+Mon Apr 03 18:17:43 1995  Marc Eberhard  (marc@nepomuk)
+
+     * Makefile changes for portability
+
+Mon Apr 03 10:45:47 1995  Marc Eberhard  (marc@nepomuk)
+
+     * New beta release
+
+     * Minor changes for portability
+
+Thu Mar 30 20:03:20 1995  Marc Eberhard  (marc@nepomuk)
+
+     * New beta release
+
+     * Many changes to the Makefile
+
+     * Added dialout support for zplay
+
+Fri Oct 28 21:03:11 1994  Klaus Weidner  (klaus@snarc)
+
+     * Makefile: new REL
+
+     * zplay.1, zplay.c: fixed the -T documentation - range from 0..1
+
+     * vmodem.c, voclib.h: always use 38400 bps for Rockwell modems.
+
+Fri Oct 21 00:52:09 1994  Klaus Weidner  (klaus@snarc)
+
+     * Makefile: new REL
+
+     * zplay.1: updated zplay documentation to be less ZyXEL specific,
+     expanded some sections.
+
+     * zplay.c, zplay.1: documented -I and -K zplay options
+
+Fri Oct 21 00:22:28 1994  Klaus Weidner  (klaus@snarc)
+
+     * voclib.c: Use integers instead of symbolic values for VOICE_SEND_BAUD
+
+     * vmodem.c: move the DTMF sensitivity parameters to voclib.h
+
+     * voclib.h: move the DTMF sensitivity parameters to voclib.h
+     Use integers instead of symbolic values for VOICE_SEND_BAUD
+
+Thu Oct 20 00:28:15 1994  Klaus Weidner  (klaus@snarc)
+
+     * vanswer.c: pass caller id to vg_message
+
+Wed Oct 19 23:46:19 1994  Klaus Weidner  (klaus@snarc)
+
+     * voclib.h, vmodem.c, vanswer.c:
+     moved enter_data_mode() to vmodem.c, Rockwell changes
+
+Sun Oct  9 12:29:30 1994  Klaus Weidner  (klaus@snarc)
+
+     * vmodem.c, voclib.c, voclib.h:
+     fixed compression type determination for non-ZyXEL playback
+
+     * pvfadpcm.c: include <string.h> instead of <strings.h>
+
+Sun Aug 21 14:17:26 1994  Klaus Weidner  (klaus@snarc)
+
+     * Makefile, vanswer.c, voclib.c, voclib.h, zplay.c:
+     Improved the asynchronous response handling, all
+     dtmf codes sent by the modem should get caught now.
+
+     * Makefile: new REL
+
+Sat Aug 20 20:13:11 1994  Klaus Weidner  (klaus@snarc)
+
+     * Makefile: new REL
+
+Sat Aug 20 20:09:47 1994  Klaus Weidner  (klaus@snarc)
+
+     * zplay.c: asynchronous DTMF handling
+     -I <string>: ignored DTMF codes
+     -K: kill buffered input
+
+     * vanswer.c, voclib.c, voclib.h: new-style asynchronous DTMF handling
+
+     * vgetty.c, voclib.h, vanswer.c:
+     support 'rings <n>' line in /etc/answer.DEVICE
+
+     * vanswer.c:
+     fixed the answer_mode handling, be more picky about what kind of calls
+     are accepted. Handle <DLE>e data calling tone.
+
+Sun Aug 14 08:38:08 1994  Klaus Weidner  (klaus@snarc)
+
+     * vanswer.c: differentiate data and fax calls better
+
+     * pvfadpcm.c: print error message for non-ZyXEL voice files
+
+     * voclib.h, voclib.c, vmodem.c:
+     Put the modem type in the voice file header
+
+     * voclib.c: fixed alarm handling in voice_wait_for
+
+Sat Aug 13 12:10:39 1994  Klaus Weidner  (klaus@snarc)
+
+     * vmodem.c: changed wrong k&r prototype
+
+Mon Aug  8 23:13:22 1994  Klaus Weidner  (klaus@snarc)
+
+     * listen.in: vplay support
+
+     * vg_dtmf.in: compatibility fixes for bourne shells
+
+     * vmodem.c: added break to make SunPro compiler happy
+
+     * vmodem.c, vanswer.c, vgetty.c: repaired distinctive RING handling
+
+     * pvfadpcm.c:
+     added missing brackets to & operator, fixed dispatcher for adpcm4
+
+     * voclib.h: VOICE_REC_COMPRESSION=4 by default
+
+     * Makefile: added ../goodies.o, pvftoadpcm4, new $REL
+
+Tue Jul 26 23:58:05 1994  Klaus Weidner  (klaus@snarc)
+
+     * vmodem.c: use hardware flow control for ZYXEL_ROM >= 6.13
+     use AT#CLS=0 to turn off voice mode for Rockwell
+
+     * pvfadpcm.c, pvfmain.c: added 4-bit ADCPM mode
+
+     * voclib.c: wait for DLE ETX properly when finishing recording
+     moved flow control setup to vmodem.c
+
+     * voclib.h: new 4-bit ZyXEL adpcm format
+
+Tue Jul 26 13:53:01 1994  Klaus Weidner  (klaus@snarc)
+
+     * pvf.1: updated pvflin section
+
+     * listen.in, play_messages.in, vg_button.in, vg_call.in, vg_dtmf.in, vg_fft.in, vg_message.in, vg_nmp.in, vg_say.in:
+     replaced /bin/sh with @SHELL@
+
+     * voclib.c: don't throw away recording if modem erroneously reports 's'
+
+     * voclib.c: fixed voice_wait_for return code
+
+     * vanswer.c: cleaned up get_answer_mode
+
+     * vanswer.c: replaced Device with DevID
+
+     * pvflin.c: added -16i flag
+
+     * vgetty.c: added gert's latest changes
+
+     * vanswer.c: fixed strstr hack
+
+     * voclib.c: added sys/{types,wait}.h includes
+
+     * vg_dtmf.in: fixed one-liner syntax so that /bin/sh doesn't barf
+
+     * zplay.c: -l didn't work for /dev/cua/a type devices
+
+     * voclib.c: handle /dev/cua/a style device names
+
+     * pvflin16i.c: Initial revision
+
+     * vanswer.c: made get_answer_mode static
+
+     * voclib.h: removed get_answer_mode prototype
+
+Mon Jun  6 20:39:44 1994  Klaus Weidner  (klaus@snarc)
+
+     * zplay.c: silence threshold was erroneously set to zero
+
+     * pvf.1: added -kill option to pvffft
+
+     * pvffft.c:
+     added -kill option, send SIGPIPE when done reading to avoid blocking
+     the calling process due to a full pipe.
+
+     * voclib.c:
+     made sure signals won't cause data corruption due to interrupted
+     read()s
+
+Sun Jun  5 21:47:04 1994  Klaus Weidner  (klaus@snarc)
+
+     * Makefile: removed listen
+
+Sun Jun  5 13:09:21 1994  Klaus Weidner  (klaus@snarc)
+
+     * Makefile: new REL
+
+     * vg_fft.in, pvffft.c, pvf.1: added command line args for pvffft.
+
+     * vgetty.c: added TIOCSCTTY hack
+
+     * vanswer.c: be more paranoid about wait()s
+
+     * voclib.c: added missing wait() for the fft program
+
+Sat Jun  4 13:30:56 1994  Klaus Weidner  (klaus@snarc)
+
+     * vmodem.c:
+     fixed bug that was erroneously setting the speaker volume to zero
+
+Tue May 31 20:34:36 1994  Klaus Weidner  (klaus@snarc)
+
+     * Makefile: removed listen.in (now in contrib/dialog)
+
+Sun May 29 23:36:13 1994  Klaus Weidner  (klaus@snarc)
+
+     * pvffft.c: replaced PI with M_PI
+
+Sun May 29 14:55:25 1994  Klaus Weidner  (klaus@snarc)
+
+     * vanswer.c:
+     fixed voice_button, pick up the phone if rings were detected
+
+Fri May 27 21:55:03 1994  Klaus Weidner  (klaus@snarc)
+
+     * voclib.h, pvffft.c: rearranged and rewrote the comments
+
+Fri May 27 20:34:45 1994  Klaus Weidner  (klaus@snarc)
+
+     * zplay.c: added -F option (do FFT)
+
+     * vmodem.c: increased dtmf threshold again
+
+     * speakdate.pl: added space in ordinals
+
+     * pvf.1, pvfmain.c: added pvffft
+
+     * vg_fft.in, pvffft.c: Initial revision
+
+     * Makefile, vpaths.c, vmodem.c, voclib.h, voclib.c:
+     added support for data/fax switching using fft analysis
+
+Thu May 26 16:47:31 1994  Klaus Weidner  (klaus@snarc)
+
+     * Makefile, vmodem.c, voclib.h: print release number in the log file
+
+Wed May 25 18:22:32 1994  Klaus Weidner  (klaus@snarc)
+
+     * vmodem.h: Initial revision
+
+     * voclib.c, vanswer.c, vmodem.c, voclib.h, zplay.c: support for
+     rockwell modems
+
+Wed May 11 22:07:36 1994  Klaus Weidner  (klaus@snarc)
+
+     * vmodem.c: raised the dtmf threshold
+
+Fri May  6 13:50:02 1994  Klaus Weidner  (klaus@snarc)
+
+     * vmodem.c: added DTMF threshold setting for >=612
+
+Thu May  5 18:44:26 1994  Klaus Weidner  (klaus@snarc)
+
+     * Makefile: speakdate -> speakdate.{sh,pl}
+
+Thu May  5 11:25:41 1994  Klaus Weidner  (klaus@snarc)
+
+     * vmodem.c, voclib.c, voclib.h:
+     new functions voice_send_init and voice_record_init
+
+     * speakdate.pl: Initial revision
+
+Tue May  3 22:03:50 1994  Klaus Weidner  (klaus@snarc)
+
+     * vgetty.c: added missing break
+
+     * listen.in, vg_message.in, vg_nmp.in, voclib.h:
+     put .flag and .timestamp into incoming dir
+
+Sun May  1 23:02:34 1994  Klaus Weidner  (klaus@snarc)
+
+     * Makefile: removed CHANGES
+
+     * pvf.1, pvfadpcm.c: added -r612 flag
+
+Sun May  1 22:53:58 1994  Klaus Weidner  (klaus@snarc)
+
+     * voclib.c: added check for ERROR in voice_wait_for(), should fix hangs
+
+Sun May  1 22:49:12 1994  Klaus Weidner  (klaus@snarc)
+
+     * voclib.c: removed ZyXEL rom release specific code
+
+     * zplay.c: use mg_init_voice
+
+     * vmodem.c:
+     use voice_command instead of mi_command, ZYXEL_ROM specific init
+
+     * Makefile:
+     use ZYXEL_ROM, added vg_call.in, ChangeLog and vmodem.c to archive
+
+     * pvfadpcm.c: added new leakage code for 6.12
+
+Sun May  1 22:14:54 1994  Klaus Weidner  (klaus@snarc)
+
+     * vgetty.c: integrated voice features into the state machine
+
+     * voclib.c: cleaned up the return codes, 'E' instead of ERROR
+
+     * zplay.c: added missing ':'s in the getopt line
+     'E' returned instead of ERROR
+     cleaned up the result printing on stdout
+
+     * voclib.h: updated prototypes for voice_button and voice_answer
+
+     * vg_call.in: add logging, removed debug functions, bugfixes
+
+     * vanswer.c: updated get_answer_mode to avoid multiple file reads
+     removed -c from /bin/sh calls
+     fork the external call program, this way fax/data will work
+     new functions enter_data_mode(), voice_button(), log_call_length()
+     cleaned up voice_answer, the code should be much more readable now
+
+     * Makefile: added vg_call.in, new REL
+
+     * vg_call.in, vmodem.c: Initial revision
+
+     * zplay.c: replaced setenv with putenv, added missing arg to -V
+
+     * vgetty.c: gert's newest version
+
+Thu Apr 28 12:51:19 1994  Klaus Weidner  (klaus@snarc)
+
+     * zplay.c: security patches to make Chris Lewis happy
+
+     * vanswer.c, voclib.c: don't put dtmf digits into the log file
+
+     * Makefile: changed .code to 660
+
+Wed Apr 27 17:29:36 1994  Klaus Weidner  (klaus@snarc)
+
+     * listen.in: should work now...
+
+     * Makefile: added PHONE_GROUP and PHONE_PERM
+
+     * listen.in, play_messages.in: added eval "exec zplay ..." mechanism
+
+     * zplay.c: setenv ZPLAY_X set when -X is used
+
+     * voclib.c: don't treat interrupt as an error
+
+     * listen.in: Initial revision
+
+Mon Apr 25 07:40:14 1994  Klaus Weidner  (klaus@snarc)
+
+     * Makefile: added ../sedscript dependency
+
+Sun Apr 24 23:02:11 1994  Klaus Weidner  (klaus@snarc)
+
+     * vg_button.in, vg_dtmf.in, vg_message.in, vg_nmp.in, vg_say.in:
+     used the sedscript path handling
+
+     * play_messages.in: Initial revision
+
+     * zplay.1: updated shell script section
+
+     * vgetty.c: integrated gert's changes
+
+Fri Apr 22 21:57:32 1994  Klaus Weidner  (klaus@snarc)
+
+     * pvfsine.c: Initial revision
+
+     * zplay.c: updated logging code
+
+     * voclib.c: use FAX_COMMAND_DELAY instead of hardcoded 10 ms
+
+     * Makefile: added pvfsine and play_messages
+
+     * zplay.c: added -X option to call a shell with the modem on stdin
+
+Fri Apr 22 21:00:14 1994  Klaus Weidner  (klaus@snarc)
+
+     * vg_message: added MIME support for forwarding voice messages
+
+Fri Apr 22 20:07:38 1994  Klaus Weidner  (klaus@snarc)
+
+     * pvfvoc.c: added rate argument
+
+     * pvfmain.c: added pvfsine
+
+     * voclib.h: made silence removal and the button program optional,
+       added VOICE_ALWAYS_KEEP_MESSAGE
+
+     * voclib.c: made silence removal optional
+
+     * vanswer.c: removed redundant #includes,
+       don't remove messages by default when DTMF digits are detected,
+       made the button program optional
+
+     * vgetty.c: integrated Gert's changes
+
+Tue Mar 29 15:17:18 1994  Klaus Weidner  (klaus@snarc)
+
+     * voice/pvfutil.c: do averaging when decreasing the sample rate
+
+Sun Mar 20 12:26:35 1994  Klaus Weidner  (klaus@snarc)
+
+     * voice/README: email address

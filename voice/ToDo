@@ -1,0 +1,24 @@
+  2) Missing shell scripts: button.sh and call.sh.
+
+  4) Option to read and analyse the raw caller ID data from the modem.
+
+  6) Run the vgetty scripts under a specified user-/group-id
+
+  9) Update the documentation.
+
+ 24) Make vgetty stay in voice mode all the time from initialization on
+     to prevent dialout, if the local phone if off-hook (can only be
+     detected in voice mode)
+
+ 29) Fix lprintf({L_ERROR|L_FATAL},...) by setting errno to a value, that
+     makes sense for the error reported
+
+ 32) Add a new option to wait between answering the phone and playing
+     of the greeting message to allow some modems to detect fax calls
+     more reliable.
+
+ 34) Make the user and group of the saved voice file a config file option.
+
+ 36)
+
+$Id: ToDo,v 1.1 1997/12/16 10:48:07 marc Exp $
