@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 3.11 1996/08/22 22:17:51 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 3.12 1996/10/10 23:43:32 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -108,6 +108,12 @@ typedef	char	boolean;
 # ifndef sun
 #  define sun
 # endif
+#endif
+
+/* SGI's are SVR4... (jwz@netscape.com) */
+#ifdef __sgi
+# define SVR4
+# define SVR42
 #endif
 
 /* assume that all BSD systems have the siginterrupt() function
