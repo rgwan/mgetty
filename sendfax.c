@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 2.8 1995/03/21 22:51:06 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 2.9 1995/03/24 17:17:04 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -517,7 +517,7 @@ int main _P2( (argc, argv),
 
 	switch ( fax_page_tx_status )
 	{
-	  case 1: tries = 0; break;		/* page good */
+	  case 1: break;			/* page good */
 						/* page bad - r. req. */
 	  case 2:
 	    if ( c_int(max_tries) <= 0 )	/* ignore */
@@ -529,16 +529,24 @@ int main _P2( (argc, argv),
 	    {
 		fprintf( stderr, "ERROR: RTN: page bad - retrain requested\n" );
 		tries ++;	
-		if ( tries >= c_int(max_tries) )
+		if ( tries >= c_int(max_tries) )	/* max tries reached */
 		{
-		    fprintf( stderr, "ERROR: too many retries - aborting send\n" );
-		    fax_hangup_code = -1;
-		    fax_hangup = 1;
+		    if ( c_bool(fax_tries_cnt) )	/* go on */
+		    {
+			fprintf( stderr, "WARNING: maximum number of retries reached, going on\n" );
+			lprintf( L_WARN, "max. tries (%d) reached, going on", tries );
+		    }
+		    else				/* abort */
+		    {
+			fprintf( stderr, "ERROR: too many retries - aborting send\n" );
+			fax_hangup_code = -1;
+			fax_hangup = 1;
+		    }
 		}
 		else
 		{
 		    if ( verbose )
-		    printf( "sending page again (retry %d)\n", tries );
+		       printf( "sending page again (retry %d)\n", tries );
 		    continue;	/* don't go to next page */
 		}
 	    }
@@ -558,7 +566,8 @@ int main _P2( (argc, argv),
 
 	if ( fax_hangup && fax_hangup_code != 0 ) break;
 	
-	argidx++;
+	argidx++;		/* next page */
+	tries=0;		/* no tries yet */
     }				/* end main page loop */
 
     if ( argidx < argc || ( fax_hangup && fax_hangup_code != 0 ) )
