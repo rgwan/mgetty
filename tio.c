@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 3.3 1996/02/04 15:31:52 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 3.4 1996/02/25 22:24:33 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* tio.c
  *
@@ -519,12 +519,13 @@ int tio_set_flow_control _P3( (fd, t, type), int fd, TIO * t, int type )
 			t->c_cflag |= HARDWARE_HANDSHAKE;
     if ( type & FLOW_XON_IN )
 			t->c_iflag |= IXOFF;
+    /* for login, we want IXON|IXANY, for voice, we must not set IXANY! */
     if ( type & FLOW_XON_OUT )
-#if 0 /*!!! FIXME! We want this for data logins, can't have it for voice */
-			t->c_iflag |= IXON | IXANY;
-#else
-			t->c_iflag |= IXON;
-#endif
+    {
+	                t->c_iflag |= IXON;
+        if ( type & FLOW_XON_IXANY )
+	                t->c_iflag |= IXANY;
+    }
 #else
 #include "not yet implemented"
 #endif
