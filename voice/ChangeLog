@@ -1,3 +1,15 @@
+2001-07-23  Marc SCHAEFER  <schaefer@defian.alphanet.ch>
+
+	* All of below is 0.9.30
+
+	* Fix in libvoice/shell.c regarding missing `break's causing
+	the DEVICE voice shell command to return three results (READY,
+	DEVICE_NOT_AVAILABLE, ERROR). Patch by Vladimir Volovich <vvv@vsu.ru>.
+
+	* Fix in libvoice/IS_101.c: the IS_101_wait() function has been
+	redesigned to cope with non atomic DLE sequences. Bug found by
+	Alan Ferrency <alan@pair.com>, however fix isn't confirmed yet.
+
 Wed May 16 19:15:01 2001  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 
 	* All of below is 0.9.29.
