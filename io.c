@@ -1,4 +1,4 @@
-#ident "$Id: io.c,v 1.8 1993/10/22 11:12:57 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: io.c,v 1.9 1993/10/26 21:49:24 gert Exp $ Copyright (c) Gert Doering";
 /* io.c
  *
  * This module contains a few low-level I/O functions
@@ -23,7 +23,7 @@ int poll _PROTO(( struct pollfd fds[], unsigned long nfds, int timeout ));
 #ifdef USE_SELECT
 # include <string.h>
 # if defined (linux) || defined (sun) || defined (SVR4) || \
-     defined (__hpux) || defined (MEIBE)
+     defined (__hpux) || defined (MEIBE) || defined(sgi)
 #  include <sys/time.h>
 # else
 #  include <sys/select.h>
