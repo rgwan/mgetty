@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.33 1999/01/17 17:23:13 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.34 1999/02/13 12:19:10 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -285,8 +285,8 @@ MV=mv
 # Nothing to change below this line ---------------------------------!
 #
 MR=1.1
-SR=20
-DIFFR=1.1.19
+SR=21
+DIFFR=1.1.20
 #
 #
 OBJS=mgetty.o logfile.o do_chat.o locks.o utmp.o logname.o login.o \
@@ -450,6 +450,9 @@ tar:	mgetty$(MR).$(SR).tar.gz
 
 diff:	mgetty$(DIFFR)-$(MR).$(SR).diff.gz
 
+sign:	tar
+	pgp -sab mgetty$(MR).$(SR).tar.gz
+
 mgetty$(DIFFR)-$(MR).$(SR).diff.gz: \
 	mgetty$(DIFFR).tar.gz mgetty$(MR).$(SR).tar.gz
 	-rm -rf /tmp/mgd
@@ -474,7 +477,7 @@ uu2:	mg.uue
 # this is for automatic uploading to the beta site. 
 # DO NOT USE IT if you're not ME! Please!
 #
-beta:	mgetty$(MR).$(SR).tar.gz diff
+beta:	tar diff sign
 	test `hostname` = greenie.muc.de || exit 1
 # local
 	cp mgetty$(MR).$(SR).tar.gz /pub/mgetty-archive/
