@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 3.9 1996/10/16 13:21:05 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 3.10 1996/10/16 14:14:06 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* tio.c
  *
@@ -649,7 +649,7 @@ int tio_toggle_dtr _P2( (fd, msec_wait), int fd, int msec_wait )
     
     int mctl = TIOCM_DTR;
 
-#if defined(sun) || defined(NeXT) || defined(__sgi) || defined(linux)
+#if !defined( TIOCM_VALUE )
     if ( ioctl( fd, TIOCMBIC, &mctl ) < 0 )
 #else
     if ( ioctl( fd, TIOCMBIC, (char *) mctl ) < 0 )
@@ -658,7 +658,7 @@ int tio_toggle_dtr _P2( (fd, msec_wait), int fd, int msec_wait )
 	lprintf( L_ERROR, "TIOCMBIC failed" ); return ERROR;
     }
     delay( msec_wait );
-#if defined(sun) || defined(NeXT) || defined(__sgi) || defined(linux)
+#if !defined( TIOCM_VALUE)
     if ( ioctl( fd, TIOCMBIS, &mctl ) < 0 )
 #else
     if ( ioctl( fd, TIOCMBIS, (char *) mctl ) < 0 )
