@@ -1,4 +1,4 @@
-#ident "@(#)getdisk.c $Id: getdisk.c,v 1.4 1994/02/01 16:23:03 gert Exp $ Copyright (c) 1994 Elegant Communications Inc."
+#ident "@(#)getdisk.c $Id: getdisk.c,v 1.5 1994/04/25 21:50:10 gert Exp $ Copyright (c) 1994 Elegant Communications Inc."
 ;
 /*
 
@@ -10,7 +10,7 @@
     
 	The key to configuration is choosing the right one of the
 	following five types:
-	    BSDSTATFS     - BSD/hp-ux/SunOS/Dynix/vrios
+	    BSDSTATFS     - BSD/hp-ux/SunOS/Dynix/vrios/OSF-1
 			    2-parameter statfs()
 	    ULTRIXSTATFS  - Ultrix wacko statfs
 	    SVR4	  - SVR4 statvfs()
@@ -67,7 +67,7 @@
 
 #if defined(vpyr) || defined(vsnxdyn) || defined(__hpux) || defined(vdynix) || \
     defined(vaix) || defined(_AIX) || defined(vaixps2) || defined(sun) || \
-    defined(linux)
+    defined(linux) || defined(__osf__)
 # define BSDSTATFS	/* as used from the att universe of Pyramid! :-) */
 #endif
 
@@ -112,7 +112,11 @@
 #  ifdef _AIX
 #   include <sys/statfs.h>
 #  else
-#   include <sys/vfs.h>
+#   ifdef __osf__
+#    include <sys/mount.h>
+#   else
+#    include <sys/vfs.h>
+#   endif
 #  endif
 
 #  define MYSTATFS(a,b) statfs(a,b)
