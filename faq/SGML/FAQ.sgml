@@ -7,7 +7,7 @@
               which are now maintained by Marc Schaefer
 <author>			 Klaus Lichtenwalder, now maintained by
                                  Marc Schaefer
-<date>$Date: 2000/07/22 10:00:16 $
+<date>$Date: 2000/07/23 10:01:20 $
 
 <abstract>
 This document attempts to answer the most frequently asked questions
@@ -1298,5 +1298,23 @@ CALLER ID on some specific modems, you might want to add the following
 in post-init-chat: 
 <p>
 post-init-chat "" AT#CID=1 OK
+
+<sect1>Can you dialout and play a voice message on phone pickup with vm? <label id="vm dialout">
+<p>
+From: Marc SCHAEFER
+<p>
+Yes, with scripts/message.sh
+<p>
+This assumes the voice modem is capable of detecting when the
+other side picks up the phone (e.g.: ZyXEL 2864I). If not,
+you have to revert to tricks involving ringback options in
+voice.conf (you configure a timeout after which, if there
+wasn't any RINGING result from the modem, and no other
+error, we consider the phone being answered).
+<p>
+As of 0.9.12, it is only implemented for Elsa, US_Robotics,
+ZyXEL 1496 and Omni56k. There is some generic support in
+IS_101, too.
+<p>
 
 </article>
