@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.5 1997/04/12 20:02:04 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.6 1997/04/12 20:52:36 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -538,12 +538,14 @@ int mdm_identify _P1( (fd), int fd )
 		lprintf( L_MESG, "USR I-Modem detected" );
 		modem_type=Mt_class2_0;
 		break;
+	      case 2886:
 	      case 3366:
-		lprintf( L_MESG, "USR Courier V.34 detected" );
+		lprintf( L_MESG, "USR Courier V.34(+) detected" );
 		modem_type=Mt_class2_0;
 		break;
+	      case 1444:
 	      case 1445:
-		lprintf( L_MESG, "USR Courier DS/V.32bis detected" );
+		lprintf( L_MESG, "USR Courier/Sportster v32bis detected" );
 		modem_type=Mt_data;
 		break;
 	      case 62:	/* sure? */
@@ -554,7 +556,24 @@ int mdm_identify _P1( (fd), int fd )
 		lprintf( L_MESG, "Telebit FastBlazer detected" );
 		modem_type=Mt_data;
 		break;
-	      case 14400: /* further distinction necessary! */
+	      case 149: /* sure? */
+		lprintf( L_MESG, "Intel 14.4E/400e detected (??)" );
+		modem_type=Mt_unknown;
+		break;
+	      case 247: /* sure? - use ATI2 for further distinction */
+		lprintf( L_MESG, "Multitech MT1432BA/MT1932ZDX/MT2834ZDX detected" );
+		modem_type=Mt_class2_0;
+		break;
+	      case 251: /* sure? */
+		lprintf( L_MESG, "Discovery 2400 AM detected" );
+		modem_type=Mt_data;
+		break;
+	      case 641: /* sure? */
+		lprintf( L_MESG, "ELSA MicroLink ISDN/TLpro detected" );
+		modem_type=Mt_data;
+		break;
+	      case 249:
+	      case 14400: /* further distinction necessary (ATI4)! */
 	      case 28800:
 	      case 33600:
 		lprintf( L_MESG, "Generic Rockwell modem (%d)", mid );
