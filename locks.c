@@ -1,4 +1,4 @@
-#ident "$Id: locks.c,v 3.2 1995/08/30 13:53:32 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
+#ident "$Id: locks.c,v 3.3 1995/11/11 00:32:06 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
 
 /* large parts of the code in this module are taken from the
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us,
@@ -240,13 +240,14 @@ static int readlock _P1( (name),
 			 char * name )
 {
 	int fd, pid;
-	char apid[16];
+	char apid[20];
 	int  length;
 
 	if ((fd = open(name, O_RDONLY)) == FAIL)
 		return(FAIL);
 
-	length = read(fd, apid, sizeof(apid));
+	length = read(fd, apid, sizeof(apid)-1);
+	apid[length]=0;		/* make sscanf() happy */
 
 	pid = 0;
 	if ( length == sizeof( pid ) || sscanf(apid, "%d", &pid) != 1 ||
