@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 2.3 1994/12/12 14:26:43 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 2.4 1995/01/25 10:56:10 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -466,7 +466,12 @@ time_t	ti;
     fprintf( pipe_fp, "\n" );
 #endif
 
-    fprintf( pipe_fp, "A fax has arrived:\n" );
+    if ( fax_hangup_code == 0 )
+        fprintf( pipe_fp, "A fax was successfully received:\n" );
+    else
+        fprintf( pipe_fp, "An incoming fax transmission failed (+FHNG:%3d):\n",
+                 fax_hangup_code );
+
     fprintf( pipe_fp, "Sender ID: %s\n", fax_remote_id );
     fprintf( pipe_fp, "Pages received: %d\n", pagenum );
     if ( fax_poll_req )
