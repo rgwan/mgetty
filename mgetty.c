@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 4.14 1998/04/18 21:33:25 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 4.15 1998/05/02 18:54:19 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -154,6 +154,7 @@ enum mgetty_States
        St_dialout,			/* parallel dialout, wait for
 					   lockfile to disappear */
        St_get_login,			/* prompt "login:", call login() */
+       St_callback_login,		/* ditto, but after callback */
        St_incoming_fax			/* +FCON detected */
    } mgetty_state = St_unknown;
 
@@ -163,6 +164,7 @@ static RETSIGTYPE sig_new_config(SIG_HDLR_ARGS)
     signal( SIGUSR2, sig_new_config );
     if ( mgetty_state != St_answer_phone &&
 	 mgetty_state != St_get_login &&
+	 mgetty_state != St_callback_login &&
 	 mgetty_state != St_incoming_fax )
     {
 	lprintf( L_AUDIT, "exit dev=%s, pid=%d, got signal USR2, exiting",
@@ -219,7 +221,7 @@ enum mgetty_States st_sig_callback _P2( (pid, devname),
     }
 
     /* now give user a login prompt! */
-    return St_get_login;
+    return St_callback_login;
 }
 
 /* line locked, parallel dialout in process.
@@ -533,7 +535,8 @@ int main _P2((argc, argv), int argc, char ** argv)
     /* sleep... waiting for activity */
     mgetty_state = St_waiting;
 
-    while ( mgetty_state != St_get_login )
+    while ( mgetty_state != St_get_login && 
+	    mgetty_state != St_callback_login )
     {
 	switch (mgetty_state)	/* state machine */
 	{
@@ -1049,7 +1052,7 @@ Ring_got_action:
 	}
 
 	/* hand off to login dispatcher (which will call /bin/login) */
-	login_dispatch( buf );
+	login_dispatch( buf, mgetty_state == St_callback_login? TRUE: FALSE);
 
 	/* doesn't return, if it does, something broke */
 	exit(FAIL);
