@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 1.38 1994/07/11 19:15:58 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logfile.c,v 1.39 1994/07/27 11:01:39 gert Exp $ Copyright (c) Gert Doering"
 ;
 #include <stdio.h>
 #include <unistd.h>
@@ -210,7 +210,7 @@ int     errnr;
 	fprintf( log_fp, "\n--" );
 #ifdef SYSLOG
 	/* initialize syslog logging */
-	openlog( log_program, LOG_PID, LOG_DAEMON );
+	openlog( log_program, LOG_PID, SYSLOG_FC );
 #endif
     }
 
