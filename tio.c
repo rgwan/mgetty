@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 1.13 1994/01/03 23:50:05 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 1.14 1994/01/05 21:29:33 gert Exp $ Copyright (c) 1993 Gert Doering"
 ;
 /* tio.c
  *
@@ -26,6 +26,10 @@ static char tio_compilation_type[]="@(#) compiled with BSD_SGTTY";
 
 #ifdef SVR4
 #include <sys/termiox.h>
+#endif
+
+#if defined( M_UNIX ) && defined( MAM_BUG )
+#include <fcntl.h>
 #endif
 
 /* some systems do not define all flags needed later, e.g. NetBSD */
