@@ -4,7 +4,7 @@
 #
 # like "lpq" or "mailq", show jobs waiting in the output queue
 #
-# SCCS: $Id: faxq.in,v 1.6 1994/03/03 12:30:00 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxq.in,v 1.7 1994/04/09 13:57:47 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -55,8 +55,12 @@ do
 		   $1=="verbose_to" \
 			       { printf "VERBTO=\"%s\";", substr( $0, 12 ) }
 		   $1=="input" { printf "INPUT=\"%s\";", substr( $0, 7 ) }
-		   $1=="pages" { printf "PAGES=\"%s\";", substr( $0, 7 ) }' $i`
-
+		   $1=="pages" { if ( NF==2 ) printf "PAGES=\"%s\";", $2
+				 else if ( NF==3 )
+                                     printf "PAGES=\"%s %s\";", $2, $3
+				 else
+                                     printf "PAGES=\"%s ... %s\";", $2, $NF
+			       }' $i`
 	$echo "$i:"
 	$echo "\tQueued by: $USER"
        if [ -z "$VERBTO" ]
