@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 4.8 2003/04/28 17:39:02 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 4.9 2003/08/17 10:38:36 gert Exp $ Copyright (c) Gert Doering"
 
 /* logname.c
  *
@@ -51,7 +51,7 @@ int strappnd _P2((s1,s2), char * s1, char * s2 )
 
 char * ln_escape_prompt _P1( (ep), char * ep )
 {
-#define MAX_PROMPT_LENGTH 140
+#define MAX_PROMPT_LENGTH 300
     static char * p = NULL;
     int    i;
     static struct utsname un;
