@@ -1,3 +1,43 @@
+Sun Jun 11 12:56:41 2000  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* All of below is 0.9.10
+
+	* Added new voice.conf voice_shell_log for voice shell stderr
+	output. If not specified, we use the previous behaviour (send
+	stderr to modem).
+
+	* Added new voice shell command to send modem-specific
+	commands from the voice shell (QUOTE), submitted by
+	<gonz@ratloop.com>.
+
+	* Added support for ZyXEL Omni 56k, submitted by 
+	<const@ce.cctpu.edu.ru>. Also patch for libvoice/write.c
+	from same author I haven't yet understood the reason for.
+        I haven't applied the faxlib patch. This however includes
+        Russian Caller-ID for ZyXEL Omni 56k.
+
+	* Applied patch for vm help submitted by <const@ce.cctpu.edu.ru>.
+
+	* Applied patch for creating files with the caller ID in automatic
+        answerer vgetty mode vm help submitted by <const@ce.cctpu.edu.ru>.
+
+	* Added detection of a Rockwell variant <virus@altavista.net>
+
+	* Added scripts/dtmf_alpha.sh, with much more examples
+	of how to use the voice shell interface, contributed by
+	Robert Jördens <rjo@gmx.de>.
+
+	* Added alpha patch to support the Supra56ePRO in contrib/,
+	submitted by <ibrahim@surf-callino.de>.
+
+	* Fix for some USRobotics variant sometimes returning OK and
+	sometimes VCON in hardwflow, submitted by <robert@cstr.ed.ac.uk>.
+
+	* Detection of the Lasat Safire 288V by <gunter.grau@01019freenet.de>.
+
+	* Added a Vgetty.pm implementation in sh and example to scripts/,
+	submitted by John Wehle <john@feith.com>.
+
 Sat Dec  4 10:25:32 MET 1999   Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 
 	* Fixed spelling error in scripts/message.sh

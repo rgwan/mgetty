@@ -3,7 +3,9 @@
 
   6) Run the vgetty scripts under a specified user-/group-id. Also
      temporarily run vgetty under that uid. Or even drop all root privs
-     as soon as file open/immediately.
+     as soon as file open/immediately. Anyway, if we do that, we need to
+     ensure no buffer overflow. There are many unchecked sscanf() in
+     shell.c, notably.
 
   9) Update the documentation.
 
@@ -81,4 +83,4 @@
      is right -> ignore that line). If none, ok. Else complain loudly.
      Make it an option for echo:  ON, OFF, ON-TOLERANT-ACCEPTS-NO.
 
-$Id: ToDo,v 1.8 1999/11/13 11:12:35 marcs Exp $
+$Id: ToDo,v 1.9 2000/06/11 16:25:11 marcs Exp $
