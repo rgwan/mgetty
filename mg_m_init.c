@@ -1,4 +1,4 @@
-#ident "$Id: mg_m_init.c,v 1.10 1994/08/08 14:00:27 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_m_init.c,v 1.11 1994/08/09 11:29:44 gert Exp $ Copyright (c) Gert Doering"
 
 /* mg_m_init.c - part of mgetty+sendfax
  *
@@ -21,9 +21,6 @@
 #include "tio.h"
 #include "policy.h"
 #include "fax_lib.h"
-#ifdef VOICE
-#include "voclib.h"
-#endif
 
 chat_action_t	init_chat_actions[] = { { "ERROR", A_FAIL },
 					{ "BUSY", A_FAIL },
@@ -42,12 +39,6 @@ static char *	init_chat_seq[] = { "",
 /* initialize the modem - defined in policy.h
  */
 			    MODEM_INIT_STRING, "OK",
-#ifdef DIST_RING
-			    DIST_RING_INIT, "OK",
-#endif
-#ifdef VOICE
-			    "AT+FCLASS=8", "OK",
-#endif
                             NULL };
 
 static int init_chat_timeout = 20;
