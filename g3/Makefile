@@ -1,7 +1,7 @@
 # Makefile for the "g3 tools" subtree
 # of mgetty+sendfax
 #
-# SCCS: $Id: Makefile,v 1.1 1993/10/28 23:00:45 gert Exp $ Copyright (c) Gert Doering
+# SCCS: $Id: Makefile,v 1.2 1994/01/13 21:52:53 gert Exp $ Copyright (c) Gert Doering
 #
 
 CC=gcc
@@ -25,3 +25,14 @@ clean:
 fullclean:
 	rm -f *.o g3cat g3topbm
 
+install: all
+#
+# save pbmplus' g3topbm to g3topbm.pbm
+#
+	-test -f $(BINDIR)/g3topbm -a ! -f $(BINDIR)/g3topbm.pbm \
+	      -a ! -f $(BINDIR)/g3cat && \
+	      mv $(BINDIR)/g3topbm $(BINDIR)/g3topbm.pbm
+#
+# install programs
+#
+	cp g3cat g3topbm $(BINDIR)/
