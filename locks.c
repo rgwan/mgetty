@@ -1,4 +1,4 @@
-#ident "$Id: locks.c,v 1.1 1993/02/24 17:21:41 gert Exp $ Gert Doering / Paul Sutcliffe Jr."
+#ident "$Id: locks.c,v 1.2 1993/02/25 12:08:10 gert Exp $ Gert Doering / Paul Sutcliffe Jr."
 
 #include <stdio.h>
 #include <unistd.h>
@@ -28,10 +28,13 @@ makelock(char *name)
 	/* first make a temp file */
 
 	(void) sprintf(buf, LOCK, "TM.XXXXXX");
-	if ((fd = creat((temp=mktemp(buf)), 0444)) == FAIL) {
+	if ((fd = creat((temp=mktemp(buf)), 0644)) == FAIL) {
 		lprintf(L_ERROR, "cannot create tempfile (%s)", temp);
 		return(FAIL);
 	}
+
+	/* just in case some "umask" is set (errors are ignored) */
+	chmod( temp, 0644 );
 
 	/* put my pid in it */
 
@@ -46,7 +49,13 @@ makelock(char *name)
 
 		if (errno == EEXIST) {		/* lock file already there */
 			if ((pid = readlock(name)) == FAIL)
+			{
+			    if ( errno == ENOENT )	/* disappeared */
 				continue;
+			    else
+				return FAIL;
+			}
+
 			if (pid == getpid())	/* huh? WE locked the line!*/
 			{
 				lprintf( L_WARN, "we *have* the line!" );
