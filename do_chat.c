@@ -1,4 +1,4 @@
-#ident "$Id: do_chat.c,v 1.21 1993/11/12 15:16:03 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: do_chat.c,v 1.22 1993/11/13 11:09:17 gert Exp $ Copyright (c) Gert Doering";
 /* do_chat.c
  *
  * This module handles all the non-fax talk with the modem
@@ -150,6 +150,11 @@ TIO	tio, save_tio;
 
 	if ( expect_send[str] == NULL ) break;
 
+	/* before sending, maybe we have to pause a little */
+#ifdef DO_CHAT_SEND_DELAY
+	delay(DO_CHAT_SEND_DELAY);
+#endif
+	
 	/* send a string, translate esc-sequences */
         lprintf( L_MESG, "send: " );
 
