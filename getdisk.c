@@ -1,4 +1,4 @@
-#ident "@(#)getdisk.c $Id: getdisk.c,v 1.5 1994/04/25 21:50:10 gert Exp $ Copyright (c) 1994 Elegant Communications Inc."
+#ident "@(#)getdisk.c $Id: getdisk.c,v 1.6 1994/05/01 01:24:31 gert Exp $ Copyright (c) 1994 Elegant Communications Inc."
 ;
 /*
 
@@ -67,7 +67,7 @@
 
 #if defined(vpyr) || defined(vsnxdyn) || defined(__hpux) || defined(vdynix) || \
     defined(vaix) || defined(_AIX) || defined(vaixps2) || defined(sun) || \
-    defined(linux) || defined(__osf__)
+    defined(linux) || defined(__osf__) || defined(BSD)
 # define BSDSTATFS	/* as used from the att universe of Pyramid! :-) */
 #endif
 
@@ -115,14 +115,16 @@
 #   ifdef __osf__
 #    include <sys/mount.h>
 #   else
-#    include <sys/vfs.h>
-#   endif
-#  endif
+#    ifndef BSD
+#     include <sys/vfs.h>
+#    endif 	/* !BSD */
+#   endif	/* !__osf__ */
+#  endif	/* _AIX */
 
 #  define MYSTATFS(a,b) statfs(a,b)
 #  define STATFSS statfs
 
-# else
+# else		/* !BSDSTATFS */
 
 #  ifdef ULTRIXSTATFS	/* oh grotty, oh stupid, oh-nonstandard one */
 #   include "ERROR: needs some more fixing for Ultrix ULTRIXSTATFS getdiskstats"
