@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 1.64 1993/11/24 14:03:39 gert Exp $ Copyright (c) Gert Doering";
+#ident "$Id: mgetty.c,v 1.65 1993/11/25 23:19:30 gert Exp $ Copyright (c) Gert Doering";
 /* some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
@@ -195,7 +195,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 	/* process the command line
 	 */
 
-	while ((c = getopt(argc, argv, "c:x:s:rp:n:")) != EOF) {
+	while ((c = getopt(argc, argv, "c:x:s:rp:n:i:")) != EOF) {
 		switch (c) {
 		case 'c':
 #ifdef USE_GETTYDEFS
@@ -234,6 +234,9 @@ int main _P2((argc, argv), int argc, char ** argv)
 		case 'n':
 			rings_wanted = atoi( optarg );
 			if ( rings_wanted == 0 ) rings_wanted = 1;
+			break;
+		case 'i':
+			issue = optarg;		/* use different issue file */
 			break;
 		case '?':
 			exit_usage(2);
