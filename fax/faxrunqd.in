@@ -9,12 +9,16 @@
 #
 # initial version: Feb 17, 1997
 #
-$rcs_id='RCS: $Id: faxrunqd.in,v 1.45 1999/05/11 11:36:37 gert Exp $';
+$rcs_id='RCS: $Id: faxrunqd.in,v 1.46 1999/05/11 14:53:47 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.46  1999/05/11 14:53:47  gert
+# move handling of "sendfax return codes" to subroutine - preparations
+# for combining multiple jobs into one sendfax call
+#
 # Revision 1.45  1999/05/11 11:36:37  gert
-# don't delay after reactivating 'delayed' jobs (=0)
+# don't delay after reactivating 'delayed' jobs ($sleep_time=0)
 #
 # Revision 1.44  1999/04/30 15:07:55  gert
 # reorganize handling of %phone (avoid sending two faxes to the
@@ -1064,6 +1068,23 @@ my ($r, $s, $ex, $j, $t);
 	$per_phone_statistics{$ph}{$ex}++;
     }
 
+    &handle_return_code( $ex, $j, $t );
+
+    return $t;
+}
+
+
+##########################################################################
+#
+# handle_return_code
+#
+# process the return code from 'sendfax' (if 0, job has been sent 
+# successfully, if > 0, log failure, and requeue job, or suspend)
+#
+##########################################################################
+sub handle_return_code
+{
+    my ( $ex, $j, $tty ) = @_;
 
     # now handle return codes
     if ( $ex == 0 )		# job successfully sent
@@ -1172,7 +1193,7 @@ my ($r, $s, $ex, $j, $t);
 	    {
 		$queue{$j}->{'status'}='delayed';
 		$queue{$j}->{'delayed_until'}=time()+20;
-		$mq_badness{$t} += 0.2;		# mark modem as "bad"
+		$mq_badness{$tty} += 0.2;	# mark modem as "bad"
 	    }
 	    else				# requeue immediately
 	    {
@@ -1183,8 +1204,6 @@ my ($r, $s, $ex, $j, $t);
 
     # remove LOCK (ignore errors)
     unlink( "$j/JOB.locked" );
-
-    return $t;
 }
 
 
