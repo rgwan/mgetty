@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.h,v 1.47 1994/02/20 11:31:36 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 1.48 1994/03/01 00:55:06 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* mgetty.h
  *
@@ -65,6 +65,12 @@ int lprintf _PROTO(());
 
 typedef	void	RETSIGTYPE;
 typedef	char	boolean;
+
+/* assume that all BSD systems have the siginterrupt() function
+ */
+#if defined(BSD) && !defined(NO_SIGINTERRUPT)
+#define HAVE_SIGINTERRUPT
+#endif
 
 #define MAXLINE 1024		/* max. # chars in a line */
 #define MAXPATH MAXLINE
