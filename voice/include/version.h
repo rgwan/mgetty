@@ -1,1 +1,1 @@
-char *vgetty_version = "experimental test release 0.9.21 / 15Nov00";
+char *vgetty_version = "experimental test release 0.9.22 / 16Dec00";

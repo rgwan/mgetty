@@ -1,3 +1,23 @@
+Sat Dec 16 10:36:34 2000  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
+
+	* All of below is 0.9.22
+
+	* Applied patch for Rockwell, submitted by Colin Panisset,
+ 	<Colin.Panisset@Sun.COM>, to at least support transmit/receive
+	gains on the Spirit Cobra modem. If the values are set to 0
+	in the configuration, they won't be set (which was the previous
+	situation). This chipset uses the AT#TL=xxxx and AT#RG=xxxx commands
+ 	to set the relevant levels, where xxxx is a hex string from
+ 	0001 to FFFF.
+	
+	* Some modems have no meaningful output except in ATI9, but
+	they do not respect the standard. For them we will use
+	another table of partial matches. We do not want to slow
+	even more by adding ATI9s to the global table. This should
+	fix the Rockwell issue, and make Neuhaus still work while
+	not adding any overhead. In libvoice/detect.c
+	  
+	
 Sat Oct 14 11:06:01 2000  Marc SCHAEFER  <schaefer@vulcan.alphanet.ch>
 
 	* All of below is 0.9.21
