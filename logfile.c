@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 1.33 1994/05/01 01:26:07 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logfile.c,v 1.34 1994/05/07 20:02:56 gert Exp $ Copyright (c) Gert Doering"
 ;
 #include <stdio.h>
 #include <unistd.h>
@@ -41,7 +41,6 @@ extern int sys_nerr;
 #ifndef __NetBSD__
 extern char *sys_errlist[];
 #endif
-extern int errno;
 
 /* Interactive Unix is a little bit braindead - does not have atexit(),
  */
