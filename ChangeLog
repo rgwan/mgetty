@@ -1,3 +1,39 @@
+Fri Sep 11 11:29:17 1998  Gert Doering  (gert@greenie.muc.de)
+
+	* release 1.1.18
+
+Wed Sep 09 23:22:27 1998  Gert Doering  (gert@greenie.muc.de)
+
+	* merge Marc's latest voice/ tree
+
+	* some work on frontends/www/
+
+Mon Sep 07 08:57:16 1998  Gert Doering  (gert@greenie.muc.de)
+
+	* mg_m_init: if TIOCSCTTY fails and getppid() != 1, log a warning
+	"must run mgetty from /etc/inittab" (Russell King).
+
+Tue Sep 01 12:09:16 1998  Gert Doering  (gert@greenie.muc.de)
+
+	* mgetty.c: after "waiting...", call log_close() to make sure
+	that the log file is properly reopened (could have been moved away
+	by "savelog" etc. in the meantime) (Phil Hands/Debian)
+
+	* logfile.c: add log_close() function
+
+	* ring.c: fix 'forgetting of dist_ring number' bug (Joerg Friedrich)
+
+	* logname.c(ln_escape_prompt): add some more escape sequences
+	to get same features as 'agetty' (Phil Hands/Debian)
+
+Fri Aug 28 16:23:49 1998  Gert Doering / Simone Demmel
+
+	* frontends/www/: work on WWW GUI
+
+Tue Aug 11 16:34:19 1998  Gert Doering  (gd@medat.de)
+
+	* fax/faxrunq.in: implement $max_fail_total, restructure code
+
 Fri Aug 07 19:41:39 1998  Gert Doering  (gert@greenie.muc.de)
 
 	* release 1.1.17
