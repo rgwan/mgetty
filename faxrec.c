@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 1.49 1994/07/11 19:15:56 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 1.50 1994/07/12 22:43:13 gert Exp $ Copyright (c) Gert Doering"
 ;
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -150,6 +150,7 @@ int	ErrorCount = 0;
 int	ByteCount = 0;
 int i,j;
 extern  char * Device;
+char	DevId[3];
 
     /* call_start is only initialized if we're called from mgetty, not
      * when fax polling (sendfax) or from another getty (contrib/faxin).
@@ -168,17 +169,25 @@ extern  char * Device;
      * the "iiiiii" part will start repeating after approx. 8 years
      */
 
+    /* on some systems -- solaris2 -- the device name may look like
+     * "/dev/cub/a", so use "ba" instead of "/a" for the device id
+     */
+
+    strcpy( DevId, &Device[strlen(Device)-2] );
+    if ( DevId[0] == '/' ) DevId[0] = Device[strlen(Device)-3];
+    if ( DevId[0] == '/' ) DevId[0] = '-';
+
 #ifdef SHORT_FILENAMES
     sprintf(temp, "%s/f%c%07x%s.%02d", directory,
 		 fax_par_d.vr == 0? 'n': 'f',
 	         (int) call_start & 0xfffffff,
-	         &Device[strlen(Device)-2], pagenum );
+	         DevId, pagenum );
 #else
     /* include sender's fax id - if present - into filename */
     sprintf(temp, "%s/f%c%07x%s-", directory,
 		fax_par_d.vr == 0? 'n': 'f',
 		(int) call_start & 0xfffffff,
-		&Device[strlen(Device)]-2 );
+		DevId );
     i = strlen(temp);
 		
     for ( j=0; fax_remote_id[j] != 0; j++ )
