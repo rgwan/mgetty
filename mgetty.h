@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 4.25 2002/11/25 13:08:25 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 4.26 2005/02/14 12:41:43 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -184,7 +184,8 @@ typedef	char	boolean;
  * Same for Sparc Ultra machines [at least with SparcLinux]
  */
 #if defined(__alpha__) || defined(__sparc64__) || \
-	    defined(__ia64__) || defined(__s390x__) || defined(__x86_64__)
+	    defined(__ia64__) || defined(__s390x__) || defined(__x86_64__) || \
+	    defined(__powerpc64__)
 # define PTR_IS_LONG
 #endif
 
