@@ -4,7 +4,7 @@
  * Executes the shell script given as the argument. If the argument is
  * empty, commands are read from standard input.
  *
- * $Id: shell.c,v 1.13 2001/02/24 10:59:36 marcs Exp $
+ * $Id: shell.c,v 1.14 2001/03/11 12:37:59 marcs Exp $
  *
  */
 
@@ -18,6 +18,9 @@ static int voice_shell_output_fd = NO_VOICE_FD;
 static int child_pid = 0;
 static int level = 0;
 static int autostop = FALSE;
+const char ErrorString[] = "ERROR";
+const char ReadyString[] = "READY" ;
+const char Device_not_avail_String[] = "DEVICE_NOT_AVAILABLE" ;
 
 int voice_execute_shell_script(char *shell_script, char **shell_options)
      {
@@ -275,7 +278,7 @@ int voice_shell_handle_event(int event, event_data data)
                     return(FAIL);
                     };
 
-               if (voice_write_shell("READY") != OK)
+               if (voice_write_shell(ReadyString) != OK)
                     return(FAIL);
 
                voice_shell_state = ON_LINE;
@@ -299,13 +302,13 @@ int voice_shell_handle_event(int event, event_data data)
                          case IDLE:
                               lprintf(L_NOISE, "%s: STOP during IDLE", program_name);
 
-                              if (voice_write_shell("READY") != OK)
+                              if (voice_write_shell(ReadyString) != OK)
                                    return(FAIL);
 
                               break;
                          default:
 
-                              if (voice_write_shell("ERROR") != OK)
+                              if (voice_write_shell(ErrorString) != OK)
                                    return(FAIL);
 
                          };
@@ -315,7 +318,7 @@ int voice_shell_handle_event(int event, event_data data)
                     {
                     lprintf(L_MESG, "%s: Nested command in shell script", program_name);
 
-                    if (voice_write_shell("ERROR") != OK)
+                    if (voice_write_shell(ErrorString) != OK)
                          return(FAIL);
 
                     }
@@ -331,10 +334,10 @@ int voice_shell_handle_event(int event, event_data data)
 
                     if (voice_beep(frequency, length) != OK)
 
-                         if (voice_write_shell("ERROR") != OK)
+                         if (voice_write_shell(ErrorString) != OK)
                               return(FAIL);
 
-                    if (voice_write_shell("READY") != OK)
+                    if (voice_write_shell(ReadyString) != OK)
                          return(FAIL);
 
                     }
@@ -349,49 +352,63 @@ int voice_shell_handle_event(int event, event_data data)
                        
                     if (voice_command(quoted_cmd, "OK") == VMA_FAIL)
                         {
-                         if (voice_write_shell("ERROR") != OK)
+                         if (voice_write_shell(ErrorString) != OK)
                               return(FAIL);
                         }
                       
-                    if (voice_write_shell("READY") != OK)
+                    if (voice_write_shell(ReadyString) != OK)
                        return(FAIL);
                     }
                else if (strncmp(buffer, "DEVICE", 6) == 0)
                     {
                     char device[VOICE_BUF_LEN] = "";
+                    int ResultCode;
 
                     sscanf(buffer, "%*s %s", device);
 
                     if (strcmp(device, "NO_DEVICE") == 0)
-		      voice_set_device(NO_DEVICE);
+		      ResultCode = voice_set_device(NO_DEVICE);
                     else if (strcmp(device, "DIALUP_LINE") == 0)
-		      voice_set_device(DIALUP_LINE);
+		      ResultCode = voice_set_device(DIALUP_LINE);
 		    else if (strcmp(device, "INTERNAL_MICROPHONE") == 0)
-		      voice_set_device(INTERNAL_MICROPHONE);
+		      ResultCode = voice_set_device(INTERNAL_MICROPHONE);
                     else if (strcmp(device, "EXTERNAL_MICROPHONE") == 0)
-		      voice_set_device(EXTERNAL_MICROPHONE);
+		      ResultCode = voice_set_device(EXTERNAL_MICROPHONE);
                     else if (strcmp(device, "INTERNAL_SPEAKER") == 0)
-		      voice_set_device(INTERNAL_SPEAKER);
+		      ResultCode = voice_set_device(INTERNAL_SPEAKER);
                     else if (strcmp(device, "EXTERNAL_SPEAKER") == 0)
-		      voice_set_device(EXTERNAL_SPEAKER);
+		      ResultCode = voice_set_device(EXTERNAL_SPEAKER);
                     else if (strcmp(device, "LOCAL_HANDSET") == 0)
-		      voice_set_device(LOCAL_HANDSET);
+		      ResultCode = voice_set_device(LOCAL_HANDSET);
 		    else if (strcmp(device, "DIALUP_WITH_EXT_SPEAKER") == 0)
-		      voice_set_device(DIALUP_WITH_EXT_SPEAKER);
+		      ResultCode = voice_set_device(DIALUP_WITH_EXT_SPEAKER);
 		    else if (strcmp(device, "DIALUP_WITH_INT_SPEAKER") == 0)
-		      voice_set_device(DIALUP_WITH_INT_SPEAKER);
+		      ResultCode = voice_set_device(DIALUP_WITH_INT_SPEAKER);
 		    else if (strcmp(device, "DIALUP_WITH_LOCAL_HANDSET") == 0)
-		      voice_set_device(DIALUP_WITH_LOCAL_HANDSET);
+		      ResultCode = voice_set_device(DIALUP_WITH_LOCAL_HANDSET);
 		    else if (strcmp(device, "DIALUP_WITH_EXTERNAL_MIC_AND_SPEAKER") == 0)
-		      voice_set_device(DIALUP_WITH_EXTERNAL_MIC_AND_SPEAKER);
+		      ResultCode
+                      = voice_set_device(DIALUP_WITH_EXTERNAL_MIC_AND_SPEAKER);
 		    else if (strcmp(device, "DIALUP_WITH_INTERNAL_MIC_AND_SPEAKER") == 0)
-		      voice_set_device(DIALUP_WITH_INTERNAL_MIC_AND_SPEAKER);
-                    else if (voice_write_shell("ERROR") != OK)
+		      ResultCode
+                      = voice_set_device(DIALUP_WITH_INTERNAL_MIC_AND_SPEAKER);
+                    else if (voice_write_shell(ErrorString) != OK)
 		      return(FAIL);
-		    
-                    if (voice_write_shell("READY") != OK)
-                         return(FAIL);
 
+		    switch(ResultCode)
+		      {
+		      case OK:
+			if (voice_write_shell(ReadyString) != OK)
+			  return(FAIL);
+
+		      case VMA_DEVICE_NOT_AVAIL:
+			if (voice_write_shell(Device_not_avail_String) != OK)
+			  return(FAIL);
+
+		      default: /* FAIL and unknown return values */
+			if (voice_write_shell(ErrorString) != OK)
+			  return(FAIL);
+		      } /* switch(ResultCode) */
                     }
                else if (strncmp(buffer, "DIAL", 4) == 0)
                     {
@@ -404,10 +421,10 @@ int voice_shell_handle_event(int event, event_data data)
 
                     if (voice_dial((void *) phone_number) == FAIL)
 
-                         if (voice_write_shell("ERROR") != OK)
+                         if (voice_write_shell(ErrorString) != OK)
                               return(FAIL);
 
-                    if (voice_write_shell("READY") != OK)
+                    if (voice_write_shell(ReadyString) != OK)
                          return(FAIL);
 
                     }
@@ -415,7 +432,7 @@ int voice_shell_handle_event(int event, event_data data)
                     {
                     events_to_shell = FALSE;
 
-                    if (voice_write_shell("READY") != OK)
+                    if (voice_write_shell(ReadyString) != OK)
                          return(FAIL);
 
                     }
@@ -423,7 +440,7 @@ int voice_shell_handle_event(int event, event_data data)
                     {
                     events_to_shell = TRUE;
 
-                    if (voice_write_shell("READY") != OK)
+                    if (voice_write_shell(ReadyString) != OK)
                          return(FAIL);
 
                     }
@@ -433,7 +450,7 @@ int voice_shell_handle_event(int event, event_data data)
                     if (voice_write_shell(DevID) != OK)
                          return(FAIL);
 
-                    if (voice_write_shell("READY") != OK)
+                    if (voice_write_shell(ReadyString) != OK)
                          return(FAIL);
 
                     }
@@ -444,7 +461,7 @@ int voice_shell_handle_event(int event, event_data data)
                     if (voice_write_shell(voice_modem_name) != OK)
                          return(FAIL);
 
-                    if (voice_write_shell("READY") != OK)
+                    if (voice_write_shell(ReadyString) != OK)
                          return(FAIL);
 
                     }
@@ -452,7 +469,7 @@ int voice_shell_handle_event(int event, event_data data)
                     {
                     autostop = TRUE;
 
-                    if (voice_write_shell("READY") != OK)
+                    if (voice_write_shell(ReadyString) != OK)
                          return(FAIL);
 
                     }
@@ -460,7 +477,7 @@ int voice_shell_handle_event(int event, event_data data)
                     {
                     autostop = FALSE;
 
-                    if (voice_write_shell("READY") != OK)
+                    if (voice_write_shell(ReadyString) != OK)
                          return(FAIL);
 
                     }
@@ -478,7 +495,7 @@ int voice_shell_handle_event(int event, event_data data)
 /*
                     if (voice_device != DIALUP_LINE)
 
-                         if (voice_write_shell("ERROR") != OK)
+                         if (voice_write_shell(ErrorString) != OK)
                               return(FAIL);
 */
 
@@ -503,7 +520,7 @@ int voice_shell_handle_event(int event, event_data data)
                     voice_set_device(DIALUP_LINE);
                     voice_shell_notify();
 
-                    if (voice_write_shell("READY") != OK)
+                    if (voice_write_shell(ReadyString) != OK)
                          return(FAIL);
 
                     }
@@ -536,12 +553,12 @@ int voice_shell_handle_event(int event, event_data data)
                     else
                          {
 
-                         if (voice_write_shell("ERROR") != OK)
+                         if (voice_write_shell(ErrorString) != OK)
                               return(FAIL);
 
                          }
 
-                    if (voice_write_shell("READY") != OK)
+                    if (voice_write_shell(ReadyString) != OK)
                          return(FAIL);
 
                     }
@@ -560,21 +577,21 @@ int voice_shell_handle_event(int event, event_data data)
 
                          if (voice_play_file(name) == FAIL)
 
-                              if (voice_write_shell("ERROR") != OK)
+                              if (voice_write_shell(ErrorString) != OK)
                                    return(FAIL);
 
                          }
                     else
                          {
 
-                         if (voice_write_shell("ERROR") != OK)
+                         if (voice_write_shell(ErrorString) != OK)
                               return(FAIL);
 
                          }
 
                     voice_shell_linger = 0;
 
-                    if (voice_write_shell("READY") != OK)
+                    if (voice_write_shell(ReadyString) != OK)
                          return(FAIL);
 
                     }
@@ -592,19 +609,19 @@ int voice_shell_handle_event(int event, event_data data)
 
                          if (voice_record_file(name) != OK)
 
-                              if (voice_write_shell("ERROR") != OK)
+                              if (voice_write_shell(ErrorString) != OK)
                                    return(FAIL);
 
                          }
                     else
                          {
 
-                         if (voice_write_shell("ERROR") != OK)
+                         if (voice_write_shell(ErrorString) != OK)
                               return(FAIL);
 
                          }
 
-                    if (voice_write_shell("READY") != OK)
+                    if (voice_write_shell(ReadyString) != OK)
                          return(FAIL);
 
                     }
@@ -619,10 +636,10 @@ int voice_shell_handle_event(int event, event_data data)
 
                     if (voice_wait(length) != OK)
 
-                         if (voice_write_shell("ERROR") != OK)
+                         if (voice_write_shell(ErrorString) != OK)
                               return(FAIL);
 
-                    if (voice_write_shell("READY") != OK)
+                    if (voice_write_shell(ReadyString) != OK)
                          return(FAIL);
 
                     }
@@ -637,17 +654,17 @@ int voice_shell_handle_event(int event, event_data data)
 
                     if (voice_play_dtmf(number) == FAIL)
 
-                         if (voice_write_shell("ERROR") != OK)
+                         if (voice_write_shell(ErrorString) != OK)
                               return(FAIL);
 
-                    if (voice_write_shell("READY") != OK)
+                    if (voice_write_shell(ReadyString) != OK)
                          return(FAIL);
 
                     } 
                else
                     {
 
-                    if (voice_write_shell("ERROR") != OK)
+                    if (voice_write_shell(ErrorString) != OK)
                          return(FAIL);
 
                     }

@@ -342,6 +342,7 @@
                 LOCAL_HANDSET, EXTERNAL_SPEAKER
  Explanation:   This command sets the device that vgetty will use.
  Answers:       "READY": Voice lib got your request.
+                (also see below).
 
  Command:       "BEEP [frequency [length]]"
  Explanation:   Sends a beep through the chosen device (if frequency or
@@ -430,6 +431,8 @@
  "Nested command in shell script"), or something's really broken (hardware,
  software).
 
+ You will receive:  ``DEVICE_NOT_AVAILABLE'' when the requested DEVICE
+ doesn't exist.
 
 
  6.) Possible events, detected tones
