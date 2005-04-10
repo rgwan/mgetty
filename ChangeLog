@@ -1,3 +1,17 @@
+Sun Apr 10 23:02:00 MEST 2005  Gert Doering <gert@greenie.muc.de>
+
+	* release 1.1.33
+
+	* fax/faxq-helper.c: repair creation of multi-page fax JOB files
+
+Wed Mar 23 10:57:05 MET 2005  Gert Doering <gert@greenie.muc.de>
+
+	* ring.c: repair detection of V.253 RING signalling (<DLE>R)
+
+Wed Mar 16 12:08:44 MET 2005  Gert Doering <gert@greenie.muc.de>
+
+	* t/t_ring.c: add test module for "ring.c" and "cnd.c" functions
+
 Sun Mar 13 12:43:08 MET 2005  Gert Doering <gert@greenie.muc.de>
 
 	* release 1.1.32
