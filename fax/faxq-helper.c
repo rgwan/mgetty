@@ -1,4 +1,4 @@
-#ident "$Id: faxq-helper.c,v 4.15 2005/02/24 16:23:51 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxq-helper.c,v 4.16 2005/04/10 20:47:43 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxq-helper.c
  *
@@ -46,6 +46,12 @@
  *
  * Note: right now, this needs an ANSI C compiler, and might not be 
  *       as portable as the remaining mgetty code.  Send diffs :-)
+ *
+ * $Log: faxq-helper.c,v $
+ * Revision 4.16  2005/04/10 20:47:43  gert
+ * make do_sanitize() work on a copy of the input line
+ * (strtok() modifies the input string, leading to corrupt JOB files)
+ *
  */
 
 #include <stdio.h>
@@ -491,11 +497,22 @@ int rc = 0;
  */
 int do_sanitize_page_files( char * dir, char * filelist )
 {
-char * p, tmp[300];
+char * p, * copy, tmp[300];
 struct stat stb;
 int n=0;
+int l;
 
-    p = strtok( filelist, " \t\n" );
+    l = strlen(filelist);
+    if ( l == 0 ) return 0;		/* empty list is OK */
+
+    copy = malloc( l+1 );
+    if ( copy == NULL )
+    {
+	eout( "in do_sanitize: cannot malloc() %d bytes, abort\n", l ); return -1;
+    }
+    memcpy( copy, filelist, l+1 );
+
+    p = strtok( copy, " \t\n" );
 
     while( p != NULL )
     {
