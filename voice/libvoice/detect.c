@@ -3,7 +3,7 @@
  *
  * autodetect the modemtype we are connected to.
  *
- * $Id: detect.c,v 1.43 2005/03/13 17:27:46 gert Exp $
+ * $Id: detect.c,v 1.44 2005/04/10 21:20:25 gert Exp $
  *
  */
 
@@ -85,6 +85,18 @@ static const struct modem_type_struct modem_database[] =
      {ati, "28643",                NULL,   &ZyXEL_2864},
      {ati, "Venus V.90 USB U052099a", NULL, &Lucent},
      {ati, "AEIGPM560LKTF1  Voice V2 V92cap", NULL, &V253modem},
+     {ati, "LT V.90 1.0 MT5634ZPX-PCI Internal Data/Fax/Voice Modem Version 4.18f",
+                                   NULL,   &Multitech_5634ZPX},
+     {ati, "LT V.90 1.0 MT5634ZPX-PCI Internal Data/Fax/Voice Modem Version 8.19i",
+                                   NULL,   &V253modem},
+     {ati, "LT V.92 1.0 MT5634ZPX-PCI-V92 Internal Data/Fax/Voice Modem Version 1.25p",
+                                   NULL,   &V253modem},
+     {ati, "LT V.92 1.0 MT5634ZPX-PCI-V92 Internal Data/Fax/Voice Modem Version 1.32c",
+                                   NULL,   &V253modem},
+     {ati, "LT V.92 1.0 MT5634ZPX-PCI-V92 Internal Data/Fax/Voice Modem Version 1.32h",
+                                   NULL,   &V253modem},
+     {ati, "LT V.92 1.0 MT5634ZPX-PCI-U Internal Data/Fax/Voice Modem Version 1.32i",
+                                   NULL,   &V253modem},
      /* Hans Fugal <hans@fugal.net>, debian bug#254404 */
      {ati, "AEIGPM560LKTF1",       NULL,   &Lucent},
      {ati, "Zoom V.90 PCI I030100gV -H Z207",NULL, &Lucent},
