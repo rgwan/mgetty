@@ -1,3 +1,8 @@
+2005-04-10  Peter 'tkvoice'
+
+	* libvoice/detect.c: add ATI codes for recent MT5634ZPX modem
+	variants (most of them mapping to V253modem driver)
+
 2004-11-16  Juergen Kosel  <juergen.kosel@gmx.de>
 
 	* libvoice/V253modem.c:
