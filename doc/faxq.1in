@@ -4,6 +4,7 @@
 faxq - display fax jobs queued by faxspool(1)
 .SH SYNOPSIS
 .B faxq
+.RB [ <command> ]
 .RB [ -osa ]
 .RB [ -v ]
 .RB [ -r ]
@@ -18,6 +19,19 @@ looks for all the jobs queued by faxspool(1) to
 displays some status informations about it. If no options are specified,
 one line per queued fax job is printed, displaying the job number, sender,
 number of pages and target fax number.
+
+.SH COMMANDS
+.B faxq stop
+stops the fax queue processing by creating the file @FAX_SPOOL_OUT@/stop.
+This command works only if you have write access to the spool directory.
+Depending on local setup, this means ``root only'' or ``fax administrator
+group''.  If you don't have write access, an error message is printed.
+
+.B faxq start
+re-starts a previously stopped fax queue, by removing the ``stop'' file.
+As for 
+.I faxq stop
+this only works if you have write access.
 
 .SH OPTIONS
 .TP
@@ -48,6 +62,10 @@ Change the priority of fax job <job> to <prio>. Example: "faxq -P F000247 3".
 .SH BUGS
 .I faxq
 doesn't handle time scheduling yet.
+
+.I faxq -P
+is currently broken (needs re-implementing with faxq-helper).
+
 .SH "SEE ALSO"
 faxrunq(1), faxspool(1), faxrm(1), faxqueue(5)
 .SH AUTHOR
