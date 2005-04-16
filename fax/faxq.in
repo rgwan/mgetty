@@ -4,7 +4,7 @@
 #
 # like "lpq" or "mailq", show jobs waiting in the output queue
 #
-# SCCS: $Id: faxq.in,v 4.10 2003/09/25 07:34:14 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxq.in,v 4.11 2005/04/16 11:29:09 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -23,12 +23,51 @@ AWK=@AWK@
 # helper program for privileged queue access
 FAXQ_HELPER=@LIBDIR@/faxq-helper
 
+# ------------- subroutines -----------
+do_faxq_stop()
+{
+    if [ ! -w . ]
+    then
+	$echo "$0: not administrator, can't stop queue" >&1 ; exit 0
+    fi
+    id >stop
+}
+
+do_faxq_start()
+{
+    if [ ! -w . ]
+    then
+	$echo "$0: not administrator, can't start queue" >&1 ; exit 0
+    fi
+    if [ ! -f stop  ]
+    then
+	$echo "$0: queue not stopped, can't restart" >&1 ; exit 0;
+    fi
+    rm -f stop
+}
+# -------------------------------------
+
 if cd $FAX_SPOOL_OUT 
 then :
 else
     $echo "cannot chdir to $FAX_SPOOL_OUT..." >&2
     exit 1
 fi
+
+# special commands: faxq stop / start
+case $1 in
+    stop) do_faxq_stop ; exit 0;;
+    start) do_faxq_start ; exit 0;;
+    '') ;;
+    -*) ;;
+    *) cat <<EOF_MSG >&2
+$0: invalid command: $1
+valid commands:
+  stop   stop fax queue handling (admin only)
+  start  restart stopped fax queue (admin only)
+EOF_MSG
+       exit 1 ;;
+esac
 
 jobs="*/JOB"
 requeue=""
@@ -153,4 +192,8 @@ done
 
 test -n "$verbose" -a -n "$jobs" -a -r faxqueue_done &&
     $echo "\nLast \`\`faxrunq'' run at: `cat faxqueue_done`"
+
+# queue stopped?  (print only if not "no jobs.")
+test -n "$jobs" -a -f stop &&
+    $echo "\nWarning: fax queue handling stopped (stop file exists).\n"
 
