@@ -1,4 +1,4 @@
-#ident "@(#)cnd.c	$Id: cnd.c,v 4.25 2004/07/17 15:55:57 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "@(#)cnd.c	$Id: cnd.c,v 4.26 2005/04/17 11:55:43 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 
 #include <stdio.h>
 #include <string.h>
@@ -81,6 +81,9 @@ struct cndtable cndtable[] =
     {"TIME=",			&CallTime},
     {"NMBR=",			&CallerId},
     {"NAME=",			&CallName},
+    /* Digi DataFire RAS / Patton 2977 can also report dialed number */
+    /* (if AT#CID=10 is set, contributed by Edwin Groothuis) */
+    {"NDID=",			&CalledNr},
 
     /* yet another incompatible modem... */
     {"CALLER'S NUMBER: ",	&CallerId},
