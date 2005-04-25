@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.58 2004/11/13 22:14:31 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.59 2005/04/25 14:02:47 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -133,6 +133,37 @@ int  ix;
 		lprintf( L_WARN, "cannot evaluate +FCS-Code!" );
 		fax_par_d.vr = 0;
 	    }
+	}
+
+	else if ( strncmp( line, "+FDIS:", 6 ) == 0 ||
+	          strncmp( line, "+FIS:", 5 ) == 0 )
+	{
+	    short vr, br, wd, ln, df, ec, bf, st, jp=0;
+	    short msg[200];
+
+	    if ( sscanf( &line[ix], "%hd,%hx,%hd,%hd,%hd,%hd,%hd,%hd,%hd",
+			 &vr, &br, &wd, &ln, &df, &ec, &bf, &st, &jp ) < 8 )
+	    {
+		lprintf( L_WARN, "cannot evaluate +FIS-Code!" );
+	    }
+
+	    /* prettyprint "non-basic" receiver capabilities */
+            msg[0] = '\0';
+	    if ( vr & 1 ) strcat( msg, " fine" );
+	    if ( vr & 2 ) strcat( msg, " sfine/R8" );
+	    if ( vr & 4 ) strcat( msg, " sfine/R16" );
+	    if ( vr & 0x20 ) strcat( msg, " 400dpi" );
+	    if ( vr & 0x40 ) strcat( msg, " 300dpi" );
+
+	    if ( br > 3 ) strcat( msg, br <= 5? " 144": " V34" );
+	    if ( ln < 2 ) strcat( msg, ln == 0? " A4": " B4" );
+	    if ( df > 0 ) strcat( msg, df == 1? " 2D/MR":
+					 df == 2? " 2D/uncomp": " 2D/MMR" );
+	    if ( ec > 0 ) strcat( msg, " ECM" );
+	    if ( bf > 0 ) strcat( msg, " BFT" );
+	    if ( jp > 0 ) strcat( msg, " JPEG" );
+
+	    lprintf( L_MESG, "receiver cap.: '%s' ->%s", line, msg );
 	}
 
 	else if ( strncmp( line, "+FHNG:", 6 ) == 0 ||
