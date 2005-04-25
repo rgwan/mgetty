@@ -1,10 +1,17 @@
-#ident "$Id: logname.c,v 4.9 2003/08/17 10:38:36 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 4.10 2005/04/25 21:09:13 gert Exp $ Copyright (c) Gert Doering"
 
 /* logname.c
  *
  * print 'login:' prompt, handling eventual escape sequence substitutions
  *
  * read login name, detect incoming PPP frames and FIDO startup sequences
+ *
+ * $Log: logname.c,v $
+ * Revision 4.10  2005/04/25 21:09:13  gert
+ * drain tty output before changing CR/LF settings after reading login name
+ * (this was a race condition on very fast machines that lead to confused
+ * tty drivers - and there is no good reason NOT to let the output drain)
+ *
  */
 
 
@@ -577,6 +584,7 @@ int getlogname _P6( (prompt, tio, buf, maxsize, max_login_time, do_fido),
 	lprintf( L_NOISE, "input finished with '\\r', setting ICRNL ONLCR" );
     }
 
+    tio_drain_output( STDIN );		/* make sure CR+LF has been sent */
     tio_set( STDIN, tio );
 
     if ( i == 0 ) return -1;
