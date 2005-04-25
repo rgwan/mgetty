@@ -1,12 +1,18 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 4.26 2005/02/14 12:41:43 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 4.27 2005/04/25 15:29:20 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
  * contains most of the constants and prototypes necessary for
  * mgetty+sendfax (except some fax constants, they are in fax_lib.h)
+ *
+ * $Log: mgetty.h,v $
+ * Revision 4.27  2005/04/25 15:29:20  gert
+ * proper prototype for rmlocks()
+ * set SIG_HDLR_ARGS correctly on AIX5 (needs -DAIX5 in CFLAGS)
+ *
  */
 
 #include "ugly.h"
@@ -114,7 +120,7 @@ int lprintf _PROTO((int level, const char *format, ...));
  */
 typedef	void	RETSIGTYPE;
 
-#ifdef _SCO_DS		/* SCO OSR 5.0 */
+#if defined(_SCO_DS) || defined(AIX5)		/* SCO OSR 5.0 */
 # define SIG_HDLR_ARGS	int signo
 #else
 # define SIG_HDLR_ARGS
@@ -232,7 +238,7 @@ void	delay _PROTO(( int waittime ));
 int		makelock _PROTO((char * device));
 int		makelock_file _PROTO(( char * lockname ));
 int		checklock _PROTO((char * device));
-RETSIGTYPE	rmlocks _PROTO (());
+void		rmlocks _PROTO ((void));
 int		steal_lock _PROTO((char * device, int pid ));
   
 /* fax stuff */
