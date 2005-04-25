@@ -1,9 +1,14 @@
-#ident "$Id: locks.c,v 4.4 2001/01/01 13:26:00 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
+#ident "$Id: locks.c,v 4.5 2005/04/25 15:28:21 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
 
 /* large parts of the code in this module are taken from the
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us,
  * and are used with permission here.
  * SVR4 style locking by Bodo Bauer, bodo@hal.nbg.sub.org.
+ *
+ * $Log: locks.c,v $
+ * Revision 4.5  2005/04/25 15:28:21  gert
+ * rmlocks() is no signal handler -> use proper prototype
+ *
  */
 
 #include <stdio.h>
@@ -334,7 +339,7 @@ static int lock_write_pid _P1((fd), int fd)
  *	rmlocks() - remove lockfile
  */
 
-RETSIGTYPE rmlocks(SIG_HDLR_ARGS)
+void rmlocks _P0(void)
 {
     if ( we_have_lock )
     {
