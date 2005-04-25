@@ -83,14 +83,14 @@ extern time_t	call_start;		/* time when we sent ATA */
 					/* defined in faxrec.c */
 
 boolean mgetty_ACK = FALSE;		/* mgetty has ACKed the "take over" */
-static RETSIGTYPE sig_mgetty_ack()
+static RETSIGTYPE sig_mgetty_ack(SIG_HDLR_ARGS)
 {
     signal( SIGUSR1, sig_mgetty_ack );
     lprintf( L_NOISE, "got ACK signal from mgetty" );
     mgetty_ACK = TRUE;
 }
 boolean timeout = FALSE;
-static RETSIGTYPE sig_timer()
+static RETSIGTYPE sig_timer(SIG_HDLR_ARGS)
 {
     signal( SIGALRM, sig_timer );
     lprintf( L_NOISE, "got alarm signal -> huh?" );
