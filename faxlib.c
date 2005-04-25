@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.59 2005/04/25 14:02:47 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.60 2005/04/25 14:16:19 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -139,7 +139,7 @@ int  ix;
 	          strncmp( line, "+FIS:", 5 ) == 0 )
 	{
 	    short vr, br, wd, ln, df, ec, bf, st, jp=0;
-	    short msg[200];
+	    char msg[200];
 
 	    if ( sscanf( &line[ix], "%hd,%hx,%hd,%hd,%hd,%hd,%hd,%hd,%hd",
 			 &vr, &br, &wd, &ln, &df, &ec, &bf, &st, &jp ) < 8 )
