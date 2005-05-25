@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 4.19 2005/05/25 14:03:33 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 4.20 2005/05/25 14:03:55 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -6,6 +6,11 @@
  * Calls routines in faxrec.c and faxlib.c
  *
  * The code is still quite rough, but it works.
+ *
+ * $Log: sendfax.c,v $
+ * Revision 4.20  2005/05/25 14:03:55  gert
+ * add CVS LOG
+ *
  */
 
 #include <stdio.h>
