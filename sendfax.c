@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 4.18 2001/12/17 22:31:52 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 4.19 2005/05/25 14:03:33 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -44,6 +44,9 @@ extern time_t	call_start;			/* for accounting */
 time_t	time _PROTO(( time_t * tloc ));
 #endif
 
+TIO fax_tio;
+char *Device = "unset";
+
 void exit_usage _P2( (program, msg ),
 		     char * program, char * msg )
 {
@@ -61,8 +64,17 @@ void exit_usage _P2( (program, msg ),
     exit(1);
 }
 
-TIO fax_tio;
-char *Device = "unset";
+RETSIGTYPE fax_sig_goodbye _P1( (signo), int signo )
+{
+    if ( call_start == 0 ) call_start = time(NULL);
+    
+    lprintf( L_AUDIT, 
+	     "failed: got signal %d, pid=%d, dev=%s, time=%ds, acct=\"%s\"", 
+	     signo, getpid(), Device,
+	     ( time(NULL)-call_start ), c_string(acct_handle));
+    rmlocks();
+    exit(15);				/* will close the fax device */
+}
 
 int fax_open_device _P2( (fax_tty, use_stdin),
 			 char * fax_tty, boolean use_stdin )
@@ -124,6 +136,13 @@ int fax_open_device _P2( (fax_tty, use_stdin),
     /* unset O_NDELAY (otherwise waiting for characters */
     /* would be "busy waiting", eating up all cpu) */
 
+    /* AIX has a special surprise for us: if a tcp/ip serial port is broken,
+     * open() will succeed, but fcntl() will hang, and the fcntl() sysctl is 
+     * always restarted - so we MUST crash out from a signal handler :-(
+     */
+    signal( SIGALRM, fax_sig_goodbye );
+    alarm(10);
+
     if ( fcntl( fd, F_SETFL, O_RDWR ) == -1 )
     {
 	lprintf( L_ERROR, "error in fcntl" );
@@ -132,6 +151,7 @@ int fax_open_device _P2( (fax_tty, use_stdin),
 	rmlocks();
 	return -1;
     }
+    alarm(0);
 
     /* initialize baud rate, hardware handshake, ... */
     tio_get( fd, &fax_tio );
@@ -243,18 +263,6 @@ static int faxpoll_client_init _P2( (fd, cid), int fd, char * cid )
     return NOERROR;
 }
 
-
-RETSIGTYPE fax_sig_goodbye _P1( (signo), int signo )
-{
-    if ( call_start == 0 ) call_start = time(NULL);
-    
-    lprintf( L_AUDIT, 
-	     "failed: got signal %d, pid=%d, dev=%s, time=%ds, acct=\"%s\"", 
-	     signo, getpid(), Device,
-	     ( time(NULL)-call_start ), c_string(acct_handle));
-    rmlocks();
-    exit(15);				/* will close the fax device */
-}
 
 int main _P2( (argc, argv),
 	      int argc, char ** argv )
