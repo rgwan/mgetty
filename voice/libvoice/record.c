@@ -4,7 +4,7 @@
  * This command records voice data from the voice modem and
  * saves them in the given file.
  *
- * $Id: record.c,v 1.5 1999/06/27 14:29:02 marcs Exp $
+ * $Id: record.c,v 1.6 2005/06/15 09:43:04 gert Exp $
  *
  */
 
@@ -50,7 +50,7 @@ int voice_record_file (char *name)
      if (!cvd.raw_data.d.i)
           {
           memset(&header, 0x00, sizeof(rmd_header));
-          sprintf(header.magic, "%s", "RMD1");
+          memcpy(header.magic, "RMD1", 4);
           sprintf(header.voice_modem_type, "%s", voice_modem_rmd_name);
           header.compression = htons(cvd.rec_compression.d.i);
           header.speed = htons(cvd.rec_speed.d.i);
