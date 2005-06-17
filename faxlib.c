@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.60 2005/04/25 14:16:19 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.61 2005/06/17 17:07:27 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -378,10 +378,6 @@ int fax_set_fdcc _P4( (fd, fine, max, min),
 #ifdef CLASS1
     if ( modem_type == Mt_class1 )
 		return fax1_set_fdcc( fd, fine, max, min );
-#endif
-
-#ifdef FAX_USRobotics			/* will go away...! */
-    modem_quirks |= MQ_USR_FMINSP;
 #endif
 
     if ( modem_quirks & MQ_USR_FMINSP )
