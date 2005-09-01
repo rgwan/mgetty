@@ -4,3 +4,7 @@ It can send messages to paging providers using the IXO/TAP protocol
 (e.g. E+ and D1 in Germany) or the UCP protocol (D2 in Germany).
 
 No useful documentation is available right now :-)
+
+UPDATE (2005): the SMS centers seem to be all broken nowadays, so your
+               best bet to send out SMSs is to get a mobile phone and
+               an RS232 data cable - then use "atsms".
