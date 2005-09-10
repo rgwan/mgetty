@@ -1,5 +1,5 @@
 #
-# $Id: Makefile,v 1.4 2005/09/10 15:41:45 gert Exp $
+# $Id: Makefile,v 1.5 2005/09/10 16:23:53 gert Exp $
 #
 CC=gcc
 CFLAGS=-I.. -Wall
@@ -7,7 +7,7 @@ CFLAGS=-I.. -Wall
 LIBS=
 
 OBJ=../tio.o ../logfile.o ../io.o ../modem.o ../locks.o ../config.o
-SOBJ=../tio.o ../io.o ../modem.o ../locks.o ../config.o
+SOBJ=../tio.o ../io.o ../modem.o ../locks.o ../config.o ../logfile.o 
 
 all: tap atsms
 
