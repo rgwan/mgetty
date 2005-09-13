@@ -2,9 +2,13 @@
 #
 # send SMS via atsms (etc)
 #
-# $Id: sms.cgi,v 1.1 2005/09/13 13:30:56 gert Exp $
+# $Id: sms.cgi,v 1.2 2005/09/13 13:47:27 gert Exp $
 #
 # $Log: sms.cgi,v $
+# Revision 1.2  2005/09/13 13:47:27  gert
+# fix CGI argument usage in command line ($phone, $text)
+# "please wait..." message
+#
 # Revision 1.1  2005/09/13 13:30:56  gert
 # Prototyp
 #
@@ -149,11 +153,12 @@ else
 {
     print <<EOF2;
 Versende SMS...<br>
-Empf&auml;nger: $args{phone}<br>
-Text: $args{text}<p>
+Empf&auml;nger: $phone<br>
+Text: $text<p>
+Bitte einen Moment warten...<p>
 <pre>
 EOF2
-    open (CMD, "$smscmd $args{phone} '$args{text}' 2>&1 |") ||
+    open (CMD, "$smscmd $phone '$text' 2>&1 |") ||
 	die "can't run SMS command: $smscmd: $1</pre></body></html>\n";
     while( <CMD> ) { print $_; }
     close CMD;
