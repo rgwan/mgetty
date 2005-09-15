@@ -2,9 +2,12 @@
 #
 # send SMS via atsms (etc)
 #
-# $Id: sms.cgi,v 1.2 2005/09/13 13:47:27 gert Exp $
+# $Id: sms.cgi,v 1.3 2005/09/15 08:34:49 gert Exp $
 #
 # $Log: sms.cgi,v $
+# Revision 1.3  2005/09/15 08:34:49  gert
+# unbuffered output
+#
 # Revision 1.2  2005/09/13 13:47:27  gert
 # fix CGI argument usage in command line ($phone, $text)
 # "please wait..." message
@@ -151,6 +154,7 @@ EOF_F2
 }
 else
 {
+    $| = 1;
     print <<EOF2;
 Versende SMS...<br>
 Empf&auml;nger: $phone<br>
