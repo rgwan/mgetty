@@ -1,4 +1,4 @@
-#ident "$Id: atsms.c,v 1.2 2005/09/10 16:23:15 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: atsms.c,v 1.3 2005/10/18 12:34:33 gert Exp $ Copyright (c) Gert Doering"
 
 /* atsms.c
  *
@@ -148,7 +148,7 @@ int l;
     /* wait for response from modem */
 
     signal( SIGALRM, oops );
-    alarm(5);
+    alarm(15);
     got_interrupt = FALSE;
 
     do
@@ -227,6 +227,8 @@ char * sim_pin = NULL;				/* pin number */
     siginterrupt( SIGALRM, TRUE );
     siginterrupt( SIGHUP,  TRUE );
 #endif
+
+    setvbuf( stdout, NULL, _IONBF, 0 );
 
     send_sms( device, speed, sim_pin, argv[optind], argv[optind+1] );
 
