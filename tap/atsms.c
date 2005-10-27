@@ -1,4 +1,4 @@
-#ident "$Id: atsms.c,v 1.3 2005/10/18 12:34:33 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: atsms.c,v 1.4 2005/10/27 13:24:37 gert Exp $ Copyright (c) Gert Doering"
 
 /* atsms.c
  *
@@ -32,7 +32,7 @@ int fd;
 TIO tio, save_tio;
 
 char buf[200], *p;
-int l;
+int err=0;
 
     printf( "send SMS message to \"%s\"...\n", sms_to );
 
@@ -153,29 +153,45 @@ int l;
 
     do
     {
-	l = read( fd, buf, sizeof(buf) );
-	if ( l>0 ) 
-	{
-	    fwrite( buf, 1, l, stdout );
-	} 
-    }
-    while( l>0 && ! got_interrupt );
+	p = mdm_get_line( fd );
 
-    if ( errno != EINTR || !got_interrupt )
+	if ( p == NULL ) { err++; break; }
+	printf( "got: '%s'\n", p );
+
+	if ( strcmp( p, "OK" ) == 0 ) break;
+	if ( strcmp( p, "ERROR" ) == 0 ) 
+	{ 
+	    fprintf( stderr, "modem reports ERROR sending SMS on '%s'\n",
+		     device );
+	    err++;
+	    break;
+	}
+    }
+    while( !got_interrupt );
+    alarm(0);
+
+    if ( got_interrupt )
+    {
+	fprintf( stderr, "timeout waiting for modem ACK on '%s'\n", device );
+    }
+    else
+      if ( p == NULL )
     {
 	fprintf( stderr, "error reading from device '%s': %s\n",
 		 device, strerror(errno));
+	err++;
     }
 
     if ( tio_set( fd, &save_tio ) == ERROR )
     {
 	fprintf( stderr, "error setting TIO settings for '%s': %s\n",
 		 device, strerror(errno));
+	err++;
     }
     close(fd);
     rmlocks();
     signal( SIGALRM, SIG_DFL );
-    return 0;
+    return ( err > 0 ) ? -1: 0;
 }
 
 void exit_usage( char * program, char * msg )
@@ -195,6 +211,7 @@ char * device = "/dev/ttyh1";		/* TODO */
 
 int speed = 38400;				/* port speed */
 char * sim_pin = NULL;				/* pin number */
+int rc;
 
     log_init_paths( argv[0], "/tmp/atsms.log", NULL );
     log_set_llevel(9);
@@ -230,9 +247,9 @@ char * sim_pin = NULL;				/* pin number */
 
     setvbuf( stdout, NULL, _IONBF, 0 );
 
-    send_sms( device, speed, sim_pin, argv[optind], argv[optind+1] );
+    rc = send_sms( device, speed, sim_pin, argv[optind], argv[optind+1] );
 
-    return 0;
+    return rc == 0? rc: 1;
 }
 
 static boolean fwf_timeout = FALSE;
