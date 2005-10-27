@@ -1,4 +1,4 @@
-#ident "$Id: atsms.c,v 1.4 2005/10/27 13:24:37 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: atsms.c,v 1.5 2005/10/27 13:28:17 gert Exp $ Copyright (c) Gert Doering"
 
 /* atsms.c
  *
@@ -158,6 +158,11 @@ int err=0;
 	if ( p == NULL ) { err++; break; }
 	printf( "got: '%s'\n", p );
 
+        if ( strncmp( p, "+CMGS:", 6 ) == 0 )
+	{
+	    int lfn = atoi( p+6 );
+	    printf( "SMS sequence counter: %d\n", lfn );
+	}
 	if ( strcmp( p, "OK" ) == 0 ) break;
 	if ( strcmp( p, "ERROR" ) == 0 ) 
 	{ 
