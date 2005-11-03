@@ -2,9 +2,12 @@
 #
 # send SMS via atsms (etc)
 #
-# $Id: sms.cgi,v 1.3 2005/09/15 08:34:49 gert Exp $
+# $Id: sms.cgi,v 1.4 2005/11/03 15:30:02 gert Exp $
 #
 # $Log: sms.cgi,v $
+# Revision 1.4  2005/11/03 15:30:02  gert
+# optionally send SMS via print spooler / appropriate backend
+#
 # Revision 1.3  2005/09/15 08:34:49  gert
 # unbuffered output
 #
@@ -18,7 +21,7 @@
 #
 use strict;
 
-my $PIN="6062";
+my $PIN="8080";
 my $smscmd="/gnulocal/mgetty/tap/atsms -l /dev/tty3 -p $PIN";
 my %args = ();
 my $numberfile="/local/medat/handynr.txt";
@@ -146,6 +149,10 @@ EOF_F1
     <td><input type="text" name="text" 
 	 value="$text" 
 	 size=160 maxlength=160></tr>
+<tr><td>&nbsp;
+    <td style="padding-bottom: 0.5em;">lpsms verwenden?
+	<input type="radio" name="spool" value="0">nein
+	<input type="radio" name="spool" value="1">ja</tr>
 <tr><td>&nbsp;<td><input type="submit" value="Abschicken"></tr>
 </table>
 </form>
@@ -155,22 +162,42 @@ EOF_F2
 else
 {
     $| = 1;
-    print <<EOF2;
+
+    print <<EOF1;
 Versende SMS...<br>
 Empf&auml;nger: $phone<br>
 Text: $text<p>
+EOF1
+
+    if ( defined( $args{spool} ) && $args{spool} == 1 )
+    {
+	if ( open( SPOOL, "| qprt -Plpsms" ) )
+	{
+	    print SPOOL "$phone\n$text\n";
+	    close SPOOL;
+	    print "SMS message passed to print spooler...<p>\n";
+	}
+	else
+	{
+	    print "<font color=red>ERROR:</font> can't call print spooler: $!<p>\n";
+	}
+    }
+    else	# call backend directly
+    {
+	print <<EOF2;
 Bitte einen Moment warten...<p>
 <pre>
 EOF2
-    open (CMD, "$smscmd $phone '$text' 2>&1 |") ||
-	die "can't run SMS command: $smscmd: $1</pre></body></html>\n";
-    while( <CMD> ) { print $_; }
-    close CMD;
+	open (CMD, "$smscmd $phone '$text' 2>&1 |") ||
+	    die "can't run SMS command: $smscmd: $1</pre></body></html>\n";
+	while( <CMD> ) { print $_; }
+	close CMD;
 
-print <<EOF3;
+	print <<EOF3;
 </pre>
 SMS verschickt, Statuscode: $?<p>
 EOF3
+    }
 }
 
 print <<EOF_E;
