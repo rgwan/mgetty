@@ -1,4 +1,4 @@
-#ident "$Id: atsms.c,v 1.5 2005/10/27 13:28:17 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: atsms.c,v 1.6 2005/11/09 13:10:27 gert Exp $ Copyright (c) Gert Doering"
 
 /* atsms.c
  *
@@ -15,6 +15,7 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <time.h>
+#include <ctype.h>
 
 #include "mgetty.h"
 #include "policy.h"
@@ -137,8 +138,27 @@ int err=0;
     /* TODO: wait for '>' prompt */
     delay(100);
 
-    printf( "MSG: \"%s\"\n", sms_text );
-    if ( mdm_send( sms_text, fd ) == ERROR ||
+    /* transcode german umlauts, escape the rest */
+    strncpy( buf, sms_text, 155 );
+    buf[155] = '\0';
+    for( p=buf; *p != '\0'; p++ )
+    { 
+	switch( *p )
+	{
+	case 0344: *p='{'; break;	/* ae */
+	case 0304: *p='[';  break;	/* Ae */
+	case 0366: *p='|';  break;	/* oe */
+	case 0326: *p='\\'; break;	/* Oe */
+	case 0374: *p='~';  break;	/* ue */
+	case 0334: *p='^';  break;	/* Ue */
+	case 0337: *p=0x1e; break;	/* ss */
+	default:
+	  if ( (*p) & 0x80 ) *p &= 0x7f; 	/* only 7 bit in TEXT mode */
+	}
+    }
+
+    printf( "MSG: \"%s\"\n", buf );
+    if ( mdm_send( buf, fd ) == ERROR ||
          write( fd, "\032", 1 ) != 1 )		/* ctrl-Z as term.chr. */
     {
 	fprintf( stderr, "can't send message '%s' to modem?!\n", sms_text );
