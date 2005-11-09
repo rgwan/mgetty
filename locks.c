@@ -1,4 +1,4 @@
-#ident "$Id: locks.c,v 4.5 2005/04/25 15:28:21 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
+#ident "$Id: locks.c,v 4.6 2005/11/09 09:12:29 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
 
 /* large parts of the code in this module are taken from the
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us,
@@ -6,6 +6,9 @@
  * SVR4 style locking by Bodo Bauer, bodo@hal.nbg.sub.org.
  *
  * $Log: locks.c,v $
+ * Revision 4.6  2005/11/09 09:12:29  gert
+ * error message was missing an argument (filename) to lprintf()
+ *
  * Revision 4.5  2005/04/25 15:28:21  gert
  * rmlocks() is no signal handler -> use proper prototype
  *
@@ -195,7 +198,7 @@ int steal_lock _P2((device, pid), char * device, int pid )
 
     if ( fd < 0 )
     {
-	lprintf( L_ERROR, "can't open %d for read/write" );
+	lprintf( L_ERROR, "can't open %s for read/write", lock );
 	return FAIL;
     }
 
