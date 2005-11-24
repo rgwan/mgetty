@@ -3,7 +3,7 @@
  *
  * autodetect the modemtype we are connected to.
  *
- * $Id: detect.c,v 1.44 2005/04/10 21:20:25 gert Exp $
+ * $Id: detect.c,v 1.45 2005/11/24 17:21:07 gert Exp $
  *
  */
 
@@ -74,6 +74,7 @@ static const struct modem_type_struct modem_database[] =
      {ati, "1496",                 NULL,   &ZyXEL_1496},
      {ati, "1500",                 NULL,   &ZyXEL_Omni56K},
      {ati, "1501",                 NULL,   &ZyXEL_Omni56K},
+     {ati, "1507",                 NULL,   &ZyXEL_Omni56K},
      {ati, "247",                  NULL,   &Multitech_2834ZDXv},
      {ati, "248",                  NULL,   &Sierra},
      {ati, "249",                  NULL,   &Rockwell},
