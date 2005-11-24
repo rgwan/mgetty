@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 4.38 2005/11/24 16:58:50 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 4.39 2005/11/24 17:00:30 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -7,6 +7,11 @@
  * some parts of the code (lock handling, writing of the utmp entry)
  * are based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
  * paul@devon.lns.pa.us, and are used with permission here.
+ *
+ * $Log: mgetty.c,v $
+ * Revision 4.39  2005/11/24 17:00:30  gert
+ * add CVS Log keyword
+ *
  */
 
 #include <stdio.h>
