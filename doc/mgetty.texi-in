@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.65 2005/02/15 10:28:37 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.66 2005/11/24 17:15:25 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -1150,6 +1150,28 @@ expansion).
 This specifies the maximum time the user can take to log in. If no login
 has occured after that time, @code{mgetty} will hang up. Default is
 @code{MAX_LOGIN_TIME} from @file{policy.h}.
+
+@item @code{login-env-ttyprompt-hack} @var{yes/no}
+
+On SVR4, maybe on other systems too, you can cause the 'login' program
+to prompt with the same string as mgetty did, instead of the standard
+"login:" prompt. The string will be passed to the 'login' program
+in the environment variable TTYPROMPT.
+This is done by putting "login" into a special (brain-dead) "ttymon"-
+compatibility mode. In that mode, mgetty doesn't ask for a login name
+at all, so mgetty won't work if you enable that feature and your
+login program doesn't support it. You can see if it doesn't work
+if the user gets a double login prompt or none at all.
+
+As a side effect, this feature can also be used to directly start "other" 
+applications, like a BBS software or similar things, after the modem 
+has connected (login.config would then be used to specify what program to 
+run.)
+
+This feature is incompatible with FIDO and AutoPPP support - those work
+only if mgetty can see the user response to the login prompt.
+
+In previous releases, this used to be @code{ENV_TTYPROMPT} in @file{policy.h}.
 
 @item @code{fido-send-emsi} @var{yes/no}
 
