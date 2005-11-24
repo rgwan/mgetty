@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 4.10 2005/04/25 21:09:13 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 4.11 2005/11/24 16:58:32 gert Exp $ Copyright (c) Gert Doering"
 
 /* logname.c
  *
@@ -7,6 +7,9 @@
  * read login name, detect incoming PPP frames and FIDO startup sequences
  *
  * $Log: logname.c,v $
+ * Revision 4.11  2005/11/24 16:58:32  gert
+ * add extra flag, env_ttyprompt, that replaces #ifdef ENV_TTYPROMPT
+ *
  * Revision 4.10  2005/04/25 21:09:13  gert
  * drain tty output before changing CR/LF settings after reading login name
  * (this was a race condition on very fast machines that lead to confused
@@ -264,9 +267,11 @@ static RETSIGTYPE getlog_timeout(SIG_HDLR_ARGS)
  * If ENV_TTYPROMPT is set, do not read anything
  */
 
-int getlogname _P6( (prompt, tio, buf, maxsize, max_login_time, do_fido),
+int getlogname _P7( (prompt, tio, buf, maxsize, max_login_time, 
+		     do_fido, env_ttyprompt),
 		    char * prompt, TIO * tio, char * buf,
-		    int maxsize, int max_login_time, boolean do_fido )
+		    int maxsize, int max_login_time, 
+		    boolean do_fido, boolean env_ttyprompt )
 {
     int	 i, r;
     char ch;
@@ -285,15 +290,16 @@ int getlogname _P6( (prompt, tio, buf, maxsize, max_login_time, do_fido),
 
     final_prompt = ln_escape_prompt( prompt );
 
-#ifdef ENV_TTYPROMPT
-    printf( "\r\n%s", final_prompt );
-    tio_mode_sane( tio, FALSE );
-    tio_map_cr( tio, TRUE );
-    tio_set( STDIN, tio );
-    buf[0] = 0;
-    set_env_var( "TTYPROMPT", final_prompt );
-    return 0;
-#else			/* !ENV_TTYPROMPT */
+    if ( env_ttyprompt )
+    {
+	printf( "\r\n%s", final_prompt );
+	tio_mode_sane( tio, FALSE );
+	tio_map_cr( tio, TRUE );
+	tio_set( STDIN, tio );
+	buf[0] = 0;
+	set_env_var( "TTYPROMPT", final_prompt );
+	return 0;
+    }
 
     if ( max_login_time > 0 )
     {
@@ -589,5 +595,4 @@ int getlogname _P6( (prompt, tio, buf, maxsize, max_login_time, do_fido),
 
     if ( i == 0 ) return -1;
     else return 0;
-#endif			/* !ENV_TTYPROMPT */
 }
