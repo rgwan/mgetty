@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.c,v 4.15 2001/01/27 16:22:37 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_mg.c,v 4.16 2005/11/24 16:57:58 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_mg.c
  *
@@ -106,6 +106,7 @@ struct conf_data_mgetty c = {
 	{ "login-time", {0}, CT_INT, C_EMPTY },
 #endif
 	{ "fido-send-emsi", {TRUE}, CT_BOOL, C_PRESET },
+	{ "login-env-ttyprompt-hack", {FALSE}, CT_BOOL, C_PRESET },
 
 #ifdef LOGIN_CFG_FILE
 	{ "login-conf-file", {(p_int) LOGIN_CFG_FILE}, CT_STRING, C_PRESET },

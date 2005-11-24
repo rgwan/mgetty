@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.h,v 4.10 2001/01/05 18:03:58 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: conf_mg.h,v 4.11 2005/11/24 16:57:58 gert Exp $ Copyright (c) 1994 Gert Doering"
 
 /* all (dynamic) mgetty configuration is contained in this structure.
  * It is initialized and loaded in conf_mg.c and accessed from mgetty.c
@@ -47,6 +47,7 @@ extern struct conf_data_mgetty {
 	login_prompt,
 	login_time,				/* max. time to log in */
 	do_send_emsi,				/* send EMSI_REQ string */
+	env_ttyprompt,				/* suppress login prompt */
 	login_config,				/* login.config file name */
 
 	station_id,				/* local fax station ID */
