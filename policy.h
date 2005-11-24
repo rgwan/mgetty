@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 4.20 2003/12/16 11:40:43 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 4.21 2005/11/24 17:16:47 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration defaults for mgetty / sendfax
  * are specified.
@@ -196,25 +196,10 @@
  */
 #define LOGIN_PROMPT	"@!login: "
 
-/* On SVR4, maybe on other systems too, you can cause the 'login' program
- * to prompt with the same string as mgetty did, instead of the standard
- * "login:" prompt. The string will be passed to the 'login' program
- * in the environment variable TTYPROMPT.
- * This is done by putting "login" into a special (brain-dead) "ttymon"-
- * compatibility mode. In that mode, mgetty doesn't ask for a login name
- * at all, so mgetty won't work if you enable that feature and your
- * login program doesn't support it. (You can see if it doesn't work
- * if the user gets a double login prompt or none at all).
- *
- * This feature automatically disables FIDO and AutoPPP support!
- *
- * This feature can also be used to directly start "other" applications,
- * like a BBS software or similar things, after the modem has connected
- * (login.config would then be used to specify what program to run).
- *
- * To use this feature, define ENV_TTYPROMPT.
+/* The old '#define ENV_TTYPROMPT' option has been superseded by setting 
+ * "login-env-ttyprompt-hack yes" in mgetty.config.  See mgetty.texi for
+ * details.
  */
-/* #define ENV_TTYPROMPT */
 
 /* Some very old terminals can only generate UPPERCASE letters.
  * Traditional getty variants detect this, and then set the
