@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 4.36 2003/11/17 19:08:20 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 4.37 2005/11/24 16:37:14 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -1046,9 +1046,7 @@ Ring_got_action:
 	/* dreadful hack for Linux, set TERM if desired */
 	if ( c_isset(termtype) )
 	{
-	    char * t = malloc( 6 + strlen( c_string(termtype)) );
-	    if ( t != NULL )
-	        { sprintf( t, "TERM=%s", c_string(termtype) ); putenv(t); }
+	    set_env_var( "TERM", c_string(termtype) );
 	}
 
 	/* catch "standard question #29" (DCD low -> /bin/login gets stuck) */
