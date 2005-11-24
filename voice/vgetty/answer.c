@@ -1,7 +1,7 @@
 /*
  * answer.c
  *
- * $Id: answer.c,v 1.22 2002/12/15 19:43:35 gert Exp $
+ * $Id: answer.c,v 1.23 2005/11/24 17:30:58 gert Exp $
  *
  */
 
@@ -575,7 +575,7 @@ int vgetty_answer(int rings, int rings_wanted, int dist_ring)
           {
           if (voice_beep(cvd.beep_frequency.d.i, cvd.beep_length.d.i) == FAIL)
                {
-               lprintf(L_WARN, "%s: Beep command failed");
+               lprintf(L_WARN, "%s: Beep command failed", program_name);
                }
           }
 
