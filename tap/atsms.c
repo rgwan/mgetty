@@ -1,4 +1,4 @@
-#ident "$Id: atsms.c,v 1.6 2005/11/09 13:10:27 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: atsms.c,v 1.7 2005/11/25 12:52:47 gert Exp $ Copyright (c) Gert Doering"
 
 /* atsms.c
  *
@@ -90,7 +90,7 @@ int err=0;
     if ( p == NULL || strcmp( p, "<ERROR>" ) == 0 )
     {
 	fprintf( stderr, "can't query modem on '%s' for PIN status: '%s'\n",
-		 device, p );
+		 device, p == NULL? "<NULL>": p );
 	close(fd); rmlocks(); return -1;
     }
 
@@ -116,7 +116,10 @@ int err=0;
     else
       if ( strcmp( p, "+CPIN: READY" ) != 0 )
     {
-	fprintf( stderr, "unexpected response to PIN query: '%s'\n", p );
+	if ( strlen(p) == 0 )			/* no return value seen */
+	    fprintf( stderr, "modem returned 'ERROR' to PIN query - maybe SIM card not properly inserted?\n" );
+	else
+	    fprintf( stderr, "unexpected response to PIN query: '%s'\n", p );
 	close(fd); rmlocks(); return -1;
     }
 
