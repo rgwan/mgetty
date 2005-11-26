@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 4.27 2005/04/25 15:29:20 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 4.28 2005/11/26 13:48:16 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -9,6 +9,9 @@
  * mgetty+sendfax (except some fax constants, they are in fax_lib.h)
  *
  * $Log: mgetty.h,v $
+ * Revision 4.28  2005/11/26 13:48:16  gert
+ * GNU/kFreeBSD portability changes
+ *
  * Revision 4.27  2005/04/25 15:29:20  gert
  * proper prototype for rmlocks()
  * set SIG_HDLR_ARGS correctly on AIX5 (needs -DAIX5 in CFLAGS)
@@ -319,7 +322,7 @@ int getdiskstats _PROTO ((char *path, mntinf *mi));
 extern char * mktemp _PROTO(( char * template ));
 
 #if  !defined(linux) && !defined(SVR4) && !defined(__hpux) && \
-     !defined(BSD) && !defined(M_UNIX) && !defined(_AIX)
+     !defined(BSD) && !defined(M_UNIX) && !defined(_AIX) && !defined(__GLIBC__)
 extern int	getopt _PROTO(( int, char **, char * ));
 #endif
 extern int	optind;

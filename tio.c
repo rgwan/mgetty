@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 4.5 2000/10/22 10:45:20 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 4.6 2005/11/26 13:48:15 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* tio.c
  *
@@ -45,7 +45,7 @@ static char tio_compilation_type[]="@(#)tio.c compiled with BSD_SGTTY";
 
 /* some systems do not define all flags needed later, e.g. NetBSD */
 
-#ifdef BSD
+#if defined(BSD) || defined(__FreeBSD_kernel__)
 # ifndef IUCLC
 # define IUCLC 0
 # endif

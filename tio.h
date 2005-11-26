@@ -1,4 +1,4 @@
-#ident "$Id: tio.h,v 4.6 1999/10/23 21:56:58 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.h,v 4.7 2005/11/26 13:48:15 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 #ifndef __TIO_H__
 #define __TIO_H__
@@ -18,7 +18,7 @@
 #if !defined( POSIX_TERMIOS ) && !defined( BSD_SGTTY ) && !defined( SYSV_TERMIO)
 # if defined(linux) || defined(sunos4) || defined(_AIX) || defined(BSD) || \
      defined(SVR4) || defined(solaris2) || defined(m88k) || defined(M_UNIX) ||\
-     defined(__sgi)
+     defined(__sgi) || defined(__GLIBC__)
 #  define POSIX_TERMIOS
 # else
 #  define SYSV_TERMIO
