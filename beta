@@ -1,0 +1,60 @@
+#!/bin/sh
+#
+# Aufruf z.B.: 1.1 14 1.1.13  fuer "1.1.14 neu, diff zu 1.1.13".
+#
+# $Log: beta,v $
+# Revision 4.1  2005/11/26 13:26:48  gert
+# Documentation-Preparation script for mgetty releases
+#
+#
+MR=$1
+SR=$2
+DIFFR=$3
+HOST=$4
+DOC=$5
+#
+# well defined environment...
+#
+PATH=/usr/bin:/bin:/usr/local/bin:/usr/X11R6/bin:/home/gert/bin
+
+VS=$MR.$SR
+if expr "$VS" : '[0-9].[13579]' >/dev/null ; then
+    DST=mgetty$VS-`date +%b%d`.tar.gz
+else
+    DST=mgetty+sendfax-$VS.tar.gz
+fi
+
+latest="$DST"
+diff="mgetty$DIFFR-$MR.$SR.diff.gz"
+echo "latest beta: $latest / $diff"
+
+# build index.html page
+echo "TODO: HTML-Page bauen!"
+#cd $html
+#sed -e "s/@@BETA@@/$latest/" -e "s/@@MR@@/$MR/g" -e "s/@@SR@@/$SR/" -e "s/@@DATE@@/`date +%Y-%m-%d`/" <index.html.in >index.html
+
+if [ "$4" = "stop" ] ; then exit 1 ; fi
+
+cd doc
+make fullclean doc-all || exit 1
+
+rm -f work-html/*
+gzip -9 <mgetty.dvi >work-html/mgetty.dvi.gz
+gzip -9 <mgetty.ps  >work-html/mgetty.ps.gz
+col -b  <mgetty.asc | gzip -9  >work-html/mgetty.txt.gz
+cp *.man work-html/
+
+for i in *.man ; do
+    echo "$i..."
+    rman -f HTML -r "%s.man.html" -l "mgetty+sendfax manual: $i" $i >work-html/$i.html
+done
+
+cp *.texi work-html/
+cd work-html/
+texi2html -split_node -menu -verbose mgetty.texi
+scp -r . $HOST:$DOC/
+cd ..
+rm -f work-html/*
+
+#./cvm
+#tar cvfz ../doc/mgetty.html.tar.gz mgetty_*.html
