@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.66 2005/11/24 17:15:25 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.67 2005/11/26 13:25:52 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -4190,36 +4190,15 @@ plan to use @code{mgetty+sendfax} in different environments than I do.
 @item
 @code{mgetty+sendfax}
 
-The current release can usually be found at:
+The starting point to find mgetty releases is:
 
-sunsite.unc.edu:@file{/pub/Linux/system/serial/getty/mgetty+sendfax*}
+FTP: ftp://mgetty.greenie.net/pub/mgetty/
 
-tsx-11.mit.edu:@file{/pub/linux/sources/sbin/mgetty+sendfax*}
+HTTP: http://mgetty.greenie.net/
 
-alpha.greenie.net:@file{/pub/mgetty/source/*}
-
-ftp.leo.org:@file{/pub/comp/os/unix/networking/mgetty/*}
-
-ftp.mathematik.th-darmstadt.de:@file{/pub/linux/mirrors/misc/mgetty/*}
-
-linux.nrao.edu:@file{/pub/src/mgetty/*}
-
-ftp.chem.tue.nl:@file{/pub/mgetty/*}
-
-http://linux.mit-lab.co.kr/mgetty/*
-
-ftp.uvt.ro:@file{/pub/mgetty/*}
-
-... and on all sites that mirror SunSITE.unc.edu or tsx-11.
-
-The most recent beta release is always placed in the listed directories
-on alpha.greenie.net, ftp.leo.org and their mirrors on th-darmstadt.de 
-and linux.nrao.edu.  
-
-On SunSITE and TSX-11, you'll only find ``stable'' releases (even 
-version numbers, no date stamp in the file name).
-
-Use betas on your own risk!
+There are some mirrors, but all the official mirror sites are not working
+anymore, so in doubt, you'll need to use google to find mgetty download
+sites.
 
 @item
 @code{pbmplus}
@@ -4278,7 +4257,7 @@ license. You can find it in @file{/pub/ghost/aladdin} on
 GhostScript is huge and slow... if you don't need it for other purposes,
 you could use Chris Lewis' hp2pbm package, placed at
 
-ftp.leo.org as @file{hp2pbm*} (in the mgetty directory mentioned above).
+mgetty.greenie.net as @file{hp2pbm*} (in the mgetty directory mentioned above).
 
 This package contains all you need to convert ASCII or LJ PCL4 -> PBM, G3,
 PS, X windows, Epson 24 pin. Coupled with mgetty's @code{g32pbm}, it's all
