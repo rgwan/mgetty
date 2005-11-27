@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.64 2005/04/10 21:37:57 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.65 2005/11/27 08:16:49 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -301,8 +301,8 @@ MV=mv
 # Nothing to change below this line ---------------------------------!
 #
 MR=1.1
-SR=33
-DIFFR=1.1.32
+SR=34
+DIFFR=1.1.33
 #
 #
 OBJS=mgetty.o logfile.o do_chat.o locks.o utmp.o logname.o login.o \
@@ -505,17 +505,10 @@ beta:	tar diff sign
 
 	-cvs commit -m 'new version released' version.h
 # master ftp/www site
-	./ftp.sh $(MR).$(SR) alpha.greenie.net \
+	./ftp.sh $(MR).$(SR) delta.greenie.net \
 		'~ftp/pub/mgetty/source/$(MR)'
-	ssh alpha.greenie.net './beta $(MR) $(SR) $(DIFFR)'
-
-# old master ftp site
-	ssh home.leo.org -l doering 'cd $$HOME ; ./beta'
-
-# send to Marc and Knarf
-	head -30 ChangeLog |mail -s "mgetty$(MR).$(SR).tar.gz on greenie/alpha" mgetty@knarf.de marc marcs
-#	-./ftp.sh $(MR).$(SR) ftp.camelot.de /pub/incoming
-#	-./ftp.sh $(MR).$(SR) poseidon.thphy.uni-duesseldorf.de /incoming
+	./beta $(MR) $(SR) $(DIFFR) delta.greenie.net \
+		'/home/httpd/mgetty.greenie.net/doc'
 
 #shar1:	$(DISTRIB)
 #	shar -M -c -l 40 -n mgetty+sendfax-$(MR).$(SR) -a -o mgetty.sh $(DISTRIB)
