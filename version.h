@@ -1,1 +1,1 @@
-char * mgetty_version = "interim release 1.1.33-Apr10";
+char * mgetty_version = "interim release 1.1.34-Nov30";
