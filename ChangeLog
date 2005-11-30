@@ -1,3 +1,71 @@
+Wed Nov 30 09:46:52 MET 2005  Gert Doering <gert@greenie.muc.de>
+
+	* release 1.1.34
+
+Sat Nov 26 14:28:09 MET 2005  Gert Doering <gert@greenie.muc.de>
+
+	* mg_m_init.c: write to log file if blocking open() is used
+
+	* logfile.c, tio.c, tio.h, mgetty.h: portability changes to 
+	   GNU/kFreeBSD (by Robin Elfrink)
+
+	* Makefile: new master FTP site is mgetty.greenie.net
+
+Thu Nov 24 17:38:44 MET 2005  Gert Doering <gert@greenie.muc.de>
+
+	* faxlib.c, voice/libvoice/detect.c: understand ATI response 1507
+	  for another ZyXEL Omni 56K variant (56k Pro)
+
+	* doc/mgetty.texi-in: document login-env-ttyprompt-hack
+
+	* policy.h: drop description of ENV_TTYPROMPT, point to mgetty.texi
+
+	* logname.c: replace #ifdef ENV_TTYPROMPT with run-time check of
+	  the new config option, login-env-ttyprompt-hack
+
+	* mgetty.c: pass c_bool(env_ttyprompt) to getlogname()
+
+	* conf_mg.h, conf_mg.c: add option login-env-ttyprompt-hack
+
+	* mgetty.c: cleanup, use set_env_var() to set TERM=...
+
+Wed Nov  9 10:12:36 MET 2005  Gert Doering / D.Binderman
+
+	* locks.c: a lprintf() call was missing a file name argument
+
+Fri Jun 17 19:05:27 MEST 2005  Gert Doering <gert@greenie.muc.de>
+
+	* faxlib.c: remove #ifdef FAX_USRobotics -> MQ_USR_FMINSP
+	  (if someone still has such an old modem, setting
+	  "modem_quirks 0x20" will do the same thing at run-time)
+
+Wed Jun 15 11:43:12 MEST 2005  Marcus Meissner
+
+	* voice/libvoice/record.c: fix (non-exploitable) 1-byte buffer 
+	  overflow in construction of RMD file header
+
+Wed May 25 16:04:11 MEST 2005  Gert Doering <gd@medat.de>
+
+	* sendfax.c: alarm() out of fcntl() if it hangs > 10s. (AIX problem)
+
+Mon Apr 25 16:27:14 MEST 2005  Gert Doering <gd@medat.de>
+
+	* logname.c: drain tty output before changing CR/LF settings
+
+	* mgetty.h, callback/callback.c: SIG_HDLR_ARGS cleanup
+
+	* mgetty.h, locks.c: prototype for rmlocks() cleaned up
+
+	* faxlib.c: decode & log receiver capabilities (+FDIS/+FIS)
+
+Sat Apr 16 11:51:25 MEST 2005  Gert Doering <gert@greenie.muc.de>
+
+	* cnd.c: add destination number format (NDID=...) for Digi DataFire
+
+	* fax/faxq.in: add "faxq stop" and "faxq start" functionality
+
+	* doc/faxq.1in: document start/stop
+
 Sun Apr 10 23:02:00 MEST 2005  Gert Doering <gert@greenie.muc.de>
 
 	* release 1.1.33
