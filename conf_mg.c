@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.c,v 4.16 2005/11/24 16:57:58 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_mg.c,v 4.17 2005/12/20 20:57:13 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_mg.c
  *
@@ -122,7 +122,7 @@ struct conf_data_mgetty c = {
 #ifdef MAIL_TO
 	{ "notify", {(p_int)MAIL_TO}, CT_STRING, C_PRESET },
 #else
-	{ "notify", {0, CT_STRING}, C_EMPTY },
+	{ "notify", {0}, CT_STRING, C_EMPTY },
 #endif
 	{ "fax-owner", {(p_int)FAX_IN_OWNER}, CT_STRING, C_PRESET },
 #ifdef FAX_IN_GROUP
