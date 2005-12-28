@@ -1,17 +1,29 @@
-#ident "$Id: class1.c,v 4.3 1998/01/22 07:28:47 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1.c,v 4.4 2005/12/28 21:53:08 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1.c
  *
  * High-level functions to handle class 1 fax -- 
  * state machines for fax phase A, B, C, D. Error recovery.
  *
- * Usese library functions in class1lib.c, faxlib.c and modem.c
+ * Uses library functions in class1lib.c, faxlib.c and modem.c
+ *
+ * $Log: class1.c,v $
+ * Revision 4.4  2005/12/28 21:53:08  gert
+ * fix some compiler warnings and typos
+ * adapt to changed fax1_send_idframe()
+ * add CVS header
+ * add (very rough and incomplete) fax class 1 implementation, consisting
+ *  - fax1_receive() (to be called from faxrec.c)
+ *  - fax1_receive_tcf() (handle TCF training frame + responses)
+ *  - fax1_receive_page() (setup page reception, hand to fax_get_page_data())
+ *
  */
 
 #ifdef CLASS1
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <signal.h>
 #include <fcntl.h>
@@ -74,7 +86,7 @@ int first;
     first=TRUE;
     do
     {
-	if ( fax1_receive_frame( fd, first? 0:3, 30, &framebuf ) == ERROR )
+	if ( fax1_receive_frame( fd, first? 0:3, 30, framebuf ) == ERROR )
 	{
 	    /*!!!! try 3 times! (flow diagram from T.30 / T30_T1 timeout) */
 	    fax_hangup = TRUE; fax_hangup_code = 11; return ERROR;
@@ -92,7 +104,7 @@ int first;
     while( ( framebuf[0] & T30_FINAL ) == 0 );
 
     /* send local id frame (TSI) */
-    fax1_send_idframe( fd, T30_TSI|0x01 );
+    fax1_send_idframe( fd, T30_TSI|0x01, T30_CAR_V21 );
 
     /* send DCS */
     if ( fax1_send_dcs( fd, 14400 ) == ERROR )
@@ -167,7 +179,7 @@ char buf[CHUNK], wbuf[CHUNK];
 
 	/* receive frame - FTT or CFR */
 	/*!!! return code! */
-	fax1_receive_frame( fd, 3, 30, &framebuf );
+	fax1_receive_frame( fd, 3, 30, framebuf );
 
 	if ( ( framebuf[0] & T30_FINAL ) == 0 ||
 	     framebuf[1] != T30_CFR )
@@ -302,6 +314,8 @@ tryanyway:
         case pp_eom: framebuf[2] = T30_EOM | fax1_dis; break;
 	case pp_eop: framebuf[2] = T30_EOP | fax1_dis; break;
 	case pp_mps: framebuf[2] = T30_MPS | fax1_dis; break;
+	default: 
+	   lprintf( L_WARN, "fax1_send_page: canthappen(1) - PRI not supported" );
     }
 
     fax1_send_frame( fd, strcmp(line, "OK")==0? 3:0 , framebuf, 3 );
@@ -331,6 +345,240 @@ tryanyway:
 
     fax_hangup = TRUE; fax_hangup_code = 50;
     return ERROR;
+}
+
+int fax1_receive _P6( (fd, pagenum, dirlist, uid, gid, mode ),
+		       int fd, int * pagenum, char * dirlist,
+		       int uid, int gid, int mode)
+{
+int rc;
+uch frame[FRAMESIZE];
+char * p;
+Post_page_messages ppm = pp_mps;
+
+    /* after ATA/CONNECT, first AT+FTH=3 is implicit -> send frames
+       right away*/
+
+    /* with +FAE=1, the sequence seems to be
+     *  RING
+     *     ATA
+     *  FAX
+     *  CONNECT
+     */
+
+    /* TODO: reasonable timeout! */
+    alarm(5);
+    p = mdm_get_line( STDIN );
+    alarm(0);
+
+    if ( p == NULL || strcmp( p, "CONNECT" ) != 0 )
+    {
+	lprintf( L_WARN, "fax1_receive: initial CONNECT not seen" );
+	return ERROR;
+    }
+
+    *pagenum = 0;
+
+    /* send local ID frame (CSI) - non-final */
+    fax1_send_idframe( STDIN, T30_CSI, T30_CAR_SAME );
+
+    /* send DSI = Digital Identification Signal - local capabilities */
+    frame[0] = 0xff;
+    frame[1] = 0x03 | T30_FINAL;
+    frame[2] = T30_DIS;
+    frame[3] = 0x00;		/* bits 1..8: group 1/2 - unwanted */
+    frame[4] = 0x00 |		/* bit 9: can transmit */
+	       0x02 |           /* bit 10: can receive */
+	       0x2c |		/* bit 11..14: receive rates - TODO!! */
+	       0xc0;		/* bit 15: can fine, bit 16: can 2D */
+    frame[5] = 0x08 |		/* bits 17..20 = 215mm width, unlim. length */
+               0x70 |		/* bits 21..23 = 0ms scan time */
+	       0x00;		/* bit 24: extend bit - final */
+
+    rc = fax1_send_frame( STDIN, T30_CAR_SAME, frame, 6 );
+
+    /* now see what the other side has to say... */
+wait_for_dcs:
+
+    do
+    {
+        if ( fax1_receive_frame( STDIN, T30_CAR_V21, 30, frame ) == ERROR )
+	{
+	    fax_hangup = TRUE; fax_hangup_code = 70; return ERROR;
+	    /* TODO: need to re-try initial handshake 3 times! */
+	}
+	switch( frame[1] & 0xfe )		/* FCF, ignoring X-bit */
+	{
+	    case T30_TSI: fax1_copy_id( frame ); break;
+	    case T30_NSF: break;
+	    case T30_DCS: lprintf( L_MESG, "DCS!! TODO!!" ); break;
+	    default:
+		lprintf( L_WARN, "unexpected frame type 0x%02x", frame[1] );
+	}
+    }
+    while( ( frame[0] & T30_FINAL ) == 0 );
+
+    /* parse&print negotiated values */
+
+    /* receive 1.5s training sequence */
+    rc = fax1_receive_tcf( STDIN, 96 );
+
+    if ( rc < 0 ) return ERROR;
+
+    /* TCF bad? send FTT (failure to train), wait for next DCS */
+    frame[0] = 0xff;
+    frame[1] = 0x03 | T30_FINAL;
+
+    if ( rc == 0 )
+    {
+	frame[2] = T30_FTT;
+	rc = fax1_send_frame( STDIN, T30_CAR_V21, frame, 3 );
+	goto wait_for_dcs;
+	/* TODO!!! break endless loop */
+    }
+
+    /* TCF good, send CFR frame (confirmation to receive) */
+    frame[2] = T30_CFR;
+    rc = fax1_send_frame( STDIN, T30_CAR_V21, frame, 3 );
+
+receive_next_page:
+
+    /* start page reception & get page data */
+    fax1_receive_page( STDIN, 96, pagenum, dirlist, uid, gid, mode );
+
+    /* switch back to low-speed carrier, get (PRI-)EOM/MPS/EOP code */
+
+    /* TODO: T.30 flow chart: will we ever hit non-final frames here?
+     * what to do on error?
+     */
+    do
+    {
+        if ( fax1_receive_frame( STDIN, T30_CAR_V21, 30, frame ) == ERROR )
+	{
+	    fax_hangup = TRUE; fax_hangup_code = 100; return ERROR;
+	    /* TODO: need to re-try post-page handshake 3 times! */
+	}
+	switch( frame[1] & 0xfe & ~T30_PRI )	/* FCF, ignoring X-bit */
+	{
+	    case T30_MPS: 
+	        lprintf( L_MESG, "MPS: end of page" ); ppm = pp_mps;
+	        break;
+	    case T30_EOM: 
+		lprintf( L_MESG, "EOM: back to phase B" ); ppm = pp_eom;
+		break;
+	    case T30_EOP: 
+		lprintf( L_MESG, "EOP: end of transmission" ); 
+		ppm = pp_eop;
+		break;
+	    default:
+		lprintf( L_WARN, "unexpected frame type 0x%02x", frame[1] );
+	}
+    }
+    while( ( frame[0] & T30_FINAL ) == 0 );
+
+    /* send back page good/bad return code */
+    frame[0] = 0xff;
+    frame[1] = 0x03 | T30_FINAL;
+    frame[2] = T30_MCF;
+    rc = fax1_send_frame( STDIN, T30_CAR_V21, frame, 3 );
+
+    /* go back to phase B (EOM), go to next page (MPS), done (EOP) */
+    if ( ppm == pp_eom )
+	{ lprintf( L_ERROR, "EOM: not implemented (TODO!)" ); return ERROR; }
+    if ( ppm == pp_mps )
+	{ goto receive_next_page; }
+
+    /* EOP - get goodbye frame (DCN) from remote end, hang up */
+    fax1_receive_frame( STDIN, T30_CAR_V21, 30, frame );
+
+    if ( (frame[1] & 0xfe) != T30_DCN )
+    {
+	lprintf( L_WARN, "fax1_receive: unexpected frame 0x%02x 0x%02x after EOP", frame[0], frame[1] );
+    }
+
+    return NOERROR;
+}
+
+int fax1_receive_tcf _P2((fd,carrier), int fd, int carrier)
+{
+int rc, count, notnull;
+char c, *p;
+boolean wasDLE=FALSE;
+
+    /* TODO: proper timeout settings as per T.30 */
+    alarm(10);
+
+    lprintf( L_NOISE, "fax1_r_tcf: carrier=%d", carrier );
+    rc = fax1_init_FRM( fd, carrier );
+    if ( rc == ERROR ) return 0;		/* re-try */
+
+    count = notnull = 0;
+
+    lprintf( L_JUNK, "fax1_r_tcf: got: " );
+    while(1)
+    {
+	if ( mdm_read_byte( fd, &c ) != 1 ) 
+	{
+	    lprintf( L_ERROR, "fax1_r_tcf: cannot read byte, return" );
+	    return -1;
+	}
+	if ( c != 0 ) lputc( L_JUNK, c );
+
+	if ( wasDLE ) 
+	{
+	    if ( c == ETX ) break;
+	    wasDLE = 0;
+	}
+	if ( c == DLE ) { wasDLE = 1; continue; }
+
+	count++;
+	if ( c != 0 ) notnull++;
+    }
+
+    /* read post-frame "NO CARRIER" message */
+    p = mdm_get_line( fd );
+    alarm(0);
+
+    if ( notnull > count/10 ) 
+    {
+	lprintf( L_NOISE, "TCF: %d bytes, %d non-null, retry", count, notnull );
+	return 0;				/* try again */
+    }
+
+    lprintf( L_NOISE, "TCF: %d bytes, %d non-null, OK", count, notnull );
+    return 1;					/* acceptable, go ahead */
+}
+
+int fax1_receive_page _P7( (fd,carrier,pagenum,dirlist,uid,gid,mode), 
+				int fd, int carrier,
+				int * pagenum, char * dirlist,
+				int uid, int gid, int mode )
+{
+int rc;
+char *p;
+
+char directory[MAXPATH];
+
+    fax_find_directory( dirlist, directory, sizeof(directory) );
+
+    /* TODO: proper timeout settings as per T.30 */
+    alarm(10);
+
+    lprintf( L_NOISE, "fax1_rp: carrier=%d", carrier );
+    rc = fax1_init_FRM( fd, carrier );
+    if ( rc == ERROR ) return ERROR;
+
+    /* now get page data (common function for class 1 and class 2) */
+    /* TODO: reset alarm handler! */
+    rc = fax_get_page_data( STDIN, ++(*pagenum), directory, uid, gid, mode );
+
+    /* read post-frame "NO CARRIER" message */
+    p = mdm_get_line( fd );
+    alarm(0);
+
+    /* TODO: copy quality checking */
+
+    return NOERROR;
 }
 
 #endif /* CLASS 1 */
