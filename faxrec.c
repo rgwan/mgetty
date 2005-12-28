@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 4.12 2003/06/12 14:56:35 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 4.13 2005/12/28 21:40:58 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -83,6 +83,11 @@ extern  char * Device;
     tio_set( STDIN, &tio );
 
     /* read: +FTSI:, +FDCS, OK */
+
+#ifdef CLASS1
+    if ( modem_type == Mt_class1 )
+	{ fax1_receive( STDIN, &pagenum, spool_in, uid, gid, mode ); return; }
+#endif
 
 #ifndef FAX_USRobotics
     fax_wait_for( "OK", STDIN );
