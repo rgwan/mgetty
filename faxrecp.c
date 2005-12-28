@@ -1,4 +1,4 @@
-#ident "$Id: faxrecp.c,v 1.8 2003/06/12 14:56:36 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrecp.c,v 1.9 2005/12/28 21:42:01 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrecp.c - part of mgetty+sendfax
  *
@@ -249,6 +249,44 @@ char	DevId[3];
     return NOERROR;
 }
 
+/* helper function: find a directory in dirlist that has enough free 
+ * disk space (2x minfree). If none has "plenty", use the last one, 
+ * until space in there is less than 1x minfree, then give up.
+ * (if no directory is writeable, we'll fail later on)
+ */
+
+void fax_find_directory _P3((dirlist,directory,size),
+			    char * dirlist, char * directory, int size )
+{
+char *p, *p_help;
+
+    p = dirlist;
+
+    do
+    {
+        int l = strlen(p)+1;
+	if ( l > size-1 ) l=size-1;
+
+    	p_help = memccpy( directory, p, ':', l );
+
+	if ( p_help != NULL ) { *(p_help-1) = '\0'; p++; }
+	directory[l] = '\0';
+	p += strlen(directory);
+
+	if ( access( directory, W_OK ) < 0 )
+	{
+	    lprintf( L_ERROR, "fax_find_dir: can't write to '%s'", directory);
+	    continue;
+	}
+
+        if ( checkspace(directory) > 1 )  { break; }
+
+	lprintf( L_WARN, "fax_find_dir: not enough disk space in '%s'",
+		 directory);
+    }
+    while( *p != '\0' );
+}
+
 /* receive fax pages
  * will return the number of received pages in *pagenum
  */
@@ -260,37 +298,8 @@ int fax_get_pages _P6( (fd, pagenum, dirlist, uid, gid, mode ),
 static const char start_rcv = DC2;
 
     char directory[MAXPATH];
-    char * p, * p_help;
 
-    /* find a directory in dirlist that has enough free disk space
-     * (2x minfree). If none has "plenty", use the last one, until
-     * space in there is less than 1x minfree, then give up.
-     */
-    p = dirlist;
-
-    do
-    {
-        int l = strlen(p)+1;
-	if ( l > sizeof(directory)-1 ) l=sizeof(directory)-1;
-
-    	p_help = memccpy( directory, p, ':', l );
-
-	if ( p_help != NULL ) { *(p_help-1) = '\0'; p++; }
-	directory[l] = '\0';
-	p += strlen(directory);
-
-	if ( access( directory, W_OK ) < 0 )
-	{
-	    lprintf( L_ERROR, "fax_get_pages: can't write to '%s'", directory);
-	    continue;
-	}
-
-        if ( checkspace(directory) > 1 )  { break; }
-
-	lprintf( L_WARN, "fax_get_pages: not enough disk space in '%s'",
-		 directory);
-    }
-    while( *p != '\0' );
+    fax_find_directory( dirlist, directory, sizeof(directory) );
 
     *pagenum = 0;
 
