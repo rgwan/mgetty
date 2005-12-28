@@ -1,3 +1,18 @@
+#ident "$Id: class1.h,v 4.3 2005/12/28 21:46:11 gert Exp $ Copyright (c) Gert Doering"
+
+/* class1.h
+ *
+ * common definitions for class 1 fax modules
+ *
+ * $Log: class1.h,v $
+ * Revision 4.3  2005/12/28 21:46:11  gert
+ * T30_DCN had wrong hex value (should be 0xfa, was 0xfc)
+ * add symbolic values for T30 carrier values (+FRH=3/+FTH=3)
+ * add prototypes for most functions in class1lib.c
+ * add CVS + file description header
+ *
+ */
+
 #define FRAMESIZE	300
 
 typedef unsigned char uch;
@@ -6,11 +21,18 @@ extern int fax1_dis;		/* "X"-Bit (received DIS) */
 
 RETSIGTYPE fax1_sig_alarm(SIG_HDLR_ARGS);
 void fax1_dump_frame _PROTO(( uch * frame, int len ));
+int fax1_send_frame _PROTO(( int fd, int carrier, char * frame, int len ));
 
 int fax1_send_page _PROTO(( char * g3_file, int * bytes_sent, TIO * tio,
 			    Post_page_messages ppm, int fd ));
 
 void fax1_copy_id _PROTO(( uch * frame ));
+int fax1_send_idframe _PROTO(( int fd, int fcf, int carrier));
+void fax1_parse_dis _PROTO(( uch * frame ));
+int fax1_send_dcs _PROTO(( int fd, int speed ));
+int fax1_receive_frame _PROTO (( int fd, int carrier, 
+			         int timeout, uch * framebuf ));
+int fax1_init_FRM _PROTO(( int fd, int carrier ));
 
 struct fax1_btable { int speed;			/* bit rate */
                      int flag;			/* flag (for capabilities) */
@@ -58,5 +80,10 @@ struct fax1_btable * dcs_btp;			/* current modulation */
 #define T30_PIP	0xac		/* Procedure Interrupt Positive */
 #define T30_PIN	0x2c		/* Procedure Interrupt Negative */
 
-#define T30_DCN	0xfc		/* Disconnect Now (phase E) */
+#define T30_DCN	0xfa		/* Disconnect Now (phase E) */
 #define T30_CRP	0x1c		/* Command Repeat (optional) */
+
+
+/* carrier values */
+#define T30_CAR_SAME	0	/* pseudo-header, don't send AT+FTH/AT+FRH */
+#define T30_CAR_V21	3	/* 300 bps for negotiation */
