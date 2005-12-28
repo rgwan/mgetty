@@ -1,4 +1,4 @@
-#ident "$Id: class1lib.c,v 4.4 1998/01/22 07:28:49 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1lib.c,v 4.5 2005/12/28 21:50:07 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1lib.c
  *
@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <signal.h>
 #include <ctype.h>
@@ -320,6 +321,14 @@ int fcf = frame[1];
 	    lprintf( L_NOISE, "RTP" ); break;
 	case T30_RTN:
 	    lprintf( L_NOISE, "RTN" ); break;
+
+	case T30_EOM:
+	    lprintf( L_NOISE, "EOM" ); break;
+	case T30_MPS:
+	    lprintf( L_NOISE, "MPS" ); break;
+	case T30_EOP:
+	    lprintf( L_NOISE, "EOP" ); break;
+
 	case T30_DCN:
 	    lprintf( L_NOISE, "DCN" ); break;
 
@@ -348,14 +357,14 @@ int fcf = frame[1];
             switch( frame[4] & 0x03 )
 	    {
 	        case 0x00: lputs( L_NOISE, " 215mm" ); break;
-		case 0x01: lputs( L_NOISE, " 215+255+303" ); break;
-		case 0x02: lputs( L_NOISE, " 215+255" ); break;
+		case 0x02: lputs( L_NOISE, " 215+255+303" ); break;
+		case 0x01: lputs( L_NOISE, " 215+255" ); break;
 	    }
 	    switch( (frame[4]>>2) & 0x03 )
 	    {
 	        case 0x00: lputs( L_NOISE, " A4" ); break;
-		case 0x01: lputs( L_NOISE, " unlim" ); break;
-		case 0x02: lputs( L_NOISE, " A4+B4" ); break;
+		case 0x02: lputs( L_NOISE, " unlim" ); break;
+		case 0x01: lputs( L_NOISE, " A4+B4" ); break;
 	    }
 	    switch( (frame[4]>>4) & 0x07 )
 	    {
@@ -379,7 +388,66 @@ int fcf = frame[1];
 
 	    break;
 	case T30_DCS:
-	    lprintf( L_NOISE, "DCS:" ); break;
+	    lprintf( L_NOISE, "DCS:" );
+
+	    if ( frame[2] & 0x40 ) lputs( L_NOISE, " V8" );
+	    lputs( L_NOISE, frame[2] & 0x80 ? " 64": " 256" );
+
+	    if ( frame[3] & 0x02 ) lputs( L_NOISE, " RCV!" );
+
+	    switch( (frame[3] >> 2) &0x0f )
+	    {
+	        case 0x00: lputs( L_NOISE, " V27ter_2400" ); break;
+	        case 0x02: lputs( L_NOISE, " V27ter_4800" ); break;
+	        case 0x01: lputs( L_NOISE, " V29_9600" ); break;
+	        case 0x03: lputs( L_NOISE, " V29_7200" ); break;
+	        case 0x04: lputs( L_NOISE, " V33_14400" ); break;
+	        case 0x06: lputs( L_NOISE, " V33_12000" ); break;
+	        case 0x08: lputs( L_NOISE, " V17_14400" ); break;
+	        case 0x0a: lputs( L_NOISE, " V17_12000" ); break;
+	        case 0x09: lputs( L_NOISE, " V17_9600" ); break;
+	        case 0x0b: lputs( L_NOISE, " V17_7200" ); break;
+		default:   lputs( L_NOISE, " V.???" ); break;
+	    }
+
+	    if ( frame[3] & 0x40 ) lputs( L_NOISE, " 200!" );
+	    if ( frame[3] & 0x80 ) lputs( L_NOISE, " 2D!" );
+
+            switch( frame[4] & 0x03 )
+	    {
+	        case 0x00: lputs( L_NOISE, " 1728/215mm" ); break;
+		case 0x02: lputs( L_NOISE, " 2432/303mm" ); break;
+		case 0x01: lputs( L_NOISE, " 2048/255mm" ); break;
+	    }
+	    switch( (frame[4]>>2) & 0x03 )
+	    {
+	        case 0x00: lputs( L_NOISE, " A4" ); break;
+		case 0x02: lputs( L_NOISE, " unlim" ); break;
+		case 0x01: lputs( L_NOISE, " B4" ); break;
+	    }
+	    switch( (frame[4]>>4) & 0x07 )
+	    {
+	        case 0x00: lputs( L_NOISE, " 20ms" ); break;
+	        case 0x01: lputs( L_NOISE, " 40ms" ); break;
+	        case 0x02: lputs( L_NOISE, " 10ms" ); break;
+	        case 0x04: lputs( L_NOISE, " 5ms" ); break;
+	        case 0x03: lputs( L_NOISE, " 5/10ms" ); break;
+	        case 0x06: lputs( L_NOISE, " 10/20ms" ); break;
+	        case 0x05: lputs( L_NOISE, " 20/40ms" ); break;
+	        case 0x07: lputs( L_NOISE, " 0ms" ); break;
+	    }
+	    if ( ( frame[4] & 0x80 ) == 0 ) break;	/* extent bit */
+
+	    if ( frame[5] & 0x04 ) lputs( L_NOISE, " ECM" );
+	    if ( frame[5] & 0x40 ) lputs( L_NOISE, " T.6" );
+	    if ( ( frame[5] & 0x80 ) == 0 ) break;	/* extent bit */
+
+	    if ( ( frame[6] & 0x80 ) == 0 ) break;	/* extent bit */
+	    /* the next bytes specify 300/400 dpi, color fax, ... */
+
+	    break;
+	default:
+	    lprintf( L_NOISE, "frame FCF 0x%02x not yet decoded", fcf );
     }
 }
 
@@ -389,12 +457,12 @@ int fax1_send_frame _P4( (fd, carrier, frame, len),
                          int fd, int carrier, char * frame, int len )
 {
 char * line;
-static carrier_active = -1;		/* inter-frame marker */
+static int carrier_active = -1;		/* inter-frame marker */
 uch dle_buf[FRAMESIZE*2+2];		/* for DLE-coded frame */
 int r,w;
 
     /* send AT+FTH=3, wait for CONNECT 
-     * (but only if we've not sent an non-final frame befor!)
+     * (but only if we've not sent an non-final frame before!)
      */
     if ( carrier > 0 && carrier_active != carrier )
     {
@@ -483,7 +551,7 @@ int fax1_send_dcn _P1((fd), int fd )
 /* send local identification (CSI, CIG or TSI) 
  * Note: "final" bit is never set, as these frames are always optional.
  */
-int fax1_send_idframe _P2((fd,fcf), int fd, int fcf )
+int fax1_send_idframe _P3((fd,fcf,carrier), int fd, int fcf, int carrier)
 {
     unsigned char frame[F1LID+3];
 
@@ -492,7 +560,7 @@ int fax1_send_idframe _P2((fd,fcf), int fd, int fcf )
     frame[2] = fcf;
     memcpy( &frame[3], fax1_local_id, F1LID );
 
-    return fax1_send_frame( fd, 3, frame, sizeof(frame) );
+    return fax1_send_frame( fd, carrier, frame, sizeof(frame) );
 }
 
 void fax1_copy_id _P1((frame), uch * frame )
@@ -613,6 +681,36 @@ uch framebuf[FRAMESIZE];
 		  0x70 |		/* bits 21-23: scan line time */
 		  0x00;			/* bit 24: extend bit - final */
     return fax1_send_frame( fd, 3, framebuf, 6 );
+}
+
+int fax1_init_FRM _P2((fd,carrier), int fd, int carrier )
+{
+    char cmd[20];
+    char *line;
+    int timeout = 30;
+
+    /* TODO: is this sufficient timeout handling? */
+    if ( timeout > 0 )
+    {
+	signal( SIGALRM, fax1_sig_alarm );
+        alarm( (timeout/10)+1 );
+    }
+
+    sprintf( cmd, "AT+FRM=%d", carrier );
+    fax_send( cmd, fd );		/*!!!!! NOOOO */
+
+    /* wait for CONNECT/NO CARRIER */
+    line = mdm_get_line( fd );
+    if ( line != NULL && strcmp( line, cmd ) == 0 )
+		{ line = mdm_get_line( fd ); }		/* skip echo */
+
+    if ( line == NULL || strcmp( line, "CONNECT" ) != 0 )
+    {
+	alarm(0);
+	lprintf( L_WARN, "fax1_receive_frame: no carrier (%s)", line );
+	return ERROR;
+    }
+    return NOERROR;
 }
 
 #endif /* CLASS1 */ 
