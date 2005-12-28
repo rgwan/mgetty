@@ -1,4 +1,4 @@
-#ident "$Id: mg_m_init.c,v 4.9 2005/11/26 16:47:44 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_m_init.c,v 4.10 2005/12/28 21:39:58 gert Exp $ Copyright (c) Gert Doering"
 
 /* mg_m_init.c - part of mgetty+sendfax
  *
@@ -122,6 +122,16 @@ int mg_init_fax _P5( (fd, mclass, fax_id, fax_only, fax_max_speed),
     {
 	lprintf( L_NOISE, "no class 2/2.0 faxmodem, no faxing available" );
 	return FAIL;
+    }
+
+    if ( modem_type == Mt_class1 )
+    {
+	/* set adaptive answering */
+	if ( mdm_command( fax_only? "AT+FAE=0":
+				    "AT+FAE=1", fd ) == FAIL )
+	{
+	    lprintf( L_MESG, "cannot set answer/reception flags" );
+	}
     }
     
     if ( modem_type == Mt_class2_0 )
