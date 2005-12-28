@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.62 2005/11/24 17:21:37 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.63 2005/12/28 21:44:11 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -725,7 +725,7 @@ int mdm_identify _P1( (fd), int fd )
 	    modem_type=Mt_data;
 	    break;
 	  case 149: /* sure? */
-	    lprintf( L_MESG, "Intel 14.4E/400e detected (??)" );
+	    lprintf( L_MESG, "Intel 14.4E/400e detected (?)" );
 	    modem_type=Mt_unknown;
 	    break;
 	  case 247: /* use ATI2 for further distinction */
@@ -884,6 +884,11 @@ int mdm_identify _P1( (fd), int fd )
 	    lprintf( L_MESG, "Multitech MT5634ZBA-V92 detected" );
 	    modem_type=Mt_class2_0;
 	    modem_quirks |= MQ_FPS_NOT_HEX;
+	}
+	else if ( strncmp( l, "SIEMENS", 7 ) == 0 )	/* gert */
+	{
+	    lprintf( L_MESG, "possibly Siemens GSM modem?  assuming class 2" );
+	    modem_type=Mt_class2;
 	}
     }
 
