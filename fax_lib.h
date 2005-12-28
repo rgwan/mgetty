@@ -1,4 +1,4 @@
-#ident "$Id: fax_lib.h,v 4.10 2003/06/12 20:41:34 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: fax_lib.h,v 4.11 2005/12/28 21:44:50 gert Exp $ Copyright (c) Gert Doering"
 
 
 /* fax_lib.h
@@ -31,6 +31,7 @@ int fax_send _PROTO(( char * s, int fd ));	/* write to fd, with logging */
 int fax_wait_for _PROTO(( char * s, int fd ));
 int fax_command _PROTO(( char * send, char * expect, int fd ));
 
+void fax_find_directory _PROTO(( char * dirlist, char * directory, int size ));
 int fax_get_pages _PROTO(( int fd, int * pagenum, char * directory,
 			   int uid, int gid, int mode ));
 int fax_get_page_data _PROTO(( int modem_fd, int pagenum, char * directory,
@@ -51,6 +52,15 @@ int fax_send_ppm  _PROTO(( int fd, TIO *tio, Post_page_messages ppm ));
 Modem_type fax_get_modem_type _PROTO(( int fd, char * mclass ));
 
 typedef	struct	{ short vr, br, wd, ln, df, ec, bf, st; } fax_param_t;
+
+#ifdef CLASS1
+/* prototypes for class 1 functions */
+int fax1_receive _PROTO(( int fd, int * pagenum, char * dirlist,
+		          int uid, int gid, int mode));
+int fax1_set_l_id _PROTO(( int fd, char * fax_id ));
+int fax1_set_fdcc _PROTO(( int fd, int fine, int max, int min ));
+int fax1_set_bor _PROTO(( int fd, int bor ));
+#endif
 
 extern	char	fax_remote_id[];		/* remote FAX id +FTSI */
 extern	char	fax_param[];			/* transm. parameters +FDCS */
