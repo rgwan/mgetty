@@ -1,4 +1,4 @@
-#ident "$Id: class1lib.c,v 4.5 2005/12/28 21:50:07 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1lib.c,v 4.6 2005/12/30 23:08:21 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1lib.c
  *
@@ -283,18 +283,19 @@ int fax1_receive_frame _P4 ( (fd, carrier, timeout, framebuf),
 
     if ( rc > 0 )
     {
-        fax1_dump_frame( framebuf, count );
+        fax1_dump_frame( '<', framebuf, count );
     }
 
     return rc;
 }
 
 
-void fax1_dump_frame _P2((frame, len), unsigned char * frame, int len)
+void fax1_dump_frame _P3((io, frame, len), 
+			  char io, unsigned char * frame, int len)
 {
 int fcf = frame[1];
 
-    lprintf( L_MESG, "frame type: 0x%02x  len: %d  %s%s",
+    lprintf( L_MESG, "%c frame type: 0x%02x  len: %d  %s%s", io,
                       fcf, len, frame[0]&0x10? "final": "non-final",
 		      (fcf & 0x0e) && ( fcf & 0x01 ) ? " X": "");
 
@@ -454,12 +455,14 @@ int fcf = frame[1];
 /* send arbitrary frame
  */
 int fax1_send_frame _P4( (fd, carrier, frame, len), 
-                         int fd, int carrier, char * frame, int len )
+                         int fd, int carrier, uch * frame, int len )
 {
 char * line;
 static int carrier_active = -1;		/* inter-frame marker */
 uch dle_buf[FRAMESIZE*2+2];		/* for DLE-coded frame */
 int r,w;
+
+    fax1_dump_frame( '>', frame, len );
 
     /* send AT+FTH=3, wait for CONNECT 
      * (but only if we've not sent an non-final frame before!)
@@ -486,10 +489,12 @@ int r,w;
 	carrier_active=carrier;
     }
 
-    fax1_dump_frame( frame+1, len-1 );
+    /* first 0xff is mandatory, but not passed by caller */
+    dle_buf[0] = 0xff;
+    w=1;
 
     /* send <DLE> encoded frame data */
-    for( r=w=0; r<len; r++ )
+    for( r=0; r<len; r++ )
     {
         if ( frame[r] == DLE ) { dle_buf[w++] = DLE; }
 	dle_buf[w++] = frame[r];
@@ -498,7 +503,7 @@ int r,w;
     /* end-of-frame: <DLE><ETX> */
     dle_buf[w++] = DLE; dle_buf[w++] = ETX;
 
-    lprintf( L_JUNK, "fax1sf: %d/%d", len, w );
+    lprintf( L_JUNK, "fax1sf: %d/%d", len+1, w );
 
     if ( write( fd, dle_buf, w ) != w )
     {
@@ -518,7 +523,7 @@ int r,w;
     line = mdm_get_line( fd );
     lprintf( L_NOISE, "fax_send_frame: got '%s'", line );
 
-    if ( frame[1] & T30_FINAL )
+    if ( frame[0] & T30_FINAL )
     {
         carrier_active = -1;		/* carrier is off */
 	lprintf( L_NOISE, "carrier is off - OK='%s'", line );
@@ -535,17 +540,38 @@ int r,w;
     return NOERROR;
 }
 
+/* send simple frame, consisting only of FCF and no arguments
+ * (non-final frame)
+ */
+int fax1_send_simf_nonfinal _P3( (fd, carrier, fcf), 
+                                 int fd, int carrier, uch fcf )
+{
+uch frame[2];
+   frame[0] = 0x03;
+   frame[1] = fcf;
+   return fax1_send_frame( fd, carrier, frame, 2 );
+}
+
+/* send simple frame, consisting only of FCF and no arguments
+ * (final frame)
+ */
+int fax1_send_simf_final _P3( (fd, carrier, fcf), 
+                              int fd, int carrier, uch fcf )
+{
+uch frame[2];
+   frame[0] = 0x03 | T30_FINAL;
+   frame[1] = fcf;
+   return fax1_send_frame( fd, carrier, frame, 2 );
+}
+
 /* send "disconnect now" frame 
  * Note: this is always a "final" frame
  */
 int fax1_send_dcn _P1((fd), int fd )
 {
-    char frame[] = { 0xff, 0x13, T30_DCN };
-
-    frame[2] |= fax1_dis;		/* set "X"-Bit if needed */
     fax_hangup = TRUE;
 
-    return fax1_send_frame( fd, 3, frame, sizeof(frame) );
+    return fax1_send_simf_final( fd, T30_CAR_V21, T30_DCN|fax1_dis );
 }
 
 /* send local identification (CSI, CIG or TSI) 
@@ -553,12 +579,11 @@ int fax1_send_dcn _P1((fd), int fd )
  */
 int fax1_send_idframe _P3((fd,fcf,carrier), int fd, int fcf, int carrier)
 {
-    unsigned char frame[F1LID+3];
+    unsigned char frame[F1LID+2];
 
-    frame[0] = 0xff;
-    frame[1] = 0x03;
-    frame[2] = fcf;
-    memcpy( &frame[3], fax1_local_id, F1LID );
+    frame[0] = 0x03;
+    frame[1] = fcf;
+    memcpy( &frame[2], fax1_local_id, F1LID );
 
     return fax1_send_frame( fd, carrier, frame, sizeof(frame) );
 }
@@ -668,19 +693,56 @@ uch framebuf[FRAMESIZE];
     lprintf( L_NOISE, "+DCS: 1,%03x", dcs_btp->flag );
 
     /*!!! calculate ALL values from DIS and to-be-sent page */
-    framebuf[0] = 0xff;			/* sync */
-    framebuf[1] = 0x03 | T30_FINAL;	/* DCS is always final frame */
-    framebuf[2] = fax1_dis | T30_DCS;	/* FCF */
-    framebuf[3] = 0;			/* bits 1..8 */
-    framebuf[4] = 0x02 |		/* bit 10: receiver operation */
+    framebuf[0] = 0x03 | T30_FINAL;	/* DCS is always final frame */
+    framebuf[1] = fax1_dis | T30_DCS;	/* FCF */
+    framebuf[2] = 0;			/* bits 1..8 */
+    framebuf[3] = 0x02 |		/* bit 10: receiver operation */
                   dcs_btp->dcs_bits |	/* bits 11..14: signalling rate */
 		  ((fax1_res&remote_cap.vr)<<6) | /* bit 15: fine mode */
 		  0x00;			/* bit 16: 2D */
-    framebuf[5] = 0x00 |		/* bit 17+18: 215 mm width */
+    framebuf[4] = 0x00 |		/* bit 17+18: 215 mm width */
     		  0x04 |		/* bit 19+20: B4 length */
 		  0x70 |		/* bits 21-23: scan line time */
 		  0x00;			/* bit 24: extend bit - final */
-    return fax1_send_frame( fd, 3, framebuf, 6 );
+    return fax1_send_frame( fd, T30_CAR_V21, framebuf, 5 );
+}
+
+/* parse incoming DCS frame
+ * put communication parameters into global variables (dcs_btp, fax_par_d)
+ */
+/* TODO: error handling? "I don't understand this -> DCN" */
+void fax1_parse_dcs _P1((frame), uch *frame)
+{
+    /* bit rate + modulation requested (bits 11..14) */
+    dcs_btp = fax1_btable;
+    while( dcs_btp->speed > 2400 &&
+	   dcs_btp->dcs_bits != (frame[3] & 0x3c) ) dcs_btp++;
+
+    fax_par_d.br = dcs_btp->speed/2400 - 1;
+
+    /* fine resolution: bit 15 (98/196 lpi) */
+    fax_par_d.vr = ( frame[3] & 0x40 )? 1: 0;
+
+    /* 2D: bit 16 (1D/2D mod read) */
+    fax_par_d.df = ( frame[3] & 0x80 )? 1: 0;
+
+    /* page width: bits 17+18 (byte 4, bits 0+1) */
+    fax_par_d.wd = frame[4] & 0x03;
+
+    /* page length: bits 19+20 */
+    fax_par_d.ln = (frame[4] >> 2 ) & 0x03;
+
+    /* scan line time: bits 21-23 */
+    fax_par_d.st = (frame[4] >> 4 ) & 0x07;
+
+    /* extend bit? */
+    if ( ( frame[4] && 0x80 ) == 0 ) goto done;
+
+    /* ECM - TODO */
+    
+done:
+    lprintf( L_NOISE, "DCS: speed=%d, flag=%03x", 
+	     dcs_btp->speed, dcs_btp->flag );
 }
 
 int fax1_init_FRM _P2((fd,carrier), int fd, int carrier )
