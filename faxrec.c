@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 4.13 2005/12/28 21:40:58 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 4.14 2005/12/30 21:45:23 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -66,12 +66,8 @@ extern  char * Device;
      * Do not set c_cflag, assume that caller has set bit rate,
      * hardware handshake, ... properly
      * For some modems, it's necessary to switch to 19200 bps.
+     *  (primarily old rockwell compatible thingies)
      */
-
-#ifdef FAX_USRobotics
-    /* the ultra smart USR modems do it in yet another way... */
-    fax_wait_for( "OK", STDIN );
-#endif
 
     tio_get( STDIN, &tio );
 
@@ -82,16 +78,22 @@ extern  char * Device;
 					/* processing, no signals */
     tio_set( STDIN, &tio );
 
-    /* read: +FTSI:, +FDCS, OK */
-
 #ifdef CLASS1
     if ( modem_type == Mt_class1 )
 	{ fax1_receive( STDIN, &pagenum, spool_in, uid, gid, mode ); return; }
 #endif
 
-#ifndef FAX_USRobotics
+    /* read: +FTSI:, +FDCS, OK */
+
     fax_wait_for( "OK", STDIN );
-#endif
+
+    /* NOTE: in former times, we had some #ifdef FAX_USRobotics here, to 
+     * move baud rate switching behind the "wait for OK" - seems some 
+     * seriously broken firmware did a baud rate lock-in to 19200 (?) 
+     * *after* the first OK, not understanding AT commands at the current 
+     * port speed anymore.  This has been dropped - ugly code.
+     * If you need it back, tell me (will come back as modem_quirk)
+     */
 
     /* if the "switchbd" flag is set wrongly, the fax_wait_for() command
      * will time out -> write a warning to the log file and give up

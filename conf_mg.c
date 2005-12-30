@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.c,v 4.17 2005/12/20 20:57:13 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_mg.c,v 4.18 2005/12/30 21:41:07 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_mg.c
  *
@@ -21,10 +21,6 @@ extern char * mgetty_version;		/* mgetty.c/version.h */
 
 #ifndef MODEM_CHECK_TIME
 # define MODEM_CHECK_TIME -1		/* no check */
-#endif
-
-#if defined(FAX_USRobotics) && !defined(FAX_RECV_SWITCHBD)
-#define FAX_RECV_SWITCHBD 19200
 #endif
 
 #ifndef FAX_RECV_SWITCHBD
