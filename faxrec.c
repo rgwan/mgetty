@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 4.14 2005/12/30 21:45:23 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 4.15 2005/12/30 22:58:42 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -51,16 +51,16 @@ void fax_notify_program _PROTO(( int number_of_pages ));
 void faxpoll_send_pages _PROTO(( int fd, int *ppagenum, TIO * tio, char * pollfile));
 
 char * faxpoll_server_file = NULL;
-
-void faxrec _P6((spool_in, switchbd, uid, gid, mode, mail_to),
-		char * spool_in, unsigned int switchbd,
-		int uid, int gid, int mode, char * mail_to)
-{
-int pagenum = 0, ppagenum = 0;		/* pages received / sent */
-TIO tio;
 extern  char * Device;
+extern	char *	fax_file_names;
+extern	int	fax_fn_size;
 
-    lprintf( L_NOISE, "fax receiver: entry" );
+void fax2_highlevel_receive 
+		   _P8(( fd, pn, ppn, spool_in, switchbd, uid, gid, mode ),
+			int fd, int * pn, int * ppn, char * spool_in,
+			unsigned int switchbd, int uid, int gid, int mode )
+{
+TIO tio;
 
     /* Setup tty interface
      * Do not set c_cflag, assume that caller has set bit rate,
@@ -68,8 +68,7 @@ extern  char * Device;
      * For some modems, it's necessary to switch to 19200 bps.
      *  (primarily old rockwell compatible thingies)
      */
-
-    tio_get( STDIN, &tio );
+    tio_get( fd, &tio );
 
     /* switch bit rates, if necessary */
     if ( switchbd != 0 ) tio_set_speed( &tio, switchbd );
@@ -78,13 +77,7 @@ extern  char * Device;
 					/* processing, no signals */
     tio_set( STDIN, &tio );
 
-#ifdef CLASS1
-    if ( modem_type == Mt_class1 )
-	{ fax1_receive( STDIN, &pagenum, spool_in, uid, gid, mode ); return; }
-#endif
-
-    /* read: +FTSI:, +FDCS, OK */
-
+    /* read: +FTSI:, +FDCS, OK (receive phase B negotiation) */
     fax_wait_for( "OK", STDIN );
 
     /* NOTE: in former times, we had some #ifdef FAX_USRobotics here, to 
@@ -122,22 +115,49 @@ extern  char * Device;
     /* *now* set flow control (we could have set it earlier, but on SunOS,
      * enabling CRTSCTS while DCD is low will make the port hang)
      */
-    tio_set_flow_control( STDIN, &tio,
+    tio_set_flow_control( fd, &tio,
 			 (FAXREC_FLOW) & (FLOW_HARD|FLOW_XON_IN) );
-    tio_set( STDIN, &tio );
+    tio_set( fd, &tio );
 
     /* tell modem about the flow control used (+FLO=...) */
-    fax_set_flowcontrol( STDIN, (FAXREC_FLOW) & FLOW_HARD );
+    fax_set_flowcontrol( fd, (FAXREC_FLOW) & FLOW_HARD );
 
-    fax_get_pages( STDIN, &pagenum, spool_in, uid, gid, mode );
+    fax_get_pages( fd, pn, spool_in, uid, gid, mode );
 
     /* send polled documents (very simple yet) */
     if ( faxpoll_server_file != NULL && fax_poll_req )
     {
 	lprintf( L_MESG, "starting fax poll send..." );
 	
-	faxpoll_send_pages( STDIN, &ppagenum, &tio, faxpoll_server_file );
+	faxpoll_send_pages( fd, ppn, &tio, faxpoll_server_file );
     }
+}
+
+void faxrec _P6((spool_in, switchbd, uid, gid, mode, mail_to),
+		char * spool_in, unsigned int switchbd,
+		int uid, int gid, int mode, char * mail_to)
+{
+int pagenum = 0, ppagenum = 0;		/* pages received / sent */
+
+    lprintf( L_NOISE, "fax receiver: entry" );
+
+    /* allocate memory for fax page file names
+     */
+    fax_file_names = malloc( fax_fn_size = MAXPATH * 4 );
+    if ( fax_file_names != NULL ) fax_file_names[0] = 0;
+
+    /* call protocol-specific fax receiver
+     * (class 2/2.0/2.1 are nearly identical, class 1 is very different)
+     */
+    if ( modem_type == Mt_class2 || modem_type == Mt_class2_0 )
+	fax2_highlevel_receive( STDIN, &pagenum, &ppagenum, spool_in, 
+				switchbd, uid, gid, mode );
+#ifdef CLASS1
+    else if ( modem_type == Mt_class1 )
+	fax1_highlevel_receive( STDIN, &pagenum, spool_in, uid, gid, mode );
+#endif
+    else
+	{ lprintf( L_ERROR, "faxrec: required modem driver (%d) not compiled in, abort", (int) modem_type ); return ; }
 
     call_done = time(NULL);
 	
@@ -161,9 +181,6 @@ extern  char * Device;
 	call_done / 3600, (call_done / 60) % 60, call_done % 60);
 }
 
-extern	char *	fax_file_names;
-extern	int	fax_fn_size;
-
 void fax_notify_mail _P3( (pagenum, ppagenum, mail_to),
 			  int pagenum, int ppagenum, char * mail_to )
 {
@@ -172,7 +189,6 @@ char  * file_name, * p;
 char	buf[256];
 int	r;
 time_t	ti;
-extern  char * Device;
 
     lprintf( L_NOISE, "fax_notify_mail: sending mail to: %s", mail_to );
 
