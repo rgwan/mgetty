@@ -1,4 +1,4 @@
-#ident "$Id: faxfile.c,v 1.1 1999/04/11 21:12:06 gert Exp $"
+#ident "$Id: faxfile.c,v 1.2 2005/12/30 22:54:24 gert Exp $"
 
 /* faxfile.c
  *
@@ -6,6 +6,11 @@
  *
  * the idea behind this is that all the G3-writing (and reading) programs 
  * can access a single interface to "raw G3", digifax, and TIFF files
+ *
+ * $Log: faxfile.c,v $
+ * Revision 1.2  2005/12/30 22:54:24  gert
+ * add CVS keyword
+ *
  */
 
 #include <stdio.h>
