@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.67 2005/11/26 13:25:52 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.68 2005/12/30 21:43:49 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -2956,8 +2956,8 @@ said for the Courier V.34/V.everything is true for the I-Modem.
 possibly not upgradable to V.34/X.2 at all, might give problems.  Fax was
 added fairly late, and the first fax-capable releases are very buggy.  If
 you have such a modem, and @code{ATI7} does not list @samp{V34} in the
-@samp{Options} line, you might try the FAX_USRobotics option in
-@file{policy.h}.  Maybe it helps.  But don't expect too much.
+@samp{Options} line, you might try setting @code{modem-quirks 0x20} in
+@file{mgetty.config}.  Maybe it helps.  But don't expect too much.
 
 @item USR Sportster series -- the ``Sportster'' is actually a range of
 many different low-end modems.  Most of them can do voice stuff, some of
@@ -3180,8 +3180,14 @@ demand, read: paid-for time.
 
 These do not work. They are not going to be supported (class 1 faxing is
 a mess, and the timing is extremely critical---nearly impossible in a
-unix environment---read the comments to the FlexFax package for
+unix environment---read the comments to the FlexFax/Hylafax package for
 details).
+
+Update: some very preliminary support is in the code now.  It's known
+to be incomplete in a large number of places.  If you feel adventurous,
+compile mgetty with @code{-DCLASS1}, and try it -- but I will NOT give
+beginner-level support here.  If it doesn't work, send the log file of
+a problematic call, unmodified and complete, at debug level 6.
 
 @node Systems, General, Modems, Problems
 @section Operating Systems
