@@ -1,4 +1,4 @@
-#ident "$Id: faxrecp.c,v 1.9 2005/12/28 21:42:01 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrecp.c,v 1.10 2005/12/30 22:56:45 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrecp.c - part of mgetty+sendfax
  *
@@ -302,12 +302,6 @@ static const char start_rcv = DC2;
     fax_find_directory( dirlist, directory, sizeof(directory) );
 
     *pagenum = 0;
-
-    /* allocate memory for fax page file names
-     */
-
-    fax_file_names = malloc( fax_fn_size = MAXPATH * 4 );
-    if ( fax_file_names != NULL ) fax_file_names[0] = 0;
 
     if ( fax_poll_req || fax_hangup )
     {
