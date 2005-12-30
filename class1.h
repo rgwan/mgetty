@@ -1,10 +1,13 @@
-#ident "$Id: class1.h,v 4.3 2005/12/28 21:46:11 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1.h,v 4.4 2005/12/30 23:05:34 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1.h
  *
  * common definitions for class 1 fax modules
  *
  * $Log: class1.h,v $
+ * Revision 4.4  2005/12/30 23:05:34  gert
+ * update & add various prototypes
+ *
  * Revision 4.3  2005/12/28 21:46:11  gert
  * T30_DCN had wrong hex value (should be 0xfa, was 0xfc)
  * add symbolic values for T30 carrier values (+FRH=3/+FTH=3)
@@ -19,20 +22,26 @@ typedef unsigned char uch;
 
 extern int fax1_dis;		/* "X"-Bit (received DIS) */
 
+/* class1lib.c */
 RETSIGTYPE fax1_sig_alarm(SIG_HDLR_ARGS);
-void fax1_dump_frame _PROTO(( uch * frame, int len ));
-int fax1_send_frame _PROTO(( int fd, int carrier, char * frame, int len ));
-
-int fax1_send_page _PROTO(( char * g3_file, int * bytes_sent, TIO * tio,
-			    Post_page_messages ppm, int fd ));
+void fax1_dump_frame _PROTO(( char io, uch * frame, int len ));
+int fax1_send_frame _PROTO(( int fd, int carrier, uch * frame, int len ));
+int fax1_send_simf_final _PROTO(( int fd, int carrier, uch fcf));
+int fax1_send_simf_nonfinal _PROTO(( int fd, int carrier, uch fcf));
+int fax1_send_dcn _PROTO(( int fd ));
 
 void fax1_copy_id _PROTO(( uch * frame ));
 int fax1_send_idframe _PROTO(( int fd, int fcf, int carrier));
 void fax1_parse_dis _PROTO(( uch * frame ));
+void fax1_parse_dcs _PROTO(( uch * frame ));
 int fax1_send_dcs _PROTO(( int fd, int speed ));
 int fax1_receive_frame _PROTO (( int fd, int carrier, 
 			         int timeout, uch * framebuf ));
 int fax1_init_FRM _PROTO(( int fd, int carrier ));
+
+/* class1.c */
+int fax1_send_page _PROTO(( char * g3_file, int * bytes_sent, TIO * tio,
+			    Post_page_messages ppm, int fd ));
 
 struct fax1_btable { int speed;			/* bit rate */
                      int flag;			/* flag (for capabilities) */
