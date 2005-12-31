@@ -1,10 +1,13 @@
-#ident "$Id: class1.h,v 4.5 2005/12/31 15:52:46 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1.h,v 4.6 2005/12/31 17:46:43 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1.h
  *
  * common definitions for class 1 fax modules
  *
  * $Log: class1.h,v $
+ * Revision 4.6  2005/12/31 17:46:43  gert
+ * add fax1_send_dis()
+ *
  * Revision 4.5  2005/12/31 15:52:46  gert
  * move typedef...uch from class1.h to mgetty.h
  *
@@ -35,6 +38,7 @@ void fax1_copy_id _PROTO(( uch * frame ));
 int fax1_send_idframe _PROTO(( int fd, int fcf, int carrier));
 void fax1_parse_dis _PROTO(( uch * frame ));
 void fax1_parse_dcs _PROTO(( uch * frame ));
+int fax1_send_dis _PROTO(( int fd ));
 int fax1_send_dcs _PROTO(( int fd, int speed ));
 int fax1_receive_frame _PROTO (( int fd, int carrier, 
 			         int timeout, uch * framebuf ));
