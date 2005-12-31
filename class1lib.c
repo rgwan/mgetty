@@ -1,4 +1,4 @@
-#ident "$Id: class1lib.c,v 4.7 2005/12/31 16:00:59 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1lib.c,v 4.8 2005/12/31 17:46:30 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1lib.c
  *
@@ -33,7 +33,8 @@ static int fax1_res;			/* flag for normal resolution */
 
        int fax1_dis;			/* "X"-bit (last received DIS) */
 
-static int fax1_fth, fax1_ftm;		/* local carrier capabilities */
+static int fax1_fth, fax1_ftm,		/* modem carrier capabilities */
+	   fax1_frh, fax1_frm;
 
 /* symbolic constants for capability check
  */
@@ -122,24 +123,24 @@ int fax1_set_fdcc _P4( (fd, fine, max, min),
 
     lprintf( L_MESG, "fax1_set_fdcc: fine=%d, max=%d, min=%d", fine, max, min );
 
-    fax1_max = max/2400 -1;
-    fax1_min = (min>2400)? min/2400 -1: 0;
+    fax1_max = max;
+    fax1_min = min;
     fax1_res = fine;
 
-    lprintf( L_MESG, "max: %d, min: %d", fax1_max, fax1_min );
+    if ( fax1_min == 0 ) fax1_min=2400;
 
     if ( fax1_max < fax1_min ||
-	 fax1_max < 1 || fax1_max > 5 ||
-	 fax1_min < 0 || fax1_min > 5 ) 
+	 fax1_max < 2400 || fax1_max > 14400 ||
+	 fax1_min < 2400 || fax1_min > 14400 ) 
     {
-	fax1_min = 0; fax1_max = 5;
-	return ERROR;
+	lprintf( L_WARN, "min/max values (%d/%d) out of range, use 2400/14400", min, max );
+	fax1_min = 2400; fax1_max = 14400;
     }
 
     if ( fax1_res < 0 || fax1_res > 1 ) 
     {
+	lprintf( L_WARN, "fax1_res (%d) out of range, use fine (1)", fax1_res );
 	fax1_res = 1;
-	return ERROR;
     }
 
     p = mdm_get_idstring( "AT+FTH=?", 1, fd );
@@ -149,6 +150,14 @@ int fax1_set_fdcc _P4( (fd, fine, max, min),
     p = mdm_get_idstring( "AT+FTM=?", 1, fd );
     fax1_ftm = fax1_carriers( p );
     lprintf( L_MESG, "modem can send page data: %03x", fax1_ftm );
+
+    p = mdm_get_idstring( "AT+FRH=?", 1, fd );
+    fax1_frh = fax1_carriers( p );
+    lprintf( L_MESG, "modem can recv HDLC headers: %03x", fax1_fth );
+
+    p = mdm_get_idstring( "AT+FRM=?", 1, fd );
+    fax1_frm = fax1_carriers( p );
+    lprintf( L_MESG, "modem can recv page data: %03x", fax1_ftm );
 
     return NOERROR;
 }
@@ -603,6 +612,60 @@ char c;
     fax_remote_id[w]=0;
 
     lprintf( L_MESG, "fax_id: '%s'", fax_remote_id );
+}
+
+/* set local capabilities in DIS frame, announce to remote sender
+ */
+int fax1_send_dis _P1( (fd), int fd )
+{
+uch frame[FRAMESIZE];
+int speedbits = 0;
+int r_flags;
+struct fax1_btable * dis_btp = fax1_btable;
+
+    /* start with modem capabilities, restrain by FDCC values */
+    r_flags = fax1_frh;
+    while( dis_btp->speed > 2400 )
+    {
+	if ( dis_btp->speed < fax1_min || dis_btp->speed > fax1_max )
+	{
+	    r_flags &= ~(dis_btp->flag);
+	}
+	dis_btp++;
+    }
+
+
+    /* this is a bit messy, but I don't know a really elegant way to
+     * use the fax1_btable structure for that  (see T.30, Table 2, p.46)
+     */
+    if ( (r_flags & V17) && (r_flags & V29) && (r_flags & V27ter) )
+    {
+	speedbits = 0x2c;		/* 1101 */
+    }
+    else 
+    {
+	if ( r_flags & V27t_4800 ) { speedbits |= 0x08; /* 0100 */ }
+	if ( r_flags & V29 )       { speedbits |= 0x04; /* 1000 */ }
+    }
+
+    lprintf( L_NOISE, "fax1_dis: r_flags=%03x -> speedbits=0x%02x",
+                      r_flags, speedbits );
+
+    /* DIS is always final frame */
+    frame[0] = 0x03 | T30_FINAL;
+    frame[1] = T30_DIS;
+
+    frame[2] = 0x00;		/* bits 1..8: group 1/2 - unwanted */
+    frame[3] = 0x00 |		/* bit 9: can transmit - TODO: polling! */
+	       0x02 |           /* bit 10: can receive */
+	       speedbits |	/* bit 11..14: receive rates - TODO!! */
+	       ((fax1_res&1) <<6) |	/* bit 15: can fine */
+	       0x00;		/* bit 16: can 2D */
+    frame[4] = 0x08 |		/* bits 17..20 = 215mm width, unlim. length */
+               0x70 |		/* bits 21..23 = 0ms scan time */
+	       0x00;		/* bit 24: extend bit - final */
+
+    return fax1_send_frame( fd, T30_CAR_SAME, frame, 5 );
 }
 
 /* parse incoming DIS frame, set remote capability flags
