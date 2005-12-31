@@ -1,10 +1,13 @@
-#ident "$Id: class1.h,v 4.4 2005/12/30 23:05:34 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1.h,v 4.5 2005/12/31 15:52:46 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1.h
  *
  * common definitions for class 1 fax modules
  *
  * $Log: class1.h,v $
+ * Revision 4.5  2005/12/31 15:52:46  gert
+ * move typedef...uch from class1.h to mgetty.h
+ *
  * Revision 4.4  2005/12/30 23:05:34  gert
  * update & add various prototypes
  *
@@ -17,8 +20,6 @@
  */
 
 #define FRAMESIZE	300
-
-typedef unsigned char uch;
 
 extern int fax1_dis;		/* "X"-Bit (received DIS) */
 

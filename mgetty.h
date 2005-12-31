@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 4.28 2005/11/26 13:48:16 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 4.29 2005/12/31 15:52:45 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -9,6 +9,9 @@
  * mgetty+sendfax (except some fax constants, they are in fax_lib.h)
  *
  * $Log: mgetty.h,v $
+ * Revision 4.29  2005/12/31 15:52:45  gert
+ * move typedef...uch from class1.h to mgetty.h
+ *
  * Revision 4.28  2005/11/26 13:48:16  gert
  * GNU/kFreeBSD portability changes
  *
@@ -130,6 +133,7 @@ typedef	void	RETSIGTYPE;
 #endif
 
 typedef	char	boolean;
+typedef unsigned char uch;
 
 /* the cpp directive "sun" isn't useful at all, since is defined on
  * SunOS 4, Solaris 2, and even Solaris x86...
