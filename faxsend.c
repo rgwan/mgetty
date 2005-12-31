@@ -1,4 +1,4 @@
-#ident "$Id: faxsend.c,v 4.6 1999/03/13 14:06:36 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: faxsend.c,v 4.7 2005/12/31 15:55:02 gert Exp $ Copyright (c) 1994 Gert Doering"
 
 /* faxsend.c
  *
@@ -104,7 +104,7 @@ int fax_send_page _P5( (g3_file, bytes_sent, tio, ppm, fd),
     int rc;				/* return code */
 
 #ifdef CLASS1
-    if ( modem_type == Mt_class1 )
+    if ( modem_type == Mt_class1 || modem_type == Mt_class1_0 )
     		return fax1_send_page( g3_file, bytes_sent, tio, ppm, fd );
 #endif
 

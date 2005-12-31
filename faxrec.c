@@ -1,4 +1,4 @@
-#ident "$Id: faxrec.c,v 4.15 2005/12/30 22:58:42 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrec.c,v 4.16 2005/12/31 15:55:48 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrec.c - part of mgetty+sendfax
  *
@@ -153,7 +153,7 @@ int pagenum = 0, ppagenum = 0;		/* pages received / sent */
 	fax2_highlevel_receive( STDIN, &pagenum, &ppagenum, spool_in, 
 				switchbd, uid, gid, mode );
 #ifdef CLASS1
-    else if ( modem_type == Mt_class1 )
+    else if ( modem_type == Mt_class1 || modem_type == Mt_class1_0 )
 	fax1_highlevel_receive( STDIN, &pagenum, spool_in, uid, gid, mode );
 #endif
     else
