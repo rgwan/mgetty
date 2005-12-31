@@ -1,4 +1,4 @@
-#ident "$Id: faxrecp.c,v 1.10 2005/12/30 22:56:45 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrecp.c,v 1.11 2005/12/31 15:55:36 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrecp.c - part of mgetty+sendfax
  *
@@ -217,15 +217,17 @@ char	DevId[3];
 	if ( !WasDLE )
 	{
 	    if ( c == DLE ) WasDLE = 1;
-	               else fputc( c, fax_fp );
+	               else fputc( fax_recv_swaptable[(uch)c], fax_fp );
 	}
 	else	/* WasDLE */
 	{
-	    if ( c == DLE ) fputc( c, fax_fp );		/* DLE DLE -> DLE */
+	    if ( c == DLE ) 				/* DLE DLE -> DLE */
+		fputc( fax_recv_swaptable[(uch)c], fax_fp );
 	    else
 	      if ( c == SUB )				/* DLE SUB -> 2x DLE */
 	    {						/* (class 2.0) */
-		fputc( DLE, fax_fp ); fputc( DLE, fax_fp );
+		fputc( fax_recv_swaptable[DLE], fax_fp ); 
+		fputc( fax_recv_swaptable[DLE], fax_fp ); 
 	    }
 	    else
 	      if ( c == ETX ) break;			/* DLE ETX -> end */
