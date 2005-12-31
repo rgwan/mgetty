@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.63 2005/12/28 21:44:11 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.64 2005/12/31 15:58:13 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -352,7 +352,7 @@ int fax_set_l_id _P2( (fd, fax_id), int fd, char * fax_id )
     char flid[60];
 
 #ifdef CLASS1
-    if ( modem_type == Mt_class1 )
+    if ( modem_type == Mt_class1 || modem_type == Mt_class1_0 )
 		return fax1_set_l_id( fd, fax_id );
 #endif
 
@@ -376,7 +376,7 @@ int fax_set_fdcc _P4( (fd, fine, max, min),
     char buf[50];
 
 #ifdef CLASS1
-    if ( modem_type == Mt_class1 )
+    if ( modem_type == Mt_class1 || modem_type == Mt_class1_0 )
 		return fax1_set_fdcc( fd, fine, max, min );
 #endif
 
@@ -444,6 +444,7 @@ int fax_set_flowcontrol _P2( (fd, hw_flow), int fd, int hw_flow )
  * for sending and receiving. Bah.)
  */
 unsigned char fax_send_swaptable[256];
+unsigned char fax_recv_swaptable[256];
 
 /* set up bit swap table */
 
@@ -468,14 +469,25 @@ int faxmodem_bit_order = 0;
 int fax_set_bor _P2( (fd, bor), int fd, int bor )
 {
     char buf[20];
-#ifdef CLASS1
-    if ( modem_type == Mt_class1 )
-		return fax1_set_bor( fd, bor );
-#endif
 
     faxmodem_bit_order = bor;
 
     fax_init_swaptable( faxmodem_bit_order & 1, fax_send_swaptable );
+
+    /* the whole bit swap table business is very ugly.  It comes from
+     * the way the old Rockwell class 2 code got it wrong (for reception
+     * only!), and the way mgetty and all tools have been adapted to that.
+     * So, class 2.x uses "1:1" (but uses different AT+FBO=x settings,
+     * depending on whether the modem will do it right), and class 1(.x) 
+     * has to use "reverse" tables for reception.  Bah.
+     */
+    if ( modem_type == Mt_class1 || modem_type == Mt_class1_0 )
+    {
+        fax_init_swaptable( FALSE, fax_recv_swaptable );	/* swap bits */
+	return NOERROR;
+    }
+
+    fax_init_swaptable( TRUE, fax_recv_swaptable );		/* no swap */
     
     if ( modem_type == Mt_class2_0 )
         sprintf( buf, "AT+FBO=%d", bor );
@@ -500,7 +512,8 @@ char *mc;
     if ( strcmp( mclass, "cls2" ) != 0 &&
 	 strcmp( mclass, "c2.0" ) != 0 &&
 	 strcmp( mclass, "auto1") != 0 &&
-	 strcmp( mclass, "cls1" ) != 0 )
+	 strcmp( mclass, "cls1" ) != 0 &&
+	 strcmp( mclass, "c1.0" ) != 0 )
     {
 	mclass = "auto";
     }
@@ -564,6 +577,13 @@ char *mc;
 	if ( mdm_command( "AT+FCLASS=1", fd ) == SUCCESS )
 	{
 	    return Mt_class1;
+	}
+    }
+    if ( strcmp( mclass, "c1.0" ) == 0 )
+    {
+	if ( mdm_command( "AT+FCLASS=1.0", fd ) == SUCCESS )
+	{
+	    return Mt_class1_0;
 	}
     }
 #endif
