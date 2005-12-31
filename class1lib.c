@@ -1,4 +1,4 @@
-#ident "$Id: class1lib.c,v 4.8 2005/12/31 17:46:30 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1lib.c,v 4.9 2005/12/31 22:04:43 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1lib.c
  *
@@ -624,12 +624,13 @@ int r_flags;
 struct fax1_btable * dis_btp = fax1_btable;
 
     /* start with modem capabilities, restrain by FDCC values */
-    r_flags = fax1_frh;
+    r_flags = fax1_frm;
     while( dis_btp->speed > 2400 )
     {
 	if ( dis_btp->speed < fax1_min || dis_btp->speed > fax1_max )
 	{
 	    r_flags &= ~(dis_btp->flag);
+	    lprintf( L_NOISE, "fax1_dis: %d out of range -> r_flags=%03x", dis_btp->speed, r_flags );
 	}
 	dis_btp++;
     }
