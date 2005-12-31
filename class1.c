@@ -1,4 +1,4 @@
-#ident "$Id: class1.c,v 4.6 2005/12/31 15:52:08 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1.c,v 4.7 2005/12/31 17:47:10 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1.c
  *
@@ -8,6 +8,9 @@
  * Uses library functions in class1lib.c, faxlib.c and modem.c
  *
  * $Log: class1.c,v $
+ * Revision 4.7  2005/12/31 17:47:10  gert
+ * use fax1_send_dis() instead of doing it here
+ *
  * Revision 4.6  2005/12/31 15:52:08  gert
  * more comments
  * fax 1 receiver:
@@ -415,19 +418,7 @@ receive_phase_b:
     fax1_send_idframe( fd, T30_CSI, first?T30_CAR_SAME: T30_CAR_V21 );
     first = FALSE;
 
-    /* send DSI = Digital Identification Signal - local capabilities */
-    frame[0] = 0x03 | T30_FINAL;
-    frame[1] = T30_DIS;
-    frame[2] = 0x00;		/* bits 1..8: group 1/2 - unwanted */
-    frame[3] = 0x00 |		/* bit 9: can transmit */
-	       0x02 |           /* bit 10: can receive */
-	       0x2c |		/* bit 11..14: receive rates - TODO!! */
-	       0x40;		/* bit 15: can fine, bit 16: can 2D */
-    frame[4] = 0x08 |		/* bits 17..20 = 215mm width, unlim. length */
-               0x70 |		/* bits 21..23 = 0ms scan time */
-	       0x00;		/* bit 24: extend bit - final */
-
-    rc = fax1_send_frame( fd, T30_CAR_SAME, frame, 5 );
+    rc = fax1_send_dis( fd );
 
     /* now see what the other side has to say... */
 wait_for_dcs:
