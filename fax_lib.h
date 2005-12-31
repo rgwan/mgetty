@@ -1,4 +1,4 @@
-#ident "$Id: fax_lib.h,v 4.12 2005/12/30 22:59:17 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: fax_lib.h,v 4.13 2005/12/31 16:00:00 gert Exp $ Copyright (c) Gert Doering"
 
 
 /* fax_lib.h
@@ -22,7 +22,7 @@ extern Modem_type modem_type;
 typedef enum { pp_mps, pp_eom, pp_eop,
 	       pp_pri_mps, pp_pri_eom, pp_pri_eop } Post_page_messages;
 
-extern unsigned char fax_send_swaptable[];
+extern unsigned char fax_send_swaptable[], fax_recv_swaptable[];
 
 /* function prototypes */
 
@@ -59,7 +59,7 @@ int fax1_highlevel_receive _PROTO(( int fd, int * pagenum, char * dirlist,
 		                    int uid, int gid, int mode));
 int fax1_set_l_id _PROTO(( int fd, char * fax_id ));
 int fax1_set_fdcc _PROTO(( int fd, int fine, int max, int min ));
-int fax1_set_bor _PROTO(( int fd, int bor ));
+extern boolean fax1_receive_have_connect;
 #endif
 
 extern	char	fax_remote_id[];		/* remote FAX id +FTSI */
