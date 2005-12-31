@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 4.39 2005/11/24 17:00:30 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 4.40 2005/12/31 15:54:01 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -9,6 +9,10 @@
  * paul@devon.lns.pa.us, and are used with permission here.
  *
  * $Log: mgetty.c,v $
+ * Revision 4.40  2005/12/31 15:54:01  gert
+ * correctly handle non-adaptive fax answer in class 1/1.0 mode (modem will
+ * send "CONNECT", meaning "I'm in fax mode, please send DIS frame"...)
+ *
  * Revision 4.39  2005/11/24 17:00:30  gert
  * add CVS Log keyword
  *
@@ -872,6 +876,20 @@ Ring_got_action:
 		rmlocks();
 		exit(1);
 	    }
+#ifdef CLASS1
+	    /* in fax class 1, without adaptive answer, the sequence 
+	     * "ATA...CONNECT" means "we're in fax mode" - and it means
+	     * that the fax1 receiver must not wait for CONNECT, because
+	     * it's already there.  Boy, is this ugly...
+	     */
+	    if ( c_bool(fax_only) &&
+		 ( modem_type == Mt_class1 || modem_type == Mt_class1_0 ))
+	    {
+		fax1_receive_have_connect = TRUE;
+		mgetty_state = St_incoming_fax;
+		break;
+	    }
+#endif
 
 	    /* some (old) modems require the host to change port speed
 	     * to the speed returned in the CONNECT string, usually
