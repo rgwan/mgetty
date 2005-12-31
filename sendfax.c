@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 4.20 2005/05/25 14:03:55 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 4.21 2005/12/31 16:01:11 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -8,6 +8,9 @@
  * The code is still quite rough, but it works.
  *
  * $Log: sendfax.c,v $
+ * Revision 4.21  2005/12/31 16:01:11  gert
+ * identically handle class 1 and 1.0
+ *
  * Revision 4.20  2005/05/25 14:03:55  gert
  * add CVS LOG
  *
@@ -523,7 +526,7 @@ int main _P2( (argc, argv),
     sprintf( buf, "%s%s", c_string(dial_prefix), fac_tel_no );
 
 #ifdef CLASS1
-    if ( modem_type == Mt_class1 )
+    if ( modem_type == Mt_class1 || modem_type == Mt_class1_0 )
         i = fax1_dial_and_phase_AB( buf, fd );
     else
 #endif
