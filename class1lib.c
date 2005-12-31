@@ -1,4 +1,4 @@
-#ident "$Id: class1lib.c,v 4.6 2005/12/30 23:08:21 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1lib.c,v 4.7 2005/12/31 16:00:59 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1lib.c
  *
@@ -153,11 +153,6 @@ int fax1_set_fdcc _P4( (fd, fine, max, min),
     return NOERROR;
 }
 
-int fax1_set_bor _P2( (fd, bor), int fd, int bor )
-{
-    /*!!! TODO - what TODO ??! */
-    return NOERROR;
-}
 
 /* timeout handler
  */
