@@ -1,4 +1,4 @@
-#ident "$Id: class1lib.c,v 4.10 2006/01/01 16:02:25 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1lib.c,v 4.11 2006/01/01 17:08:37 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1lib.c
  *
@@ -468,12 +468,19 @@ int r,w;
 
     fax1_dump_frame( '>', frame, len );
 
+    /* this should never take more than a few msec, so the 10s timeout
+     * is more a safeguard for modem lockups, implementation mistakes, etc.
+     * - make sure we're not getting stuck in protocol loops
+     */
+    alarm(10);
+
     /* send AT+FTH=3, wait for CONNECT 
      * (but only if we've not sent an non-final frame before!)
      */
     if ( carrier > 0 && carrier_active != carrier )
     {
     char cmd[20];
+
 	sprintf( cmd, "AT+FTH=%d", carrier );
 	fax_send( cmd, fd );		/*!!!!! NOOOO */
 
@@ -825,10 +832,10 @@ int fax1_init_FRM _P2((fd,carrier), int fd, int carrier )
     if ( line != NULL && strcmp( line, cmd ) == 0 )
 		{ line = mdm_get_line( fd ); }		/* skip echo */
 
+    alarm(0);
     if ( line == NULL || strcmp( line, "CONNECT" ) != 0 )
     {
-	alarm(0);
-	lprintf( L_WARN, "fax1_receive_frame: no carrier (%s)", line );
+	lprintf( L_WARN, "fax1_init_FRM: no carrier (%s)", line );
 	return ERROR;
     }
     return NOERROR;
