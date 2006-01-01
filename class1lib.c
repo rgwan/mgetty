@@ -1,4 +1,4 @@
-#ident "$Id: class1lib.c,v 4.9 2005/12/31 22:04:43 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1lib.c,v 4.10 2006/01/01 16:02:25 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1lib.c
  *
@@ -568,13 +568,13 @@ uch frame[2];
    return fax1_send_frame( fd, carrier, frame, 2 );
 }
 
-/* send "disconnect now" frame 
+/* send "disconnect now" frame (DCN), and move internal state to "game over"
  * Note: this is always a "final" frame
  */
-int fax1_send_dcn _P1((fd), int fd )
+int fax1_send_dcn _P2((fd, code), int fd, int code )
 {
-    fax_hangup = TRUE;
-
+    if ( code != -1 )
+        { fax_hangup_code = code; fax_hangup = TRUE; }
     return fax1_send_simf_final( fd, T30_CAR_V21, T30_DCN|fax1_dis );
 }
 

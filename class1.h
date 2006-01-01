@@ -1,10 +1,13 @@
-#ident "$Id: class1.h,v 4.6 2005/12/31 17:46:43 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1.h,v 4.7 2006/01/01 16:02:25 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1.h
  *
  * common definitions for class 1 fax modules
  *
  * $Log: class1.h,v $
+ * Revision 4.7  2006/01/01 16:02:25  gert
+ * introduce extra argument to fax1_send_dcn to set fax_hangup_code
+ *
  * Revision 4.6  2005/12/31 17:46:43  gert
  * add fax1_send_dis()
  *
@@ -32,7 +35,7 @@ void fax1_dump_frame _PROTO(( char io, uch * frame, int len ));
 int fax1_send_frame _PROTO(( int fd, int carrier, uch * frame, int len ));
 int fax1_send_simf_final _PROTO(( int fd, int carrier, uch fcf));
 int fax1_send_simf_nonfinal _PROTO(( int fd, int carrier, uch fcf));
-int fax1_send_dcn _PROTO(( int fd ));
+int fax1_send_dcn _PROTO(( int fd, int code ));
 
 void fax1_copy_id _PROTO(( uch * frame ));
 int fax1_send_idframe _PROTO(( int fd, int fcf, int carrier));
