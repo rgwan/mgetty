@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.64 2005/12/31 15:58:13 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.65 2006/01/01 17:09:09 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -313,8 +313,10 @@ void faxlib_init _P0( void )
 int fax_send _P2( (send, fd),
 		  char * send, int fd )
 {
-#ifdef FAX_COMMAND_DELAY
+#ifndef CLASS1
+# ifdef FAX_COMMAND_DELAY
     delay(FAX_COMMAND_DELAY);
+# endif
 #endif
 
     lprintf( L_MESG, "fax_send: '%s'", send );
