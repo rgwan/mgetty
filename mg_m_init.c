@@ -1,4 +1,4 @@
-#ident "$Id: mg_m_init.c,v 4.11 2005/12/31 15:54:26 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_m_init.c,v 4.12 2006/01/03 10:15:37 gert Exp $ Copyright (c) Gert Doering"
 
 /* mg_m_init.c - part of mgetty+sendfax
  *
@@ -127,8 +127,11 @@ int mg_init_fax _P5( (fd, mclass, fax_id, fax_only, fax_max_speed),
     if ( modem_type == Mt_class1 || modem_type == Mt_class1_0 )
     {
 	/* set adaptive answering */
-	if ( mdm_command( fax_only? "AT+FAE=0":
-				    "AT+FAE=1", fd ) == FAIL )
+        char aabuf[20];
+	sprintf( aabuf, "AT+FA%s=%d",
+			modem_type == Mt_class1? "E": "A",
+			fax_only? 0:1 );
+	if ( mdm_command( aabuf, fd ) == FAIL )
 	{
 	    lprintf( L_MESG, "cannot set answer/reception flags" );
 	}
