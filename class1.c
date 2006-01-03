@@ -1,4 +1,4 @@
-#ident "$Id: class1.c,v 4.8 2006/01/01 17:07:43 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1.c,v 4.9 2006/01/03 09:12:20 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1.c
  *
@@ -8,6 +8,9 @@
  * Uses library functions in class1lib.c, faxlib.c and modem.c
  *
  * $Log: class1.c,v $
+ * Revision 4.9  2006/01/03 09:12:20  gert
+ * initialize "tries" in fax1_receive_page()
+ *
  * Revision 4.8  2006/01/01 17:07:43  gert
  * change all fax1_send_dcn() to already set appropriate hangup code
  * add prototypes for local functions
@@ -643,6 +646,7 @@ char directory[MAXPATH];
 
     fax_find_directory( dirlist, directory, sizeof(directory) );
 
+    tries=0;
 
     lprintf( L_NOISE, "fax1_rp: carrier=%d", carrier );
 
