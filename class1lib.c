@@ -1,4 +1,4 @@
-#ident "$Id: class1lib.c,v 4.11 2006/01/01 17:08:37 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1lib.c,v 4.12 2006/01/04 21:06:48 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1lib.c
  *
@@ -28,7 +28,8 @@
 
 #define F1LID 20
 static char fax1_local_id[F1LID];	/* local system ID */
-static int fax1_min, fax1_max;		/* min/max speed */
+static int fax1_min = 2400,		/* min/max speed */
+	   fax1_max = 14400;
 static int fax1_res;			/* flag for normal resolution */
 
        int fax1_dis;			/* "X"-bit (last received DIS) */
@@ -745,7 +746,7 @@ void fax1_parse_dis _P1((frame), uch * frame )
 			remote_cap.bf, remote_cap.st );
 }
 
-int fax1_send_dcs _P2((fd, speed), int fd, int speed )
+int fax1_send_dcs _P1((fd), int fd )
 {
 uch framebuf[FRAMESIZE];
 
@@ -753,8 +754,11 @@ uch framebuf[FRAMESIZE];
      * "speed", and that uses a modulation scheme supported by both
      * the local and remote modem
      */
-    while( dcs_btp->speed > speed ||
-           ( dcs_btp->flag & fax1_ftm & remote_cap.br ) == 0 ) dcs_btp++;
+    dcs_btp = fax1_btable;
+
+    while( dcs_btp->speed > 2400 &&
+	   ( dcs_btp->speed > fax1_max ||
+            ( dcs_btp->flag & fax1_ftm & remote_cap.br ) == 0 ) ) dcs_btp++;
     
     lprintf( L_NOISE, "+DCS: 1,%03x", dcs_btp->flag );
 
