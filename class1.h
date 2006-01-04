@@ -1,10 +1,13 @@
-#ident "$Id: class1.h,v 4.7 2006/01/01 16:02:25 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1.h,v 4.8 2006/01/04 21:06:25 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1.h
  *
  * common definitions for class 1 fax modules
  *
  * $Log: class1.h,v $
+ * Revision 4.8  2006/01/04 21:06:25  gert
+ * remove "speed" argument from fax1_send_dcs() (use fax1_max global)
+ *
  * Revision 4.7  2006/01/01 16:02:25  gert
  * introduce extra argument to fax1_send_dcn to set fax_hangup_code
  *
@@ -42,7 +45,7 @@ int fax1_send_idframe _PROTO(( int fd, int fcf, int carrier));
 void fax1_parse_dis _PROTO(( uch * frame ));
 void fax1_parse_dcs _PROTO(( uch * frame ));
 int fax1_send_dis _PROTO(( int fd ));
-int fax1_send_dcs _PROTO(( int fd, int speed ));
+int fax1_send_dcs _PROTO(( int fd ));
 int fax1_receive_frame _PROTO (( int fd, int carrier, 
 			         int timeout, uch * framebuf ));
 int fax1_init_FRM _PROTO(( int fd, int carrier ));

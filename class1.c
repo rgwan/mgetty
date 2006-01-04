@@ -1,4 +1,4 @@
-#ident "$Id: class1.c,v 4.9 2006/01/03 09:12:20 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1.c,v 4.10 2006/01/04 21:07:12 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1.c
  *
@@ -8,6 +8,9 @@
  * Uses library functions in class1lib.c, faxlib.c and modem.c
  *
  * $Log: class1.c,v $
+ * Revision 4.10  2006/01/04 21:07:12  gert
+ * remove "speed" argument from fax1_send_dcs() (use fax1_max global)
+ *
  * Revision 4.9  2006/01/03 09:12:20  gert
  * initialize "tries" in fax1_receive_page()
  *
@@ -142,7 +145,7 @@ int first;
     fax1_send_idframe( fd, T30_TSI|0x01, T30_CAR_V21 );
 
     /* send DCS */
-    if ( fax1_send_dcs( fd, 14400 ) == ERROR )
+    if ( fax1_send_dcs( fd ) == ERROR )
     {
         fax_hangup = TRUE; fax_hangup_code = 10; return ERROR;
     }
