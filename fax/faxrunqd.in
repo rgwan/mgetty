@@ -9,10 +9,17 @@
 #
 # initial version: Feb 17, 1997
 #
-my $rcs_id='RCS: $Id: faxrunqd.in,v 1.70 2005/02/17 13:52:33 gert Exp $';
+my $rcs_id='RCS: $Id: faxrunqd.in,v 1.71 2006/01/13 13:58:40 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.71  2006/01/13 13:58:40  gert
+# new output format for acct.log:
+#   - tty
+#   - machine parseable result code (only numeric code, non-final/final)
+#   - machine parseable date
+# pass modem device to success/fail program (for "is modem bad?" detection)
+#
 # Revision 1.70  2005/02/17 13:52:33  gert
 # do full "queue readdir()" only once per 180 seconds now, but use "stat(.)" to
 # detect modifications to spool directory (checked every 10 seconds) -> for
@@ -1481,7 +1488,7 @@ sub handle_return_code
 	&wstat( $j, "Status " . localtime() . " successfully sent\n");
 
 	# write acct.log
-	&wacct($j, "success");
+	&wacct($j, $tty, 0, "success");
 
 	# success mail
 	&sms($j)
@@ -1491,7 +1498,7 @@ sub handle_return_code
 	if ($program_success ne '')
 	{
 	    print LOG "    calling program $program_success for job $j...\n" if $opt_v;
-	    system( "$program_success $fax_spool_out/$j/JOB $ex </dev/null" );
+	    system( "$program_success $fax_spool_out/$j/JOB $ex $tty </dev/null" );
 	}
 
 	# remove JOB file
@@ -1533,14 +1540,14 @@ sub handle_return_code
 	# remember tty used (try to get another one for next call)
 	$queue{$j}->{last_modem} = $tty;
 
-	# write acct.log
-	&wacct($j, "fail $ex: $verb_ex");
-
 	#!!!! compare numbers -> remove job, or just requeue
 
 	if ( $queue{$j}{'tries'}   >= $max_tries_total ||
 	     $queue{$j}{'tries_c'} >= $max_tries_costly )
 	{
+	    # write acct.log (final)
+	    &wacct($j, $tty, $ex, "fail $ex: $verb_ex");
+
 	    # failure mail
 	    &smf($j)
 		if $send_mail_failure;
@@ -1549,7 +1556,7 @@ sub handle_return_code
 	    if ($program_failure ne '')
 	    {
 		print LOG "    calling f-program $program_failure for job $j...\n" if $opt_v;
-		system( "$program_failure $fax_spool_out/$j/JOB $ex </dev/null" );
+		system( "$program_failure $fax_spool_out/$j/JOB $ex $tty </dev/null" );
 	    }
 
 	    # remove from queue directory (suspend, but do not delete it)
@@ -1569,12 +1576,15 @@ sub handle_return_code
 	}			# end if ( max tries exceeded )
 	else			# requeue...
 	{
+	    # write acct.log (intermediate)
+	    &wacct($j, $tty, -$ex, "fail $ex: $verb_ex");
+
 	    # "status update" program (so that integrated frontends can
 	    # easily inform user about what's happening - 'BUSY again!')
 	    if ($program_updates ne '')
 	    {
 		print LOG "    calling u-program $program_updates for job $j...\n" if $opt_v;
-		system( "$program_updates $fax_spool_out/$j/JOB -$ex </dev/null" );
+		system( "$program_updates $fax_spool_out/$j/JOB -$ex $tty </dev/null" );
 	    }
 
 	    if ( $ex == 4 ) 			# BUSY: delay 5 minutes
@@ -1706,20 +1716,22 @@ sub wstat
 # parameters: job id, success/failure string (free form) to write to file
 sub wacct
 {
-    my ($j,$r) = @_;
+    my ($j,$tty,$r_s, $r_long) = @_;
 
     my $m = $queue{$j}->{'mail'};
     my $p = $queue{$j}->{'phone'};
     my $a = defined( $queue{$j}->{'acct_handle'} ) ? 
 		                 $queue{$j}->{'acct_handle'} : '';
-    my $d=localtime;
+    my @d=localtime();
+    my $d=sprintf "%04d%02d%02d %02d:%02d:%02d", 
+			$d[5]+1900, $d[4]+1, $d[3], $d[2], $d[1], $d[0];
 
     unless ( open( A, ">>$fax_acct" ) )
     {
 	print LOG "ERROR: can't open $fax_acct for appending: $!"; return;
     }
 
-    print A "$m $j |$p |$a|$d| $r\n";
+    print A "$j|$m|$tty| $p |$r_s|$d|$a|$r_long\n";
     close A;
 }
 
