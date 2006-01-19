@@ -1,12 +1,17 @@
-#!@PERL@
+#!/usr/bin/perl -w
 #
 # faxhist.cgi -- show fax history (reading 'acct.log')
 # 
 # Copyright 1998 Gert Doering, gert@greenie.net
 #
-# CVS: $Id: faxhist.in,v 1.6 2001/01/30 11:39:03 gert Exp $
+# CVS: $Id: faxhist.in,v 1.7 2006/01/19 13:41:17 gert Exp $
 #
 # $Log: faxhist.in,v $
+# Revision 1.7  2006/01/19 13:41:17  gert
+# adapt to understand "new" acct.log format (faxrunqd 1.70->1.71)
+# change sort rules for "give me one day" output
+#    (first: number of failures, then: number of good faxes, then: phone number)
+#
 # Revision 1.6  2001/01/30 11:39:03  gert
 # make "can't parse" error message easier to understand
 #
@@ -157,12 +162,38 @@ EOF
 	chomp;
 	@_ = split( /\|/, $_ );
 
-	unless ( $_[3] =~ /(.*) (\d\d:\d\d:\d\d) (.*)/ )
+	my ( $job, $user, $tty, $phone, $date, $acct_h, $status );
+	my ( $day, $time, $yy );
+
+	# labor F262958 |13032548 |acct|Thu Dec  1 05:05:13 2005| success
+	if ( $_[0] =~ /^(\S+)\s+(F\d+)/ )		# old format
 	{
-	    print "</table><p><b>internal error: can't parse '$_[3]' in the following acct.log input line:<br>$_</b><p></body></html>\n";
-	    exit 0;
+	    ( $job, $user, $tty, $phone, $date, $acct_h, $status ) = 
+		( $2, $1, '', $_[1], $_[3], $_[2], $_[4] );
+
+	    unless ( $date =~ /(.*) (\d\d:\d\d:\d\d) (.*)/ )
+	    {
+		print "</table><p><b>internal error: can't parse '$date' in the following acct.log input line:<br>$_</b><p></body></html>\n";
+		exit 0;
+	    }
+	    ( $day, $time, $yy ) = ( $1, $2, $3 );
 	}
-	my ( $day, $time, $yy ) = ( $1, $2, $3 );
+	else						# new format
+	# F325827|labor|tty210| 93948740 |0|20060119 12:35:32|acct|success
+	{
+	    ( $job, $user, $tty, $phone, $date, $acct_h, $status ) = 
+		( $_[0], $_[1], $_[2], $_[3], $_[5], $_[6], $_[7] );
+
+	    unless ( $date =~ /(\d{4})(\d\d)(\d\d) (\d\d:\d\d:\d\d)/ )
+	    {
+		print "</table><p><b>internal error: can't parse '$date' in the following acct.log input line:<br>$_</b><p></body></html>\n";
+		exit 0;
+	    }
+	    ( $day, $time, $yy ) = ( "$3.$2.", $4, $1 );
+	}
+
+	# remove "eye candy" whitespace
+	$phone =~ s/\s//go;
 
 	if ( $day ne $lday )
 	{
@@ -174,9 +205,9 @@ EOF
 	    $success_d=$fail_d=0;
 	    @fail_d=(0,0,0,0,0,0,0,0,0,0,0,0,0);
 	}
-	#print "$_ <b>$day</b><br>\n";
+	#print "$_<br><b>phone=$phone, day=$day, $status</b><br>\n";
 
-	if ( $_[4] =~ /fail (\d+):/ )
+	if ( $status =~ /fail (\d+):/ )
 	{
 	    $fail_d++; $fail_d[$1]++;
 	    $fail_t++; $fail_t[$1]++;
@@ -278,21 +309,45 @@ EOF
 	chomp;
 	@_ = split( /\|/, $_ );
 
-	unless ( $_[3] =~ /(.*) (\d\d:\d\d:\d\d) (.*)/ )
+	my ( $job, $user, $tty, $phone, $date, $acct_h, $status );
+	my ( $day, $time, $yy );
+
+	# labor F262958 |13032548 |acct|Thu Dec  1 05:05:13 2005| success
+	if ( $_[0] =~ /^(\S+)\s+(F\d+)/ )		# old format
 	{
-	    print "<b>internal error: can't parse '$_[3]' (IE2)</b><p></body></html>\n";
-	    exit 0;
+	    ( $job, $user, $tty, $phone, $date, $acct_h, $status ) = 
+		( $2, $1, '', $_[1], $_[3], $_[2], $_[4] );
+
+	    unless ( $date =~ /(.*) (\d\d:\d\d:\d\d) (.*)/ )
+	    {
+		print "</table><p><b>internal error (2a): can't parse '$date' in the following acct.log input line:<br>$_</b><p></body></html>\n";
+		exit 0;
+	    }
+	    ( $day, $time, $yy ) = ( $1, $2, $3 );
 	}
-	my ( $day, $time, $yy ) = ( $1, $2, $3 );
+	else						# new format
+	# F325827|labor|tty210| 93948740 |0|20060119 12:35:32|acct|success
+	{
+	    ( $job, $user, $tty, $phone, $date, $acct_h, $status ) = 
+		( $_[0], $_[1], $_[2], $_[3], $_[5], $_[6], $_[7] );
+
+	    unless ( $date =~ /(\d{4})(\d\d)(\d\d) (\d\d:\d\d:\d\d)/ )
+	    {
+		print "</table><p><b>internal error (2b): can't parse '$date' in the following acct.log input line:<br>$_</b><p></body></html>\n";
+		exit 0;
+	    }
+	    ( $day, $time, $yy ) = ( "$3.$2.", $4, $1 );
+	}
+
+	# remove "eye candy" whitespace
+	$phone =~ s/\s//go;
 
 	next unless $day eq $doday;
-
-	my $phone = $_[1];
 
 	if ( ! defined( $by_phone{$phone} ))
 		{ $by_phone{$phone} = { 'ok' => 0, 'fail' => 0 }; }
 
-	if ( $_[4] =~ /fail (\d+):/ )
+	if ( $status =~ /fail (\d+):/ )
 	{
 	    $fail++; $fail[$1]++;
 	    if ( !defined( $by_phone{$phone}{$1} ))
@@ -319,7 +374,8 @@ Sendeversuche insgesamt: <b>$total</b>&nbsp;&nbsp;&nbsp;
 Erfolgreiche &Uuml;bertragungen: <b>$success</b>&nbsp;&nbsp;&nbsp;
 Fehlerversuche gesamt: <b>$fail</b>
 <hr>
-Jobs nach Telefonnummern aufgeschl&uuml;sselt<p>
+Jobs nach Telefonnummern aufgeschl&uuml;sselt, sortiert nach Zahl der
+Fehlversuche<p>
 <table border="1">
 <TR><TH>Telefonnr.<TH>Status<TH>Anz.<TH>Beschreibung</TR>
 EOF
@@ -336,7 +392,9 @@ EOF
 	  '12'   => "Fehler bei der Seiten&uuml;bertragung",
 	  '15'   => "Sendfax durch Signal abgeschossen" );
 
-    foreach $p ( sort { $by_phone{$b}{'fail'} <=> $by_phone{$a}{'fail'}}
+    foreach $p ( sort { $by_phone{$b}{'fail'} <=> $by_phone{$a}{'fail'} ||
+                        $by_phone{$b}{'ok'} <=> $by_phone{$a}{'ok'} ||
+			$a cmp $b }
 			 ( keys( %by_phone ) ) )
     {
 	printf "<TR><TD>$p<TD>OK<TD>%d<TD>erfolgreich</TR>",
