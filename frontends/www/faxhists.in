@@ -4,9 +4,13 @@
 # 
 # Copyright 1998 Gert Doering, gert@greenie.net
 #
-# CVS: $Id: faxhists.in,v 1.2 1998/12/04 14:57:54 gert Exp $
+# CVS: $Id: faxhists.in,v 1.3 2006/01/19 13:58:06 gert Exp $
 #
 # $Log: faxhists.in,v $
+# Revision 1.3  2006/01/19 13:58:06  gert
+# adapt to understand "new" acct.log format (faxrunqd 1.70->1.71)
+# add total number of hits to result table
+#
 # Revision 1.2  1998/12/04 14:57:54  gert
 # substitute regex specials for dummy users
 #
@@ -120,6 +124,7 @@ print "'$acct'-->\n";
 if ( $faxnr ne '' || $user ne '' || $acct ne '' )
 {
     my $found = 0;
+    my $total = 0;
 
     print "<hr><H3>Suchergebnis:</H3>\n";
 
@@ -130,15 +135,34 @@ if ( $faxnr ne '' || $user ne '' || $acct ne '' )
     }
     while( <A> )
     {
+	$total++;
 	chomp;
 	@_ = split( /\|/, $_ );
 
-	print "user: '$_[0]', faxnr: '$_[1]', acct: '$_[2]'<br>\n"
+	my ( $job, $j_user, $tty, $phone, $date, $acct_h, $status );
+
+	# labor F262958 |13032548 |acct|Thu Dec  1 05:05:13 2005| success
+	if ( $_[0] =~ /^(\S+)\s+(F\d+)/ )		# old format
+	{
+	    ( $job, $j_user, $tty, $phone, $date, $acct_h, $status ) = 
+		( $2, $1, '', $_[1], $_[3], $_[2], $_[4] );
+	}
+	else						# new format
+	# F325827|labor|tty210| 93948740 |0|20060119 12:35:32|acct|success
+	{
+	    ( $job, $j_user, $tty, $phone, $date, $acct_h, $status ) = 
+		( $_[0], $_[1], $_[2], $_[3], $_[5], $_[6], $_[7] );
+	}
+
+	# remove "eye candy" whitespace
+	$phone =~ s/\s//go;
+
+	print "user: '$j_user', faxnr: '$phone', acct: '$acct_h'<br>\n"
 						if ( defined($args{debug}) );
 
-	if ( $user  ne '' && $_[0] !~ /^$user / ) { next; }
-	if ( $faxnr ne '' && $_[1] !~ /$faxnr/ ) { next; }
-	if ( $acct  ne '' && $_[2] !~ /$acct/ ) { next; }
+	if ( $user  ne '' && $j_user ne $user ) { next; }
+	if ( $faxnr ne '' && $phone  !~ /$faxnr/ ) { next; }
+	if ( $acct  ne '' && $acct_h !~ /$acct/ ) { next; }
 
 	if ( $found++ == 0 )
 	{
@@ -149,18 +173,19 @@ EOFt
 	}
 	$_ = (shift @_) . " ";
 	$_ =~ /^(\S+)\s+(\S*)/;
-	print "<tr><td>$1<td>$2<td>" . join( " <td>", @_ ) . "</tr>\n";
+	print "<tr><td>$j_user<td>$job<td>$phone<td>$acct_h\n";
+	print "    <td>$date<td>$status</tr>\n";
     }
     close A;
 
     if ( $found == 0 )
     {
-	print "<b>Keine passenden Fax-Auftr&auml;ge gefunden.</b><p>\n";
+	print "<b>$total Eintr&auml;ge durchsucht, keine passenden Fax-Auftr&auml;ge gefunden.</b><p>\n";
     }
     else
     {
 	print "<tr><td colspan=\"6\"><hr></tr>\n";
-	print "<tr><td colspan=\"6\"><b>$found Treffer gefunden.</b></tr></table>\n";
+	print "<tr><td colspan=\"6\"><b>$total Eintr&auml;ge durchsucht, $found Treffer gefunden.</b></tr></table>\n";
     }
 }
 
