@@ -1,4 +1,4 @@
-#ident "$Id: fax_lib.h,v 4.13 2005/12/31 16:00:00 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: fax_lib.h,v 4.14 2006/02/09 14:51:20 gert Exp $ Copyright (c) Gert Doering"
 
 
 /* fax_lib.h
@@ -115,3 +115,5 @@ extern	int	modem_quirks;			/* modem specials */
 #define MQ_FPS_NOT_HEX	0x80	/* +FPS:<status>,<lc> reported as decimal */
 
 /* note: 0x100 and 0x200 currently used for teergrubing - faxrecp.c */
+
+#define MQ_C1_NO_V17	0x400	/* class1: don't use V.17, even if adv. */

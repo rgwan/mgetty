@@ -1,4 +1,4 @@
-#ident "$Id: class1lib.c,v 4.12 2006/01/04 21:06:48 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1lib.c,v 4.13 2006/02/09 14:51:21 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1lib.c
  *
@@ -642,6 +642,11 @@ struct fax1_btable * dis_btp = fax1_btable;
 	}
 	dis_btp++;
     }
+
+    /* some devices advertise V.17, but it doesn't work - so provide override
+     * switch via modem_quirks that unconditionally turns off V.17
+     */
+    if ( modem_quirks & MQ_C1_NO_V17 ) r_flags &= ~V17;
 
 
     /* this is a bit messy, but I don't know a really elegant way to
