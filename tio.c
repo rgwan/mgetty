@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 4.6 2005/11/26 13:48:15 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: tio.c,v 4.7 2006/02/18 12:42:51 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* tio.c
  *
@@ -203,6 +203,7 @@ int tio_check_speed _P1( (speed), int speed )
 	}
     }
     lprintf( L_NOISE, "speed %d not found in table", speed );
+    errno=EINVAL;
     return -1;
 }
 
