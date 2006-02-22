@@ -17,6 +17,9 @@ faxin: $(FIOBJS)
 faxin.o: faxin.c ../mgetty.h ../policy.h
 	$(CC) $(CFLAGS) $(LDFLAGS) -I.. -c -o faxin.o faxin.c $(LIBS)
 
+g3hack: g3hack.c
+	$(CC) $(CFLAGS) -o g3hack g3hack.c
+
 clean:
-	rm -f faxin *.o
+	rm -f faxin g3hack *.o
 
