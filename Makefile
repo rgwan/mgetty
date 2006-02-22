@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.66 2006/02/22 13:36:03 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.67 2006/02/22 17:23:36 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -455,6 +455,7 @@ version.h: $(DISTRIB)
 mgetty$(MR).$(SR).tar.gz:	$(DISTRIB)
 	rm -f mgetty-$(MR).$(SR)
 	ln -sf . mgetty-$(MR).$(SR)
+	find . -name core -print | xargs rm
 	cd voice ; $(MAKE) fullclean && cvs update -d .
 	( echo "$(DISTRIB)" | tr " " "\\012" ; \
 	  for i in `find . -name .files -print | sed -e 's;^./;;` ; do \
@@ -528,26 +529,21 @@ policy.h:
 	@exit 1
 
 clean:
-	rm -f *.o getdisk compat/*.o newslock
-	cd g3 ; $(MAKE) clean
-	cd fax ; $(MAKE) clean
-	cd tools ; $(MAKE) clean
-	cd callback ; $(MAKE) clean
-	cd contrib ; $(MAKE) clean
-	cd doc ; $(MAKE) clean
-	cd voice ; $(MAKE) clean
+	rm -f *.o compat/*.o mgetty sendfax
+	rm -f testgetty getdisk mksed sedscript newslock *~
+	rm -f sendfax.config mgetty.config login.config
+	cd g3 &&       $(MAKE) clean
+	cd fax &&      $(MAKE) clean
+	cd tools &&    $(MAKE) clean
+	cd callback && $(MAKE) clean
+	cd contrib &&  $(MAKE) clean
+	cd doc &&      $(MAKE) clean
+	cd voice &&    $(MAKE) clean
+	cd t &&        $(MAKE) clean
 
-fullclean:
-	rm -f *.o compat/*.o mgetty sendfax testgetty getdisk \
-			mksed sedscript newslock *~ \
-			sendfax.config mgetty.config login.config
-	cd g3 ; $(MAKE) fullclean
-	cd fax ; $(MAKE) fullclean
-	cd tools ; $(MAKE) fullclean
-	cd callback ; $(MAKE) fullclean
-	cd contrib ; $(MAKE) fullclean
-	cd doc ; $(MAKE) fullclean
-	cd voice ; $(MAKE) fullclean
+fullclean: clean
+
+distclean: clean
 
 login.config: login.cfg.in sedscript
 	./sedscript <login.cfg.in >login.config
