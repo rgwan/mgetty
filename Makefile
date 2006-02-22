@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.65 2005/11/27 08:16:49 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.66 2006/02/22 13:36:03 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -301,8 +301,8 @@ MV=mv
 # Nothing to change below this line ---------------------------------!
 #
 MR=1.1
-SR=34
-DIFFR=1.1.33
+SR=35
+DIFFR=1.1.34
 #
 #
 OBJS=mgetty.o logfile.o do_chat.o locks.o utmp.o logname.o login.o \
@@ -419,7 +419,7 @@ noident: policy.h
 
 sedscript: mksed
 	./mksed >sedscript
-	chmod 700 sedscript
+	chmod +x sedscript
 
 mksed: mksed.c policy.h Makefile 
 	$(CC) $(CFLAGS) -DBINDIR=\"$(BINDIR)\" -DSBINDIR=\"$(SBINDIR)\" \
@@ -472,6 +472,7 @@ diff:	mgetty$(DIFFR)-$(MR).$(SR).diff.gz
 
 sign:	tar
 	pgp -sab mgetty$(MR).$(SR).tar.gz
+	chmod +r mgetty$(MR).$(SR).tar.gz.asc
 
 mgetty$(DIFFR)-$(MR).$(SR).diff.gz: \
 	mgetty$(DIFFR).tar.gz mgetty$(MR).$(SR).tar.gz
@@ -738,3 +739,5 @@ sendfax.o : sendfax.c syslibs.h mgetty.h ugly.h tio.h policy.h fax_lib.h config.
   conf_sf.h 
 tio.o : tio.c mgetty.h ugly.h tio.h 
 utmp.o : utmp.c mgetty.h ugly.h mg_utmp.h 
+class1.o: class1.c mgetty.h ugly.h fax_lib.h tio.h class1.h
+class1lib.o: class1lib.c mgetty.h ugly.h fax_lib.h tio.h class1.h
