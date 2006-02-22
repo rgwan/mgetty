@@ -3,7 +3,7 @@
 #
 # This is the Makefile for vgetty.
 #
-# $Id: Makefile,v 1.6 2000/08/14 19:51:55 gert Exp $
+# $Id: Makefile,v 1.7 2006/02/22 17:25:42 gert Exp $
 #
 
 VGETTYOBJS=vgetty.o answer.o button.o event.o message.o rings.o
@@ -24,8 +24,6 @@ install:
 
 clean:
 	@$(RM) -f vgetty $(VGETTYOBJS)
-
-fullclean: clean
 
 vgetty.o: ../../mgetty.o
 	@$(RM) -f vgetty.o

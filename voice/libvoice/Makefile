@@ -3,7 +3,7 @@
 #
 # This is the Makefile for libvoice.
 #
-# $Id: Makefile,v 1.18 2005/03/13 17:27:46 gert Exp $
+# $Id: Makefile,v 1.19 2006/02/22 17:25:40 gert Exp $
 #
 
 VOICEOBJS=analyze.o close.o command.o detect.o event.o flush.o \
@@ -29,9 +29,6 @@ install:
 
 clean:
 	@$(RM) -f libvoice.a $(VOICEOBJS)
-
-fullclean: clean
-	@$(RM) -f depend
 
 depend: *.c
 	$(CC) $(CFLAGS) -MM -c *.c > depend

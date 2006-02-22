@@ -1,6 +1,6 @@
 # doc/Makefile
 #
-# SCCS: $Id: Makefile,v 4.4 2006/02/22 13:34:48 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: Makefile,v 4.5 2006/02/22 17:25:29 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 
 NROFF=nroff
@@ -58,10 +58,8 @@ ps: mgetty.ps
 
 clean:
 	rm -f mgetty.cp mgetty.fn mgetty.ky mgetty.log mgetty.pg \
-	      mgetty.toc mgetty.tp mgetty.vr
-
-fullclean: clean
-	rm -f mgetty.ps mgetty.dvi mgetty.aux mgetty.info* mgetty.ms \
+	      mgetty.toc mgetty.tp mgetty.vr \
+	      mgetty.ps mgetty.dvi mgetty.aux mgetty.info* mgetty.ms \
 	      *.man *.[1-9] mgetty.texi
 
 install: $(MANSRC) mgetty.info

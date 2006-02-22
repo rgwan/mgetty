@@ -3,7 +3,7 @@
 #
 # This is the Makefile for the pvftools.
 #
-# $Id: Makefile,v 1.4 1998/09/09 21:07:41 gert Exp $
+# $Id: Makefile,v 1.5 2006/02/22 17:25:41 gert Exp $
 #
 
 VOICELIBS=$(LIBPVF) $(LIBUTIL)
@@ -17,8 +17,6 @@ install:
 
 clean:
 	@$(RM) -f $(PVFTOOLS) *.o
-
-fullclean: clean
 
 pvfamp: pvfamp.o $(VOICELIBS)
 	$(CC) $(LDFLAGS) -o pvfamp pvfamp.o $(VOICELIBS) $(LIBS) 

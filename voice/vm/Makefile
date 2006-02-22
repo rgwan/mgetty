@@ -3,7 +3,7 @@
 #
 # This is the Makefile for libvoice.
 #
-# $Id: Makefile,v 1.4 1998/09/09 21:08:10 gert Exp $
+# $Id: Makefile,v 1.5 2006/02/22 17:25:43 gert Exp $
 #
 
 VMOBJS=main.o event.o usage.o
@@ -23,8 +23,6 @@ install:
 
 clean:
 	@$(RM) -f vm $(VMOBJS)
-
-fullclean: clean
 
 vm: $(VMOBJS) $(VOICELIBS)
 	$(CC) $(LDFLAGS) -o vm $(VMOBJS) $(MGETTYOBJS) $(VOICELIBS) $(LIBS)

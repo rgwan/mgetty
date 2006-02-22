@@ -3,7 +3,7 @@
 #
 # This is the Makefile for libutil.
 #
-# $Id: Makefile,v 1.5 1999/06/27 14:29:00 marcs Exp $
+# $Id: Makefile,v 1.6 2006/02/22 17:25:39 gert Exp $
 #
 
 UTILOBJS=check_system.o config.o no_modem.o make_path.o strsep.o variables.o \
@@ -29,7 +29,5 @@ install:
 
 clean:
 	@$(RM) -f libutil.a test_wildmat test_wildmat.o $(UTILOBJS)
-
-fullclean: clean
 
 include depend

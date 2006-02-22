@@ -1,8 +1,11 @@
 # frontends/www/Makefile
 #
-# RCS: $Id: Makefile,v 1.15 2004/11/17 15:40:57 gert Exp $
+# RCS: $Id: Makefile,v 1.16 2006/02/22 17:25:32 gert Exp $
 #
 # $Log: Makefile,v $
+# Revision 1.16  2006/02/22 17:25:32  gert
+# remove "make fullclean", do everything in "make clean"
+#
 # Revision 1.15  2004/11/17 15:40:57  gert
 # create install directories if not present yet
 #
@@ -63,8 +66,6 @@ clean:
 	rm -f $(CGI)
 	rm -f $(HTML)
 	rm -f wwwgui.conf
-
-fullclean: clean
 
 # install from here is ugly, 'cause we have to go "up" to get LIBDIR etc.
 install: all

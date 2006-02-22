@@ -1,7 +1,7 @@
 # Makefile for the "tools" subtree
 # of mgetty+sendfax
 #
-# RCS: $Id: Makefile,v 1.7 2004/11/24 15:24:25 gert Exp $
+# RCS: $Id: Makefile,v 1.8 2006/02/22 17:25:35 gert Exp $
 #
 
 CC=gcc
@@ -47,9 +47,6 @@ vhangup: vhangup.c
 
 clean:
 	-rm -f $(SCRIPTS) $(PROGRAMS) *.o
-
-fullclean:
-	-rm -f $(SCRIPTS) $(PROGRAMS)
 
 install: all
 #

@@ -18,11 +18,5 @@ faxin.o: faxin.c ../mgetty.h ../policy.h
 	$(CC) $(CFLAGS) $(LDFLAGS) -I.. -c -o faxin.o faxin.c $(LIBS)
 
 clean:
-	rm -f *.o
-
-fullclean:
-	rm -f *.o faxin
-
-
-
+	rm -f faxin *.o
 

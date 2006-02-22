@@ -3,7 +3,7 @@
 #
 # This is the Makefile for the whole vgetty stuff.
 #
-# $Id: Makefile,v 1.7 2001/12/23 14:23:55 marcs Exp $
+# $Id: Makefile,v 1.8 2006/02/22 17:25:45 gert Exp $
 #
 
 AR=ar
@@ -123,5 +123,3 @@ clean:
 		$(MAKE) RM="$(RM)" PVFTOOLS="$(PVFTOOLS)" clean || exit 1 ;\
 		cd .. ;\
 	done
-
-fullclean: clean

@@ -31,10 +31,7 @@ callback.o: callback.c ../syslibs.h ../mgetty.h ../ugly.h ../policy.h \
 	$(CC) $(CFLAGS) -DVARRUNDIR=\"$(VARRUNDIR)\" -c callback.c
 
 clean:
-	rm -f *.o
-
-fullclean:
-	rm -f *.o callback ct
+	rm -f callback ct *.o
 
 #
 # install programs

@@ -3,7 +3,7 @@
 #
 # This is the Makefile for libpvf.
 #
-# $Id: Makefile,v 1.5 2000/07/22 10:01:01 marcs Exp $
+# $Id: Makefile,v 1.6 2006/02/22 17:25:38 gert Exp $
 #
 
 PVFOBJS=au.o fft.o lib.o linear.o multitech.o rockwell.o usr.o voc.o wav.o \
@@ -23,7 +23,5 @@ install:
 
 clean:
 	@$(RM) -f libpvf.a $(PVFOBJS)
-
-fullclean: clean
 
 include depend

@@ -28,9 +28,6 @@ xfaxq: xfaxq.in ../../sedscript
 clean:
 	-rm -f $(DIALOG_SCRIPTS)
 
-fullclean:
-	-rm -f $(DIALOG_SCRIPTS)
-
 install: all
 	-for i in $(DIALOG_SCRIPTS); do \
 		mv -f $(BINDIR)/$$i $(BINDIR)/$$i.old 2>/dev/null ; \
