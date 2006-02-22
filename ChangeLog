@@ -1,3 +1,82 @@
+Wed Feb 22 14:36:16 MET 2006  Gert Doering <gert@greenie.muc.de>
+
+	* release 1.1.35
+
+Sat Feb 18 13:42:59 MET 2006  Gert Doering <gert@greenie.muc.de>
+
+	* tio.c: tio_check_speed(): set errno to EINVAL for invalid speeds
+
+	* doc/faxq-helper.8in: add man page
+
+Thu Feb  9 18:44:06 MET 2006  Gert Doering <gert@greenie.muc.de>
+
+	* fax_lib.h, class1lib.c: implement MQ_C1_NO_V17
+
+Thu Jan 19 14:41:33 MET 2006  Gert Doering <gd@medat.de>
+
+	* fax/faxrunq.in: implement same acct.log format as in faxrunqd 1.71
+
+	* www/faxhist.in: adapt to new acct.log, cleanup sorted output
+
+	* www/faxhists.in: adapt to new acct.log, show total number of lines
+
+Fri Jan 13 15:06:26 MET 2006  Gert Doering <gd@medat.de>
+
+	* fax/faxrunqd.in: change output format for acct.log to something
+	  that is more consistant and easier to parse
+
+Tue Jan  3 11:17:07 MET 2006  Gert Doering <gert@greenie.muc.de>
+
+	* use +FAA=x for adaptive answer in class 1.0 mode, +FAE=x in class 1
+	  (this is very ill-standardized.  Some modems accept both, some
+	  only one or the other)
+
+Sun Jan  1 17:19:08 MET 2006  Gert Doering <gert@greenie.muc.de>
+
+	* class1.c, class1lib.c: make (receive) code robust against all sort 
+	  of unexpected behaviours (modem responses not coming back in time,
+	  sudden hangups from the remote end, need for re-tries, etc.)
+	  still not the full T.30 flow chart, but important parts of it.
+
+Sat Dec 31 17:01:19 MET 2005  Gert Doering <gert@greenie.muc.de>
+
+	* class 1 fax reception now "mostly works"
+
+	* class1lib.c: correctly construct DIS frame from modem 
+		       capabilities + user settings
+
+	* faxrecp.c: use fax_recv_swaptable[] for bit swapping (if needed)
+
+	* faxlib.c: initialize fax_recv_swaptable[] to swap bits in class 
+		    1/1.0 mode, add lots of comments to explain background
+
+	* mgetty.c: get non-adaptive answering in class 1/1.0 right
+
+	* various: handle "class 1" and "class 1.0" the same way (for now)
+
+Fri Dec 30 22:35:00 MET 2005  Gert Doering <gert@greenie.muc.de>
+
+	* class1.c, class1lib.c: rework frame sending, handle DCS
+
+	* faxrec.c: split faxrec() into fax class-independent part and
+		    class 2/2.0 handler (fax2_highlevel_receive())
+
+	* faxrec.c, policy.h: drop FAX_USRobotics cruft
+
+	* conf_mg.c: drop FAX_USRobotics -> SWITCHBAUD 19200 logic
+
+Wed Dec 28 22:56:57 MET 2005  Gert Doering <gert@greenie.muc.de>
+
+	* faxrec.c, mg_m_init.c: preparations for fax class 1 receive
+
+	* class1.c, class1lib.c: very preliminary fax class 1 receiver
+
+	* class1.h: fix wrong value for T30_DCN
+
+Tue Dec 20 22:01:48 MET 2005  Warren Burstein <warren@softov.co.il>
+
+	* conf_mg.c: fix typo if MAIL_TO is undefined
+
 Wed Nov 30 09:46:52 MET 2005  Gert Doering <gert@greenie.muc.de>
 
 	* release 1.1.34
