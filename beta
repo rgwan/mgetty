@@ -3,6 +3,9 @@
 # Aufruf z.B.: 1.1 14 1.1.13  fuer "1.1.14 neu, diff zu 1.1.13".
 #
 # $Log: beta,v $
+# Revision 4.2  2006/02/25 12:49:17  gert
+# add freshmeat.net reminder
+#
 # Revision 4.1  2005/11/26 13:26:48  gert
 # Documentation-Preparation script for mgetty releases
 #
@@ -58,3 +61,5 @@ rm -f work-html/*
 
 #./cvm
 #tar cvfz ../doc/mgetty.html.tar.gz mgetty_*.html
+
+echo "update freshmeat.net releases" |mail -s TODO gert@greenie.muc.de
