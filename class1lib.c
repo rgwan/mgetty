@@ -1,4 +1,4 @@
-#ident "$Id: class1lib.c,v 4.13 2006/02/09 14:51:21 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1lib.c,v 4.14 2006/03/06 16:23:57 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1lib.c
  *
@@ -144,17 +144,25 @@ int fax1_set_fdcc _P4( (fd, fine, max, min),
 	fax1_res = 1;
     }
 
+#if 0			/* we don't support anything but AT+FTH=3 yet */
     p = mdm_get_idstring( "AT+FTH=?", 1, fd );
     fax1_fth = fax1_carriers( p );
     lprintf( L_MESG, "modem can send HDLC headers: %03x", fax1_fth );
+#else
+    fax1_fth = 001;
+#endif
 
     p = mdm_get_idstring( "AT+FTM=?", 1, fd );
     fax1_ftm = fax1_carriers( p );
     lprintf( L_MESG, "modem can send page data: %03x", fax1_ftm );
 
+#if 0			/* we don't support anything but AT+FRH=3 yet */
     p = mdm_get_idstring( "AT+FRH=?", 1, fd );
     fax1_frh = fax1_carriers( p );
     lprintf( L_MESG, "modem can recv HDLC headers: %03x", fax1_fth );
+#else
+    fax1_frh = 001;
+#endif
 
     p = mdm_get_idstring( "AT+FRM=?", 1, fd );
     fax1_frm = fax1_carriers( p );
