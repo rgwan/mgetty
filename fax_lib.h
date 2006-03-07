@@ -1,4 +1,4 @@
-#ident "$Id: fax_lib.h,v 4.14 2006/02/09 14:51:20 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: fax_lib.h,v 4.15 2006/03/07 13:01:38 gert Exp $ Copyright (c) Gert Doering"
 
 
 /* fax_lib.h
@@ -96,6 +96,7 @@ extern	int	modem_quirks;			/* modem specials */
 #define DC2	022
 #define XON	021
 #define XOFF	023
+#define CAN	030		/* ctrl-x, abort */
 
 #ifndef ERROR
 #define	ERROR	-1
