@@ -1,4 +1,4 @@
-#ident "$Id: class1lib.c,v 4.15 2006/03/07 13:01:15 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1lib.c,v 4.16 2006/03/07 14:13:08 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1lib.c
  *
@@ -289,16 +289,17 @@ int fax1_receive_frame _P4 ( (fd, carrier, timeout, framebuf),
 	framebuf[count++] = c;
     }
 
-    /*!!! nur, wenn nicht schon "ERROR" !!!*/
-
-    /* now read OK / ERROR response codes */
-    line = mdm_get_line( fd );
-
-    if ( line == NULL ||			/* timeout ... */
-         strcmp( line, "ERROR" ) == 0 )		/* or FCS error */
+    /* now read OK / ERROR response codes (only if we're still happy) */
+    if ( rc != ERROR )
     {
-	lprintf( L_MESG, "fax1_receive_frame: dropping frame" );
-        rc = ERROR;
+	line = mdm_get_line( fd );
+
+	if ( line == NULL ||				/* timeout ... */
+	     strcmp( line, "ERROR" ) == 0 )		/* or FCS error */
+	{
+	    lprintf( L_MESG, "fax1_receive_frame: dropping frame" );
+	    rc = ERROR;
+	}
     }
 
     /* turn off alarm */
