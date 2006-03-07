@@ -1,4 +1,4 @@
-#ident "$Id: class1.c,v 4.11 2006/03/07 14:16:56 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1.c,v 4.12 2006/03/07 21:31:50 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1.c
  *
@@ -8,6 +8,16 @@
  * Uses library functions in class1lib.c, faxlib.c and modem.c
  *
  * $Log: class1.c,v $
+ * Revision 4.12  2006/03/07 21:31:50  gert
+ * class 1 sending implementation:
+ *   - handle end-of-page (return to phase B or phase C, or send DCN/hangup)
+ *   - move sending of TSI and DCS inside fax1_send_page(), to be able to
+ *     handle RTN/RTP transparently - somewhat sloppy "phase B" definition,
+ *     but much cleaner this way
+ *   - fix reading of G3 files - skip digifax header, also send last chunk
+ *   - fix bit swapping (fax_send_swaptable)
+ * -> class 1 sending now works, if the receiver doesn't need EOL padding
+ *
  * Revision 4.11  2006/03/07 14:16:56  gert
  * fax1_dial_and_phase_AB(): add torture test code, refusing incoming CSI/DIS
  * 2 times before going on (mainly for testing receiver robustness)
@@ -156,14 +166,6 @@ again:
 	{ mdm_command( "AT+FRS=200", fd ); goto again; }
 #endif
 
-    /* send local id frame (TSI) */
-    fax1_send_idframe( fd, T30_TSI|0x01, T30_CAR_V21 );
-
-    /* send DCS */
-    if ( fax1_send_dcs( fd ) == ERROR )
-    {
-        fax_hangup = TRUE; fax_hangup_code = 10; return ERROR;
-    }
 
     fax1_phase = Phase_B;			/* Phase A done */
 
@@ -174,7 +176,7 @@ again:
 /* fax1_send_page
  *
  * send a page of G3 data
- * - if phase is "B", include sending of TCF and possibly 
+ * - if phase is "B", include sending of DCS, TCF and possibly 
  *   baud rate stepdown and repeated transmission of DCS.
  * - if phase is "C", directly send page data
  */
@@ -190,15 +192,29 @@ char dleetx[] = { DLE, ETX };
 char rtc[] = { 0x00, 0x08, 0x80, 0x00, 0x08, 0x80, 0x00, 0x08 };
 int g3fd, r, w, rx;
 #define CHUNK 512
-char buf[CHUNK], wbuf[CHUNK];
+char buf[CHUNK], wbuf[2*CHUNK+2];
 
-    /* if we're in T.30 phase B, send training frame (TCF) now...
+    /* if we're in T.30 phase B, send DCS + training frame (TCF) now...
      * don't forget delay (75ms +/- 20ms)!
+     *
+     * NOTE: this is not strictly "phase B" - in T.30, phase B begins 
+     * after sending the DCS, and before sending TCF.  But since RTN/RTP
+     * return to sending DCS (bullet "D" in T.30 chart 5-2a), grouping it 
+     * this way is much more logical to implement
      */
     if ( fax1_phase == Phase_B )
     {
         char train[150];
 	int i, num;
+
+	/* send local id frame (TSI) */
+	fax1_send_idframe( fd, T30_TSI|0x01, T30_CAR_V21 );
+
+	/* send DCS */
+	if ( fax1_send_dcs( fd ) == ERROR )
+	{
+	    fax_hangup = TRUE; fax_hangup_code = 10; return ERROR;
+	}
 
 	sprintf( cmd, "AT+FTS=8;+FTM=%d", dcs_btp->c_long );
 	fax_send( cmd, fd );
@@ -231,7 +247,7 @@ char buf[CHUNK], wbuf[CHUNK];
 	}
 
 	/* receive frame - FTT or CFR */
-	/*!!! return code! */
+	/*!!! return code! TODO: retry logic - T.30 fig. 5-2a/p.16 */
 	fax1_receive_frame( fd, 3, 30, framebuf );
 
 	if ( ( framebuf[0] & T30_FINAL ) == 0 ||
@@ -254,7 +270,9 @@ char buf[CHUNK], wbuf[CHUNK];
 	return ERROR;
     }
 
-    r=0;w=0;
+    /* open G3 file, read first chunk, potentially skipping digifax header
+     */
+    rx=r=0;
     g3fd = open( g3_file, O_RDONLY );
     if ( g3fd < 0 )
     {
@@ -263,6 +281,26 @@ char buf[CHUNK], wbuf[CHUNK];
 	fax1_send_dcn( fd, FHUP_ERROR );
 	return ERROR;
     }
+    r = read( g3fd, buf, CHUNK );
+    if ( r < 0 )
+    {
+	lprintf( L_ERROR, "fax1_send_page: error reading '%s'", g3_file );
+	/*!!! do something smart here... */
+	close(g3fd);
+	fax1_send_dcn( fd, FHUP_ERROR );
+	return ERROR;
+    }
+    if ( r >= 64 && strcmp( buf+1,
+			    "PC Research, Inc" ) == 0 )
+    {
+	lprintf( L_MESG, "skipping over DigiFax header" );
+	rx = 64;
+
+	/* TODO: resolution check, and merge with fax_send_page() */
+    }
+
+    /* TODO: implement this */
+    lprintf( L_WARN, "scan line padding unimplemented (TODO)" );
 
     /* Phase C: send page data with high-speed carrier
      */
@@ -286,11 +324,14 @@ char buf[CHUNK], wbuf[CHUNK];
      * at end-of-file, add RTC
      */
     /*!!!! padding, one-line-at-a-time, watch out for sizeof(wbuf)*/
-    /*!!!! digifax header!*/
-    rx=0; r=0; w=0;
+    w=0;
     do
     {
-        if ( rx >= r )			/* buffer empty, read more */
+	wbuf[w] = fax_send_swaptable[ (uch)buf[rx++] ];
+	if ( wbuf[w] == DLE ) wbuf[++w] = DLE;
+	w++;
+
+        if ( rx > r )			/* buffer empty, read more */
 	{
 	    r = read( g3fd, buf, CHUNK );
 	    if ( r < 0 )
@@ -298,16 +339,13 @@ char buf[CHUNK], wbuf[CHUNK];
 	    	lprintf( L_ERROR, "fax1_send_page: error reading '%s'", g3_file );
 		break;
 	    }
-	    if ( r == 0 ) break;
 	    lprintf( L_JUNK, "read %d", r );
 	    rx = 0;
 	}
-	wbuf[w] = buf[rx++];
-	if ( wbuf[w] == DLE ) wbuf[++w] = DLE;
-	w++;
 
 	/*!! zero-counting, bitpadding! */
-	if ( w >= sizeof(wbuf)-2 )
+	if ( ( w >= sizeof(wbuf)-2 )  || 	/* write buffer full */
+	     (r == 0) )				/* or end of input */
 	{
 	    if ( w != write( fd, wbuf, w ) )
 	    {
@@ -379,23 +417,35 @@ tryanyway:
     switch( framebuf[1] )
     {
         case T30_MCF:		/* page good */
-		fax_page_tx_status = 1; break;
+		fax_page_tx_status = 1; fax1_phase = Phase_C; break;
 	case T30_RTN:		/* retrain / negative */
 		fax_page_tx_status = 2; fax1_phase = Phase_B; break;
 	case T30_RTP:		/* retrain / positive */
 		fax_page_tx_status = 3; fax1_phase = Phase_B; break;
 	case T30_PIN:		/* procedure interrupt */
-		fax_page_tx_status = 4; break;
+		fax_page_tx_status = 4; fax1_phase = Phase_B; break;
 	case T30_PIP:
-		fax_page_tx_status = 5; break;
+		fax_page_tx_status = 5; fax1_phase = Phase_C; break;
 	default:
 		lprintf( L_ERROR, "fax1_transmit_page: unexpected frame" );
 		fax1_send_dcn(fd, 53); break;
     }
 
-    lprintf( L_ERROR, "running into unimplemented terrain..." );
-    fax_hangup = TRUE; fax_hangup_code = 50;
-    return ERROR;
+    /* if this was the last page, and the receiver is happy
+     * (MCF or RTP), send DCN, and call it quits
+     */
+    if ( ppm == pp_eop && 
+	 ( fax_page_tx_status == 1 || fax_page_tx_status == 3 || 
+	   fax_page_tx_status == 5 ) )
+    {
+	fax1_send_dcn( fd, 0 ); 
+	fax1_phase = Phase_E;
+    }
+
+    /* otherwise, nothing to do - caller will re-enter fax1_send_page(),
+     * for next page / re-send of same page (we won't know)
+     */
+    return NOERROR;
 }
 
 boolean fax1_receive_have_connect = FALSE;
