@@ -1,4 +1,4 @@
-#ident "$Id: class1lib.c,v 4.14 2006/03/06 16:23:57 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1lib.c,v 4.15 2006/03/07 13:01:15 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1lib.c
  *
@@ -218,7 +218,17 @@ int fax1_receive_frame _P4 ( (fd, carrier, timeout, framebuf),
 	if ( line == NULL || strcmp( line, "CONNECT" ) != 0 )
 	{
 	    alarm(0);
-	    lprintf( L_WARN, "fax1_receive_frame: no carrier (%s)", line );
+	    if ( line == NULL )
+	    {
+		char cancel_str[] = { CAN };
+		lprintf( L_WARN, "fax1_receive_frame: no carrier (timeout), send CAN" );
+		write( fd, cancel_str, 1 );
+		alarm(2);
+		line = mdm_get_line( fd );
+		alarm(0);
+	    }
+	    else
+		lprintf( L_WARN, "fax1_receive_frame: no carrier (%s)", line );
 	    return ERROR;
 	}
     }
