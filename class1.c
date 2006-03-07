@@ -1,4 +1,4 @@
-#ident "$Id: class1.c,v 4.10 2006/01/04 21:07:12 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1.c,v 4.11 2006/03/07 14:16:56 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1.c
  *
@@ -8,6 +8,11 @@
  * Uses library functions in class1lib.c, faxlib.c and modem.c
  *
  * $Log: class1.c,v $
+ * Revision 4.11  2006/03/07 14:16:56  gert
+ * fax1_dial_and_phase_AB(): add torture test code, refusing incoming CSI/DIS
+ * 2 times before going on (mainly for testing receiver robustness)
+ * fax1_send_page(): add log message to point out unimplemented stuff
+ *
  * Revision 4.10  2006/01/04 21:07:12  gert
  * remove "speed" argument from fax1_send_dcs() (use fax1_max global)
  *
@@ -78,6 +83,9 @@ int fax1_dial_and_phase_AB _P2( (dial_cmd,fd),  char * dial_cmd, int fd )
 char * p;			/* modem response */
 uch framebuf[FRAMESIZE];
 int first;
+#ifdef TORTURE_TEST
+int t_tries=0;
+#endif
 
     /* send dial command */
     if ( fax_send( dial_cmd, fd ) == ERROR )
@@ -122,6 +130,7 @@ int first;
      * read all incoming frames until FINAL bit is set
      */
     first=TRUE;
+again:
     do
     {
 	if ( fax1_receive_frame( fd, first? 0:3, 30, framebuf ) == ERROR )
@@ -134,12 +143,18 @@ int first;
 	    case T30_CSI: fax1_copy_id( framebuf ); break;
 	    case T30_NSF: break;
 	    case T30_DIS: fax1_parse_dis( framebuf ); break;
+	    case T30_DCN: fax1_send_dcn( fd, 20 ); return ERROR;
 	    default:
 	        lprintf( L_WARN, "unexpected frame type 0x%02x", framebuf[1] );
 	}
 	first=FALSE;
     }
     while( ( framebuf[0] & T30_FINAL ) == 0 );
+
+#ifdef TORTURE_TEST
+    while( ++t_tries < 3 )
+	{ mdm_command( "AT+FRS=200", fd ); goto again; }
+#endif
 
     /* send local id frame (TSI) */
     fax1_send_idframe( fd, T30_TSI|0x01, T30_CAR_V21 );
@@ -378,6 +393,7 @@ tryanyway:
 		fax1_send_dcn(fd, 53); break;
     }
 
+    lprintf( L_ERROR, "running into unimplemented terrain..." );
     fax_hangup = TRUE; fax_hangup_code = 50;
     return ERROR;
 }
