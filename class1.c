@@ -1,4 +1,4 @@
-#ident "$Id: class1.c,v 4.12 2006/03/07 21:31:50 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1.c,v 4.13 2006/03/22 14:13:12 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1.c
  *
@@ -8,6 +8,9 @@
  * Uses library functions in class1lib.c, faxlib.c and modem.c
  *
  * $Log: class1.c,v $
+ * Revision 4.13  2006/03/22 14:13:12  gert
+ * when sending, hand over received NSF to NSF decoder (faxlib.c/hyla_nsf.c)
+ *
  * Revision 4.12  2006/03/07 21:31:50  gert
  * class 1 sending implementation:
  *   - handle end-of-page (return to phase B or phase C, or send DCN/hangup)
@@ -93,6 +96,7 @@ int fax1_dial_and_phase_AB _P2( (dial_cmd,fd),  char * dial_cmd, int fd )
 char * p;			/* modem response */
 uch framebuf[FRAMESIZE];
 int first;
+int len;
 #ifdef TORTURE_TEST
 int t_tries=0;
 #endif
@@ -143,7 +147,8 @@ int t_tries=0;
 again:
     do
     {
-	if ( fax1_receive_frame( fd, first? 0:3, 30, framebuf ) == ERROR )
+	if ( (len = fax1_receive_frame( fd, first? 0:3, 30, framebuf ) )
+	       == ERROR )
 	{
 	    /*!!!! try 3 times! (flow diagram from T.30 / T30_T1 timeout) */
 	    fax_hangup = TRUE; fax_hangup_code = 11; return ERROR;
@@ -151,7 +156,7 @@ again:
 	switch ( framebuf[1] )		/* FCF */
 	{
 	    case T30_CSI: fax1_copy_id( framebuf ); break;
-	    case T30_NSF: break;
+	    case T30_NSF: fax1_incoming_nsf( framebuf+2, len-2 ); break;
 	    case T30_DIS: fax1_parse_dis( framebuf ); break;
 	    case T30_DCN: fax1_send_dcn( fd, 20 ); return ERROR;
 	    default:
