@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.67 2006/02/22 17:23:36 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.68 2006/03/22 14:14:03 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -301,18 +301,18 @@ MV=mv
 # Nothing to change below this line ---------------------------------!
 #
 MR=1.1
-SR=35
-DIFFR=1.1.34
+SR=36
+DIFFR=1.1.35
 #
 #
 OBJS=mgetty.o logfile.o do_chat.o locks.o utmp.o logname.o login.o \
      mg_m_init.o modem.o faxrec.o ring.o \
-     faxlib.o faxsend.o faxrecp.o class1.o class1lib.o faxhng.o \
+     faxlib.o faxsend.o faxrecp.o class1.o class1lib.o faxhng.o hyla_nsf.o \
      io.o gettydefs.o tio.o cnd.o getdisk.o goodies.o \
      config.o conf_mg.o do_stat.o
 
 SFAXOBJ=sendfax.o logfile.o locks.o modem.o \
-     faxlib.o faxsend.o faxrecp.o class1.o class1lib.o faxhng.o \
+     faxlib.o faxsend.o faxrecp.o class1.o class1lib.o faxhng.o hyla_nsf.o \
      io.o tio.o getdisk.o config.o conf_sf.o goodies.o
 
 all:	bin-all doc-all
@@ -392,13 +392,12 @@ DISTRIB=README.1st THANKS TODO BUGS FTP Recommend \
 	login.cfg.in mgetty.cfg.in sendfax.cfg.in \
 	dialin.config faxrunq.config \
         mgetty.c mgetty.h ugly.h do_chat.c logfile.c logname.c locks.c \
-	mg_m_init.c modem.c ring.c class1.h class1.c class1lib.c \
+	mg_m_init.c modem.c ring.c \
+	class1.h class1.c class1lib.c hyla_nsf.c \
 	faxrec.c faxrecp.c faxsend.c faxlib.c fax_lib.h sendfax.c \
 	io.c tio.c tio.h gettydefs.c login.c do_stat.c faxhng.c \
 	config.h config.c conf_sf.h conf_sf.c conf_mg.h conf_mg.c \
-	cnd.c getdisk.c mksed.c utmp.c mg_utmp.h syslibs.h goodies.c \
-	g3/Makefile g3/g3cat.c g3/g32pbm.c g3/g3.c g3/g3.h \
-	g3/pbm2g3.c g3/run_tbl.c g3/sff2g3.c g3/test-ref.g3
+	cnd.c getdisk.c mksed.c utmp.c mg_utmp.h syslibs.h goodies.c
 
 noident: policy.h
 	    for file in `find . -type f -name "*.[ch]" -print` ; do \
@@ -737,3 +736,4 @@ tio.o : tio.c mgetty.h ugly.h tio.h
 utmp.o : utmp.c mgetty.h ugly.h mg_utmp.h 
 class1.o: class1.c mgetty.h ugly.h fax_lib.h tio.h class1.h
 class1lib.o: class1lib.c mgetty.h ugly.h fax_lib.h tio.h class1.h
+hyla_nsf.o: hyla_nsf.c mgetty.h ugly.h policy.h
