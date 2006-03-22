@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 4.22 2005/12/30 21:38:49 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 4.23 2006/03/22 11:28:42 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration defaults for mgetty / sendfax
  * are specified.
@@ -592,4 +592,12 @@
  * (in KILObytes)
  */
 #define	MINFREESPACE 1024
+
+/* fax machines exchange so-called "non-standard-frames" that can be 
+ * used to identify what vendor and model is on the other end.
+ * mgetty parses and prints this by default, because it can help 
+ * troubleshooting - but the tables use up memory.  
+ * If you're very tight on RAM, disable this (saves about 1-2 Kbyte).
+ */
+#define FAX_NSF_PARSER
 
