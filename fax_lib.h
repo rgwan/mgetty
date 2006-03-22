@@ -1,4 +1,4 @@
-#ident "$Id: fax_lib.h,v 4.15 2006/03/07 13:01:38 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: fax_lib.h,v 4.16 2006/03/22 14:12:39 gert Exp $ Copyright (c) Gert Doering"
 
 
 /* fax_lib.h
@@ -42,6 +42,9 @@ int fax_set_fdcc _PROTO(( int fd, int fine, int maxsp, int minsp ));
 int fax_set_bor  _PROTO(( int fd, int bit_order ));
 int fax_set_flowcontrol _PROTO(( int fd, int hw_flow ));
 int mdm_identify _PROTO(( int fd ));
+void fax2_incoming_nsf _PROTO(( char * nsf_hex ));
+void fax1_incoming_nsf _PROTO(( uch * nsf_bin, int len ));
+void hylafax_nsf_decode _PROTO(( uch * nsf, int nsfSize ));
 
 #ifdef __TIO_H__
 int fax_send_page _PROTO(( char * g3_file, int * bytes_sent, TIO * tio,
