@@ -1,4 +1,4 @@
-/* $Id: hyla_nsf.c,v 4.1 2006/03/22 13:59:52 gert Exp $ */
+/* $Id: hyla_nsf.c,v 4.2 2006/03/22 14:10:07 gert Exp $ */
 /* 
  * The tables in this file are taken from the HylaFAX distribution.  Thus,
  * the Hylafax copyright (below) applies, not the mgetty copyright (GPL).
@@ -31,8 +31,12 @@
  * OF THIS SOFTWARE.
  */
 
+
 #include <stdio.h>
 #include "mgetty.h"
+#include "policy.h"
+
+#ifdef FAX_NSF_PARSER
 
 typedef char bool;
 typedef unsigned int u_int;
@@ -390,3 +394,4 @@ const ModelData * pp;
 			model  != NULL? model : "<unknown>" );
 }
 
+#endif
