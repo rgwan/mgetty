@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.65 2006/01/01 17:09:09 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.66 2006/03/22 14:12:17 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -118,6 +118,12 @@ int  ix;
 	{
 	    lprintf( L_MESG, "fax_id: '%s'", line );
 	    fwf_copy_remote_id( &line[ix] );
+	}
+
+	else if ( strncmp( line, "+FNSF:", 6 ) == 0 || 
+		  strncmp( line, "+FNF:", 5 ) == 0 )
+	{
+	    fax2_incoming_nsf( &line[ix] );
 	}
 
 	else if ( strncmp( line, "+FDCS:", 6 ) == 0 ||
@@ -497,6 +503,41 @@ int fax_set_bor _P2( (fd, bor), int fd, int bor )
         sprintf( buf, "AT+FBOR=%d", bor );
 
     return mdm_command( buf, fd );
+}
+
+/* parse NSF (non-standard frames) - like "remote vendor ID", etc.
+ *
+ * class 2/2.0 deliver NSFs like this: "+FNF:86 40 40 FF 06 42 86 40 40",
+ * while class 1 just delivers a binary frame.
+ * -> convert to binary, pass on to class 1 handler
+ */
+void fax2_incoming_nsf _P1((nsf_hex), char * nsf_hex )
+{
+#ifdef FAX_NSF_PARSER
+uch nsf_bin[200];
+int len;
+char *p, *np;
+
+    len = 0;
+    p = nsf_hex;
+    while( len<sizeof(nsf_bin) && p != NULL && *p != '\0' )
+    {
+	nsf_bin[len++] = (uch) strtol(p, &np, 16 );
+	if ( np == p ) break;			/* unparsable parts */
+	p=np;
+    }
+
+    fax1_incoming_nsf( nsf_bin, len );
+#endif
+}
+
+void fax1_incoming_nsf _P2((nsf_bin, len), uch * nsf_bin, int len)
+{
+#ifdef FAX_NSF_PARSER
+int i;
+    lprintf( L_NOISE, "NSF(%d): %.*s", len, len, nsf_bin );
+    hylafax_nsf_decode( nsf_bin, len );
+#endif
 }
 
 
