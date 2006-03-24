@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.66 2006/03/22 14:12:17 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.67 2006/03/24 11:15:06 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -534,8 +534,21 @@ char *p, *np;
 void fax1_incoming_nsf _P2((nsf_bin, len), uch * nsf_bin, int len)
 {
 #ifdef FAX_NSF_PARSER
+char nsf_print[200];
 int i;
-    lprintf( L_NOISE, "NSF(%d): %.*s", len, len, nsf_bin );
+
+    /* normal bit order */
+    for(i=0;i<len && i<sizeof(nsf_print);i++)
+	nsf_print[i] = isprint(nsf_bin[i])? nsf_bin[i]: '.';
+    nsf_print[i] = '\0';
+
+    lprintf( L_NOISE, "NSF(%02d): %s", len, nsf_print );
+
+    for(i=0;i<len && i<sizeof(nsf_print);i++)
+	nsf_print[i] = isprint(fax_send_swaptable[nsf_bin[i]])? 
+				fax_send_swaptable[nsf_bin[i]]: '.';
+    lprintf( L_NOISE, "    rev: %s", nsf_print );
+
     hylafax_nsf_decode( nsf_bin, len );
 #endif
 }
