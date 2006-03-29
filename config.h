@@ -1,7 +1,7 @@
 #ifndef ___CONFIG_H
 #define ___CONFIG_H
 
-#ident "$Id: config.h,v 4.4 2005/02/09 09:44:19 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: config.h,v 4.5 2006/03/29 12:26:09 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* type definitions, prototypes, defines needed for configuration stuff
  */
@@ -45,7 +45,7 @@ void * conf_get_chat _PROTO(( char * line ));
 /* macros for implementation-indepentent access */
 #define c_isset( cp )	( c.cp.flags != C_EMPTY )
 #define c_string( cp )	((char *) c.cp.d.p)
-#define c_bool( cp )	((int) c.cp.d.i)
+#define c_bool( cp )	((boolean) c.cp.d.i)
 #define c_int( cp )	((int) c.cp.d.i)
 #define c_chat( cp )	((char **) c.cp.d.p)
 
