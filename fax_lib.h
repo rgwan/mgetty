@@ -1,4 +1,4 @@
-#ident "$Id: fax_lib.h,v 4.16 2006/03/22 14:12:39 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: fax_lib.h,v 4.17 2006/03/29 12:26:32 gert Exp $ Copyright (c) Gert Doering"
 
 
 /* fax_lib.h
@@ -58,6 +58,7 @@ typedef	struct	{ short vr, br, wd, ln, df, ec, bf, st; } fax_param_t;
 
 #ifdef CLASS1
 /* prototypes for class 1 functions */
+int fax1_dial_and_phase_AB _PROTO(( char * dial_cmd, int fd ));
 int fax1_highlevel_receive _PROTO(( int fd, int * pagenum, char * dirlist,
 		                    int uid, int gid, int mode));
 int fax1_set_l_id _PROTO(( int fd, char * fax_id ));
