@@ -1,4 +1,4 @@
-/* $Id: hyla_nsf.c,v 4.2 2006/03/22 14:10:07 gert Exp $ */
+/* $Id: hyla_nsf.c,v 4.3 2006/03/29 11:48:23 gert Exp $ */
 /* 
  * The tables in this file are taken from the HylaFAX distribution.  Thus,
  * the Hylafax copyright (below) applies, not the mgetty copyright (GPL).
@@ -33,13 +33,13 @@
 
 
 #include <stdio.h>
+#include <memory.h>
 #include "mgetty.h"
 #include "policy.h"
 
 #ifdef FAX_NSF_PARSER
 
 typedef char bool;
-typedef unsigned int u_int;
 #define true 1
 #define false 0
 #define vendorIdSize 3
@@ -56,8 +56,8 @@ struct NSFData {
     const char* vendorId;
     const char* vendorName;
     bool        inverseStationIdOrder;
-    u_int         modelIdPos;
-    u_int         modelIdSize;
+    unsigned int         modelIdPos;
+    unsigned int         modelIdSize;
     const ModelData* knownModels;
 };
 
@@ -149,7 +149,7 @@ static const ModelData Muratec45[] =
 {{"\xF4\x91\xFF\xFF\xFF\x42\x2A\xBC\x01\x57", "M4700" },
  {NULL}};
 
-// Muratec uses unregistered Japan code "00 00 48" 
+/* Muratec uses unregistered Japan code "00 00 48"  */
 static const ModelData Muratec48[] =
 {{"\x53\x53\x61", "M620" },
  {NULL}};
@@ -277,7 +277,7 @@ static const NSFData KnownNSF[] =
 /*
     {"\xB5\x00\x76", "Trust - Cryptek", false },	// collision with Microsoft
 */
-    {"\xB5\x00\x76", "Microsoft", false },		// uses LSB for country but MSB for manufacturer
+    {"\xB5\x00\x76", "Microsoft", false },		/* uses LSB for country but MSB for manufacturer */
     {"\xB5\x00\x78", "Cylink",    false },
     {"\xB5\x00\x7A", "Pitney Bowes", false },
     {"\xB5\x00\x7C", "Digiboard", false },
