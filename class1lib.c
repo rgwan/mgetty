@@ -1,4 +1,4 @@
-#ident "$Id: class1lib.c,v 4.16 2006/03/07 14:13:08 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1lib.c,v 4.17 2006/03/29 12:25:33 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1lib.c
  *
@@ -32,7 +32,7 @@ static int fax1_min = 2400,		/* min/max speed */
 	   fax1_max = 14400;
 static int fax1_res;			/* flag for normal resolution */
 
-       int fax1_dis;			/* "X"-bit (last received DIS) */
+       uch fax1_dis = 0x00;		/* "X"-bit (last received DIS) */
 
 static int fax1_fth, fax1_ftm,		/* modem carrier capabilities */
 	   fax1_frh, fax1_frm;
@@ -608,7 +608,7 @@ int fax1_send_dcn _P2((fd, code), int fd, int code )
 /* send local identification (CSI, CIG or TSI) 
  * Note: "final" bit is never set, as these frames are always optional.
  */
-int fax1_send_idframe _P3((fd,fcf,carrier), int fd, int fcf, int carrier)
+int fax1_send_idframe _P3((fd,fcf,carrier), int fd, uch fcf, int carrier)
 {
     unsigned char frame[F1LID+2];
 
