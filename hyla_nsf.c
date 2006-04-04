@@ -1,4 +1,4 @@
-/* $Id: hyla_nsf.c,v 4.3 2006/03/29 11:48:23 gert Exp $ */
+/* $Id: hyla_nsf.c,v 4.4 2006/04/04 16:24:22 gert Exp $ */
 /* 
  * The tables in this file are taken from the HylaFAX distribution.  Thus,
  * the Hylafax copyright (below) applies, not the mgetty copyright (GPL).
@@ -114,6 +114,7 @@ static const ModelData Sanyo[] =
 
 static const ModelData HP[] =
 {{"\x20\x00\x45\x00\x0C\x04\x70\xCD\x4F\x00\x7F\x49", "LaserJet 3150" },
+ {"\x04\x00\x00\x00\x00", "LaserJet 3030" },	/* gert */
  {"\x40\x80\x84\x01\xF0\x6A", "OfficeJet" },
  {"\xC0\x00\x00\x00\x00", "OfficeJet 500" },
  {"\xC0\x00\x00\x00\x00\x8B", "Fax-920" },
@@ -127,6 +128,7 @@ static const ModelData Sharp[] =
 
 static const ModelData Xerox[] =
 {{"\x00\x08\x2D\x43\x57\x50\x61\x75\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x01\x1A\x02\x02\x10\x01\x82\x01\x30\x34", "635 Workcenter" },
+ {"\x00\x08\x0D\x49\xFF\xFF\xFF\xFF\xFF\xFF", "DP85F" },	/* gert */
  {NULL}};
 
 static const ModelData XeroxDA[] =
