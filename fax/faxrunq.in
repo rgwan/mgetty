@@ -11,9 +11,12 @@
 # For heavy-duty usage (multiple lines, many 100 faxes per day), check
 # out faxrunqd.
 #
-# RCS: $Id: faxrunq.in,v 4.19 2006/01/19 14:44:23 gert Exp $ Copyright (C) 1994 Gert Doering
+# RCS: $Id: faxrunq.in,v 4.20 2006/04/09 16:48:21 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 # $Log: faxrunq.in,v $
+# Revision 4.20  2006/04/09 16:48:21  gert
+# fix quoting bug in `date` command (for acct.log) - Klaus Weglehner
+#
 # Revision 4.19  2006/01/19 14:44:23  gert
 # new acct.log format (see faxrunqd: 1.70->1.71 for details)
 #
@@ -243,7 +246,7 @@ do
 	$echo "Status "`date`" successfully sent" >>JOB
 
 	# update accounting log
-	$echo `dirname $job`"|$MAIL_TO|| $PHONE |0|"`date '+%Y%m%d %H:%M:%S`"|$AH|success" >>$FAX_ACCT
+	$echo `dirname $job`"|$MAIL_TO|| $PHONE |0|"`date '+%Y%m%d %H:%M:%S'`"|$AH|success" >>$FAX_ACCT
 
 	# send mail, if requested
 	if [ -n "$do_mail_s" ] ; then
@@ -314,7 +317,7 @@ do
 	if [ -n "$suspend" ]
 	then
 	    # update accounting log (final)
-	    $echo `dirname $job`"|$MAIL_TO|| $PHONE |$status|"`date '+%Y%m%d %H:%M:%S`"|$AH|fail $status: $why" >>$FAX_ACCT
+	    $echo `dirname $job`"|$MAIL_TO|| $PHONE |$status|"`date '+%Y%m%d %H:%M:%S'`"|$AH|fail $status: $why" >>$FAX_ACCT
 
 	    # send mail, if requested
 	    if [ -n "$do_mail_f" ] ; then
@@ -347,7 +350,7 @@ do
 	    mv JOB JOB.suspended 2>/dev/null
 	else					# do not delete job yet...
 	    # update accounting log (intermediate)
-	    $echo `dirname $job`"|$MAIL_TO|| $PHONE |-$status|"`date '+%Y%m%d %H:%M:%S`"|$AH|fail $status: $why" >>$FAX_ACCT
+	    $echo `dirname $job`"|$MAIL_TO|| $PHONE |-$status|"`date '+%Y%m%d %H:%M:%S'`"|$AH|fail $status: $why" >>$FAX_ACCT
 
 	    # call update handler, if requested
 	    if [ -n "$exec_pgm_u" ] ; then
