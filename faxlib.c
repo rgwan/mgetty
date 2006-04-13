@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.67 2006/03/24 11:15:06 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.68 2006/04/13 09:50:00 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -120,8 +120,9 @@ int  ix;
 	    fwf_copy_remote_id( &line[ix] );
 	}
 
-	else if ( strncmp( line, "+FNSF:", 6 ) == 0 || 
-		  strncmp( line, "+FNF:", 5 ) == 0 )
+	else if ( strncmp( line, "+FNSF:", 6 ) == 0 || 	/* class 2 */
+		  strncmp( line, "+FNF:", 5 ) == 0 ||	/* class 2.0 */
+		  strncmp( line, "FNF:", 4 ) == 0 )	/* USR bug */
 	{
 	    fax2_incoming_nsf( &line[ix] );
 	}
@@ -510,21 +511,27 @@ int fax_set_bor _P2( (fd, bor), int fd, int bor )
  * class 2/2.0 deliver NSFs like this: "+FNF:86 40 40 FF 06 42 86 40 40",
  * while class 1 just delivers a binary frame.
  * -> convert to binary, pass on to class 1 handler
+ *
+ * (some modems deliver "+FNF:0000090008...", so we accept about anything
+ * that looks like "pairs of hex digits with or without separators")
  */
+#define char_to_hex(ch) ( ( (ch)>='0' && (ch)<='9')? (ch)-'0' : \
+				tolower((ch))-'a'+10 )
 void fax2_incoming_nsf _P1((nsf_hex), char * nsf_hex )
 {
 #ifdef FAX_NSF_PARSER
 uch nsf_bin[200];
 int len;
-char *p, *np;
+char *p;
 
     len = 0;
     p = nsf_hex;
-    while( len<sizeof(nsf_bin) && p != NULL && *p != '\0' )
+    while( len<sizeof(nsf_bin) && isxdigit(*p) && isxdigit(*(p+1)) )
     {
-	nsf_bin[len++] = (uch) strtol(p, &np, 16 );
-	if ( np == p ) break;			/* unparsable parts */
-	p=np;
+	nsf_bin[len++] = (uch) ( char_to_hex(*p) << 4 ) +
+					char_to_hex(*(p+1));
+	p+=2;
+	while( *p != '\0' && ! isxdigit(*p) ) p++;
     }
 
     fax1_incoming_nsf( nsf_bin, len );
