@@ -1,4 +1,4 @@
-#ident "$Id: mid.c,v 1.11 2006/05/26 20:01:41 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mid.c,v 1.12 2006/05/26 20:02:25 gert Exp $ Copyright (c) Gert Doering"
 
 /* mid.c
  *
@@ -142,7 +142,7 @@ void exit_usage( char * program, char * msg )
     if ( msg != NULL )
 	fprintf( stderr, "%s: %s\n", program, msg );
 
-    fprintf( stderr, "valid options: -m, -M <mailaddr>, -f <file>\n" );
+    fprintf( stderr, "valid options: -m, -M <mailaddr>, -f <file>, -Q, -s <speed>\n" );
     exit(99);
 }
 
