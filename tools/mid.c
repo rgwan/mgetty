@@ -1,4 +1,4 @@
-#ident "$Id: mid.c,v 1.10 2003/11/17 19:05:10 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mid.c,v 1.11 2006/05/26 20:01:41 gert Exp $ Copyright (c) Gert Doering"
 
 /* mid.c
  *
@@ -20,6 +20,8 @@
 #include "mgetty.h"
 #include "policy.h"
 #include "tio.h"
+
+char * quick_query_strings[] = { "ATE1QV1", "ATI", "ATI4", "ATI9", NULL };
 
 char * query_strings[] = { "ATE1Q0V1", 
 			   "ATI",  "ATI0", "ATI1", "ATI2", "ATI3", "ATI4",
@@ -45,11 +47,10 @@ boolean got_interrupt;
 RETSIGTYPE oops(SIG_HDLR_ARGS)
 		{ got_interrupt=TRUE; }
 
-int test_modem( char * device, int speed, FILE * fp )
+int test_modem( char * device, int speed, char ** query, FILE * fp )
 {
 int fd;
 TIO tio, save_tio;
-char **query = query_strings;
 
 char buf[100];
 int l;
@@ -155,14 +156,16 @@ boolean send_mail = FALSE;			/* send mail? */
 int speed = 38400;				/* port speed */
 
 FILE * out_fp = stdout;
+char **query = query_strings;
 
-    while ((opt = getopt(argc, argv, "mM:f:s:")) != EOF)
+    while ((opt = getopt(argc, argv, "mM:f:s:Q")) != EOF)
     {
 	switch( opt )
 	{
 	    case 'm': send_mail = TRUE; break;
 	    case 'M': send_mail = TRUE; mailaddr = optarg; break;
 	    case 's': speed = atoi(optarg); break;
+	    case 'Q': query = quick_query_strings; break;
 	    default:
 		exit_usage( argv[0], NULL );
 	}
@@ -216,7 +219,7 @@ FILE * out_fp = stdout;
 	else
 	    sprintf( device, "/dev/%s", argv[optind]);
 
-	test_modem( device, speed, out_fp );
+	test_modem( device, speed, query, out_fp );
 
 	optind++;
     }
