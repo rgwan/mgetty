@@ -50,11 +50,19 @@
  *
  * fdc@cliwe.ping.de, 1995-06-24
  *
- * $Id: g3hack.c,v 1.1 1998/10/07 13:55:31 gert Exp $
+ * $Id: g3hack.c,v 1.2 2006/06/14 10:33:14 gert Exp $
+ *
+ * $Log: g3hack.c,v $
+ * Revision 1.2  2006/06/14 10:33:14  gert
+ * add <memory.h> to silence compiler warnings
+ * add ibits=0 to silence compiler warning
+ *    (the code was correct, but the compiler didn't see this...)
+ *
  */
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <memory.h>
 
 extern int getopt();
 extern char *optarg;
@@ -88,7 +96,7 @@ Optionally named outputfile (else stdout).\n";
 static void
 copy(int nlines)
 {
-    int ibits, imask = 0;	/* input bits and mask */
+    int ibits = 0, imask = 0;	/* input bits and mask */
     int obits = 0;		/* output bits */
     int omask = 0x80;		/* output mask */
     int zeros = 0;		/* number of consecutive zero bits */
