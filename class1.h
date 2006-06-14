@@ -1,10 +1,13 @@
-#ident "$Id: class1.h,v 4.9 2006/03/29 12:25:02 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1.h,v 4.10 2006/06/14 09:54:03 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1.h
  *
  * common definitions for class 1 fax modules
  *
  * $Log: class1.h,v $
+ * Revision 4.10  2006/06/14 09:54:03  gert
+ * dcs_btp needs to be declared 'extern'
+ *
  * Revision 4.9  2006/03/29 12:25:02  gert
  * change type of fax1_dis to uch (unsigned char)
  * change type of "fcf" in fax1_send_idframe() to uch
@@ -63,7 +66,7 @@ struct fax1_btable { int speed;			/* bit rate */
 		     int c_long, c_short;	/* carrier numbers */
 		     int dcs_bits;		/* bits to be set in DCS */
 		    };
-struct fax1_btable * dcs_btp;			/* current modulation */
+extern struct fax1_btable * dcs_btp;		/* current modulation */
 
 /* --- Definitions from ITU T.30, 07/96 --- */
 
