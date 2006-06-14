@@ -1,4 +1,4 @@
-#ident "$Id: tio.c,v 4.7 2006/02/18 12:42:51 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "@(#)$Id: tio.c,v 4.8 2006/06/14 09:48:15 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /* tio.c
  *
@@ -18,13 +18,13 @@
 #include "tio.h"
 
 #ifdef POSIX_TERMIOS
-static char tio_compilation_type[]="@(#)tio.c compiled with POSIX_TERMIOS";
+# ident "@(#)tio.c compiled with POSIX_TERMIOS";
 #endif
 #ifdef SYSV_TERMIO
-static char tio_compilation_type[]="@(#)tio.c compiled with SYSV_TERMIO";
+# ident "@(#)tio.c compiled with SYSV_TERMIO";
 #endif
 #ifdef BSD_SGTTY
-static char tio_compilation_type[]="@(#)tio.c compiled with BSD_SGTTY";
+# ident "@(#)tio.c compiled with BSD_SGTTY";
 #endif
 
 #ifdef USE_TERMIOX
