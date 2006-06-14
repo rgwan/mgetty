@@ -1,4 +1,4 @@
-/* $Id: hyla_nsf.c,v 4.5 2006/04/09 16:39:44 gert Exp $ */
+/* $Id: hyla_nsf.c,v 4.6 2006/06/14 11:30:31 gert Exp $ */
 /* 
  * The tables in this file are taken from the HylaFAX distribution.  Thus,
  * the Hylafax copyright (below) applies, not the mgetty copyright (GPL).
@@ -281,6 +281,7 @@ static const NSFData KnownNSF[] =
     {"\x20\x81\x40", 3, "TEDAS Gesellschaft für Telekommunikations-, Daten- und Audiosysteme mbH", false },
     {"\x20\x81\x80", 3, "AVM Audiovisuelles Marketing und Computersysteme GmbH", false },
     {"\x20\x81\xC0", 3, "EICON Technology Research GmbH", false },
+    {"\x20\x81\x70", 3, "mgetty+sendfax", false },
     {"\x20\xB1",     2, "Schneider Rundfunkwerke AG", false },
     {"\x20\xC2",     2, "Deutsche Telekom AG", false },
     {"\x20\xD1",     2, "Ferrari electronik GmbH", false },
