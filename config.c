@@ -1,4 +1,4 @@
-#ident "$Id: config.c,v 4.5 1999/02/24 15:56:44 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: config.c,v 4.6 2006/06/14 09:52:34 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /*
  * config.c
@@ -49,12 +49,14 @@ char	*	p;
         p = fgets( &bufp[ bufidx ], bufsz-bufidx, fp );
 
 	if ( p == NULL )	/* nothing more to read */
+	{
 	    if ( bufidx == 0 )
 	    {
 		free( bufp ); bufp = NULL; bufsz = 0;
 		return NULL;
 	    }
 	    else break;
+	}
 
 	/* continuation lines? Buffer overflow? */
 
