@@ -1,4 +1,4 @@
-#ident "$Id: locks.c,v 4.6 2005/11/09 09:12:29 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
+#ident "$Id: locks.c,v 4.7 2006/06/14 09:38:23 gert Exp $ Copyright (c) Gert Doering / Paul Sutcliffe Jr."
 
 /* large parts of the code in this module are taken from the
  * "getty kit 2.0" by Paul Sutcliffe, Jr., paul@devon.lns.pa.us,
@@ -6,6 +6,9 @@
  * SVR4 style locking by Bodo Bauer, bodo@hal.nbg.sub.org.
  *
  * $Log: locks.c,v $
+ * Revision 4.7  2006/06/14 09:38:23  gert
+ * get rid of compiler warning about "usused variable tries"
+ *
  * Revision 4.6  2005/11/09 09:12:29  gert
  * error message was missing an argument (filename) to lprintf()
  *
@@ -57,7 +60,9 @@ int do_makelock _P0( void )
 {
 	int fd, pid;
 	char *temp, buf[MAXLINE+1];
+#ifndef HAVE_MKSTEMP
 	int tries = 0;
+#endif
 
 	we_have_lock = FALSE;
 
