@@ -1,4 +1,4 @@
-#ident "$Id: microcom.c,v 1.5 2004/12/22 15:42:27 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: microcom.c,v 1.6 2006/06/14 09:55:39 gert Exp $ Copyright (c) Gert Doering"
 
 /* microcom.c
  *
@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/select.h>
 #include <errno.h>
