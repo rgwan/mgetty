@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.68 2006/04/13 09:50:00 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.69 2006/08/10 15:15:46 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -971,6 +971,11 @@ int mdm_identify _P1( (fd), int fd )
 	else if ( strncmp( l, "SIEMENS", 7 ) == 0 )	/* gert */
 	{
 	    lprintf( L_MESG, "possibly Siemens GSM modem?  assuming class 2" );
+	    modem_type=Mt_class2;
+	}
+	else if ( strncmp( l, "BM-33k6/ISDN pro", 16 ) == 0 )	/* gert */
+	{
+	    lprintf( L_MESG, "Blatzheim ISDN modem, buggy class 2.0, force class 2" );
 	    modem_type=Mt_class2;
 	}
     }
