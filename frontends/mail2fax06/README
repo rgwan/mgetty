@@ -1,0 +1,61 @@
+This is a newly written mail to fax gateway that can handle MIME attachments
+(like "tiff images" or "pdf documents").  
+
+Actually, it can handle all file types that faxspool will handle.
+
+
+How to use it?
+
+- mail2fax.pl expects a fax number, usually in the form "12345@fax.do.main"
+  on the command line, and a well-formatted e-mail on stdin
+
+- the e-mail address of the sender is passed as "-f <address>" on the
+  command line
+
+- depending on your e-mail transport, you need to make sure that 
+  mail2fax.pl is called with the proper arguments for e-mails sent to 
+  your fax pseudo-domain.
+
+
+  1. SENDMAIL
+
+   - adapt sendmail.cf (or sendmail.mc) to include a "fax" mailer - the
+     hylafax "mailer/fax.mc" mailer prototype can be used, you just need
+     to adapt the command line.  The net result in sendmail.cf should
+     look like this:
+
+      Mfax,     P=/usr/local/lib/mgetty+sendfax/mail2fax.pl,
+                F=DFMhuS, S=14, R=24, U=fax:dialer,
+                D=/var/spool/fax, M=500000, T=X-Phone/X-FAX/X-Unix,
+                A=mail2fax -h $h -f $f $u
+
+   - in your "mailertable" file, route your fax pseudo domain to this
+     mailer transport:
+
+      fax.do.main     fax:faxrelay
+
+     (the "fax:" part is the key, it means "call the program defined in Mfax, 
+      and pass the e-mail-address as "$u", and the from address as "$f".  
+      The "faxrelay" part is just an arbitrary string, passed as "$h", but
+      it's not currently used)
+
+
+  2. QMAIL
+  3. Postfix
+   <example config to be inserted>
+     
+
+- currently, no authorization is done by mail2fax.pl - so you should 
+  use your MTA rules to restrict who is permitted to send mails to your
+  fax pseudo domain, and thus who may use the fax setup.
+
+- logging goes to /var/log/mgetty/mail2fax.log (by default) - make sure
+  the user ID that your MTA uses to call mail2fax.pl is permitted to write
+  to that directory, otherwise fax-mail will bounce.
+
+- mail2fax.pl needs a working directory, by default /var/spool/fax/tmp/,
+  again, writeable by the user ID picked by your MTA.  If the directory isn't
+  there, or not writeable, fax-mail will bounce.
+
+
+$Id: README,v 1.1 2006/09/22 21:57:05 gert Exp $
