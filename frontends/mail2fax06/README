@@ -41,6 +41,32 @@ How to use it?
 
 
   2. QMAIL
+
+   - there are multiple possible approaches - this is just one variant I've
+     seen used at a qmail site.
+
+   - use "control/virtualdomains" to tell your mail server that "fax.do.main" 
+     is something to be handled locally on your system:
+
+        fax.do.main:fax.do.main
+
+     (specifically: all mail to <number>@fax.do.main is mapped to the 
+     pseudo-user "fax.do.main-<number>@fax.do.main" and delivered locally,
+     see "man qmail-send")
+
+   - use "users/assign" to map your fax.do.main pseudo user to a local user
+     directory:
+
+        +fax.do.main-:fax.do.main:411:411:/home/mail2fax/qmail/:-::
+
+   - in the /home/mail2fax/qmail/ directory, create a .qmail-default file
+     that pipes to fax2mail:
+
+        |/usr/local/lib/mgetty+sendfax/mail2fax.pl -f $SENDER $EXT
+
+     ($EXT contains the original fax number)
+
+
   3. Postfix
    <example config to be inserted>
      
@@ -58,4 +84,4 @@ How to use it?
   there, or not writeable, fax-mail will bounce.
 
 
-$Id: README,v 1.1 2006/09/22 21:57:05 gert Exp $
+$Id: README,v 1.2 2006/09/23 09:05:00 gert Exp $
