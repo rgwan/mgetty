@@ -40,6 +40,10 @@ How to use it?
       it's not currently used)
 
 
+   - further information on "mailer" definitons etc can be found on:
+      http://www.sendmail.org/doc/sendmail-current/doc/op/op.pdf
+
+
   2. QMAIL
 
    - there are multiple possible approaches - this is just one variant I've
@@ -59,12 +63,15 @@ How to use it?
 
         +fax.do.main-:fax.do.main:411:411:/home/mail2fax/qmail/:-::
 
+     (this step is optional - you could map to a "real" user in the first 
+     step, like the "fax" user, and use this user's $HOME directory)
+
    - in the /home/mail2fax/qmail/ directory, create a .qmail-default file
      that pipes to fax2mail:
 
         |/usr/local/lib/mgetty+sendfax/mail2fax.pl -f $SENDER $EXT
 
-     ($EXT contains the original fax number)
+     ($EXT contains the original fax number, see "man qmail-command")
 
 
   3. Postfix
@@ -84,4 +91,4 @@ How to use it?
   there, or not writeable, fax-mail will bounce.
 
 
-$Id: README,v 1.2 2006/09/23 09:05:00 gert Exp $
+$Id: README,v 1.3 2006/09/23 09:09:06 gert Exp $
