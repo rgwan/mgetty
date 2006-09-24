@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-my $rcs_id='RCS: $Id: faxrunqd.in,v 1.71 2006/01/13 13:58:40 gert Exp $';
+my $rcs_id='RCS: $Id: faxrunqd.in,v 1.72 2006/09/24 18:14:44 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.72  2006/09/24 18:14:44  gert
+# bugfix: missing newline at acct.log error message
+#
 # Revision 1.71  2006/01/13 13:58:40  gert
 # new output format for acct.log:
 #   - tty
@@ -1728,7 +1731,7 @@ sub wacct
 
     unless ( open( A, ">>$fax_acct" ) )
     {
-	print LOG "ERROR: can't open $fax_acct for appending: $!"; return;
+	print LOG "ERROR: can't open $fax_acct for appending: $!\n"; return;
     }
 
     print A "$j|$m|$tty| $p |$r_s|$d|$a|$r_long\n";
