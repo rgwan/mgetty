@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.68 2006/03/22 14:14:03 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.69 2006/09/25 22:34:36 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -308,12 +308,12 @@ DIFFR=1.1.35
 OBJS=mgetty.o logfile.o do_chat.o locks.o utmp.o logname.o login.o \
      mg_m_init.o modem.o faxrec.o ring.o \
      faxlib.o faxsend.o faxrecp.o class1.o class1lib.o faxhng.o hyla_nsf.o \
-     io.o gettydefs.o tio.o cnd.o getdisk.o goodies.o \
+     g3file.o io.o gettydefs.o tio.o cnd.o getdisk.o goodies.o \
      config.o conf_mg.o do_stat.o
 
 SFAXOBJ=sendfax.o logfile.o locks.o modem.o \
      faxlib.o faxsend.o faxrecp.o class1.o class1lib.o faxhng.o hyla_nsf.o \
-     io.o tio.o getdisk.o config.o conf_sf.o goodies.o
+     g3file.o io.o tio.o getdisk.o config.o conf_sf.o goodies.o
 
 all:	bin-all doc-all
 
