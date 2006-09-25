@@ -1,4 +1,4 @@
-#ident "$Id: class1.c,v 4.13 2006/03/22 14:13:12 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1.c,v 4.14 2006/09/25 22:26:54 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1.c
  *
@@ -8,6 +8,10 @@
  * Uses library functions in class1lib.c, faxlib.c and modem.c
  *
  * $Log: class1.c,v $
+ * Revision 4.14  2006/09/25 22:26:54  gert
+ * fax1_send_page(): move all the G3 file handling to g3file.c functions
+ *  (-> cleanup code, build common infrastructure for class 1 + class 2)
+ *
  * Revision 4.13  2006/03/22 14:13:12  gert
  * when sending, hand over received NSF to NSF decoder (faxlib.c/hyla_nsf.c)
  *
@@ -195,9 +199,6 @@ char * line;
 char cmd[40];
 char dleetx[] = { DLE, ETX };
 char rtc[] = { 0x00, 0x08, 0x80, 0x00, 0x08, 0x80, 0x00, 0x08 };
-int g3fd, r, w, rx;
-#define CHUNK 512
-char buf[CHUNK], wbuf[2*CHUNK+2];
 
     /* if we're in T.30 phase B, send DCS + training frame (TCF) now...
      * don't forget delay (75ms +/- 20ms)!
@@ -277,31 +278,11 @@ char buf[CHUNK], wbuf[2*CHUNK+2];
 
     /* open G3 file, read first chunk, potentially skipping digifax header
      */
-    rx=r=0;
-    g3fd = open( g3_file, O_RDONLY );
-    if ( g3fd < 0 )
+    if ( g3_open_read( g3_file ) < 0 )
     {
-        lprintf( L_ERROR, "fax1_send_page: can't open '%s'", g3_file );
-	/*!!! do something smart here... */
+	/*!!! do something smart here...? */
 	fax1_send_dcn( fd, FHUP_ERROR );
 	return ERROR;
-    }
-    r = read( g3fd, buf, CHUNK );
-    if ( r < 0 )
-    {
-	lprintf( L_ERROR, "fax1_send_page: error reading '%s'", g3_file );
-	/*!!! do something smart here... */
-	close(g3fd);
-	fax1_send_dcn( fd, FHUP_ERROR );
-	return ERROR;
-    }
-    if ( r >= 64 && strcmp( buf+1,
-			    "PC Research, Inc" ) == 0 )
-    {
-	lprintf( L_MESG, "skipping over DigiFax header" );
-	rx = 64;
-
-	/* TODO: resolution check, and merge with fax_send_page() */
     }
 
     /* TODO: implement this */
@@ -328,46 +309,17 @@ char buf[CHUNK], wbuf[2*CHUNK+2];
      * insert padding bits (if scan line time > 0), 
      * at end-of-file, add RTC
      */
-    /*!!!! padding, one-line-at-a-time, watch out for sizeof(wbuf)*/
-    w=0;
-    do
+    if ( g3_send_file( g3_rf_chunk, fd, TRUE, TRUE, 100 /* TODO */, 0 ) < 0 )
     {
-	wbuf[w] = fax_send_swaptable[ (uch)buf[rx++] ];
-	if ( wbuf[w] == DLE ) wbuf[++w] = DLE;
-	w++;
-
-        if ( rx > r )			/* buffer empty, read more */
-	{
-	    r = read( g3fd, buf, CHUNK );
-	    if ( r < 0 )
-	    {
-	    	lprintf( L_ERROR, "fax1_send_page: error reading '%s'", g3_file );
-		break;
-	    }
-	    lprintf( L_JUNK, "read %d", r );
-	    rx = 0;
-	}
-
-	/*!! zero-counting, bitpadding! */
-	if ( ( w >= sizeof(wbuf)-2 )  || 	/* write buffer full */
-	     (r == 0) )				/* or end of input */
-	{
-	    if ( w != write( fd, wbuf, w ) )
-	    {
-	        lprintf( L_ERROR, "fax1_send_page: can't write %d bytes", w );
-		break;
-	    }
-	    lprintf( L_JUNK, "write %d", w );
-	    w=0;
-	}
+	lprintf( L_ERROR, "error in g3_send_file()" ); 
+	return ERROR;
     }
-    while(r>0);
-    close(g3fd);
 
     /*!!! ERROR HANDLING!! */
     /*!!! PARANOIA: alarm()!! */
     /* end of page: RTC */
     write( fd, rtc, sizeof(rtc) );
+
     /* end of data: DLE ETX */
     write( fd, dleetx, 2 );
 
@@ -377,7 +329,6 @@ char buf[CHUNK], wbuf[2*CHUNK+2];
 	lprintf( L_ERROR, "fax1_send_page: unexpected response 3a: '%s'", line );
 	fax_hangup = TRUE; fax_hangup_code = 40; return ERROR;
     }
-
 
     /* now send end-of-page frame (MPS/EOM/EOP) and get pps */
 
