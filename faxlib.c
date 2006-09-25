@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.69 2006/08/10 15:15:46 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.70 2006/09/25 22:22:55 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -456,8 +456,6 @@ unsigned char fax_send_swaptable[256];
 unsigned char fax_recv_swaptable[256];
 
 /* set up bit swap table */
-
-static 
 void fax_init_swaptable _P2( (direct, byte_tab),
 			      int direct, unsigned char byte_tab[] )
 {
