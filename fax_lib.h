@@ -1,4 +1,4 @@
-#ident "$Id: fax_lib.h,v 4.17 2006/03/29 12:26:32 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: fax_lib.h,v 4.18 2006/09/25 22:22:15 gert Exp $ Copyright (c) Gert Doering"
 
 
 /* fax_lib.h
@@ -65,6 +65,15 @@ int fax1_set_l_id _PROTO(( int fd, char * fax_id ));
 int fax1_set_fdcc _PROTO(( int fd, int fine, int max, int min ));
 extern boolean fax1_receive_have_connect;
 #endif
+
+/* g3file.c */
+typedef int (in_func_t)(char *, int);
+in_func_t g3_rf_chunk;
+
+int g3_open_read _PROTO(( char * filename ));
+void g3_close _PROTO((void));
+int g3_send_file _PROTO((in_func_t * in_func, int out_fd, int is_device, 
+			 int escape_dle, int pad_bytes, int fax_res ));
 
 extern	char	fax_remote_id[];		/* remote FAX id +FTSI */
 extern	char	fax_param[];			/* transm. parameters +FDCS */
