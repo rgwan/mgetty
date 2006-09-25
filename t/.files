@@ -3,3 +3,5 @@ t_config.c
 t_ring.c
 t_echo.in
 t_trap.in
+t_g3f_c.c
+t_g3file.in
