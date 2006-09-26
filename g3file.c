@@ -1,4 +1,4 @@
-#ident "$Id: g3file.c,v 1.1 2006/09/25 22:21:02 gert Exp $"
+#ident "$Id: g3file.c,v 1.2 2006/09/26 15:37:55 gert Exp $"
 
 /* g3file.c
  *
@@ -13,6 +13,11 @@
  *    + checking receive copy quality                       [unimp]
  *
  * $Log: g3file.c,v $
+ * Revision 1.2  2006/09/26 15:37:55  gert
+ * - on "device" file descriptors, check after each write() block whether there
+ *   is any sort of input data available - Xon/Xoff, modem errors, ...
+ * - use sizeof(wbuf) to validate pad_bytes, not CHUNK
+ *
  * Revision 1.1  2006/09/25 22:21:02  gert
  * G3 file handling functions, first draft (file->fd, bit padding)
  *
@@ -191,7 +196,7 @@ int lines_seen=-1;		/* scan lines in file */
      * "there is more space left in the buffer than we need padding",
      * so better make sure CHUNK is large enough
      */
-    if ( pad_bytes > CHUNK/2 )
+    if ( pad_bytes > sizeof(wbuf)/2 )
     {
 	errno=EINVAL;
 	lprintf( L_ERROR, "g3_send_file: too much padding requested, pad_bytes=%d, CHUNK=%d", pad_bytes, CHUNK );
@@ -259,7 +264,28 @@ int lines_seen=-1;		/* scan lines in file */
 	    }
 	    lprintf( L_JUNK, "write %d", w );
 	    w=0;
-	}
+
+	    /* if this is going to a serial device, check for pending input 
+             * (stray Xon/Xoff from flow control, modem errors, ...)
+             */
+	    if ( is_device && check_for_input( out_fd ) )
+	    {
+		lprintf( L_NOISE, "input: got " );
+		do
+		{
+		    /* intentionally don't use mdm_read_byte here */
+		    if ( read( out_fd, &r_ch, 1 ) != 1 )
+		    {
+			lprintf( L_ERROR, "read failed" );
+			break;
+		    }
+		    else
+			lputc( L_NOISE, r_ch );
+		}
+		while ( check_for_input( out_fd ) );
+	    }
+
+	}		/* end if (need to write buffer) */
     }
     while(r_num>0);
 
