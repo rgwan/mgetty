@@ -4,9 +4,12 @@
 #                       from e-mail address (12345@fax), call faxspool
 # to be run from sendmail, qmail, ...
 #
-# $Id: mail2fax.pl,v 1.1 2006/09/22 22:02:18 gert Exp $
+# $Id: mail2fax.pl,v 1.2 2006/09/26 14:29:05 gert Exp $
 #
 # $Log: mail2fax.pl,v $
+# Revision 1.2  2006/09/26 14:29:05  gert
+# skip parts that are .p7s or application/x-pkcs7-signature
+#
 # Revision 1.1  2006/09/22 22:02:18  gert
 # initial draft
 #
@@ -104,7 +107,9 @@ my $type = $part->effective_type;
 	# everything that has a file name (- is not metadata) and doesn't
         # match an exclude list of unconvertable content is passed to faxspool
 
-	if ( $type eq 'text/html' || $path =~ /\.html?$/ )
+	if ( $type eq 'text/html' || $path =~ /\.html?$/ ||
+	     $type eq 'application/x-pkcs7-signature' || $path =~ /\.p7s/
+	   )
 	{
 	    print LOG "-> skip part, unconvertable body\n";
 	    next;
