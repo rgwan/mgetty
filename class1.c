@@ -1,4 +1,4 @@
-#ident "$Id: class1.c,v 4.14 2006/09/25 22:26:54 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1.c,v 4.15 2006/09/26 15:36:07 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1.c
  *
@@ -8,6 +8,11 @@
  * Uses library functions in class1lib.c, faxlib.c and modem.c
  *
  * $Log: class1.c,v $
+ * Revision 4.15  2006/09/26 15:36:07  gert
+ * - handle modems that don't get AT+FTS=8;+FTM=nn right
+ *   (re-do AT+FTM if the first command yields "OK")
+ * - switch on and off Xon/Xoff flow control before/after sending page data
+ *
  * Revision 4.14  2006/09/25 22:26:54  gert
  * fax1_send_page(): move all the G3 file handling to g3file.c functions
  *  (-> cleanup code, build common infrastructure for class 1 + class 2)
@@ -92,6 +97,7 @@
 #include "fax_lib.h"
 #include "tio.h"
 #include "class1.h"
+#include "policy.h"
 
 enum T30_phases { Phase_A, Phase_B, Phase_C, Phase_D, Phase_E } fax1_phase;
 
@@ -229,6 +235,18 @@ char rtc[] = { 0x00, 0x08, 0x80, 0x00, 0x08, 0x80, 0x00, 0x08 };
 	if ( line != NULL && strcmp( line, cmd ) == 0 )
 		line = mdm_get_line( fd );
 
+	if ( strcmp( line, "OK" ) == 0 )
+	{
+	    lprintf( L_MESG, "fax1_send_page: unexpected OK, re-do AT+FTM" );
+
+	    sprintf( cmd, "AT+FTM=%d", dcs_btp->c_long );
+	    fax_send( cmd, fd );
+
+	    line = mdm_get_line( fd );
+	    if ( line != NULL && strcmp( line, cmd ) == 0 )
+		line = mdm_get_line( fd );
+	}
+
 	if ( line == NULL || strcmp( line, "CONNECT" ) != 0 )
 	{
 	    lprintf( L_ERROR, "fax1_send_page: unexpected response 1: '%s'", line );
@@ -305,6 +323,14 @@ char rtc[] = { 0x00, 0x08, 0x80, 0x00, 0x08, 0x80, 0x00, 0x08 };
 
     lprintf( L_NOISE, "send page data" );
 
+    /* turn on xon/xoff flow control now, for page data sending
+     */
+    if ( (FAXSEND_FLOW) & FLOW_SOFT )
+    {
+	tio_set_flow_control( fd, tio, (FAXSEND_FLOW) & (FLOW_HARD|FLOW_XON_OUT));
+	tio_set( fd, tio );
+    }
+
     /* read page data from file, invert byte order, 
      * insert padding bits (if scan line time > 0), 
      * at end-of-file, add RTC
@@ -328,6 +354,13 @@ char rtc[] = { 0x00, 0x08, 0x80, 0x00, 0x08, 0x80, 0x00, 0x08 };
     {
 	lprintf( L_ERROR, "fax1_send_page: unexpected response 3a: '%s'", line );
 	fax_hangup = TRUE; fax_hangup_code = 40; return ERROR;
+    }
+
+    /* turn off xon/xoff flow control (will interfere with received frames) */
+    if ( (FAXSEND_FLOW) & FLOW_SOFT )
+    {
+	tio_set_flow_control( fd, tio, (FAXSEND_FLOW) & FLOW_HARD );
+	tio_set( fd, tio );
     }
 
     /* now send end-of-page frame (MPS/EOM/EOP) and get pps */
