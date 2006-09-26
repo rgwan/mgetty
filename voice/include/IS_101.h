@@ -3,7 +3,7 @@
  *
  * Defines the functions implemented in the generic IS 101 driver.
  *
- * $Id: IS_101.h,v 1.7 2005/03/13 17:27:42 gert Exp $
+ * $Id: IS_101.h,v 1.8 2006/09/26 17:19:06 gert Exp $
  *
  */
 
@@ -50,7 +50,7 @@ extern int IS_101_stop_play_file(void);
 extern int IS_101_play_file (FILE *fd, int bps);
 extern int IS_101_record_file (FILE *fd, int bps);
 extern int IS_101_set_buffer_size (int size);
-extern int IS_101_set_compression (int *compression, int *speed, int *bits);
+extern int IS_101_set_compression (p_int *compression, p_int *speed, int *bits);
 extern int IS_101_set_device (int device);
 extern int IS_101_stop_dialing (void);
 extern int IS_101_stop_playing (void);

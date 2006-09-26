@@ -3,7 +3,7 @@
  * VoiceModem is the program for handling the voice modem functionality
  * from shell scripts.
  *
- * $Id: usage.c,v 1.8 2005/03/13 17:27:50 gert Exp $
+ * $Id: usage.c,v 1.9 2006/09/26 17:19:06 gert Exp $
  *
  */
 
@@ -33,7 +33,7 @@ void usage(void)
      // juergen.kosel@gmx.de : voice-duplex-patch end
      fprintf(stderr, "\noptions:\n");
      fprintf(stderr, "\t-c <n> use compression type <n> (default is %d)\n",
-      cvd.rec_compression.d.i);
+      (int)cvd.rec_compression.d.i);
      fprintf(stderr, "\t-h     this help message\n");
 
      fprintf(stderr, "\t-d <n> set i/o device to\n");

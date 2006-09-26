@@ -3,7 +3,7 @@
  *
  * This file contains a dummy event routine.
  *
- * $Id: no_modem.c,v 1.6 2005/03/13 17:27:44 gert Exp $
+ * $Id: no_modem.c,v 1.7 2006/09/26 17:19:06 gert Exp $
  *
  */
 
@@ -81,7 +81,7 @@ static int no_modem_record_file(FILE *fd, int bps)
      return(FAIL);
      }
 
-static int no_modem_set_compression(int *compression, int *speed, int *bits)
+static int no_modem_set_compression(p_int *compression, p_int *speed, int *bits)
      {
      LPRINTF(L_WARN, "%s: set_compression called", POS);
      return(FAIL);

@@ -12,7 +12,7 @@
 
 int V253modem_set_device (int device);
 int V253modem_init (void);
-int V253modem_set_compression (int *compression, int *speed, int *bits);
+int V253modem_set_compression (p_int *compression, p_int *speed, int *bits);
 int V253modem_set_device (int device);
 int V253_check_rmd_adequation(char *rmd_name);
 // juergen.kosel@gmx.de : voice-duplex-patch start

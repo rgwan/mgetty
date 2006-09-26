@@ -3,7 +3,7 @@
  *
  * Defines the structure with data and routines for the hardware drivers.
  *
- * $Id: hardware.h,v 1.20 2005/03/13 17:27:42 gert Exp $
+ * $Id: hardware.h,v 1.21 2006/09/26 17:19:06 gert Exp $
  *
  */
 
@@ -65,7 +65,7 @@ typedef struct
      int (*stop_play_file) (void);
      int (*play_file) (FILE *fd, int bps);
      int (*record_file) (FILE *fd, int bps);
-     int (*set_compression) (int *compression, int *speed, int *bits);
+     int (*set_compression) (p_int *compression, p_int *speed, int *bits);
      int (*set_device) (int device);
      int (*stop_dialing) (void);
      int (*stop_playing) (void);
