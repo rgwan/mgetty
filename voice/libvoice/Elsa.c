@@ -9,7 +9,7 @@
  * You have set port_timeout in voice.conf to a minimum of 15
  * if you use 38400 Baud
  *
- * $Id: Elsa.c,v 1.14 2005/03/13 17:27:45 gert Exp $
+ * $Id: Elsa.c,v 1.15 2006/09/26 17:17:55 gert Exp $
  *
  */
 
@@ -29,7 +29,7 @@ static int Elsa_init (void)
      voice_modem_state = INITIALIZING;
      lprintf(L_MESG, "initializing Elsa voice modem");
 
-     sprintf(buffer, "AT#VSP=%1u", cvd.rec_silence_len.d.i);
+     sprintf(buffer, "AT#VSP=%1u", (int)cvd.rec_silence_len.d.i);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "can't set silence_len VSP");
@@ -54,7 +54,7 @@ static int Elsa_init (void)
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "can't set VTD=3F");
 
-     sprintf(buffer, "AT#VSS=%1u", cvd.rec_silence_threshold.d.i * 3 / 100);
+     sprintf(buffer, "AT#VSS=%1u", (int)cvd.rec_silence_threshold.d.i * 3 / 100);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "can't set silence threshold VSS");
@@ -67,8 +67,7 @@ static int Elsa_init (void)
      if (cvd.transmit_gain.d.i == -1)
           cvd.transmit_gain.d.i = 50;
 
-     sprintf(buffer, "AT#VGT=%d", cvd.transmit_gain.d.i * 127 / 100 +
-      128);
+     sprintf(buffer, "AT#VGT=%d", (int)cvd.transmit_gain.d.i * 127 / 100 + 128);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "can't set speaker volume");
@@ -76,8 +75,7 @@ static int Elsa_init (void)
      if (cvd.receive_gain.d.i == -1)
           cvd.receive_gain.d.i = 50;
 
-     sprintf(buffer, "AT#VGR=%d", cvd.receive_gain.d.i * 127 / 100 +
-      128);
+     sprintf(buffer, "AT#VGR=%d", (int)cvd.receive_gain.d.i * 127 / 100 + 128);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "can't set record volume");
@@ -87,8 +85,8 @@ static int Elsa_init (void)
       */
      sprintf(buffer,
              "AT+VRA=%d;+VRN=%d",
-             cvd.ringback_goes_away.d.i,         /* 1/10 seconds */
-             cvd.ringback_never_came.d.i/10);    /* seconds */
+             (int)cvd.ringback_goes_away.d.i,         /* 1/10 seconds */
+             (int)cvd.ringback_never_came.d.i/10);    /* seconds */
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "setting ringback delay didn't work");     
@@ -127,7 +125,7 @@ static int Elsa_init (void)
      return(OK);
      }
 
-static int Elsa_set_compression (int *compression, int *speed, int *bits)
+static int Elsa_set_compression (p_int *compression, p_int *speed, int *bits)
      {
      reset_watchdog();
 

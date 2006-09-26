@@ -7,7 +7,7 @@
  * The Sierra driver is written and maintained by
  * Luke Bowker <puke@suburbia.net>.
  *
- * $Id: Sierra.c,v 1.8 2005/03/13 17:27:46 gert Exp $
+ * $Id: Sierra.c,v 1.9 2006/09/26 17:17:56 gert Exp $
  *
  */
 
@@ -46,7 +46,7 @@ static int Sierra_voice_mode_on(void)
      tio_set_speed(&tio, 115200);
      tio_set(voice_fd, &tio);
      sprintf(buffer, "ATM2L3#VL=0#VSM=2#VSC=0#VSS=3#VSI=%1u",
-      cvd.rec_silence_len.d.i);
+      (int)cvd.rec_silence_len.d.i);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "Couldn't set voice mode options");
@@ -71,7 +71,7 @@ int Sierra_voice_mode_off(void)
      return(OK);
      }
 
-static int Sierra_set_compression(int *compression, int *speed, int *bits)
+static int Sierra_set_compression(p_int *compression, p_int *speed, int *bits)
      {
      reset_watchdog();
 

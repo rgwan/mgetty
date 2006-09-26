@@ -37,7 +37,7 @@
  *   ATS18=1 OK
  * there your isdn-tty won't pick up data calls.
  *
- * $Id: ISDN4Linux.c,v 1.10 2005/03/13 17:27:45 gert Exp $
+ * $Id: ISDN4Linux.c,v 1.11 2006/09/26 17:17:55 gert Exp $
  * 
  */
 
@@ -200,7 +200,7 @@ static int ISDN4Linux_beep(int frequency, int length)
      return(OK);
      }
 
-static int ISDN4Linux_set_compression(int *compression, int *speed, int *bits)
+static int ISDN4Linux_set_compression(p_int *compression, p_int *speed, int *bits)
      {
      char buffer[VOICE_BUF_LEN];
      reset_watchdog();
@@ -237,7 +237,7 @@ static int ISDN4Linux_set_compression(int *compression, int *speed, int *bits)
           case 6:
                *bits = 8;
 
-               sprintf(buffer,"AT+VSM=%d",*compression);
+               sprintf(buffer,"AT+VSM=%d",(int)*compression);
 
                if (voice_command(buffer, "OK") != VMA_USER_1)
                     return(FAIL);

@@ -17,7 +17,7 @@
  * This file then adapted for the Multitec MT5600ZDXv by
  * Bill Nugent <whn@lopi.com>
  *
- * $Id: Multitech_5600ZDXv.c,v 1.5 2005/03/13 17:27:46 gert Exp $
+ * $Id: Multitech_5600ZDXv.c,v 1.6 2006/09/26 17:17:56 gert Exp $
  *
  */
 
@@ -47,7 +47,7 @@ Multitech_5600ZDXv_init(void)
   reset_watchdog();
   lprintf(L_MESG, "initializing Multitech MT5600ZDXv voice modem");
   voice_modem_state = INITIALIZING;
-  sprintf(buffer, "AT#VSP=%1u", cvd.rec_silence_len.d.i);
+  sprintf(buffer, "AT#VSP=%1u", (int)cvd.rec_silence_len.d.i);
 
   if (voice_command(buffer, "OK") != VMA_USER_1)
     lprintf(L_WARN, "can't set silence period");
@@ -64,7 +64,7 @@ Multitech_5600ZDXv_init(void)
     return(ERROR);
   }
 
-  sprintf(buffer, "AT#VSS=%1u", cvd.rec_silence_threshold.d.i * 3 / 100);
+  sprintf(buffer, "AT#VSS=%1u", (int)cvd.rec_silence_threshold.d.i * 3 / 100);
 
   if (voice_command(buffer, "OK") != VMA_USER_1)
     lprintf(L_WARN, "can't set silence threshold");
@@ -83,7 +83,7 @@ Multitech_5600ZDXv_init(void)
 }
 
 static int
-Multitech_5600ZDXv_set_compression (int *compression, int *speed, int *bits)
+Multitech_5600ZDXv_set_compression (p_int *compression, p_int *speed, int *bits)
 {
   char buf[VOICE_BUF_LEN];
 
@@ -100,10 +100,10 @@ Multitech_5600ZDXv_set_compression (int *compression, int *speed, int *bits)
       break;
 
     default:
-      lprintf(L_WARN, "%s: Illegal sample rate (%d)", voice_modem_name, *speed);
+      lprintf(L_WARN, "%s: Illegal sample rate (%d)", voice_modem_name, (int)*speed);
       return(FAIL);
   }
-  if (sprintf(buf, "AT#VSR=%d", *speed) == -1) {
+  if (sprintf(buf, "AT#VSR=%d", (int)*speed) == -1) {
     lprintf(L_ERROR, "%s: Command too long", __FUNCTION__);
   }
   if (voice_command(buf, "OK") != VMA_USER_1) {

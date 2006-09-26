@@ -16,7 +16,7 @@
   Hint: Recorded voice files are in .ub format (refer to the sox manpage about this) except the header.
         So you can use this files with sox.
  *
- * $Id: V253modem.c,v 1.9 2005/03/13 17:27:46 gert Exp $
+ * $Id: V253modem.c,v 1.10 2006/09/26 17:17:56 gert Exp $
  *
  */
 
@@ -61,9 +61,9 @@ be silence].
  */
 #if 1 /* enable this when cvd.rec_silence_threshold.d.i  is set as an absolut value
 (with default 128) instead of percent */
-     sprintf(buffer, "AT+VSD=%d,%d", cvd.rec_silence_threshold.d.i , cvd.rec_silence_len.d.i);
+     sprintf(buffer, "AT+VSD=%d,%d", (int)cvd.rec_silence_threshold.d.i , (int)cvd.rec_silence_len.d.i);
 #else /* until this, the sensitvity is hardcoded with manufaturer default! */
-    sprintf(buffer, "AT+VSD=%d,%d", 128 , cvd.rec_silence_len.d.i);
+    sprintf(buffer, "AT+VSD=%d,%d", 128 , (int)cvd.rec_silence_len.d.i);
 #endif
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "can't set silence threshold VSD");
@@ -72,7 +72,7 @@ be silence].
      if (cvd.transmit_gain.d.i == -1)
           cvd.transmit_gain.d.i = 50;
 
-     sprintf(buffer, "AT+VGT=%d", cvd.transmit_gain.d.i * 255 / 100 );
+     sprintf(buffer, "AT+VGT=%d", (int)cvd.transmit_gain.d.i * 255 / 100 );
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "can't set speaker volume");
@@ -82,7 +82,7 @@ be silence].
      if (cvd.receive_gain.d.i == -1)
           cvd.receive_gain.d.i = 50;
 
-     sprintf(buffer, "AT+VGR=%d", cvd.receive_gain.d.i * 255 / 100 );
+     sprintf(buffer, "AT+VGR=%d", (int)cvd.receive_gain.d.i * 255 / 100 );
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "can't set record volume");
@@ -92,8 +92,8 @@ be silence].
       */
      sprintf(buffer,
              "AT+VRA=%d;+VRN=%d",
-             cvd.ringback_goes_away.d.i,     /* 1/10 seconds */
-             cvd.ringback_never_came.d.i/10); /* seconds */
+             (int)cvd.ringback_goes_away.d.i,     /* 1/10 seconds */
+             (int)cvd.ringback_never_came.d.i/10); /* seconds */
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "setting ringback delay didn't work");
@@ -136,7 +136,7 @@ RING
 DROF=40
 DRON=20
 RING */
-     sprintf(buffer, "AT+VDR=1,%d", cvd.ring_report_delay.d.i);
+     sprintf(buffer, "AT+VDR=1,%d", (int)cvd.ring_report_delay.d.i);
      voice_command(buffer, "OK");
 
      voice_modem_state = IDLE;
@@ -262,7 +262,7 @@ void V253_querry_compressions() {
      } while (strncmp("OK",buffer,2)); //search for the terminating "OK"
 }
 
-     int V253modem_set_compression (int *compression, int *speed, int *bits)
+int V253modem_set_compression (p_int *compression, p_int *speed, int *bits)
      {
      char buffer[VOICE_BUF_LEN];
      int Kompressionmethod = 1; /* id for the compression, used by the modem */
@@ -352,11 +352,11 @@ void V253_querry_compressions() {
      /* default value for the PCM voiceformat is 8000 */
           *speed = 8000;
 
-     sprintf(buffer, "AT+VSM=%d,%d",Kompressionmethod, *speed);
+     sprintf(buffer, "AT+VSM=%d,%d",Kompressionmethod, (int)*speed);
      /* only no compression is common! */
      /* ATTENTION the AT+VSM=? output is diffrent from the AT+VSM=<Parameter> */
      if (voice_command(buffer, "OK")!= VMA_USER_1)
-     sprintf(buffer, "AT+VSM=%d,%d,%d,%d",Kompressionmethod, *speed, sil_sense, sil_clip); 
+     sprintf(buffer, "AT+VSM=%d,%d,%d,%d",Kompressionmethod, (int)*speed, sil_sense, sil_clip); 
      if (voice_command(buffer, "OK")!= VMA_USER_1)
       {
          lprintf(L_WARN, "can't set compression and speed");

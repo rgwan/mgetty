@@ -6,7 +6,7 @@
  * A first version was written by Russell King <rmk@ecs.soton.ac.uk>,
  * based on the ZyXEL 2864 driver.
  *
- * $Id: Multitech_2834.c,v 1.9 2005/03/13 17:27:46 gert Exp $
+ * $Id: Multitech_2834.c,v 1.10 2006/09/26 17:17:56 gert Exp $
  *
  */
 
@@ -59,8 +59,8 @@ static int Multitech_2834_init(void)
       * AT+VSD=x,y - Set silence threshold and duration.
       */
 
-     sprintf(buffer, "AT+VSD=%d,%d", /*cvd.rec_silence_threshold.d.i *
-      1 / 100 +*/ 128, cvd.rec_silence_len.d.i);
+     sprintf(buffer, "AT+VSD=%d,%d", /*(int)cvd.rec_silence_threshold.d.i *
+      1 / 100 +*/ 128, (int)cvd.rec_silence_len.d.i);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "setting recording preferences didn't work");
@@ -72,8 +72,7 @@ static int Multitech_2834_init(void)
      if (cvd.transmit_gain.d.i == -1)
           cvd.transmit_gain.d.i = 50;
 
-     sprintf(buffer, "AT+VGT=%d", cvd.transmit_gain.d.i * 144 / 100 +
-      56);
+     sprintf(buffer, "AT+VGT=%d", (int)cvd.transmit_gain.d.i * 144 / 100 + 56);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "setting transmit gain didn't work");
@@ -85,8 +84,7 @@ static int Multitech_2834_init(void)
      if (cvd.receive_gain.d.i == -1)
           cvd.receive_gain.d.i = 50;
 
-     sprintf(buffer, "AT+VGR=%d", cvd.receive_gain.d.i * 144 / 100 +
-      56);
+     sprintf(buffer, "AT+VGR=%d", (int)cvd.receive_gain.d.i * 144 / 100 + 56);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "setting receive gain didn't work");
@@ -95,7 +93,7 @@ static int Multitech_2834_init(void)
      return(OK);
      }
 
-static int Multitech_2834_set_compression(int *compression, int *speed,
+static int Multitech_2834_set_compression(p_int *compression, p_int *speed,
  int *bits)
      {
      char buffer[VOICE_BUF_LEN];
@@ -119,7 +117,7 @@ static int Multitech_2834_set_compression(int *compression, int *speed,
           {
           case 4:
                *bits = 4;
-               sprintf(buffer, "AT+VSM=2,%d", *speed);
+               sprintf(buffer, "AT+VSM=2,%d", (int)*speed);
 
                if (voice_command(buffer, "OK") != VMA_USER_1)
                     return(FAIL);
@@ -127,7 +125,7 @@ static int Multitech_2834_set_compression(int *compression, int *speed,
                break;
           case 132:
                *bits = 4;
-               sprintf(buffer, "AT+VSM=132,%d", *speed);
+               sprintf(buffer, "AT+VSM=132,%d", (int)*speed);
 
                if (voice_command(buffer, "OK") != VMA_USER_1)
                     return(FAIL);

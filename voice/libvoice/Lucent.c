@@ -3,7 +3,7 @@
  *
  * This file contains the Lucent specific hardware stuff.
  *
- * $Id: Lucent.c,v 1.4 2005/03/13 17:27:46 gert Exp $
+ * $Id: Lucent.c,v 1.5 2006/09/26 17:17:56 gert Exp $
  *
  */
 
@@ -57,8 +57,8 @@ static int Lucent_init (void)
       * AT+VSD=x,y - Set silence threshold and duration.
       */
 
-     sprintf(buffer, "AT+VSD=%d,%d", cvd.rec_silence_threshold.d.i *
-      10 / 100 + 123, cvd.rec_silence_len.d.i);
+     sprintf(buffer, "AT+VSD=%d,%d", (int)cvd.rec_silence_threshold.d.i *
+      10 / 100 + 123, (int)cvd.rec_silence_len.d.i);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "setting recording preferences didn't work");
@@ -70,7 +70,7 @@ static int Lucent_init (void)
      if (cvd.transmit_gain.d.i == -1)
           cvd.transmit_gain.d.i = 128;
 
-     sprintf(buffer, "AT+VGT=%d", cvd.transmit_gain.d.i);
+     sprintf(buffer, "AT+VGT=%d", (int)cvd.transmit_gain.d.i);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "setting transmit gain didn't work");
@@ -82,7 +82,7 @@ static int Lucent_init (void)
      if (cvd.receive_gain.d.i == -1)
           cvd.receive_gain.d.i = 128;
 
-     sprintf(buffer, "AT+VGR=%d", cvd.receive_gain.d.i);
+     sprintf(buffer, "AT+VGR=%d", (int)cvd.receive_gain.d.i);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "setting receive gain didn't work");
@@ -100,7 +100,7 @@ static int Lucent_init (void)
      return(OK);
      }
 
-static int Lucent_set_compression (int *compression, int *speed, int *bits)
+static int Lucent_set_compression (p_int *compression, p_int *speed, int *bits)
      {
      char buffer[VOICE_BUF_LEN];
      reset_watchdog();
@@ -123,7 +123,7 @@ static int Lucent_set_compression (int *compression, int *speed, int *bits)
 			  return(FAIL); 
 		 }
 
-	       sprintf(buffer, "AT+VSM=128,%d", *speed);
+	       sprintf(buffer, "AT+VSM=128,%d", (int)*speed);
                if (voice_command(buffer, "OK") != VMA_USER_1)
                     return(FAIL);
 
@@ -138,7 +138,7 @@ static int Lucent_set_compression (int *compression, int *speed, int *bits)
 			  return(FAIL); 
 		 }
 	       
-	       sprintf(buffer, "AT+VSM=129,%d", *speed);
+	       sprintf(buffer, "AT+VSM=129,%d", (int)*speed);
                if (voice_command(buffer, "OK") != VMA_USER_1)
                     return(FAIL);
 
@@ -153,7 +153,7 @@ static int Lucent_set_compression (int *compression, int *speed, int *bits)
 			  return(FAIL); 
 		 }
 
-	       sprintf(buffer, "AT+VSM=130,%d", *speed);
+	       sprintf(buffer, "AT+VSM=130,%d", (int)*speed);
                if (voice_command(buffer, "OK") != VMA_USER_1)
                     return(FAIL);
 
@@ -168,7 +168,7 @@ static int Lucent_set_compression (int *compression, int *speed, int *bits)
 				  voice_modem_name, *speed);
 		return(FAIL); 
 	      }
-	    sprintf(buffer, "AT+VSM=131,%d", *speed);
+	    sprintf(buffer, "AT+VSM=131,%d", (int)*speed);
 	    if (voice_command(buffer, "OK") != VMA_USER_1)
 	      return(FAIL);
 	    
@@ -184,7 +184,7 @@ static int Lucent_set_compression (int *compression, int *speed, int *bits)
 		return(FAIL); 
 	      }
 
-	    sprintf(buffer, "AT+VSM=132,%d", *speed);
+	    sprintf(buffer, "AT+VSM=132,%d", (int)*speed);
 	    if (voice_command(buffer, "OK") != VMA_USER_1)
 	      return(FAIL);
 	    

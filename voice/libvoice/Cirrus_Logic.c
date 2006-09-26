@@ -27,7 +27,7 @@
  * as per the spec. The silence threshold and time was wrongly set. Fixed now.
  * - Mitch DSouza <Mitch.DSouza@Uk.Sun.COM>
  *
- * $Id: Cirrus_Logic.c,v 1.8 2005/03/13 17:27:45 gert Exp $
+ * $Id: Cirrus_Logic.c,v 1.9 2006/09/26 17:17:55 gert Exp $
  *
  */
 
@@ -166,12 +166,12 @@ int Cirrus_Logic_init (void)
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "can't set silence threshold");
 
-     sprintf(buffer, "AT#VSQT=%1u", cvd.rec_silence_len.d.i);
+     sprintf(buffer, "AT#VSQT=%1u", (int)cvd.rec_silence_len.d.i);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "can't set silence period record mode");
 
-     sprintf(buffer, "AT#VSST=%1u", cvd.rec_silence_len.d.i);
+     sprintf(buffer, "AT#VSST=%1u", (int)cvd.rec_silence_len.d.i);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "can't set silence period record and command mode");
@@ -195,7 +195,7 @@ int Cirrus_Logic_init (void)
  * 5, 3 or 4 bits.
  */
 
-static int Cirrus_Logic_set_compression (int *compression, int *speed,
+static int Cirrus_Logic_set_compression (p_int *compression, p_int *speed,
  int *bits)
      {
      lprintf(L_MESG, "Setting compression");

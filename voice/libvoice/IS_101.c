@@ -5,7 +5,7 @@
  * follow the IS-101 interim standard for voice modems. Since the commands
  * are set in the modem structure, it should be quite generic.
  *
- * $Id: IS_101.c,v 1.17 2005/03/13 17:27:45 gert Exp $
+ * $Id: IS_101.c,v 1.18 2006/09/26 17:17:55 gert Exp $
  *
  */
 
@@ -770,7 +770,7 @@ int IS_101_record_file(FILE *fd, int bps)
      return(OK);
      }
 
-int IS_101_set_compression(int *compression, int *speed, int *bits)
+int IS_101_set_compression(p_int *compression, p_int *speed, int *bits)
      {
      LPRINTF(L_WARN, "%s: set_compression called", POS);
      return(FAIL);

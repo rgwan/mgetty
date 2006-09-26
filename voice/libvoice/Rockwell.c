@@ -14,7 +14,7 @@
  * Removed most stuff from this file, since the new IS-101 driver can be
  * used now. (Marc 04.01.1997)
  *
- * $Id: Rockwell.c,v 1.10 2005/03/13 17:27:46 gert Exp $
+ * $Id: Rockwell.c,v 1.11 2006/09/26 17:17:56 gert Exp $
  *
  */
 
@@ -45,7 +45,7 @@ static int Rockwell_init(void)
      reset_watchdog();
      lprintf(L_MESG, "initializing ROCKWELL voice modem");
      voice_modem_state = INITIALIZING;
-     sprintf(buffer, "AT#VSP=%1u", cvd.rec_silence_len.d.i);
+     sprintf(buffer, "AT#VSP=%1u", (int)cvd.rec_silence_len.d.i);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "can't set silence period");
@@ -59,7 +59,7 @@ static int Rockwell_init(void)
 	if (cvd.transmit_gain.d.i == -1) {
 	   cvd.transmit_gain.d.i = 50;
 	}
-        sprintf(buffer, "AT#TL=%X", (65536 / (100 / cvd.transmit_gain.d.i)));
+        sprintf(buffer, "AT#TL=%X", (65536 / (100 / (int)cvd.transmit_gain.d.i)));
 
 	if (voice_command(buffer, "OK") != VMA_USER_1) {
           lprintf(L_WARN, "can't set transmit gain");
@@ -70,7 +70,7 @@ static int Rockwell_init(void)
 	if (cvd.receive_gain.d.i == -1) {
 	   cvd.receive_gain.d.i = 50;
 	}
-        sprintf(buffer, "AT#RG=%X", (65536 / (100 / cvd.receive_gain.d.i)));
+        sprintf(buffer, "AT#RG=%X", (65536 / (100 / (int)cvd.receive_gain.d.i)));
 
 	if (voice_command(buffer, "OK") != VMA_USER_1) {
 	     lprintf(L_WARN, "can't set record gain");
@@ -90,7 +90,7 @@ static int Rockwell_init(void)
           return(ERROR);
           }
 
-     sprintf(buffer, "AT#VSS=%1u", cvd.rec_silence_threshold.d.i * 3 / 100);
+     sprintf(buffer, "AT#VSS=%1u", (int)cvd.rec_silence_threshold.d.i * 3 / 100);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "can't set silence threshold");
@@ -109,7 +109,7 @@ static int Rockwell_init(void)
      return(OK);
      }
 
-static int Rockwell_set_compression (int *compression, int *speed, int *bits)
+static int Rockwell_set_compression (p_int *compression, p_int *speed, int *bits)
      {
      reset_watchdog();
 

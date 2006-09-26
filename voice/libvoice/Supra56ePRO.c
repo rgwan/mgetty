@@ -12,7 +12,7 @@
  * You have set port_timeout in voice.conf to a minimum of 15
  * if you use 38400 Baud
  *
- * $Id: Supra56ePRO.c,v 1.2 2005/03/13 17:27:46 gert Exp $
+ * $Id: Supra56ePRO.c,v 1.3 2006/09/26 17:17:56 gert Exp $
  *
  */
 
@@ -28,7 +28,7 @@ static int Supra_init (void)
      voice_modem_state = INITIALIZING;
      lprintf(L_MESG, "initializing Supra 56e PRO voice modem");
 
-     sprintf(buffer, "AT#VSP=%1u", cvd.rec_silence_len.d.i);
+     sprintf(buffer, "AT#VSP=%1u", (int)cvd.rec_silence_len.d.i);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "can't set silence_len VSP");
@@ -53,7 +53,7 @@ static int Supra_init (void)
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "can't set VTD=3F");
 
-     sprintf(buffer, "AT#VSS=%1u", cvd.rec_silence_threshold.d.i * 3 / 100);
+     sprintf(buffer, "AT#VSS=%1u", (int)cvd.rec_silence_threshold.d.i * 3 / 100);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "can't set silence threshold VSS");
@@ -66,8 +66,7 @@ static int Supra_init (void)
      if (cvd.transmit_gain.d.i == -1)
           cvd.transmit_gain.d.i = 50;
 
-     sprintf(buffer, "AT#VGT=%d", cvd.transmit_gain.d.i * 3 / 100 +
-      128);
+     sprintf(buffer, "AT#VGT=%d", (int)cvd.transmit_gain.d.i * 3 / 100 + 128);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "can't set speaker volume");
@@ -99,7 +98,7 @@ static int Supra_init (void)
      return(OK);
      }
 
-static int Supra_set_compression (int *compression, int *speed, int *bits)
+static int Supra_set_compression (p_int *compression, p_int *speed, int *bits)
      {
      reset_watchdog();
 
@@ -113,7 +112,7 @@ static int Supra_set_compression (int *compression, int *speed, int *bits)
      if (*speed != 7200 && *speed != 11025)
           {
           lprintf(L_WARN, "%s: Illegal sample speed (%d)",
-           voice_modem_name, *speed);
+           voice_modem_name, (int)*speed);
           return(FAIL);
           };
 
@@ -137,7 +136,7 @@ static int Supra_set_compression (int *compression, int *speed, int *bits)
           }
 
      lprintf(L_WARN, "%s: Illegal voice compression method (%d)",
-      voice_modem_name, *compression);
+      voice_modem_name, (int)*compression);
      return(FAIL);
      }
 

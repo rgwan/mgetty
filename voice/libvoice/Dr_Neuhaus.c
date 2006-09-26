@@ -3,7 +3,7 @@
  *
  * This file contains the Dr. Neuhaus Cybermod specific hardware stuff.
  *
- * $Id: Dr_Neuhaus.c,v 1.9 2005/03/13 17:27:45 gert Exp $
+ * $Id: Dr_Neuhaus.c,v 1.10 2006/09/26 17:17:55 gert Exp $
  *
  */
 
@@ -21,8 +21,8 @@ static int Dr_Neuhaus_init (void)
       * AT+VSD=x,y - Set silence threshold and duration.
       */
 
-     sprintf(buffer, "AT+VSD=%d,%d", cvd.rec_silence_threshold.d.i *
-      10 / 100 + 123, cvd.rec_silence_len.d.i);
+     sprintf(buffer, "AT+VSD=%d,%d", (int)cvd.rec_silence_threshold.d.i *
+      10 / 100 + 123, (int)cvd.rec_silence_len.d.i);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "setting recording preferences didn't work");
@@ -34,8 +34,7 @@ static int Dr_Neuhaus_init (void)
      if (cvd.transmit_gain.d.i == -1)
           cvd.transmit_gain.d.i = 100;
 
-     sprintf(buffer, "AT+VGT=%d", cvd.transmit_gain.d.i * 10 / 100 +
-      123);
+     sprintf(buffer, "AT+VGT=%d", (int)cvd.transmit_gain.d.i * 10 / 100 + 123);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "setting transmit gain didn't work");
@@ -47,8 +46,7 @@ static int Dr_Neuhaus_init (void)
      if (cvd.receive_gain.d.i == -1)
           cvd.receive_gain.d.i = 40;
 
-     sprintf(buffer, "AT+VGR=%d", cvd.receive_gain.d.i * 10 / 100 +
-      123);
+     sprintf(buffer, "AT+VGR=%d", (int)cvd.receive_gain.d.i * 10 / 100 + 123);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "setting receive gain didn't work");
@@ -66,7 +64,7 @@ static int Dr_Neuhaus_init (void)
      return(OK);
      }
 
-static int Dr_Neuhaus_set_compression (int *compression, int *speed, int *bits)
+static int Dr_Neuhaus_set_compression (p_int *compression, p_int *speed, int *bits)
      {
      reset_watchdog();
 

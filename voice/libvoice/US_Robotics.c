@@ -24,7 +24,7 @@
  * A very good US Robotics technical reference manual is available
  * at: http://www.alliancedatacom.com/us-robotics-manuals.htm (not a typo).
  *
- * $Id: US_Robotics.c,v 1.19 2005/03/13 17:27:46 gert Exp $
+ * $Id: US_Robotics.c,v 1.20 2006/09/26 17:17:56 gert Exp $
  *
  */
 
@@ -120,7 +120,7 @@ static int USR_init(void)
       * Set silence threshold and length. Must be in voice mode to do this.  */
      sprintf(buffer, "AT#VSD=1#VSS=%d#VSP=%d",
              silence_threshold_compute(cvd.rec_silence_threshold.d.i),
-             cvd.rec_silence_len.d.i);
+             (int)cvd.rec_silence_len.d.i);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN,"setting recording preferences didn't work");
@@ -131,7 +131,7 @@ static int USR_init(void)
       */
 
      sprintf(buffer, "AT#VRA=%d#VRN=%d",
-      cvd.ringback_goes_away.d.i, cvd.ringback_never_came.d.i);
+      (int)cvd.ringback_goes_away.d.i, (int)cvd.ringback_never_came.d.i);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN,"setting ringback delay didn't work");
@@ -167,7 +167,7 @@ static int USR_stop_play_file(void)
      return(OK);
      }
 
-static int USR_set_compression(int *compression, int *speed, int *bits)
+static int USR_set_compression(p_int *compression, p_int *speed, int *bits)
      {
      char buffer[VOICE_BUF_LEN];
 
@@ -185,7 +185,7 @@ static int USR_set_compression(int *compression, int *speed, int *bits)
      if (*speed != 8000)
           {
           lprintf(L_WARN, "%s: Illegal sample rate (%d)",
-           voice_modem_name, *speed);
+           voice_modem_name, (int)*speed);
           return(FAIL);
           };
 
@@ -265,7 +265,7 @@ static int USR_set_compression(int *compression, int *speed, int *bits)
          still gets issued. It has no effect in GSM mode, but is included
          for backwards compatibility with the old driver. */
 
-               sprintf(buffer,"AT#VBS=%1d", *compression);
+               sprintf(buffer,"AT#VBS=%1d", (int)*compression);
 
                if (voice_command(buffer, "OK") != VMA_FAIL)
                     return(OK);
@@ -368,8 +368,8 @@ static int USR_voice_mode_on(void)
      /* reset voice preferences, they are forgotten after leaving voice mode */
      sprintf(buffer, "AT#VTD=3F,3F,3F#VSD=1#VSS=%d#VSP=%d#VRA=%d#VRN=%d",
              silence_threshold_compute(cvd.rec_silence_threshold.d.i),
-             cvd.rec_silence_len.d.i,
-             cvd.ringback_goes_away.d.i, cvd.ringback_never_came.d.i);
+             (int)cvd.rec_silence_len.d.i,
+             (int)cvd.ringback_goes_away.d.i, (int)cvd.ringback_never_came.d.i);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN,"setting voice preferences didn't work");

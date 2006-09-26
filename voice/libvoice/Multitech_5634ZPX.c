@@ -4,7 +4,7 @@
  * Hacked by <Harlan.Stenn@pfcs.com>. Maybe will be merged
  * with the other Multitech driver.
  *
- * $Id: Multitech_5634ZPX.c,v 1.3 2005/03/13 17:27:46 gert Exp $
+ * $Id: Multitech_5634ZPX.c,v 1.4 2006/09/26 17:17:56 gert Exp $
  *
  * Some functions can't be static because inherited by Multitech_5634ZPX_ISA.
  * Copied by md 2000/12/14
@@ -59,8 +59,8 @@ int Multitech_5634ZPX_init(void)
       * AT+VSD=x,y - Set silence threshold and duration. 0-256, .1sec
       */
 
-     sprintf(buffer, "AT+VSD=%d,%d", /*cvd.rec_silence_threshold.d.i *
-      1 / 100 +*/ 128, cvd.rec_silence_len.d.i);
+     sprintf(buffer, "AT+VSD=%d,%d", /*(int)cvd.rec_silence_threshold.d.i *
+      1 / 100 +*/ 128, (int)cvd.rec_silence_len.d.i);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "setting recording preferences didn't work");
@@ -72,8 +72,7 @@ int Multitech_5634ZPX_init(void)
      if (cvd.transmit_gain.d.i == -1)
           cvd.transmit_gain.d.i = 50;
 
-     sprintf(buffer, "AT+VGT=%d", cvd.transmit_gain.d.i * 144 / 100 +
-      56);
+     sprintf(buffer, "AT+VGT=%d", (int)cvd.transmit_gain.d.i * 144 / 100 + 56);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "setting transmit gain didn't work");
@@ -85,8 +84,7 @@ int Multitech_5634ZPX_init(void)
      if (cvd.receive_gain.d.i == -1)
           cvd.receive_gain.d.i = 50;
 
-     sprintf(buffer, "AT+VGR=%d", cvd.receive_gain.d.i * 144 / 100 +
-      56);
+     sprintf(buffer, "AT+VGR=%d", (int)cvd.receive_gain.d.i * 144 / 100 + 56);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "setting receive gain didn't work");
@@ -95,7 +93,7 @@ int Multitech_5634ZPX_init(void)
      return(OK);
      }
 
-int Multitech_5634ZPX_set_compression(int *compression, int *speed,
+int Multitech_5634ZPX_set_compression(p_int *compression, p_int *speed,
  int *bits)
      {
      char buffer[VOICE_BUF_LEN];
@@ -111,7 +109,7 @@ int Multitech_5634ZPX_set_compression(int *compression, int *speed,
      if (*speed != 8000)
           {
           lprintf(L_WARN, "%s: Illegal sample rate (%d)", voice_modem_name,
-           *speed);
+           (int)*speed);
           return(FAIL);
           }
 
@@ -131,7 +129,7 @@ int Multitech_5634ZPX_set_compression(int *compression, int *speed,
           {
           case 4:
                *bits = 4;
-               sprintf(buffer, "AT+VSM=2,%d", *speed);
+               sprintf(buffer, "AT+VSM=2,%d", (int)*speed);
 
                if (voice_command(buffer, "OK") != VMA_USER_1)
                     return(FAIL);
@@ -139,7 +137,7 @@ int Multitech_5634ZPX_set_compression(int *compression, int *speed,
                break;
           case 132:
                *bits = 4;
-               sprintf(buffer, "AT+VSM=132,%d", *speed);
+               sprintf(buffer, "AT+VSM=132,%d", (int)*speed);
 
                if (voice_command(buffer, "OK") != VMA_USER_1)
                     return(FAIL);
@@ -147,7 +145,7 @@ int Multitech_5634ZPX_set_compression(int *compression, int *speed,
                break;
           default:
                lprintf(L_WARN, "%s: Illegal voice compression method (%d)",
-                voice_modem_name, *compression);
+                voice_modem_name, (int)*compression);
                return(FAIL);
           }
 

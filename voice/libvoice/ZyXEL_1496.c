@@ -3,7 +3,7 @@
  *
  * This file contains the ZyXEL 1496 specific hardware stuff.
  *
- * $Id: ZyXEL_1496.c,v 1.9 2005/03/13 17:27:46 gert Exp $
+ * $Id: ZyXEL_1496.c,v 1.10 2006/09/26 17:17:56 gert Exp $
  *
  */
 
@@ -50,8 +50,8 @@ static int ZyXEL_1496_init (void)
       * AT+VDD=x - Set DTMF tone duration detection
       */
 
-     sprintf(buffer, "AT+VDH=%d +VDD=%d", cvd.dtmf_threshold.d.i *
-      31 / 100, cvd.dtmf_len.d.i / 5);
+     sprintf(buffer, "AT+VDH=%d +VDD=%d", (int)cvd.dtmf_threshold.d.i *
+      31 / 100, (int)cvd.dtmf_len.d.i / 5);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "setting DTMF preferences didn't work");
@@ -60,8 +60,8 @@ static int ZyXEL_1496_init (void)
       * AT+VSD=x,y - Set silence threshold and duration.
       */
 
-     sprintf(buffer, "AT+VSD=%d,%d", cvd.rec_silence_threshold.d.i *
-      31 / 100, cvd.rec_silence_len.d.i);
+     sprintf(buffer, "AT+VSD=%d,%d", (int)cvd.rec_silence_threshold.d.i *
+      31 / 100, (int)cvd.rec_silence_len.d.i);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "setting recording preferences didn't work");
@@ -73,7 +73,7 @@ static int ZyXEL_1496_init (void)
      if (cvd.transmit_gain.d.i == -1)
           cvd.transmit_gain.d.i = 75;
 
-     sprintf(buffer, "AT+VGT=%d", cvd.transmit_gain.d.i * 255 / 100);
+     sprintf(buffer, "AT+VGT=%d", (int)cvd.transmit_gain.d.i * 255 / 100);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "setting transmit gain didn't work");
@@ -85,7 +85,7 @@ static int ZyXEL_1496_init (void)
      if (cvd.receive_gain.d.i == -1)
           cvd.receive_gain.d.i = 75;
 
-     sprintf(buffer, "AT+VGR=%d", cvd.receive_gain.d.i * 255 / 100);
+     sprintf(buffer, "AT+VGR=%d", (int)cvd.receive_gain.d.i * 255 / 100);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "setting receive gain didn't work");
@@ -103,7 +103,7 @@ static int ZyXEL_1496_init (void)
       */
 
      sprintf(buffer, "AT+VRA=%d+VRN=%d",
-      cvd.ringback_goes_away.d.i, cvd.ringback_never_came.d.i);
+      (int)cvd.ringback_goes_away.d.i, (int)cvd.ringback_never_came.d.i);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN,"setting ringback delay didn't work");
@@ -112,7 +112,7 @@ static int ZyXEL_1496_init (void)
      return(OK);
      }
 
-static int ZyXEL_1496_set_compression (int *compression, int *speed, int *bits)
+static int ZyXEL_1496_set_compression (p_int *compression, p_int *speed, int *bits)
      {
 
      if (*compression == 0)
@@ -124,7 +124,7 @@ static int ZyXEL_1496_set_compression (int *compression, int *speed, int *bits)
      if (*speed != 9600)
           {
           lprintf(L_WARN, "%s: Illegal sample rate (%d)", voice_modem_name,
-           *speed);
+           (int)*speed);
           return(FAIL);
           };
 
@@ -167,7 +167,7 @@ static int ZyXEL_1496_set_compression (int *compression, int *speed, int *bits)
                break;
           default:
                lprintf(L_WARN, "%s: Illegal voice compression method (%d)",
-                voice_modem_name, *compression);
+                voice_modem_name, (int)*compression);
                return(FAIL);
           };
 

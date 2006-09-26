@@ -4,7 +4,7 @@
  * Hacked by <Harlan.Stenn@pfcs.com>. Maybe will be merged
  * with the other Multitech driver.
  *
- * $Id: Multitech_5634ZPX_ISA.c,v 1.2 2005/03/13 17:27:46 gert Exp $
+ * $Id: Multitech_5634ZPX_ISA.c,v 1.3 2006/09/26 17:17:56 gert Exp $
  *
  * Copied by milosch 2001/11/30
  * Mostly `inherits' Multitech_5634ZPX.c
@@ -15,7 +15,7 @@
 /* Imported/inherited functions */
 extern int Multitech_5634ZPX_answer_phone(void);
 extern int Multitech_5634ZPX_init(void);
-extern int Multitech_5634ZPX_set_compression(int *compression, int *speed,
+extern int Multitech_5634ZPX_set_compression(p_int *compression, p_int *speed,
 					     int *bits);
 extern int Multitech_5634ZPX_switch_to_data_fax(char *mode);
 extern int Multitech_5634ZPX_voice_mode_off(void);

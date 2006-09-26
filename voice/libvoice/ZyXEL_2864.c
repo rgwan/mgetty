@@ -9,7 +9,7 @@
  * This version is a complete rewrite to use the IS 101 mode of the
  * Elite 2864.
  *
- * $Id: ZyXEL_2864.c,v 1.8 2005/03/13 17:27:46 gert Exp $
+ * $Id: ZyXEL_2864.c,v 1.9 2006/09/26 17:17:56 gert Exp $
  *
  */
 
@@ -70,8 +70,8 @@ static int ZyXEL_2864_init (void)
       * AT+VDD=x,y - Set DTMF tone detection threshold and duration detection
       */
 
-     sprintf(buffer, "AT+VDD=%d,%d", cvd.dtmf_threshold.d.i *
-      15 / 100, cvd.dtmf_len.d.i / 5);
+     sprintf(buffer, "AT+VDD=%d,%d", (int)cvd.dtmf_threshold.d.i *
+      15 / 100, (int)cvd.dtmf_len.d.i / 5);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "setting DTMF preferences didn't work");
@@ -80,8 +80,8 @@ static int ZyXEL_2864_init (void)
       * AT+VSD=x,y - Set silence threshold and duration.
       */
 
-     sprintf(buffer, "AT+VSD=%d,%d", cvd.rec_silence_threshold.d.i *
-      31 / 100, cvd.rec_silence_len.d.i);
+     sprintf(buffer, "AT+VSD=%d,%d", (int)cvd.rec_silence_threshold.d.i *
+      31 / 100, (int)cvd.rec_silence_len.d.i);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "setting recording preferences didn't work");
@@ -93,8 +93,7 @@ static int ZyXEL_2864_init (void)
      if (cvd.transmit_gain.d.i == -1)
           cvd.transmit_gain.d.i = 50;
 
-     sprintf(buffer, "AT+VGT=%d", cvd.transmit_gain.d.i * 144 / 100 +
-      56);
+     sprintf(buffer, "AT+VGT=%d", (int)cvd.transmit_gain.d.i * 144 / 100 + 56);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "setting transmit gain didn't work");
@@ -106,8 +105,7 @@ static int ZyXEL_2864_init (void)
      if (cvd.receive_gain.d.i == -1)
           cvd.receive_gain.d.i = 50;
 
-     sprintf(buffer, "AT+VGR=%d", cvd.receive_gain.d.i * 144 / 100 +
-      56);
+     sprintf(buffer, "AT+VGR=%d", (int)cvd.receive_gain.d.i * 144 / 100 + 56);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "setting receive gain didn't work");
@@ -116,7 +114,7 @@ static int ZyXEL_2864_init (void)
      return(OK);
      }
 
-static int ZyXEL_2864_set_compression (int *compression, int *speed, int *bits)
+static int ZyXEL_2864_set_compression (p_int *compression, p_int *speed, int *bits)
      {
      char buffer[VOICE_BUF_LEN];
 
@@ -132,7 +130,7 @@ static int ZyXEL_2864_set_compression (int *compression, int *speed, int *bits)
       (*speed != 11025))
           {
           lprintf(L_WARN, "%s: Illegal sample rate (%d)", voice_modem_name,
-           *speed);
+           (int)*speed);
           return(FAIL);
           };
 
@@ -140,7 +138,7 @@ static int ZyXEL_2864_set_compression (int *compression, int *speed, int *bits)
           {
           case 2:
                *bits = 2;
-               sprintf(buffer, "AT+VSM=2,%d", *speed);
+               sprintf(buffer, "AT+VSM=2,%d", (int)*speed);
 
                if (voice_command(buffer, "OK") != VMA_USER_1)
                     return(FAIL);
@@ -148,7 +146,7 @@ static int ZyXEL_2864_set_compression (int *compression, int *speed, int *bits)
                break;
           case 3:
                *bits = 3;
-               sprintf(buffer, "AT+VSM=3,%d", *speed);
+               sprintf(buffer, "AT+VSM=3,%d", (int)*speed);
 
                if (voice_command(buffer, "OK") != VMA_USER_1)
                     return(FAIL);
@@ -156,7 +154,7 @@ static int ZyXEL_2864_set_compression (int *compression, int *speed, int *bits)
                break;
           case 30:
                *bits = 3;
-               sprintf(buffer, "AT+VSM=30,%d", *speed);
+               sprintf(buffer, "AT+VSM=30,%d", (int)*speed);
 
                if (voice_command(buffer, "OK") != VMA_USER_1)
                     return(FAIL);
@@ -164,7 +162,7 @@ static int ZyXEL_2864_set_compression (int *compression, int *speed, int *bits)
                break;
           case 4:
                *bits = 4;
-               sprintf(buffer, "AT+VSM=4,%d", *speed);
+               sprintf(buffer, "AT+VSM=4,%d", (int)*speed);
 
                if (voice_command(buffer, "OK") != VMA_USER_1)
                     return(FAIL);
@@ -172,7 +170,7 @@ static int ZyXEL_2864_set_compression (int *compression, int *speed, int *bits)
                break;
           case 40:
                *bits = 4;
-               sprintf(buffer, "AT+VSM=40,%d", *speed);
+               sprintf(buffer, "AT+VSM=40,%d", (int)*speed);
 
                if (voice_command(buffer, "OK") != VMA_USER_1)
                     return(FAIL);
@@ -180,7 +178,7 @@ static int ZyXEL_2864_set_compression (int *compression, int *speed, int *bits)
                break;
           case 80:
                *bits = 8;
-               sprintf(buffer, "AT+VSM=80,%d", *speed);
+               sprintf(buffer, "AT+VSM=80,%d", (int)*speed);
 
                if (voice_command(buffer, "OK") != VMA_USER_1)
                     return(FAIL);
@@ -188,7 +186,7 @@ static int ZyXEL_2864_set_compression (int *compression, int *speed, int *bits)
                break;
           case 81:
                *bits = 8;
-               sprintf(buffer, "AT+VSM=81,%d", *speed);
+               sprintf(buffer, "AT+VSM=81,%d", (int)*speed);
 
                if (voice_command(buffer, "OK") != VMA_USER_1)
                     return(FAIL);

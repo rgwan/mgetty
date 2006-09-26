@@ -10,7 +10,7 @@
  *
  * Marc
  *
- * $Id: Dolphin.c,v 1.8 2005/03/13 17:27:45 gert Exp $
+ * $Id: Dolphin.c,v 1.9 2006/09/26 17:17:55 gert Exp $
  *
  */
 
@@ -35,8 +35,8 @@ static int Dolphin_init (void)
       * AT+VSD=x,y - Set silence threshold and duration.
       */
 
-     sprintf(buffer, "AT+VSD=%d,%d", cvd.rec_silence_threshold.d.i * 31 / 100,
-      cvd.rec_silence_len.d.i);
+     sprintf(buffer, "AT+VSD=%d,%d", (int)cvd.rec_silence_threshold.d.i * 31 / 100,
+      (int)cvd.rec_silence_len.d.i);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "setting recording preferences didn't work");
@@ -45,7 +45,7 @@ static int Dolphin_init (void)
      return(OK);
      }
 
-static int Dolphin_set_compression (int *compression, int *speed, int *bits)
+static int Dolphin_set_compression (p_int *compression, p_int *speed, int *bits)
      {
      reset_watchdog();
 

@@ -11,7 +11,7 @@
  *
  * New updated driver by Jens Adner <Jens.Adner@Wirtschaft.TU-Ilmenau.DE>.
  *
- * $Id: UMC.c,v 1.10 2005/03/13 17:27:46 gert Exp $
+ * $Id: UMC.c,v 1.11 2006/09/26 17:17:56 gert Exp $
  *
  */
 
@@ -38,7 +38,7 @@ static int UMC_init(void)
      reset_watchdog();
      lprintf(L_MESG, "initializing UMC voice modem");
      voice_modem_state = INITIALIZING;
-     sprintf(buffer, "AT#VSP=%1u", cvd.rec_silence_len.d.i);
+     sprintf(buffer, "AT#VSP=%1u", (int)cvd.rec_silence_len.d.i);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "can't set silence period");
@@ -56,7 +56,7 @@ static int UMC_init(void)
           return(ERROR);
           }
 
-     sprintf(buffer, "AT#VSS=%1u", cvd.rec_silence_threshold.d.i * 3 / 100);
+     sprintf(buffer, "AT#VSS=%1u", (int)cvd.rec_silence_threshold.d.i * 3 / 100);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "can't set silence threshold");
@@ -75,7 +75,7 @@ static int UMC_init(void)
      return(OK);
      }
 
-static int UMC_set_compression(int *compression, int *speed, int *bits)
+static int UMC_set_compression(p_int *compression, p_int *speed, int *bits)
      {
      reset_watchdog();
 
@@ -112,7 +112,7 @@ static int UMC_set_compression(int *compression, int *speed, int *bits)
 
      lprintf(L_WARN,
       "UMC handle event: Illegal voice compression method (%d)",
-      *compression);
+      (int)*compression);
      return(FAIL);
      }
 

@@ -6,7 +6,7 @@
  * Based on code for Elite 2864 modems (ZyXEL_2864.c), with
  * corrections made by Const Kaplinsky <const@ce.cctpu.edu.ru>
  *
- * $Id: ZyXEL_Omni56K.c,v 1.4 2005/03/13 17:27:46 gert Exp $
+ * $Id: ZyXEL_Omni56K.c,v 1.5 2006/09/26 17:17:56 gert Exp $
  *
  */
 
@@ -65,8 +65,8 @@ static int ZyXEL_Omni56K_voice_mode_on (void)
       * AT+VSD=x,y - Set silence threshold and duration.
       */
 
-     sprintf(buffer, "AT+VSD=%d,%d", cvd.rec_silence_threshold.d.i *
-      31 / 100, cvd.rec_silence_len.d.i);
+     sprintf(buffer, "AT+VSD=%d,%d", (int)cvd.rec_silence_threshold.d.i *
+      31 / 100, (int)cvd.rec_silence_len.d.i);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "setting recording preferences didn't work");
@@ -78,8 +78,7 @@ static int ZyXEL_Omni56K_voice_mode_on (void)
      if (cvd.transmit_gain.d.i == -1)
           cvd.transmit_gain.d.i = 50;
 
-     sprintf(buffer, "AT+VGT=%d", cvd.transmit_gain.d.i * 144 / 100 +
-      56);
+     sprintf(buffer, "AT+VGT=%d", (int)cvd.transmit_gain.d.i * 144 / 100 + 56);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "setting transmit gain didn't work");
@@ -91,8 +90,7 @@ static int ZyXEL_Omni56K_voice_mode_on (void)
      if (cvd.receive_gain.d.i == -1)
           cvd.receive_gain.d.i = 50;
 
-     sprintf(buffer, "AT+VGR=%d", cvd.receive_gain.d.i * 144 / 100 +
-      56);
+     sprintf(buffer, "AT+VGR=%d", (int)cvd.receive_gain.d.i * 144 / 100 + 56);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN, "setting receive gain didn't work");
@@ -103,7 +101,7 @@ static int ZyXEL_Omni56K_voice_mode_on (void)
       */
 
      sprintf(buffer, "AT+VRA=%d+VRN=%d",
-      cvd.ringback_goes_away.d.i, cvd.ringback_never_came.d.i);
+      (int)cvd.ringback_goes_away.d.i, (int)cvd.ringback_never_came.d.i);
 
      if (voice_command(buffer, "OK") != VMA_USER_1)
           lprintf(L_WARN,"setting ringback delay didn't work");
@@ -111,7 +109,7 @@ static int ZyXEL_Omni56K_voice_mode_on (void)
      return(OK);
      }
 
-static int ZyXEL_Omni56K_set_compression (int *compression, int *speed, int *bits)
+static int ZyXEL_Omni56K_set_compression (p_int *compression, p_int *speed, int *bits)
      {
 
      reset_watchdog();
@@ -126,7 +124,7 @@ static int ZyXEL_Omni56K_set_compression (int *compression, int *speed, int *bit
      if (*speed != 9600)
           {
           lprintf(L_WARN, "%s: Illegal sample rate (%d)", voice_modem_name,
-           *speed);
+           (int)*speed);
           return(FAIL);
           };
 
@@ -136,7 +134,7 @@ static int ZyXEL_Omni56K_set_compression (int *compression, int *speed, int *bit
      if (*compression != 4)
           {
           lprintf(L_WARN, "%s: Illegal voice compression method (%d)",
-           voice_modem_name, *compression);
+           voice_modem_name, (int)*compression);
           return(FAIL);
           };
 

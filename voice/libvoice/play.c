@@ -3,7 +3,7 @@
  *
  * This command plays the given file.
  *
- * $Id: play.c,v 1.6 1999/12/02 09:51:31 marcs Exp $
+ * $Id: play.c,v 1.7 2006/09/26 17:17:56 gert Exp $
  *
  */
 
@@ -13,8 +13,8 @@ int voice_play_file (char *name)
      {
      FILE *fd;
      rmd_header header;
-     int compression;
-     int speed;
+     p_int compression;
+     p_int speed;
      int bits;
 
      lprintf(L_MESG, "playing voice file %s", name);
