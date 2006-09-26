@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 4.21 2005/12/31 16:01:11 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 4.22 2006/09/26 15:10:23 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -8,6 +8,9 @@
  * The code is still quite rough, but it works.
  *
  * $Log: sendfax.c,v $
+ * Revision 4.22  2006/09/26 15:10:23  gert
+ * extend xon-xoff flow control comment a bit, for class 1
+ *
  * Revision 4.21  2005/12/31 16:01:11  gert
  * identically handle class 1 and 1.0
  *
@@ -165,8 +168,10 @@ int fax_open_device _P2( (fax_tty, use_stdin),
     tio_get( fd, &fax_tio );
 
     /* even if we use a modem that requires Xon/Xoff flow control,
-     * do *not* enable it here - it would interefere with the Xon
-     * received at the top of a page.
+     * do *not* enable it here - it would interfere with the Xon
+     * received at the top of a page.  Worse, it would interfere with
+     * received class 1 frames containing 0x11/0x13 characters...
+     * --> individual page sending functions will turn on Xon/Xoff later
      */
     tio_mode_sane( &fax_tio, TRUE );
     tio_set_speed( &fax_tio, c_int(speed) );
