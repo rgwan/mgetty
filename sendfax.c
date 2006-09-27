@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 4.22 2006/09/26 15:10:23 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 4.23 2006/09/27 09:12:25 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -8,6 +8,9 @@
  * The code is still quite rough, but it works.
  *
  * $Log: sendfax.c,v $
+ * Revision 4.23  2006/09/27 09:12:25  gert
+ * add L_AUDIT log message to non-accessible file error (exit 1)
+ *
  * Revision 4.22  2006/09/26 15:10:23  gert
  * extend xon-xoff flow control comment a bit, for class 1
  *
@@ -335,6 +338,7 @@ int main _P2( (argc, argv),
 	    }
 	    
 	    lprintf( L_ERROR, "cannot access %s", argv[i] );
+            lprintf( L_AUDIT, "failed: command line error - missing file" );
 	    fprintf( stderr, "%s: cannot access %s\n", argv[0], argv[i]);
 	    exit(1);
 	}
