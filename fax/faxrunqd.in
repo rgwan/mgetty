@@ -9,10 +9,14 @@
 #
 # initial version: Feb 17, 1997
 #
-my $rcs_id='RCS: $Id: faxrunqd.in,v 1.72 2006/09/24 18:14:44 gert Exp $';
+my $rcs_id='RCS: $Id: faxrunqd.in,v 1.73 2006/09/27 09:49:23 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.73  2006/09/27 09:49:23  gert
+# fix bug in job combining: never attach partially sent faxes (pages renamed
+# to f<X>.done) to other jobs - otherwise sendfax will "fail 1" (missing page)
+#
 # Revision 1.72  2006/09/24 18:14:44  gert
 # bugfix: missing newline at acct.log error message
 #
@@ -1164,6 +1168,13 @@ sub send_job_from_queue
 	    if ( $queue{$c_job}->{priority} < $pri )
 	    {
 		print LOG " ++ no-combine: $c_job: prio mismatch\n" if $opt_v;
+		last;
+	    }
+
+	    # never attach jobs that have been partially sent (missing page)
+	    if ( ! -f "$c_job/" . $queue{$c_job}->{'pages'}[0] )
+	    {
+		print LOG " ++ no-combine: $c_job: missing file\n" if $opt_v;
 		last;
 	    }
 
