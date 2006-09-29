@@ -1,4 +1,4 @@
-#ident "$Id: class1lib.c,v 4.18 2006/09/29 19:33:25 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1lib.c,v 4.19 2006/09/29 20:19:43 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1lib.c
  *
@@ -231,8 +231,14 @@ int fax1_receive_frame _P4 ( (fd, carrier, timeout, framebuf),
     {
     char cmd[20];
 	sprintf( cmd, "AT+FRH=%d", carrier );
-	fax_send( cmd, fd );
-	/*!!! DO NOT USE fax_send (FAX_COMMAND_DELAY) */
+
+	/*!!! TOOD: DO NOT USE fax_send (FAX_COMMAND_DELAY) */
+
+	/* normally, fax_send() can only fail if something is really 
+	 * messed up with the serial port, e.g. "stuck flow control"
+	 */
+	if ( fax_send( cmd, fd ) == ERROR )
+		    { alarm(0); return ERROR; }
 
 	/* wait for CONNECT/NO CARRIER */
 	line = mdm_get_line( fd );
@@ -271,7 +277,7 @@ int fax1_receive_frame _P4 ( (fd, carrier, timeout, framebuf),
 	    rc = ERROR; break;
 	}
 
-	/*!!!! ERROR statt Frame-Daten erkennen */
+	/*!!!! TODO: CONNECT/ERROR statt Frame-Daten erkennen */
 
 	lputc( L_NOISE, c );
 
@@ -508,7 +514,8 @@ int r,w;
     char cmd[20];
 
 	sprintf( cmd, "AT+FTH=%d", carrier );
-	fax_send( cmd, fd );		/*!!!!! NOOOO */
+	if ( fax_send( cmd, fd ) == ERROR )
+		    { alarm(0); carrier_active=-1; return ERROR; }
 
 	/* wait for CONNECT/NO CARRIER */
 	line = mdm_get_line( fd );
@@ -866,7 +873,8 @@ int fax1_init_FRM _P2((fd,carrier), int fd, int carrier )
     }
 
     sprintf( cmd, "AT+FRM=%d", carrier );
-    fax_send( cmd, fd );		/*!!!!! NOOOO */
+    if ( fax_send( cmd, fd ) )
+		{ alarm(0); return ERROR; }
 
     /* wait for CONNECT/NO CARRIER */
     line = mdm_get_line( fd );
