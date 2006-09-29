@@ -1,4 +1,4 @@
-#ident "$Id: class1lib.c,v 4.17 2006/03/29 12:25:33 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1lib.c,v 4.18 2006/09/29 19:33:25 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1lib.c
  *
@@ -70,7 +70,20 @@ struct fax1_btable fax1_btable[] = {
  * (increment == fallback after FTT!)
  */
 struct fax1_btable * dcs_btp = fax1_btable;
-		      
+
+/* table of bits-to-scan line time mappings, index = bits
+ */
+struct fax1_st_table { int st; int ms_n; int ms_f; char * txt; };
+struct fax1_st_table fax1_st_table[8] = {
+	/* ST, ms normal, ms fine                  bits    */
+	{ 5, 20, 20, " 20ms" },			/* 0 = 000 */
+	{ 1,  5,  5, " 5ms" },			/* 1 = 100 */
+	{ 3, 10, 10, " 10ms" },			/* 2 = 010 */
+	{ 4, 20, 10, " 20/10ms" },		/* 3 = 110 */
+	{ 7, 40, 40, " 40ms" },			/* 4 = 001 */
+	{ 6, 40, 20, " 40/20ms" },		/* 5 = 101 */
+	{ 2, 10,  5, " 10/5ms" },		/* 6 = 011 */
+	{ 0,  0,  0, " 0ms" }};			/* 7 = 111 */
 
 int fax1_set_l_id _P2( (fd, fax_id), int fd, char * fax_id )
 {
@@ -112,6 +125,17 @@ static int fax1_carriers _P1((p), char * p )
     	}
     }
     return cbits;
+}
+
+/* step down max speed (at retrain time)
+ */
+void fax1_reduce_max _P0(void)
+{
+    if ( dcs_btp->speed > 2400 )
+    { 
+	fax1_max = dcs_btp->speed - 2400; 
+	lprintf( L_NOISE, "reduce max speed to %d", fax1_max );
+    }
 }
 
 /* set fine/normal resolution flags and min/max transmission speed
@@ -391,17 +415,8 @@ int fcf = frame[1];
 		case 0x02: lputs( L_NOISE, " unlim" ); break;
 		case 0x01: lputs( L_NOISE, " A4+B4" ); break;
 	    }
-	    switch( (frame[4]>>4) & 0x07 )
-	    {
-	        case 0x00: lputs( L_NOISE, " 20ms" ); break;
-	        case 0x01: lputs( L_NOISE, " 40ms" ); break;
-	        case 0x02: lputs( L_NOISE, " 10ms" ); break;
-	        case 0x04: lputs( L_NOISE, " 5ms" ); break;
-	        case 0x03: lputs( L_NOISE, " 5/10ms" ); break;
-	        case 0x06: lputs( L_NOISE, " 10/20ms" ); break;
-	        case 0x05: lputs( L_NOISE, " 20/40ms" ); break;
-	        case 0x07: lputs( L_NOISE, " 0ms" ); break;
-	    }
+	    lputs( L_NOISE, fax1_st_table[ (frame[4]>>4) & 0x07 ].txt );
+
 	    if ( ( frame[4] & 0x80 ) == 0 ) break;	/* extent bit */
 
 	    if ( frame[5] & 0x04 ) lputs( L_NOISE, " ECM" );
@@ -450,17 +465,8 @@ int fcf = frame[1];
 		case 0x02: lputs( L_NOISE, " unlim" ); break;
 		case 0x01: lputs( L_NOISE, " B4" ); break;
 	    }
-	    switch( (frame[4]>>4) & 0x07 )
-	    {
-	        case 0x00: lputs( L_NOISE, " 20ms" ); break;
-	        case 0x01: lputs( L_NOISE, " 40ms" ); break;
-	        case 0x02: lputs( L_NOISE, " 10ms" ); break;
-	        case 0x04: lputs( L_NOISE, " 5ms" ); break;
-	        case 0x03: lputs( L_NOISE, " 5/10ms" ); break;
-	        case 0x06: lputs( L_NOISE, " 10/20ms" ); break;
-	        case 0x05: lputs( L_NOISE, " 20/40ms" ); break;
-	        case 0x07: lputs( L_NOISE, " 0ms" ); break;
-	    }
+	    lputs( L_NOISE, fax1_st_table[ (frame[4]>>4) & 0x07 ].txt );
+
 	    if ( ( frame[4] & 0x80 ) == 0 ) break;	/* extent bit */
 
 	    if ( frame[5] & 0x04 ) lputs( L_NOISE, " ECM" );
@@ -753,8 +759,7 @@ void fax1_parse_dis _P1((frame), uch * frame )
     remote_cap.ln = ( frame[2] >> 2 ) & 0x03;
 
     /* bit 21-23: minimum scan line time */
-    /*!!! UNIMPLEMENTED */
-    remote_cap.st = ( frame[2] >> 4 ) & 0x07;
+    remote_cap.st = fax1_st_table[ (frame[2] >> 4) & 0x07 ].st;
 
     if ( frame[2] & 0x80 )	/* extend bit */
     {
@@ -770,9 +775,10 @@ void fax1_parse_dis _P1((frame), uch * frame )
 			remote_cap.bf, remote_cap.st );
 }
 
-int fax1_send_dcs _P1((fd), int fd )
+int fax1_send_dcs _P2((fd, s_time), int fd, int s_time )
 {
 uch framebuf[FRAMESIZE];
+int i;
 
     /* find baud/carrier table entry that has a speed not over
      * "speed", and that uses a modulation scheme supported by both
@@ -796,8 +802,15 @@ uch framebuf[FRAMESIZE];
 		  0x00;			/* bit 16: 2D */
     framebuf[4] = 0x00 |		/* bit 17+18: 215 mm width */
     		  0x04 |		/* bit 19+20: B4 length */
-		  0x70 |		/* bits 21-23: scan line time */
+		  0x00 |		/* bits 21-23: scan line time */
 		  0x00;			/* bit 24: extend bit - final */
+
+    /* calculate correct bit settings for scan line time (bits 21-23) */
+    for( i=0;i<=7;i++ )
+    {
+	if ( fax1_st_table[i].ms_n == s_time )
+		{ framebuf[4] |= i<<4; break; }
+    }
     return fax1_send_frame( fd, T30_CAR_V21, framebuf, 5 );
 }
 
@@ -827,7 +840,7 @@ void fax1_parse_dcs _P1((frame), uch *frame)
     fax_par_d.ln = (frame[4] >> 2 ) & 0x03;
 
     /* scan line time: bits 21-23 */
-    fax_par_d.st = (frame[4] >> 4 ) & 0x07;
+    fax_par_d.st = fax1_st_table[ (frame[4] >> 4) & 0x07 ].st;
 
     /* extend bit? */
     if ( ( frame[4] && 0x80 ) == 0 ) goto done;
