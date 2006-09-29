@@ -1,4 +1,4 @@
-#ident "$Id: class1.c,v 4.15 2006/09/26 15:36:07 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1.c,v 4.16 2006/09/29 19:30:26 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1.c
  *
@@ -8,6 +8,10 @@
  * Uses library functions in class1lib.c, faxlib.c and modem.c
  *
  * $Log: class1.c,v $
+ * Revision 4.16  2006/09/29 19:30:26  gert
+ * properly calculate scan line time -> padding bytes
+ * implement FTT -> retraining, with baud rate reduction
+ *
  * Revision 4.15  2006/09/26 15:36:07  gert
  * - handle modems that don't get AT+FTS=8;+FTM=nn right
  *   (re-do AT+FTM if the first command yields "OK")
@@ -100,6 +104,9 @@
 #include "policy.h"
 
 enum T30_phases { Phase_A, Phase_B, Phase_C, Phase_D, Phase_E } fax1_phase;
+
+/* maping of "st" codes to actual time (for normal res.) */
+static int fax_scan_times[8] = { 0, 5, 10, 10, 20, 20, 40, 40 };
 
 int fax1_dial_and_phase_AB _P2( (dial_cmd,fd),  char * dial_cmd, int fd )
 {
@@ -205,6 +212,7 @@ char * line;
 char cmd[40];
 char dleetx[] = { DLE, ETX };
 char rtc[] = { 0x00, 0x08, 0x80, 0x00, 0x08, 0x80, 0x00, 0x08 };
+int pad_bytes, s_time;
 
     /* if we're in T.30 phase B, send DCS + training frame (TCF) now...
      * don't forget delay (75ms +/- 20ms)!
@@ -214,16 +222,27 @@ char rtc[] = { 0x00, 0x08, 0x80, 0x00, 0x08, 0x80, 0x00, 0x08 };
      * return to sending DCS (bullet "D" in T.30 chart 5-2a), grouping it 
      * this way is much more logical to implement
      */
+
+    /* calculate scan line time
+     * in fine mode, some of the values get divided by 2
+     */
+    s_time = fax_scan_times[ remote_cap.st & 0x7 ];
+    if ( remote_cap.vr == 1 && 
+	(remote_cap.st & 0x1) == 0 ) s_time /= 2;
+
     if ( fax1_phase == Phase_B )
     {
         char train[150];
 	int i, num;
+	int tries=0;
+
+retrain:			/* "(D)" in T.30/Figure 5-2a */
 
 	/* send local id frame (TSI) */
 	fax1_send_idframe( fd, T30_TSI|0x01, T30_CAR_V21 );
 
 	/* send DCS */
-	if ( fax1_send_dcs( fd ) == ERROR )
+	if ( fax1_send_dcs( fd, s_time ) == ERROR )
 	{
 	    fax_hangup = TRUE; fax_hangup_code = 10; return ERROR;
 	}
@@ -277,10 +296,14 @@ char rtc[] = { 0x00, 0x08, 0x80, 0x00, 0x08, 0x80, 0x00, 0x08 };
 	if ( ( framebuf[0] & T30_FINAL ) == 0 ||
 	     framebuf[1] != T30_CFR )
 	{
-	    lprintf( L_ERROR, "fax1_receive_frame: failed to train" );
-	    /*!!! try 3 times! */
-	    fax_hangup = TRUE; fax_hangup_code = 27;
-	    return ERROR;
+	    tries++;
+	    lprintf( L_WARN, "fax1_send_frame: failed to train (%d)", tries);
+
+	    if ( tries > 1 ) fax1_reduce_max();
+	    if ( tries < 3 ) goto retrain;
+
+	    /* give up */
+	    fax1_send_dcn( fd, 27 ); return ERROR;
 	}
 
 	/* phase B done, go to phase C */
@@ -303,8 +326,11 @@ char rtc[] = { 0x00, 0x08, 0x80, 0x00, 0x08, 0x80, 0x00, 0x08 };
 	return ERROR;
     }
 
-    /* TODO: implement this */
-    lprintf( L_WARN, "scan line padding unimplemented (TODO)" );
+
+    /* number of bytes to pad depend on scan time */
+    pad_bytes = ((dcs_btp->speed/8) * s_time + 999) / 1000;
+    lprintf( L_MESG, "scan line time: %d ms -> %d bytes/line at %d bps",
+		s_time, pad_bytes, dcs_btp->speed );
 
     /* Phase C: send page data with high-speed carrier
      */
@@ -335,7 +361,7 @@ char rtc[] = { 0x00, 0x08, 0x80, 0x00, 0x08, 0x80, 0x00, 0x08 };
      * insert padding bits (if scan line time > 0), 
      * at end-of-file, add RTC
      */
-    if ( g3_send_file( g3_rf_chunk, fd, TRUE, TRUE, 100 /* TODO */, 0 ) < 0 )
+    if ( g3_send_file( g3_rf_chunk, fd, TRUE, TRUE, pad_bytes, 0 /*TODO!*/) < 0 )
     {
 	lprintf( L_ERROR, "error in g3_send_file()" ); 
 	return ERROR;
