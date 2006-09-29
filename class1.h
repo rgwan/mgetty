@@ -1,10 +1,15 @@
-#ident "$Id: class1.h,v 4.10 2006/06/14 09:54:03 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1.h,v 4.11 2006/09/29 19:31:50 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1.h
  *
  * common definitions for class 1 fax modules
  *
  * $Log: class1.h,v $
+ * Revision 4.11  2006/09/29 19:31:50  gert
+ * add "scan time" parameter to fax1_send_dcs()
+ * add function fax1_reduce_max()  (baud rate stepdown)
+ * add extern declaration for "remote_cap" (in class1lib.c)
+ *
  * Revision 4.10  2006/06/14 09:54:03  gert
  * dcs_btp needs to be declared 'extern'
  *
@@ -52,10 +57,11 @@ int fax1_send_idframe _PROTO(( int fd, uch fcf, int carrier));
 void fax1_parse_dis _PROTO(( uch * frame ));
 void fax1_parse_dcs _PROTO(( uch * frame ));
 int fax1_send_dis _PROTO(( int fd ));
-int fax1_send_dcs _PROTO(( int fd ));
+int fax1_send_dcs _PROTO(( int fd, int s_time ));
 int fax1_receive_frame _PROTO (( int fd, int carrier, 
 			         int timeout, uch * framebuf ));
 int fax1_init_FRM _PROTO(( int fd, int carrier ));
+void fax1_reduce_max _PROTO(( void ));
 
 /* class1.c */
 int fax1_send_page _PROTO(( char * g3_file, int * bytes_sent, TIO * tio,
@@ -67,6 +73,8 @@ struct fax1_btable { int speed;			/* bit rate */
 		     int dcs_bits;		/* bits to be set in DCS */
 		    };
 extern struct fax1_btable * dcs_btp;		/* current modulation */
+
+extern fax_param_t remote_cap;			/* receiver capabilities */
 
 /* --- Definitions from ITU T.30, 07/96 --- */
 
