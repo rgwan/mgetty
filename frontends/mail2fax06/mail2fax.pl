@@ -1,12 +1,16 @@
-#!/usr/pkg/bin/perl -w
+#!/usr/bin/perl -w
 #
 # mail2fax glue logic - read mail from stdin, extract phone number
 #                       from e-mail address (12345@fax), call faxspool
 # to be run from sendmail, qmail, ...
 #
-# $Id: mail2fax.pl,v 1.2 2006/09/26 14:29:05 gert Exp $
+# $Id: mail2fax.pl,v 1.3 2006/10/19 10:29:56 gert Exp $
 #
 # $Log: mail2fax.pl,v $
+# Revision 1.3  2006/10/19 10:29:56  gert
+# path change: use /usr/bin/perl
+# bugfix: if "-f" isn't specified, don't pass empty "-f" to faxspool
+#
 # Revision 1.2  2006/09/26 14:29:05  gert
 # skip parts that are .p7s or application/x-pkcs7-signature
 #
@@ -121,9 +125,13 @@ my $type = $part->effective_type;
 # we're called from sendmail as uid=root, euid=fax -> make this uid=fax
 $<=$>;
 
-&logmsg( "faxspool -f $opt_f $fax_to " . join(' ', @pages) );
+my $cmd="$faxspool";
 
-my $cmd="$faxspool -f $opt_f $fax_to \"" . join('" "', @pages) . "\" 2>&1";
+$cmd .= " -f $opt_f" if ( $opt_f ne '' );
+$cmd .= " $fax_to \"". join('" "', @pages) . "\" 2>&1";
+
+&logmsg( "$cmd" );
+
 my $out=`$cmd`;
 my $rc = $?;
 print LOG $out;
