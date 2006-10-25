@@ -1,4 +1,4 @@
-#ident "$Id: class1.c,v 4.16 2006/09/29 19:30:26 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1.c,v 4.17 2006/10/25 10:55:01 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1.c
  *
@@ -8,6 +8,9 @@
  * Uses library functions in class1lib.c, faxlib.c and modem.c
  *
  * $Log: class1.c,v $
+ * Revision 4.17  2006/10/25 10:55:01  gert
+ * class 1 receive: log current try #, send DIS only if CSI went without error
+ *
  * Revision 4.16  2006/09/29 19:30:26  gert
  * properly calculate scan line time -> padding bytes
  * implement FTT -> retraining, with baud rate reduction
@@ -513,13 +516,15 @@ boolean have_dcs;
     tries=0; have_dcs=FALSE;
 
 receive_phase_b:
-    lprintf( L_MESG, "fax1 T.30 receive phase B" );
+    lprintf( L_MESG, "fax1 T.30 receive phase B (try %d)", tries+1 );
 
     /* send local ID frame (CSI) - non-final */
-    fax1_send_idframe( fd, T30_CSI, first?T30_CAR_SAME: T30_CAR_V21 );
+    rc = fax1_send_idframe( fd, T30_CSI, first?T30_CAR_SAME: T30_CAR_V21 );
     first = FALSE;
 
-    rc = fax1_send_dis( fd );
+    /* send DIS (but only if we haven't seen an error sending CSI) */
+    if ( rc == NOERROR )
+        rc = fax1_send_dis( fd );
 
     /* now see what the other side has to say... */
 wait_for_dcs:
