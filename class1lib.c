@@ -1,4 +1,4 @@
-#ident "$Id: class1lib.c,v 4.19 2006/09/29 20:19:43 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1lib.c,v 4.20 2006/10/25 10:56:41 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1lib.c
  *
@@ -14,6 +14,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <ctype.h>
+#include <errno.h>
 
 #include "mgetty.h"
 #include "fax_lib.h"
@@ -273,7 +274,7 @@ int fax1_receive_frame _P4 ( (fd, carrier, timeout, framebuf),
     {
         if ( mdm_read_byte( fd, &c ) != 1 )
 	{
-	    lprintf( L_ERROR, "fax1_get_frame: cannot read byte, return" );
+	    lprintf( L_ERROR, "fax1_receive_frame: cannot read byte, return" );
 	    rc = ERROR; break;
 	}
 
@@ -292,7 +293,7 @@ int fax1_receive_frame _P4 ( (fd, carrier, timeout, framebuf),
 	/* enough room? */
 	if ( count >= FRAMESIZE-5 )
 	{
-	    lprintf( L_ERROR, "fax1_get_frame: too many octets in frame" );
+	    lprintf( L_ERROR, "fax1_receive_frame: too many octets in frame" );
 	    rc = ERROR; break;
 	}
 
@@ -494,7 +495,7 @@ int fax1_send_frame _P4( (fd, carrier, frame, len),
                          int fd, int carrier, uch * frame, int len )
 {
 char * line;
-static int carrier_active = -1;		/* inter-frame marker */
+static int carrier_active = -2;		/* inter-frame marker */
 uch dle_buf[FRAMESIZE*2+2];		/* for DLE-coded frame */
 int r,w;
 
@@ -509,6 +510,17 @@ int r,w;
     /* send AT+FTH=3, wait for CONNECT 
      * (but only if we've not sent an non-final frame before!)
      */
+
+    /* catch internal out-of-sync condition ('canthappen')
+     * (this is OK for the very first frame sent in receive mode - ugly, yes)
+     */
+    if ( carrier == T30_CAR_SAME && carrier_active == -1 )
+    {
+	errno = EINVAL;
+	lprintf( L_ERROR, "fax1_send_frame: internal error - no carrier, but T30_CAR_SAME requested" );
+	return ERROR;
+    }
+
     if ( carrier > 0 && carrier_active != carrier )
     {
     char cmd[20];
@@ -547,7 +559,7 @@ int r,w;
     /* end-of-frame: <DLE><ETX> */
     dle_buf[w++] = DLE; dle_buf[w++] = ETX;
 
-    lprintf( L_JUNK, "fax1sf: %d/%d", len+1, w );
+    lprintf( L_JUNK, "fax1_send_frame: %d/%d", len+1, w );
 
     if ( write( fd, dle_buf, w ) != w )
     {
@@ -565,7 +577,7 @@ int r,w;
      * man OHNE neues AT+FTH *SOFORT* weitersenden!
      */
     line = mdm_get_line( fd );
-    lprintf( L_NOISE, "fax_send_frame: got '%s'", line );
+    lprintf( L_NOISE, "fax1_send_frame: frame sent, got '%s'", line );
 
     if ( frame[0] & T30_FINAL )
     {
@@ -573,11 +585,21 @@ int r,w;
 	lprintf( L_NOISE, "carrier is off - OK='%s'", line );
     }
 
+    /* as we're sending, we shouldn't see NO CARRIER response - but this
+     * can happen, e.g. when the modem notices a remote hangup (ISDN etc.)
+     */
+    if ( line == NULL || strcmp( line, "NO CARRIER" ) == 0 )
+    {
+	lprintf( L_WARN, "fax1_send_frame: unexpected post-frame string '%s', assuming carrier off", line? line: "(null)" );
+	carrier_active = -1;
+	return ERROR;
+    }
+
 #if 0
     if ( line != NULL && strcmp( line, "CONNECT" ) == 0 )
     {
 	line = mdm_get_line( fd );
-	lprintf( L_NOISE, "fax_send_carrier: got '%s'", line );
+	lprintf( L_NOISE, "fax1_send_frame(2): got '%s'", line );
     }
 #endif
 
