@@ -1,4 +1,4 @@
-#ident "$Id: class1.c,v 4.17 2006/10/25 10:55:01 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1.c,v 4.18 2006/10/27 09:07:12 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1.c
  *
@@ -8,6 +8,9 @@
  * Uses library functions in class1lib.c, faxlib.c and modem.c
  *
  * $Log: class1.c,v $
+ * Revision 4.18  2006/10/27 09:07:12  gert
+ * add file name of page currently sent to log message
+ *
  * Revision 4.17  2006/10/25 10:55:01  gert
  * class 1 receive: log current try #, send DIS only if CSI went without error
  *
@@ -350,7 +353,7 @@ retrain:			/* "(D)" in T.30/Figure 5-2a */
 	fax_hangup = TRUE; fax_hangup_code = 40; return ERROR;
     }
 
-    lprintf( L_NOISE, "send page data" );
+    lprintf( L_NOISE, "send page data (\"%s\")...", g3_file );
 
     /* turn on xon/xoff flow control now, for page data sending
      */
