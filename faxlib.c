@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.70 2006/09/25 22:22:55 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.71 2006/11/03 13:02:36 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -524,6 +524,9 @@ char *p;
 
     len = 0;
     p = nsf_hex;
+    /* some modems insert extra quotes at the start... (ZyXEL) */
+    while( *p != '\0' && ! isxdigit(*p) ) p++;
+
     while( len<sizeof(nsf_bin) && isxdigit(*p) && isxdigit(*(p+1)) )
     {
 	nsf_bin[len++] = (uch) ( char_to_hex(*p) << 4 ) +
