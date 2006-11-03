@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.71 2006/11/03 13:02:36 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.72 2006/11/03 13:08:50 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -7,6 +7,11 @@
  *
  * Only class 2 and class 2.0 stuff is here. Class 1 stuff is so
  * different that it goes to a separate library.
+ *
+ * $Log: faxlib.c,v $
+ * Revision 4.72  2006/11/03 13:08:50  gert
+ * add CVS tag
+ *
  */
 
 #include <stdio.h>
