@@ -1,4 +1,4 @@
-#ident "$Id: conf_sf.c,v 4.12 1999/02/24 16:05:41 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_sf.c,v 4.13 2006/11/22 15:40:40 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_sf.c
  *
@@ -89,7 +89,7 @@ conf_data c_a[2];
     }
 
     /* get command line arguments */
-    while ((opt = getopt(argc, argv, "d:vx:ph:l:nm:SC:I:rA:D:M:V")) != EOF)
+    while ((opt = getopt(argc, argv, "d:vx:ph:l:nm:SC:I:rA:D:M:R:V")) != EOF)
     {
 	switch (opt) {
 	  case 'd':	/* set target directory for polling */
@@ -144,6 +144,9 @@ conf_data c_a[2];
 	    break;
 	  case 'M':	/* set max. fax speed */
 	    conf_set_int( &c.fax_max_speed, atoi(optarg) );
+	    break;
+	  case 'R':	/* retries */
+	    conf_set_int( &c.max_tries, atoi(optarg) );
 	    break;
 	  case 'V':
 	    printf("\nmgetty+sendfax by Gert Doering\n%s\n\n",
