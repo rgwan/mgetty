@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 4.24 2006/11/22 16:24:57 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 4.25 2006/11/22 17:04:21 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -8,6 +8,9 @@
  * The code is still quite rough, but it works.
  *
  * $Log: sendfax.c,v $
+ * Revision 4.25  2006/11/22 17:04:21  gert
+ * fix logging of #of pages (for exit 12)
+ *
  * Revision 4.24  2006/11/22 16:24:57  gert
  * for the "transmission failed" (exit 12) case, log #of pages successfully
  * sent and #of of retransmissions - important stats to track down problems
@@ -721,9 +724,10 @@ int main _P2( (argc, argv),
 
     if ( argidx < argc || ( fax_hangup && fax_hangup_code != 0 ) )
     {
-	lprintf( L_AUDIT, "failed transmitting %s: phone=\"%s\", +FHS:%02d, dev=%s, time=%ds, pages=%d(+%d), bytes=%d, acct=\"%s\"",
+	lprintf( L_AUDIT, "failed transmitting %s: phone=\"%s\", +FHS:%02d, dev=%s, time=%ds, pages=%d/%d(+%d), bytes=%d, acct=\"%s\"",
 		 argv[argidx], fac_tel_no, fax_hangup_code, Device,
 		 ( time(NULL)-call_start ), 
+		 total_pages-(argc-argidx)+1, 
 		 total_pages, total_resent, total_bytes,
 		 c_string(acct_handle) );
 
