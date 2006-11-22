@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 4.23 2006/09/27 09:12:25 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 4.24 2006/11/22 16:24:57 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -8,6 +8,10 @@
  * The code is still quite rough, but it works.
  *
  * $Log: sendfax.c,v $
+ * Revision 4.24  2006/11/22 16:24:57  gert
+ * for the "transmission failed" (exit 12) case, log #of pages successfully
+ * sent and #of of retransmissions - important stats to track down problems
+ *
  * Revision 4.23  2006/09/27 09:12:25  gert
  * add L_AUDIT log message to non-accessible file error (exit 1)
  *
@@ -717,9 +721,11 @@ int main _P2( (argc, argv),
 
     if ( argidx < argc || ( fax_hangup && fax_hangup_code != 0 ) )
     {
-	lprintf( L_AUDIT, "failed transmitting %s: phone=\"%s\", +FHS:%02d, dev=%s, time=%ds, acct=\"%s\"",
+	lprintf( L_AUDIT, "failed transmitting %s: phone=\"%s\", +FHS:%02d, dev=%s, time=%ds, pages=%d(+%d), bytes=%d, acct=\"%s\"",
 		 argv[argidx], fac_tel_no, fax_hangup_code, Device,
-		 ( time(NULL)-call_start ), c_string(acct_handle) );
+		 ( time(NULL)-call_start ), 
+		 total_pages, total_resent, total_bytes,
+		 c_string(acct_handle) );
 
 	fprintf( stderr, "\n%s: FAILED to transmit '%s'.\n",
 		         argv[0], argv[argidx] );
