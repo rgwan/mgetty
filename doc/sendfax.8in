@@ -98,6 +98,12 @@ routing option (see example in faxrunqd.policy(5)).
 Sets the maximum transmission (modem to modem) speed.  This is only needed
 in very rare cases, because normally the modems negotiate the correct 
 speed automatically.  Example: "-M 7200".
+.TP
+.B -R <max tries>
+Sets the maximum number of attempts to transmit a given page, before
+.I sendfax
+gives up on this page.  Normally it's not needed to change this - the
+default is "(up to) 3 tries" and that works quite well for most environments.
 
 .SH CONFIG FILE
 If compiled accordingly,
