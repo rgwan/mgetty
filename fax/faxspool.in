@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 4.32 2006/09/26 09:05:30 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 4.33 2006/12/07 15:16:31 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -26,6 +26,9 @@
 #  3.10.93: use "hp2hig3" for hp-pcl4-files (cl)
 # 19.10.93: phone directories (caz)
 # $Log: faxspool.in,v $
+# Revision 4.33  2006/12/07 15:16:31  gert
+# new sequence for fax header: @S@ - print job number (F000123)
+#
 # Revision 4.32  2006/09/26 09:05:30  gert
 # giftoppm is nowadays called giftopnm...
 #
@@ -903,6 +906,7 @@ do
 			      -e "s;@N@;$FULLNAME;g" \
 			      -e "s;@D@;$verbose_to;g" \
 			      -e "s;@ID@;$FAX_STATION_ID;g" \
+			      -e "s;@S@;$new_seq;g" \
 			      -e "s;@DATE@;`date`;g" \
 	| pbmtext -font $hdrfont | pbm2g3 \
 	| g3cat - $f | \
