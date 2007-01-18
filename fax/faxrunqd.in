@@ -9,10 +9,14 @@
 #
 # initial version: Feb 17, 1997
 #
-my $rcs_id='RCS: $Id: faxrunqd.in,v 1.73 2006/09/27 09:49:23 gert Exp $';
+my $rcs_id='RCS: $Id: faxrunqd.in,v 1.74 2007/01/18 15:22:16 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.74  2007/01/18 15:22:16  gert
+# Call (configurable) warning script on "too many jobs in fax queue".
+# Initial work for "call script for too many failures on a given modem".
+#
 # Revision 1.73  2006/09/27 09:49:23  gert
 # fix bug in job combining: never attach partially sent faxes (pages renamed
 # to f<X>.done) to other jobs - otherwise sendfax will "fail 1" (missing page)
@@ -208,6 +212,12 @@ my $max_tries_total=10;
 my $delete_jobs=0;
 my $max_combined_pages=10;
 my %sendfax_tty_map = ();
+my $faxq_hiwat_thres = 0;		# more than this # of jobs in Q?
+my $faxq_hiwat_script = '';		# -> run this script
+my $faxq_lowat_thres = 0;		# down again to this # of jobs?
+my $faxq_lowat_script = '';		# -> run this script
+my $modem_error_thres = 0;		# consecutive errors over this #?
+my $modem_error_script = '';		# -> run this script
 my $policy_config='';
 my @policy=();
 
@@ -364,6 +374,12 @@ if ( open( CF, $faxrunq_cf ) )
 	elsif ( /^\s*sendfax-tty-map\s+(\S+)\s+(\S+)\s*(.*)/ )
 		{ $sendfax_tty_map{$1} = { 'cmd' => $2, 
 					   'args' => [ split /\s+/, $3 ] }; }
+	elsif ( /^\s*queue-length-high\s+(\d+)\s+(.*)/ )
+		{ $faxq_hiwat_thres = $1; $faxq_hiwat_script = $2; }
+	elsif ( /^\s*queue-length-low\s+(\d+)\s+(.*)/ )
+		{ $faxq_lowat_thres = $1; $faxq_lowat_script = $2; }
+	elsif ( /^\s*modem-error-threshold\s+(\d+)\s+(.*)/ )
+		{ $modem_error_thres = $1; $modem_error_script = $2; }
 	else
 		{ die "syntax error in $faxrunq_cf, line $.!\n"; }
     }
@@ -371,6 +387,10 @@ if ( open( CF, $faxrunq_cf ) )
 
 if ( $opt_l eq '' )
 	{ die "$0: no tty lines specified\n\t- must use '-l tty<n>' or 'fax-devices tty<n>' in 'faxrunq.config'\n"; }
+
+# set sane defaults
+if ( $faxq_lowat_thres == 0 ) 
+	{ $faxq_lowat_thres = $faxq_hiwat_thres * 0.6; }
 
 #
 # policy configuration
@@ -426,6 +446,7 @@ my $queue_last_read = time();		# check queue directory ...
 my $queue_read_interval = 300;		# ... every 5 minutes
 my $queue_last_flushed = time();	# flush internal queue ...
 my $queue_flush_interval = 3600;	# ... once per hour
+my $queue_hiwat_reached = 0;		# high water mark reached
 
 #
 # child processes
@@ -489,6 +510,10 @@ while( 1 )
 	    &read_job_to_queue( $f );
 	}
     }
+
+    # now issue warning if lenght of modem queue is over high water mark
+    if ( $faxq_hiwat_thres > 0 )
+	{ &check_queue_thresholds( scalar( keys( %queue )) ); }
 
     # start all modem queues (that have requests and are not busy)
     print LOG localtime() . ": starting modem queues...\n" if $opt_v;
@@ -1898,4 +1923,38 @@ sub remove_stale_locks
     }
     close D;
     return;
+}
+
+sub check_queue_thresholds
+{
+    my $cur_len = shift;
+
+    print LOG "cqth: len=$cur_len -> [$faxq_lowat_thres...$faxq_hiwat_thres] (hwr=$queue_hiwat_reached)\n" if $opt_d;
+
+    if ( !$queue_hiwat_reached )
+    {
+	if ( $cur_len > $faxq_hiwat_thres )
+	{
+	    print LOG "INFO: fax queue len $cur_len over high water mark\n";
+	    if ( $faxq_hiwat_script ne '' && $faxq_hiwat_script ne '-' )
+	    {
+		print LOG "run script: '$faxq_hiwat_script $cur_len'\n";
+		system( "$faxq_hiwat_script $cur_len </dev/null" );
+	    }
+	    $queue_hiwat_reached++;
+	}
+    }
+    else
+    {
+	if ( $cur_len < $faxq_lowat_thres )
+	{
+	    print LOG "INFO: fax queue len $cur_len below low water mark\n";
+	    if ( $faxq_lowat_script ne '' && $faxq_lowat_script ne '-' )
+	    {
+		print LOG "run script: '$faxq_lowat_script $cur_len'\n";
+		system( "$faxq_lowat_script $cur_len </dev/null" );
+	    }
+	    $queue_hiwat_reached=0;
+	}
+    }
 }
