@@ -214,6 +214,32 @@ option multiple times.  Example:
 
 sendfax-tty-map capi0 /usr/sbin/sendfax.capi
 
+.TP
+.B queue-length-high [number] [program path] [args]
+run the specified command when the number of jobs in the fax queue exceeds
+.I number
+(this could be used to send out a warning by syslog or e-mail when too
+many modems fail on a busy system, and faxes get stuck).  The script will
+be run only once, unless the queue length falls below the ``low water
+mark'' threshold and rises again later on.
+
+.TP
+.B queue-length-low [number] [program path] [args]
+run the specified command when the queue length has been over the 
+``high water'' threshold, and is back below this number.  This can be
+used to send ``everything is back to normal'' e-mails, or just to reset
+the alarm threshold.
+
+.TP
+.B modem-error-threshold [number] [program path] [args]
+this script is called whenever a given modem has more than
+.I number
+consecutive errors.  Every successfully sent fax always resets the counter
+for a given modem to 0.  This can be used to notify the sysadmin when a
+modem breaks (by default, 
+.I faxrunqd
+just phases out a problematic modem, but will not report the problem).
+
 
 .SH POLICY ROUTING
 .I faxrunqd
