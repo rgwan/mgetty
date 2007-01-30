@@ -3,8 +3,8 @@ Step 2: Read the README file
 Step 3: Find out where mgetty exprects new_fax
 Step 4: Create a symbolic link to new_fax 
 Step 5: Check the config lines inside of new_fax
-Step 5: Edit the faxlist file
-Step 6: Test it!
+Step 6: Edit the faxlist file
+Step 7: Test it!
 
 To find where mgetty expects new_fax, enter
 
