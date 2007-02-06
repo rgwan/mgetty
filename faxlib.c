@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.72 2006/11/03 13:08:50 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.73 2007/02/06 16:26:07 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -9,6 +9,9 @@
  * different that it goes to a separate library.
  *
  * $Log: faxlib.c,v $
+ * Revision 4.73  2007/02/06 16:26:07  gert
+ * grab FW version number for Blatzheim modems
+ *
  * Revision 4.72  2006/11/03 13:08:50  gert
  * add CVS tag
  *
@@ -983,6 +986,7 @@ int mdm_identify _P1( (fd), int fd )
 	{
 	    lprintf( L_MESG, "Blatzheim ISDN modem, buggy class 2.0, force class 2" );
 	    modem_type=Mt_class2;
+	    mis = mdm_get_idstring( "ATI3", 3, fd );
 	}
     }
 
