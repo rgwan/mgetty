@@ -1,4 +1,4 @@
-/* $Id: t_g3f_c.c,v 1.1 2006/09/25 22:33:38 gert Exp $
+/* $Id: t_g3f_c.c,v 1.2 2007/03/09 16:07:40 gert Exp $
  *
  * test program for mgetty/sendfax "g3file.c"
  *
@@ -6,6 +6,9 @@
  *  (called from t_g3file script)
  *
  * $Log: t_g3f_c.c,v $
+ * Revision 1.2  2007/03/09 16:07:40  gert
+ * add stdlib.h
+ *
  * Revision 1.1  2006/09/25 22:33:38  gert
  * test C program + script helper for g3file.o
  *
@@ -18,6 +21,7 @@
 #include <stdio.h>
 #include <signal.h>
 #include <errno.h>
+#include <stdlib.h>
 #ifdef T_LOG_VERBOSE
 # include <stdarg.h>
 #endif
