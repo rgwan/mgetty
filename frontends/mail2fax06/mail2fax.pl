@@ -4,9 +4,12 @@
 #                       from e-mail address (12345@fax), call faxspool
 # to be run from sendmail, qmail, ...
 #
-# $Id: mail2fax.pl,v 1.3 2006/10/19 10:29:56 gert Exp $
+# $Id: mail2fax.pl,v 1.4 2007/04/05 08:45:58 gert Exp $
 #
 # $Log: mail2fax.pl,v $
+# Revision 1.4  2007/04/05 08:45:58  gert
+# skip empty text/plain MIME parts
+#
 # Revision 1.3  2006/10/19 10:29:56  gert
 # path change: use /usr/bin/perl
 # bugfix: if "-f" isn't specified, don't pass empty "-f" to faxspool
@@ -118,6 +121,15 @@ my $type = $part->effective_type;
 	    print LOG "-> skip part, unconvertable body\n";
 	    next;
 	}
+
+	# some e-mail clients produce empty text/plain parts when sending
+	# "just attachment" mails (e.g. sending a PDF) -> skip these
+	if ( $type eq 'text/plain' && -z $path )
+	{
+	    print LOG "-> skip part, empty file $path\n";
+	    next;
+	}
+    
 	push @pages, $path;
     }
 }
