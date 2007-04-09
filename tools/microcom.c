@@ -1,4 +1,4 @@
-#ident "$Id: microcom.c,v 1.6 2006/06/14 09:55:39 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: microcom.c,v 1.7 2007/04/09 10:39:44 gert Exp $ Copyright (c) Gert Doering"
 
 /* microcom.c
  *
@@ -120,6 +120,11 @@ int main( int argc, char ** argv )
 	if ( FD_ISSET( STDIN, &rfs ) )
 	{ 
 	   len = read( STDIN, buf, 100 ); if ( len>0 ) write( fd, buf, len );
+	   if ( len > 0 && buf[0] == 2 )	/* ^B -> break */
+	   {
+	       tio_break( fd );
+	       write( STDOUT, "*break*", 7 );
+	   }
 	}
 	if ( FD_ISSET( fd, &rfs ) )
 	{
