@@ -9,10 +9,19 @@
 #
 # initial version: Feb 17, 1997
 #
-my $rcs_id='RCS: $Id: faxrunqd.in,v 1.75 2007/01/18 16:22:53 gert Exp $';
+my $rcs_id='RCS: $Id: faxrunqd.in,v 1.76 2007/05/03 15:03:42 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.76  2007/05/03 15:03:42  gert
+# Add timeouts to wait() calls
+#   - avoid idle modems while waiting for a looong job to finish
+#   - detect hung sendfax processes, and kill them (if needed)
+# necessary internal restructuring:
+#   - join %pid2job and %pid2tty into %c_data (child data)
+#   - add start time and #of pages to %c_data store
+# adapt a couple of log message for "wait_for_child returns '<empty>'"
+#
 # Revision 1.75  2007/01/18 16:22:53  gert
 # call (configurable) script if a modem has too many consecutive errors
 #
@@ -221,6 +230,7 @@ my $faxq_lowat_thres = 0;		# down again to this # of jobs?
 my $faxq_lowat_script = '';		# -> run this script
 my $modem_error_thres = 0;		# consecutive errors over this #?
 my $modem_error_script = '';		# -> run this script
+my $wait_timeout = 150;			# interrupt wait() every <n> seconds
 my $policy_config='';
 my @policy=();
 
@@ -454,8 +464,8 @@ my $queue_hiwat_reached = 0;		# high water mark reached
 #
 # child processes
 #
-use vars qw / $childs %pid2job %phones %pid2tty /;
-$childs = 0; %pid2job = (); %phones = (); %pid2tty = ();
+use vars qw / $childs %c_data %phones /;
+$childs = 0; %c_data = ();
 
 #
 # ttys available (-l tty1:tty2:... option or default)
@@ -489,7 +499,7 @@ while( 1 )
 	print LOG "queue handling stopped ($childs outstanding jobs)\n";
 	while ( $childs > 0 && -f 'stop' )
 	    { my $tty=&wait_for_child; 
-	      print LOG "* tty '$tty' done\n" if $opt_v; }
+	      print LOG "* tty '$tty' done\n" if $opt_v && $tty ne ''; }
 	while( -f 'stop' )
 	    { sleep(10); }
 	print LOG localtime() . ": queue handling restarted.\n" if $opt_v;
@@ -550,7 +560,12 @@ while( 1 )
 
         my $tty = &wait_for_child;
 
-	next if ( $tty eq '' );
+	# leave loop if wait() had a timeout (5 minutes), check for new jobs
+	if ( $tty eq '' )
+	{
+	    print LOG "* long-running job, rescan on-disk-queue\n" if $opt_v; 
+	    last;
+	}
 
 	# start next job (if there is one) on $tty
 
@@ -664,7 +679,7 @@ while( 1 )
 	print LOG "Graceful Exit: wait for $childs child processes\n";
 	while ( $childs > 0 )
 	    { my $tty=&wait_for_child; 
-	      print LOG "* tty '$tty' done\n" if $opt_v; }
+	      print LOG "* tty '$tty' done\n" if $opt_v && $tty ne ''; }
 	&signal_handler('HUP');
     }
 
@@ -1257,8 +1272,8 @@ sub send_job_from_queue
     else			# PARENT
     {
 	$childs++;
-	$pid2job{$pid}=$job;
-	$pid2tty{$pid}=$tty;
+	$c_data{$pid}={ job => $job, tty => $tty, 
+			stime => time(), pages => scalar(@pages) };
 	$tty_in_use{$tty}=1;
 	printf LOG "$job: forked off child **$pid**...\n" if $opt_v;
     }
@@ -1350,7 +1365,43 @@ my ($r, $s, $ex, $j, $t);
 
     print LOG "Waiting for offspring ($childs out there)...\n" if $opt_d;
 
-    $r = wait; $s=$?; $ex=$s>>8;
+    $r = 0;
+
+    # make wait() interruptible, so a long-running process cannot starve 
+    # out re-reading of the on-disk queue, and feeding that to other
+    # modems - and it allows us to handle stuck sendfax(8) processes.
+    # (this is straight from "man perlipc"...)
+    eval
+    {
+	local $SIG{ALRM} = sub { die "alarm clock"; };
+	alarm($wait_timeout);
+	$r = wait; 
+	alarm(0);
+    };
+
+    if ( $@ and $@ =~ /alarm clock/ )
+    {
+        print LOG "    ---> timeout in wait() ($wait_timeout s.)\n" if $opt_d;
+	# check age of running sendfax processes
+	foreach my $pid ( keys %c_data )
+	{
+	    my $age = time()-($c_data{$pid}->{stime});
+	    my $pgs = $c_data{$pid}->{pages};
+
+            print LOG "      -> $c_data{$pid}->{job} ($pid, $c_data{$pid}->{tty}): active since $age seconds ($pgs pages)\n" if $opt_d;
+	    # kill jobs that are "stuck"
+	    #  rule of thumb: maximum 5 minutes per page plus 10 min "margin"
+	    if ( $age > $pgs*300+600 )
+	    {
+                print LOG "      *> kill pid $pid - stuck? ($age s.)\n";
+		kill SIGCONT, $pid;		# undo SIGSTOP
+		kill SIGTERM, $pid;		# give good kickin'
+	    }
+	}
+	return '';
+    }
+    
+    $s=$?; $ex=$s>>8;
 
     if ( $r == -1 )
     {
@@ -1360,7 +1411,7 @@ my ($r, $s, $ex, $j, $t);
     # there is a weirdness in Perl on AIX -- sometimes, wait() returns
     # a PID that we did not start (bastard child?). It seems to be
     # harmless to just ignore that fact and go on, but complain anyway.
-    if ( ! defined( $pid2job{$r} ) )
+    if ( ! defined( $c_data{$r} ) )
     {
 	print LOG "ERROR-CANTHAPPEN (wait returns PID [$r] with no associated job) -- ignore\n";
 	print "ERROR-CANTHAPPEN (wait returns PID [$r] with no associated job)\07\07\07\07\07\07\n";
@@ -1371,10 +1422,9 @@ my ($r, $s, $ex, $j, $t);
     }
 
     $childs--;
-    $j = $pid2job{$r};
-    $t = $pid2tty{$r};
-    delete $pid2job{$r};
-    delete $pid2tty{$r};
+    $j = $c_data{$r}->{job};
+    $t = $c_data{$r}->{tty};
+    delete $c_data{$r};
     delete $phones{ $queue{$j}->{'phone'} };
 
     print LOG "    ---> return=**$r** (-> job=$j, tty=$t), status=$s -> exit($ex)\n" if $opt_d;
@@ -1500,12 +1550,12 @@ sub check_is_job_done
 sub is_on_modem
 {
     my $jj = shift;
-    foreach my $p ( keys %pid2job )
+    foreach my $p ( keys %c_data )
     {
-	print LOG "\tcheck pid $p -> job $pid2job{$p}\n" if $opt_d;
-	if ( $pid2job{$p} eq $jj )
+	print LOG "\tcheck pid $p -> job $c_data{$p}->{job}\n" if $opt_d;
+	if ( $c_data{$p}->{job} eq $jj )
 	{
-	    print LOG "\tfound job $jj as pid $p, tty $pid2tty{$p} -> on modem!\n" if $opt_d;
+	    print LOG "\tfound job $jj as pid $p, tty $c_data{$p}->{tty} -> on modem!\n" if $opt_d;
 	    return 1;
 	}
     }
@@ -1817,9 +1867,9 @@ my $sig = shift;
     &dump_statistics;
 
     # remove JOB locks of all currently-active jobs
-    foreach my $pi ( keys %pid2job )
+    foreach my $pi ( keys %c_data )
     {
-	my $jl = $pid2job{$pi};
+	my $jl = $c_data{$pi}->{job};
 
         print LOG "remove job lock $jl/JOB.locked.\n" if $opt_d;
 	unlink "$jl/JOB.locked";
