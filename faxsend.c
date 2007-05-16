@@ -1,4 +1,4 @@
-#ident "$Id: faxsend.c,v 4.7 2005/12/31 15:55:02 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: faxsend.c,v 4.8 2007/05/16 15:25:50 gert Exp $ Copyright (c) 1994 Gert Doering"
 
 /* faxsend.c
  *
@@ -13,7 +13,7 @@
  */
 
 #include <stdio.h>
-#include <string.h>
+#include <strings.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include "syslibs.h"
@@ -175,6 +175,19 @@ int fax_send_page _P5( (g3_file, bytes_sent, tio, ppm, fd),
 	int r, i, w;
 	int w_refresh = 0;
 	boolean first = TRUE;
+
+	/* timing at start of page is a bit critical - some modems can't
+	 * get this reliably right, so we have the option to send a few ms
+	 * of 0-bytes, before the 001 EOL, thus relaxing the timing a bit
+	 */
+	if ( modem_quirks & MQ_NEED_SP_PAD )
+	{
+	    char nbuf[100];
+
+	    lprintf( L_MESG, "send %d 0-bytes (pad before first EOL)...", sizeof(nbuf) );
+	    bzero( nbuf, sizeof(nbuf) );
+	    write( fd, nbuf, sizeof(nbuf) );
+	}
 
 	alarm( 40 );		/* timeout if we get stuck in flow control */
 
