@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.69 2006/09/25 22:34:36 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.70 2007/06/15 06:57:48 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -454,8 +454,8 @@ version.h: $(DISTRIB)
 mgetty$(MR).$(SR).tar.gz:	$(DISTRIB)
 	rm -f mgetty-$(MR).$(SR)
 	ln -sf . mgetty-$(MR).$(SR)
-	find . -name core -print | xargs rm
-	cd voice ; $(MAKE) fullclean && cvs update -d .
+	find . -name core -print | xargs rm -f
+	cd voice ; $(MAKE) clean && cvs update -d .
 	( echo "$(DISTRIB)" | tr " " "\\012" ; \
 	  for i in `find . -name .files -print | sed -e 's;^./;;` ; do \
 	      cat $$i | sed -e '/^\.files/d' -e 's;^;'`dirname $$i`'/;' ; \
