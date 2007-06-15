@@ -1,3 +1,179 @@
+Fri Jun 15 09:13:20 MEST 2007  Gert Doering <gert@greenie.muc.de>
+
+	* release 1.1.36
+
+Wed May 16 17:46:39 MEST 2007  Gert Doering <gd@medat.de>
+
+	* faxsend.c: (optionally) insert 100 0-bytes at start of page, to
+	  help modems that have problems with the before-EOL timing (new USRs)
+
+	* fax_lib.c: add new MQ_ bit for 0-padding
+
+Sat May  5 14:03:16 MEST 2007  Gert Doering <gd@medat.de>
+
+	* fax/faxrunqd.in: make wait() interruptible, avoid queue stalls
+	  if only one modem active and this modem has a very long job.
+	  Additionally, detect hung sendfax processes, and kill()' em.
+
+	* faxlib.c: recognize modem ID for Blatzheim ISDN/hybrid modems
+
+Fri Jan 19 08:36:49 MET 2007  Gert Doering <gd@medat.de>
+
+	* fax/faxrunqd.in: add functionality to run external scripts if
+	  the fax queue reaches a "high water mark" length, and if a given
+	  modem has more than <x> consecutive errors
+
+	* doc/faxrunqd.8in: document new options
+
+Thu Dec  7 16:44:55 MET 2006  Gert Doering <gd@medat.de>
+
+	* fax/faxspool.in: add @S@ for faxheader (replace with job id)
+
+Wed Nov 22 16:41:47 MET 2006  Gert Doering <gd@medat.de>
+
+	* sendfax.c: for "failed transmitting", log #of pages successfully
+	  sent + #of retries (important for judging significance of errors)
+
+	* conf_sf.c: add new sendfax option "-R <n>" to set "max_tries" value
+
+	* doc/sendfax.8in: document -R
+
+Wed Oct 25 13:50:17 MEST 2006  Gert Doering <gert@greenie.muc.de>
+
+	* tools/README: update documentation, add "microcom"
+
+	* class1lib.c: in fax1_send_frame(): make logging more uniform and
+		       easier to read.  Handle case of "NO CARRIER" after
+		       frame has been sent, and check for internal
+		       consistency regarding "we have carrier" vs. "use
+		       existing carrier" (ugly)
+
+	* class1.c: on reception, don't try to send DIS when CSI frame
+		    couldn't be sent.  Log # of current re-try.
+
+Thu Oct 19 10:01:02 MEST 2006  Jan-Peter Koopmann
+
+	* add exim4 documentation to frontends/mail2fax06/README
+
+Fri Sep 29 13:05:40 MEST 2006  Gert Doering <gert@greenie.muc.de>
+
+	* class1lib.c: check all fax_send() return values (in case flow
+	  control gets stuck, we might have a timeout in there)
+
+	* class1.c: properly implement scan line time handling / byte padding
+
+	* class1.c: implement re-training on TCF/FTT, including stepdown
+
+	* class1lib.c: implement fax1_st_table[] for scan line time 
+	        handling (bit ordering in DCS/DIS frames is just weird).
+	        Add scan time parameter to fax1_send_dcs()
+
+	* fax/faxspool.rules: add conversion rules for .jpg and .doc
+
+Wed Sep 27 11:49:45 MEST 2006  Gert Doering <gd@mdat.de>
+
+	* fax/faxrunqd.in: fix write combining bug with partially-sent jobs
+
+Tue Sep 26 11:05:36 MEST 2006  Gert Doering <gert@greenie.muc.de>
+
+	* voice/libvoice/*: sparc64 compatibility fixes (*int vs. *p_int)
+
+	* voice/Makefile: pull in new object files (hyla_nsf.o, g3file.o)
+
+	* g3file.c: implement first draft of generic G3 I/O module,
+	            including EOL padding 
+
+	* t/t_g3f_c.c, t/t_g3file.in: test routines for g3file.c
+
+	* class1.c: change fax1_send_page() to use g3_send_file()
+
+	* fax/faxspool.in: netpbm calls "giftoppm" now "giftopnm" -> adapt
+
+Fri Sep 22 23:43:51 MEST 2006  Gert Doering <gert@greenie.muc.de>
+
+	* frontends/mail2fax06/: implement new mail to fax conversion tool,
+	  in perl, using MIME::Parser, which will properly handle attachments
+
+Wed Jun 14 11:38:54 MEST 2006  Gert Doering <gd@medat.de>
+
+	* tools/microcom.c: add <stdlib.h> to fix missing prototype warnings
+
+	* config.c: insert {} to silence over-eager compiler warnings
+
+	* tio.c: change "static char[] tio_compilation_type" into "#ident"
+	  (get rid of "unused variable" warning, save a few bytes .data)
+
+	* locks.c: get rid of "unused variable tries" compiler warning
+
+	* hyla_nsf.c: add mgetty T.35 vendor code to table
+
+Sat Jun 10 13:45:04 MEST 2006  Gert Doering <gert@greenie.muc.de>
+
+	* mgetty has its own ITU T.35 vendor code now! [0x04 0x81 0x0e]
+
+Fri May 26 22:04:20 MEST 2006  Gert Doering <gert@greenie.muc.de>
+
+	* tools/mid.c: implement "-Q" (quick query)
+
+Thu Apr 13 12:07:16 MEST 2006  Gert Doering <gd@medat.de>
+
+	* faxlib.c: handle USR reporting format for NSF frames
+
+Sun Apr  9 18:39:51 MEST 2006  Gert Doering <gert@greenie.muc.de>
+
+	* fax/faxrunqd.in: fix quoting bug in `date` call (Klaus Weglehner)
+
+	* hyla_nsf.c: import new set of tables from Hylafax NSF.c++
+
+Wed Mar 29 14:26:48 MEST 2006  Gert Doering <gert@greenie.muc.de>
+
+	* hyla_nsf.c, class1.c, class1.h: silence compiler complaints
+
+	* config.h: cast return value of c_bool() to (boolean)
+
+Wed Mar 22 15:10:18 MET 2006  Gert Doering <gert@greenie.muc.de>
+
+	* class1.c: hand off incoming NSF frames to decoder
+
+	* faxlib.c: convert incoming NSF frames to binary, hand off to decoder
+
+	* hyla_nsf.c: import NSF vendor tables + decoder from Hylafax
+
+Tue Mar  7 15:10:13 MET 2006  Gert Doering <gert@greenie.muc.de>
+
+	* class1.c: fax1_send_page(): fix end-of-page handling, reorder
+		    sending of TSI and DCS to correctly handle RTP/RTN
+
+	* class1.c: fax1_send_page(): properly use fax_send_swaptable[]
+		    (page sending works now, if receiver doesn't need padding)
+
+	* class1.c: fax1_send_page(): fix first and last chunk of page data
+		    (digifax header wasn't skipped, and last chunk was lost)
+
+	* class1.c: handle DCN in fax1_dial_and_phase_AB()
+
+	* class1.c: add receive torture test (to sender), more logging
+
+	* fax_lib.h: define CAN character (cancel, ctrl-x)
+
+	* class1lib.c: fax1_receive_frame(): if waiting for start-of-frame 
+		       already runs into timeout, don't even try to read
+		       end-of-frame modem response (robustness)
+
+	* class1lib.c: tell modem (send CAN character) when we timeout
+		       after AT+FRH=n, to make sure recovering works
+
+Mon Mar  6 17:27:04 MET 2006  Gert Doering <gert@greenie.muc.de>
+
+	* class1lib.c: don't query AT+FRH=?/+FTH=? carriers
+
+Wed Feb 22 18:10:50 MET 2006  Gert Doering <gd@medat.de>
+
+	* */Makefile: move all "fullclean" extras into "clean" target,
+	              remove "make fullclean"
+
+	* Makefile: for "make fullclean" or "distclean", just do "clean"
+
 Wed Feb 22 14:36:16 MET 2006  Gert Doering <gert@greenie.muc.de>
 
 	* release 1.1.35
