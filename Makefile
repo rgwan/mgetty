@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.70 2007/06/15 06:57:48 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.71 2007/06/15 11:15:56 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -395,6 +395,7 @@ DISTRIB=README.1st THANKS TODO BUGS FTP Recommend \
 	mg_m_init.c modem.c ring.c \
 	class1.h class1.c class1lib.c hyla_nsf.c \
 	faxrec.c faxrecp.c faxsend.c faxlib.c fax_lib.h sendfax.c \
+	g3file.c \
 	io.c tio.c tio.h gettydefs.c login.c do_stat.c faxhng.c \
 	config.h config.c conf_sf.h conf_sf.c conf_mg.h conf_mg.c \
 	cnd.c getdisk.c mksed.c utmp.c mg_utmp.h syslibs.h goodies.c
