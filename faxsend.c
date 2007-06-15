@@ -1,4 +1,4 @@
-#ident "$Id: faxsend.c,v 4.8 2007/05/16 15:25:50 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: faxsend.c,v 4.9 2007/06/15 06:44:58 gert Exp $ Copyright (c) 1994 Gert Doering"
 
 /* faxsend.c
  *
@@ -10,6 +10,11 @@
  * Eventually add headers to each page.
  *
  * The code is still quite rough, but it works.
+ *
+ * $Log: faxsend.c,v $
+ * Revision 4.9  2007/06/15 06:44:58  gert
+ * add CVS Log tag
+ *
  */
 
 #include <stdio.h>
