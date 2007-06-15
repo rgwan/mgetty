@@ -3,6 +3,9 @@
 # Aufruf z.B.: 1.1 14 1.1.13  fuer "1.1.14 neu, diff zu 1.1.13".
 #
 # $Log: beta,v $
+# Revision 4.3  2007/06/15 07:11:57  gert
+# change "make fullclean" to "make clean"
+#
 # Revision 4.2  2006/02/25 12:49:17  gert
 # add freshmeat.net reminder
 #
@@ -39,7 +42,7 @@ echo "TODO: HTML-Page bauen!"
 if [ "$4" = "stop" ] ; then exit 1 ; fi
 
 cd doc
-make fullclean doc-all || exit 1
+make clean doc-all || exit 1
 
 rm -f work-html/*
 gzip -9 <mgetty.dvi >work-html/mgetty.dvi.gz
