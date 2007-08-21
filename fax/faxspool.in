@@ -3,7 +3,7 @@
 # faxspool - sample script how to spool fax input data to a spool
 #            directory, creating jobs to be run by faxrunq
 #
-# sccsid: $Id: faxspool.in,v 4.34 2007/08/21 09:47:49 gert Exp $ (c) Gert Doering
+# sccsid: $Id: faxspool.in,v 4.35 2007/08/21 10:33:42 gert Exp $ (c) Gert Doering
 #
 # syntax: faxspool [flags] <phone-number> <job(s)>
 #
@@ -26,6 +26,9 @@
 #  3.10.93: use "hp2hig3" for hp-pcl4-files (cl)
 # 19.10.93: phone directories (caz)
 # $Log: faxspool.in,v $
+# Revision 4.35  2007/08/21 10:33:42  gert
+# add "-" to list of permitted characters in FDATE
+#
 # Revision 4.34  2007/08/21 09:47:49  gert
 # add formatting flexibility to @DATE@ in faxheader
 #
@@ -905,7 +908,7 @@ do
     if [ -n "$FAX_HEADER" ]
     then
 	# flexible DATE format
-	FDATE=`sed -n -e '\!@DATE \+[0-9a-zA-Z: \./%]*@!s!.*@DATE \(\+[0-9a-zA-Z: \./%]*\)@.*!\1!p' $FAX_HEADER`
+	FDATE=`sed -n -e '\!@DATE \+[0-9a-zA-Z: \./%\-]*@!s!.*@DATE \(\+[0-9a-zA-Z: \./%\-]*\)@.*!\1!p' $FAX_HEADER`
 	if [ -n "$FDATE" ] ; then
 	    DATE_OUT=`date "$FDATE"`
 	else
