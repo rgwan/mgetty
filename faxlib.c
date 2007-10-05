@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.74 2007/02/06 17:04:13 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.75 2007/10/05 12:53:37 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -9,6 +9,10 @@
  * different that it goes to a separate library.
  *
  * $Log: faxlib.c,v $
+ * Revision 4.75  2007/10/05 12:53:37  gert
+ * On Blatzheim modems, auto-enable modem quirk MQ_NO_XON
+ *   (firmware doesn't send Xon character at start of page)
+ *
  * Revision 4.74  2007/02/06 17:04:13  gert
  * fix modem ID stuff for Blatzheim
  *
@@ -989,6 +993,7 @@ int mdm_identify _P1( (fd), int fd )
 	{
 	    lprintf( L_MESG, "Blatzheim ISDN modem, buggy class 2.0, force class 2" );
 	    modem_type=Mt_class2;
+	    modem_quirks |= MQ_NO_XON;
 	    mis = mdm_get_idstring( "ATI3", 1, fd );
 	}
     }
