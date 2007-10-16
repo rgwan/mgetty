@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.71 2007/06/15 11:15:56 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.72 2007/10/16 11:39:30 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -315,7 +315,7 @@ SFAXOBJ=sendfax.o logfile.o locks.o modem.o \
      faxlib.o faxsend.o faxrecp.o class1.o class1lib.o faxhng.o hyla_nsf.o \
      g3file.o io.o tio.o getdisk.o config.o conf_sf.o goodies.o
 
-all:	bin-all doc-all
+all:	bin-all doc-man-only
 
 bin-all: mgetty sendfax newslock sedscript subdirs call-back 
 
@@ -376,6 +376,9 @@ contrib-all:
 doc-all: 
 	cd doc ; $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" "LIBS=$(LIBS)" doc-all
 
+doc-man-only:
+	cd doc ; $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" "LIBS=$(LIBS)" all
+
 # things...
 
 getdisk: getdisk.c
@@ -386,7 +389,7 @@ testdisk:	getdisk
 
 
 # README PROBLEMS
-DISTRIB=README.1st THANKS TODO BUGS FTP Recommend \
+DISTRIB=README.1st THANKS TODO BUGS FTP COPYING Recommend \
 	inittab.aix inst.sh version.h \
 	Makefile ChangeLog policy.h-dist ftp.sh mkidirs \
 	login.cfg.in mgetty.cfg.in sendfax.cfg.in \
