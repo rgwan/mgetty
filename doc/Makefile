@@ -1,6 +1,6 @@
 # doc/Makefile
 #
-# SCCS: $Id: Makefile,v 4.6 2006/02/22 17:35:02 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: Makefile,v 4.7 2007/10/16 10:19:46 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 
 NROFF=nroff
@@ -24,7 +24,7 @@ INFODIR=/usr/local/info
 MAN_FMT_PRG=$(NROFF) -man
 
 
-all:
+all: manpages fmt-manpages mgetty.texi
 
 doc-all: mgetty.asc mgetty.info mgetty.dvi mgetty.ps fmt-manpages $(MANSRC) 
 
