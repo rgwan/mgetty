@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.68 2005/12/30 21:43:49 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.69 2008/01/31 16:30:12 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -1908,6 +1908,14 @@ faxmodems. Default is @code{DEFAULT_MODEMTYPE}. @xref{runtime-mgetty}.
 
 Same as in @code{mgetty}, this can be used to adapt @code{sendfax} to
 some peculiarities in certain modems. @xref{runtime-mgetty}.
+
+@item @code{reset-after-fail}  @var{command}
+
+Specifies an @samp{AT...} command that is to be sent to the modem in the
+case of a dialup failure (NO CARRIER, NO DIALTONE).  This could be
+something to reset the modem's ISDN logic (@samp{ATZ!}) in case you run
+into communication problems between modem and ISDN PABX.  Should only 
+ever be necessary in very special cases.
 
 @item @code{max-tries} @var{nnn}
 
