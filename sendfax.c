@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 4.25 2006/11/22 17:04:21 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 4.26 2008/01/31 16:17:09 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -8,6 +8,11 @@
  * The code is still quite rough, but it works.
  *
  * $Log: sendfax.c,v $
+ * Revision 4.26  2008/01/31 16:17:09  gert
+ * add workaround for mis-dialing problem in some PABXes - after a dial-failure,
+ * (NO CARRIER, NO DIALTONE) send an extra modem reset command and give the
+ * system time to "cool down".  Configured with "reset-after-fail ATxxx".
+ *
  * Revision 4.25  2006/11/22 17:04:21  gert
  * fix logging of #of pages (for exit 12)
  *
@@ -553,6 +558,20 @@ int main _P2( (argc, argv),
 	lprintf( L_AUDIT, "failed dialing, phone=\"%s\", +FHS:%02d, dev=%s, time=%ds, acct=\"%s\"",
 		 fac_tel_no, fax_hangup_code, Device,
 		 ( time(NULL)-call_start ), c_string(acct_handle) );
+
+	/* certain combinations of ISDN modems and PABXes have funny
+	 * failure modes - dial #1, NO CARRIER, dial #2, connect to #1 (!),
+	 * deliver fax to wrong receipient 
+	 * --> workaround: hard reset modem (ATZ!), sleep a while
+	 */
+	if ( c_isset(reset_after_fail) &&
+		     fax_hangup_code != FHUP_BUSY )
+	{
+	    lprintf( L_MESG, "sending reset-after-fail command..." );
+	    sleep(2);
+	    fax_command( c_string(reset_after_fail), "OK", fd );
+	    sleep(20);
+	}
 
 	/* close fax line */
 	fax_close( fd );
