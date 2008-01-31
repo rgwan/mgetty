@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 4.26 2008/01/31 16:17:09 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 4.27 2008/01/31 16:23:08 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -8,6 +8,9 @@
  * The code is still quite rough, but it works.
  *
  * $Log: sendfax.c,v $
+ * Revision 4.27  2008/01/31 16:23:08  gert
+ * use mdm_command() not fax_command() for sending reset sequence
+ *
  * Revision 4.26  2008/01/31 16:17:09  gert
  * add workaround for mis-dialing problem in some PABXes - after a dial-failure,
  * (NO CARRIER, NO DIALTONE) send an extra modem reset command and give the
@@ -569,7 +572,7 @@ int main _P2( (argc, argv),
 	{
 	    lprintf( L_MESG, "sending reset-after-fail command..." );
 	    sleep(2);
-	    fax_command( c_string(reset_after_fail), "OK", fd );
+	    mdm_command( c_string(reset_after_fail), fd );
 	    sleep(20);
 	}
 
