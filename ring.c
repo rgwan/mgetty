@@ -1,4 +1,4 @@
-#ident "$Id: ring.c,v 4.20 2005/03/23 09:56:57 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: ring.c,v 4.21 2008/03/07 14:46:43 gert Exp $ Copyright (c) Gert Doering"
 
 /* ring.c
  *
@@ -141,6 +141,9 @@ char * p, ch;
     if ( strncmp( string, "FM:", 3 ) == 0 )		/* caller ID */
     {
 	string+=3;
+	/* Blatzheim: FM:<space><number> */
+	while( isspace(*string) ) { string++; }
+
 	p=string;
 	while( isdigit(*p) ) p++;
 	ch = *p; *p = '\0';
@@ -159,7 +162,11 @@ char * p, ch;
     }
     if ( strncmp( string, "TO:", 3 ) == 0 )		/* target msn */
     {
-	return find_msn( string+3, msn_list );
+	string += 3;
+	/* Blatzheim: TO:<space><number> */
+	while( isspace(*string) ) { string++; }
+
+	return find_msn( string, msn_list );
     }
     return 0;			/* unspecified */
 }
