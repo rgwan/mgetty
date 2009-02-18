@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.72 2007/10/16 11:39:30 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.73 2009/02/18 08:20:47 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -587,8 +587,10 @@ install.bin: mgetty sendfax newslock \
 	$(INSTALL) -m 755 newslock $(BINDIR)
 
 	-test -d $(SBINDIR) || ( ./mkidirs $(SBINDIR) ; chmod 755 $(SBINDIR) )
-	-mv -f $(SBINDIR)/mgetty $(SBINDIR)/mgetty.old
-	-mv -f $(SBINDIR)/sendfax $(SBINDIR)/sendfax.old
+	if [ -f $(SBINDIR)/mgetty ] ; then \
+		mv -f $(SBINDIR)/mgetty $(SBINDIR)/mgetty.old ; fi
+	if [ -f $(SBINDIR)/sendfax ] ; then \
+		mv -f $(SBINDIR)/sendfax $(SBINDIR)/sendfax.old ; fi
 	$(INSTALL) -s -m 700 mgetty $(SBINDIR)
 	$(INSTALL) -s -m 755 sendfax $(SBINDIR)
 #
