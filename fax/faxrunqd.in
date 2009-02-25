@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-my $rcs_id='RCS: $Id: faxrunqd.in,v 1.76 2007/05/03 15:03:42 gert Exp $';
+my $rcs_id='RCS: $Id: faxrunqd.in,v 1.77 2009/02/25 12:58:23 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.77  2009/02/25 12:58:23  gert
+# Enhance per-phone-statistics: add "total number of jobs for this phone#"
+#
 # Revision 1.76  2007/05/03 15:03:42  gert
 # Add timeouts to wait() calls
 #   - avoid idle modems while waiting for a looong job to finish
@@ -1461,7 +1464,7 @@ my ($r, $s, $ex, $j, $t);
     # and for per-remote-phone statistics
     my $ph = $queue{$j}->{'phone'};
     if ( ! defined( $per_phone_statistics{$ph} ) )
-	    { $per_phone_statistics{$ph}{0} = 0; }
+	    { $per_phone_statistics{$ph} = {0 => 0, 'j' => 0}; }
     if ( ! defined( $per_phone_statistics{$ph}{$ex} ) )
 	    { $per_phone_statistics{$ph}{$ex} = 0; }
     $per_phone_statistics{$ph}{$ex}++;
@@ -1574,6 +1577,8 @@ sub handle_return_code
 {
     my ( $ex, $j, $tty ) = @_;
 
+    my $ph = $queue{$j}->{'phone'};
+
     # now handle return codes
     if ( $ex == 0 )		# job successfully sent
     {
@@ -1587,6 +1592,9 @@ sub handle_return_code
 
 	# write acct.log
 	&wacct($j, $tty, 0, "success");
+
+	# increase number-of-jobs for phone number statistics
+	$per_phone_statistics{$ph}{'j'}++;
 
 	# remember that this modem did well :-) (-> clear error history)
 	$modem_errors{$tty} = [];
@@ -1659,6 +1667,9 @@ sub handle_return_code
 	{
 	    # write acct.log (final)
 	    &wacct($j, $tty, $ex, "fail $ex: $verb_ex");
+
+	    # increase number-of-jobs for phone number statistics
+	    $per_phone_statistics{$ph}{'j'}++;
 
 	    # failure mail
 	    &smf($j)
@@ -1956,10 +1967,11 @@ my $t;
     foreach $t (sort (keys %per_phone_statistics))
     {
 	print LOG "error statistics for remote number '$t'\n";
-	print LOG "    total success   : ${per_phone_statistics{$t}{'0'}}\n";
+	print LOG "    successful calls: ${per_phone_statistics{$t}{'0'}}\n";
+	print LOG "    total jobs      : ${per_phone_statistics{$t}{'j'}}\n";
 	foreach (sort(keys %{$per_phone_statistics{$t}}))
 	{
-	    next if ( $_ eq '0' );
+	    next if ( $_ eq '0' || $_ eq 'j' );
             printf LOG "    error code %-2d   : %d [%s]\n",
 		$_, $per_phone_statistics{$t}{$_}, 
 		$exitcodes[$_];
