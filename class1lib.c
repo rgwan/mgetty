@@ -1,4 +1,4 @@
-#ident "$Id: class1lib.c,v 4.20 2006/10/25 10:56:41 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1lib.c,v 4.21 2009/02/26 15:43:54 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1lib.c
  *
@@ -510,6 +510,14 @@ int r,w;
     /* send AT+FTH=3, wait for CONNECT 
      * (but only if we've not sent an non-final frame before!)
      */
+
+    /* special-case (AT+FTS=8;+FTH=3)
+     */
+    if ( carrier < 0 )		/* T30_CAR_HAVE_V21 */
+    {
+	carrier_active = -carrier;	/* -> T30_CAR_V21 */
+	carrier = T30_CAR_SAME;
+    }
 
     /* catch internal out-of-sync condition ('canthappen')
      * (this is OK for the very first frame sent in receive mode - ugly, yes)
