@@ -1,4 +1,4 @@
-/* $Id: hyla_nsf.c,v 4.6 2006/06/14 11:30:31 gert Exp $ */
+/* $Id: hyla_nsf.c,v 4.7 2009/03/14 11:54:14 gert Exp $ */
 /* 
  * The tables in this file are taken from the HylaFAX distribution.  Thus,
  * the Hylafax copyright (below) applies, not the mgetty copyright (GPL).
@@ -195,7 +195,7 @@ static const ModelData Muratec48[] =
  *
  * For the most part it should be safe to identify a manufacturer
  * both with the MSB and LSB ordered bits, as the "masqueraded" country
- * is likely to not be actively assigning T.38 manufacturer codes.
+ * is likely to not be actively assigning T.35 manufacturer codes.
  * However, some manufacturers (e.g. Microsoft) may use MSB for the
  * country code and LSB for the rest of the NSF, and so basically this
  * table must be verified and corrected against actual real-world
@@ -268,7 +268,7 @@ static const NSFData KnownNSF[] =
     {"\x00\xE0\x00", 3, "Hiboshi",   false },
     {"\x00\xF0\x00", 3, "Sumitomo Electric", false },
     /* Germany */
-    {"\x20\x09",     2, "ITK Institut für Telekommunikation GmbH & Co KG", false },
+    {"\x20\x09",     2, "ITK Institut fuer Telekommunikation GmbH & Co KG", false },
     {"\x20\x11",     2, "Dr. Neuhaus Mikroelektronik", false },
     {"\x20\x21",     2, "ITO Communication", false },
     {"\x20\x31",     2, "mbp Kommunikationssysteme GmbH", false },
@@ -295,6 +295,7 @@ static const NSFData KnownNSF[] =
     /* France */
     {"\xBC\x53\x01", 3, "Minolta",   false },
     /* Korea */
+    {"\x61\x00\x7A", 3, "Xerox", false },
     {"\x86\x00\x02", 3, "unknown - Korea 02", false },
     {"\x86\x00\x06", 3, "unknown - Korea 06", false },
     {"\x86\x00\x08", 3, "unknown - Korea 08", false },
@@ -305,20 +306,21 @@ static const NSFData KnownNSF[] =
     {"\x86\x00\x16", 3, "Samsung", false, 3, 4, Samsung16 },
     {"\x86\x00\x1A", 3, "unknown - Korea 1A", false },
     {"\x86\x00\x40", 3, "unknown - Korea 40", false },
-    {"\x86\x00\x48", 3, "unknown - Korea 48", false },
+    {"\x86\x00\x48", 3, "Samsung/Dell", false },
     {"\x86\x00\x52", 3, "unknown - Korea 52", false },
-    {"\x86\x00\x5A", 3, "unknown - Korea 5A", false },
-    {"\x86\x00\x5E", 3, "unknown - Korea 5E", false },
+    {"\x86\x00\x5A", 3, "Samsung", false },
+    {"\x86\x00\x5E", 3, "Xerox", false },
     {"\x86\x00\x66", 3, "unknown - Korea 66", false },
     {"\x86\x00\x6E", 3, "unknown - Korea 6E", false },
     {"\x86\x00\x82", 3, "unknown - Korea 82", false },
-    {"\x86\x00\x88", 3, "unknown - Korea 88", false },
+    {"\x86\x00\x88", 3, "Ricoh", false },
     {"\x86\x00\x8A", 3, "unknown - Korea 8A", false },
     {"\x86\x00\x8C", 3, "Samsung", false, 3, 4, Samsung8C },
     {"\x86\x00\x92", 3, "unknown - Korea 92", false },
     {"\x86\x00\x98", 3, "Samsung",   false },
     {"\x86\x00\xA2", 3, "Samsung", false, 3, 4, SamsungA2 },
     {"\x86\x00\xA4", 3, "unknown - Korea A4", false },
+    {"\x86\x00\xC2", 3, "Samsung", false },
     {"\x86\x00\xC9", 3, "unknown - Korea C9", false },
     {"\x86\x00\xCC", 3, "unknown - Korea CC", false },
     {"\x86\x00\xD2", 3, "unknown - Korea D2", false },
