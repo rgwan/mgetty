@@ -1,4 +1,4 @@
-#ident "$Id: class1.c,v 4.18 2006/10/27 09:07:12 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1.c,v 4.19 2009/03/19 15:33:59 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1.c
  *
@@ -8,6 +8,10 @@
  * Uses library functions in class1lib.c, faxlib.c and modem.c
  *
  * $Log: class1.c,v $
+ * Revision 4.19  2009/03/19 15:33:59  gert
+ * send NSF frames on reception (if modem quirk 0x40, for now)
+ * handle different modem behaviour regarding AT+FTS=8;+FTH=3 gracefully
+ *
  * Revision 4.18  2006/10/27 09:07:12  gert
  * add file name of page currently sent to log message
  *
@@ -428,7 +432,14 @@ tryanyway:
 	   lprintf( L_WARN, "fax1_send_page: canthappen(1) - PRI not supported" );
     }
 
-    fax1_send_frame( fd, strcmp(line, "OK")==0? 3:0 , framebuf, 2 );
+    if ( strcmp( line, "OK" ) == 0 )	/* re-send AT+FTH=3 */
+    {
+        fax1_send_frame( fd, T30_CAR_V21, framebuf, 2 );
+    }
+    else				/* it got sent & acked */
+    {
+        fax1_send_frame( fd, T30_CAR_HAVE_V21, framebuf, 2 );
+    }
 
     /* get MPS/RTP/RTN code */
     fax1_receive_frame( fd, T30_CAR_V21, 30, framebuf );
@@ -520,6 +531,13 @@ boolean have_dcs;
 
 receive_phase_b:
     lprintf( L_MESG, "fax1 T.30 receive phase B (try %d)", tries+1 );
+
+    /* send NSF frame (if requested) */
+    if ( modem_quirks & MQ_SHOW_NSF )
+    {
+	rc = fax1_send_nsf( fd, first?T30_CAR_SAME: T30_CAR_V21 );
+	first = FALSE;
+    }
 
     /* send local ID frame (CSI) - non-final */
     rc = fax1_send_idframe( fd, T30_CSI, first?T30_CAR_SAME: T30_CAR_V21 );
