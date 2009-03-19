@@ -1,4 +1,4 @@
-#ident "$Id: conf_sf.c,v 4.14 2008/01/31 16:15:37 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_sf.c,v 4.15 2009/03/19 15:13:53 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_sf.c
  *
@@ -16,7 +16,8 @@
 #include "config.h"
 #include "conf_sf.h"
 
-extern char * mgetty_version;		/* sendfax.c/version.h */
+#include "version.h"
+char * mgetty_version = VERSION_LONG;		/* version.h */
 
 #ifndef FAX_SEND_MAX_TRIES
 #define FAX_SEND_MAX_TRIES 0

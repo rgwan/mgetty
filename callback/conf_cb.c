@@ -17,7 +17,8 @@
 #include "config.h"
 #include "conf_cb.h"
 
-extern char * mgetty_version;		/* mgetty.c/version.h */
+#include "version.h"
+char * mgetty_version = VERSION_LONG;		/* version.h */
 
 /* initialize the modem - MODEM_INIT_STRING defined in policy.h
  */

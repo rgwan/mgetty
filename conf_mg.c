@@ -1,4 +1,4 @@
-#ident "$Id: conf_mg.c,v 4.18 2005/12/30 21:41:07 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_mg.c,v 4.19 2009/03/19 15:13:53 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_mg.c
  *
@@ -17,7 +17,8 @@
 #include "config.h"
 #include "conf_mg.h"
 
-extern char * mgetty_version;		/* mgetty.c/version.h */
+#include "version.h"
+char * mgetty_version = VERSION_LONG;		/* version.h */
 
 #ifndef MODEM_CHECK_TIME
 # define MODEM_CHECK_TIME -1		/* no check */
