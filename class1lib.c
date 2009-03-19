@@ -1,4 +1,4 @@
-#ident "$Id: class1lib.c,v 4.21 2009/02/26 15:43:54 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1lib.c,v 4.22 2009/03/19 15:28:14 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1lib.c
  *
@@ -20,6 +20,7 @@
 #include "fax_lib.h"
 #include "tio.h"
 #include "class1.h"
+#include "version.h"
 
 /* static variables
  *
@@ -646,6 +647,25 @@ int fax1_send_dcn _P2((fd, code), int fd, int code )
     if ( code != -1 )
         { fax_hangup_code = code; fax_hangup = TRUE; }
     return fax1_send_simf_final( fd, T30_CAR_V21, T30_DCN|fax1_dis );
+}
+
+/* send non-standard frame (NSF) with mgetty T.35 vendor ID
+ */
+int fax1_send_nsf _P2( (fd, carrier), int fd, int carrier )
+{
+uch frame[FRAMESIZE];
+
+    /* NSF is never final frame */
+    frame[0] = 0x03;
+    frame[1] = T30_NSF;
+    frame[2] = 0x20;		/* germany */
+    frame[3] = 0x81;		/* mgetty + */
+    frame[4] = 0x70;		/*  sendfax */
+    frame[5] = 0x00;		/* frame version */
+    strncpy( &frame[6], "mgetty ", 7 );
+    strncpy( &frame[13], VERSION_SHORT, 7 );
+
+    return fax1_send_frame( fd, carrier, frame, 20 );
 }
 
 /* send local identification (CSI, CIG or TSI) 
