@@ -1,9 +1,14 @@
-#ident "$Id: class1lib.c,v 4.22 2009/03/19 15:28:14 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1lib.c,v 4.23 2009/03/19 15:31:21 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1lib.c
  *
  * Low-level functions to handle class 1 fax -- 
  * send a frame, receive a frame, dump frame to log file, ...
+ *
+ * $Log: class1lib.c,v $
+ * Revision 4.23  2009/03/19 15:31:21  gert
+ * add CVS tags
+ *
  */
 
 #ifdef CLASS1
