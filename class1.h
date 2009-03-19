@@ -1,10 +1,13 @@
-#ident "$Id: class1.h,v 4.11 2006/09/29 19:31:50 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1.h,v 4.12 2009/03/19 15:29:16 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1.h
  *
  * common definitions for class 1 fax modules
  *
  * $Log: class1.h,v $
+ * Revision 4.12  2009/03/19 15:29:16  gert
+ * add T30_CAR_HAVE_V21 (do not send AT, we have V21 carrier)
+ *
  * Revision 4.11  2006/09/29 19:31:50  gert
  * add "scan time" parameter to fax1_send_dcs()
  * add function fax1_reduce_max()  (baud rate stepdown)
@@ -122,3 +125,4 @@ extern fax_param_t remote_cap;			/* receiver capabilities */
 /* carrier values */
 #define T30_CAR_SAME	0	/* pseudo-header, don't send AT+FTH/AT+FRH */
 #define T30_CAR_V21	3	/* 300 bps for negotiation */
+#define T30_CAR_HAVE_V21 -3	/* 300 bps for negotiation (already set) */
