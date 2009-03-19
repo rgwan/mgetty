@@ -1,4 +1,4 @@
-#ident "$Id: class1.c,v 4.19 2009/03/19 15:33:59 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1.c,v 4.20 2009/03/19 15:51:17 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1.c
  *
@@ -8,6 +8,10 @@
  * Uses library functions in class1lib.c, faxlib.c and modem.c
  *
  * $Log: class1.c,v $
+ * Revision 4.20  2009/03/19 15:51:17  gert
+ * bugfix: new NSF sending code was introducing extra "AT+FTH=3" commands
+ * (due to confusion about internal requirements of fax1_send_frame())
+ *
  * Revision 4.19  2009/03/19 15:33:59  gert
  * send NSF frames on reception (if modem quirk 0x40, for now)
  * handle different modem behaviour regarding AT+FTS=8;+FTH=3 gracefully
@@ -535,12 +539,11 @@ receive_phase_b:
     /* send NSF frame (if requested) */
     if ( modem_quirks & MQ_SHOW_NSF )
     {
-	rc = fax1_send_nsf( fd, first?T30_CAR_SAME: T30_CAR_V21 );
-	first = FALSE;
+	rc = fax1_send_nsf( fd, first?T30_CAR_HAVE_V21: T30_CAR_V21 );
     }
 
     /* send local ID frame (CSI) - non-final */
-    rc = fax1_send_idframe( fd, T30_CSI, first?T30_CAR_SAME: T30_CAR_V21 );
+    rc = fax1_send_idframe( fd, T30_CSI, first?T30_CAR_HAVE_V21: T30_CAR_V21 );
     first = FALSE;
 
     /* send DIS (but only if we haven't seen an error sending CSI) */
