@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.75 2007/10/05 12:53:37 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.76 2009/06/12 15:54:02 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -9,6 +9,9 @@
  * different that it goes to a separate library.
  *
  * $Log: faxlib.c,v $
+ * Revision 4.76  2009/06/12 15:54:02  gert
+ * add ATI code for Cisco MICA modems
+ *
  * Revision 4.75  2007/10/05 12:53:37  gert
  * On Blatzheim modems, auto-enable modem quirk MQ_NO_XON
  *   (firmware doesn't send Xon character at start of page)
@@ -995,6 +998,15 @@ int mdm_identify _P1( (fd), int fd )
 	    modem_type=Mt_class2;
 	    modem_quirks |= MQ_NO_XON;
 	    mis = mdm_get_idstring( "ATI3", 1, fd );
+	}
+	/* MICA modems built into Cisco routers/access servers, accessed
+	 * via network.  MICA versions 2.9.1.0-2.9.5.0 are unable to fax.
+	 */
+	else if ( strncmp( l, "Modem product ID = 242", 22 ) == 0 ) /* gert */
+	{
+	    lprintf( L_MESG, "Cisco MICA modem detected" );
+	    modem_type=Mt_class2_0;
+	    mis = mdm_get_idstring( "ATI4", 1, fd );
 	}
     }
 
