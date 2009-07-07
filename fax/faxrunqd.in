@@ -9,10 +9,16 @@
 #
 # initial version: Feb 17, 1997
 #
-my $rcs_id='RCS: $Id: faxrunqd.in,v 1.77 2009/02/25 12:58:23 gert Exp $';
+my $rcs_id='RCS: $Id: faxrunqd.in,v 1.78 2009/07/07 14:15:13 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.78  2009/07/07 14:15:13  gert
+# add run-time configurable delay times before requeueing
+#   dependant on error code and number of tries
+#   config-file option: "delay-rule <code> <time1> <time2> <time3> ..."
+#   default is similar to "classic" rules -> BUSY=2min/5min, others=20sec
+#
 # Revision 1.77  2009/02/25 12:58:23  gert
 # Enhance per-phone-statistics: add "total number of jobs for this phone#"
 #
@@ -237,6 +243,14 @@ my $wait_timeout = 150;			# interrupt wait() every <n> seconds
 my $policy_config='';
 my @policy=();
 
+# amount of delay after a failed attempt is now configurable
+my %delay_rules = ( 4 => [ 120, 300 ],	# busy -> 2 minutes, 5 minutes
+		    2 => [ 20 ],	# cannot open device
+		    3 => [ 20 ],	# error initializing modem
+		    5 => [ 20 ],	# NO DIAL TONE
+		    10 => [ 20 ],	# ERROR / NO CARRIER
+		  );
+
 #
 # verbose strings for error messages
 #
@@ -396,6 +410,8 @@ if ( open( CF, $faxrunq_cf ) )
 		{ $faxq_lowat_thres = $1; $faxq_lowat_script = $2; }
 	elsif ( /^\s*modem-error-threshold\s+(\d+)\s+(.*)/ )
 		{ $modem_error_thres = $1; $modem_error_script = $2; }
+	elsif ( /^\s*delay-rule\s+(\d+)\s+([\d\sm]+)$/ )
+		{ $delay_rules{$1} = [ split( /\s+/, $2 ) ]; }
 	else
 		{ die "syntax error in $faxrunq_cf, line $.!\n"; }
     }
@@ -1710,19 +1726,40 @@ sub handle_return_code
 		system( "$program_updates $fax_spool_out/$j/JOB -$ex $tty </dev/null" );
 	    }
 
-	    if ( $ex == 4 ) 			# BUSY: delay 5 minutes
+	    # certain errors could be "modem hardware issues", take 
+	    # note and potentially avoid using this modem in future
+	    if ( $ex == 2 || $ex == 3 ||	# Hardware unavailable?
+		 $ex == 5 || $ex == 10 )	# (Modem broken or unplugged)
 	    {
-		$queue{$j}->{'status'}='delayed';
-		$queue{$j}->{'delayed_until'}=time()+300;
-	    }
-	    elsif ( $ex == 2 || $ex == 3 ||	# Hardware unavailable?
-		    $ex == 5 || $ex == 10 )	# (Modem broken or unplugged)
-	    {
-		$queue{$j}->{'status'}='delayed';
-		$queue{$j}->{'delayed_until'}=time()+20;
 		$mq_badness{$tty} += 0.2;	# mark modem as "bad"
 	    }
-	    else				# requeue immediately
+
+	    # for some return values it is not useful to re-try right
+	    # away - e.g. for BUSY, delay a few minutes, and for other
+	    # issues, delay a few seconds, to avoid hammering modems
+	    #
+	    # delay-per-try-per-exitcode is now configurable
+	    #
+
+	    my $delay = 0;
+	    my $tries = $queue{$j}->{'tries'};
+	    if ( defined $delay_rules{$ex} )
+	    {
+		# if more tries than values, just use last value
+		if ( $tries > $#{$delay_rules{$ex}} )
+			{ $tries = $#{$delay_rules{$ex}}; }
+		$delay = $delay_rules{$ex}->[$tries];
+		if ( $delay =~ /(\d+)m/ ) { $delay=60*$1; }	# 5m -> 300
+
+		print LOG "    EX=$ex, tries=". $queue{$j}->{'tries'}. ", DELAY RULES=[ ". join(', ', @{$delay_rules{$ex}} ) ."] -> delay=$delay\n" if $opt_v;
+	    }
+
+	    if ( $delay > 0 )			# delay job?
+	    {
+		$queue{$j}->{'status'}='delayed';
+		$queue{$j}->{'delayed_until'}=time()+$delay;
+	    }
+	    else				# no -> requeue immediately
 	    {
 		&put_job_to_modem_queue( $j );
 	    }
