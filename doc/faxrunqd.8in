@@ -240,6 +240,18 @@ modem breaks (by default,
 .I faxrunqd
 just phases out a problematic modem, but will not report the problem).
 
+.TP
+.B delay-rule [errcode] [delay1] [delay2] [...]
+fine-tune how long
+.I faxrunqd
+waits before re-sending a failed job after
+.I sendfax
+returned with error code "errcode".  "delay1" is used after the first
+try, "delay2" after the second try, and so on.  If 
+.I faxrunqd
+needs more tries than delay values are specified, the last one will be
+re-used.  The values given are interpreted as seconds, unless postfixed
+with 'm' (e.g. "60m"), in which case they are interpreted as minutes.
 
 .SH POLICY ROUTING
 .I faxrunqd
