@@ -1,4 +1,4 @@
-#ident "$Id: atsms.c,v 1.7 2005/11/25 12:52:47 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: atsms.c,v 1.8 2009/11/24 14:54:42 gert Exp $ Copyright (c) Gert Doering"
 
 /* atsms.c
  *
@@ -26,16 +26,11 @@ boolean got_interrupt;
 RETSIGTYPE oops(SIG_HDLR_ARGS)
 		{ got_interrupt=TRUE; }
 
-int send_sms( char * device, int speed, char * sim_pin, 
-		char * sms_to, char * sms_text )
+int init_device( char * device, int speed, char * sim_pin, 
+		 TIO * tio, TIO * save_tio )
 {
 int fd;
-TIO tio, save_tio;
-
-char buf[200], *p;
-int err=0;
-
-    printf( "send SMS message to \"%s\"...\n", sms_to );
+char *p;
 
     /* lock device */
     if ( makelock( device ) == FAIL )
@@ -55,18 +50,18 @@ int err=0;
     /* would be "busy waiting", eating up all cpu) */
     fcntl( fd, F_SETFL, O_RDWR);
 
-    if ( tio_get( fd, &tio ) == ERROR )
+    if ( tio_get( fd, tio ) == ERROR )
     {
 	fprintf( stderr, "error reading TIO settings for '%s': %s\n",
 		 device, strerror(errno));
 	close(fd); rmlocks();
 	return -1;
     }
-    save_tio = tio;
-    tio_mode_sane( &tio, TRUE );
-    tio_set_speed( &tio, speed );
-    tio_mode_raw( &tio );
-    if ( tio_set( fd, &tio ) == ERROR )
+    *save_tio = *tio;
+    tio_mode_sane( tio, TRUE );
+    tio_set_speed( tio, speed );
+    tio_mode_raw( tio );
+    if ( tio_set( fd, tio ) == ERROR )
     {
 	fprintf( stderr, "error setting TIO settings for '%s': %s\n",
 		 device, strerror(errno));
@@ -96,6 +91,7 @@ int err=0;
 
     if ( strcmp( p, "+CPIN: SIM PIN" ) == 0 )
     {
+	char sbuf[100];
 	if ( sim_pin == NULL || sim_pin[0] == '\0' )
 	{
 	    fprintf( stderr, "modem on '%s' wants PIN, but none specified\n", 
@@ -103,7 +99,6 @@ int err=0;
 	    close(fd); rmlocks(); return -1;
 	}
 	printf( "GSM modem wants PIN, please wait (up to 2 minutes)...\n" );
-	char sbuf[100];
 	sprintf( sbuf, "AT+CPIN=%.20s", sim_pin );
 	if ( mdm_command_timeout( sbuf, fd, 120 ) == ERROR )
 	{
@@ -122,6 +117,24 @@ int err=0;
 	    fprintf( stderr, "unexpected response to PIN query: '%s'\n", p );
 	close(fd); rmlocks(); return -1;
     }
+
+    return fd;
+}
+
+int send_sms( char * device, int speed, char * sim_pin, 
+		char * sms_to, char * sms_text )
+{
+int fd;
+TIO tio, save_tio;
+
+char buf[200], *p;
+int err=0;
+
+    printf( "send SMS message to \"%s\"...\n", sms_to );
+
+    fd = init_device( device, speed, sim_pin, &tio, &save_tio );
+
+    if ( fd == -1 ) return -1;
 
     /* enter SMS text mode */
     if ( mdm_command( "AT+CMGF=1", fd ) == ERROR )
@@ -222,12 +235,113 @@ int err=0;
     return ( err > 0 ) ? -1: 0;
 }
 
+int receive_sms( char * device, int speed, char * sim_pin, 
+		 int get_old, int do_delete )
+{
+int fd;
+TIO tio, save_tio;
+
+char buf[200], *p;
+int err=0;
+
+struct sms { int n; } sms[100];
+int nsms = 0;
+
+    printf( "retrieving SMS messages...\n" );
+
+    fd = init_device( device, speed, sim_pin, &tio, &save_tio );
+
+    if ( fd == -1 ) return -1;
+
+    /* retrieve read/unread SMS */
+    sprintf( buf, "AT+CMGL=\"REC %sREAD\"", get_old? "": "UN" );
+    if ( mdm_send( buf, fd ) == ERROR )
+    {
+	fprintf( stderr, "can't send '%s' to modem?!\n", buf );
+	close(fd); rmlocks(); return -1;
+    }
+
+    /* wait for response from modem */
+    signal( SIGALRM, oops );
+    alarm(15);
+    got_interrupt = FALSE;
+
+    do
+    {
+	p = mdm_get_line( fd );
+
+	if ( p == NULL ) { err++; break; }
+
+	printf( "got: %s\n", p );
+
+	if ( strcmp( p, "OK" ) == 0 ) break;
+	if ( strcmp( p, "ERROR" ) == 0 ) 
+	{ 
+	    fprintf( stderr, "modem reports ERROR sending SMS on '%s'\n",
+		     device );
+	    err++;
+	    break;
+	}
+	if ( strncmp( p, "+CMGL:", 6 ) == 0 )
+	{
+	    sms[nsms++].n = atoi( &p[6] );
+	    if( nsms >= sizeof(sms)/sizeof(sms[0]) )
+	    {
+		fprintf( stderr, "warning: too many SMSs stored in device, skip after %d\n", nsms);
+		break;
+	    }
+	}
+    }
+    while( !got_interrupt );
+    alarm(0);
+
+    if ( got_interrupt )
+    {
+	fprintf( stderr, "timeout waiting for modem ACK on '%s'\n", device );
+    }
+    else
+      if ( p == NULL )
+    {
+	fprintf( stderr, "error reading from device '%s': %s\n",
+		 device, strerror(errno));
+	err++;
+    }
+
+    lprintf( L_AUDIT, "retrieved %d SMSs, %s", nsms, 
+		err? "some error occured": "no errors" );
+
+    if ( err == 0 && do_delete && nsms > 0 )
+    {
+	int i;
+	
+	printf( "\ndeleting SMS from memory...\n" );
+	for( i=0; i<nsms; i++ )
+	{
+	    sprintf( buf, "AT+CMGD=%d", sms[i].n );
+	    printf( "%s...\n", buf );
+	    if ( mdm_command_timeout( buf, fd, 5 ) == ERROR ) 
+		{ err++; break; }
+	}
+    }
+
+    if ( tio_set( fd, &save_tio ) == ERROR )
+    {
+	fprintf( stderr, "error setting TIO settings for '%s': %s\n",
+		 device, strerror(errno));
+	err++;
+    }
+    close(fd);
+    rmlocks();
+    signal( SIGALRM, SIG_DFL );
+    return ( err > 0 ) ? -1: 0;
+}
+
 void exit_usage( char * program, char * msg )
 {
     if ( msg != NULL )
 	fprintf( stderr, "%s: %s\n", program, msg );
 
-    fprintf( stderr, "syntax: %s [opt] <sms-number> <text>\n", program );
+    fprintf( stderr, "syntax: %s [opt] [receive] <sms-number> <text>\n", program );
     fprintf( stderr, "valid options: -l <device>, -s <speed>\n" );
     exit(99);
 }
@@ -240,11 +354,13 @@ char * device = "/dev/ttyh1";		/* TODO */
 int speed = 38400;				/* port speed */
 char * sim_pin = NULL;				/* pin number */
 int rc;
+int opt_r = 0;					/* retrieve "old" SMS */
+int opt_D = 0;					/* delete SMS from SIM */
 
     log_init_paths( argv[0], "/tmp/atsms.log", NULL );
     log_set_llevel(9);
 
-    while ((opt = getopt(argc, argv, "l:s:x:p:")) != EOF)
+    while ((opt = getopt(argc, argv, "l:s:x:p:rD")) != EOF)
     {
 	switch( opt )
 	{
@@ -252,18 +368,13 @@ int rc;
 	    case 's': speed = atoi(optarg); break;
 	    case 'p': sim_pin = optarg; break;
 	    case 'x': log_set_llevel( atoi(optarg) ); break;
+	    case 'r': opt_r = 1; break;		/* receive already-read SMS */
+	    case 'D': opt_D = 1; break;		/* delete SMS after reading */
 	    default:
 		exit_usage( argv[0], NULL );
 	}
     }
 
-    if ( optind == argc )		/* SMS number */
-		exit_usage( argv[0], "no SMS number given" );
-    if ( optind+1 == argc )		/* SMS text missing */
-		exit_usage( argv[0], "no SMS text listed" );
-    if ( optind+2 != argc )		/* too many arguments */
-		exit_usage( argv[0], "too many arguments" );
-    
 #ifdef HAVE_SIGINTERRUPT
     /* some systems, notable BSD 4.3, have to be told that system
      * calls are not to be automatically restarted after those signals.
@@ -273,8 +384,28 @@ int rc;
     siginterrupt( SIGHUP,  TRUE );
 #endif
 
+    /* unbuffer stdout (nicer-to-follow output) */
     setvbuf( stdout, NULL, _IONBF, 0 );
 
+    /* mode 1: "atsms receive" -> poll all SMSs in device
+     */
+    if ( optind+1 == argc && 
+	  strcmp( argv[optind], "receive" ) == 0 )
+    {
+	rc = receive_sms( device, speed, sim_pin, opt_r, opt_D );
+	return rc == 0? rc: 1;
+    }
+
+    /* default: send SMS
+     */
+
+    if ( optind == argc )		/* SMS number */
+		exit_usage( argv[0], "no SMS number given" );
+    if ( optind+1 == argc )		/* SMS text missing */
+		exit_usage( argv[0], "no SMS text listed" );
+    if ( optind+2 != argc )		/* too many arguments */
+		exit_usage( argv[0], "too many arguments" );
+    
     rc = send_sms( device, speed, sim_pin, argv[optind], argv[optind+1] );
 
     return rc == 0? rc: 1;
