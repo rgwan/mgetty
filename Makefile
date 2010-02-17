@@ -1,11 +1,18 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.74 2009/03/19 15:10:43 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.75 2010/02/17 08:28:38 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
+#
+# if you are cross-compiling, this is the C compiler for the target platform
 CC=gcc
 #CC=cc
+#
+# if you are cross-compiling, *this* needs to be the C compiler that 
+# is able to produce binaries that run on the local system (if not 
+# cross-compiling, just leave the line as is)
+HOSTCC=$(CC)
 #
 #### C Compiler Flags ####
 #
@@ -425,7 +432,7 @@ sedscript: mksed
 	chmod +x sedscript
 
 mksed: mksed.c policy.h Makefile 
-	$(CC) $(CFLAGS) -DBINDIR=\"$(BINDIR)\" -DSBINDIR=\"$(SBINDIR)\" \
+	$(HOSTCC) $(CFLAGS) -DBINDIR=\"$(BINDIR)\" -DSBINDIR=\"$(SBINDIR)\" \
 		-DLIBDIR=\"$(LIBDIR)\" \
 		-DCONFDIR=\"$(CONFDIR)\" \
 		-DFAX_SPOOL=\"$(FAX_SPOOL)\" \
