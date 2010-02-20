@@ -1,4 +1,4 @@
-#ident "$Id: microcom.c,v 1.7 2007/04/09 10:39:44 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: microcom.c,v 1.8 2010/02/20 13:03:58 gert Exp $ Copyright (c) Gert Doering"
 
 /* microcom.c
  *
@@ -128,7 +128,12 @@ int main( int argc, char ** argv )
 	}
 	if ( FD_ISSET( fd, &rfs ) )
 	{
-	   len = read( fd, buf, 100 ); if ( len>0 ) write( STDOUT, buf, len );
+	    len = read( fd, buf, 100 ); 
+	    if ( len>0 ) write( STDOUT, buf, len );
+	    if ( len==0 ) 
+		{ printf( "\n*EOF* from device -> " ); break; }
+	    if ( len<0 ) 
+		{ perror( "read from device failed" ); break; }
 	}
     }
     while ( buf[0] != 24 );		/* ^X fuer Ende */
