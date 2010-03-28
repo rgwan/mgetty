@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.75 2010/02/17 08:28:38 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.76 2010/03/28 13:52:22 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -369,13 +369,13 @@ sendfax.sen: $(SFAXOBJ)
 # subdirectories...
 
 subdirs:
-	cd g3 ;    $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" "LIBS=$(LIBS)" all
-	cd tools ; $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" "LIBS=$(LIBS)" all
-	cd fax ;   $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" "LIBS=$(LIBS)" "FAX_SPOOL_OUT=$(FAX_SPOOL_OUT)" "FAX_OUT_USER=$(FAX_OUT_USER)" "CONFDIR=$(CONFDIR)" all
+	cd g3 &&    $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" "LIBS=$(LIBS)" all
+	cd tools && $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" "LIBS=$(LIBS)" all
+	cd fax &&   $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" "LIBS=$(LIBS)" "FAX_SPOOL_OUT=$(FAX_SPOOL_OUT)" "FAX_OUT_USER=$(FAX_OUT_USER)" "CONFDIR=$(CONFDIR)" all
 
 call-back:
 	@$(MAKE) mgetty
-	cd callback ; $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" "CONFDIR=$(CONFDIR)" "VARRUNDIR=$(VARRUNDIR)" "LIBS=$(LIBS)" all
+	cd callback && $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" "CONFDIR=$(CONFDIR)" "VARRUNDIR=$(VARRUNDIR)" "LIBS=$(LIBS)" all
 
 contrib-all: 
 	cd contrib ; $(MAKE) "CC=$(CC)" "CFLAGS=$(CFLAGS) -I.." "LDFLAGS=$(LDFLAGS)" "LIBS=$(LIBS)" all
@@ -647,13 +647,13 @@ install.bin: mgetty sendfax newslock \
 #
 # g3 tool programs
 #
-	cd g3 ; $(MAKE) install INSTALL="$(INSTALL)" \
+	cd g3 && $(MAKE) install INSTALL="$(INSTALL)" \
 				BINDIR=$(BINDIR) \
 				LIBDIR=$(LIBDIR) CONFDIR=$(CONFDIR)
 #
 # fax programs / scripts / font file
 #
-	cd fax ; $(MAKE) install INSTALL="$(INSTALL)" \
+	cd fax && $(MAKE) install INSTALL="$(INSTALL)" \
 				FAX_OUT_USER=$(FAX_OUT_USER) \
 				BINDIR=$(BINDIR) SBINDIR=$(SBINDIR) \
 				LIBDIR=$(LIBDIR) CONFDIR=$(CONFDIR)
