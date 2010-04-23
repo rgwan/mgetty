@@ -1,4 +1,4 @@
-#ident "$Id: atsms.c,v 1.8 2009/11/24 14:54:42 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: atsms.c,v 1.9 2010/04/23 14:23:18 gert Exp $ Copyright (c) Gert Doering"
 
 /* atsms.c
  *
@@ -20,6 +20,8 @@
 #include "mgetty.h"
 #include "policy.h"
 #include "tio.h"
+
+#define LOG_FILE LOG_DIR "/atsms.log"
 
 /* interrupt handler for SIGALARM */
 boolean got_interrupt;
@@ -357,7 +359,7 @@ int rc;
 int opt_r = 0;					/* retrieve "old" SMS */
 int opt_D = 0;					/* delete SMS from SIM */
 
-    log_init_paths( argv[0], "/tmp/atsms.log", NULL );
+    log_init_paths( argv[0], LOG_FILE, NULL );
     log_set_llevel(9);
 
     while ((opt = getopt(argc, argv, "l:s:x:p:rD")) != EOF)
