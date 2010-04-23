@@ -1,4 +1,4 @@
-#ident "$Id: atsms.c,v 1.9 2010/04/23 14:23:18 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: atsms.c,v 1.10 2010/04/23 16:45:21 gert Exp $ Copyright (c) Gert Doering"
 
 /* atsms.c
  *
@@ -29,6 +29,7 @@ RETSIGTYPE oops(SIG_HDLR_ARGS)
 		{ got_interrupt=TRUE; }
 
 int init_device( char * device, int speed, char * sim_pin, 
+		 boolean * want_status_msg,
 		 TIO * tio, TIO * save_tio )
 {
 int fd;
@@ -120,10 +121,41 @@ char *p;
 	close(fd); rmlocks(); return -1;
     }
 
+    /* enable/disable reception of transmission status message */
+    if ( want_status_msg != NULL )
+    {
+	char sbuf[100];
+	sprintf( sbuf, "AT+CNMI=2,1,0,%d", *want_status_msg? 2: 0 );
+	if ( mdm_command( sbuf, fd ) == ERROR )
+	{
+	    if ( *want_status_msg )
+	    {
+		fprintf( stderr, "ERROR enabling SMS status reporting with AT+CNMI, disabling\n" );
+		*want_status_msg = FALSE;
+	    }
+	    /* if not requested anyway, just ignore error */
+	}
+
+	/* I don't know what "17" stands for, but "49" is "enable status
+	 * response and "17" is "default setting, no status response"
+	 */
+	sprintf( sbuf, "AT+CSMP=%d,167,0,0", *want_status_msg? 49: 17 );
+	if ( mdm_command( sbuf, fd ) == ERROR )
+	{
+	    if ( *want_status_msg )
+	    {
+		fprintf( stderr, "ERROR enabling SMS status reporting with AT+CNMI, disabling\n" );
+		*want_status_msg = FALSE;
+	    }
+	    /* if not requested anyway, just ignore error */
+	}
+    }
+
     return fd;
 }
 
 int send_sms( char * device, int speed, char * sim_pin, 
+		boolean want_status_msg, 
 		char * sms_to, char * sms_text )
 {
 int fd;
@@ -134,7 +166,8 @@ int err=0;
 
     printf( "send SMS message to \"%s\"...\n", sms_to );
 
-    fd = init_device( device, speed, sim_pin, &tio, &save_tio );
+    fd = init_device( device, speed, sim_pin, 
+			&want_status_msg, &tio, &save_tio );
 
     if ( fd == -1 ) return -1;
 
@@ -225,6 +258,62 @@ int err=0;
 	err++;
     }
 
+    /* delivery report looks like this:
+     * +CMGS: 11
+     * 
+     * OK
+     * 
+     * +CDSI: "MT",1
+     * AT+CMGR=1
+     * +CMGR: "REC UNREAD",6,11,,,"10/04/23,17:58:33+08","10/04/23,17:58:38+08",0
+     * (stat, fo, mr, ra, tora, scts, dt, st [,data])
+     * (st = "GSM 03.40 TP-Status in integer format")
+     *
+     * OK
+     */
+
+    if ( want_status_msg && !err && !got_interrupt )
+    {
+	fprintf( stderr, "wait for delivery report... (120s)\n" );
+
+	signal( SIGALRM, oops );
+	alarm(120);
+
+	do
+	{
+	    p = mdm_get_line( fd );
+
+	    if ( p == NULL ) { err++; break; }
+	    printf( "got: '%s'\n", p );
+	    if ( strncmp( p, "+CDSI:", 5 ) == 0 ) break;	/* got it! */
+	}
+	while( !got_interrupt );
+	alarm(0);
+
+	if ( p != NULL )					/* got it! */
+	{
+	    char * np;
+	    int memloc;
+	    char sbuf[100];
+
+	    np = strchr( p, ',' );
+	    if ( np == NULL )
+	    {
+		fprintf( stderr, "ERROR: can't parse modem response '%s'\n", p);
+	    }
+	    else
+	    {
+		/* retrieve report, then delete (free memory location) */
+		memloc = atoi( np+1 );
+		sprintf( sbuf, "AT+CMGR=%d", memloc );
+		p = mdm_get_idstring( sbuf, 1, fd );
+		fprintf( stderr, "R: %s\n", p );
+		sprintf( sbuf, "AT+CMGD=%d", memloc );
+		mdm_command( sbuf, fd );
+	    }
+	}
+    }
+
     if ( tio_set( fd, &save_tio ) == ERROR )
     {
 	fprintf( stderr, "error setting TIO settings for '%s': %s\n",
@@ -251,7 +340,7 @@ int nsms = 0;
 
     printf( "retrieving SMS messages...\n" );
 
-    fd = init_device( device, speed, sim_pin, &tio, &save_tio );
+    fd = init_device( device, speed, sim_pin, NULL, &tio, &save_tio );
 
     if ( fd == -1 ) return -1;
 
@@ -358,11 +447,12 @@ char * sim_pin = NULL;				/* pin number */
 int rc;
 int opt_r = 0;					/* retrieve "old" SMS */
 int opt_D = 0;					/* delete SMS from SIM */
+int opt_R = 0;					/* check delivery report */
 
     log_init_paths( argv[0], LOG_FILE, NULL );
     log_set_llevel(9);
 
-    while ((opt = getopt(argc, argv, "l:s:x:p:rD")) != EOF)
+    while ((opt = getopt(argc, argv, "l:s:x:p:rDR")) != EOF)
     {
 	switch( opt )
 	{
@@ -372,6 +462,7 @@ int opt_D = 0;					/* delete SMS from SIM */
 	    case 'x': log_set_llevel( atoi(optarg) ); break;
 	    case 'r': opt_r = 1; break;		/* receive already-read SMS */
 	    case 'D': opt_D = 1; break;		/* delete SMS after reading */
+	    case 'R': opt_R = 1; break;		/* delivery report */
 	    default:
 		exit_usage( argv[0], NULL );
 	}
@@ -408,7 +499,8 @@ int opt_D = 0;					/* delete SMS from SIM */
     if ( optind+2 != argc )		/* too many arguments */
 		exit_usage( argv[0], "too many arguments" );
     
-    rc = send_sms( device, speed, sim_pin, argv[optind], argv[optind+1] );
+    rc = send_sms( device, speed, sim_pin, 
+		    opt_R, argv[optind], argv[optind+1] );
 
     return rc == 0? rc: 1;
 }
