@@ -1,4 +1,4 @@
-#ident "$Id: atsms.c,v 1.11 2010/04/26 13:28:06 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: atsms.c,v 1.12 2010/04/26 13:35:27 gert Exp $ Copyright (c) Gert Doering"
 
 /* atsms.c
  *
@@ -7,6 +7,9 @@
  * Calls routines in io.c, tio.c
  *
  * $Log: atsms.c,v $
+ * Revision 1.12  2010/04/26 13:35:27  gert
+ * write acct_info and seqno to L_AUDIT line
+ *
  * Revision 1.11  2010/04/26 13:28:06  gert
  * * add new options: -F <report file>, -A <acct info>, -v (verbose)
  * * if -F is given
@@ -422,6 +425,8 @@ int seqno = -1;			/* sms sequence number */
     close(fd);
     rmlocks();
     signal( SIGALRM, SIG_DFL );
+    lprintf( L_AUDIT, "SMS to %s: %s, seq=%d, acct=\"%s\"", 
+			    sms_to, err? "failed": "sent", seqno, acct_info );
     return ( err > 0 ) ? -1: 0;
 }
 
