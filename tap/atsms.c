@@ -1,4 +1,4 @@
-#ident "$Id: atsms.c,v 1.12 2010/04/26 13:35:27 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: atsms.c,v 1.13 2010/04/26 15:42:44 gert Exp $ Copyright (c) Gert Doering"
 
 /* atsms.c
  *
@@ -7,6 +7,12 @@
  * Calls routines in io.c, tio.c
  *
  * $Log: atsms.c,v $
+ * Revision 1.13  2010/04/26 15:42:44  gert
+ * * implement retrieval of stored delivery reports -> write to '-F' file
+ * * after sending SMSs, if delivery reports are requested, check for stored
+ *   reports right away "might find something there"
+ * * split receive_sms in upper half and lower half (do_receive())
+ *
  * Revision 1.12  2010/04/26 13:35:27  gert
  * write acct_info and seqno to L_AUDIT line
  *
@@ -43,6 +49,7 @@ boolean opt_v = FALSE;				/* -v: verbose */
 
 /* prototypes */
 int mdm_command_timeout (char * send, int fd, int timeout );
+int do_receive( int fd, int get_old, int do_delete, char * report_file );
 
 /* interrupt handler for SIGALARM */
 boolean got_interrupt;
@@ -178,8 +185,8 @@ char *p;
 void handle_delivery_report( int seqno, char * rep, char * report_file )
 {
     FILE * fp;
-    int rep_seqno;
-    int err_code;
+    int rep_seqno = -1;
+    int err_code = -1;
     char * err_msg = "??";
     int n;
     char * copy, * p, * q;
@@ -201,11 +208,16 @@ void handle_delivery_report( int seqno, char * rep, char * report_file )
     while( ( q = strsep( &p, "," ) ) != NULL )
     {
 	/* printf( "%d: '%s'\n", n, q ); */
-	if ( n == 2 ) rep_seqno = atoi(q);
-	if ( n == 9 ) err_code = atoi(q);
+	if ( n == 2 && *q != '\0' ) rep_seqno = atoi(q);
+	if ( n == 9 && *q != '\0' ) err_code = atoi(q);
 	n++;
     }
     free( copy );
+
+    if ( rep_seqno == -1 || err_code == -1 )
+    {
+	lprintf( L_MESG, "can't parse retrieved string '%s' (seqno=%d, err_code=%d), assume 'no delivery report'", rep, rep_seqno, err_code ); return;
+    }
 
     if ( err_code == 0 )		/* success! */
 	err_msg = "SUCCESS";
@@ -416,6 +428,14 @@ int seqno = -1;			/* sms sequence number */
 	mdm_command( "AT+CNMI=2,1,0,0", fd );
     }
 
+    /* while we're at it, check whether there are unread queued 
+     * status messages...
+     */
+    if ( want_status_msg && !err && !got_interrupt )
+    {
+        err = do_receive( fd, FALSE, TRUE, report_file );
+    }
+
     if ( tio_set( fd, &save_tio ) == ERROR )
     {
 	fprintf( stderr, "error setting TIO settings for '%s': %s\n",
@@ -430,23 +450,16 @@ int seqno = -1;			/* sms sequence number */
     return ( err > 0 ) ? -1: 0;
 }
 
-int receive_sms( char * device, int speed, char * sim_pin, 
-		 int get_old, int do_delete )
+/* worker part of receive_sms(), also called after sending to 
+ * fetch "pending" delivery reports
+ */
+int do_receive( int fd, int get_old, int do_delete, char * report_file )
 {
-int fd;
-TIO tio, save_tio;
-
 char buf[200], *p;
 int err=0;
 
 struct sms { int n; } sms[100];
 int nsms = 0;
-
-    printf( "retrieving SMS messages...\n" );
-
-    fd = init_device( device, speed, sim_pin, NULL, &tio, &save_tio );
-
-    if ( fd == -1 ) return -1;
 
     /* retrieve read/unread SMS */
     sprintf( buf, "AT+CMGL=\"REC %sREAD\"", get_old? "": "UN" );
@@ -472,8 +485,7 @@ int nsms = 0;
 	if ( strcmp( p, "OK" ) == 0 ) break;
 	if ( strcmp( p, "ERROR" ) == 0 ) 
 	{ 
-	    fprintf( stderr, "modem reports ERROR sending SMS on '%s'\n",
-		     device );
+	    fprintf( stderr, "modem reports ERROR retrieving SMS\n" );
 	    err++;
 	    break;
 	}
@@ -485,6 +497,18 @@ int nsms = 0;
 		fprintf( stderr, "warning: too many SMSs stored in device, skip after %d\n", nsms);
 		break;
 	    }
+
+	    /* if "-F" given, assume that this could be a delivery report 
+	     * (if not, handle_delivery_report will just ignore it)
+	     */
+	    if ( report_file )
+	    {
+		char * first_komma = strchr( p, ',' );
+		if ( first_komma != NULL )
+		{
+		    handle_delivery_report( -1, first_komma+1, report_file );
+		}
+	    }
 	}
     }
     while( !got_interrupt );
@@ -492,13 +516,12 @@ int nsms = 0;
 
     if ( got_interrupt )
     {
-	fprintf( stderr, "timeout waiting for modem ACK on '%s'\n", device );
+	fprintf( stderr, "timeout waiting for list of SMSs\n" );
     }
     else
       if ( p == NULL )
     {
-	fprintf( stderr, "error reading from device '%s': %s\n",
-		 device, strerror(errno));
+	fprintf( stderr, "error reading from modem: %s\n", strerror(errno));
 	err++;
     }
 
@@ -518,6 +541,24 @@ int nsms = 0;
 		{ err++; break; }
 	}
     }
+
+    return err;
+}
+
+int receive_sms( char * device, int speed, char * sim_pin, 
+		 int get_old, int do_delete, char * report_file )
+{
+int fd;
+TIO tio, save_tio;
+int err;
+
+    if ( opt_v ) printf( "retrieving SMS messages...\n" );
+
+    fd = init_device( device, speed, sim_pin, NULL, &tio, &save_tio );
+
+    if ( fd == -1 ) return -1;
+
+    err = do_receive( fd, get_old, do_delete, report_file );
 
     if ( tio_set( fd, &save_tio ) == ERROR )
     {
@@ -594,7 +635,8 @@ char * acct_info = "";				/* -A: acct info for SMS */
     if ( optind+1 == argc && 
 	  strcmp( argv[optind], "receive" ) == 0 )
     {
-	rc = receive_sms( device, speed, sim_pin, opt_r, opt_D );
+	rc = receive_sms( device, speed, sim_pin, opt_r, opt_D, 
+			  report_file );
 	return rc == 0? rc: 1;
     }
 
