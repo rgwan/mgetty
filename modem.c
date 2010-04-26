@@ -1,4 +1,4 @@
-#ident "$Id: modem.c,v 4.4 1997/12/05 23:48:08 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: modem.c,v 4.5 2010/04/26 13:09:21 gert Exp $ Copyright (c) Gert Doering"
 
 /* modem.c
  *
@@ -165,7 +165,7 @@ static int  frb_len = 0;
 char * mdm_get_idstring _P3( (send, n, fd), char * send, int n, int fd )
 {
     char * l; int i;
-    static char rbuf[80];
+    static char rbuf[120];
 
     if ( mdm_send( send, fd ) == ERROR ) return "<ERROR>";
 
