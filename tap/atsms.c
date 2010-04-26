@@ -1,10 +1,22 @@
-#ident "$Id: atsms.c,v 1.10 2010/04/23 16:45:21 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: atsms.c,v 1.11 2010/04/26 13:28:06 gert Exp $ Copyright (c) Gert Doering"
 
 /* atsms.c
  *
  * send SMS via AT commands on serial interface
  *
  * Calls routines in io.c, tio.c
+ *
+ * $Log: atsms.c,v $
+ * Revision 1.11  2010/04/26 13:28:06  gert
+ * * add new options: -F <report file>, -A <acct info>, -v (verbose)
+ * * if -F is given
+ *   - write sent SMS with sequence number to file
+ *   - if delivery report was requested, write report to file as well
+ *   -> caller framework can correctly associate asynchronous reports later
+ * * delivery reports are parsed & logged in handle_delivery_report()
+ * * suppress lots of messages "unless $opt_v;"
+ * * add some comments, get rid of no-prototype warnings
+ *
  */
 
 #include <stdio.h>
@@ -22,6 +34,12 @@
 #include "tio.h"
 
 #define LOG_FILE LOG_DIR "/atsms.log"
+
+/* global option */
+boolean opt_v = FALSE;				/* -v: verbose */
+
+/* prototypes */
+int mdm_command_timeout (char * send, int fd, int timeout );
 
 /* interrupt handler for SIGALARM */
 boolean got_interrupt;
@@ -154,15 +172,70 @@ char *p;
     return fd;
 }
 
+void handle_delivery_report( int seqno, char * rep, char * report_file )
+{
+    FILE * fp;
+    int rep_seqno;
+    int err_code;
+    char * err_msg = "??";
+    int n;
+    char * copy, * p, * q;
+
+    printf( "REP: %s\n", rep );
+
+    /* +CMGR: "REC UNREAD",6,6,,,"10/04/26,14:32:26+08","10/04/26,14:32:32+08",0
+     */
+    copy = strdup( rep );
+    if ( copy == NULL )
+    {
+	fprintf( stderr, "hdr: strdup() failed, no report written: %s\n",
+		 strerror(errno) );
+	return;
+    }
+
+    n = 0;
+    p = copy;
+    while( ( q = strsep( &p, "," ) ) != NULL )
+    {
+	/* printf( "%d: '%s'\n", n, q ); */
+	if ( n == 2 ) rep_seqno = atoi(q);
+	if ( n == 9 ) err_code = atoi(q);
+	n++;
+    }
+    free( copy );
+
+    if ( err_code == 0 )		/* success! */
+	err_msg = "SUCCESS";
+    else if ( err_code < 64 )		/* temporary error */
+	err_msg = "TEMP ERROR";
+    else				/* final failure */
+	err_msg = "FINAL FAIL";
+
+    fp = fopen( report_file, "a+" );
+    if ( fp == NULL )
+    {
+	fprintf( stderr, "hdr: error opening report file %s: %s\n",
+		    report_file, strerror(errno));
+    }
+    else
+    {
+	fprintf( fp, "REP|%d|%d|%s|%s\n",
+			rep_seqno, err_code, err_msg, rep );
+	fclose(fp);
+    }
+}
+
 int send_sms( char * device, int speed, char * sim_pin, 
 		boolean want_status_msg, 
-		char * sms_to, char * sms_text )
+		char * sms_to, char * sms_text,
+		char * report_file, char * acct_info )
 {
 int fd;
 TIO tio, save_tio;
 
 char buf[200], *p;
 int err=0;
+int seqno = -1;			/* sms sequence number */
 
     printf( "send SMS message to \"%s\"...\n", sms_to );
 
@@ -208,7 +281,7 @@ int err=0;
 	}
     }
 
-    printf( "MSG: \"%s\"\n", buf );
+    if ( opt_v ) printf( "MSG: \"%s\"\n", buf );
     if ( mdm_send( buf, fd ) == ERROR ||
          write( fd, "\032", 1 ) != 1 )		/* ctrl-Z as term.chr. */
     {
@@ -227,12 +300,12 @@ int err=0;
 	p = mdm_get_line( fd );
 
 	if ( p == NULL ) { err++; break; }
-	printf( "got: '%s'\n", p );
+	if ( opt_v ) printf( "got: '%s'\n", p );
 
         if ( strncmp( p, "+CMGS:", 6 ) == 0 )
 	{
-	    int lfn = atoi( p+6 );
-	    printf( "SMS sequence counter: %d\n", lfn );
+	    seqno = atoi( p+6 );
+	    printf( "SMS accepted!  Sequence counter: %d\n", seqno );
 	}
 	if ( strcmp( p, "OK" ) == 0 ) break;
 	if ( strcmp( p, "ERROR" ) == 0 ) 
@@ -258,6 +331,26 @@ int err=0;
 	err++;
     }
 
+    /* append SMS sequence number + accounting info to report file
+     * (to be able to correlate asynchronous delivery reports to 
+     * specific sent SMSs)
+     */
+    if ( seqno >= 0 && report_file )
+    {
+	FILE * fp = fopen( report_file, "a+" );
+	if ( fp == NULL )
+	{
+	    fprintf( stderr, "error opening report file %s: %s\n",
+			report_file, strerror(errno));
+	}
+	else
+	{
+	    fprintf( fp, "SEND|%d|%s|%s|%s\n",
+			seqno, acct_info, sms_to, sms_text );
+	    fclose(fp);
+	}
+    }
+
     /* delivery report looks like this:
      * +CMGS: 11
      * 
@@ -274,7 +367,7 @@ int err=0;
 
     if ( want_status_msg && !err && !got_interrupt )
     {
-	fprintf( stderr, "wait for delivery report... (120s)\n" );
+	if ( opt_v ) printf( "wait for delivery report... (120s)\n" );
 
 	signal( SIGALRM, oops );
 	alarm(120);
@@ -284,7 +377,7 @@ int err=0;
 	    p = mdm_get_line( fd );
 
 	    if ( p == NULL ) { err++; break; }
-	    printf( "got: '%s'\n", p );
+	    if ( opt_v ) printf( "got: '%s'\n", p );
 	    if ( strncmp( p, "+CDSI:", 5 ) == 0 ) break;	/* got it! */
 	}
 	while( !got_interrupt );
@@ -307,11 +400,17 @@ int err=0;
 		memloc = atoi( np+1 );
 		sprintf( sbuf, "AT+CMGR=%d", memloc );
 		p = mdm_get_idstring( sbuf, 1, fd );
-		fprintf( stderr, "R: %s\n", p );
+		handle_delivery_report( seqno, p, report_file );
+
 		sprintf( sbuf, "AT+CMGD=%d", memloc );
 		mdm_command( sbuf, fd );
 	    }
 	}
+
+	/* turn off asynchronous responses (for still-pending SMS) now
+	 * errors are ignored, we can't do anything about it anyway
+	 */
+	mdm_command( "AT+CNMI=2,1,0,0", fd );
     }
 
     if ( tio_set( fd, &save_tio ) == ERROR )
@@ -363,7 +462,7 @@ int nsms = 0;
 
 	if ( p == NULL ) { err++; break; }
 
-	printf( "got: %s\n", p );
+	if ( opt_v ) printf( "got: %s\n", p );
 
 	if ( strcmp( p, "OK" ) == 0 ) break;
 	if ( strcmp( p, "ERROR" ) == 0 ) 
@@ -448,14 +547,17 @@ int rc;
 int opt_r = 0;					/* retrieve "old" SMS */
 int opt_D = 0;					/* delete SMS from SIM */
 int opt_R = 0;					/* check delivery report */
+char * report_file = NULL;			/* write report to file */
+char * acct_info = "";				/* -A: acct info for SMS */
 
     log_init_paths( argv[0], LOG_FILE, NULL );
     log_set_llevel(9);
 
-    while ((opt = getopt(argc, argv, "l:s:x:p:rDR")) != EOF)
+    while ((opt = getopt(argc, argv, "vl:s:x:p:rDRF:A:")) != EOF)
     {
 	switch( opt )
 	{
+	    case 'v': opt_v = TRUE; break;
 	    case 'l': device = optarg; break;
 	    case 's': speed = atoi(optarg); break;
 	    case 'p': sim_pin = optarg; break;
@@ -463,6 +565,8 @@ int opt_R = 0;					/* check delivery report */
 	    case 'r': opt_r = 1; break;		/* receive already-read SMS */
 	    case 'D': opt_D = 1; break;		/* delete SMS after reading */
 	    case 'R': opt_R = 1; break;		/* delivery report */
+	    case 'F': report_file = optarg; break;
+	    case 'A': acct_info = optarg; break;
 	    default:
 		exit_usage( argv[0], NULL );
 	}
@@ -500,7 +604,8 @@ int opt_R = 0;					/* check delivery report */
 		exit_usage( argv[0], "too many arguments" );
     
     rc = send_sms( device, speed, sim_pin, 
-		    opt_R, argv[optind], argv[optind+1] );
+		    opt_R, argv[optind], argv[optind+1],
+		    report_file, acct_info );
 
     return rc == 0? rc: 1;
 }
@@ -512,6 +617,9 @@ static RETSIGTYPE fwf_sig_alarm(SIG_HDLR_ARGS)      	/* SIGALRM handler */
     lprintf( L_WARN, "Warning: got alarm signal!" );
     fwf_timeout = TRUE;
 }
+
+/* mdm_command() with caller-selectable timeout
+ */
 int mdm_command_timeout (char * send, int fd, int timeout )
 {
     char * l;
