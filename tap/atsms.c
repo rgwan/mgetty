@@ -1,4 +1,4 @@
-#ident "$Id: atsms.c,v 1.13 2010/04/26 15:42:44 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: atsms.c,v 1.14 2010/04/28 09:05:17 gert Exp $ Copyright (c) Gert Doering"
 
 /* atsms.c
  *
@@ -7,6 +7,10 @@
  * Calls routines in io.c, tio.c
  *
  * $Log: atsms.c,v $
+ * Revision 1.14  2010/04/28 09:05:17  gert
+ * don't try to open report_file if no "-F" argument given (= NULL)
+ * cast chacter to (uchar) before checking for 8-bit Umlauts
+ *
  * Revision 1.13  2010/04/26 15:42:44  gert
  * * implement retrieval of stored delivery reports -> write to '-F' file
  * * after sending SMSs, if delivery reports are requested, check for stored
@@ -226,17 +230,20 @@ void handle_delivery_report( int seqno, char * rep, char * report_file )
     else				/* final failure */
 	err_msg = "FINAL FAIL";
 
-    fp = fopen( report_file, "a+" );
-    if ( fp == NULL )
+    if ( report_file != NULL )
     {
-	fprintf( stderr, "hdr: error opening report file %s: %s\n",
-		    report_file, strerror(errno));
-    }
-    else
-    {
-	fprintf( fp, "REP|%d|%d|%s|%s\n",
-			rep_seqno, err_code, err_msg, rep );
-	fclose(fp);
+	fp = fopen( report_file, "a+" );
+	if ( fp == NULL )
+	{
+	    fprintf( stderr, "hdr: error opening report file %s: %s\n",
+			report_file, strerror(errno));
+	}
+	else
+	{
+	    fprintf( fp, "REP|%d|%d|%s|%s\n",
+			    rep_seqno, err_code, err_msg, rep );
+	    fclose(fp);
+	}
     }
 }
 
@@ -282,7 +289,7 @@ int seqno = -1;			/* sms sequence number */
     buf[155] = '\0';
     for( p=buf; *p != '\0'; p++ )
     { 
-	switch( *p )
+	switch( (unsigned char) *p )
 	{
 	case 0344: *p='{'; break;	/* ae */
 	case 0304: *p='[';  break;	/* Ae */
