@@ -9,10 +9,17 @@
 #
 # initial version: Feb 17, 1997
 #
-my $rcs_id='RCS: $Id: faxrunqd.in,v 1.79 2009/07/07 14:24:35 gert Exp $';
+my $rcs_id='RCS: $Id: faxrunqd.in,v 1.80 2010/05/17 15:13:57 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.80  2010/05/17 15:13:57  gert
+# add infrastructure for "extra flags" in faxrunqd.policy (must be at the
+# start of the "arguments to sendfax" part of the line, and must be f:xxx)
+#
+# define and implement first "extra flag":
+#   f:nocombine -> don't do "write combining" for jobs to this phone number
+#
 # Revision 1.79  2009/07/07 14:24:35  gert
 # off-by-one error in "delay-rule" evaluation (index must be '$tries-1')
 # formatting of logfile entry
@@ -444,10 +451,21 @@ if ( $policy_config ne '' && -f $policy_config )
 	    print "  pcfg: $_" if $opt_d;
 	    chomp;
 	    my ( $m, $s, $t, @a ) = split( /\s+/, $_ );
+	    my @ef = ();
+
+	    # @a is normally "arguments to sendfax", but we need a more
+	    # generic mechanism to to set special handling in faxrunqd
+	    # defined so far: 
+	    #  - "f:nocombine" = "no write combining if match"
+	    while( $#a >= 0 && $a[0] =~ /^f:(nocombine)$/ )
+	    {
+		push @ef, $1, '1';
+		shift @a;
+	    }
 
 	    push @policy, { 'match' => $m, 'substitute' => $s, 
 			    'ttys' => ( $t ne '-' )? [ split( /:/, $t) ] : [],
-			    'args' => [@a]};
+			    'args' => [@a], 'extra_flags' => {@ef} };
 	}
 	close(P);
     }
@@ -1052,6 +1070,12 @@ sub read_job_to_queue
 		    { $queue{$job}{'ttys'} = \@{$po->{ttys}}; 
 		      print LOG "    policy: ttys set: " . join(':', @{$queue{$job}{'ttys'}}) ."\n"  if $opt_v;
 		    }
+
+		foreach my $ekey ( keys %{$po->{extra_flags}} )
+		    { $queue{$job}{$ekey} = $po->{extra_flags}->{$ekey};
+		      print LOG "    policy: extra key set: $ekey->$queue{$job}{$ekey}\n"  if $opt_v;
+		    }
+		
 		last;
 	    }
 	}
@@ -1219,7 +1243,13 @@ sub send_job_from_queue
     #     - all have the same resolution (always '-n' or never)
     #     - no polling
     # TODO: if multiple "-A <acct>" are set, combine that info as well
-    if ( defined( $queue{$job}->{others} ) )
+    if ( defined( $queue{$job}->{others} ) &&
+	 defined( $queue{$job}->{nocombine} ) )
+    {
+	print LOG " +  others      : " . join( ' ', @{$queue{$job}->{'others'}} ) . "\n" if $opt_d;
+	print LOG " ++ no-combine: 'f:nocombine' in policy config\n" if $opt_v;
+    }
+    elsif ( defined( $queue{$job}->{others} ) )
     {
 	print LOG " +  others      : " . join( ' ', @{$queue{$job}->{'others'}} ) . "\n" if $opt_d;
 	my $crit = &check_flags( @flags );
