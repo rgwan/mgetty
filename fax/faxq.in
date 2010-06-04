@@ -4,7 +4,7 @@
 #
 # like "lpq" or "mailq", show jobs waiting in the output queue
 #
-# SCCS: $Id: faxq.in,v 4.11 2005/04/16 11:29:09 gert Exp $ Copyright (C) 1994 Gert Doering
+# SCCS: $Id: faxq.in,v 4.12 2010/06/04 12:42:54 gert Exp $ Copyright (C) 1994 Gert Doering
 #
 FAX_SPOOL=@FAX_SPOOL@
 FAX_SPOOL_OUT=@FAX_SPOOL_OUT@
@@ -127,8 +127,11 @@ do
 		   $1=="acct_handle" \
 			       { printf "ACCT=\"%s\";", substr( $0, 13 ) }
 		   $1=="input" { printf "INPUT=\"%s\";", substr( $0, 7 ) }
-		   $1=="time"  { printf "TIME=\"%s:%s\";",
-				 substr( $0, 6, 2 ), substr( $0, 8,2 ) }
+		   $1=="time"  { if ( length($2) == 4 ) 
+				  { printf "TIME=\"%s:%s\";", 
+				    substr( $2, 1, 2 ), substr( $2, 3, 2 ) }
+				 else
+				  { printf "TIME=\"%s\";", $2 } }
 		   $1=="subject"{ printf "RE=\"%s\";", substr( $0, 9 ) }
 		   $1=="priority"{ printf "PRI=\"%s\";", $2 }
 		   $1=="pages" { if ( NF==2 ) printf "PAGES=\"%s\";", $2
