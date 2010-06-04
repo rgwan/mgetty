@@ -63,6 +63,20 @@ If present,
 faxrunq
 won't send this job before the given time. The format must be exactly
 "hhmm", in 24-hr-format, otherwise faxrunq won't understand it. Optional.
+(Implementation notice: this implies "stop trying after midnight".
+.I faxrunq 
+will do so, while
+.I faxrunqd 
+will currently delay the job until the time specified has been reached, 
+and then send it without further constraints.)
+.TP
+.B time <hhmm>-<hhmm>
+This format specifies a time window when sending this fax is permitted,
+e.g. "time 2300-0500".  This format will only work if you use
+.I faxrunqd,
+as support for it has not been implemented for
+.I faxrunq
+yet.
 .TP
 .B poll
 Flag token.  If present, faxrunq will try to poll the given phone
