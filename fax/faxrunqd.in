@@ -9,10 +9,16 @@
 #
 # initial version: Feb 17, 1997
 #
-my $rcs_id='RCS: $Id: faxrunqd.in,v 1.80 2010/05/17 15:13:57 gert Exp $';
+my $rcs_id='RCS: $Id: faxrunqd.in,v 1.81 2010/06/04 13:50:46 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.81  2010/06/04 13:50:46  gert
+# don't check timing constraints at "read job from queue" time, but check
+# constraints at "right before sending" time - otherwise it's possible that
+# faxes get sent way out of their permitted time window
+# (this also implies that "-t hh:mm" is now handled as "hh:mm to midnight")
+#
 # Revision 1.80  2010/05/17 15:13:57  gert
 # add infrastructure for "extra flags" in faxrunqd.policy (must be at the
 # start of the "arguments to sendfax" part of the line, and must be f:xxx)
@@ -1083,11 +1089,9 @@ sub read_job_to_queue
 	# all done, mark job as 'ready to be sent'
 	$queue{$job}->{'status'} = 'active'; 
 
-	# if timing constraints permit, put into modem queue
-	if ( &check_timing_constraints($job) )
-	{
-	    &put_job_to_modem_queue($job);
-	}
+	# put into modem queue (time constraints will be checked when this
+	# job is at the head of the modem queue and due for sending)
+	&put_job_to_modem_queue($job);
 	return;
     }
 
@@ -1201,6 +1205,15 @@ sub send_job_from_queue
     my $job = shift @{$modem_queue{$tty}};
 
     print LOG "$job: Sending $job/JOB on $tty...\n" if $opt_v;
+
+    # check whether we can send this job right now, or need to delay it
+    unless( &check_timing_constraints($job) )
+    {
+	# need to delay - remove from queues, free phone number, etc.
+	$mq_length{$tty} -= $queue{$job}->{weight};
+	&reactivate_others($job);
+	return;
+    }
 
     # check whether job has been removed (faxrm) in the meantime...
     unless( -d "$job" && -f "$job/JOB" )
