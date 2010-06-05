@@ -1,3 +1,80 @@
+Sat Jun  5 11:47:17 MEST 2010  Gert Doering <gert@greenie.muc.de>
+
+	* release 1.1.37
+
+Fri Jun  4 14:56:46 MEST 2010  Gert Doering <gd@medat.de>
+
+	* the following fixes prompted by Wouter van Marle...
+
+	* fax/faxspool.in: implement "-t hh:mm-hh:mm" time-range syntax
+
+	* fax/faxq.in: properly display queued jobs with time-range field
+
+	* fax/faxrunqd.in: correctly handle jobs running out of the end of
+			   their sent-time window.  ** Changes handling 
+			   of "-t hh:mm" to "from hh:mm to midnight" **
+
+	* doc/faxqueue.5in: document "time hhmm-hhmm" syntax & constraints
+
+Sat Feb 20 14:04:11 MET 2010  Gert Doering <gert@greenie.muc.de>
+
+	* tools/microcom.c: improve read-from-device exception handling
+
+Wed Feb 17 09:28:44 MET 2010  Gert Doering <gert@greenie.muc.de>
+
+	* Makefile: split CC/HOSTCC for easier cross-compiling
+
+Tue Nov 24 16:05:20 MET 2009  Gert Doering <gert@greenie.muc.de>
+
+	* tap/atsms.c: add SMS retrieval from AT GSM modems
+
+Tue Jul  7 16:43:11 MEST 2009  Gert Doring <gd@medat.de>
+
+	* fax/faxrunqd.in: add run-time configurable delay after failures
+
+	* faxrunq.config: add example lines for "delay-rule" option
+
+	* doc/faxrunqd.8in: document "delay-rule" option
+
+Thu Mar 19 16:10:50 MET 2009  Gert Doering <gert@greenie.muc.de>
+
+	* Makefile, conf_sf.c, conf_sf.h: change working of version.h
+	  (now it only contains #define's, the actual variable assignment
+	  happens in conf*.c - prerequisites for inclusion in class1lib.c)
+
+	* class1.c: send NSF frame on reception (optional)
+
+	* class1lib.c: implement class1_send_nsf(), send mgetty version
+
+Sat Mar 14 12:54:19 MET 2009  Getr Doering <gert@greenie.muc.de>
+
+	* hyla_nsf.c: import updates from Hylafax NSF.c++
+
+Wed Feb 25 14:02:20 MET 2009  Gert Doering <gd@medat.de>
+
+	* fax/faxrunqd.in: enhance and clarify per-modem statistics
+
+Wed Feb 18 09:20:55 MET 2009  Gert Doering <gd@medat.de>
+
+	* Makefile, doc/Makefile: cleanup "make install" warnings
+
+Fri Mar  7 15:53:23 MET 2008  Gert Doering <gd@medat.de>
+
+	* ring.c: be flexible regarding whitespace in FM:...TO:... (Blatzheim)
+
+Thu Jan 31 17:26:18 MET 2008  Gert Doering <gd@medat.de>
+
+	* sendfax.c, conf_sf.c, conf_sf.h: new option for sendfax: 
+	   reset-after-fail <ATxxx> --> sent to modem after dial failures
+
+Sun Sep  9 13:56:46 MEST 2007  Stepan Kasal <kasal@ucw.cz>
+
+	* Makefile: file COPYING was missing
+
+Tue Aug 21 11:48:44 MEST 2007  Gert Doering <gd@medat.de>
+
+	* fax/faxspool.in: add @DATE +<format>@ to faxheader processing
+
 Fri Jun 15 13:11:24 MEST 2007  Gert Doering <gert@greenie.muc.de>
 
 	* add missing files (g3file.c), re-release 1.1.36
