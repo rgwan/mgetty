@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.76 2010/03/28 13:52:22 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.77 2010/06/05 09:48:22 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -308,8 +308,8 @@ MV=mv
 # Nothing to change below this line ---------------------------------!
 #
 MR=1.1
-SR=36
-DIFFR=1.1.35
+SR=37
+DIFFR=1.1.36
 #
 #
 OBJS=mgetty.o logfile.o do_chat.o locks.o utmp.o logname.o login.o \
@@ -519,9 +519,9 @@ beta:	tar diff sign
 
 	-cvs commit -m 'new version released' version.h
 # master ftp/www site
-	./ftp.sh $(MR).$(SR) delta.greenie.net \
-		'~ftp/pub/mgetty/source/$(MR)'
-	./beta $(MR) $(SR) $(DIFFR) delta.greenie.net \
+	./ftp.sh $(MR).$(SR) delta2.greenie.net \
+		'/home/ftp/pub/mgetty/source/$(MR)'
+	./beta $(MR) $(SR) $(DIFFR) delta2.greenie.net \
 		'/home/httpd/mgetty.greenie.net/doc'
 
 #shar1:	$(DISTRIB)
