@@ -1,4 +1,4 @@
-#ident "$Id: atsms.c,v 1.14 2010/04/28 09:05:17 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: atsms.c,v 1.15 2010/06/16 10:23:41 gert Exp $ Copyright (c) Gert Doering"
 
 /* atsms.c
  *
@@ -7,6 +7,10 @@
  * Calls routines in io.c, tio.c
  *
  * $Log: atsms.c,v $
+ * Revision 1.15  2010/06/16 10:23:41  gert
+ * after setting SIM PIN+OK, wait 2 minutes to give modem
+ * time to login to network
+ *
  * Revision 1.14  2010/04/28 09:05:17  gert
  * don't try to open report_file if no "-F" argument given (= NULL)
  * cast chacter to (uchar) before checking for 8-bit Umlauts
@@ -141,6 +145,8 @@ char *p;
 			sim_pin, device );
 	    close(fd); rmlocks(); return -1;
 	}
+	printf( "PIN OK, wait 2 more minutes for network login...\n" );
+	sleep(120);
 	printf( "OK!\n" );
     }
     else
