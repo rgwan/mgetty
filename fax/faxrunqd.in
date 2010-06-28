@@ -9,10 +9,13 @@
 #
 # initial version: Feb 17, 1997
 #
-my $rcs_id='RCS: $Id: faxrunqd.in,v 1.81 2010/06/04 13:50:46 gert Exp $';
+my $rcs_id='RCS: $Id: faxrunqd.in,v 1.82 2010/06/28 10:54:39 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.82  2010/06/28 10:54:39  gert
+# change "failed fax" e-mail to show "faxq -r $job" as how-to-renew command
+#
 # Revision 1.81  2010/06/04 13:50:46  gert
 # don't check timing constraints at "read job from queue" time, but check
 # constraints at "right before sending" time - otherwise it's possible that
@@ -1871,12 +1874,7 @@ It was not possible to send your fax to $rcvr!
 The fax job is suspended, you can requeue it for another delivery
 attempt with the command:
 
-    cd $fax_spool_out/$job
-    mv JOB.suspended JOB
-
-or (easier) with:
-
-    faxq -r
+    faxq -r $job
 
 
 The log file of your job follows:
