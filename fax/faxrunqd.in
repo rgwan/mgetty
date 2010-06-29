@@ -9,10 +9,18 @@
 #
 # initial version: Feb 17, 1997
 #
-my $rcs_id='RCS: $Id: faxrunqd.in,v 1.82 2010/06/28 10:54:39 gert Exp $';
+my $rcs_id='RCS: $Id: faxrunqd.in,v 1.83 2010/06/29 13:49:36 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.83  2010/06/29 13:49:36  gert
+# fix bogus comment before check_timing_constraints()
+# implement (minimal) control plugin infrastructure
+#   - plugin loading (if "faxrunqd-control-plugin" in faxrunq.config)
+#   - plugin init
+#   - query plugin for fcplugin::check_timing_constraints()
+#     (special customer requirements for 'no fax re-tries at nighttime')
+#
 # Revision 1.82  2010/06/28 10:54:39  gert
 # change "failed fax" e-mail to show "faxq -r $job" as how-to-renew command
 #
@@ -271,6 +279,12 @@ my %delay_rules = ( 4 => [ 120, 300 ],	# busy -> 2 minutes, 5 minutes
 		    10 => [ 20 ],	# ERROR / NO CARRIER
 		  );
 
+# plugin functions? - bitmap
+my $plugin_f = 0;
+
+use constant { FCPLUG_TIME_CONSTRAINTS => 1,
+	     };
+
 #
 # verbose strings for error messages
 #
@@ -432,6 +446,8 @@ if ( open( CF, $faxrunq_cf ) )
 		{ $modem_error_thres = $1; $modem_error_script = $2; }
 	elsif ( /^\s*delay-rule\s+(\d+)\s+([\d\sm]+)$/ )
 		{ $delay_rules{$1} = [ split( /\s+/, $2 ) ]; }
+	elsif ( /^\s*faxrunqd-control-plugin\s+(\/\S+.pl)$/ )
+		{ plugin_load($1); }
 	else
 		{ die "syntax error in $faxrunq_cf, line $.!\n"; }
     }
@@ -1144,13 +1160,33 @@ sub read_job_to_queue
 #
 # check_timing_constraints $JOB
 #
-# get $job from $modem_queue{$1}, lock $job/JOB, fork child process,
-# set $tty_in_use{$tty}, etc.
+# check whether job $JOB can be sent now
+# if not, remove from queue and put appropriate delay values
 #
 ##########################################################################
 sub check_timing_constraints
 {
     my $j=shift;
+
+    # if we have a control plugin, check whether it has something to say...
+    if ( $plugin_f & FCPLUG_TIME_CONSTRAINTS )
+    {
+	my $delay_sec = -1;
+	eval 
+	  { $delay_sec = fcplugin::check_timing_constraints($j, $queue{$j}); };
+	if ( $@ )
+	    { print LOG "ERROR: plugin_ctc failed: $@\n"; }
+
+	if ( $delay_sec > 0 )
+	{
+	    printf LOG "-> delay %02d:%02d h (plugin).\n",
+	                      $delay_sec/3600, ($delay_sec/60)%60;
+
+	    $queue{$j}->{status}='delayed';
+	    $queue{$j}->{'delayed_until'}=time() + $delay_sec;
+	    return 0;
+	}
+    }
 
     # no constraints at all
     if ( !defined( $queue{$j}{'time_1'} ) )  { return 1; }
@@ -2124,4 +2160,29 @@ sub check_queue_thresholds
 	    $queue_hiwat_reached=0;
 	}
     }
+}
+
+#
+# -------------------------------------------------------------------
+# plugin handling
+# -------------------------------------------------------------------
+sub plugin_load
+{
+    my $p = shift;
+
+    print "loading control plugin '$p'...\n" if $opt_v;
+
+    eval "require '$p';";
+    if ( $@ )
+    {
+	print STDERR "ERROR: cannot load plugin:\nERROR: $@\n";
+	return;
+    }
+    eval { $plugin_f = fcplugin::init(); };
+    if ( $@ )
+    {
+	print STDERR "ERROR: cannot init plugin:\nERROR: $@\n";
+	return;
+    }
+    print "... OK, bitmask = $plugin_f\n" if $opt_v;
 }
