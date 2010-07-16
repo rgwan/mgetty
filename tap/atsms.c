@@ -1,4 +1,4 @@
-#ident "$Id: atsms.c,v 1.15 2010/06/16 10:23:41 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: atsms.c,v 1.16 2010/07/16 16:26:22 gert Exp $ Copyright (c) Gert Doering"
 
 /* atsms.c
  *
@@ -7,6 +7,10 @@
  * Calls routines in io.c, tio.c
  *
  * $Log: atsms.c,v $
+ * Revision 1.16  2010/07/16 16:26:22  gert
+ * if we're waiting for a SMS delivery report from the SMSC, but nothing
+ * is received, do not flag this as an "error, SMS transmission failed"
+ *
  * Revision 1.15  2010/06/16 10:23:41  gert
  * after setting SIM PIN+OK, wait 2 minutes to give modem
  * time to login to network
@@ -396,6 +400,7 @@ int seqno = -1;			/* sms sequence number */
     if ( want_status_msg && !err && !got_interrupt )
     {
 	if ( opt_v ) printf( "wait for delivery report... (120s)\n" );
+	lprintf( L_NOISE, "SMS sent OK, wait for delivery report...\n" );
 
 	signal( SIGALRM, oops );
 	alarm(120);
@@ -404,14 +409,19 @@ int seqno = -1;			/* sms sequence number */
 	{
 	    p = mdm_get_line( fd );
 
-	    if ( p == NULL ) { err++; break; }
+	    if ( p == NULL ) { break; }		/* give up, no error(!) */
 	    if ( opt_v ) printf( "got: '%s'\n", p );
 	    if ( strncmp( p, "+CDSI:", 5 ) == 0 ) break;	/* got it! */
 	}
 	while( !got_interrupt );
 	alarm(0);
 
-	if ( p != NULL )					/* got it! */
+	if ( p == NULL )					/* no report */
+	{
+	    if ( opt_v ) printf( "no delivery report, give up.\n" );
+	    lprintf( L_MESG, "no delivery report from SMS provider.");
+	}
+	else							/* got it! */
 	{
 	    char * np;
 	    int memloc;
@@ -441,6 +451,9 @@ int seqno = -1;			/* sms sequence number */
 	mdm_command( "AT+CNMI=2,1,0,0", fd );
     }
 
+    lprintf( L_AUDIT, "SMS to %s: %s, seq=%d, acct=\"%s\"", 
+			    sms_to, err? "failed": "sent", seqno, acct_info );
+
     /* while we're at it, check whether there are unread queued 
      * status messages...
      */
@@ -458,8 +471,6 @@ int seqno = -1;			/* sms sequence number */
     close(fd);
     rmlocks();
     signal( SIGALRM, SIG_DFL );
-    lprintf( L_AUDIT, "SMS to %s: %s, seq=%d, acct=\"%s\"", 
-			    sms_to, err? "failed": "sent", seqno, acct_info );
     return ( err > 0 ) ? -1: 0;
 }
 
