@@ -1,4 +1,4 @@
-#ident "$Id: atsms.c,v 1.16 2010/07/16 16:26:22 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: atsms.c,v 1.17 2010/07/16 16:31:23 gert Exp $ Copyright (c) Gert Doering"
 
 /* atsms.c
  *
@@ -7,6 +7,9 @@
  * Calls routines in io.c, tio.c
  *
  * $Log: atsms.c,v $
+ * Revision 1.17  2010/07/16 16:31:23  gert
+ * no newline at the end of lprintf()s...!
+ *
  * Revision 1.16  2010/07/16 16:26:22  gert
  * if we're waiting for a SMS delivery report from the SMSC, but nothing
  * is received, do not flag this as an "error, SMS transmission failed"
@@ -400,7 +403,7 @@ int seqno = -1;			/* sms sequence number */
     if ( want_status_msg && !err && !got_interrupt )
     {
 	if ( opt_v ) printf( "wait for delivery report... (120s)\n" );
-	lprintf( L_NOISE, "SMS sent OK, wait for delivery report...\n" );
+	lprintf( L_NOISE, "SMS sent OK, wait for delivery report..." );
 
 	signal( SIGALRM, oops );
 	alarm(120);
