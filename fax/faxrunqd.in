@@ -9,10 +9,17 @@
 #
 # initial version: Feb 17, 1997
 #
-my $rcs_id='RCS: $Id: faxrunqd.in,v 1.83 2010/06/29 13:49:36 gert Exp $';
+my $rcs_id='RCS: $Id: faxrunqd.in,v 1.84 2010/08/13 13:49:44 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.84  2010/08/13 13:49:44  gert
+# move "open log file" before "read policy config"
+# --> log policy config parsing to log file :-)
+#
+# remove leading whitespace in policy config lines - there's no reasonable
+# usage case for that, and it makes policy config fail in surprising ways
+#
 # Revision 1.83  2010/06/29 13:49:36  gert
 # fix bogus comment before check_timing_constraints()
 # implement (minimal) control plugin infrastructure
@@ -461,19 +468,29 @@ if ( $faxq_lowat_thres == 0 )
 	{ $faxq_lowat_thres = $faxq_hiwat_thres * 0.6; }
 
 #
+# open log file
+#
+open( LOG, ">>$faxrd_log" ) ||
+	    die "can't write log file '$faxrd_log'";
+LOG->autoflush(1);
+print LOG "\n" . localtime() .": faxrunqd starting, pid=$$\n";
+print LOG "command line arguments: $0 $saved_cli\n$rcs_id\n";
+
+#
 # policy configuration
 #
 
 if ( $policy_config ne '' && -f $policy_config )
 {
-    print "reading $policy_config...\n" if $opt_d;
+    print LOG "reading $policy_config...\n" if $opt_v;
     if ( open( P, $policy_config ) )
     {
 	while( <P> )
 	{
 	    next if /^\s*#/;			# comment
 	    next if /^\s*$/;			# empty lines
-	    print "  pcfg: $_" if $opt_d;
+	    s/^\s+//;				# strip leading blanks
+	    print LOG "  pcfg: $_" if $opt_d;
 	    chomp;
 	    my ( $m, $s, $t, @a ) = split( /\s+/, $_ );
 	    my @ef = ();
@@ -491,6 +508,8 @@ if ( $policy_config ne '' && -f $policy_config )
 	    push @policy, { 'match' => $m, 'substitute' => $s, 
 			    'ttys' => ( $t ne '-' )? [ split( /:/, $t) ] : [],
 			    'args' => [@a], 'extra_flags' => {@ef} };
+	    print LOG "       -> m='$m', $s, ttys='$t', F='".
+		   join(' ', @a) ."', ef='" . join(' ', @ef) ."'\n" if $opt_d;
 	}
 	close(P);
     }
@@ -505,15 +524,6 @@ chdir( $fax_spool_out ) ||
 
 opendir FSO, "." ||
 	    die "can't read directory '$fax_spool_out'";
-
-#
-# open log file
-#
-open( LOG, ">>$faxrd_log" ) ||
-	    die "can't write log file '$faxrd_log'";
-LOG->autoflush(1);
-print LOG "\n" . localtime() .": faxrunqd starting, pid=$$\n";
-print LOG "command line arguments: $0 $saved_cli\n$rcs_id\n";
 
 #
 # internal queue
