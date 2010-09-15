@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 4.25 2009/03/19 15:35:34 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 4.26 2010/09/15 09:35:29 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration defaults for mgetty / sendfax
  * are specified.
@@ -66,6 +66,15 @@
  * prompt first. Don't forget to activate the /AutoPPP/ line in login.config!
  */
 /* #define AUTO_PPP */
+
+/* SMS support
+ *
+ * if you want to use mgetty on a GSM modem and handle incoming SMS
+ * messages and/or SMS status reports, enable this.  This will add extra
+ * code to mgetty to recognize +CMTI: and +CDSI: messages, and some extra
+ * options (sms-handler*) to control dispatching to external scripts.
+ */
+/* #define SMS */
 
 /* callback config file
  *
