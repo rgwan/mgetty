@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.77 2010/06/05 09:48:22 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.78 2010/09/17 15:33:58 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -316,7 +316,7 @@ OBJS=mgetty.o logfile.o do_chat.o locks.o utmp.o logname.o login.o \
      mg_m_init.o modem.o faxrec.o ring.o \
      faxlib.o faxsend.o faxrecp.o class1.o class1lib.o faxhng.o hyla_nsf.o \
      g3file.o io.o gettydefs.o tio.o cnd.o getdisk.o goodies.o \
-     config.o conf_mg.o do_stat.o
+     config.o conf_mg.o do_stat.o sms.o
 
 SFAXOBJ=sendfax.o logfile.o locks.o modem.o \
      faxlib.o faxsend.o faxrecp.o class1.o class1lib.o faxhng.o hyla_nsf.o \
@@ -408,7 +408,8 @@ DISTRIB=README.1st THANKS TODO BUGS FTP COPYING Recommend \
 	g3file.c \
 	io.c tio.c tio.h gettydefs.c login.c do_stat.c faxhng.c \
 	config.h config.c conf_sf.h conf_sf.c conf_mg.h conf_mg.c \
-	cnd.c getdisk.c mksed.c utmp.c mg_utmp.h syslibs.h goodies.c
+	cnd.c getdisk.c mksed.c utmp.c mg_utmp.h syslibs.h goodies.c \
+	sms.c
 
 noident: policy.h
 	    for file in `find . -type f -name "*.[ch]" -print` ; do \
@@ -455,7 +456,7 @@ policy.h-dist: policy.h
 version.h: $(DISTRIB)
 	rm -f version.h
 	if expr "$(MR)" : "[0-9].[13579]" >/dev/null ; then \
-	    date=`date "+%b%d"` ;\
+	    date=`date "+%Y%b%d"` ;\
 	    echo "#define VERSION_LONG \"interim release $(MR).$(SR)-$$date\";" >version.h ;\
 	else \
 	    echo "#define VERSION_LONG \"stable release $(MR).$(SR)\";" >version.h ;\
@@ -464,7 +465,7 @@ version.h: $(DISTRIB)
 	echo "extern char * mgetty_version;" >>version.h
 	chmod 444 version.h
 
-mgetty$(MR).$(SR).tar.gz:	$(DISTRIB)
+mgetty-$(MR).$(SR).tar.gz:	$(DISTRIB)
 	rm -f mgetty-$(MR).$(SR)
 	ln -sf . mgetty-$(MR).$(SR)
 	find . -name core -print | xargs rm -f
@@ -476,32 +477,32 @@ mgetty$(MR).$(SR).tar.gz:	$(DISTRIB)
 	  find voice -type f -print | grep -v CVS ; \
 	) \
 	    | sed -e 's;^;mgetty-$(MR).$(SR)/;g' \
-	    | gtar cvvfT mgetty$(MR).$(SR).tar -
-	gzip -f -9 -v mgetty$(MR).$(SR).tar
+	    | gtar cvvfT mgetty-$(MR).$(SR).tar -
+	gzip -f -9 -v mgetty-$(MR).$(SR).tar
 
-tar:	mgetty$(MR).$(SR).tar.gz
+tar:	mgetty-$(MR).$(SR).tar.gz
 
-diff:	mgetty$(DIFFR)-$(MR).$(SR).diff.gz
+diff:	mgetty-$(DIFFR)-$(MR).$(SR).diff.gz
 
 sign:	tar
-	pgp -sab mgetty$(MR).$(SR).tar.gz
-	chmod +r mgetty$(MR).$(SR).tar.gz.asc
+	pgp -sab mgetty-$(MR).$(SR).tar.gz
+	chmod +r mgetty-$(MR).$(SR).tar.gz.asc
 
-mgetty$(DIFFR)-$(MR).$(SR).diff.gz: \
-	mgetty$(DIFFR).tar.gz mgetty$(MR).$(SR).tar.gz
+mgetty-$(DIFFR)-$(MR).$(SR).diff.gz: \
+	mgetty$(DIFFR).tar.gz mgetty-$(MR).$(SR).tar.gz
 	-rm -rf /tmp/mgd
 	mkdir /tmp/mgd
 	gtar xvCfz /tmp/mgd mgetty$(DIFFR).tar.gz
-	gtar xvCfz /tmp/mgd mgetty$(MR).$(SR).tar.gz
+	gtar xvCfz /tmp/mgd mgetty-$(MR).$(SR).tar.gz
 	( cd /tmp/mgd ; \
 	  gdiff -u3 --ignore-space-change --recursive --new-file -I "^#ident" \
 		mgetty-$(DIFFR) mgetty-$(MR).$(SR) ; \
-		exit 0 ) >mgetty$(DIFFR)-$(MR).$(SR).diff
+		exit 0 ) >mgetty-$(DIFFR)-$(MR).$(SR).diff
 	rm -rf /tmp/mgd
-	gzip -f -9 -v mgetty$(DIFFR)-$(MR).$(SR).diff
+	gzip -f -9 -v mgetty-$(DIFFR)-$(MR).$(SR).diff
 
-mg.uue:	mgetty$(MR).$(SR).tar.gz
-	uuencode mgetty$(MR).$(SR)-`date +%b%d`.tar.gz <mgetty$(MR).$(SR).tar.gz >mg.uue
+mg.uue:	mgetty-$(MR).$(SR).tar.gz
+	uuencode mgetty-$(MR).$(SR).tar.gz <mgetty-$(MR).$(SR).tar.gz >mg.uue
 
 uu:	mg.uue
 
@@ -512,10 +513,10 @@ uu2:	mg.uue
 # DO NOT USE IT if you're not ME! Please!
 #
 beta:	tar diff sign
-	test `hostname` = greenie.muc.de || exit 1
+	test `hostname` = kirk || exit 1
 # local
-	cp mgetty$(MR).$(SR).tar.gz /pub/mgetty-archive/
-	cp mgetty$(DIFFR)-$(MR).$(SR).diff.gz /pub/mgetty-archive/
+	cp mgetty-$(MR).$(SR).tar.gz /pub/mgetty-archive/
+	cp mgetty-$(DIFFR)-$(MR).$(SR).diff.gz /pub/mgetty-archive/
 
 	-cvs commit -m 'new version released' version.h
 # master ftp/www site
