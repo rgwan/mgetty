@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 4.29 2005/12/31 15:52:45 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 4.30 2010/09/17 15:37:06 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -9,6 +9,10 @@
  * mgetty+sendfax (except some fax constants, they are in fax_lib.h)
  *
  * $Log: mgetty.h,v $
+ * Revision 4.30  2010/09/17 15:37:06  gert
+ * add new action enums: A_SMS_IN, A_SMS_REPORT (SMS handler)
+ * add prototype for handle_incoming_sms() -> sms.c
+ *
  * Revision 4.29  2005/12/31 15:52:45  gert
  * move typedef...uch from class1.h to mgetty.h
  *
@@ -208,7 +212,8 @@ typedef unsigned char uch;
 
 typedef enum {
 	A_TIMOUT, A_FAIL, A_FAX, A_VCON, A_CONN,
-	A_RING1, A_RING2, A_RING3, A_RING4, A_RING5
+	A_RING1, A_RING2, A_RING3, A_RING4, A_RING5,
+	A_SMS_IN, A_SMS_REPORT
 } action_t;
 
 typedef struct	chat_actions {
@@ -303,6 +308,9 @@ extern char *CalledNr;
 void cndfind _PROTO((char *str));
 int cndlookup _PROTO((void));
 int cnd_call _PROTO((char *name, char *tty, int dist_ring ));
+
+int handle_incoming_sms _PROTO(( boolean is_report, int fd, 
+				 char * sms_handler, uid_t uid, gid_t gid ));
 
 /* disk statistics retrieval in getdisk.c */
 
