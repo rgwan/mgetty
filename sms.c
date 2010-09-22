@@ -1,4 +1,4 @@
-#ident "$Id: sms.c,v 1.2 2010/09/22 09:06:46 gert Exp $"
+#ident "$Id: sms.c,v 1.3 2010/09/22 12:06:55 gert Exp $"
 
 /* sms.c - part of mgetty+sendfax
  *
@@ -9,6 +9,10 @@
  * the modem, and then passed to "sms-handler <script>" (if configured)
  *
  * $Log: sms.c,v $
+ * Revision 1.3  2010/09/22 12:06:55  gert
+ * change from simple fork()/system() to double-fork()/exec() -> guarantee
+ * that there are no zombies, and also no mgetty parent processes hanging around
+ *
  * Revision 1.2  2010/09/22 09:06:46  gert
  * add (int) cast to avoid int/long issue on 64bit AIX
  *
@@ -24,6 +28,8 @@
 #include <unistd.h>
 #include <string.h>
 #include <fcntl.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #include "mgetty.h"
 #include "policy.h"
@@ -35,6 +41,39 @@
 extern boolean fwf_timeout;
 extern RETSIGTYPE fwf_sig_alarm(SIG_HDLR_ARGS);
 
+extern char **environ;
+
+/* helper function: fork() twice, so that grandchild process is 
+ * inherited by init and won't cause zombies
+ */
+pid_t doublefork _P0(void)
+{
+pid_t p;
+    p = fork();
+
+    if ( p == -1 )
+	{ lprintf( L_ERROR, "can't fork()" ); return -1; }
+
+    if ( p != 0 )	/* parent */
+    {
+	int status;
+	wait( &status );
+	return p;
+    }
+
+    /* child -> fork grandchild, exit */
+    p = fork();
+
+    if ( p == -1 )
+	{ lprintf( L_ERROR, "can't fork() [child]" ); return -1; }
+
+    if ( p != 0 )	/* original child */
+	{ exit(0); }
+
+    /* grandchild */
+    return 0;
+}
+
 int handle_incoming_sms _P5( (is_report, fd, sms_handler, uid, gid ),
 			      boolean is_report, int fd, 
 			      char * sms_handler, uid_t uid, gid_t gid )
@@ -43,7 +82,6 @@ char *s, *p;
 int memloc, i;
 char cmdbuf[50];
 char meta_buf[200], text_buf[200];
-char line[MAXPATH];
 
     /* timeout protect the whole thing */
     signal( SIGALRM, fwf_sig_alarm ); alarm(15); fwf_timeout = FALSE;
@@ -125,18 +163,12 @@ char line[MAXPATH];
     if ( sms_handler == NULL )			/* nothing more to do */
 	return NOERROR;
 
-    /* build command line
-     * note: stdout / stderr redirected to console, we don't
-     *       want the program talking to the modem
-     * TODO: do the console redirection while we still have root!
+    /* fork child (double-forking, so we don't have zombies)
+     *
+     * child will detach from tty, attach to console, setuid, exec() handler
      */
-    sprintf( line, "%.*s >/dev/null 2>&1 </dev/null", 
-		(int) sizeof(line)-50, sms_handler );
 
-    lprintf( L_NOISE, "notify: '%.320s', uid=%d, gid=%d", 
-			line, (int) uid, (int) gid );
-
-    switch( fork() )
+    switch( doublefork() )
     {
 	case 0:		/* child */
 	    /* detach from controlling tty -> no SIGHUP */
@@ -151,6 +183,15 @@ char line[MAXPATH];
 #else
 	    setpgrp();
 #endif
+
+	    /* connect stdin to /dev/null, stdout+stderr to console */
+	    if ( ( fd = open( "/dev/null", O_RDWR )) != 0 )
+		{ lprintf( L_ERROR, "can't connect /dev/null to stdin" ); }
+
+	    if ( ( fd = open( CONSOLE, O_WRONLY ) ) != 1 )	/* stdout */
+		{ lprintf( L_ERROR, "can't connect CONSOLE to stdout" ); }
+	    else
+		{ dup2( fd, 2 ); }				/* stderr */
 
 	    /* set UIDs (don't run scripts as root) - ignore errors
              */
@@ -175,10 +216,12 @@ char line[MAXPATH];
 		set_env_var( "SMS_TEXT", text_buf );
 	    }
 
-	    i = system( line );
+	    lprintf( L_NOISE, "notify: '%.320s', uid=%d, gid=%d", 
+				sms_handler, (int) uid, (int) gid );
 
-	    if ( i != 0 )
-		lprintf( L_ERROR, "system() failed" );
+	    execle( sms_handler, sms_handler, (char*)NULL, environ );
+
+	    lprintf( L_ERROR, "exec() failed" );
 	    exit(0);
 	case -1:
 	    lprintf( L_ERROR, "fork() failed" );
