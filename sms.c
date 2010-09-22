@@ -1,4 +1,4 @@
-#ident "$Id: sms.c,v 1.1 2010/09/14 21:13:44 gert Exp $"
+#ident "$Id: sms.c,v 1.2 2010/09/22 09:06:46 gert Exp $"
 
 /* sms.c - part of mgetty+sendfax
  *
@@ -9,6 +9,9 @@
  * the modem, and then passed to "sms-handler <script>" (if configured)
  *
  * $Log: sms.c,v $
+ * Revision 1.2  2010/09/22 09:06:46  gert
+ * add (int) cast to avoid int/long issue on 64bit AIX
+ *
  * Revision 1.1  2010/09/14 21:13:44  gert
  * basic handler for "retrieve incoming SMS from modem, hand to script"
  *
@@ -128,7 +131,7 @@ char line[MAXPATH];
      * TODO: do the console redirection while we still have root!
      */
     sprintf( line, "%.*s >/dev/null 2>&1 </dev/null", 
-		sizeof(line)-50, sms_handler );
+		(int) sizeof(line)-50, sms_handler );
 
     lprintf( L_NOISE, "notify: '%.320s', uid=%d, gid=%d", 
 			line, (int) uid, (int) gid );
