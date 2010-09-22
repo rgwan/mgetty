@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 4.30 2010/09/17 15:37:06 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 4.31 2010/09/22 09:00:29 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -9,6 +9,10 @@
  * mgetty+sendfax (except some fax constants, they are in fax_lib.h)
  *
  * $Log: mgetty.h,v $
+ * Revision 4.31  2010/09/22 09:00:29  gert
+ * move handle_incoming_sms() prototype from mgetty.h to mgetty.c - the easy
+ * way to work around uid_t and gid_t not being defined in all .c files
+ *
  * Revision 4.30  2010/09/17 15:37:06  gert
  * add new action enums: A_SMS_IN, A_SMS_REPORT (SMS handler)
  * add prototype for handle_incoming_sms() -> sms.c
@@ -308,9 +312,6 @@ extern char *CalledNr;
 void cndfind _PROTO((char *str));
 int cndlookup _PROTO((void));
 int cnd_call _PROTO((char *name, char *tty, int dist_ring ));
-
-int handle_incoming_sms _PROTO(( boolean is_report, int fd, 
-				 char * sms_handler, uid_t uid, gid_t gid ));
 
 /* disk statistics retrieval in getdisk.c */
 

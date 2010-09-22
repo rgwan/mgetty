@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 4.41 2010/09/17 15:36:31 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 4.42 2010/09/22 09:00:29 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -9,6 +9,10 @@
  * paul@devon.lns.pa.us, and are used with permission here.
  *
  * $Log: mgetty.c,v $
+ * Revision 4.42  2010/09/22 09:00:29  gert
+ * move handle_incoming_sms() prototype from mgetty.h to mgetty.c - the easy
+ * way to work around uid_t and gid_t not being defined in all .c files
+ *
  * Revision 4.41  2010/09/17 15:36:31  gert
  * add handling for incoming SMS messages and SMS status reports (-> GSM modem)
  *   - recognize +CMTI: and +CDSI: messages
@@ -95,6 +99,12 @@ int getlogname _PROTO(( char * prompt, TIO * termio,
 
 /* conf_mg.c */
 void exit_usage _PROTO((int num));
+
+/* sms.c */
+#ifdef SMS
+int handle_incoming_sms _PROTO(( boolean is_report, int fd, 
+				 char * sms_handler, uid_t uid, gid_t gid ));
+#endif
 
 char	* Device;			/* device to use */
 char	* DevID;			/* device name withouth '/'s */
