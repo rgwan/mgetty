@@ -1,4 +1,4 @@
-#ident "$Id: g32pbm.c,v 4.3 1998/06/01 12:00:09 gert Exp $ (c) Gert Doering, Chris Lewis et.al."
+#ident "$Id: g32pbm.c,v 4.4 2010/10/08 10:49:58 gert Exp $ (c) Gert Doering, Chris Lewis et.al."
 
 /* G32pbm.c
  *
@@ -7,6 +7,12 @@
  *
  * G3 and PBM code by Gert Doering
  * HP Laserjet and scaling code by Chris Lewis
+ *
+ * $Log: g32pbm.c,v $
+ * Revision 4.4  2010/10/08 10:49:58  gert
+ * add CVS Log tag
+ * when reporting invalid code, use SEEK_CUR for lseek(), not "1" (code cleanup)
+ *
  */
 
 #include <stdio.h>
@@ -348,7 +354,7 @@ int	resolution = BASERES;
 	if ( p == NULL )	/* invalid code */
 	{ 
 	    fprintf( stderr, "invalid code, row=%d, col=%d, file offset=%lx, skip to eol\n",
-		     row, col, (unsigned long) lseek( fd, 0, 1 ) - rs + rp );
+		     row, col, (unsigned long) lseek( fd, 0, SEEK_SET ) - rs + rp );
 	    while ( ( data & 0x03f ) != 0 )
 	    {
 		data >>= 1; hibit--;
