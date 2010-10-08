@@ -1,4 +1,4 @@
-#ident "$Id: g3cat.c,v 4.5 2005/02/27 19:03:37 gert Exp $ (c) Gert Doering"
+#ident "$Id: g3cat.c,v 4.6 2010/10/08 10:49:23 gert Exp $ (c) Gert Doering"
 
 /* g3cat.c - concatenate multiple G3-Documents
  *
@@ -11,6 +11,13 @@
  *                -a (byte-align EOLs)
  *		  -h <lines> put <lines> empty lines on top of page
  *		  -p <pad>   zero-fill all lines up to <pad> bytes
+ *
+ * $Log: g3cat.c,v $
+ * Revision 4.6  2010/10/08 10:49:23  gert
+ * add CVS Log tag
+ * when reporting invalid code, lseek() on "fd", not on stdin (bugfix) and
+ * use "SEEK_CUR" instead of "1" (easier to read and more portable code)
+ *
  */
 
 /* #define DEBUG 1 */
@@ -331,7 +338,7 @@ int main _P2( (argc, argv),
 	    if ( p == NULL )	/* invalid code */
 	    { 
 		fprintf( stderr, "invalid code, row=%d, col=%d, file offset=%lx, skip to eol\n",
-			 row, col, (unsigned long)lseek( 0, 0, 1 ) - rs + rp );
+			 row, col, (unsigned long)lseek( fd, 0, SEEK_CUR ) - rs + rp );
 		while ( ( data & 0x03f ) != 0 )
 		{
 		    data >>= 1; hibit--;
