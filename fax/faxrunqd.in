@@ -9,10 +9,17 @@
 #
 # initial version: Feb 17, 1997
 #
-my $rcs_id='RCS: $Id: faxrunqd.in,v 1.84 2010/08/13 13:49:44 gert Exp $';
+my $rcs_id='RCS: $Id: faxrunqd.in,v 1.85 2011/01/11 16:28:15 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.85  2011/01/11 16:28:15  gert
+# make "Waiting for offspring..." line more informative
+#   - add timestamp
+#   - add current (in-memory) queue length
+# to help displaying proper queue length, remove failed jobs from %queue
+# if job directory disappears after calling "failure-program"
+#
 # Revision 1.84  2010/08/13 13:49:44  gert
 # move "open log file" before "read policy config"
 # --> log policy config parsing to log file :-)
@@ -1478,7 +1485,10 @@ sub wait_for_child
 {
 my ($r, $s, $ex, $j, $t);
 
-    print LOG "Waiting for offspring ($childs out there)...\n" if $opt_d;
+    my $queue = scalar( keys %queue );
+    $queue .= '*' if $queue_hiwat_reached;
+
+    print LOG localtime() .": waiting for offspring ($childs childs, queue length $queue)...\n" if $opt_d;
 
     $r = 0;
 
@@ -1808,6 +1818,10 @@ sub handle_return_code
 
 	    # remove from internal queue
 	    $queue{$j}->{'status'}= 'failed';
+
+	    # if directory is gone (removed by $program_failure?) forget about job
+	    if( ! -d "$j" )
+		{ delete $queue{$j}; }
 	}			# end if ( max tries exceeded )
 	else			# requeue...
 	{
