@@ -9,10 +9,16 @@
 #
 # initial version: Feb 17, 1997
 #
-my $rcs_id='RCS: $Id: faxrunqd.in,v 1.85 2011/01/11 16:28:15 gert Exp $';
+my $rcs_id='RCS: $Id: faxrunqd.in,v 1.86 2011/01/18 16:09:11 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.86  2011/01/18 16:09:11  gert
+# introduce new per-modem error text block: %modem_errors_v
+# passed to "modem_error_script" via $MODEM_ERROR_VERBOSE env var
+# includes job ID, phone number, time stamp, verbose error code
+# -> ease figuring out where the problems are coming from
+#
 # Revision 1.85  2011/01/11 16:28:15  gert
 # make "Waiting for offspring..." line more informative
 #   - add timestamp
@@ -565,6 +571,7 @@ use vars qw / %tty_statistics %per_phone_statistics /;
 # modem error counters
 #
 my %modem_errors = ();
+my %modem_errors_v = ();
 
 # ###
 # ### MAIN LOOP -- rescan spool directory in certain intervals, send stuff
@@ -888,6 +895,7 @@ sub put_job_to_modem_queue
 	    $mq_badness{$t}=0;
 	    $tty_in_use{$t}=0;
 	    $modem_errors{$t}=[];
+	    $modem_errors_v{$t}='';
 	}
 
 	my $this_q_len = ( $t eq $queue{$j}->{last_modem} ) ? 9998 :
@@ -1720,6 +1728,7 @@ sub handle_return_code
 
 	# remember that this modem did well :-) (-> clear error history)
 	$modem_errors{$tty} = [];
+	$modem_errors_v{$tty} = '';
 
 	# success mail
 	&sms($j)
@@ -1773,13 +1782,17 @@ sub handle_return_code
 
 	# take note about performance of *this* modem...
 	push @{$modem_errors{$tty}}, $ex;
+	$modem_errors_v{$tty} .= localtime() ." $j $queue{$j}->{phone} fail($ex): $verb_ex\n";
+
 	# ... and complain if there are too many consecutive errors
 	if ( $modem_error_thres > 0 &&
 	     scalar(@{$modem_errors{$tty}}) == $modem_error_thres &&
 	     $modem_error_script ne '' && $modem_error_script ne '-' )
 	{
 	    print LOG "run script: '$modem_error_script $tty @{$modem_errors{$tty}}'\n";
+	    $ENV{MODEM_ERROR_VERBOSE} = $modem_errors_v{$tty};
 	    system( "$modem_error_script $tty @{$modem_errors{$tty}} </dev/null" );
+	    delete $ENV{MODEM_ERROR_VERBOSE};
 	}
 
 	#!!!! compare numbers -> remove job, or just requeue
