@@ -1,4 +1,4 @@
-#ident "$Id: atsms.c,v 1.17 2010/07/16 16:31:23 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: atsms.c,v 1.18 2011/07/11 09:21:20 gert Exp $ Copyright (c) Gert Doering"
 
 /* atsms.c
  *
@@ -7,6 +7,11 @@
  * Calls routines in io.c, tio.c
  *
  * $Log: atsms.c,v $
+ * Revision 1.18  2011/07/11 09:21:20  gert
+ * add new option: -Z "zap modem"
+ *   -> if AT+CPIN? query is answered with ERROR, do a full SIM card reset
+ *      with AT+CFUN=1,1 and then re-try setting SIM PIN
+ *
  * Revision 1.17  2010/07/16 16:31:23  gert
  * no newline at the end of lprintf()s...!
  *
@@ -72,7 +77,7 @@ RETSIGTYPE oops(SIG_HDLR_ARGS)
 		{ got_interrupt=TRUE; }
 
 int init_device( char * device, int speed, char * sim_pin, 
-		 boolean * want_status_msg,
+		 boolean * want_status_msg,  boolean zap_it,
 		 TIO * tio, TIO * save_tio )
 {
 int fd;
@@ -133,6 +138,29 @@ char *p;
 	fprintf( stderr, "can't query modem on '%s' for PIN status: '%s'\n",
 		 device, p == NULL? "<NULL>": p );
 	close(fd); rmlocks(); return -1;
+    }
+
+    /* sometimes the SIM card seems to crash - the modem still talks
+     * to us, but AT+CPIN? is answered by ERROR -> try resetting (CFUN)
+     */
+    if ( strcmp( p, "ERROR" ) == 0 && zap_it )
+    {
+	fprintf( stderr, "SIM card seems hung, send AT+CFUN=1,1 reset command\n" );
+	if ( mdm_command_timeout( "AT+CFUN=1,1", fd, 10 ) == ERROR )
+	{
+	    fprintf( stderr, "reset not successful, recommend power cycle\n" );
+	    close(fd); rmlocks(); return -1;
+	}
+	fprintf( stderr, "reset command accepted... wait 30s for modem reset\n" );
+	sleep(30);
+
+	p = mdm_get_idstring( "AT+CPIN?", 1, fd );
+	if ( p == NULL || strncmp( p, "+CPIN:", 5 ) != 0 )
+	{
+	    fprintf( stderr, "still can't query modem on '%s' for PIN status: '%s'\n",
+		     device, p == NULL? "<NULL>": p );
+	    close(fd); rmlocks(); return -1;
+	}
     }
 
     if ( strcmp( p, "+CPIN: SIM PIN" ) == 0 )
@@ -261,7 +289,7 @@ void handle_delivery_report( int seqno, char * rep, char * report_file )
 }
 
 int send_sms( char * device, int speed, char * sim_pin, 
-		boolean want_status_msg, 
+		boolean want_status_msg, boolean zap_it,
 		char * sms_to, char * sms_text,
 		char * report_file, char * acct_info )
 {
@@ -275,7 +303,7 @@ int seqno = -1;			/* sms sequence number */
     printf( "send SMS message to \"%s\"...\n", sms_to );
 
     fd = init_device( device, speed, sim_pin, 
-			&want_status_msg, &tio, &save_tio );
+			&want_status_msg, zap_it, &tio, &save_tio );
 
     if ( fd == -1 ) return -1;
 
@@ -581,7 +609,7 @@ int err;
 
     if ( opt_v ) printf( "retrieving SMS messages...\n" );
 
-    fd = init_device( device, speed, sim_pin, NULL, &tio, &save_tio );
+    fd = init_device( device, speed, sim_pin, NULL, FALSE, &tio, &save_tio );
 
     if ( fd == -1 ) return -1;
 
@@ -620,13 +648,14 @@ int rc;
 int opt_r = 0;					/* retrieve "old" SMS */
 int opt_D = 0;					/* delete SMS from SIM */
 int opt_R = 0;					/* check delivery report */
+int opt_Z = 0;					/* zap it (reset SIM) */
 char * report_file = NULL;			/* write report to file */
 char * acct_info = "";				/* -A: acct info for SMS */
 
     log_init_paths( argv[0], LOG_FILE, NULL );
     log_set_llevel(9);
 
-    while ((opt = getopt(argc, argv, "vl:s:x:p:rDRF:A:")) != EOF)
+    while ((opt = getopt(argc, argv, "vl:s:x:p:rDRZF:A:")) != EOF)
     {
 	switch( opt )
 	{
@@ -638,6 +667,7 @@ char * acct_info = "";				/* -A: acct info for SMS */
 	    case 'r': opt_r = 1; break;		/* receive already-read SMS */
 	    case 'D': opt_D = 1; break;		/* delete SMS after reading */
 	    case 'R': opt_R = 1; break;		/* delivery report */
+	    case 'Z': opt_Z = 1; break;		/* *zapit* (reset if err) */
 	    case 'F': report_file = optarg; break;
 	    case 'A': acct_info = optarg; break;
 	    default:
@@ -678,7 +708,7 @@ char * acct_info = "";				/* -A: acct info for SMS */
 		exit_usage( argv[0], "too many arguments" );
     
     rc = send_sms( device, speed, sim_pin, 
-		    opt_R, argv[optind], argv[optind+1],
+		    opt_R, opt_Z, argv[optind], argv[optind+1],
 		    report_file, acct_info );
 
     return rc == 0? rc: 1;
