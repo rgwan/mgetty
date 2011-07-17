@@ -1,4 +1,4 @@
-#ident "$Id: atsms.c,v 1.18 2011/07/11 09:21:20 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: atsms.c,v 1.19 2011/07/17 07:37:44 gert Exp $ Copyright (c) Gert Doering"
 
 /* atsms.c
  *
@@ -7,6 +7,10 @@
  * Calls routines in io.c, tio.c
  *
  * $Log: atsms.c,v $
+ * Revision 1.19  2011/07/17 07:37:44  gert
+ * AT+CPIN? query returns "empty string" not "ERROR" if the SIM PIN: line
+ * is missing -> adjust "zap it!" code accordingly
+ *
  * Revision 1.18  2011/07/11 09:21:20  gert
  * add new option: -Z "zap modem"
  *   -> if AT+CPIN? query is answered with ERROR, do a full SIM card reset
@@ -143,7 +147,7 @@ char *p;
     /* sometimes the SIM card seems to crash - the modem still talks
      * to us, but AT+CPIN? is answered by ERROR -> try resetting (CFUN)
      */
-    if ( strcmp( p, "ERROR" ) == 0 && zap_it )
+    if ( ( strlen(p) == 0 || strcmp( p, "ERROR" ) == 0 ) && zap_it )
     {
 	fprintf( stderr, "SIM card seems hung, send AT+CFUN=1,1 reset command\n" );
 	if ( mdm_command_timeout( "AT+CFUN=1,1", fd, 10 ) == ERROR )
