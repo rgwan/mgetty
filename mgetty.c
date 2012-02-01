@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 4.42 2010/09/22 09:00:29 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 4.43 2012/02/01 14:12:29 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -9,6 +9,11 @@
  * paul@devon.lns.pa.us, and are used with permission here.
  *
  * $Log: mgetty.c,v $
+ * Revision 4.43  2012/02/01 14:12:29  gert
+ * if running mgetty on AIX with AIX' resource management controller, we
+ * need to create the necessary utmp entries (INIT and LOGIN) ourselves,
+ * as there is no "init" to do that for us.  #ifdef AIX_SRC
+ *
  * Revision 4.42  2010/09/22 09:00:29  gert
  * move handle_incoming_sms() prototype from mgetty.h to mgetty.c - the easy
  * way to work around uid_t and gid_t not being defined in all .c files
@@ -559,7 +564,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 
     rmlocks();	
 
-#if ( defined(linux) && defined(NO_SYSVINIT) ) || defined(sysV68)
+#if ( defined(linux) && defined(NO_SYSVINIT) ) || defined(sysV68) || defined(AIX_SRC)
     /* on linux, "simple init" does not make a wtmp entry when you
      * log so we have to do it here (otherwise, "who" won't work) */
     make_utmp_wtmp( Device, UT_INIT, "uugetty", NULL );

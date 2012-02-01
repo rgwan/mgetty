@@ -1,4 +1,4 @@
-#ident "$Id: utmp.c,v 4.4 2001/12/17 22:43:24 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: utmp.c,v 4.5 2012/02/01 14:12:29 gert Exp $ Copyright (c) Gert Doering"
 
 /* some parts of the code (writing of the utmp entry)
  * is based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
@@ -118,7 +118,9 @@ FILE *	fp;
     while ((utmp = getutent()) != (struct utmp *) NULL)
     {
 	if (utmp->ut_pid == pid &&
-	    (utmp->ut_type == INIT_PROCESS || utmp->ut_type == LOGIN_PROCESS))
+	    (utmp->ut_type == INIT_PROCESS || 
+	     utmp->ut_type == LOGIN_PROCESS ||
+	     utmp->ut_type == USER_PROCESS) )
 	{
 	    strcpy(utmp->ut_line, line );
 
@@ -171,6 +173,43 @@ FILE *	fp;
 	    lprintf(L_NOISE, "utmp + wtmp entry made");
 	    break;
 	}
+    }
+
+    /* if running under the AIX resource managment controller (which is
+     * not recommended but sometimes unavoidable in HACMP environments),
+     * there is no pre-existing utmp entry -> create
+     */
+    if ( utmp == NULL )
+    {
+#ifdef AIX_SRC
+	struct utmp ut_new;
+	lprintf( L_MESG, "no utmp/wtmp entry, creating new" );
+
+	strncpy( ut_new.ut_user, ut_user, sizeof( ut_new.ut_user ) );
+
+        ut_new.ut_id[0] = 'm';
+        ut_new.ut_id[1] = 'g';
+	strncpy( ut_new.ut_id+2, line, sizeof(ut_new.ut_id)-2 );
+	strcpy(ut_new.ut_line, line );
+
+        ut_new.ut_pid = getpid();
+	ut_new.ut_type = ut_type;	/* {INIT,LOGIN,USER}_PROCESS */
+					/* "LOGIN", "uugetty", "dialout" */
+	ut_new.ut_time = time( NULL );
+
+#if defined(SVR4) || defined(linux)
+	if (ut_host != NULL)
+	{
+	    strncpy( ut_new.ut_host, ut_host, sizeof(ut_new.ut_host) - 1);
+# ifdef solaris2		/* Solaris 2.x */
+	    ut_new.ut_syslen = strlen(ut_new.ut_host) + 1;
+# endif
+	}
+#endif		/* SVR4 */
+	pututline( &ut_new );
+#else		/* AIX_SRC */
+	lprintf( L_WARN, "no utmp/wtmp entry, expect issues" );
+#endif		/* AIX_SRC */
     }
     endutent();
 }
