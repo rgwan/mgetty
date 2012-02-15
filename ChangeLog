@@ -1,3 +1,93 @@
+Wed Feb 15 20:52:48 CET 2012  Gert Doering <gert@greenie.muc.de>
+
+	* we have a public GIT now: git://github.greenie.net/mgetty.git
+          (readonly, so send your patches by mail)
+
+Wed Feb  1 15:23:09 CET 2012  Gert Doering <gert@greenie.muc.de>
+
+	* utmp.c: on AIX (#ifdef AIX_SRC), if there is no existing utmp
+                  entry, create a new one (needed if using AIX' res.mgmt.)
+
+	* mgetty.c: #ifdef AIX_SRC, create INIT_PROCESS utmp entry on start
+
+Mon Mar 28 20:03:31 CEST 2011  Gert Doering <gert@greenie.muc.de>
+
+	* fax/faxspool.in: print number of pages in "success!" message
+
+	* fax/faxspool.rules: add sample statements for HTML-to-Fax
+
+Fri Oct  8 12:50:07 CEST 2010  Gert Doering <gd@medat.de>
+
+	* g3/g3cat.c: when reporting invalid g3 code, use "fd" for ftell(),
+          not "0" (artifact from "could only handle single file on stdin")
+
+	* g3/g3cat.c, g3/g32pbm.c: use ftell(..., SEEK_CUR) not (..., 1)
+
+Sat Sep 25 18:31:21 CEST 2010  Gert Doering <gert@greenie.muc.de>
+
+	* frontends/mail2fax06/mail2fax.pl: substitute problem characters
+		in attachment file names by "_" before passing to faxspool
+
+Wed Sep 22 11:02:09 CEST 2010  Gert Doering <gd@medat.de>
+
+	* sms.c: cleanup sub-process handling and console redirection
+		(double-fork()/exec() now)
+
+	* mgetty.c, mgetty.h: move handle_incoming_sms() prototype from
+		mgetty.h to mgetty.c (uid_t/gid_t non-availability)
+
+Wed Sep 15 11:21:28 CEST 2010  Gert Doering <gert@greenie.muc.de>
+
+	* policy.h: add new block for #define SMS + explanations
+
+	* sms.c: NEW - handling of incoming SMS messages and delivery reports
+		(read from GSM modem, call external script handler)
+
+	* conf_mg.[ch] - add sms-handler and sms-handler-{user,group} options
+
+	* mgetty.c: add recognition of +CMTI: and +CDSI: SMS status messages
+		to ring_chat_actions[] -> A_SMS_* action
+
+	* mgetty.c: add new state: St_incoming_sms, and call out to
+		handle_incoming_sms() to handle SMS related stuff
+
+	* mgetty.c: make "dialout!" logging more useful (log dialout command)
+
+	* mgetty.h: add A_SMS_* action types and prototypes
+
+
+Fri Aug 13 15:49:45 MEST 2010  Gert Doering <gd@medat.de>
+
+	* fax/faxrunqd.in: log faxrunqd.policy file parsing to log file
+	  (no longer to stdout).  
+	  
+	* fax/faxrunqd.in: ignore leading whitespace in faxrunqd.policy 
+	  lines (INCOMPATIBLE CHANGE, those lines now suddenly start working!)
+
+Fri Jul 16 18:26:23 MEST 2010  Gert Doering <gd@medat.de>
+
+	* tap/atsms.c: handle "waiting for delivery report times out"
+	  more gracefully - don't flag as "SMS transmission error"
+
+Tue Jun 29 16:02:00 MEST 2010  Gert Doering <gd@medat.de>
+
+	* fax/faxrunqd.in: extend 'time constraint' handling with plugin
+			infrastructure for really weird cases
+
+Mon Jun 28 13:23:21 MEST 2010  Gert Doering <gert@greenie.muc.de
+
+	* doc/faxq1.in: document new "-r ..." syntax
+
+	* fax/faxq.in: incompatible change to "-r" semantics: wants
+	               explicit job specification now, or "all" to
+		       re-queue all failed jobs currently in queue
+
+	* fax/faxrunq.in, faxrunqd.in: show new "faxq -r $job" command in
+			"your fax has failed, requeue with ..." mail now
+
+	* tap/atsms.c: after SIM PIN initialization, wait 120 secs before
+			trying to send SMS (modem needs time to log in)
+
 Sat Jun  5 11:47:17 MEST 2010  Gert Doering <gert@greenie.muc.de>
 
 	* release 1.1.37
