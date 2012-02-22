@@ -1,4 +1,4 @@
-#ident "$Id: mgetty-launchd.c,v 1.1 2012/02/22 11:46:39 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty-launchd.c,v 1.2 2012/02/22 11:49:49 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty-launchd.c
  *
@@ -11,6 +11,9 @@
  * and IBM SRC resource manager.
  *
  * $Log: mgetty-launchd.c,v $
+ * Revision 1.2  2012/02/22 11:49:49  gert
+ * use mgetty path from $SBINDIR in Makefile (-DSBINDIR=...)
+ *
  * Revision 1.1  2012/02/22 11:46:39  gert
  * init replacement to launch mgetty in cluster environments (e.g.
  * IBM HACMP) where the mgetty process must run only on a single node
@@ -150,7 +153,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 	    log_close();
 
 	    argv[0] = "mgetty";
-	    execv( "/medat/modem/bin/mgetty", argv );
+	    execv( SBINDIR "/mgetty", argv );
 
 	    lprintf( L_FATAL, "exec() failed" );
 	    exit(1);
