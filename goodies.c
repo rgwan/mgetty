@@ -1,4 +1,4 @@
-#ident "$Id: goodies.c,v 4.6 2012/02/24 15:29:13 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: goodies.c,v 4.7 2012/02/24 15:39:29 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /*
  * goodies.c
@@ -6,6 +6,15 @@
  * This module is part of the mgetty kit - see LICENSE for details
  *
  * various nice functions that do not fit elsewhere 
+ *
+ * $Log: goodies.c,v $
+ * Revision 4.7  2012/02/24 15:39:29  gert
+ * alternative implementation of get_ps_args() for AIX - do not call
+ * "/bin/ps" but read /proc/<pid>/psinfo.
+ *
+ * Tested on AIX 6, so this might cause issues on AIX 5 and earlier - if
+ * needed, add appropriate #ifdefs...
+ *
  */
 
 #include <stdio.h>
@@ -30,7 +39,7 @@
 #include "mgetty.h"
 #include "config.h"
 
-#ifdef SVR4
+#if defined(SVR4) || defined(_AIX)
 # include <sys/procfs.h>
 #endif
 
@@ -200,38 +209,28 @@ char * get_ps_args _P1 ((pid), int pid )
 #endif /* linux */
 
 #ifdef _AIX
-    /* there does not seem to be an "easy" way to access process
-     * information in AIX, so we cheat and call "ps www <pid>"...
+    struct psinfo psi;
+    char procfn[30];
+    int procfd;
+    int i,l;
+
+    /* binary "struct psinfo" in /proc/<pid>/psinfo
      */
-    char psargs[100];
-    FILE *pfd;
-    static char * psinfo;
-    int l;
 
-    if ( psinfo == NULL )
-	psinfo = malloc(200);
-    if ( psinfo == NULL )
-	{ lprintf( L_ERROR, "malloc() for psinfo failed" ); return NULL; }
+    sprintf( procfn, "/proc/%d/psinfo", pid );
 
-    sprintf( psargs, "/bin/ps w %d", pid );
-    pfd = popen( psargs, "r" );
-    if ( pfd == NULL )
-    {
-	lprintf( L_ERROR, "can't run ps command '%s'" ); return NULL;
-    }
+    procfd = open( procfn, O_RDONLY );
 
-    /* first line is header -> read, and skip */
-    if ( fgets(psinfo, 200, pfd) == NULL ) return NULL;
-    /* second line is what we want */
-    if ( fgets(psinfo, 200, pfd) == NULL ) return NULL;
+    if ( procfd < 0 )
+	{ lprintf( L_ERROR, "cannot open %s", procfn ); return NULL; }
 
-    /* remove trailing newline, if present */
-    l = strlen(psinfo);
-    while ( l>0 && isspace(psinfo[l-1]) ) psinfo[--l] = '\0';
+    l = read( procfd, &psi, sizeof(psi) );
+    close( procfd );
 
-    pclose(pfd);
-    return psinfo+28;		/* skip all but command name */
+    if ( l < 0 )
+	{ lprintf( L_ERROR, "reading %s failed", procfn ); return NULL; }
 
+    return psi.pr_psargs;
 #endif
 
 #if !defined(SVR4) && !defined(linux) && !defined(_AIX)
