@@ -1,4 +1,4 @@
-#ident "$Id: utmp.c,v 4.6 2012/02/24 13:06:14 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: utmp.c,v 4.7 2012/02/24 13:20:53 gert Exp $ Copyright (c) Gert Doering"
 
 /* some parts of the code (writing of the utmp entry)
  * is based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
@@ -143,7 +143,7 @@ FILE *	fp;
 	                                /* "LOGIN", "uugetty", "dialout" */
 	    strncpy( utmp->ut_user, ut_user, sizeof( utmp->ut_user ) );
 
-#if defined(SVR4) || defined(linux)
+#if defined(SVR4) || defined(linux) || defined(_AIX)
 	    if (ut_host != NULL)
 	    {
 	    	strncpy( utmp->ut_host, ut_host, sizeof( utmp->ut_host ) - 1);
@@ -196,6 +196,8 @@ FILE *	fp;
     {
 #ifdef AIX_SRC
 	struct utmp ut_new;
+	memset( &ut_new, 0, sizeof(ut_new) );
+
 	lprintf( L_MESG, "no utmp/wtmp entry, creating new" );
 
 	strncpy( ut_new.ut_user, ut_user, sizeof( ut_new.ut_user ) );
@@ -210,7 +212,7 @@ FILE *	fp;
 					/* "LOGIN", "uugetty", "dialout" */
 	ut_new.ut_time = time( NULL );
 
-#if defined(SVR4) || defined(linux)
+#if defined(SVR4) || defined(linux) || defined(_AIX)
 	if (ut_host != NULL)
 	{
 	    strncpy( ut_new.ut_host, ut_host, sizeof(ut_new.ut_host) - 1);
