@@ -1,4 +1,4 @@
-#ident "$Id: mg_utmp.h,v 4.1 1997/01/12 14:53:42 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_utmp.h,v 4.2 2012/02/24 13:06:14 gert Exp $ Copyright (c) Gert Doering"
 
 /* definitions for utmp reading / writing routines,
  * highly SysV / BSD dependent
@@ -28,6 +28,7 @@ void setutent();
 #define UT_INIT		INIT_PROCESS
 #define UT_LOGIN	LOGIN_PROCESS
 #define UT_USER		USER_PROCESS
+#define UT_DEAD		DEAD_PROCESS
 
 #else						 /* SunOS or generic BSD */
 
@@ -47,6 +48,9 @@ void setutent();
 
 void make_utmp_wtmp _PROTO(( char * line, short ut_type, 
 			     char * ut_user, char * ut_host ));
+void make_utmp_wtmp_pid _PROTO(( char * line, short ut_type, 
+				 char * ut_user, char * ut_host,
+				 pid_t pid ));
 int  get_current_users _PROTO(( void ));
 
 /* system prototypes - not all supported systems have these */

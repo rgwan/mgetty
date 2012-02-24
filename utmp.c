@@ -1,4 +1,4 @@
-#ident "$Id: utmp.c,v 4.5 2012/02/01 14:12:29 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: utmp.c,v 4.6 2012/02/24 13:06:14 gert Exp $ Copyright (c) Gert Doering"
 
 /* some parts of the code (writing of the utmp entry)
  * is based on the "getty kit 2.0" by Paul Sutcliffe, Jr.,
@@ -103,17 +103,30 @@ int get_current_users _P0(void)
 
 #else			/* System V style utmp handling */
 
+/* this is just a wrapper around "make_utmp_wtmp_pid()"
+ * to manage entries "with our own pid"
+ */
 void make_utmp_wtmp _P4( (line, ut_type, ut_user, ut_host),
 			 char * line, short ut_type,
 			 char * ut_user, char * ut_host )
 {
+    make_utmp_wtmp_pid( line, ut_type, ut_user, ut_host, getpid() );
+}
+
+/* update utmp entry, add wtmp entry
+ * the pid will only be different from our own pid when called from
+ * mgetty-launchd, to cleanup after the mgetty child process
+ */
+
+void make_utmp_wtmp_pid _P5( (line, ut_type, ut_user, ut_host, pid),
+			     char * line, short ut_type,
+			     char * ut_user, char * ut_host, pid_t pid )
+{
 struct utmp *utmp;
-pid_t	pid;
 struct stat	st;
 FILE *	fp;
 
-    pid = getpid();
-    lprintf(L_JUNK, "looking for utmp entry... (my PID: %d)", pid);
+    lprintf(L_JUNK, "looking for utmp entry... (PID: %d)", pid);
 
     while ((utmp = getutent()) != (struct utmp *) NULL)
     {
