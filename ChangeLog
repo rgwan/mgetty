@@ -1,3 +1,15 @@
+Fri Feb 24 14:40:15 CET 2012  Gert Doering <gd@medat.de>
+
+	* mgetty-launchd.c: new tool to run mgetty from "non-init" processes
+          (mainly written for IBM HACMP cluster environments, where inittab
+          cannot easily be used because the modem devices and mgetty processes
+          have to move with the cluster, and ttys on a remote terminal server
+          can only be accessed from a single node at a time)
+
+	* utmp.c: set ut_host on AIX, zero new utmp entry before using
+          (otherwise ut_host might contain garbage if not set), introduce
+          new entry point: make_utmp_wtmp_pid()
+
 Wed Feb 15 20:52:48 CET 2012  Gert Doering <gert@greenie.muc.de>
 
 	* we have a public GIT now: git://github.greenie.net/mgetty.git
