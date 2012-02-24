@@ -1,4 +1,4 @@
-#ident "$Id: mgetty-launchd.c,v 1.2 2012/02/22 11:49:49 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty-launchd.c,v 1.3 2012/02/24 13:03:06 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty-launchd.c
  *
@@ -11,6 +11,14 @@
  * and IBM SRC resource manager.
  *
  * $Log: mgetty-launchd.c,v $
+ * Revision 1.3  2012/02/24 13:03:06  gert
+ * get rid of controlling tty (setsid()) in child process, before calling
+ * mgetty (mgetty does not do that, assuming "we're started from init")
+ *
+ * on failure, do exponential backoff for mgetty restart, maximum delay = 120s
+ *
+ * full UTMP/WTMP handling, including DEAD PROCESS -> "last" works
+ *
  * Revision 1.2  2012/02/22 11:49:49  gert
  * use mgetty path from $SBINDIR in Makefile (-DSBINDIR=...)
  *
@@ -70,6 +78,8 @@ int main _P2((argc, argv), int argc, char ** argv)
     int i;
     char buf[MAXPATH];
     time_t last_start, now;
+    int fail_count = 0;
+    int fail_delay = 0;
 
     /* startup: initialize all signal handlers *NOW*
      */
@@ -150,6 +160,13 @@ int main _P2((argc, argv), int argc, char ** argv)
 	if ( mgetty_pid == 0 )				/* child */
 	{
 	    lprintf( L_NOISE, "launchd: child, pid=%d", (int) getpid() );
+	    make_utmp_wtmp( Device, UT_INIT, "mgetty", NULL );
+
+	    /* get rid of controlling tty */
+	    close(0); close(1); close(2);
+	    if ( setsid() < 0 )
+		{ lprintf( L_ERROR, "launchd: setsid() failed" ); }
+
 	    log_close();
 
 	    argv[0] = "mgetty";
@@ -172,15 +189,26 @@ int main _P2((argc, argv), int argc, char ** argv)
 	    mgetty_pid = 0;				/* no child */
 	    lprintf( L_NOISE, "launchd: child finished, pid=%d, status=%04x",
 				(int) p, status );
+	    make_utmp_wtmp_pid( Device, UT_DEAD, "", NULL, p );
 
-	    if ( status != 0 )	/* rate limit on error */
+	    if ( status == 0 )		/* all well */
 	    {
-		now = time(NULL);
-		if ( now - last_start < 15 )
+		fail_count = 0;
+		fail_delay = 0;
+	    }
+	    else			/* rate limit on error */
+	    {
+		fail_count ++;
+		if ( fail_count < 3 ) fail_delay = 1;
+
+		fail_delay *= 2;	/* double every time, cap at 2min*/
+		if ( fail_delay > 120 ) fail_delay = 120;
+
+		if ( fail_count >= 3 ) 
 		{
 		    errno = EINTR;
-		    lprintf( L_ERROR, "launchd: mgetty restarting too fast, delaying 60s" );
-		    sleep(60); 		/* TODO: more dynamic handling */
+		    lprintf( L_ERROR, "launchd: mgetty restarting too fast (%d consecutive failures), delaying %ds", fail_count, fail_delay );
+		    sleep(fail_delay);
 		}
 	    }
 
