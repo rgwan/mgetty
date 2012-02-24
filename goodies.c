@@ -1,4 +1,4 @@
-#ident "$Id: goodies.c,v 4.5 2003/11/17 19:08:49 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: goodies.c,v 4.6 2012/02/24 15:29:13 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /*
  * goodies.c
@@ -199,7 +199,42 @@ char * get_ps_args _P1 ((pid), int pid )
 # endif /* show user name, not process cmd line */
 #endif /* linux */
 
-#if !defined(SVR4) && !defined(linux)
+#ifdef _AIX
+    /* there does not seem to be an "easy" way to access process
+     * information in AIX, so we cheat and call "ps www <pid>"...
+     */
+    char psargs[100];
+    FILE *pfd;
+    static char * psinfo;
+    int l;
+
+    if ( psinfo == NULL )
+	psinfo = malloc(200);
+    if ( psinfo == NULL )
+	{ lprintf( L_ERROR, "malloc() for psinfo failed" ); return NULL; }
+
+    sprintf( psargs, "/bin/ps w %d", pid );
+    pfd = popen( psargs, "r" );
+    if ( pfd == NULL )
+    {
+	lprintf( L_ERROR, "can't run ps command '%s'" ); return NULL;
+    }
+
+    /* first line is header -> read, and skip */
+    if ( fgets(psinfo, 200, pfd) == NULL ) return NULL;
+    /* second line is what we want */
+    if ( fgets(psinfo, 200, pfd) == NULL ) return NULL;
+
+    /* remove trailing newline, if present */
+    l = strlen(psinfo);
+    while ( l>0 && isspace(psinfo[l-1]) ) psinfo[--l] = '\0';
+
+    pclose(pfd);
+    return psinfo+28;		/* skip all but command name */
+
+#endif
+
+#if !defined(SVR4) && !defined(linux) && !defined(_AIX)
     return NULL;
 #endif
 }
