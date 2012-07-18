@@ -6,6 +6,9 @@
 # run this once per week from crontab
 #
 # $Log: mvlog,v $
+# Revision 1.4  2012/07/18 09:53:42  gert
+# do not rotate empty mgetty files (leftover from now-unused ttys)
+#
 # Revision 1.3  2005/03/13 17:41:32  gert
 # change mgetty default logfile name (log.tty -> mgetty.tty)
 #
@@ -31,6 +34,13 @@ TTYS=`ls -l mgetty.tty* | sed -e 's/.* mgetty\.//'`
 # rotate mgetty logs
 for d in $TTYS
 do
+    # no point in rotating empty files, just erase them
+    if [ ! -s mgetty.$d ]
+    then
+	rm -f mgetty.$d
+	continue
+    fi
+
     cd OLD || exit 1
     for i in 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2
     do
