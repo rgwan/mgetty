@@ -9,10 +9,15 @@
 #
 # initial version: Feb 17, 1997
 #
-my $rcs_id='RCS: $Id: faxrunqd.in,v 1.86 2011/01/18 16:09:11 gert Exp $';
+my $rcs_id='RCS: $Id: faxrunqd.in,v 1.87 2013/07/05 09:32:41 gert Exp $';
 #
 # Change Log:
 # $Log: faxrunqd.in,v $
+# Revision 1.87  2013/07/05 09:32:41  gert
+# on "exit code 15" from sendfax, mark this tty as "seriously bad" (+2)
+# (because that normally only happens if a tty is so stuck that sendfax
+# never exits and has to be killed by signalling)
+#
 # Revision 1.86  2011/01/18 16:09:11  gert
 # introduce new per-modem error text block: %modem_errors_v
 # passed to "modem_error_script" via $MODEM_ERROR_VERBOSE env var
@@ -1856,6 +1861,10 @@ sub handle_return_code
 	    {
 		$mq_badness{$tty} += 0.2;	# mark modem as "bad"
 	    }
+            elsif ( $ex == 15 )                 # sendfax killed by signal
+            {
+                $mq_badness{$tty} += 2;         # mark modem as "really bad"
+            }
 
 	    # for some return values it is not useful to re-try right
 	    # away - e.g. for BUSY, delay a few minutes, and for other
