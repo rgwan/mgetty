@@ -1,4 +1,4 @@
-#ident "$Id: atsms.c,v 1.19 2011/07/17 07:37:44 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: atsms.c,v 1.20 2014/01/15 12:18:11 gert Exp $ Copyright (c) Gert Doering"
 
 /* atsms.c
  *
@@ -7,6 +7,15 @@
  * Calls routines in io.c, tio.c
  *
  * $Log: atsms.c,v $
+ * Revision 1.20  2014/01/15 12:18:11  gert
+ * permit "modem on stdin" (device = '-')
+ *
+ * remove "safe_tio" handling (not needed, tty port is reset anyway at close)
+ *
+ * when reading a longer list of SMSes, reset alarm() clock after each line
+ * read - otherwise a slow modem with a long list of SMSes on the SIM card
+ * will run into a timeout, and leave modem+mgetty in a confused state.
+ *
  * Revision 1.19  2011/07/17 07:37:44  gert
  * AT+CPIN? query returns "empty string" not "ERROR" if the SIM PIN: line
  * is missing -> adjust "zap it!" code accordingly
@@ -82,10 +91,18 @@ RETSIGTYPE oops(SIG_HDLR_ARGS)
 
 int init_device( char * device, int speed, char * sim_pin, 
 		 boolean * want_status_msg,  boolean zap_it,
-		 TIO * tio, TIO * save_tio )
+		 TIO * tio )
 {
 int fd;
 char *p;
+
+    /* modem on stdin? */
+    if( strcmp( device, "-" ) == 0 )
+    {
+	fd = 0; 
+	lprintf( L_MESG, "modem on stdin -> fd=0" );
+	goto init_done;
+    }
 
     /* lock device */
     if ( makelock( device ) == FAIL )
@@ -112,7 +129,6 @@ char *p;
 	close(fd); rmlocks();
 	return -1;
     }
-    *save_tio = *tio;
     tio_mode_sane( tio, TRUE );
     tio_set_speed( tio, speed );
     tio_mode_raw( tio );
@@ -125,6 +141,7 @@ char *p;
     }
 
     /* modem out there? */
+init_done:
     delay(10);			/* give device time to wake up*/
     write( fd, "\033", 1 );	/* cancel potentially leftover SMS */
     delay(10);
@@ -298,7 +315,7 @@ int send_sms( char * device, int speed, char * sim_pin,
 		char * report_file, char * acct_info )
 {
 int fd;
-TIO tio, save_tio;
+TIO tio;
 
 char buf[200], *p;
 int err=0;
@@ -307,7 +324,7 @@ int seqno = -1;			/* sms sequence number */
     printf( "send SMS message to \"%s\"...\n", sms_to );
 
     fd = init_device( device, speed, sim_pin, 
-			&want_status_msg, zap_it, &tio, &save_tio );
+			&want_status_msg, zap_it, &tio );
 
     if ( fd == -1 ) return -1;
 
@@ -497,12 +514,6 @@ int seqno = -1;			/* sms sequence number */
         err = do_receive( fd, FALSE, TRUE, report_file );
     }
 
-    if ( tio_set( fd, &save_tio ) == ERROR )
-    {
-	fprintf( stderr, "error setting TIO settings for '%s': %s\n",
-		 device, strerror(errno));
-	err++;
-    }
     close(fd);
     rmlocks();
     signal( SIGALRM, SIG_DFL );
@@ -538,6 +549,8 @@ int nsms = 0;
 	p = mdm_get_line( fd );
 
 	if ( p == NULL ) { err++; break; }
+	if ( !got_interrupt )
+			{ alarm(15); }		/* rewind alarm clock */
 
 	if ( opt_v ) printf( "got: %s\n", p );
 
@@ -608,23 +621,17 @@ int receive_sms( char * device, int speed, char * sim_pin,
 		 int get_old, int do_delete, char * report_file )
 {
 int fd;
-TIO tio, save_tio;
+TIO tio;
 int err;
 
     if ( opt_v ) printf( "retrieving SMS messages...\n" );
 
-    fd = init_device( device, speed, sim_pin, NULL, FALSE, &tio, &save_tio );
+    fd = init_device( device, speed, sim_pin, NULL, FALSE, &tio );
 
     if ( fd == -1 ) return -1;
 
     err = do_receive( fd, get_old, do_delete, report_file );
 
-    if ( tio_set( fd, &save_tio ) == ERROR )
-    {
-	fprintf( stderr, "error setting TIO settings for '%s': %s\n",
-		 device, strerror(errno));
-	err++;
-    }
     close(fd);
     rmlocks();
     signal( SIGALRM, SIG_DFL );
