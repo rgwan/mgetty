@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.78 2010/09/17 15:33:58 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.79 2014/01/26 19:18:06 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -151,11 +151,11 @@ CFLAGS=-O2 -Wall -pipe
 # For Linux, add "-lutil" if the linker complains about "updwtmp".
 #
 LDFLAGS=
-LIBS=
+#LIBS=
 #LIBS=-lprot -lsocket				# SCO Unix
 #LIBS=-lsocket
 #LIBS=-lbsd					# OSF/1
-#LIBS=-lutil					# FreeBSD or Linux/GNU libc2
+LIBS=-lutil					# FreeBSD or Linux/GNU libc2
 #LDFLAGS=-posix					# NeXT with POSIX
 #LDFLAGS=-s -shlib				# 3B1
 #
@@ -308,8 +308,8 @@ MV=mv
 # Nothing to change below this line ---------------------------------!
 #
 MR=1.1
-SR=37
-DIFFR=1.1.36
+SR=38
+DIFFR=1.1.37
 #
 #
 OBJS=mgetty.o logfile.o do_chat.o locks.o utmp.o logname.o login.o \
@@ -320,7 +320,7 @@ OBJS=mgetty.o logfile.o do_chat.o locks.o utmp.o logname.o login.o \
 
 SFAXOBJ=sendfax.o logfile.o locks.o modem.o \
      faxlib.o faxsend.o faxrecp.o class1.o class1lib.o faxhng.o hyla_nsf.o \
-     g3file.o io.o tio.o getdisk.o config.o conf_sf.o goodies.o
+     g3file.o io.o tio.o getdisk.o config.o conf_sf.o goodies.o socket.o
 
 all:	bin-all doc-man-only
 
@@ -409,7 +409,7 @@ DISTRIB=README.1st THANKS TODO BUGS FTP COPYING Recommend \
 	io.c tio.c tio.h gettydefs.c login.c do_stat.c faxhng.c \
 	config.h config.c conf_sf.h conf_sf.c conf_mg.h conf_mg.c \
 	cnd.c getdisk.c mksed.c utmp.c mg_utmp.h syslibs.h goodies.c \
-	sms.c
+	sms.c socket.c
 
 noident: policy.h
 	    for file in `find . -type f -name "*.[ch]" -print` ; do \
@@ -495,7 +495,7 @@ mgetty-$(DIFFR)-$(MR).$(SR).diff.gz: \
 	gtar xvCfz /tmp/mgd mgetty$(DIFFR).tar.gz
 	gtar xvCfz /tmp/mgd mgetty-$(MR).$(SR).tar.gz
 	( cd /tmp/mgd ; \
-	  gdiff -u3 --ignore-space-change --recursive --new-file -I "^#ident" \
+	  diff -u3 --ignore-space-change --recursive --new-file -I "^#ident" \
 		mgetty-$(DIFFR) mgetty-$(MR).$(SR) ; \
 		exit 0 ) >mgetty-$(DIFFR)-$(MR).$(SR).diff
 	rm -rf /tmp/mgd
