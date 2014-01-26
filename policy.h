@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 4.26 2010/09/15 09:35:29 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 4.27 2014/01/26 19:18:27 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration defaults for mgetty / sendfax
  * are specified.
@@ -610,3 +610,15 @@
  */
 #define FAX_NSF_PARSER
 
+/* enable sendfax to access a modem that's connected on a different
+ * machine in the network, using ser2net (or something similar) to 
+ * provide mapping from tcp/ip connection to local /dev/tty* device
+ *
+ * the code is hacky - ttyRI<n><mm> is mapped to a socket call to
+ * host "isdnserver<n>" and port 50000+<mm>.  There will be better
+ * support via sendfax.config ("port xxx / server ... ") eventually.
+ *
+ * this code assumes a modern socket API with getaddrinfo(), so it's
+ * off-by-default as it might break on older systems
+ */
+/* #define FAX_SEND_SOCKETS */
