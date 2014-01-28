@@ -1,10 +1,17 @@
-#ident "$Id: socket.c,v 4.1 2014/01/28 13:15:50 gert Exp $"
+#ident "$Id: socket.c,v 4.2 2014/01/28 13:44:14 gert Exp $"
 
 /* socket.c - part of mgetty+sendfax
  *
  * open TCP/IP sockets to talk to remote fax modems (sendfax)
  *
  * $Log: socket.c,v $
+ * Revision 4.2  2014/01/28 13:44:14  gert
+ * log_init_path() with infix => last 4 digits of "remote tty" (R104, etc.)
+ *
+ * set SIGPIPE to SIG_IGN - if the remote end of the socket is closed
+ * unexpectedly, write() might return an error, or raise SIGPIPE -> code
+ * handles errors, so ignore SIGPIPE.
+ *
  * Revision 4.1  2014/01/28 13:15:50  gert
  * Basic "open TCP/IP socket to remote machine" implementation
  * (name of remote + tcp portnumber are magick'ed out of ttyRI<n><mm>)
@@ -17,6 +24,7 @@
 #include <stdio.h>
 #include "syslibs.h"
 #include <unistd.h>
+#include <signal.h>
 #include <errno.h>
 #include <string.h>
 #include <ctype.h>
@@ -125,6 +133,14 @@ int connect_to_remote_tty _P1( (fax_tty), char * fax_tty )
 	/* make device name externally visible (faxrec())
 	 */
 	Device = safe_strdup( fax_tty );
+
+	log_init_paths( NULL, NULL, &fax_tty[ strlen(fax_tty)-4 ] );
+
+	/* The rest of the code assumes that a tty fd might return an 
+         * error write()ing to it, but not that it might go away completely 
+         * and give us an SIGPIPE.  Ignore.  Sue me.
+         */
+	signal( SIGPIPE, SIG_IGN );
     }
 
     /* sock is either a connected socket now, or "-1" -> pass up */
