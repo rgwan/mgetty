@@ -1,4 +1,4 @@
-#ident "$Id: goodies.c,v 4.7 2012/02/24 15:39:29 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: goodies.c,v 4.8 2014/01/28 12:21:15 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /*
  * goodies.c
@@ -8,6 +8,9 @@
  * various nice functions that do not fit elsewhere 
  *
  * $Log: goodies.c,v $
+ * Revision 4.8  2014/01/28 12:21:15  gert
+ * add safe_strdup()
+ *
  * Revision 4.7  2012/02/24 15:39:29  gert
  * alternative implementation of get_ps_args() for AIX - do not call
  * "/bin/ps" but read /proc/<pid>/psinfo.
@@ -254,6 +257,17 @@ char * dest;
 
 #endif
 
+/* strdup wrapper that will complain + exit on no memory */
+char * safe_strdup _P1( (src), char * src)
+{
+    char * dest = strdup(src);
+    if ( dest == NULL )
+    {
+	fprintf( stderr, "FATAL: save_strdup(): error allocating memory" );
+	exit(2);
+    }
+    return dest;
+}
 
 #if defined(NEED_PUTENV)
 

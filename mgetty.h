@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 4.31 2010/09/22 09:00:29 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 4.32 2014/01/28 12:21:15 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -9,6 +9,9 @@
  * mgetty+sendfax (except some fax constants, they are in fax_lib.h)
  *
  * $Log: mgetty.h,v $
+ * Revision 4.32  2014/01/28 12:21:15  gert
+ * add safe_strdup()
+ *
  * Revision 4.31  2010/09/22 09:00:29  gert
  * move handle_incoming_sms() prototype from mgetty.h to mgetty.c - the easy
  * way to work around uid_t and gid_t not being defined in all .c files
@@ -243,6 +246,7 @@ void	get_statistics _PROTO(( int filedesc, char ** chat, char * file ));
 char * get_basename _PROTO(( char * ));
 char * mydup _PROTO(( char *s ));
 char * get_ps_args _PROTO(( int pid ));
+char * safe_strdup _PROTO(( char * ));
 
 /* io.c */
 boolean	check_for_input _PROTO (( int fd ));
