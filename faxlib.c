@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.76 2009/06/12 15:54:02 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.77 2014/01/28 20:43:00 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -9,6 +9,10 @@
  * different that it goes to a separate library.
  *
  * $Log: faxlib.c,v $
+ * Revision 4.77  2014/01/28 20:43:00  gert
+ * permit higher max speeds than 14400 by hex-encoding second
+ *  parameter to AT+FDCC (33600='D')
+ *
  * Revision 4.76  2009/06/12 15:54:02  gert
  * add ATI code for Cisco MICA modems
  *
@@ -396,6 +400,8 @@ int fax_set_l_id _P2( (fd, fax_id), int fd, char * fax_id )
     return NOERROR;
 }
 
+#define nibble_to_hex(x) ( ((x)>9)? (x)-10+'A': (x)+'0')
+
 /* set resolution, minimum and maximum bit rate */
 int fax_set_fdcc _P4( (fd, fine, max, min),
 		      int fd, int fine, int max, int min )
@@ -416,9 +422,9 @@ int fax_set_fdcc _P4( (fd, fine, max, min),
     }
     else				/* standard case, working modem */
     {
-	sprintf( buf, "AT%s=%d,%d,0,2,0,0,0,0",
+	sprintf( buf, "AT%s=%d,%c,0,2,0,0,0,0",
 		 (modem_type == Mt_class2_0) ? "+FCC" : "+FDCC",
-		 fine, (max/2400) -1 );
+		 fine, nibble_to_hex( (max/2400)-1 ) );
     }
     
     if ( mdm_command( buf, fd ) == ERROR )
