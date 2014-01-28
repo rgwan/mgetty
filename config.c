@@ -1,4 +1,4 @@
-#ident "$Id: config.c,v 4.6 2006/06/14 09:52:34 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: config.c,v 4.7 2014/01/28 20:44:25 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /*
  * config.c
@@ -295,6 +295,39 @@ char ** p;
     }
 }
 
+/* like strcmp(), but permit wildcard matches:
+ *   - '?' will match any character in the peer string
+ *   - if one string is shorter, and the remainder of the other string
+ *     consists only of '?', accept match
+ */
+int wildcard_strcmp _P2(( a, b ), char * a, char * b)
+{
+    while( *a && *b )
+    {
+	if ( *a != *b &&
+		*a != '?' && *b != '?' )
+	{
+	    return (*a - *b);			/* not wildcard -> no match */
+	}
+	a++; b++;
+    }
+
+    if ( *a == '\0' )		/* b longer than a */
+    {
+	while( *b )
+	{
+	    if ( *b++ != '?' ) return -1;	/* no match */
+	}
+	return 0;				/* match */
+    }
+
+    /* a longer than b */
+    while( *a )
+    {
+	if ( *a++ != '?' ) return +1;		/* no match */
+    }
+    return 0;					/* match */
+}
 
 int get_config _P4( (conf_file,cd,section_key,key_value),
 		char * conf_file, conf_data * cd,
@@ -335,7 +368,7 @@ int ignore = 0;		/* ignore keywords in non-matching section */
 	if ( strcmp( key, section_key ) == 0 )	/* new section */
 	{
 	    ignore = ( key_value == NULL ) ||	/* match "wanted" section? */
-		     ( strcmp( line, key_value ) != 0 );
+		     ( wildcard_strcmp( line, key_value ) != 0 );
 	    lprintf( L_NOISE, "section: %s %s, %s",
 		     key, line, (ignore)?"ignore":"**found**" );
 	}
