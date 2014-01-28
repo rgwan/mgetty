@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 4.27 2008/01/31 16:23:08 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 4.28 2014/01/28 13:42:00 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -8,6 +8,18 @@
  * The code is still quite rough, but it works.
  *
  * $Log: sendfax.c,v $
+ * Revision 4.28  2014/01/28 13:42:00  gert
+ * cleanup:
+ *   move some parameter initialization from "fax_open_device()" to caller
+ *   make fax_open_device() static
+ *   use "safe_strdup()" to initialize "char * Device"
+ *   fix typo
+ * FAX_SEND_SOCKETS - basic support
+ *   if ttyname starts with "ttyRI", hand over to connect_to_remote_tty()
+ *   if tio_set() at modem speed initialization fails with EOPNOTSUPP, ignore
+ *   that error ("Operation not supported" is what you see on non-tty file
+ *   scriptors like "sockets")
+ *
  * Revision 4.27  2008/01/31 16:23:08  gert
  * use mdm_command() not fax_command() for sending reset sequence
  *
@@ -105,8 +117,8 @@ RETSIGTYPE fax_sig_goodbye _P1( (signo), int signo )
     exit(15);				/* will close the fax device */
 }
 
-int fax_open_device _P2( (fax_tty, use_stdin),
-			 char * fax_tty, boolean use_stdin )
+static int fax_open_device _P2( (fax_tty, use_stdin),
+			         char * fax_tty, boolean use_stdin )
 {
     char	device[MAXPATH];
     int	fd;
@@ -142,6 +154,16 @@ int fax_open_device _P2( (fax_tty, use_stdin),
 		return -1;
 	    }
 	}
+
+#ifdef FAX_SEND_SOCKETS
+	if ( strlen( fax_tty ) >= 8 &&
+             strncmp( fax_tty, "ttyRI", 5 ) == 0 )
+	{
+	    fd = connect_to_remote_tty( fax_tty );
+	    if ( fd < 0 ) rmlocks();
+	    return fd;
+	}
+#endif
 	
 	sprintf( device, "/dev/%s", fax_tty );
 
@@ -156,10 +178,7 @@ int fax_open_device _P2( (fax_tty, use_stdin),
 	/* make device name externally visible (faxrec())
 	 * we have to dup() it, because caller will change fax_tty
 	 */
-	Device = malloc( strlen(fax_tty)+1 );
-	if ( Device == NULL )
-	    { perror( "sendfax: can't malloc" ); exit(2); }
-	strcpy(Device, fax_tty);
+	Device = safe_strdup( fax_tty );
     }
 
     /* unset O_NDELAY (otherwise waiting for characters */
@@ -210,12 +229,6 @@ int fax_open_device _P2( (fax_tty, use_stdin),
 	return -1;
     }
 
-    /* reset parameters */
-    fax_to_poll = FALSE;
-
-    fax_remote_id[0] = 0;
-    fax_param[0] = 0;
-
     if ( use_stdin )
     {
 	lprintf( L_NOISE, "fax_open_device, fax on stdin" );
@@ -233,7 +246,7 @@ int fax_open_device _P2( (fax_tty, use_stdin),
 
 /* fax_open: loop through all devices in fax_ttys until fax_open_device()
  * succeeds on one of them; then return file descriptor
- * return "-1" of no open succeeded (all locked, permission denied, ...)
+ * return "-1" if no open succeeded (all locked, permission denied, ...)
  */
 
 int fax_open _P2( (fax_ttys, use_stdin),
@@ -377,6 +390,11 @@ int main _P2( (argc, argv),
 	exit(2);
     }
 
+    /* reset parameters */
+    fax_to_poll = FALSE;
+    fax_remote_id[0] = 0;
+    fax_param[0] = 0;
+
     /* read config file (port specific) */
     sendfax_get_config( Device );
 
@@ -405,7 +423,7 @@ int main _P2( (argc, argv),
     /* now set speed for this port (do this *after* sendfax_get_config())!
      */
     if ( tio_set_speed( &fax_tio, c_int(speed) ) == ERROR ||
-         tio_set( fd, &fax_tio ) == ERROR )
+         ( tio_set( fd, &fax_tio ) == ERROR && errno != EOPNOTSUPP ) )
     {
 	fprintf( stderr, "%s: cannot set serial port speed %d on \"%s\"\n",
 			argv[0], c_int(speed), Device );
