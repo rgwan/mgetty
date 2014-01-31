@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.80 2014/01/31 09:34:27 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.81 2014/01/31 13:04:30 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -316,11 +316,12 @@ OBJS=mgetty.o logfile.o do_chat.o locks.o utmp.o logname.o login.o \
      mg_m_init.o modem.o faxrec.o ring.o \
      faxlib.o faxsend.o faxrecp.o class1.o class1lib.o faxhng.o hyla_nsf.o \
      g3file.o io.o gettydefs.o tio.o cnd.o getdisk.o goodies.o \
-     config.o conf_mg.o do_stat.o sms.o
+     config.o conf_mg.o do_stat.o sms.o clean_line.o
 
 SFAXOBJ=sendfax.o logfile.o locks.o modem.o \
      faxlib.o faxsend.o faxrecp.o class1.o class1lib.o faxhng.o hyla_nsf.o \
-     g3file.o io.o tio.o getdisk.o config.o conf_sf.o goodies.o socket.o
+     g3file.o io.o tio.o getdisk.o config.o conf_sf.o goodies.o socket.o \
+     clean_line.o
 
 all:	bin-all doc-man-only
 
@@ -407,7 +408,7 @@ DISTRIB=README.1st THANKS TODO BUGS FTP COPYING Recommend \
 	io.c tio.c tio.h gettydefs.c login.c do_stat.c faxhng.c \
 	config.h config.c conf_sf.h conf_sf.c conf_mg.h conf_mg.c \
 	cnd.c getdisk.c mksed.c utmp.c mg_utmp.h syslibs.h goodies.c \
-	sms.c socket.c
+	sms.c socket.c clean_line.c
 
 noident: policy.h
 	    for file in `find . -type f -name "*.[ch]" -print` ; do \
