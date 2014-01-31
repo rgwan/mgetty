@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.77 2014/01/28 20:43:00 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.78 2014/01/31 10:11:03 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -9,6 +9,9 @@
  * different that it goes to a separate library.
  *
  * $Log: faxlib.c,v $
+ * Revision 4.78  2014/01/31 10:11:03  gert
+ * add "NO ANSWER" to list of final dial-failed codes
+ *
  * Revision 4.77  2014/01/28 20:43:00  gert
  * permit higher max speeds than 14400 by hex-encoding second
  *  parameter to AT+FDCC (33600='D')
@@ -280,6 +283,7 @@ int  ix;
 	if ( strcmp( line, "ERROR" ) == 0 ||
 	     strcmp( line, "NO CARRIER" ) == 0 ||
 	     strcmp( line, "BUSY" ) == 0 ||
+	     strcmp( line, "NO ANSWER" ) == 0 ||
 	     strcmp( line, "NO DIALTONE" ) == 0 ||
 	     strcmp( line, "NO DIAL TONE" ) == 0 )
 	{
