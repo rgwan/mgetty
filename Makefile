@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.79 2014/01/26 19:18:06 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.80 2014/01/31 09:34:27 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -349,6 +349,9 @@ cnd.o : cnd.c syslibs.h policy.h mgetty.h ugly.h config.h  Makefile
 
 logname.o : logname.c syslibs.h mgetty.h policy.h tio.h mg_utmp.h Makefile
 
+mgetty-launchd.o: mgetty-launchd.c
+	$(CC) $(CFLAGS) -DSBINDIR=\"$(SBINDIR)\" -c mgetty-launchd.c
+
 # here are the binaries...
 
 mgetty: $(OBJS)
@@ -357,14 +360,9 @@ mgetty: $(OBJS)
 sendfax: $(SFAXOBJ)
 	$(CC) -o sendfax $(SFAXOBJ) $(LDFLAGS) $(LIBS)
 
-# sentinelized binaries for runtime testing...
-sentinel:	mgetty.sen sendfax.sen
+mgetty-launchd: mgetty-launchd.o io.o utmp.o logfile.o
+	$(CC) -o mgetty-launchd mgetty-launchd.o io.o utmp.o logfile.o
 
-mgetty.sen: $(OBJS)
-	sentinel -v $(CC) -o mgetty.sen $(OBJS) $(LDFLAGS) $(LIBS)
-
-sendfax.sen: $(SFAXOBJ)
-	sentinel -v $(CC) -o sendfax.sen $(SFAXOBJ) $(LDFLAGS) $(LIBS)
 
 # subdirectories...
 
