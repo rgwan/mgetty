@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 4.32 2014/01/28 12:21:15 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 4.33 2014/01/31 10:05:45 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -9,6 +9,11 @@
  * mgetty+sendfax (except some fax constants, they are in fax_lib.h)
  *
  * $Log: mgetty.h,v $
+ * Revision 4.33  2014/01/31 10:05:45  gert
+ * add prototype for connect_to_remote_tty()
+ * move clean_line() prototype to "modem.c" section
+ * add port_type_t enum to differenciate modem handling on port type
+ *
  * Revision 4.32  2014/01/28 12:21:15  gert
  * add safe_strdup()
  *
@@ -227,12 +232,18 @@ typedef struct	chat_actions {
 			char * expect;
 			action_t action; } chat_action_t ;
 
+/* what sort of file descriptor are we talking to? */
+typedef enum {
+	PT_TTY, 		/* regular unix tty with POSIX */
+	PT_RAW_SOCKET, 		/* network socket, no modem control */
+	PT_2217_SOCKET		/* network socket, RFC2217, telnet proto */
+} port_type_t;
+
 /* do_chat.c */
 int	do_chat _PROTO(( int filedesc, char * expect_send[],
 	     	 chat_action_t actions[], action_t * action,
 		 int chat_timeout_time, boolean timeout_first ));
 int	do_chat_send _PROTO(( int filedesc, char * send_str_with_esc ));
-int	clean_line _PROTO(( int filedesc, int tenths ));
 
 /* ring.c */
 int	wait_for_ring _PROTO(( int filedesc, char ** msn_list, int timeout, 
@@ -291,6 +302,12 @@ int	mdm_read_byte _PROTO(( int fd, char * c ));
 char *	mdm_get_line  _PROTO(( int fd ));
 int	mdm_command   _PROTO(( char * send, int fd ));
 char *  mdm_get_idstring _PROTO(( char * send, int n, int fd ));
+int	clean_line _PROTO(( int filedesc, int tenths ));
+
+/* socket.c */
+#ifdef FAX_SEND_SOCKETS
+int connect_to_remote_tty _PROTO(( char * fax_tty ));
+#endif
 
 /* logname.c */
 char *	ln_escape_prompt _PROTO(( char * prompt ));
