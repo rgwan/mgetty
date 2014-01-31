@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 4.29 2014/01/31 10:23:42 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 4.30 2014/01/31 11:32:42 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -8,6 +8,9 @@
  * The code is still quite rough, but it works.
  *
  * $Log: sendfax.c,v $
+ * Revision 4.30  2014/01/31 11:32:42  gert
+ * finish half-done change to fax_close() calls (adding pt)
+ *
  * Revision 4.29  2014/01/31 10:23:42  gert
  * Introduce "port_type pt", which is PT_TTY for regular local tty devices
  * that do "termio/termios" stuff, or PT_RAW_SOCKET for remote devices where
@@ -285,7 +288,7 @@ int fd;
 /* finish off - close modem device, rm lockfile */
 
 void fax_close _P2( (fd, pt),
-		    int fd, port_type pt )
+		    int fd, port_type_t pt )
 {
     if ( pt != PT_RAW_SOCKET )
        tio_flush_queue( fd, TIO_Q_BOTH );	/* unlock flow ctl. */
@@ -499,7 +502,7 @@ int main _P2( (argc, argv),
 		    c_string(modem_init) );
 	    fprintf( stderr, "%s: modem doesnt't accept '%s'\n",
 		    argv[0], c_string(modem_init) );
-	    fax_close( fd );
+	    fax_close( fd, pt );
 	    exit(3);
 	}
     }		/* end if (c_isset(modem_init)) */
@@ -511,7 +514,7 @@ int main _P2( (argc, argv),
     {
 	lprintf( L_AUDIT, "failed: modem type unknown, dev=%s", Device);
 	fprintf( stderr, "%s: cannot set modem to fax mode\n", argv[0] );
-	fax_close( fd );
+	fax_close( fd, pt );
 	exit( 3 );
     }
 
@@ -519,7 +522,7 @@ int main _P2( (argc, argv),
     {
 	lprintf( L_AUDIT, "failed: no class 2/2.0 fax modem, dev=%s", Device);
 	fprintf( stderr, "%s: not a class 2/2.0 fax modem\n", argv[0] );
-	fax_close( fd );
+	fax_close( fd, pt );
 	exit( 3 );
     }
 
@@ -538,7 +541,7 @@ int main _P2( (argc, argv),
     {
 	lprintf( L_AUDIT, "failed: cannot set fax station ID, dev=%s", Device);
 	fprintf( stderr, "%s: cannot set fax station ID\n", argv[0] );
-	fax_close( fd );
+	fax_close( fd, pt );
 	exit(3);
     }
 
@@ -621,7 +624,7 @@ int main _P2( (argc, argv),
 	}
 
 	/* close fax line */
-	fax_close( fd );
+	fax_close( fd, pt );
 	
 	/* print message, and end program -
 	   return codes signals kind of dial failure */
@@ -806,7 +809,7 @@ int main _P2( (argc, argv),
 	    fprintf( stderr, "Transmission error: +FHNG:%2d (%s)\n",
 			     fax_hangup_code,
 			     fax_strerror( fax_hangup_code ) );
-	fax_close( fd );
+	fax_close( fd, pt );
 	exit(12);
     }
 
@@ -846,7 +849,7 @@ int main _P2( (argc, argv),
 		lprintf( L_AUDIT, "failed: polling failed, phone=\"%s\", +FHS:%02d, dev=%s, time=%ds, acct=\"%s\"",
 			 fac_tel_no, fax_hangup_code, Device,
 			 ( time(NULL)-call_start ), c_string(acct_handle) );
-		fax_close( fd );
+		fax_close( fd, pt );
 		exit(12);
 	    }
 	}
