@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 4.33 2014/01/31 10:05:45 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 4.34 2014/01/31 13:02:08 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -9,6 +9,9 @@
  * mgetty+sendfax (except some fax constants, they are in fax_lib.h)
  *
  * $Log: mgetty.h,v $
+ * Revision 4.34  2014/01/31 13:02:08  gert
+ * move clean_line() from modem.c to clean_line.c
+ *
  * Revision 4.33  2014/01/31 10:05:45  gert
  * add prototype for connect_to_remote_tty()
  * move clean_line() prototype to "modem.c" section
@@ -302,6 +305,8 @@ int	mdm_read_byte _PROTO(( int fd, char * c ));
 char *	mdm_get_line  _PROTO(( int fd ));
 int	mdm_command   _PROTO(( char * send, int fd ));
 char *  mdm_get_idstring _PROTO(( char * send, int n, int fd ));
+
+/* clean_line.c */
 int	clean_line _PROTO(( int filedesc, int tenths ));
 
 /* socket.c */
