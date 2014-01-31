@@ -1,4 +1,4 @@
-#ident "$Id: modem.c,v 4.7 2014/01/31 10:06:09 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: modem.c,v 4.8 2014/01/31 11:32:59 gert Exp $ Copyright (c) Gert Doering"
 
 /* modem.c
  *
@@ -17,6 +17,7 @@
 
 #include "mgetty.h"
 #include "policy.h"
+#include "tio.h"
 
 /* get one line from the modem, only printable characters, terminated
  * by \r or \n. The termination character is *not* included
