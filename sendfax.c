@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 4.30 2014/01/31 11:32:42 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 4.31 2014/02/01 10:50:55 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -8,6 +8,9 @@
  * The code is still quite rough, but it works.
  *
  * $Log: sendfax.c,v $
+ * Revision 4.31  2014/02/01 10:50:55  gert
+ * accept "modem-type c1.0" (or "-C c1.0") option to force class 1.0
+ *
  * Revision 4.30  2014/01/31 11:32:42  gert
  * finish half-done change to fax_close() calls (adding pt)
  *
@@ -422,6 +425,7 @@ int main _P2( (argc, argv),
     if ( strcmp( c_string(modem_type), "cls2" ) != 0 &&
 	 strcmp( c_string(modem_type), "c2.0" ) != 0 &&
 	 strcmp( c_string(modem_type), "cls1" ) != 0 &&
+	 strcmp( c_string(modem_type), "c1.0" ) != 0 &&
 	 strncmp(c_string(modem_type), "auto", 4) != 0 )
     {
 	fprintf( stderr, "%s: warning: invalid modem class '%s'\n",
