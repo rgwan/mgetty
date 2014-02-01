@@ -1,4 +1,4 @@
-#ident "$Id: fax_lib.h,v 4.19 2007/05/16 15:24:46 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: fax_lib.h,v 4.20 2014/02/01 20:52:39 gert Exp $ Copyright (c) Gert Doering"
 
 
 /* fax_lib.h
@@ -49,7 +49,8 @@ void hylafax_nsf_decode _PROTO(( uch * nsf, int nsfSize ));
 #ifdef __TIO_H__
 int fax_send_page _PROTO(( char * g3_file, int * bytes_sent, TIO * tio,
 			   Post_page_messages ppm, int fd ));
-int fax_send_ppm  _PROTO(( int fd, TIO *tio, Post_page_messages ppm ));
+int fax_send_ppm  _PROTO(( int fd, TIO *tio, 
+			   Post_page_messages ppm, int bytes_sent ));
 #endif
 
 Modem_type fax_get_modem_type _PROTO(( int fd, char * mclass ));
