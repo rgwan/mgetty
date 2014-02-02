@@ -1,3 +1,18 @@
+Sun Feb  2 14:06:41 CET 2014  Gert Doering <gert@greenie.muc.de>
+
+	* config.c, logfile.c, logname.c, login.c, modem.c, ring.c,
+	  faxlib.c, faxrecp.c, class1lib.c, cnd.c, g3/pbm2g3.c, goodies.c,
+	  fax/faxq-helper.c, callback/callback.c: convert all "char" 
+	  expressions to (uch) when calling ctype.h macros (*sigh*)
+
+	* fax_lib.h: add prototype for fax1_send_page() and fax1_send_nsf()
+
+	* class1lib.c: fix signed/unsigned char warning in strncpy() call
+
+	* g3file.c: fix signed/unsigned char warning in function calls
+
+	* tio.c: #include <sys/ioctl.h> on BSD
+
 Sun Feb  2 13:24:40 CET 2014  Michal Sekletar <msekleta@redhat.com>
 
 	* bug fixes based on static code analysis (mem leaks, buffer overruns)
