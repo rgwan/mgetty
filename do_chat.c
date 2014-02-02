@@ -1,4 +1,4 @@
-#ident "$Id: do_chat.c,v 4.3 2014/01/31 10:06:09 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: do_chat.c,v 4.4 2014/02/02 08:32:50 gert Exp $ Copyright (c) Gert Doering"
 
 /* do_chat.c
  *
@@ -194,7 +194,7 @@ static	char	*lptr = lbuf;
 		}
 
 		/* look for one of the "abort"-strings */
-                if ( actions != NULL )
+                if ( actions != NULL && action != NULL )
 		  for ( h=0; actions[h].expect != NULL; h ++ )
 		{
 		    cnt = strlen( actions[h].expect );
