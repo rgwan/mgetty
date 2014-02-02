@@ -1,4 +1,4 @@
-#ident "$Id: pbm2g3.c,v 4.2 1998/05/07 10:37:38 gert Exp $ Copyright (C) 1994 Gert Doering"
+#ident "$Id: pbm2g3.c,v 4.3 2014/02/02 12:20:26 gert Exp $ Copyright (C) 1994 Gert Doering"
 
 /* pbm2g3
  *
@@ -318,6 +318,7 @@ fprintf( stderr, "end of line, c=%d, run=%d, bit=%d, x=%d\n", c, run, bit, x );
 	}
         puteol();
     }				/* end for ( all y ) */
+    free(linebuf);
 }
 
 void convert_pbm _P2( (fd, g3_page_width), int fd, int g3_page_width )
