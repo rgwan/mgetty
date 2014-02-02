@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.78 2014/01/31 10:11:03 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.79 2014/02/02 12:05:46 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -9,6 +9,12 @@
  * different that it goes to a separate library.
  *
  * $Log: faxlib.c,v $
+ * Revision 4.79  2014/02/02 12:05:46  gert
+ * Michal Sekletar:
+ *   avoid potential buffer overrun (off-by-one) when copying a maximum-length
+ *   NSF (theoretical possiblity as NSF frame length is bounded, but code is
+ *   still not correct)
+ *
  * Revision 4.78  2014/01/31 10:11:03  gert
  * add "NO ANSWER" to list of final dial-failed codes
  *
@@ -574,7 +580,7 @@ char nsf_print[200];
 int i;
 
     /* normal bit order */
-    for(i=0;i<len && i<sizeof(nsf_print);i++)
+    for(i=0;i<len && i<sizeof(nsf_print)-1;i++)
 	nsf_print[i] = isprint(nsf_bin[i])? nsf_bin[i]: '.';
     nsf_print[i] = '\0';
 
