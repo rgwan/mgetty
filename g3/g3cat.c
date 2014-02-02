@@ -1,4 +1,4 @@
-#ident "$Id: g3cat.c,v 4.6 2010/10/08 10:49:23 gert Exp $ (c) Gert Doering"
+#ident "$Id: g3cat.c,v 4.7 2014/02/02 11:57:59 gert Exp $ (c) Gert Doering"
 
 /* g3cat.c - concatenate multiple G3-Documents
  *
@@ -13,6 +13,10 @@
  *		  -p <pad>   zero-fill all lines up to <pad> bytes
  *
  * $Log: g3cat.c,v $
+ * Revision 4.7  2014/02/02 11:57:59  gert
+ * Michal Sekletar:
+ *   pass actual file descriptor to close(), not negative result from read()
+ *
  * Revision 4.6  2010/10/08 10:49:23  gert
  * add CVS Log tag
  * when reporting invalid code, lseek() on "fd", not on stdin (bugfix) and
@@ -278,7 +282,7 @@ int main _P2( (argc, argv),
 
 	have_warned = 0;
 	rs = read( fd, rbuf, sizeof(rbuf) );
-	if ( rs < 0 ) { perror( "read" ); close( rs ); exit(8); }
+	if ( rs < 0 ) { perror( "read" ); close( fd ); exit(8); }
 
 			    /* skip GhostScript header */
 	rp = ( rs >= 64 && strcmp( rbuf+1, "PC Research, Inc" ) == 0 ) ? 64 : 0;
