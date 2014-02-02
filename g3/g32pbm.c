@@ -1,4 +1,4 @@
-#ident "$Id: g32pbm.c,v 4.5 2014/02/02 11:56:53 gert Exp $ (c) Gert Doering, Chris Lewis et.al."
+#ident "$Id: g32pbm.c,v 4.6 2014/02/02 12:16:39 gert Exp $ (c) Gert Doering, Chris Lewis et.al."
 
 /* G32pbm.c
  *
@@ -9,6 +9,10 @@
  * HP Laserjet and scaling code by Chris Lewis
  *
  * $Log: g32pbm.c,v $
+ * Revision 4.6  2014/02/02 12:16:39  gert
+ * Michal Sekletar
+ *   fix memleak in scalebm(): add missing free(mulvec) at end
+ *
  * Revision 4.5  2014/02/02 11:56:53  gert
  * Michal Sekletar:
  *   pass actual file descriptor to close(), not negative result from read()
@@ -145,6 +149,7 @@ char *scalebm _P5( (res, cols, rows, map, bperrow),
     *rows = nr;
     *cols = nc;
     *bperrow = newbperrow;
+    free(mulvec);
     return (newmap);
 }
 
