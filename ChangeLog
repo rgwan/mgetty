@@ -1,4 +1,109 @@
+Sun Feb  2 13:24:40 CET 2014  Michal Sekletar <msekleta@redhat.com>
+
+	* bug fixes based on static code analysis (mem leaks, buffer overruns)
+
+	* do_chat.c: test if(action != NULL) in all places
+
+	* logfile.c: Moved call to close to else branch of if-statement to 
+          avoid passing invalid file descriptor in case log_fd == -1
+
+	* g3/g32pbm.c, g3/g3cat.c: pass actual file descriptor to close(), 
+          not negative result from read()
+
+	* logfile.c: in logmail(), skip fwrite() if read() returns <= 0
+
+	* faxlib.c: avoid potential buffer overrun (off-by-one) when copying
+          a maximum-length NSF (theoretical possiblity as NSF frame length 
+          is bounded)
+
+	* voice/libpvf/lib.c: avoid buffer overrun with terminating zero byte
+	  in read_pvf_header() when reading a malformed PVF file (= 2nd line 
+          longer than VOICE_BUF_LEN)
+
+	* g3/g32pbm.c: fix memleak in scalebm(): add missing free(mulvec)
+
+	* g3/pbm2g3.c: fix memleak in convert_pbm_raw(): add free(linebuf)
+
+	* voice/libpvf/fft.c: fix memleaks in pvffft(), always free(real)
+	  and free(imag) (introducing exit labels and jumping there)
+
+	* faxrecp.c: in fax_get_page_data(), ensure that fax_fp is actually
+          valid (fdopen() *can* fail) - and always fclose() it on exit
+
+	* do_chat.c: fclose(fp) on error exit
+
+	* voice/libvoice/record.c: fclose(fd) on error-exit
+
+	* voice/libvoice/play.c: ensure fclose(fd) on all returns
+
+Fri Jan 31 17:44:00 CET 2014  Gert Doering <gert@greenie.muc.de>
+
+	* frontends/dir2fax: added simple "scan directory, fax out" script
+
+Fri Jan 31 14:40:28 CET 2014  Gert Doering <gd@medat.de>
+
+	* faxsend.c: increase timeout value between <DLE><ETX> and "OK" to
+	  whatever is needed to cope for "large documents, slow receiver,
+          huge buffers in network and/or DIVA cards".
+
+Fri Jan 31 11:23:59 CET 2014  Gert Doering <gd@medat.de>
+
+	* mgetty.h: introduce "port_type_t" enum to store port type in sendfax
+
+	* sendfax.c: add proper port type handling to get rid of all the
+	  TIO_* errors for unsupported function calls on PT_RAW_SOCKET ports
+
+	* clean_line.c, clean_line(): if FAX_SEND_SOCKETS, never use VTIME
+
+	* do_chat.c, clean_line.c: move clean_line() from do_chat.c to 
+          clean_line.c (we need it from sendfax, and it fits nowhere else)
+
+	* faxlib.c: recognize "NO ANSWER" as final "dial-failed" response
+
+	* Makefile: add rule for mgetty-launchd, not built by default.
+
+	* Makefile: remove support for "sentinelized" binaries
+
+Tue Jan 28 13:21:15 CET 2014  Gert Doering <gd@medat.de>
+
+	* goodies.c: add safe_strdup() function
+
+	* socket.c: add call-out module to connect to remote "modems"
+	  reachable via raw TCP/IP sockets - like a DIVA ISDN board made
+          accessible by ser2net.  Conditional on #ifdef FAX_SEND_SOCKETS
+
+	* sendfax.c: if a tty name is "ttyRInmm", magically map that to
+	  a remote tty via socket.c (connect to modemserver<n>, on TCP
+	  port 50000+<mm>).  Handle differences between "local tty" and
+	  "raw socket" ports in termio(s) initialization etc.
+
+	* io.c: do not declare poll() prototype on BSD
+
+	* faxlib.c: permit higher "fax max speed" than 14400 by proper
+	  hex-encoding the result of "(max_speed/2400)-1".  DIVA cards
+	  can do up to 33600, encoded as 'D'.
+
+	* config.c: add wildcard matching to section_key matches - like
+	  "port ttyRI???" -> match on all Ports starting with "ttyRI" and
+	  up to 3 characters.  Useful to set common modem-init stuff for
+	  30 lines on a DIVA PRI board...
+
+Sun Jan 26 20:18:07 CET 2014  Gert Doering <gert@greenie.muc.de>
+
+	* policy.h: add and explain FAX_SEND_SOCKETS option
+
+	* Makefile: add socket.c/socket.o, cleanup LIBS and gdiff usage
+
+Fri Jul  5 11:32:42 CEST 2013
+
+	* fax/faxrunqd.in: treat "exit(15)" from sendfax as extra-bad, 
+	  adding +2 to mq_badness counter (this error hints at "the tty
+	  got completely stuck, each fax sent there will be delayed for
+	  many minutes until sendfax is killed" -> avoid using that tty)
+
 Fri Feb 24 14:40:15 CET 2012  Gert Doering <gd@medat.de>
+
+	* goodies.c: implement get_ps_args() for _AIX (6+, with /proc)
 
 	* mgetty-launchd.c: new tool to run mgetty from "non-init" processes
           (mainly written for IBM HACMP cluster environments, where inittab
@@ -22,11 +127,21 @@ Wed Feb  1 15:23:09 CET 2012  Gert Doering <gert@greenie.muc.de>
 
 	* mgetty.c: #ifdef AIX_SRC, create INIT_PROCESS utmp entry on start
 
+Mon Jul 11 11:21:20 CEST 2011
+
+	* atsms.c: add new option '-Z' -> "zap modem" (do full SIM reset 
+	  with AT+CFUN=1,1 if AT+CPIN? query returns ERROR)
+
 Mon Mar 28 20:03:31 CEST 2011  Gert Doering <gert@greenie.muc.de>
 
 	* fax/faxspool.in: print number of pages in "success!" message
 
 	* fax/faxspool.rules: add sample statements for HTML-to-Fax
+
+Tue Jan 18 17:09:11 CET 2011
+
+	* fax/faxrunqd.in: pass verbose error list to "modem error script"
+	  (in $MODEM_ERROR_VERBOSE env variable) - help humans understand
 
 Fri Oct  8 12:50:07 CEST 2010  Gert Doering <gd@medat.de>
 
