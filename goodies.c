@@ -1,4 +1,4 @@
-#ident "$Id: goodies.c,v 4.8 2014/01/28 12:21:15 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: goodies.c,v 4.9 2014/02/02 13:45:10 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /*
  * goodies.c
@@ -8,6 +8,9 @@
  * various nice functions that do not fit elsewhere 
  *
  * $Log: goodies.c,v $
+ * Revision 4.9  2014/02/02 13:45:10  gert
+ * convert all "char" expressions to (uch) when calling ctype.h macros (*sigh*)
+ *
  * Revision 4.8  2014/01/28 12:21:15  gert
  * add safe_strdup()
  *
@@ -74,7 +77,7 @@ void get_ugid _P4( (user, group, uid, gid),
     {
 	struct passwd *pwd;
 
-	if ( isdigit( *(char*)(user->d.p) ))	/* numeric */
+	if ( isdigit( (uch) *(char*)(user->d.p) ))	/* numeric */
 	    pwd = getpwuid( atoi( (char*) (user->d.p) ));
 	else					/* string */
 	    pwd = getpwnam( (char*)(user->d.p) );
@@ -95,7 +98,7 @@ void get_ugid _P4( (user, group, uid, gid),
     {
 	struct group * grp;
 
-	if ( isdigit( *(char*)(group->d.p) ))	/* numeric */
+	if ( isdigit( (uch) *(char*)(group->d.p) ))	/* numeric */
 	    grp = getgrgid( atoi( (char*)(group->d.p)) );
 	else					/* string */
 	    grp = getgrnam( (char*) (group->d.p) );
