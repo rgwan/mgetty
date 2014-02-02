@@ -1,4 +1,4 @@
-#ident "$Id: modem.c,v 4.9 2014/01/31 13:02:08 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: modem.c,v 4.10 2014/02/02 13:44:19 gert Exp $ Copyright (c) Gert Doering"
 
 /* modem.c
  *
@@ -41,7 +41,7 @@ char * mdm_get_line _P1( (fd), int fd )
 
 	lputc( L_JUNK, c );
 
-	if ( isprint( c ) &&
+	if ( isprint( (uch)c ) &&
 	     bufferp < sizeof(buffer) )
 	{
 	    buffer[ bufferp++ ] = c;

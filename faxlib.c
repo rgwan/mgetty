@@ -1,4 +1,4 @@
-#ident "$Id: faxlib.c,v 4.79 2014/02/02 12:05:46 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxlib.c,v 4.80 2014/02/02 13:44:19 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxlib.c
  *
@@ -9,6 +9,11 @@
  * different that it goes to a separate library.
  *
  * $Log: faxlib.c,v $
+ * Revision 4.80  2014/02/02 13:44:19  gert
+ * warning cleanup:
+ *   convert all "char" expressions to (uch) when calling ctype.h macros (*sigh*)
+ *   fix signed/unsigned char warning in function calls
+ *
  * Revision 4.79  2014/02/02 12:05:46  gert
  * Michal Sekletar:
  *   avoid potential buffer overrun (off-by-one) when copying a maximum-length
@@ -80,7 +85,7 @@ static void fwf_copy_remote_id _P1( (id), char * id )
 {
 int w = 0;
 
-    while ( isspace(*id) || *id == '"' ) id++;	/* skip leading whitespace */
+    while ( isspace( (uch) *id) || *id == '"' ) id++;	/* skip leading whitespace */
 
     while ( *id && w < sizeof(fax_remote_id)-1 )
     {
@@ -89,7 +94,7 @@ int w = 0;
     }
 
     /* remove trailing whitespace */
-    while ( w>0 && isspace(fax_remote_id[w-1]) ) w--;
+    while ( w>0 && isspace( (uch)fax_remote_id[w-1]) ) w--;
 
     fax_remote_id[w]=0;
 }
@@ -548,7 +553,7 @@ int fax_set_bor _P2( (fd, bor), int fd, int bor )
  * that looks like "pairs of hex digits with or without separators")
  */
 #define char_to_hex(ch) ( ( (ch)>='0' && (ch)<='9')? (ch)-'0' : \
-				tolower((ch))-'a'+10 )
+				tolower( (uch)(ch) )-'a'+10 )
 void fax2_incoming_nsf _P1((nsf_hex), char * nsf_hex )
 {
 #ifdef FAX_NSF_PARSER
@@ -559,14 +564,15 @@ char *p;
     len = 0;
     p = nsf_hex;
     /* some modems insert extra quotes at the start... (ZyXEL) */
-    while( *p != '\0' && ! isxdigit(*p) ) p++;
+    while( *p != '\0' && ! isxdigit( (uch)*p ) ) p++;
 
-    while( len<sizeof(nsf_bin) && isxdigit(*p) && isxdigit(*(p+1)) )
+    while( len<sizeof(nsf_bin) && 
+               isxdigit( (uch)*p ) && isxdigit( (uch)*(p+1)) )
     {
 	nsf_bin[len++] = (uch) ( char_to_hex(*p) << 4 ) +
 					char_to_hex(*(p+1));
 	p+=2;
-	while( *p != '\0' && ! isxdigit(*p) ) p++;
+	while( *p != '\0' && ! isxdigit( (uch)*p ) ) p++;
     }
 
     fax1_incoming_nsf( nsf_bin, len );
@@ -725,7 +731,7 @@ int mdm_identify _P1( (fd), int fd )
 
     /* all-numerical? */
     p = l;
-    while( isdigit(*p) || isspace(*p) ) p++;
+    while( isdigit( (uch)*p ) || isspace( (uch)*p ) ) p++;
 
     if ( *p == '\0' )		/* all-numeric */
     {

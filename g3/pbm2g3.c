@@ -1,4 +1,4 @@
-#ident "$Id: pbm2g3.c,v 4.3 2014/02/02 12:20:26 gert Exp $ Copyright (C) 1994 Gert Doering"
+#ident "$Id: pbm2g3.c,v 4.4 2014/02/02 13:44:24 gert Exp $ Copyright (C) 1994 Gert Doering"
 
 /* pbm2g3
  *
@@ -156,17 +156,17 @@ int pbm_getint _P1( (fd), int fd )
 	    while( buf[0] != '\n' && read( fd, buf, 1 ) == 1 ) {}
 	}
     }
-    while ( isspace( buf[0] ) );
+    while ( isspace( (unsigned char)buf[0] ) );
 
     i = 1;
     while ( i < sizeof( buf ) -1 &&
 	    read( fd, &buf[i], 1 ) == 1 &&
-	    ! isspace( buf[i] ) )
+	    ! isspace( (unsigned char)buf[i] ) )
     {
 	i++;
     }
 
-    if ( ! isspace( buf[i] ) ) return -1;
+    if ( ! isspace( (unsigned char)buf[i] ) ) return -1;
 
     buf[i] = 0;
 

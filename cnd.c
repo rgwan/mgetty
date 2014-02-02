@@ -1,4 +1,4 @@
-#ident "@(#)cnd.c	$Id: cnd.c,v 4.26 2005/04/17 11:55:43 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "@(#)cnd.c	$Id: cnd.c,v 4.27 2014/02/02 13:44:19 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 
 #include <stdio.h>
 #include <string.h>
@@ -113,9 +113,9 @@ cndfind _P1((str), char *str)
 
     /* strip off blanks */
     
-    while (*str && isspace(*str)) str++;
+    while (*str && isspace( (uch)*str )) str++;
     p = str + strlen(str) - 1;
-    while(p >= str && isspace(*p))
+    while(p >= str && isspace( (uch)*p ))
 	*p-- = '\0';
 
     lprintf(L_JUNK, "CND: %s", str);
@@ -125,10 +125,10 @@ cndfind _P1((str), char *str)
        line consisting only of digits. So, if we get a line starting
        with a digit, let's assume that it's the CID...
      */
-    if ( isdigit(*str) )
+    if ( isdigit( (uch)*str ) )
     {
 	CallerId = p = strdup(str);
-	while( isdigit(*p) ) p++;
+	while( isdigit( (uch)*p ) ) p++;
 	*p = 0;
 	lprintf( L_NOISE, "CND: ELink caller ID: '%s'", CallerId );
 	return;
@@ -166,7 +166,7 @@ cndfind _P1((str), char *str)
 		 */
 		while( *p != '\0' )
 		{ 
-		    if ( *p == '\'' || *p == '\"' || !isprint(*p) ) *p = ' ';
+		    if ( *p == '\'' || *p == '\"' || !isprint( (uch)*p ) ) *p = ' ';
 		    p++;
 		}
 	    }

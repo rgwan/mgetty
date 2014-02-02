@@ -1,4 +1,4 @@
-#ident "$Id: class1lib.c,v 4.23 2009/03/19 15:31:21 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1lib.c,v 4.24 2014/02/02 13:44:19 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1lib.c
  *
@@ -6,6 +6,11 @@
  * send a frame, receive a frame, dump frame to log file, ...
  *
  * $Log: class1lib.c,v $
+ * Revision 4.24  2014/02/02 13:44:19  gert
+ * warning cleanup:
+ *   convert all "char" expressions to (uch) when calling ctype.h macros (*sigh*)
+ *   fix signed/unsigned char warning in function calls
+ *
  * Revision 4.23  2009/03/19 15:31:21  gert
  * add CVS tags
  *
@@ -667,8 +672,8 @@ uch frame[FRAMESIZE];
     frame[3] = 0x81;		/* mgetty + */
     frame[4] = 0x70;		/*  sendfax */
     frame[5] = 0x00;		/* frame version */
-    strncpy( &frame[6], "mgetty ", 7 );
-    strncpy( &frame[13], VERSION_SHORT, 7 );
+    strncpy( (char*) &frame[6], "mgetty ", 7 );
+    strncpy( (char*) &frame[13], VERSION_SHORT, 7 );
 
     return fax1_send_frame( fd, carrier, frame, 20 );
 }
@@ -703,7 +708,7 @@ char c;
         if ( c == '"' || c == '\'' ) fax_remote_id[w++] = '_';
 				else fax_remote_id[w++] = c;
     }
-    while( w>0 && isspace(fax_remote_id[w-1]) ) w--;
+    while( w>0 && isspace( (uch)fax_remote_id[w-1]) ) w--;
     fax_remote_id[w]=0;
 
     lprintf( L_MESG, "fax_id: '%s'", fax_remote_id );

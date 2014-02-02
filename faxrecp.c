@@ -1,4 +1,4 @@
-#ident "$Id: faxrecp.c,v 1.12 2014/02/02 12:40:55 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: faxrecp.c,v 1.13 2014/02/02 13:44:19 gert Exp $ Copyright (c) Gert Doering"
 
 /* faxrecp.c - part of mgetty+sendfax
  *
@@ -110,7 +110,7 @@ char	DevId[3];
     {
 	char c = fax_remote_id[j];
 
-	if ( isalnum(c) ) temp[i++] = c;
+	if ( isalnum( (uch) c) ) temp[i++] = c;
 	else
 	    { if ( temp[i-1] != '-' ) temp[i++] = '-' ; }
     }
