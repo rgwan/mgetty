@@ -1,4 +1,4 @@
-#ident "$Id: logfile.c,v 4.11 2005/11/26 13:48:16 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logfile.c,v 4.12 2014/02/02 08:36:27 gert Exp $ Copyright (c) Gert Doering"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -163,8 +163,8 @@ int	log_fd;
 	    }
 	    while( l == sizeof( buf ) );
 	    fprintf( pipe_fp, "\n------ logfile ends here -----\n" );
+	    close( log_fd );
 	}
-	close( log_fd );
 	pclose( pipe_fp );
     }
 
