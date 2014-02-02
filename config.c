@@ -1,4 +1,4 @@
-#ident "$Id: config.c,v 4.7 2014/01/28 20:44:25 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: config.c,v 4.8 2014/02/02 13:06:24 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /*
  * config.c
@@ -91,7 +91,7 @@ char	*	p;
 	if ( bufidx > 0 )
 	{
 	    char * sp = bufp;
-	    while( isspace( *sp ) ) sp++;		/* skip whitespace */
+	    while( isspace( (uch)*sp ) ) sp++;		/* skip whitespace */
 	    
 	    if ( *sp == '#' )
 	    {
@@ -119,7 +119,7 @@ int  w, kflag;
 
     while ( *r )
     {
-	if ( isspace( *r ) )
+	if ( isspace( (uch)*r ) )
 	{
 	    if ( w > 0 && wp[ w-1 ] != ' ' )
 	    {
@@ -399,8 +399,8 @@ int ignore = 0;		/* ignore keywords in non-matching section */
 		  switch( cp->type )
 		    {
 		      case CT_INT:
-			if ( isdigit( line[0] ) ||
-			     ( line[0] == '-' && isdigit( line[1] ) ) )
+			if ( isdigit( (uch)line[0] ) ||
+			     ( line[0] == '-' && isdigit( (uch)line[1] ) ) )
 			    cp->d.i = strtol( line, NULL, 0 );
 			else
 			    errflag++;
@@ -417,8 +417,8 @@ int ignore = 0;		/* ignore keywords in non-matching section */
 			break;
 		      case CT_BOOL:
 			cp->d.i = ( line[0] == 0 || line[0] == 1 ||
-				    tolower(line[0]) == 'y' ||
-				    tolower(line[0]) == 't' ||
+				    tolower((uch)line[0]) == 'y' ||
+				    tolower((uch)line[0]) == 't' ||
 				    strncmp( line, "on", 2 ) == 0 );
 			break;
 		      case CT_FLOWL:
