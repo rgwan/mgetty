@@ -1,4 +1,4 @@
-#ident "$Id: class1lib.c,v 4.24 2014/02/02 13:44:19 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1lib.c,v 4.25 2014/02/03 19:03:11 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1lib.c
  *
@@ -6,6 +6,13 @@
  * send a frame, receive a frame, dump frame to log file, ...
  *
  * $Log: class1lib.c,v $
+ * Revision 4.25  2014/02/03 19:03:11  gert
+ * fax1_receive_frame():
+ *   handle case where 0x13 character that needs to come after 0xff for
+ *   final frames is lost - print warning that this can be caused by wrong
+ *   xon/xoff flow control settings, and synthesize 0x13 character so we
+ *   can go on.  Hack, but works :-)
+ *
  * Revision 4.24  2014/02/02 13:44:19  gert
  * warning cleanup:
  *   convert all "char" expressions to (uch) when calling ctype.h macros (*sigh*)
@@ -300,6 +307,17 @@ int fax1_receive_frame _P4 ( (fd, carrier, timeout, framebuf),
 	}
 
 	/* got preamble, all further bytes are put into buffer */
+
+	/* first byte of frame MUST be [03] (non-final) or [13] (final)
+	 * but if port is set to Xon/Xoff flow control, 0x13 gets lost
+	 * -> so if anything else shows up as "first byte" synthesize [13]
+	 */
+	if ( count == 0 && c != 0x03 && c != 0x13 )
+	{
+	    lprintf( L_WARN, "fax1_receive_frame: octet following 0xff must be 0x03 or 0x13, not 0x%02x - make sure outbound xon/xoff flow control is off!", c );
+	    lputs( L_NOISE, "<*[0x13]*>" );
+	    framebuf[count++] = 0x13;
+	}
 
 	/* enough room? */
 	if ( count >= FRAMESIZE-5 )
