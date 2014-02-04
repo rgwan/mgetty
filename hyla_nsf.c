@@ -1,4 +1,4 @@
-/* $Id: hyla_nsf.c,v 4.8 2010/06/05 09:49:37 gert Exp $ */
+/* $Id: hyla_nsf.c,v 4.9 2014/02/04 15:35:28 gert Exp $ */
 /* 
  * The tables in this file are taken from the HylaFAX distribution.  Thus,
  * the Hylafax copyright (below) applies, not the mgetty copyright (GPL).
@@ -312,7 +312,8 @@ static const NSFData KnownNSF[] =
     {"\x86\x00\x5E", 3, "Xerox", false },
     {"\x86\x00\x66", 3, "unknown - Korea 66", false },
     {"\x86\x00\x6E", 3, "unknown - Korea 6E", false },
-    {"\x86\x00\x82", 3, "unknown - Korea 82", false },
+    {"\x86\x00\x82", 3, "Samsung", false },
+    {"\x86\x00\x85", 3, "Samsung", false },
     {"\x86\x00\x88", 3, "Ricoh", false },
     {"\x86\x00\x8A", 3, "unknown - Korea 8A", false },
     {"\x86\x00\x8C", 3, "Samsung", false, 3, 4, Samsung8C },
