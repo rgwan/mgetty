@@ -1,4 +1,4 @@
-#ident "$Id: goodies.c,v 4.9 2014/02/02 13:45:10 gert Exp $ Copyright (c) 1993 Gert Doering"
+#ident "$Id: goodies.c,v 4.10 2014/04/03 08:59:56 gert Exp $ Copyright (c) 1993 Gert Doering"
 
 /*
  * goodies.c
@@ -8,6 +8,9 @@
  * various nice functions that do not fit elsewhere 
  *
  * $Log: goodies.c,v $
+ * Revision 4.10  2014/04/03 08:59:56  gert
+ * de-warn for _AIX case
+ *
  * Revision 4.9  2014/02/02 13:45:10  gert
  * convert all "char" expressions to (uch) when calling ctype.h macros (*sigh*)
  *
@@ -215,10 +218,10 @@ char * get_ps_args _P1 ((pid), int pid )
 #endif /* linux */
 
 #ifdef _AIX
-    struct psinfo psi;
+    static struct psinfo psi;
     char procfn[30];
     int procfd;
-    int i,l;
+    int l;
 
     /* binary "struct psinfo" in /proc/<pid>/psinfo
      */
