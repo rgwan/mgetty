@@ -1,4 +1,4 @@
-#ident "$Id: class1lib.c,v 4.25 2014/02/03 19:03:11 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1lib.c,v 4.26 2014/04/03 09:04:13 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1lib.c
  *
@@ -6,6 +6,9 @@
  * send a frame, receive a frame, dump frame to log file, ...
  *
  * $Log: class1lib.c,v $
+ * Revision 4.26  2014/04/03 09:04:13  gert
+ * rename FRAMESIZE to C1_FRAMESIZE, collision with AIX header file (grrr)
+ *
  * Revision 4.25  2014/02/03 19:03:11  gert
  * fax1_receive_frame():
  *   handle case where 0x13 character that needs to come after 0xff for
@@ -320,7 +323,7 @@ int fax1_receive_frame _P4 ( (fd, carrier, timeout, framebuf),
 	}
 
 	/* enough room? */
-	if ( count >= FRAMESIZE-5 )
+	if ( count >= C1_FRAMESIZE-5 )
 	{
 	    lprintf( L_ERROR, "fax1_receive_frame: too many octets in frame" );
 	    rc = ERROR; break;
@@ -525,7 +528,7 @@ int fax1_send_frame _P4( (fd, carrier, frame, len),
 {
 char * line;
 static int carrier_active = -2;		/* inter-frame marker */
-uch dle_buf[FRAMESIZE*2+2];		/* for DLE-coded frame */
+uch dle_buf[C1_FRAMESIZE*2+2];		/* for DLE-coded frame */
 int r,w;
 
     fax1_dump_frame( '>', frame, len );
@@ -681,7 +684,7 @@ int fax1_send_dcn _P2((fd, code), int fd, int code )
  */
 int fax1_send_nsf _P2( (fd, carrier), int fd, int carrier )
 {
-uch frame[FRAMESIZE];
+uch frame[C1_FRAMESIZE];
 
     /* NSF is never final frame */
     frame[0] = 0x03;
@@ -736,7 +739,7 @@ char c;
  */
 int fax1_send_dis _P1( (fd), int fd )
 {
-uch frame[FRAMESIZE];
+uch frame[C1_FRAMESIZE];
 int speedbits = 0;
 int r_flags;
 struct fax1_btable * dis_btp = fax1_btable;
@@ -862,7 +865,7 @@ void fax1_parse_dis _P1((frame), uch * frame )
 
 int fax1_send_dcs _P2((fd, s_time), int fd, int s_time )
 {
-uch framebuf[FRAMESIZE];
+uch framebuf[C1_FRAMESIZE];
 int i;
 
     /* find baud/carrier table entry that has a speed not over
