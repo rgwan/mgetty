@@ -1,0 +1,12 @@
+#!/bin/sh
+#
+# backend hack to have "faxspool" queue a fax on a remote fax queue
+# needs customizing for your environment
+#
+REMOTE_USER=fax
+FAX_SERVER=biot2
+SSH_KEY=/usr/local/lib/mgetty+sendfax/id-fax
+#
+exec ssh $REMOTE_USER@$FAX_SERVER -2 \
+	-i $SSH_KEY \
+	/usr/local/lib/mgetty+sendfax/faxq-helper "$@"
