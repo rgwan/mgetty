@@ -1,4 +1,4 @@
-#ident "$Id: class1lib.c,v 4.26 2014/04/03 09:04:13 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: class1lib.c,v 4.27 2015/08/19 17:36:10 gert Exp $ Copyright (c) Gert Doering"
 
 /* class1lib.c
  *
@@ -6,6 +6,9 @@
  * send a frame, receive a frame, dump frame to log file, ...
  *
  * $Log: class1lib.c,v $
+ * Revision 4.27  2015/08/19 17:36:10  gert
+ * bit-tests with '&' and not '&&'... (found by clang)
+ *
  * Revision 4.26  2014/04/03 09:04:13  gert
  * rename FRAMESIZE to C1_FRAMESIZE, collision with AIX header file (grrr)
  *
@@ -931,7 +934,7 @@ void fax1_parse_dcs _P1((frame), uch *frame)
     fax_par_d.st = fax1_st_table[ (frame[4] >> 4) & 0x07 ].st;
 
     /* extend bit? */
-    if ( ( frame[4] && 0x80 ) == 0 ) goto done;
+    if ( ( frame[4] & 0x80 ) == 0 ) goto done;
 
     /* ECM - TODO */
     
