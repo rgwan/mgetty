@@ -1,4 +1,4 @@
-#ident "$Id: faxsend.c,v 4.10 2014/01/31 13:40:13 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: faxsend.c,v 4.11 2016/02/09 15:09:15 gert Exp $ Copyright (c) 1994 Gert Doering"
 
 /* faxsend.c
  *
@@ -12,6 +12,9 @@
  * The code is still quite rough, but it works.
  *
  * $Log: faxsend.c,v $
+ * Revision 4.11  2016/02/09 15:09:15  gert
+ * add <string.h>
+ *
  * Revision 4.10  2014/01/31 13:40:13  gert
  * fax_send_ppm()
  *   extend timeout between sending <DLE><ETX> and reception of "OK"
@@ -28,6 +31,7 @@
 #include <strings.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <string.h>
 #include "syslibs.h"
 
 #ifndef sunos4
