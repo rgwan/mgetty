@@ -1,4 +1,4 @@
-#ident "$Id: pbm2g3.c,v 4.4 2014/02/02 13:44:24 gert Exp $ Copyright (C) 1994 Gert Doering"
+#ident "$Id: pbm2g3.c,v 4.5 2016/02/09 15:13:31 gert Exp $ Copyright (C) 1994 Gert Doering"
 
 /* pbm2g3
  *
@@ -40,7 +40,7 @@ static unsigned int out_hibit = 0;
 static int out_byte_tab[ 256 ];			/* for g3 byte reversal */
 
 #ifdef __GNUC__
-inline
+static inline
 #endif
 void putcode _P2( (code, len), int code, int len )
 {
@@ -60,7 +60,7 @@ void putcode _P2( (code, len), int code, int len )
 }
 
 #ifdef __GNUC__
-inline
+static inline
 #endif
 void puteol _P0( void )			/* write byte-aligned EOL */
 {
@@ -69,7 +69,7 @@ void puteol _P0( void )			/* write byte-aligned EOL */
 }
 
 #ifdef __GNUC__
-inline
+static inline
 #endif
 void putwhitespan _P1( (l), int l )
 {
@@ -100,7 +100,7 @@ void putwhitespan _P1( (l), int l )
 }
 
 #ifdef __GNUC__
-inline
+static inline
 #endif
 void putblackspan _P1( (l), int l )
 {

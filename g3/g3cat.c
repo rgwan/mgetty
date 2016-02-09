@@ -1,4 +1,4 @@
-#ident "$Id: g3cat.c,v 4.7 2014/02/02 11:57:59 gert Exp $ (c) Gert Doering"
+#ident "$Id: g3cat.c,v 4.8 2016/02/09 15:13:31 gert Exp $ (c) Gert Doering"
 
 /* g3cat.c - concatenate multiple G3-Documents
  *
@@ -13,6 +13,12 @@
  *		  -p <pad>   zero-fill all lines up to <pad> bytes
  *
  * $Log: g3cat.c,v $
+ * Revision 4.8  2016/02/09 15:13:31  gert
+ * replace "inline" with "static inline" - C99 compilers interpret naked
+ * inline as "extern inline" and omit function body, so if the function
+ * can not be inlined, it is just plain not there...
+ * (http://stackoverflow.com/questions/216510/extern-inline/216546#216546)
+ *
  * Revision 4.7  2014/02/02 11:57:59  gert
  * Michal Sekletar:
  *   pass actual file descriptor to close(), not negative result from read()
@@ -55,7 +61,7 @@ static int b_written = 0;		/* bytes of a line already */
 					/* written */
 
 #ifdef __GNUC__
-inline
+static inline
 #endif
 void putcode _P2( (code, len), int code, int len )
 {
@@ -78,7 +84,7 @@ void putcode _P2( (code, len), int code, int len )
 }
 
 #ifdef __GNUC__
-inline
+static inline
 #endif
 void putwhitespan _P1( (l), int l )
 {
@@ -109,7 +115,7 @@ void putwhitespan _P1( (l), int l )
 }
 
 #ifdef __GNUC__
-inline
+static inline
 #endif
 void putblackspan _P1( (l), int l )
 {
@@ -140,7 +146,7 @@ void putblackspan _P1( (l), int l )
 }
 
 #ifdef __GNUC__
-inline
+static inline
 #endif
 void puteol _P0( void )			/* write byte-aligned EOL */
 {
