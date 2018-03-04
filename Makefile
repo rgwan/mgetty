@@ -1,13 +1,13 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.81 2014/01/31 13:04:30 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.82 2018/03/04 19:28:15 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
 #
 # if you are cross-compiling, this is the C compiler for the target platform
-CC=gcc
-#CC=cc
+CC=cc
+#CC=gcc
 #
 # if you are cross-compiling, *this* needs to be the C compiler that 
 # is able to produce binaries that run on the local system (if not 
@@ -109,7 +109,7 @@ HOSTCC=$(CC)
 #	    USTAT	  - ustat(), no statfs etc.
 #
 #CFLAGS=-Wall -O2 -pipe -DSECUREWARE -DUSE_POLL
-CFLAGS=-O2 -Wall -pipe
+CFLAGS=-Wall -O2 -pipe
 #CFLAGS=-O -DSVR4
 #CFLAGS=-O -DSVR4 -DSVR42
 #CFLAGS=-O -DUSE_POLL
@@ -282,7 +282,7 @@ TKPERL=/usr/bin/tkperl
 # please use the "mg.echo" program provided in the compat/ subdirectory.
 # Set ECHO="mg.echo" and INSTALL_MECHO to mg.echo
 #
-ECHO="echo"
+ECHO="echo -e"
 #
 # INSTALL_MECHO=mg.echo
 
@@ -307,9 +307,9 @@ MV=mv
 #
 # Nothing to change below this line ---------------------------------!
 #
-MR=1.1
-SR=38
-DIFFR=1.1.37
+MR=1.2
+SR=0
+DIFFR=1.1.38
 #
 #
 OBJS=mgetty.o logfile.o do_chat.o locks.o utmp.o logname.o login.o \
