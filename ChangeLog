@@ -1,3 +1,22 @@
+Sun Mar  4 20:22:47 CET 2018  Gert Doering <gert@greenie.muc.de>
+
+	* distro/faxrunqd.service: add systemd service file for faxrunqd
+
+Tue Feb  9 16:09:21 CET 2016  Gert Doering <gert@greenie.muc.de>
+
+	* g3/pbm2g3.c, g3/g3cat.c: change "inline" to "static inline",
+	  avoid link-time explosion with C99 compilers
+
+Wed Aug 19 19:36:48 CEST 2015  Gert Doering <gert@greenie.muc.de>
+
+	* utmp.c, mg_utmp.h: apply FreeBSD port patches to adjust to 9.x
+	  (no <utmp.h> or login() anymore, utmpx and setutxent())
+
+Thu Apr  3 11:05:13 CEST 2014 Gert Doering <gd@medat.de>
+
+	* class1.h, class1.c, class1lib.c: rename FRAMESIZE to C1_FRAMESIZE
+	  to avoid conflict with AIX headers already using FRAMESIZE (*sigh*)
+
 Sun Feb  2 14:06:41 CET 2014  Gert Doering <gert@greenie.muc.de>
 
 	* config.c, logfile.c, logname.c, login.c, modem.c, ring.c,
