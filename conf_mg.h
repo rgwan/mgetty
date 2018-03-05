@@ -1,9 +1,14 @@
-#ident "$Id: conf_mg.h,v 4.12 2010/09/14 15:38:27 gert Exp $ Copyright (c) 1994 Gert Doering"
+#ident "$Id: conf_mg.h,v 4.13 2018/03/05 18:34:05 gert Exp $ Copyright (c) 1994 Gert Doering"
 
 /* all (dynamic) mgetty configuration is contained in this structure.
  * It is initialized and loaded in conf_mg.c and accessed from mgetty.c
  *
  * $Log: conf_mg.h,v $
+ * Revision 4.13  2018/03/05 18:34:05  gert
+ * Add new config option "open-delay <msec>" (same thing as for sendfax)
+ *
+ * Feature wish from Marc Daniel Fege <marc@fege.net>, needed on some ELSAs
+ *
  * Revision 4.12  2010/09/14 15:38:27  gert
  * add CVS log
  * add options for SMS processing - sms-handler, sms-handler-{user,group}
@@ -23,6 +28,7 @@ extern struct conf_data_mgetty {
 
 	toggle_dtr,				/* toggle DTR for modem reset */
 	toggle_dtr_waittime,			/* time to hold DTR low */
+	open_delay,			/* time time to wait for draining */
 	need_dsr,				/* wait for DSR+CTS */
 	data_only,				/* no fax */
         fax_only,				/* no data */

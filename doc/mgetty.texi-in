@@ -1,6 +1,6 @@
 \input texinfo    @c -*-texinfo-*-
 @c %**start of header
-@c $Id: mgetty.texi-in,v 4.69 2008/01/31 16:30:12 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
+@c $Id: mgetty.texi-in,v 4.70 2018/03/05 18:34:07 gert Exp $ (c) 1993-2000 Gert Doering and Klaus Weidner
 @setfilename mgetty.info
 @settitle mgetty + sendfax
 @c %**end of header
@@ -859,6 +859,17 @@ and crash.
 @item @code{toggle-dtr-waittime} @var{msecs}
 
 Specifies the time to hold the DTR line low. Default is 500 milliseconds.
+
+@item @code{open-delay} @var{msec}
+
+A few modems respond to raising the DTR line (when opening the device)
+with @samp{OK}.  This can confuse @code{mgetty}, because it will see
+this OK as response to the next command.  In the log file, you can see if
+your modem exhibits this problem if the echo of each @code{AT} command 
+can be seen when waiting for the response to the @emph{next} @code{AT} 
+command.  With @code{open-delay} you can give a number of milliseconds to
+wait after the device is active until @code{mgetty} flushes all incoming
+responses and goes ahead.
 
 @item @code{data-only} @var{yes/no} [-D]
 

@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 4.43 2012/02/01 14:12:29 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 4.44 2018/03/05 18:34:05 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -9,6 +9,11 @@
  * paul@devon.lns.pa.us, and are used with permission here.
  *
  * $Log: mgetty.c,v $
+ * Revision 4.44  2018/03/05 18:34:05  gert
+ * Add new config option "open-delay <msec>" (same thing as for sendfax)
+ *
+ * Feature wish from Marc Daniel Fege <marc@fege.net>, needed on some ELSAs
+ *
  * Revision 4.43  2012/02/01 14:12:29  gert
  * if running mgetty on AIX with AIX' resource management controller, we
  * need to create the necessary utmp entries (INIT and LOGIN) ourselves,
@@ -484,6 +489,15 @@ int main _P2((argc, argv), int argc, char ** argv)
     {
 	lprintf( L_FATAL, "cannot get terminal line dev=%s, exiting", Device);
 	exit(30);
+    }
+
+    /* some modems need time to spit out an "OK" or whatever after
+     * DTR toggle - so, optionally, wait some time
+     */
+    if ( c_isset(open_delay) )
+    {
+	lprintf( L_NOISE, "pausing %d ms", c_int(open_delay));
+	delay(c_int(open_delay));		/* give modem time to settle */
     }
     
     /* drain input - make sure there are no leftover "NO CARRIER"s

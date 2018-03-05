@@ -1,4 +1,14 @@
+Mon Mar  5 19:32:23 CET 2018  Gert Doering <gert@greenie.muc.de>
+
+	* conf_mg.c, conf_mg.h, mgetty.c: new option "open-delay <msec>"
+	  (same thing as for sendfax, after DTR toggling, wait <msec>
+	  millseconds before flushing input and starting AT commands)
+
+	* doc/mgetty.texi-in: document open-delay
+
 Sun Mar  4 20:22:47 CET 2018  Gert Doering <gert@greenie.muc.de>
+
+	* Makefile, version.h: make this is version 1.2.0
 
 	* distro/faxrunqd.service: add systemd service file for faxrunqd
 
