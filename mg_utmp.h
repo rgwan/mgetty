@@ -1,4 +1,4 @@
-#ident "$Id: mg_utmp.h,v 4.3 2014/07/14 08:07:18 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mg_utmp.h,v 4.4 2018/03/06 11:03:27 gert Exp $ Copyright (c) Gert Doering"
 
 /* definitions for utmp reading / writing routines,
  * highly SysV / BSD dependent
@@ -42,7 +42,7 @@ void setutent();
 # define pututline	pututxline
 # define setutent	setutxent
 # define endutent	endutxent
-# define ut_time	ut_tv
+# define ut_time	ut_tv.tv_sec
 # define ut_name	ut_user
        
 #define UT_INIT		INIT_PROCESS
