@@ -1,4 +1,4 @@
-#ident "$Id: policy.h,v 4.27 2014/01/26 19:18:27 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: policy.h,v 4.28 2018/03/06 11:07:08 gert Exp $ Copyright (c) Gert Doering"
 
 /* this is the file where all configuration defaults for mgetty / sendfax
  * are specified.
@@ -145,10 +145,11 @@
 /* logging */
 
 /* system console - if a severe error happens at startup, mgetty writes
- * a message to this file and aborts
+ * a message to this file and aborts - typically "/dev/console"
  * On SCO, this may be /dev/syscon!
+ * (if this functionality is not wanted or does not work, use /dev/null)
  */
-#define CONSOLE "/dev/console"
+#define CONSOLE "/dev/null"
 
 /* Name of the mgetty log file
  * e.g. "/usr/spool/log/mgetty.log.%s" or "/tmp/log_mg.%s"
@@ -573,7 +574,7 @@
 #endif
 
 #ifndef MAILER
-# define MAILER		"/usr/lib/sendmail"
+# define MAILER		"/usr/sbin/sendmail"
 # define NEED_MAIL_HEADERS
 #endif
 
