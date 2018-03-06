@@ -1,4 +1,4 @@
-#ident "$Id: sendfax.c,v 4.31 2014/02/01 10:50:55 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: sendfax.c,v 4.32 2018/03/06 07:51:09 gert Exp $ Copyright (c) Gert Doering"
 
 /* sendfax.c
  *
@@ -8,6 +8,12 @@
  * The code is still quite rough, but it works.
  *
  * $Log: sendfax.c,v $
+ * Revision 4.32  2018/03/06 07:51:09  gert
+ * ignore compiler warning about write() return code
+ *
+ * (no need to do anything here, the next function call will catch and
+ * properly report tty fd errors)
+ *
  * Revision 4.31  2014/02/01 10:50:55  gert
  * accept "modem-type c1.0" (or "-C c1.0") option to force class 1.0
  *
@@ -497,7 +503,7 @@ int main _P2( (argc, argv),
     {
 	if ( strncmp( c_string(modem_init), "AT", 2 ) != 0 )
 	{
-	    write( fd, "AT", 2 );
+	    (void) write( fd, "AT", 2 );
 	}
 
 	if ( fax_command( c_string(modem_init), "OK", fd ) == ERROR )
