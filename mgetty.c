@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 4.45 2018/03/06 11:37:51 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 4.46 2018/03/06 12:14:50 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -9,6 +9,9 @@
  * paul@devon.lns.pa.us, and are used with permission here.
  *
  * $Log: mgetty.c,v $
+ * Revision 4.46  2018/03/06 12:14:50  gert
+ * use return code from cid-program to influence rings_wanted
+ *
  * Revision 4.45  2018/03/06 11:37:51  gert
  * Alex Manoussakis: cid-program patch set
  *
@@ -798,7 +801,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 
 	    while ( rings < rings_wanted )
 	    {
-		int w;
+		int w, rc;
 
 		w = wait_for_ring( STDIN, c_chat(msn_list),
 				   ( c_bool(ringback) && rings == 0 ) ?
@@ -811,8 +814,15 @@ int main _P2((argc, argv), int argc, char ** argv)
 		if ( c_isset(cid_program) && !cid_program_ran &&
 		     (rings >= 2 || *CallName || strcmp(CallerId, "none") != 0) )
 		{
-		    cnd_call( c_string(cid_program), Device, dist_ring );
+		    rc = cnd_call( c_string(cid_program), Device, dist_ring );
 		    cid_program_ran = TRUE;
+
+		    /* return code 10+n -> answer after n rings */
+		    if ( rc > 10 )
+		    {
+			rings_wanted = rc - 10;
+			lprintf( L_MESG, "cid-program: set rings_wanted=%d", rings_wanted );
+		    }
 		}
 
 		if ( w == FAIL )
