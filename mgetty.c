@@ -1,4 +1,4 @@
-#ident "$Id: mgetty.c,v 4.44 2018/03/05 18:34:05 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.c,v 4.45 2018/03/06 11:37:51 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.c
  *
@@ -9,6 +9,9 @@
  * paul@devon.lns.pa.us, and are used with permission here.
  *
  * $Log: mgetty.c,v $
+ * Revision 4.45  2018/03/06 11:37:51  gert
+ * Alex Manoussakis: cid-program patch set
+ *
  * Revision 4.44  2018/03/05 18:34:05  gert
  * Add new config option "open-delay <msec>" (same thing as for sendfax)
  *
@@ -321,6 +324,7 @@ int main _P2((argc, argv), int argc, char ** argv)
     int		rings_wanted;
     int		rings = 0;
     int		dist_ring = 0;		/* type of RING detected */
+    boolean	cid_program_ran = FALSE; /* Only run cid_program once per call */
 
 #if defined(_3B1_) || defined(MEIBE) || defined(sysV68)
     extern struct passwd *getpwuid(), *getpwnam();
@@ -599,6 +603,7 @@ int main _P2((argc, argv), int argc, char ** argv)
 	     */
 	    CallTime = CallName = CalledNr = "";	/* dirty */
 	    CallerId = "none";
+	    cid_program_ran = FALSE;
 	    clean_line( STDIN, 3);			/* let line settle */
 	    rmlocks();
 	    mgetty_state = St_waiting;
@@ -793,14 +798,26 @@ int main _P2((argc, argv), int argc, char ** argv)
 
 	    while ( rings < rings_wanted )
 	    {
-		if ( wait_for_ring( STDIN, c_chat(msn_list), 
-			  ( c_bool(ringback) && rings == 0 )
-				? c_int(ringback_time) : ring_chat_timeout,
-			  ring_chat_actions, &what_action, 
-			  &dist_ring ) == FAIL)
+		int w;
+
+		w = wait_for_ring( STDIN, c_chat(msn_list),
+				   ( c_bool(ringback) && rings == 0 ) ?
+				   c_int(ringback_time) : ring_chat_timeout,
+				   ring_chat_actions, &what_action,
+				   &dist_ring );
+
+		/* Inform about Caller ID. If we haven't gotten the info by 3rd
+		 * ring, it's hopeless; just report that the phone rang. */
+		if ( c_isset(cid_program) && !cid_program_ran &&
+		     (rings >= 2 || *CallName || strcmp(CallerId, "none") != 0) )
 		{
-		    break;		/* ringing stopped, or "action" */
+		    cnd_call( c_string(cid_program), Device, dist_ring );
+		    cid_program_ran = TRUE;
 		}
+
+		if ( w == FAIL )
+		    break;		/* ringing stopped, or "action" */
+
 		rings++;
 	    }
 

@@ -1,4 +1,4 @@
-/* $Id: t_ring.c,v 1.3 2005/03/23 09:56:21 gert Exp $
+/* $Id: t_ring.c,v 1.4 2018/03/06 11:37:51 gert Exp $
  *
  * test program for mgetty "ring.c"
  *
@@ -8,6 +8,9 @@
  *   <input string> <# rings> <dist-ring#> <caller id>
  *
  * $Log: t_ring.c,v $
+ * Revision 1.4  2018/03/06 11:37:51  gert
+ * Alex Manoussakis: cid-program patch set
+ *
  * Revision 1.3  2005/03/23 09:56:21  gert
  * add test for <DLE>P (handset on-hook)
  *
@@ -30,6 +33,8 @@
 # include <stdarg.h>
 #endif
 
+
+char *Device = "/dev/null";			/* device to use */
 char *msnlist[] = {"9999", "35655023", "35655024", "35655025", "4023", NULL};
 
 struct t_ring_tests { char * input;

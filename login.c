@@ -1,4 +1,4 @@
-#ident "$Id: login.c,v 4.20 2014/02/02 13:44:18 gert Exp $ Copyright (C) 1993 Gert Doering"
+#ident "$Id: login.c,v 4.21 2018/03/06 11:37:51 gert Exp $ Copyright (C) 1993 Gert Doering"
 
 
 /* login.c
@@ -369,14 +369,3 @@ fallthrough:
     exit(FAIL);
 }
 
-void setup_environment _P0(void)
-{
-    if ( *CallerId )
-	set_env_var( "CALLER_ID", CallerId );
-    if ( *CallName )
-	set_env_var( "CALLER_NAME", CallName );
-    if ( *CalledNr )
-	set_env_var( "CALLED_ID", CalledNr );
-    set_env_var( "CONNECT", Connect );
-    set_env_var( "DEVICE", Device );
-}

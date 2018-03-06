@@ -1,10 +1,13 @@
-#ident "$Id: conf_mg.c,v 4.21 2018/03/05 18:34:05 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: conf_mg.c,v 4.22 2018/03/06 11:39:25 gert Exp $ Copyright (c) Gert Doering"
 
 /* conf_mg.c
  *
  * configuration defaults / configuration reading code for mgetty
  *
  * $Log: conf_mg.c,v $
+ * Revision 4.22  2018/03/06 11:39:25  gert
+ * Alex Manoussakis: cid-program patch set
+ *
  * Revision 4.21  2018/03/05 18:34:05  gert
  * Add new config option "open-delay <msec>" (same thing as for sendfax)
  *
@@ -97,6 +100,7 @@ struct conf_data_mgetty c = {
 	{ "rings", {1}, CT_INT, C_PRESET },
 	{ "msn-list", {(p_int) NULL}, CT_CHAT, C_EMPTY },
 	{ "get-cnd-chat", {0}, CT_CHAT, C_EMPTY },
+	{ "cid-program", {(p_int) NULL}, CT_STRING, C_EMPTY },
 	{ "cnd-program", {(p_int) NULL}, CT_STRING, C_EMPTY },
 	{ "answer-chat", {0}, CT_CHAT, C_EMPTY },
 	{ "answer-chat-timeout", {80}, CT_INT, C_PRESET },

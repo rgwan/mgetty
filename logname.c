@@ -1,4 +1,4 @@
-#ident "$Id: logname.c,v 4.12 2014/02/02 13:44:18 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: logname.c,v 4.13 2018/03/06 11:37:51 gert Exp $ Copyright (c) Gert Doering"
 
 /* logname.c
  *
@@ -7,6 +7,9 @@
  * read login name, detect incoming PPP frames and FIDO startup sequences
  *
  * $Log: logname.c,v $
+ * Revision 4.13  2018/03/06 11:37:51  gert
+ * Alex Manoussakis: cid-program patch set
+ *
  * Revision 4.12  2014/02/02 13:44:18  gert
  * warning cleanup:
  *   convert all "char" expressions to (uch) when calling ctype.h macros (*sigh*)
@@ -233,26 +236,7 @@ boolean ln_all_upper _P1( (string), char * string )
     return TRUE;
 }
 #endif
-	
 
-/* set_env_var( var, string )
- *
- * create an environment entry "VAR=string"
- */
-void set_env_var _P2( (var,string), char * var, char * string )
-{
-    char * v;
-    v = malloc( strlen(var) + strlen(string) + 2 );
-    if ( v == NULL )
-        lprintf( L_ERROR, "set_env_var: cannot malloc" );
-    else
-    {
-	sprintf( v, "%s=%s", var, string );
-	lprintf( L_NOISE, "setenv: '%s'", v );
-	if ( putenv( v ) != 0 )
-	    lprintf( L_ERROR, "putenv failed" );
-    }
-}
 
 static int timeouts = 0;
 static RETSIGTYPE getlog_timeout(SIG_HDLR_ARGS)

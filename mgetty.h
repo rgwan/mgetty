@@ -1,7 +1,7 @@
 #ifndef ___MGETTY_H
 #define ___MGETTY_H
 
-#ident "$Id: mgetty.h,v 4.34 2014/01/31 13:02:08 gert Exp $ Copyright (c) Gert Doering"
+#ident "$Id: mgetty.h,v 4.35 2018/03/06 11:37:51 gert Exp $ Copyright (c) Gert Doering"
 
 /* mgetty.h
  *
@@ -9,6 +9,9 @@
  * mgetty+sendfax (except some fax constants, they are in fax_lib.h)
  *
  * $Log: mgetty.h,v $
+ * Revision 4.35  2018/03/06 11:37:51  gert
+ * Alex Manoussakis: cid-program patch set
+ *
  * Revision 4.34  2014/01/31 13:02:08  gert
  * move clean_line() from modem.c to clean_line.c
  *
@@ -331,6 +334,7 @@ void setup_environment _PROTO(( void ));
 
 extern char *Connect;
 extern char *CallerId;
+extern char *CallDate;
 extern char *CallTime;
 extern char *CallName;
 extern char *CalledNr;

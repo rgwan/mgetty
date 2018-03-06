@@ -1,4 +1,4 @@
-#ident "@(#)cnd.c	$Id: cnd.c,v 4.27 2014/02/02 13:44:19 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
+#ident "@(#)cnd.c	$Id: cnd.c,v 4.28 2018/03/06 11:39:25 gert Exp $ Copyright (c) 1993 Gert Doering/Chris Lewis"
 
 #include <stdio.h>
 #include <string.h>
@@ -10,6 +10,8 @@
 #include "policy.h"
 #include "mgetty.h"
 #include "config.h"
+
+extern char * Device;			/* mgetty.c */
 
 char *Connect = "";
 char *CallerId = "none";
@@ -170,7 +172,7 @@ cndfind _P1((str), char *str)
 		    p++;
 		}
 	    }
-	    lprintf(L_JUNK, "CND: found: %s", *(cp->variable));
+	    lprintf(L_NOISE, "CND: found: %s", *(cp->variable));
 	    return;
 	}
     }
@@ -218,10 +220,10 @@ void process_rockwell_mesg _P0 (void)
     {
 	*p = CallMsg1[loop];
 	p++;
-    }  
+    }
     *p = 0;
-      
-    lprintf(L_JUNK, "CND: caller ID: %s", CallerId);
+
+    lprintf(L_NOISE, "CND: caller ID: %s", CallerId);
 }
 
 /* lookup Caller ID in CNDFILE, decide upon answering or not */
@@ -287,6 +289,7 @@ int cnd_call _P3((name, tty, dist_ring),
 		      tty, CallerId, CallName, dist_ring, CalledNr, CONSOLE );
     lprintf( L_NOISE, "CND: program \"%s\"", program );
 
+    setup_environment();
     rc = system(program);
 
     if ( rc < 0 )
@@ -296,4 +299,39 @@ int cnd_call _P3((name, tty, dist_ring),
     free(program);
 
     return rc>>8;
+}
+
+/* set_env_var( var, string )
+ *
+ * create an environment entry "VAR=string"
+ */
+void set_env_var _P2( (var,string), char * var, char * string )
+{
+    char * v;
+    v = malloc( strlen(var) + strlen(string) + 2 );
+    if ( v == NULL )
+	lprintf( L_ERROR, "set_env_var: cannot malloc" );
+    else
+    {
+	sprintf( v, "%s=%s", var, string );
+	lprintf( L_NOISE, "setenv: '%s'", v );
+	if ( putenv( v ) != 0 )
+	    lprintf( L_ERROR, "putenv failed" );
+    }
+}
+
+void setup_environment _P0(void)
+{
+    if ( *CallerId )
+	set_env_var( "CALLER_ID", CallerId );
+    if ( *CallDate )
+	set_env_var( "CALL_DATE", CallDate );
+    if ( *CallTime )
+	set_env_var( "CALL_TIME", CallTime );
+    if ( *CallName )
+	set_env_var( "CALLER_NAME", CallName );
+    if ( *CalledNr )
+	set_env_var( "CALLED_ID", CalledNr );
+    set_env_var( "CONNECT", Connect );
+    set_env_var( "DEVICE", Device );
 }
