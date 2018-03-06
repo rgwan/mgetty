@@ -6,7 +6,7 @@ if [ -z "$VS" -o -z "$HOST" -o -z "$DIR" ] ; then
     echo "Syntax error: $0 <VS> <HOST> <DIR>" >&2 ; exit 1
 fi
 
-SRC=mgetty$VS.tar.gz
+SRC=mgetty-$VS.tar.gz
 if [ ! -f "$SRC" ] ; then
     echo "$0: can't find $SRC!" >&2 ; exit 2
 fi
