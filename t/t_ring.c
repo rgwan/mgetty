@@ -1,4 +1,4 @@
-/* $Id: t_ring.c,v 1.4 2018/03/06 11:37:51 gert Exp $
+/* $Id: t_ring.c,v 1.5 2018/03/06 12:24:55 gert Exp $
  *
  * test program for mgetty "ring.c"
  *
@@ -8,6 +8,9 @@
  *   <input string> <# rings> <dist-ring#> <caller id>
  *
  * $Log: t_ring.c,v $
+ * Revision 1.5  2018/03/06 12:24:55  gert
+ * add missing <string.h>
+ *
  * Revision 1.4  2018/03/06 11:37:51  gert
  * Alex Manoussakis: cid-program patch set
  *
@@ -29,6 +32,7 @@
 #include <stdio.h>
 #include <signal.h>
 #include <errno.h>
+#include <string.h>
 #ifdef T_LOG_VERBOSE
 # include <stdarg.h>
 #endif
