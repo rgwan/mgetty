@@ -3,6 +3,9 @@
 # Aufruf z.B.: 1.1 14 1.1.13  fuer "1.1.14 neu, diff zu 1.1.13".
 #
 # $Log: beta,v $
+# Revision 4.4  2018/03/06 13:26:16  gert
+# change from texi2html to texi2any for HTML manual
+#
 # Revision 4.3  2007/06/15 07:11:57  gert
 # change "make fullclean" to "make clean"
 #
@@ -55,9 +58,10 @@ for i in *.man ; do
     rman -f HTML -r "%s.man.html" -l "mgetty+sendfax manual: $i" $i >work-html/$i.html
 done
 
-cp *.texi work-html/
+scp *.texi $HOST:$DOC/
+#texi2html -split_node -menu -verbose mgetty.texi
+texi2any --split=node --verbose --html --force -o work-html mgetty.texi
 cd work-html/
-texi2html -split_node -menu -verbose mgetty.texi
 scp -r . $HOST:$DOC/
 cd ..
 rm -f work-html/*
