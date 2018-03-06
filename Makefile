@@ -1,6 +1,6 @@
 # Makefile for the mgetty fax package
 #
-# SCCS-ID: $Id: Makefile,v 4.82 2018/03/04 19:28:15 gert Exp $ (c) Gert Doering
+# SCCS-ID: $Id: Makefile,v 4.83 2018/03/06 12:45:16 gert Exp $ (c) Gert Doering
 #
 # this is the C compiler to use (on SunOS, the standard "cc" does not
 # grok my code, so please use gcc there. On ISC 4.0, use "icc".).
@@ -309,7 +309,7 @@ MV=mv
 #
 MR=1.2
 SR=0
-DIFFR=1.1.38
+DIFFR=1.1.37
 #
 #
 OBJS=mgetty.o logfile.o do_chat.o locks.o utmp.o logname.o login.o \
@@ -470,7 +470,7 @@ mgetty-$(MR).$(SR).tar.gz:	$(DISTRIB)
 	find . -name core -print | xargs rm -f
 	cd voice ; $(MAKE) clean && cvs update -d .
 	( echo "$(DISTRIB)" | tr " " "\\012" ; \
-	  for i in `find . -name .files -print | sed -e 's;^./;;` ; do \
+	  for i in `find . -name .files -print | sed -e 's;^./;;'` ; do \
 	      cat $$i | sed -e '/^\.files/d' -e 's;^;'`dirname $$i`'/;' ; \
 	  done ; \
 	  find voice -type f -print | grep -v CVS ; \
@@ -484,7 +484,7 @@ tar:	mgetty-$(MR).$(SR).tar.gz
 diff:	mgetty-$(DIFFR)-$(MR).$(SR).diff.gz
 
 sign:	tar
-	pgp -sab mgetty-$(MR).$(SR).tar.gz
+	gpg -sab mgetty-$(MR).$(SR).tar.gz
 	chmod +r mgetty-$(MR).$(SR).tar.gz.asc
 
 mgetty-$(DIFFR)-$(MR).$(SR).diff.gz: \
@@ -512,7 +512,7 @@ uu2:	mg.uue
 # DO NOT USE IT if you're not ME! Please!
 #
 beta:	tar diff sign
-	test `hostname` = kirk || exit 1
+	test `hostname -s` = chekov || exit 1
 # local
 	cp mgetty-$(MR).$(SR).tar.gz /pub/mgetty-archive/
 	cp mgetty-$(DIFFR)-$(MR).$(SR).diff.gz /pub/mgetty-archive/
