@@ -449,6 +449,12 @@ int main _P2( (argc, argv), int argc, char ** argv )
 	exit(4);
     }
 
+    if ( pbm_xsize <= 0 || pbm_ysize <= 0 )
+    {
+	fprintf( stderr, "%s: malformed PBM file (negative width or height)\n", argv[0] );
+	exit(4);
+    }
+
     /* unsupported bitmap types */
     
     if ( pbm_type == pgm || pbm_type == pgm_raw )
