@@ -468,7 +468,7 @@ mgetty-$(MR).$(SR).tar.gz:	$(DISTRIB)
 	rm -f mgetty-$(MR).$(SR)
 	ln -sf . mgetty-$(MR).$(SR)
 	find . -name core -print | xargs rm -f
-	cd voice ; $(MAKE) clean && cvs update -d .
+	cd voice ; $(MAKE) clean
 	( echo "$(DISTRIB)" | tr " " "\\012" ; \
 	  for i in `find . -name .files -print | sed -e 's;^./;;'` ; do \
 	      cat $$i | sed -e '/^\.files/d' -e 's;^;'`dirname $$i`'/;' ; \
@@ -488,10 +488,10 @@ sign:	tar
 	chmod +r mgetty-$(MR).$(SR).tar.gz.asc
 
 mgetty-$(DIFFR)-$(MR).$(SR).diff.gz: \
-	mgetty$(DIFFR).tar.gz mgetty-$(MR).$(SR).tar.gz
+	mgetty-$(DIFFR).tar.gz mgetty-$(MR).$(SR).tar.gz
 	-rm -rf /tmp/mgd
 	mkdir /tmp/mgd
-	gtar xvCfz /tmp/mgd mgetty$(DIFFR).tar.gz
+	gtar xvCfz /tmp/mgd mgetty-$(DIFFR).tar.gz
 	gtar xvCfz /tmp/mgd mgetty-$(MR).$(SR).tar.gz
 	( cd /tmp/mgd ; \
 	  diff -u3 --ignore-space-change --recursive --new-file -I "^#ident" \
