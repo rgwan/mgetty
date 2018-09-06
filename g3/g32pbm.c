@@ -362,8 +362,8 @@ int	resolution = BASERES;
 
 	if ( p == NULL )	/* invalid code */
 	{ 
-	    fprintf( stderr, "invalid code, row=%d, col=%d, file offset=%lx, skip to eol\n",
-		     row, col, (unsigned long) lseek( fd, 0, SEEK_SET ) - rs + rp );
+	    fprintf( stderr, "invalid code, row=%d, col=%d, file offset=%lu, skip to eol\n",
+		     row, col, (unsigned long) lseek( fd, 0, SEEK_CUR ) - rs + rp );
 	    while ( ( data & 0x03f ) != 0 )
 	    {
 		data >>= 1; hibit--;
