@@ -1,3 +1,26 @@
+Tue Mar  6 13:45:33 CET 2018  Gert Doering <gert@greenie.muc.de>
+
+	* release 1.2.0, exactly 25 years after 0.1
+		"Mar  6  1993 mgetty01.tpz"
+ 	  (unfortunately the original post to alt.sources can no longer
+	  been found, the oldest version groups.google.com has in its
+	  archives are 0.14 and 0.20 from October and November 1993)
+
+Tue Mar  6 12:03:33 CET 2018  Gert Doering <gert@greenie.muc.de>
+
+	* cnd.c, conf_mg.c, conf_mg.h, mgetty.c, mgetty.h, logname.c,
+		login.c, t/t_ring.c, doc/mgetty.texi-in - merge "cid-program"
+		patch set from Alex Manoussakis <alex@juniper.net>
+		(after 10 years...)
+
+	* policy.h: default MAILER to "/usr/sbin/sendmail"
+
+	* policy.h: default CONSOLE to "/dev/null" - as /dev/console seems
+		to cause hangs on FreeBSD 10
+
+	* mg_utmp.h: ut_time compatibility #define for utmpx on FreeBSD
+		needs to be ut_tv.tv_sec, not ut_tv  (struct timeval)
+
 Mon Mar  5 19:32:23 CET 2018  Gert Doering <gert@greenie.muc.de>
 
 	* conf_mg.c, conf_mg.h, mgetty.c: new option "open-delay <msec>"
