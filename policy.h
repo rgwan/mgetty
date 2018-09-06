@@ -554,28 +554,20 @@
  */
 
 
-/* define mailer that accepts destination on command line and mail text
- * on stdin. For mailers with user friendly interfaces, (such as mail,
- * mailx, elm), include an appropriate subject line in the command
- * definition. If using a mail agent (such as sendmail), that reads
- * mail headers, define NEED_MAIL_HEADERS.
+/* define mail transport agent to use for incoming fax notifications
+ * normally, this will be "sendmail -t -i" (which works for all common
+ * mail transport packages), with the receipient put into the "To:"
+ * line on stdin.
+ * If your mail client needs to have the receipient address on the
+ * command line, define NEED_MAIL_TO_ON_CLI.
  */
-#ifdef SVR4
-# define MAILER		"/usr/bin/mailx -s 'Incoming facsimile message'"
-#else
-# if defined(_AIX) || defined(__NetBSD__) || defined(linux)
-#  define MAILER	"/usr/sbin/sendmail"
-#  define NEED_MAIL_HEADERS
-# endif
-# ifdef M_UNIX		/* SCO */
-#  define MAILER	"/usr/lib/mail/execmail"
-#  define NEED_MAIL_HEADERS
-# endif
+#ifdef M_UNIX		/* SCO */
+# define MAILER	"/usr/lib/mail/execmail"
+# define NEED_MAIL_TO_ON_CLI
 #endif
 
 #ifndef MAILER
-# define MAILER		"/usr/sbin/sendmail"
-# define NEED_MAIL_HEADERS
+# define MAILER		"/usr/sbin/sendmail -t -i"
 #endif
 
 /* where to send notify mail about incoming faxes to
