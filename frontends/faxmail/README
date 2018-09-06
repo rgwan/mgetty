@@ -1,0 +1,26 @@
+This is a small mail-to-fax gateway intended to be used for "all emails
+for a given account are to be faxed to fax number xx-yy-zzzz, always".
+
+It is still quite primitive, but it works.
+
+You have to tailor the script manually to make sure that all the texts
+fit your environment, and that all the users allowed to use this service
+are listed in the "authorization" part (or leave it off completely).
+
+Authorization is very primitive. No passwords, mail address only, and
+"headers are trusted".
+
+Nevertheless, you might find it useful.
+
+Files:
+
+-rw-r--r--   1 root     group        107 Jan 22 15:20 aliases
+
+This shows how to call "faxmail" from your mailer's /etc/aliases file.
+
+-rwxr-xr-x   1 gert     group       3151 Jan 22 15:21 faxmail
+
+This is the script. Put it into /usr/local/sbin or wherever you like. It's
+not meant to be called directly, call it from the mailer instead.
+
+gert

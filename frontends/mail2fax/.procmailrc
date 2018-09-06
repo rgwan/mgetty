@@ -1,0 +1,23 @@
+###################################################################
+# .procmailrc
+###################################################################
+
+PATH=$HOME/bin:/usr/bin:/bin:/usr/local/bin:.
+MAILDIR=$HOME/Mail	# You'd better make sure it exists
+DEFAULT=/usr/spool/mail/$LOGNAME
+LOGFILE=$MAILDIR/from
+LOGABSTRACT=YES
+LOCKFILE=$HOME/.lockmail
+
+###################################################################
+# The fax server
+:0 HB w
+* ^Subject:[ ,\t]*FAX-REQUEST
+{
+	:0
+	|/usr/local/bin/mail2fax.pl
+}
+
+###################################################################
+# Anything that has not been delivered by now will go to $DEFAULT
+# using LOCKFILE=$DEFAULT$LOCKEXT
