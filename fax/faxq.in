@@ -136,16 +136,16 @@ do
     if [ -z "$verbose" ]
     then
 	eval `tr -d '\042\047\140\134\044\073' <$i | \
-	     $AWK '$1=="user" { printf "USER=%s;", $2 }
-		   $1=="phone" { printf "PHONE=%s;", $2 }
+	     $AWK '$1=="user" { printf "USER=\"%s\";", $2 }
+		   $1=="phone" { printf "PHONE=\"%s\";", $2 }
 		   $1=="pages" { printf "PAGES=%d;", NF-1 }
 		   $1=="priority" { printf "PRI=\" pri=%s.\";", $2}' -`
 	$echo "$i: queued by $USER. $PAGES page(s) to $PHONE.$PRI"
     else
 	eval `tr -d '\042\047\140\134\044\073' <$i | \
-	     $AWK '$1=="user" { printf "USER=%s;", $2 }
+	     $AWK '$1=="user" { printf "USER=\"%s\";", $2 }
 		   $1=="mail"  { printf "MAILTO=\"%s\";", substr( $0, 6 ) }
-		   $1=="phone" { printf "PHONE=%s;", $2 }
+		   $1=="phone" { printf "PHONE=\"%s\";", $2 }
 		   $1=="verbose_to" \
 			       { printf "VERBTO=\"%s\";", substr( $0, 12 ) }
 		   $1=="acct_handle" \
