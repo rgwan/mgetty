@@ -307,7 +307,7 @@ static const NSFData KnownNSF[] =
     {"\x86\x00\x1A", 3, "unknown - Korea 1A", false },
     {"\x86\x00\x40", 3, "unknown - Korea 40", false },
     {"\x86\x00\x48", 3, "Samsung/Dell", false },
-    {"\x86\x00\x52", 3, "unknown - Korea 52", false },
+    {"\x86\x00\x52", 3, "Samsung", false },
     {"\x86\x00\x5A", 3, "Samsung", false },
     {"\x86\x00\x5E", 3, "Xerox", false },
     {"\x86\x00\x66", 3, "unknown - Korea 66", false },
@@ -327,7 +327,7 @@ static const NSFData KnownNSF[] =
     {"\x86\x00\xD2", 3, "unknown - Korea D2", false },
     {"\x86\x00\xDA", 3, "Xerox", false, 3, 4, XeroxDA },
     {"\x86\x00\xE2", 3, "unknown - Korea E2", false },
-    {"\x86\x00\xEC", 3, "unknown - Korea EC", false },
+    {"\x86\x00\xEC", 3, "Xerox", false },
     {"\x86\x00\xEE", 3, "unknown - Korea EE", false },
     /* United Kingdom */
     {"\xB4\x00\xB0", 3, "DCE",       false },
