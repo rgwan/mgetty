@@ -476,6 +476,7 @@ if ( open( CF, $faxrunq_cf ) )
 	else
 		{ die "syntax error in $faxrunq_cf, line $.!\n"; }
     }
+    close CF;
 }
 
 if ( $opt_l eq '' )
