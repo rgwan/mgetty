@@ -109,7 +109,7 @@ HOSTCC=$(CC)
 #	    USTAT	  - ustat(), no statfs etc.
 #
 #CFLAGS=-Wall -O2 -pipe -DSECUREWARE -DUSE_POLL
-CFLAGS=-Wall -O2 -pipe
+CFLAGS=-Wall -O2 -pipe $(RPM_OPT_FLAGS)
 #CFLAGS=-O -DSVR4
 #CFLAGS=-O -DSVR4 -DSVR42
 #CFLAGS=-O -DUSE_POLL
@@ -150,7 +150,7 @@ CFLAGS=-Wall -O2 -pipe
 # 	"utmp.o: unresolved symbol _login"
 # For Linux, add "-lutil" if the linker complains about "updwtmp".
 #
-LDFLAGS=
+LDFLAGS=$(RPM_LD_FLAGS)
 #LIBS=
 #LIBS=-lprot -lsocket				# SCO Unix
 #LIBS=-lsocket
@@ -176,6 +176,14 @@ INSTALL=install -c -o bin -g bin
 #INSTALL=/usr/ucb/install -c -o bin -g bin	# AIX, Solaris 2.x
 #INSTALL=installbsd -c -o bin -g bin		# OSF/1, AIX 4.1, 4.2
 #INSTALL=/usr/bin/X11/bsdinst -c -o bin 	# IRIX
+#
+# program to use for installing files with strip symbol tables
+#
+INSTALL_S=$(INSTALL) -s
+#
+# program to use for chowning files
+#
+CHOWN=chown
 #
 # prefix, where most (all?) of the stuff lives, usually /usr/local or /usr
 #
@@ -567,7 +575,7 @@ sendfax.config: sendfax.cfg.in sedscript
 	./sedscript <sendfax.cfg.in >sendfax.config
 
 newslock: compat/newslock.c
-	$(CC) $(CFLAGS) -o newslock compat/newslock.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -o newslock compat/newslock.c
 
 # internal: use this to create a "clean" mgetty+sendfax tree
 bindist: all doc-all sedscript
@@ -600,8 +608,8 @@ install.bin: mgetty sendfax newslock \
 		mv -f $(SBINDIR)/mgetty $(SBINDIR)/mgetty.old ; fi
 	if [ -f $(SBINDIR)/sendfax ] ; then \
 		mv -f $(SBINDIR)/sendfax $(SBINDIR)/sendfax.old ; fi
-	$(INSTALL) -s -m 700 mgetty $(SBINDIR)
-	$(INSTALL) -s -m 755 sendfax $(SBINDIR)
+	$(INSTALL_S) -m 700 mgetty $(SBINDIR)
+	$(INSTALL_S) -m 755 sendfax $(SBINDIR)
 #
 # data files + directories
 #
@@ -610,15 +618,20 @@ install.bin: mgetty sendfax newslock \
 	test -d $(CONFDIR) || \
 		( ./mkidirs $(CONFDIR) && chmod 755 $(CONFDIR))
 	test -f $(CONFDIR)/login.config || \
-		$(INSTALL) -o root -m 600 login.config $(CONFDIR)/
+		( $(INSTALL) -m 600 login.config $(CONFDIR)/ && \
+		  $(CHOWN) root $(CONFDIR)/login.config )
 	test -f $(CONFDIR)/mgetty.config || \
-		$(INSTALL) -o root -m 600 mgetty.config $(CONFDIR)/
+		( $(INSTALL) -m 600 mgetty.config $(CONFDIR)/ && \
+		  $(CHOWN) root $(CONFDIR)/mgetty.config )
 	test -f $(CONFDIR)/sendfax.config || \
-		$(INSTALL) -o root -m 644 sendfax.config $(CONFDIR)/
+		( $(INSTALL) -m 644 sendfax.config $(CONFDIR)/ && \
+		  $(CHOWN) root $(CONFDIR)/sendfax.config )
 	test -f $(CONFDIR)/dialin.config || \
-		$(INSTALL) -o root -m 600 dialin.config $(CONFDIR)/
+		( $(INSTALL) -m 600 dialin.config $(CONFDIR)/ && \
+		  $(CHOWN) root $(CONFDIR)/dialin.config )
 	test -f $(CONFDIR)/faxrunq.config || \
-		$(INSTALL) -o root -m 644 faxrunq.config $(CONFDIR)/
+		( $(INSTALL) -m 644 faxrunq.config $(CONFDIR)/ && \
+		  $(CHOWN) root $(CONFDIR)/faxrunq.config )
 #
 # test for outdated stuff
 #
@@ -636,13 +649,13 @@ install.bin: mgetty sendfax newslock \
 		( mkdir $(spool) && chmod 755 $(spool) )
 	test -d $(FAX_SPOOL) || \
 		( mkdir $(FAX_SPOOL) && \
-		  chown $(FAX_OUT_USER) $(FAX_SPOOL) && \
+		  $(CHOWN) $(FAX_OUT_USER) $(FAX_SPOOL) && \
 		  chmod 755 $(FAX_SPOOL) )
 	test -d $(FAX_SPOOL_IN) || \
 		( mkdir $(FAX_SPOOL_IN) && chmod 755 $(FAX_SPOOL_IN) )
 	test -d $(FAX_SPOOL_OUT) || \
 		  mkdir $(FAX_SPOOL_OUT)
-	chown $(FAX_OUT_USER) $(FAX_SPOOL_OUT)
+	$(CHOWN) $(FAX_OUT_USER) $(FAX_SPOOL_OUT)
 	chmod 755 $(FAX_SPOOL_OUT)
 #
 # g3 tool programs
@@ -663,7 +676,7 @@ install.bin: mgetty sendfax newslock \
 	if [ ! -z "$(INSTALL_MECHO)" ] ; then \
 	    cd compat ; \
 	    $(CC) $(CFLAGS) -o mg.echo mg.echo.c && \
-	    $(INSTALL) -s -m 755 mg.echo $(BINDIR) ; \
+	    $(INSTALL_S) -m 755 mg.echo $(BINDIR) ; \
 	fi
 
 #

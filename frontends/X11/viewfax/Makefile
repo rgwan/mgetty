@@ -25,6 +25,7 @@ BINDIR = /usr/local/bin
 LIBDIR = /usr/local/lib
 MANDIR	= /usr/local/man/man1
 INSTALL = /usr/bin/install
+INSTALL_S = $(INSTALL) -s
 RM = rm -f
 # Location of help file
 HELP = \"$(LIBDIR)/viewfax.tif\"
@@ -33,13 +34,13 @@ OPT = -g -O2 -Wno-uninitialized -ansi -pedantic
 # C compiler and libraries
 # vanilla sysv
 #CC = cc
-#CFLAGS = $(OPT) -DHELPFILE=$(HELP)
-#LDFLAGS = $(OPT)
+#CFLAGS = $(OPT) $(RPM_OPT_FLAGS) -DHELPFILE=$(HELP)
+#LDFLAGS = $(OPT) $(RPM_LD_FLAGS)
 #LIBS = -lsocket
 # vanilla BSD
 CC = cc
-CFLAGS = -DBSD $(OPT) -DHELPFILE=$(HELP) -I/usr/local/include
-LDFLAGS = $(OPT)
+CFLAGS = -DBSD $(OPT) $(RPM_OPT_FLAGS) -DHELPFILE=$(HELP) -I/usr/local/include
+LDFLAGS = $(OPT) $(RPM_LD_FLAGS)
 LIBS =
 # sun solaris2 with gcc on supersparc:
 #CC = gcc
@@ -48,8 +49,8 @@ LIBS =
 #LIBS =
 # linux
 #CC = gcc
-#CFLAGS = $(OPT) -DHELPFILE=$(HELP)
-#LDFLAGS = $(OPT) -L/usr/X11R6/lib
+#CFLAGS = $(OPT) $(RPM_OPT_FLAGS) -DHELPFILE=$(HELP)
+#LDFLAGS = $(OPT) $(RPM_LD_FLAGS) -L/usr/X11R6/lib
 #LIBS =
 
 ####### End of configurable definitions #######
@@ -61,7 +62,7 @@ viewfax:	$(OBJS)
 g3hack:		g3hack.c
 
 install: viewfax
-	$(INSTALL) -s -m 755 viewfax $(BINDIR)
+	$(INSTALL_S) -m 755 viewfax $(BINDIR)
 	$(INSTALL) -m 644 viewfax.man $(MANDIR)/viewfax.1
 	$(INSTALL) -m 644 viewfax.tif $(LIBDIR)
 

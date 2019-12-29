@@ -37,7 +37,7 @@ install: all
 # install programs
 #
 	for f in $(G3_PROGRAMS) ; do \
-		$(INSTALL) -s -m 755 $$f $(BINDIR) ; \
+		$(INSTALL_S) -m 755 $$f $(BINDIR) ; \
 	done
 #
 # make symlink for "g3topbm" (so third-party fax viewers won't fail)

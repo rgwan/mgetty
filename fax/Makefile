@@ -36,7 +36,7 @@ faxheader: faxheader.in ../sedscript
 	@cd .. ; $(MAKE) sedscript
 
 faxq-helper: faxq-helper.o 
-	$(CC) $(CFLAGS) -o faxq-helper faxq-helper.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o faxq-helper faxq-helper.o
 
 faxq-helper.o: faxq-helper.c ../sedscript
 	$(CC) $(CFLAGS) -DFAX_SPOOL_OUT=\"$(FAX_SPOOL_OUT)\" \
@@ -58,7 +58,7 @@ install: all
 	done
 	$(INSTALL) -m 755 faxrunqd $(SBINDIR)
 	$(INSTALL) faxq-helper $(LIBDIR)
-	chown $(FAX_OUT_USER) $(LIBDIR)/faxq-helper
+	$(CHOWN) $(FAX_OUT_USER) $(LIBDIR)/faxq-helper
 	chmod 4711 $(LIBDIR)/faxq-helper
 #
 # data files

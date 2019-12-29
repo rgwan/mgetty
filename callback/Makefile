@@ -37,7 +37,9 @@ clean:
 # install programs
 #
 install: all
-	$(INSTALL) -s -m 700 -o root callback $(SBINDIR)
-	$(INSTALL) -s -m 4711 -o root ct $(BINDIR)
+	$(INSTALL_S) -m 700 callback $(SBINDIR)
+	$(CHOWN) root $(SBINDIR)/callback
+	$(INSTALL_S) -m 4711 ct $(BINDIR)
+	$(CHOWN) root $(BINDIR)/ct
 
 # source modules
