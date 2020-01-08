@@ -517,12 +517,12 @@ beta:	tar diff sign
 	cp mgetty-$(MR).$(SR).tar.gz /pub/mgetty-archive/
 	cp mgetty-$(DIFFR)-$(MR).$(SR).diff.gz /pub/mgetty-archive/
 
-	-cvs commit -m 'new version released' version.h
+	#-cvs commit -m 'new version released' version.h
 # master ftp/www site
-	./ftp.sh $(MR).$(SR) delta2.greenie.net \
+	./ftp.sh $(MR).$(SR) mgetty.greenie.net \
 		'/home/ftp/pub/mgetty/source/$(MR)'
-	./beta $(MR) $(SR) $(DIFFR) delta2.greenie.net \
-		'/home/httpd/mgetty.greenie.net/doc'
+	./beta $(MR) $(SR) $(DIFFR) mgetty.greenie.net \
+		'/home/www/mgetty.greenie.net/doc'
 
 #shar1:	$(DISTRIB)
 #	shar -M -c -l 40 -n mgetty+sendfax-$(MR).$(SR) -a -o mgetty.sh $(DISTRIB)
