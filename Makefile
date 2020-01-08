@@ -307,9 +307,9 @@ MV=mv
 #
 # Nothing to change below this line ---------------------------------!
 #
-MR=1.2
-SR=1
-DIFFR=1.2.0
+MR=1.3
+SR=0-pre
+DIFFR=1.2.1
 #
 #
 OBJS=mgetty.o logfile.o do_chat.o locks.o utmp.o logname.o login.o \
