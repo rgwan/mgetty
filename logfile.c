@@ -55,14 +55,6 @@ static char * log_program = "mgetty";
 
 extern int atexit _PROTO(( void (*)(void) ));
 
-/* Most systems have these variables but do not declare them. On many
-   of those systems that _do_ declare them, it won't hurt */
-
-#if !defined(__NetBSD__) && !defined( __FreeBSD__ ) && !defined(__OpenBSD__) && !defined(__GLIBC__) && !defined(__MACH__)
-extern int sys_nerr;
-extern char *sys_errlist[];
-#endif
-
 /* Interactive Unix is a little bit braindead - does not have atexit(),
  */
 #if defined(ISC) || defined(SVR4) || defined(_3B1_) || \
@@ -332,8 +324,7 @@ static int first_open = TRUE;
 		             tm->tm_mon+1,  tm->tm_mday,
 			     tm->tm_hour, tm->tm_min, tm->tm_sec,
 		             log_infix, ws,
-			     ( errnr <= sys_nerr ) ? sys_errlist[errnr]:
-			     "<error not in list>" );
+			     strerror(errnr) );
 #ifdef SYSLOG
 	syslog( level == L_FATAL? LOG_ALERT: LOG_ERR, "%s: %m", ws );
 #endif
