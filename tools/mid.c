@@ -31,6 +31,8 @@ char * query_strings[] = { "ATE1Q0V1",
 			   "AT+FMFR?", "AT+FMDL?", "AT+FREV?",
 			   "AT+FMI?", "AT+FMM?", "AT+FMR?",
 			   "AT+GMI?", "AT+GMM?", "AT+GMR?", "AT+GCAP?",
+/* https://m2msupport.net/m2msupport/at-commands-to-get-device-information/ */
+			   "AT+CGMI", "AT+CGMM", "AT+CGMR", "AT+GCAP",
 			   "AT+FCLASS=8", "AT+VSM=?",
 			   NULL };
 
