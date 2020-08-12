@@ -111,12 +111,20 @@ test:
 	test `./g3cat -p 100 -a test.g3 | ./g3cat - | wc -c` = 47
 
 	@echo
-	@echo 'testing g3cat -L <length> / -w <width>....'
+	@echo 'testing g3cat -L <max length> / -w <width>....'
 	test "`./g3cat -L 10   test-ref.g3 |./g32pbm |sed -n 2p`" = "1728 10"
 	test "`./g3cat -L 100  test-ref.g3 |./g32pbm |sed -n 2p`" = "1728 100"
 	test "`./g3cat -L 1000 test-ref.g3 |./g32pbm |sed -n 2p`" = "1728 1000"
 	test "`./g3cat -L 2000 test-ref.g3 |./g32pbm |sed -n 2p`" = "1728 1728"
+	test "`./g3cat -L 2000 test-ref.g3 test-ref.g3 |./g32pbm |sed -n 2p`" = "1728 2000"
 	test "`./g3cat -L 1000 -w 1000 test-ref.g3 2>/dev/null |./g32pbm |sed -n 2p`" = "1000 1000"
+
+	@echo
+	@echo 'testing g3cat -X <min length>...'
+	test "`./g3cat -X 2000 test-ref.g3 |./g32pbm |sed -n 2p`" = "1728 2000"
+	test "`./g3cat -X 2000 test-ref.g3 test-ref.g3 |./g32pbm |sed -n 2p`" = "1728 3458"
+	test "`./g3cat -X 2000 -l test-ref.g3 test-ref.g3 |./g32pbm |sed -n 2p`" = "1728 3459"
+	test "`./g3cat -X 2000 -L 2000 test-ref.g3 test-ref.g3 |./g32pbm |sed -n 2p`" = "1728 2000"
 
 	@echo "all G3 program tests passed!"
 	@rm test.g3 test-1.g3 test-2.g3

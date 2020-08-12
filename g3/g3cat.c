@@ -6,11 +6,7 @@
  *
  * Syntax: g3cat [options] [file(s) (or "-" for stdin)]
  *
- * Valid options: -l (separate g3 files with a black line)
- *                -d (output digifax header)
- *                -a (byte-align EOLs)
- *		  -h <lines> put <lines> empty lines on top of page
- *		  -p <pad>   zero-fill all lines up to <pad> bytes
+ * Valid options: (see man page)
  *
  * $Log: g3cat.c,v $
  * Revision 4.8  2016/02/09 15:13:31  gert
@@ -212,6 +208,7 @@ int main _P2( (argc, argv),
     int line_width = 1728;	/* "force perfect" G3 file */
     int opt_R = 0;		/* suppress generation of RTC */
     int max_length = 0;		/* limit max. G3 file length */
+    int min_length = 0;		/* require min. G3 file length */
 
     int lines_out = 0;		/* total lines in output file */
 
@@ -227,7 +224,7 @@ int main _P2( (argc, argv),
     /* process the command line
      */
 
-    while ( (i = getopt(argc, argv, "lah:p:w:RL:")) != EOF )
+    while ( (i = getopt(argc, argv, "lah:p:w:RL:X:")) != EOF )
     {
 	switch (i)
 	{
@@ -238,6 +235,7 @@ int main _P2( (argc, argv),
 	  case 'w': line_width = atoi( optarg ); break;
 	  case 'R': opt_R = 1; break;
 	  case 'L': max_length = atoi( optarg ); break;
+	  case 'X': min_length = atoi( optarg ); break;
 	  case '?': exit_usage(argv[0]); break;
 	}
     }
@@ -497,9 +495,18 @@ do_write:      		/* write eol, separating lines, next file */
 		  puteol(); }
 	    putwhitespan( line_width );			/* white line */
 	    puteol();
+	    lines_out += 2 + putblackline;
 	}
 
     }	/* end for (all arguments) */
+
+    /* do we need to add blank lines? */
+    while( lines_out < min_length )
+    {
+	putwhitespan( line_width );			/* white line */
+	puteol();
+	lines_out++;
+    }
 
     if ( ! opt_R )
     {
