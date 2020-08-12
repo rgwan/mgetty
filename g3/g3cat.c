@@ -174,8 +174,8 @@ struct g3_tree *white, *black;
 
 void exit_usage _P1( (program), char * program )
 {
-    fprintf( stderr, "usage: %s [-h <lines>] [-a] [-l] [-p <n>] [-w <n>] g3-file ...\n",
-	    program );
+    fprintf( stderr, "usage:\n  %s [options] g3-file ...\n", program );
+    fprintf( stderr, "options:\n  [-h <head>] [-a] [-l] [-p <n>] [-w <n>] [-L <max>] [-X <min>]\n" );
     exit(1);
 }
 
