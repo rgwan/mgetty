@@ -94,7 +94,7 @@ start a "login shell", it won't work (this is for the same reason
 has to be started from /etc/inittab).
 
 So, mgetty has to do the "asking for login name". But I do not want to
-have all that dialout code in mgetty, bloating it even more.
+have all that dial-out code in mgetty, bloating it even more.
 
 The way it works is this:
 .I callback

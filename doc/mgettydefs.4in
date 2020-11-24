@@ -262,7 +262,7 @@ Ignore case - treat all as lowercase.
 Is set if mgetty believes login is entirely uppercase.
 .TP
 .B -LCASE
-Repect case 
+Respect case 
 (turns off IUCLC, OLCUC and XCASE)
 .TP
 .B TABS
