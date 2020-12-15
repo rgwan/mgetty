@@ -723,7 +723,7 @@ install-vgetty: vgetty-install
 ## test suite
 test: bin-all
 	for D in g3 t ; do \
-	    ( cd $$D ; $(MAKE) CFLAGS="$(CFLAGS) -I.." test ); \
+	    ( cd $$D ; $(MAKE) CC="$(CC)" CFLAGS="$(CFLAGS) -I.." test ); \
 	done
 
 check: test
