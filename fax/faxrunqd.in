@@ -296,6 +296,9 @@ my $wait_timeout = 150;			# interrupt wait() every <n> seconds
 my $policy_config='';
 my @policy=();
 
+my $cyc_stat_timer = 0;			# cyclic statistics every <sec>
+my $cyc_stat_file = '';			# cyclic statistics path
+
 # amount of delay after a failed attempt is now configurable
 my %delay_rules = ( 4 => [ 120, 300 ],	# busy -> 2 minutes, 5 minutes
 		    2 => [ 20 ],	# cannot open device
@@ -473,6 +476,8 @@ if ( open( CF, $faxrunq_cf ) )
 		{ $delay_rules{$1} = [ split( /\s+/, $2 ) ]; }
 	elsif ( /^\s*faxrunqd-control-plugin\s+(\/\S+.pl)$/ )
 		{ plugin_load($1); }
+	elsif ( /^\s*cyclic-statistics\s+(\d+)\s+(\S+)$/ )
+		{ ($cyc_stat_timer, $cyc_stat_file) = ($1,$2); }
 	else
 		{ die "syntax error in $faxrunq_cf, line $.!\n"; }
     }
@@ -555,6 +560,7 @@ my $queue_read_interval = 300;		# ... every 5 minutes
 my $queue_last_flushed = time();	# flush internal queue ...
 my $queue_flush_interval = 3600;	# ... once per hour
 my $queue_hiwat_reached = 0;		# high water mark reached
+my $cyclic_stats_last_written = 0;
 
 #
 # child processes
@@ -571,7 +577,8 @@ my @standard_ttys = split( /:/, $opt_l );
 # statistics about tty usage / success / error rates
 #
 use vars qw / %tty_statistics %per_phone_statistics /;
-%tty_statistics = (); %per_phone_statistics = ();
+%tty_statistics = (); %per_phone_statistics = ();	# total numbers
+our %cyc_tty_statistics = ();				# per-intervall cyclics
 
 #
 # modem error counters
@@ -766,6 +773,13 @@ while( 1 )
 		    die "can't re-open log file '$faxrd_log'";
 	LOG->autoflush(1);
 	print LOG localtime() .": -- new log file started --\n";
+    }
+
+    # cyclic statistics due?
+    if ( $cyc_stat_timer > 0 &&
+	 $cyclic_stats_last_written + $cyc_stat_timer < time() )
+    {
+	dump_cyclic_statistics();
     }
 
     # if signalled from the user, wait for all current child processes
@@ -1597,6 +1611,14 @@ my ($r, $s, $ex, $j, $t);
     $tty_statistics{$t}{total}++;
     $tty_statistics{$t}{$ex}++;
 
+    # and per-interval tty statistics
+    if ( ! defined( $cyc_tty_statistics{$t} ) )
+			    { $cyc_tty_statistics{$t} = {'total'=>0, '0'=>0}; }
+    if ( ! defined( $cyc_tty_statistics{$t}{$ex} ) )
+			    { $cyc_tty_statistics{$t}{$ex} = 0; }
+    $cyc_tty_statistics{$t}{total}++;
+    $cyc_tty_statistics{$t}{$ex}++;
+
     # and for per-remote-phone statistics
     my $ph = $queue{$j}->{'phone'};
     if ( ! defined( $per_phone_statistics{$ph} ) )
@@ -2107,20 +2129,25 @@ my $sig = shift;
 # dump_statistics
 #
 # write tty statistics to LOG
-# called before exiting, and in regular intervals
+# called before exiting, on SIGUSR2, and on log rotation
 #
 ##########################################################################
 sub dump_statistics
 {
 my $t; 
+my %totals = ();
+
     print LOG "--------------------------------------------------\n";
-    foreach $t (keys %tty_statistics)
+    foreach $t (sort (keys %tty_statistics))
     {
 	print LOG "modem statistics for tty '$t'\n";
 	print LOG "    total fax calls : ${tty_statistics{$t}{'total'}}\n";
 	print LOG "    total success   : ${tty_statistics{$t}{'0'}}\n";
 	foreach (sort(keys %{$tty_statistics{$t}}))
 	{
+	    if ( !defined $totals{$_} ) { $totals{$_} = 0;}
+	    $totals{$_} += $tty_statistics{$t}{$_};
+
 	    next if ($_ eq '0') || ($_ eq 'total');
             printf LOG "    error code %-2d   : %d (%1.1f%%) [%s]\n",
 		$_, $tty_statistics{$t}{$_}, 
@@ -2128,6 +2155,19 @@ my $t;
 		$exitcodes[$_];
 	}
     }
+    print LOG "--------------------------------------------------\n";
+    print LOG "total call statistics (all ttys)\n";
+    print LOG "    total fax calls : $totals{'total'}\n";
+    print LOG "    total success   : $totals{'0'}\n";
+    foreach (sort(keys %totals))
+    {
+	next if ($_ eq '0') || ($_ eq 'total');
+	printf LOG "    error code %-2d   : %d (%1.1f%%) [%s]\n",
+	    $_, $totals{$_},
+	    100*$totals{$_}/$totals{total},
+	    $exitcodes[$_];
+    }
+
     print LOG "--------------------------------------------------\n";
     foreach $t (sort (keys %per_phone_statistics))
     {
@@ -2143,6 +2183,97 @@ my $t;
 	}
     }
     print LOG "--------------------------------------------------\n";
+
+    if ( $cyc_stat_timer )
+	{ dump_cyclic_statistics(); }
+}
+
+##########################################################################
+#
+# dump_cyclic_statistics
+#
+# write tty statistics to $cyc_stat_file
+# called when dumping regular statistics, and every $cyc_stat_timer seconds
+#
+# $cyc_stat_file is expected to contain @T (substitute -> tty or 'global')
+# and can contain "strftime" constants (like "%Y-%m" etc)
+#
+# unlike dump_statistics, this file format is more geared towards
+# automated postprocessing
+#
+##########################################################################
+sub dump_cyclic_statistics
+{
+    my %totals = ();
+
+    my @now = localtime();
+    my $fmt_now = sprintf "%04d%02d%02d|%02d%02d%02d|",
+			$now[5]+1900, $now[4]+1, $now[3],
+			$now[2], $now[1], $now[0];
+
+    # per-modem, sum up totals on the way
+    foreach my $tt (sort (keys %cyc_tty_statistics))
+    {
+	my $s = "$fmt_now$tt|";
+	foreach my $rc ( 'total', 0..5, 10, 11, 12, 15 )
+	{
+	    my $num = $cyc_tty_statistics{$tt}{$rc} // 0;
+	    $s .= "$num|";
+	    if ( !defined $totals{$rc} )
+		{ $totals{$rc} = 0;}
+	    $totals{$rc} += $num;
+	}
+	# queue length, badness, in_use
+	$s .= "$mq_length{$tt}+$mq_badness{$tt}|$tty_in_use{$tt}|";
+	dump_cyclic_statistics_one( $tt, $s );
+    }
+
+    # totals
+    my $s = $fmt_now . 'total|';
+    foreach my $rc ( 'total', 0..5, 10, 11, 12, 15 )
+    {
+	my $num = $totals{$rc} // 0;
+	$s .= "$num|";
+    }
+    # global queue length, total number of pages, queue hiwat reached
+    my ($n_jobs, $n_active, $n_pages ) = (0,0,0);
+    foreach my $j_p ( values %queue )
+    {
+	$n_jobs++;
+	if ( $j_p->{status} ne 'error' && $j_p->{status} ne 'failed' )
+	{
+	    $n_active++; $n_pages += scalar( @{$j_p->{pages}} );
+	}
+    }
+    $s .= "$n_jobs|$n_active|$n_pages|$queue_hiwat_reached|";
+    dump_cyclic_statistics_one( 'total', $s );
+
+    %cyc_tty_statistics = ();
+
+    # remember last stat dump, rounded down to "fixed time slots" intervals
+    my $t = time();
+    $t -= ($t % $cyc_stat_timer);
+    $cyclic_stats_last_written = $t;
+}
+
+
+sub dump_cyclic_statistics_one
+{
+    my $tty_str = shift @_;
+    my $outstr = shift @_;
+
+    my $pathname = $cyc_stat_file;
+    $pathname =~ s/\@T/$tty_str/;
+
+    my @now = localtime();
+    $pathname = strftime( $pathname, @now[0,1,2,3,4,5] );
+
+    print LOG "CYCSTAT: $outstr\n";
+
+    if( open( CYCOUT, ">>$pathname" ) )
+	{ print CYCOUT $outstr, "\n"; close CYCOUT; }
+    else
+	{ print LOG "ERR: cannot write '$pathname': $!\n"; }
 }
 
 

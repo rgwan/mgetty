@@ -253,6 +253,33 @@ needs more tries than delay values are specified, the last one will be
 re-used.  The values given are interpreted as seconds, unless postfixed
 with 'm' (e.g. "60m"), in which case they are interpreted as minutes.
 
+.TP
+.B cyclic-statistics [seconds] [filespec]
+make
+.I faxrunqd
+write out CSV-formatted per-modem and total statistics to
+.I filespec.
+If this contains a "@T" it will be replaced by the tty name, and
+.I faxrunqd
+will create per-tty statistic files.  If not, one file for all ttys
+is used (the tty is contained in each line written so the reference is
+not lost).  strftime(3) modifiers like "%Y" for "year, 4 digit" are
+supported.
+
+Records will be written roughly every
+.I seconds
+seconds.  The scheduler is intentionally simple (fax is about "one call
+takes a few seconds to many minutes"), so write-out time may be delayed up
+to two minutes, depending on queue activity.  If there is no activity on a
+modem at all for the preceding interval, no record is written for that tty.
+
+The file format is a pipe-separated list of date, time, tty (or "total"),
+total number of calls, and then "number of calls with exit code 0, 1, 2, 3,
+4, 5, 10, 11, 12, 15" (see sendfax(8)).  After that, the per-modem files
+have "number of jobs+pages queued on this tty + mq_badness" and "in_use?".
+The "total" lines end with "jobs in queue (all), jobs in queue (non failed),
+total number of pages for non-failed jobs, highwatermark-reached".
+
 .SH POLICY ROUTING
 .I faxrunqd
 can do some things differently, depending on the phone number where the
