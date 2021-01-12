@@ -660,13 +660,13 @@ install.bin: mgetty sendfax newslock \
 #
 # g3 tool programs
 #
-	cd g3 && $(MAKE) install INSTALL="$(INSTALL)" \
+	cd g3 && $(MAKE) install INSTALL_S="$(INSTALL_S)" \
 				BINDIR=$(BINDIR) \
 				LIBDIR=$(LIBDIR) CONFDIR=$(CONFDIR)
 #
 # fax programs / scripts / font file
 #
-	cd fax && $(MAKE) install INSTALL="$(INSTALL)" \
+	cd fax && $(MAKE) install INSTALL="$(INSTALL)" CHOWN="$(CHOWN)" \
 				FAX_OUT_USER=$(FAX_OUT_USER) \
 				BINDIR=$(BINDIR) SBINDIR=$(SBINDIR) \
 				LIBDIR=$(LIBDIR) CONFDIR=$(CONFDIR)
