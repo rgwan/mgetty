@@ -10,6 +10,7 @@
  *	    -v     verbose output
  *
  * reference documentation: http://www.capi.org/
+ *   (capi20-5-I.pdf, Annex B (Normative): SFF Format)
  * see also: http://sfftools.sourceforge.net/
  *
  * $Log: sff2g3.c,v $
