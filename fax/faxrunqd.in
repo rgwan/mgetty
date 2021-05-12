@@ -797,7 +797,7 @@ while( 1 )
     print LOG localtime() . ": checking internal queue for delayed jobs...\n" if $opt_v;
     my $sleep_time=180;
 
-    foreach my $job ( keys %queue )
+    foreach my $job ( sort ( keys %queue ) )
     {
 	if ( $queue{$job}->{'status'} eq 'delayed' )
 	{
@@ -829,7 +829,8 @@ while( 1 )
 		 (stat '.')[9] != $qdir_mtime )
 	    {
 		print LOG "Wakeup! ($sleep_time seconds early)\n" if $opt_v;
-		last;
+		# give nascent new job time to be ready
+		$sleep_time = 5;
 	    }
 	}
     }
@@ -860,9 +861,23 @@ sub put_job_to_modem_queue
     # combined into one sendfax run).
     my $phone = $queue{$j}->{phone};
 
-    if ( defined($phones{$phone}) )		# already job queued
+    if ( defined($phones{$phone}) && 		# phone number already
+	 $phones{$phone} ne $j )		# blocked for other job
     {
 	my $job_t = $phones{$phone};
+
+	# sanity check
+	if ( !defined $queue{$job_t} )
+	{
+	    print "$j: ERROR: phone{$phone} points to $job_t, does not exist\n";
+	    goto go_ahead_anyway;
+	}
+	if ( $queue{$job_t}->{status} ne 'active' &&
+	     $queue{$job_t}->{status} ne 'delayed' )
+	{
+	    print "$j: ERROR: phone{$phone} points to $job_t, status $queue{$job_t}->{status}\n";
+	    goto go_ahead_anyway;
+	}
 
 	# make sure the "others" array (ref) exists
 	if ( !defined( $queue{$job_t}->{others} ) )
@@ -885,14 +900,19 @@ sub put_job_to_modem_queue
 	# queue, copy over "others", and add lower-prio job to it
 
 	print LOG "$j: reorder queue, prio clash with $job_t for '$phone'\n"  if $opt_d;
-	delete_job_from_queue( $job_t );
-
-	$queue{$j}->{others} = [ $job_t, @{$queue{$job_t}->{others}} ];
+	$queue{$j}->{others} = [ @{$queue{$job_t}->{others}} ];
 	delete $queue{$job_t}->{others};
+
+	if ( $queue{$job_t}->{status} ne 'delayed' )
+	{
+	    delete_job_from_queue( $job_t );
+	    push @{$queue{$j}->{others}}, $job_t;
+        }
 
 	# fall-through: phone number is free, put this job into queue
     }
 
+go_ahead_anyway:
     # no jobs for that phone number queued so far -> take this one
     $phones{$phone}=$j;
 
@@ -1348,6 +1368,8 @@ sub send_job_from_queue
     }
     elsif ( defined( $queue{$job}->{others} ) )
     {
+	# need to sort "others" queue to keep temporal order of jobs
+	$queue{$job}->{others} = [ sort @{$queue{$job}->{'others'}} ];
 	print LOG " +  others      : " . join( ' ', @{$queue{$job}->{'others'}} ) . "\n" if $opt_d;
 	my $crit = &check_flags( @flags );
 	print LOG " +  -> criteria : $crit\n" if $opt_d;
@@ -1463,15 +1485,15 @@ sub reactivate_others
 my $j = shift;
 my $phone = $queue{$j}->{phone};
 
-    # if the phone number is still marked 'busy', remove from list
-    if ( defined( $phones{$phone} ) )
+    # if the phone number is still marked 'busy' (for us), remove from list
+    if ( defined( $phones{$phone} ) && $phones{$phone} eq $j )
 		    { delete $phones{$phone}; }
 
     # now re-queue all attached jobs (if any)
     if ( defined( $queue{$j}->{others} ))
     {
 	printf LOG "$j: reactivate others...\n" if $opt_d;
-	foreach my $jj ( @{$queue{$j}->{others}} )
+	foreach my $jj ( sort( @{$queue{$j}->{others}} ) )
 	{
 	    # FIXME: check timing constraints (?)
 	    put_job_to_modem_queue($jj);
@@ -1498,6 +1520,7 @@ sub remove_error_job
 	print LOG "ERROR: can't rename '$job/JOB' to '$job/JOB.error': $!\n";
 
     $queue{$job}->{'status'} = 'error';
+    reactivate_others($job);
 }
 
 
@@ -1578,16 +1601,12 @@ my ($r, $s, $ex, $j, $t);
     $j = $c_data{$r}->{job};
     $t = $c_data{$r}->{tty};
     delete $c_data{$r};
-    delete $phones{ $queue{$j}->{'phone'} };
 
     print LOG "    ---> return=**$r** (-> job=$j, tty=$t), status=$s -> exit($ex)\n" if $opt_d;
 
     # job is through: remove from queue length, and mark tty as free.
     $mq_length{$t} -= $queue{$j}{weight};
     $tty_in_use{$t}=0;
-
-    # reactivate 'attached' jobs now (this phone number is free)
-    &reactivate_others($j);
 
     if ( $ex == 0 && $s > 0 )		# signal?!?
     {
@@ -1600,6 +1619,7 @@ my ($r, $s, $ex, $j, $t);
 	print LOG "Problems with exec() --> aborting\n";	#!!!!! DIE
 	unlink "$j/JOB.locked";
 	$queue{$j}->{'status'} = 'error';
+	&reactivate_others($j);
 	return $t;
     }
 
@@ -1644,11 +1664,11 @@ my ($r, $s, $ex, $j, $t);
 	}
 	elsif ( $ex <= 10 )		# dialup failed - blaim first one
 	{
-	    &handle_return_code( $ex, $j, $t );
 	    foreach my $jj (@jobs)
 	    {
 		put_job_to_modem_queue($jj);
 	    }
+	    &handle_return_code( $ex, $j, $t );
 	}
 	else				# some error in between
 	{				# -> check via file names (f1.done)
@@ -1730,6 +1750,11 @@ sub is_on_modem
 # process the return code from 'sendfax' (if 0, job has been sent 
 # successfully, if > 0, log failure, and requeue job, or suspend)
 #
+# for "terminal" codes (success or last try), free $phones{$phone}
+# and requeue "attached" other jobs waiting for a slot for this phone
+# number.  For retries, just keep them attached (= preserve re-try timer
+# and job ordering).
+#
 ##########################################################################
 sub handle_return_code
 {
@@ -1744,6 +1769,9 @@ sub handle_return_code
 
 	# remove from internal work queue
 	$queue{$j}->{'status'} = 'done';
+
+	# requeue (non-combined) pending jobs waiting for the same phone number
+	reactivate_others($j);
 
 	# write status line to JOB file
 	&wstat( $j, "Status " . localtime() . " successfully sent\n");
@@ -1859,6 +1887,9 @@ sub handle_return_code
 
 	    # remove from internal queue
 	    $queue{$j}->{'status'}= 'failed';
+
+	    # requeue (non-combined) pending jobs waiting
+	    reactivate_others($j);
 
 	    # if directory is gone (removed by $program_failure?) forget about job
 	    if( ! -d "$j" )
