@@ -1915,6 +1915,10 @@ sub handle_return_code
 	    {
 		$mq_badness{$tty} += 0.2;	# mark modem as "bad"
 	    }
+	    elsif ( $ex == 4 )			# PABX blocked? (always BUSY)
+	    {
+		$mq_badness{$tty} += 0.1;	# mark modem as "maybe bad"
+	    }
             elsif ( $ex == 15 )                 # sendfax killed by signal
             {
                 $mq_badness{$tty} += 2;         # mark modem as "really bad"
