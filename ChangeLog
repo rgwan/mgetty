@@ -1,3 +1,15 @@
+Fri May 21 10:26:26 CEST 2021  Gert Doering <gd@medat.de>
+
+	* fax/faxrunqd.in: rework handling of "multiple jobs for the
+	  same phone number" - these are now always kept together, and
+          not (re-)tried in random order / random timing.  For "it succeeds"
+          this does not make much difference, but for "bombarding a remote
+          device that is BUSY or out of paper", this is much better.
+
+        * fax/faxrunqd.in: BUSY is now also counted towards "this modem 
+          line might be bad" - with all the VoIP/SIP stuff, it is more 
+          likely to be a local problem than with "traditional modems".
+
 Mon Sep 10 20:51:51 CEST 2018  Gert Doering <gert@greenie.muc.de>
 
 	* Makefile: release 1.2.1
